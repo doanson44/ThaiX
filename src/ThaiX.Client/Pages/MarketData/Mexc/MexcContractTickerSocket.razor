@@ -1,0 +1,336 @@
+@page "/market-data/mexc/contract-ticker-socket"
+@using ThaiX.Client.Components
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.MarketData
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inject IMexcContractTickerSocketService ContractSocketService
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 AlignItems="AlignItems.Center"
+                 JustifyContent="JustifyContent.SpaceBetween"
+                 Gap="0.75rem"
+                 Wrap="FlexWrap.Wrap"
+                 Class="mb-3">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.MexcContractTickers.SocketTitle]
+        </RadzenText>
+    </RadzenStack>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <MexcSocketPriceMoveAlertBar @ref="_priceMoveAlertBar"
+                                     StorageKey="@MexcSocketPriceMoveAlertStore.ContractStorageKey"
+                                     MarketLabel="@L[RK.MexcContractTickers.SocketTitle]" />
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_allTickers.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.MexcContractTickers.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _allTickers.Any())
+    {
+        <div class="w-100 overflow-auto">
+            <RadzenDataGrid @ref="_dataGrid"
+                            TItem="MexcContractTickerDto"
+                            Data="@_allTickers"
+                            Count="@_allTickers.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Bid1" Title="@L[RK.MexcContractTickers.Bid1]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Ask1" Title="@L[RK.MexcContractTickers.Ask1]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Volume24" Title="@L[RK.MexcContractTickers.Volume24]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Amount24" Title="@L[RK.MexcContractTickers.Amount24]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="High24Price" Title="@L[RK.MexcContractTickers.High24Price]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Low24Price" Title="@L[RK.MexcContractTickers.Low24Price]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="IndexPrice" Title="@L[RK.MexcContractTickers.IndexPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="FairPrice" Title="@L[RK.MexcContractTickers.FairPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Timestamp" Title="@L[RK.MexcContractTickers.Timestamp]">
+                        <Template Context="ticker">
+                            @(ticker.Timestamp.HasValue && ticker.Timestamp.Value > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.Timestamp.Value).LocalDateTime.ToString("g") : "-")
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _allTickers.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <div>
+                <label class="rz-label mb-1">@L[RK.MexcContractTickers.SearchPlaceholder]</label>
+                <AsyncSearchSelect TItem="MexcContractTickerDto"
+                                   Value="@_selectedSymbol"
+                                   ValueChanged="OnSelectedSymbolChanged"
+                                   LoadDataAsync="LoadSymbolsAsync"
+                                   GetText="@(x => x.Symbol)"
+                                   GetValue="@(x => x.Symbol)"
+                                   Placeholder="@L[RK.MexcContractTickers.SearchPlaceholder]"
+                                   SearchPlaceholder="@L[RK.Common.Search]"
+                                   LoadingText="@L[RK.Common.Loading]"
+                                   EmptyText="@L[RK.Common.NoDataFound]"
+                                   MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                   AllowClear="true"
+                                   Class="w-100" />
+            </div>
+
+            <ClientSortBar TItem="MexcContractTickerDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+
+            <Virtualize Items="@_mobileViewTickers" Context="ticker" OverscanCount="5">
+                <RadzenCard Class="p-3 mb-3">
+                    <RadzenStack Gap="0.4rem">
+                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @(ticker.Bid1?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Ask1]: @(ticker.Ask1?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Volume24]: @(ticker.Volume24?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Amount24]: @(ticker.Amount24?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.High24Price]: @(ticker.High24Price?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Low24Price]: @(ticker.Low24Price?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.IndexPrice]: @(ticker.IndexPrice?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.FairPrice]: @(ticker.FairPrice?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Timestamp]: @(ticker.Timestamp.HasValue && ticker.Timestamp.Value > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.Timestamp.Value).LocalDateTime.ToString("g") : "-")</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private List<MexcContractTickerDto> _allTickers = [];
+    private List<MexcContractTickerDto> _mobileViewTickers = [];
+    private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
+    private MexcSocketPriceMoveAlertBar? _priceMoveAlertBar;
+    private bool _isLoading = true;
+    private string? _selectedSymbol;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+
+    private IReadOnlyList<SortOption<MexcContractTickerDto>> SortOptions =>
+    [
+        new("symbol",       L[RK.MexcContractTickers.Symbol],       x => x.Symbol),
+        new("lastPrice",    L[RK.MexcContractTickers.LastPrice],    x => x.LastPrice),
+        new("riseFallRate", L[RK.MexcContractTickers.RiseFallRate], x => x.RiseFallRate),
+        new("volume24",     L[RK.MexcContractTickers.Volume24],     x => x.Volume24),
+        new("amount24",     L[RK.MexcContractTickers.Amount24],     x => x.Amount24),
+        new("indexPrice",   L[RK.MexcContractTickers.IndexPrice],   x => x.IndexPrice),
+        new("fairPrice",    L[RK.MexcContractTickers.FairPrice],    x => x.FairPrice),
+        new("timestamp",    L[RK.MexcContractTickers.Timestamp],    x => x.Timestamp)
+    ];
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        ContractSocketService.TickersUpdated += OnTickersUpdated;
+        ContractSocketService.StreamError += OnStreamError;
+        _ = ContractSocketService.StartAsync();
+    }
+
+    private async void OnTickersUpdated(
+    IReadOnlyCollection<MexcContractTickerDto> tickers)
+    {
+        if (tickers.Count == 0)
+        {
+            return;
+        }
+
+        var hasChanges = false;
+
+        foreach (var ticker in tickers)
+        {
+            if (string.IsNullOrWhiteSpace(ticker.Symbol)
+                || !ticker.Symbol.EndsWith("_USDT", StringComparison.OrdinalIgnoreCase)
+                || !HasValidPrice(ticker.LastPrice))
+            {
+                continue;
+            }
+
+            if (_tickerMap.TryGetValue(ticker.Symbol, out var existingTicker))
+            {
+                if (HasContractTickerChanged(existingTicker, ticker))
+                {
+                    UpdateTickerInPlace(existingTicker, ticker);
+                    hasChanges = true;
+                    if (ticker.LastPrice is decimal price)
+                    {
+                        _priceMoveAlertBar?.Observe(ticker.Symbol, price);
+                    }
+                }
+            }
+            else
+            {
+                _tickerMap[ticker.Symbol] = ticker;
+                _allTickers.Add(ticker);
+                hasChanges = true;
+                if (ticker.LastPrice is decimal price)
+                {
+                    _priceMoveAlertBar?.Observe(ticker.Symbol, price);
+                }
+            }
+        }
+
+        if (!hasChanges && !_isLoading)
+        {
+            return;
+        }
+
+        _isLoading = false;
+
+        ApplyMobileView();
+
+        if (_dataGrid is null)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            await InvokeAsync(async () => await _dataGrid.Reload());
+        }
+    }
+
+    private static bool HasContractTickerChanged(MexcContractTickerDto existing, MexcContractTickerDto incoming)
+    {
+        return existing.LastPrice != incoming.LastPrice
+            || existing.RiseFallRate != incoming.RiseFallRate
+            || existing.Bid1 != incoming.Bid1
+            || existing.Ask1 != incoming.Ask1
+            || existing.High24Price != incoming.High24Price
+            || existing.Low24Price != incoming.Low24Price
+            || existing.Volume24 != incoming.Volume24
+            || existing.Amount24 != incoming.Amount24
+            || existing.IndexPrice != incoming.IndexPrice
+            || existing.FairPrice != incoming.FairPrice
+            || existing.Timestamp != incoming.Timestamp;
+    }
+
+    private static bool HasValidPrice(decimal? price) => price.HasValue && price.Value > 0m;
+
+    private Task OnSelectedSymbolChanged(string? value)
+    {
+        _selectedSymbol = value;
+        ApplyMobileView();
+        return Task.CompletedTask;
+    }
+
+    private void OnSortKeyChanged(string? key)
+    {
+        _sortKey = key;
+        ApplyMobileView();
+    }
+
+    private void OnSortDirectionChanged(bool asc)
+    {
+        _sortAscending = asc;
+        ApplyMobileView();
+    }
+
+    private void ApplyMobileView()
+    {
+        IEnumerable<MexcContractTickerDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (opt is not null)
+            {
+                result = _sortAscending
+                    ? result.OrderBy(opt.KeySelector)
+                    : result.OrderByDescending(opt.KeySelector);
+            }
+        }
+
+        _mobileViewTickers = result.ToList();
+    }
+
+    private Task<(IReadOnlyList<MexcContractTickerDto>, int)> LoadSymbolsAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        IEnumerable<MexcContractTickerDto> query = _allTickers;
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        var symbols = query
+            .GroupBy(x => x.Symbol, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .OrderBy(x => x.Symbol, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var total = symbols.Count;
+        var items = symbols.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Task.FromResult<(IReadOnlyList<MexcContractTickerDto>, int)>((items, total));
+    }
+
+    private void OnStreamError(string errorMessage)
+    {
+        _ = InvokeAsync(() =>
+        {
+            _isLoading = false;
+            NotificationService.NotifyError(L[RK.MexcContractTickers.LoadFailed]);
+            StateHasChanged();
+        });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            ContractSocketService.TickersUpdated -= OnTickersUpdated;
+            ContractSocketService.StreamError -= OnStreamError;
+            _ = ContractSocketService.StopAsync();
+        }
+        base.Dispose(disposing);
+    }
+
+    private static void UpdateTickerInPlace(MexcContractTickerDto existing, MexcContractTickerDto updated)
+    {
+        existing.LastPrice = updated.LastPrice;
+        existing.RiseFallRate = updated.RiseFallRate;
+        existing.Bid1 = updated.Bid1;
+        existing.Ask1 = updated.Ask1;
+        existing.Volume24 = updated.Volume24;
+        existing.Amount24 = updated.Amount24;
+        existing.High24Price = updated.High24Price;
+        existing.Low24Price = updated.Low24Price;
+        existing.IndexPrice = updated.IndexPrice;
+        existing.FairPrice = updated.FairPrice;
+        existing.Timestamp = updated.Timestamp;
+    }
+}

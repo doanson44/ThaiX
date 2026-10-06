@@ -1,0 +1,606 @@
+@using System.Globalization
+@using Microsoft.AspNetCore.Components
+@using ThaiX.Client.Services.Breadcrumb
+@using ThaiX.Client.Services.Tools
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject Microsoft.Extensions.Localization.IStringLocalizer<ThaiX.Client.Localization.SharedResource> L
+@inject Microsoft.JSInterop.IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IAuthService AuthService
+@inject ThaiX.Client.Services.Users.IUserService UserService
+@inject IConfiguration Configuration
+@inject IBreadcrumbService BreadcrumbService
+@inject NotificationService NotificationService
+@inject ThaiX.Client.Services.Ui.IViewportService ViewportService
+@inject ThaiX.Client.Services.Ui.IThemeService ThemeService
+@inject ThaiX.Client.Services.Http.Demo.ApiConnectivityState ApiConnectivity
+
+<RadzenLayout class="min-vh-100 tx-main-layout">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0" class="rz-px-2 rz-px-md-4 w-100">
+            <RadzenSidebarToggle Click="@SidebarToggle" />
+            <a href="/"
+               class="header-brand flex-grow-1 text-truncate rz-ms-1"
+               @onclick:preventDefault
+               @onclick="@(() => Navigation.NavigateTo("/"))">@L[RK.App.Title]</a>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" class="flex-shrink-0">
+                @if (_donateEnabled)
+                {
+                    <DonateButton />
+                }
+                <AuthorizeView>
+                    <Authorized Context="auth">
+                        <RadzenProfileMenu Click="@OnProfileMenuClick">
+                            <Template>
+                                @if (!string.IsNullOrWhiteSpace(_userProfile?.AvatarUrl))
+                                {
+                                    <SafeImage Src="@GetHeaderAvatarUrl(_userProfile.AvatarUrl)"
+                                               Alt=""
+                                               Class="rz-border-radius-10 tx-header-avatar"
+                                               FallbackIcon="person"
+                                               FallbackClass="safe-image-fallback rz-border-radius-10 tx-header-avatar">
+                                        <RadzenGravatar Email="@auth.User.FindFirst("email")?.Value"
+                                                        class="rz-border-radius-10" />
+                                    </SafeImage>
+                                }
+                                else
+                                {
+                                    <RadzenGravatar Email="@auth.User.FindFirst("email")?.Value"
+                                                    class="rz-border-radius-10" />
+                                }
+                            </Template>
+                            <ChildContent>
+                                <RadzenProfileMenuItem Text="@L[RK.Menu.Profile]" Value="@RouteSegments.Profile" Icon="account_circle" />
+                                <RadzenProfileMenuItem Text="@L[RK.Menu.ChangePassword]" Value="@RouteSegments.ChangePassword" Icon="key" />
+                                <RadzenProfileMenuItem Text="@L[RK.Menu.TwoFactor]" Value="@RouteSegments.TwoFa" Icon="security" />
+                                <RadzenProfileMenuItem Text="@L[RK.Menu.PersonalData]" Value="@RouteSegments.PersonalData" Icon="folder_shared" />
+                                @if (!string.IsNullOrWhiteSpace(_userProfile?.ResumeSlug))
+                                {
+                                    <RadzenProfileMenuItem Text="@L[RK.Menu.PublicResume]" Value="profile/public-resume" Icon="open_in_new" />
+                                }
+                                <RadzenProfileMenuItem Text="@L[RK.Menu.Logout]" Value="@RouteSegments.Logout" Icon="logout" />
+                            </ChildContent>
+                        </RadzenProfileMenu>
+                    </Authorized>
+                    <NotAuthorized>
+                        <RadzenButton Icon="login"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Size="ButtonSize.Small"
+                                      Click="@(() => Navigation.NavigateTo("/auth/login"))" />
+                    </NotAuthorized>
+                </AuthorizeView>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar FullHeight="true"
+                   Responsive="false"
+                   @bind-Expanded="@sidebarExpanded"
+                   class="tx-sidebar-overlay">
+        <div class="tx-sidebar-inner d-flex flex-column h-100">
+            <RadzenStack AlignItems="AlignItems.End" class="rz-p-2 flex-shrink-0">
+                <RadzenButton Icon="west" Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@(() => sidebarExpanded = false)" />
+            </RadzenStack>
+            <div class="tx-sidebar-nav-scroll flex-grow-1 rz-overflow-auto">
+                <NavMenu />
+            </div>
+            <div class="tx-sidebar-settings flex-shrink-0">
+                <div class="tx-sidebar-settings-title">@L[RK.Sidebar.Settings]</div>
+                <div class="tx-sidebar-settings-item">
+                    <label class="tx-sidebar-settings-label" for="tx-theme-select">@L[RK.Theme.Toggle]</label>
+                    <select id="tx-theme-select"
+                            class="form-select form-select-sm tx-sidebar-settings-select"
+                            title="@L[RK.Theme.Toggle]"
+                            aria-label="@L[RK.Theme.Toggle]"
+                            value="@_selectedTheme"
+                            @onchange="OnThemeChanged">
+                        <option value="dark">@L[RK.Theme.Dark]</option>
+                        <option value="light">@L[RK.Theme.Light]</option>
+                    </select>
+                </div>
+                <div class="tx-sidebar-settings-item">
+                    <label class="tx-sidebar-settings-label" for="tx-culture-select">@L[RK.Language.Toggle]</label>
+                    <select id="tx-culture-select"
+                            class="form-select form-select-sm tx-sidebar-settings-select"
+                            title="@L[RK.Language.Toggle]"
+                            aria-label="@L[RK.Language.Toggle]"
+                            value="@selectedCulture"
+                            @onchange="OnCultureChanged">
+                        <option value="en-US">@L[RK.Language.English]</option>
+                        <option value="vi-VN">@L[RK.Language.Vietnamese]</option>
+                    </select>
+                </div>
+                <AuthorizeView>
+                    <Authorized>
+                        <RadzenButton Icon="logout"
+                                      Text="@L[RK.Menu.Logout]"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Size="ButtonSize.Small"
+                                      Click="@LogoutAsync"
+                                      Class="tx-sidebar-settings-logout w-100" />
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-2 rz-p-md-4">
+            @if (ApiConnectivity.IsDemoMode)
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Warning"
+                             Variant="Variant.Flat"
+                             Shade="Shade.Lighter"
+                             AllowClose="false"
+                             class="rz-mb-3">
+                    @L[RK.Common.DemoModeBanner]
+                </RadzenAlert>
+            }
+            @if (BreadcrumbService.Items.Count > 0)
+            {
+                <RadzenBreadCrumb class="rz-mb-2">
+                    @foreach (var item in BreadcrumbService.Items)
+                    {
+                        var isLast = item == BreadcrumbService.Items[^1];
+                        <RadzenBreadCrumbItem Text="@item.Text" Path="@(isLast ? null : item.Path)" />
+                    }
+                </RadzenBreadCrumb>
+            }
+            @Body
+            <div class="rz-mt-3 rz-p-1 text-center tx-footer">
+                @if (_mexcAffiliateEnabled && !string.IsNullOrWhiteSpace(_mexcAffiliateUrl))
+                {
+                    <span>@L[RK.Common.PoweredBy] <a href="@_mexcAffiliateUrl" target="_blank" rel="noopener" class="tx-footer-link">MEXC</a></span>
+                }
+            </div>
+        </div>
+    </RadzenBody>
+    @if (sidebarExpanded)
+    {
+        <div @onclick="@(() => sidebarExpanded = false)" class="rz-dialog-mask tx-sidebar-mask"></div>
+    }
+</RadzenLayout>
+
+@code {
+    private bool sidebarExpanded = false;
+    private string selectedCulture = CultureInfo.CurrentUICulture.Name;
+    private string _selectedTheme = "dark";
+    private ThaiX.Client.Models.Users.UserProfileDto? _userProfile;
+    private string? _mexcAffiliateUrl;
+    private bool _mexcAffiliateEnabled;
+    private bool _donateEnabled;
+    private static readonly Lazy<HashSet<string>> KnownPageRoutes = new(BuildKnownPageRoutes);
+
+    protected override void OnInitialized()
+    {
+        _mexcAffiliateEnabled = Configuration.GetValue<bool>("MexcAffiliateEnabled");
+        _mexcAffiliateUrl = Configuration["MexcAffiliateUrl"];
+        // Prefer config; always show in demo so VisualTests can open DonateModal.
+        _donateEnabled = Configuration.GetValue("Donate:Enabled", true) || ApiConnectivity.IsDemoMode;
+        Navigation.LocationChanged += OnLocationChanged;
+        BreadcrumbService.OnChanged += OnBreadcrumbChanged;
+        ThemeService.OnChanged += OnThemeChangedFromService;
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        BuildBreadcrumbFromRoute();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCurrentUserProfileAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ViewportService.InitializeAsync();
+            await ThemeService.InitializeAsync();
+            _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadCurrentUserProfileAsync()
+    {
+        try
+        {
+            _userProfile = await UserService.GetCurrentUserProfileAsync();
+        }
+        catch
+        {
+            _userProfile = null;
+        }
+    }
+
+    private string GetHeaderAvatarUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+        if (!url.StartsWith("/", StringComparison.Ordinal)) return url;
+        var baseUrl = (Configuration["Api:BaseUrl"] ?? "http://localhost:5005").TrimEnd('/');
+        return baseUrl + url;
+    }
+
+    public void Dispose() => Dispose(true);
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposing) return;
+        Navigation.LocationChanged -= OnLocationChanged;
+        BreadcrumbService.OnChanged -= OnBreadcrumbChanged;
+        ThemeService.OnChanged -= OnThemeChangedFromService;
+    }
+
+    private void OnThemeChangedFromService()
+    {
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnThemeChanged(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        _selectedTheme = value;
+        await ThemeService.SetThemeAsync(value == "light" ? AppTheme.Light : AppTheme.Dark);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs _)
+    {
+        sidebarExpanded = false;
+        BuildBreadcrumbFromRoute();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnBreadcrumbChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void BuildBreadcrumbFromRoute()
+    {
+        var path = new Uri(Navigation.Uri).AbsolutePath.TrimEnd('/');
+        if (string.IsNullOrEmpty(path)) path = "/";
+        var segments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        var items = new List<BreadcrumbItem>();
+        if (segments.Length == 0)
+        {
+            items.Add(new BreadcrumbItem(L[RK.Menu.Home], "/"));
+        }
+        else
+        {
+            items.Add(new BreadcrumbItem(L[RK.Menu.Home], "/"));
+            var soFar = "";
+            for (var i = 0; i < segments.Length; i++)
+            {
+                soFar += "/" + segments[i];
+                var label = GetSegmentLabel(segments, i);
+                var isLast = i == segments.Length - 1;
+                items.Add(new BreadcrumbItem(label, isLast ? null : (IsKnownPageRoute(soFar) ? soFar : null)));
+            }
+        }
+
+        BreadcrumbService.Set(items);
+    }
+
+    private string GetSegmentLabel(string[] segments, int index)
+    {
+        var segment = segments[index];
+        if (index == 0)
+        {
+            return segment switch
+            {
+                "account" => L[RK.Breadcrumb.Account],
+                "admin" => L[RK.Breadcrumb.Admin],
+                "auth" => L[RK.Breadcrumb.Account],
+                "crm" => L[RK.Menu.Crm],
+                "market-data" => L[RK.Market.Title],
+                "market-research" => L[RK.Menu.MarketResearch],
+                "master-data" => L[RK.Menu.MasterData],
+                "notifications" => L[RK.Menu.NotificationCenter],
+                "portfolio" => L[RK.Menu.PortfolioGroup],
+                "security" => L[RK.Menu.Security],
+                "tools" => L[RK.Menu.Tools],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        var parent = segments[index - 1];
+
+        // Admin sub-pages
+        if (parent == "admin")
+        {
+            return segment switch
+            {
+                "users" => L[RK.Menu.Users],
+                "slack-commands" => L[RK.Menu.CommandTester],
+                "command-tester" => L[RK.Menu.CommandTester],
+                "ai-tester" => L[RK.Menu.AiTester],
+                "json-bins" => L[RK.Menu.JsonBins],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        if (parent == "json-bins")
+        {
+            if (segment.Equals("create", StringComparison.OrdinalIgnoreCase))
+                return L[RK.Breadcrumb.JsonBinCreate];
+            if (Guid.TryParse(segment, out _))
+                return L[RK.Breadcrumb.JsonBinEdit];
+            return SegmentToTitle(segment);
+        }
+
+        if (parent == "tools")
+        {
+            var tool = ToolCatalog.Find(segment);
+            return tool is null ? SegmentToTitle(segment) : L[tool.TitleKey];
+        }
+
+        // Master Data sub-pages
+        if (parent == "master-data")
+        {
+            return segment switch
+            {
+                "countries" => L[RK.Menu.MasterDataCountries],
+                "cities" => L[RK.Menu.MasterDataCities],
+                "districts" => L[RK.Menu.MasterDataDistricts],
+                "banks" => L[RK.Menu.MasterDataBanks],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Account sub-pages
+        if (parent == "account")
+        {
+            return segment switch
+            {
+                "profile" => L[RK.Menu.Profile],
+                "change-password" => L[RK.Menu.ChangePassword],
+                "2fa" => L[RK.Menu.TwoFactor],
+                "personal-data" => L[RK.Menu.PersonalData],
+                "enable-authenticator" => L[RK.Menu.TwoFactor],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Auth sub-pages
+        if (parent == "auth")
+        {
+            return segment switch
+            {
+                "login" => L[RK.Menu.Login],
+                "register" => L[RK.Menu.Register],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Market Data sub-pages
+        if (parent == "market-data")
+        {
+            return segment switch
+            {
+                "bank-interest-rates" => L[RK.BankInterestRates.Title],
+                "bank-deposit-rates" => L[RK.BankDepositRates.Title],
+                "sacombank-exchange-rates" => L[RK.SacombankExchangeRates.Title],
+                "tcbs-top10" => L[RK.TcbsTop10.Title],
+                "mexc" => L[RK.MexcContractTickers.Title],
+                "power-655-analysis" => L[RK.Power655.Title],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Market Research sub-pages
+        if (parent == "market-research")
+        {
+            return segment switch
+            {
+                "coingecko" => L[RK.CoinGecko.Title],
+                "dragon-capital" => L[RK.DragonCapitalFunds.Title],
+                "vndirect" => L[RK.VnDirectTopStocks.Title],
+                "mexc" => L[RK.MexcContractTickers.Title],
+                "chainbroker" => L[RK.Breadcrumb.ChainBroker],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Portfolio sub-pages
+        if (parent == "portfolio")
+        {
+            return segment switch
+            {
+                "list" => L[RK.Portfolios.Title],
+                "price-alerts" => L[RK.PriceAlerts.Title],
+                "market-scanner-rules" => L[RK.MarketScanner.Title],
+                "expense-tracker" => L[RK.Menu.ExpenseTracker],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // CRM sub-pages
+        if (parent == "crm")
+        {
+            return segment switch
+            {
+                "contacts" => L[RK.Menu.Contacts],
+                "notes" => L[RK.Menu.Notes],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Notifications sub-pages
+        if (parent == "notifications")
+        {
+            return segment switch
+            {
+                "sender" => L[RK.Menu.NotificationSender],
+                "schedules" => L[RK.Menu.NotificationSchedules],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Security sub-pages
+        if (parent == "security")
+        {
+            return segment switch
+            {
+                "api-clients" => L[RK.Menu.ApiClients],
+                "credential-accounts" => L[RK.Menu.CredentialAccounts],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // ChainBroker sub-pages (child of market-research)
+        if (parent == "chainbroker")
+        {
+            return segment switch
+            {
+                "funds" => L[RK.ChainBrokerFunds.Title],
+                "projects" => L[RK.ChainBrokerProjects.Title],
+                "unlocks" => L[RK.ChainBrokerUnlocks.Title],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // Mexc sub-pages (child of market-data or market-research)
+        if (parent == "mexc")
+        {
+            return segment switch
+            {
+                "contract-ticker" => L[RK.MexcContractTickers.Title],
+                "spot-ticker" => L[RK.MexcSpotTicker24Hr.Title],
+                "contract-ticker-socket" => L[RK.MexcContractTickers.SocketTitle],
+                "spot-ticker-socket" => L[RK.MexcSpotTicker24Hr.SocketTitle],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        // VnDirect sub-pages (child of market-research)
+        if (parent == "vndirect")
+        {
+            return segment switch
+            {
+                "top-stocks" => L[RK.VnDirectTopStocks.Title],
+                _ => SegmentToTitle(segment)
+            };
+        }
+
+        return SegmentToTitle(segment);
+    }
+
+    private static string SegmentToTitle(string segment)
+    {
+        if (string.IsNullOrEmpty(segment)) return segment;
+        return char.ToUpperInvariant(segment[0]) + segment[1..].Replace("-", " ", StringComparison.Ordinal);
+    }
+
+    private static HashSet<string> BuildKnownPageRoutes()
+    {
+        var routes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "/" };
+
+        var pageTypes = typeof(MainLayout).Assembly
+            .GetTypes()
+            .Where(t => typeof(IComponent).IsAssignableFrom(t));
+
+        foreach (var pageType in pageTypes)
+        {
+            var routeAttributes = pageType.GetCustomAttributes(typeof(RouteAttribute), inherit: false)
+                .Cast<RouteAttribute>();
+
+            foreach (var route in routeAttributes)
+            {
+                var normalized = NormalizeRoutePath(route.Template);
+                routes.Add(normalized);
+            }
+        }
+
+        return routes;
+    }
+
+    private static bool IsKnownPageRoute(string path)
+    {
+        return KnownPageRoutes.Value.Contains(NormalizeRoutePath(path));
+    }
+
+    private static string NormalizeRoutePath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return "/";
+        }
+
+        var normalized = path.Trim();
+        if (!normalized.StartsWith("/", StringComparison.Ordinal))
+        {
+            normalized = "/" + normalized;
+        }
+
+        normalized = normalized.TrimEnd('/');
+        return string.IsNullOrEmpty(normalized) ? "/" : normalized;
+    }
+
+    private void SidebarToggle()
+    {
+        sidebarExpanded = !sidebarExpanded;
+    }
+
+    private async Task OnCultureChanged(ChangeEventArgs args)
+    {
+        var culture = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(culture))
+        {
+            return;
+        }
+
+        selectedCulture = culture;
+        await JS.InvokeVoidAsync("blazorCulture.set", culture);
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+
+    private async Task OnProfileMenuClick(RadzenProfileMenuItem item)
+    {
+        var value = item.Value?.ToString();
+
+        switch (value)
+        {
+            case RouteSegments.Profile:
+                Navigation.NavigateTo("/account/profile");
+                break;
+            case RouteSegments.ChangePassword:
+                Navigation.NavigateTo("/account/change-password");
+                break;
+            case RouteSegments.TwoFa:
+                Navigation.NavigateTo("/account/2fa");
+                break;
+            case RouteSegments.PersonalData:
+                Navigation.NavigateTo("/account/personal-data");
+                break;
+            case RouteSegments.Logout:
+                await LogoutAsync();
+                break;
+            case "profile/public-resume":
+                if (_userProfile?.ResumeSlug is not null)
+                    Navigation.NavigateTo($"/resume/{_userProfile.ResumeSlug}");
+                break;
+        }
+    }
+
+    private async Task LogoutAsync()
+    {
+        try
+        {
+            await AuthService.LogoutAsync();
+            NotificationService.NotifySuccess(L[RK.Auth.LogoutSuccess], L[RK.Auth.LogoutSuccessDetail]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyWarning(L[RK.Auth.LogoutWarning], ex.GetDisplayDetail());
+        }
+
+        Navigation.NavigateTo("/auth/login");
+    }
+}

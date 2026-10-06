@@ -1,0 +1,68 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Resumes
+@using ThaiX.Client.Services.Resumes
+@inject IResumeService ResumeService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenFormField Text="@L[RK.Resume.JobDescription]" Class="w-100">
+        <RadzenTextArea @bind-Value="_jobDescription" Class="w-100" Rows="8" MaxLength="6000" Disabled="@_isAnalyzing" />
+    </RadzenFormField>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+        <RadzenButton Text="@L[RK.Resume.Analyze]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Primary"
+                      IsBusy="@_isAnalyzing" Disabled="@(_isAnalyzing || string.IsNullOrWhiteSpace(_jobDescription))"
+                      Click="AnalyzeAsync" />
+    </RadzenStack>
+
+    @if (_report is not null)
+    {
+        <div class="border rounded p-2 bg-body-tertiary">
+            <pre class="mb-0" style="white-space: pre-wrap; word-break: break-word;">@_report</pre>
+        </div>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+        <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public ResumeContentDto Content { get; set; } = new();
+
+    private string _jobDescription = string.Empty;
+    private string? _report;
+    private bool _isAnalyzing;
+
+    private async Task AnalyzeAsync()
+    {
+        if (_isAnalyzing || string.IsNullOrWhiteSpace(_jobDescription))
+        {
+            return;
+        }
+
+        _isAnalyzing = true;
+        try
+        {
+            _report = await ResumeService.OptimizeForJobAsync(new OptimizeResumeForJobRequest
+            {
+                JobDescription = _jobDescription,
+                Content = Content
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _isAnalyzing = false;
+        }
+    }
+}

@@ -1,0 +1,757 @@
+@page "/tools/{Slug}"
+@attribute [AllowAnonymous]
+@implements IDisposable
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@using Microsoft.JSInterop
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Services.Tools
+@using ThaiX.Client.Services.Tools.Calculators
+@using ThaiX.Client.Services.Tools.Transforms
+@inject IStringLocalizer<SharedResource> L
+@inject IToolStateStore ToolStateStore
+@inject NotificationService NotificationService
+@inject IJSRuntime JS
+@inherits ThaiXPageBase
+
+<PageTitle>@(_tool is null ? L[RK.Tools.HubTitle] : L[_tool.TitleKey]) - ThaiX</PageTitle>
+
+@if (_tool is null)
+{
+    <div class="container-fluid py-2">
+        <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
+            @L[RK.Tools.NotFound]
+        </RadzenAlert>
+    </div>
+}
+else
+{
+    <ToolPageShell Tool="_tool"
+                   Title="@L[_tool.TitleKey]"
+                   Description="@L[_tool.DescriptionKey]"
+                   GetStateJson="SerializeState"
+                   OnDraftCleared="OnDraftCleared">
+        <ActionButtons>
+            @if (!IsCalculator())
+            {
+                @foreach (var action in GetActions())
+                {
+                    <ResponsiveIconButton Text="@action.Label"
+                                          Icon="@action.Icon"
+                                          ButtonStyle="ButtonStyle.Secondary"
+                                          Disabled="@_busy"
+                                          Click="@(() => RunAsync(action.Id))" />
+                }
+            }
+        </ActionButtons>
+
+        <ChildContent>
+        <ErrorBoundary @ref="_toolErrorBoundary">
+            <ChildContent>
+        @if (IsCalculator())
+        {
+            <CalculatorToolView Tool="_tool"
+                                State="_state"
+                                StateChanged="OnCalculatorStateChanged"
+                                AutoCalculateToken="_calculatorAutoCalculateToken" />
+        }
+        else
+        {
+        @if (!string.IsNullOrWhiteSpace(_warning))
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Warning"
+                         Shade="Shade.Lighter"
+                         Variant="Variant.Flat"
+                         AllowClose="true"
+                         Close="@(() => _warning = null)"
+                         class="rz-mb-2">
+                <strong>@L[RK.Tools.ValidationTitle]</strong>
+                <div class="rz-mt-1">@_warning</div>
+            </RadzenAlert>
+        }
+
+        @if (IsMarkdownPreview())
+        {
+            @if (_mdPreviewMode)
+            {
+                <RadzenStack Gap="0.75rem" Class="ThaiX-md-focus-preview">
+                    <RadzenStack Orientation="Orientation.Horizontal"
+                                 AlignItems="AlignItems.Center"
+                                 JustifyContent="JustifyContent.SpaceBetween"
+                                 Wrap="FlexWrap.Wrap"
+                                 Gap="0.5rem">
+                        <RadzenButton Icon="edit_note"
+                                      Text="@L[RK.Tools.MarkdownPreview.ShowEditor]"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Size="ButtonSize.Small"
+                                      Click="ShowMarkdownEditor"
+                                      title="@L[RK.Tools.MarkdownPreview.ShowEditor]"
+                                      aria-label="@L[RK.Tools.MarkdownPreview.ShowEditor]" />
+                        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                            <RadzenButton Icon="content_copy"
+                                          Text="@L[RK.Tools.MarkdownPreview.CopyAll]"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Size="ButtonSize.Small"
+                                          Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
+                                          Click="CopyPreviewTextAsync" />
+                            <RadzenButton Icon="code"
+                                          Text="@L[RK.Tools.MarkdownPreview.CopyHtml]"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Size="ButtonSize.Small"
+                                          Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
+                                          Click="CopyPreviewHtmlAsync" />
+                        </RadzenStack>
+                    </RadzenStack>
+                    @* Inner HTML is owned by JS (ThaiXSetMarkdownPreview) — do not use MarkupString here. *@
+                    <div @ref="_previewRef" class="ThaiX-md-preview border rounded p-3 ThaiX-md-preview--focus"
+                         style="min-height: min(70vh, 40rem); overflow: auto;"></div>
+                </RadzenStack>
+            }
+            else
+            {
+                <DualPane>
+                    <Left>
+                        <MarkdownEditor Value="@_state.Input" ValueChanged="OnMarkdownInputChanged"
+                                        Label="@L[RK.Tools.Input]"
+                                        Placeholder="@L[RK.Tools.MarkdownPreview.EditorPlaceholder]"
+                                        Rows="@(Viewport.IsMobile ? 14 : 22)" />
+                    </Left>
+                    <Right>
+                        <RadzenStack Orientation="Orientation.Horizontal"
+                                     AlignItems="AlignItems.Center"
+                                     JustifyContent="JustifyContent.SpaceBetween"
+                                     Wrap="FlexWrap.Wrap"
+                                     Gap="0.5rem"
+                                     Class="mb-1">
+                            <RadzenLabel Text="@L[RK.Tools.MarkdownPreview.Preview]" Class="mb-0" />
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                <RadzenButton Icon="content_copy"
+                                              Text="@L[RK.Tools.MarkdownPreview.CopyAll]"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Size="ButtonSize.Small"
+                                              Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
+                                              Click="CopyPreviewTextAsync" />
+                                <RadzenButton Icon="code"
+                                              Text="@L[RK.Tools.MarkdownPreview.CopyHtml]"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Size="ButtonSize.Small"
+                                              Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
+                                              Click="CopyPreviewHtmlAsync" />
+                            </RadzenStack>
+                        </RadzenStack>
+                        <div @ref="_previewRef" class="ThaiX-md-preview border rounded p-3"
+                             style="min-height: 16rem; overflow: auto;"></div>
+                    </Right>
+                </DualPane>
+            }
+        }
+        else if (IsQr())
+        {
+            <RadzenStack Gap="1rem">
+                <MonoTextArea Value="@_state.Input" ValueChanged="OnInputChanged"
+                              Label="@L[RK.Tools.Input]" Rows="4" />
+                @if (!string.IsNullOrWhiteSpace(_qrSvg))
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start"
+                                 Wrap="FlexWrap.Wrap" Gap="1rem">
+                        <div class="ThaiX-qr-preview border rounded p-3">@((MarkupString)_qrSvg)</div>
+                        <RadzenButton Icon="download" Text="@L[RK.Tools.QrDownload]"
+                                      ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small"
+                                      Disabled="@_busy" Click="DownloadQrAsync" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        }
+        else
+        {
+            @if (NeedsOptions())
+            {
+                <RadzenRow Gap="1rem" RowGap="0.5rem" Class="mb-2">
+                    @if (SlugEquals("uuid"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="v7" />
+                            <RadzenLabel Text="UUID v7" Component="v7" Class="rz-ms-2" />
+                        </RadzenColumn>
+                    }
+                    @if (SlugEquals("password-generator"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="Length" Class="w-100">
+                                <RadzenNumeric TValue="int" Value="@_state.Number" ValueChanged="@((int value) => OnNumberChanged(value))" Min="4" Max="128" Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="sym" />
+                            <RadzenLabel Text="Symbols" Component="sym" Class="rz-ms-2" />
+                        </RadzenColumn>
+                    }
+                    @if (SlugEquals("curl") || SlugEquals("conventional-commit") || SlugEquals("gitignore") || SlugEquals("cron"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="Option" Class="w-100">
+                                <RadzenTextBox Value="@_state.Option" ValueChanged="OnOptionChanged" Class="w-100"
+                                               Placeholder="@(SlugEquals("gitignore") ? "dotnet|node|vs|rider" : SlugEquals("curl") ? "GET|POST|..." : "feat/scope")" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    }
+                    @if (SlugEquals("conventional-commit"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="brk" />
+                            <RadzenLabel Text="Breaking" Component="brk" Class="rz-ms-2" />
+                        </RadzenColumn>
+                    }
+                </RadzenRow>
+            }
+
+            @if (UsesSecondInput())
+            {
+                <RadzenStack Gap="1rem">
+                    <DualPane>
+                        <Left>
+                            <MonoTextArea Value="@_state.Input" ValueChanged="OnInputChanged"
+                                          Label="@LeftLabel()" Rows="@(Viewport.IsMobile ? 8 : 12)" />
+                        </Left>
+                        <Right>
+                            <MonoTextArea Value="@_state.Input2" ValueChanged="OnInput2Changed"
+                                          Label="@RightLabel()" Rows="@(Viewport.IsMobile ? 8 : 12)" />
+                        </Right>
+                    </DualPane>
+                    <MonoTextArea Value="@_state.Output" ValueChanged="OnOutputChanged"
+                                  Label="@L[RK.Tools.Output]" Rows="@(Viewport.IsMobile ? 8 : 12)" />
+                </RadzenStack>
+            }
+            else if (IsInputOnly())
+            {
+                <MonoTextArea Value="@_state.Input" ValueChanged="OnInputChanged"
+                              Label="@L[RK.Tools.Input]"
+                              IsValid="@_inputValid"
+                              Rows="@(Viewport.IsMobile ? 12 : 20)" />
+            }
+            else
+            {
+                <DualPane>
+                    <Left>
+                        <MonoTextArea Value="@_state.Input" ValueChanged="OnInputChanged"
+                                      Label="@L[RK.Tools.Input]"
+                                      IsValid="@(SlugEquals("json-formatter") ? _inputValid : null)"
+                                      Rows="@(Viewport.IsMobile ? 10 : 16)" />
+                    </Left>
+                    <Right>
+                        <MonoTextArea Value="@_state.Output" ValueChanged="OnOutputChanged"
+                                      Label="@L[RK.Tools.Output]" Rows="@(Viewport.IsMobile ? 10 : 16)" />
+                    </Right>
+                </DualPane>
+            }
+        }
+        }
+            </ChildContent>
+            <ErrorContent Context="ex">
+                @{
+                    OnToolRenderError(ex);
+                }
+                <RadzenAlert AlertStyle="AlertStyle.Warning"
+                             Shade="Shade.Lighter"
+                             Variant="Variant.Flat"
+                             AllowClose="true"
+                             Close="@(() => { _warning = null; _toolErrorBoundary?.Recover(); })"
+                             class="rz-mb-2">
+                    <strong>@L[RK.Tools.ValidationTitle]</strong>
+                    <div class="rz-mt-1">@(string.IsNullOrWhiteSpace(_warning) ? L[RK.Tools.ValidationGeneric] : _warning)</div>
+                </RadzenAlert>
+            </ErrorContent>
+        </ErrorBoundary>
+        </ChildContent>
+    </ToolPageShell>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    private ToolDefinition? _tool;
+    private ToolWorkspaceState _state = new();
+    private CancellationTokenSource? _debounceCts;
+    private bool _loaded;
+    private bool _busy;
+    private string? _warning;
+    private string _previewHtml = string.Empty;
+    private string? _qrSvg;
+    private ElementReference _previewRef;
+    private bool _previewDirty;
+    private int _previewEpoch;
+    private bool _mdPreviewMode;
+    private string? _calculatorAutoCalculateToken;
+    private ErrorBoundary? _toolErrorBoundary;
+    private string? _lastBoundaryErrorId;
+    private bool? _inputValid;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loaded = false;
+        _warning = null;
+        _inputValid = null;
+        _qrSvg = null;
+        _previewHtml = string.Empty;
+        _mdPreviewMode = false;
+        _calculatorAutoCalculateToken = null;
+        _tool = ToolCatalog.Find(Slug);
+        _state = new ToolWorkspaceState();
+        if (_tool is null) return;
+
+        try
+        {
+            var envelope = await ToolStateStore.LoadAsync(_tool);
+            if (envelope is not null && !string.IsNullOrWhiteSpace(envelope.StateJson))
+            {
+                try { _state = JsonSerializer.Deserialize<ToolWorkspaceState>(envelope.StateJson, JsonOptions) ?? new(); }
+                catch (JsonException) { _state = new ToolWorkspaceState { Input = envelope.StateJson }; }
+            }
+
+            if (ToolSampleCatalog.ShouldSeedSample(_tool, _state))
+            {
+                _state = ToolSampleCatalog.Create(_tool.Slug);
+                if (IsCalculator())
+                    _calculatorAutoCalculateToken = Guid.NewGuid().ToString("N");
+            }
+
+            if (IsCalculator())
+            {
+                _state.Fields ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                CalculatorFieldCatalog.EnsureDefaults(_tool.Slug, _state.Fields);
+            }
+
+            if (IsMarkdownPreview() && !string.IsNullOrWhiteSpace(_state.Input))
+                await RefreshMarkdownAsync();
+            if (IsQr() && !string.IsNullOrWhiteSpace(_state.Input))
+            {
+                try { _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input); }
+                catch (Exception ex) { ReportToolIssue(ex); }
+            }
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+
+        _loaded = true;
+    }
+
+    private bool IsCalculator() => _tool?.Kind == ToolKind.Calculator;
+
+    private async Task OnCalculatorStateChanged()
+    {
+        await ScheduleLocalSaveAsync();
+    }
+
+    private string SerializeState() => JsonSerializer.Serialize(_state, JsonOptions);
+
+    private Task OnDraftCleared()
+    {
+        // Clear means empty workspace — do not re-seed ToolSampleCatalog samples.
+        _state = new ToolWorkspaceState();
+        _previewHtml = string.Empty;
+        _previewEpoch++;
+        _previewDirty = false;
+        _mdPreviewMode = false;
+        _qrSvg = null;
+        _warning = null;
+        _inputValid = null;
+        _toolErrorBoundary?.Recover();
+
+        if (_tool is not null && IsCalculator())
+        {
+            _state.Fields ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            CalculatorFieldCatalog.EnsureDefaults(_tool.Slug, _state.Fields);
+            _calculatorAutoCalculateToken = Guid.NewGuid().ToString("N");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void ShowMarkdownEditor()
+    {
+        _mdPreviewMode = false;
+        // Preview host remounts in DualPane — re-apply HTML after render.
+        _previewEpoch++;
+        _previewDirty = true;
+    }
+
+    private void ReportToolIssue(Exception ex)
+    {
+        _warning = FormatToolIssue(ex);
+    }
+
+    private string FormatToolIssue(Exception ex)
+    {
+        if (ex is FormatException or ArgumentException or JsonException or RegexParseException
+            or InvalidOperationException or NotSupportedException)
+        {
+            return string.IsNullOrWhiteSpace(ex.Message)
+                ? L[RK.Tools.ValidationGeneric]
+                : ex.Message;
+        }
+
+        if (ex is JSException)
+        {
+            return string.IsNullOrWhiteSpace(ex.Message)
+                ? L[RK.Tools.ValidationGeneric]
+                : ex.Message;
+        }
+
+        return string.IsNullOrWhiteSpace(ex.Message)
+            ? L[RK.Tools.ValidationGeneric]
+            : $"{L[RK.Tools.ValidationGeneric]} ({ex.Message})";
+    }
+
+    private void OnToolRenderError(Exception ex)
+    {
+        var id = ex.GetHashCode().ToString();
+        if (id == _lastBoundaryErrorId) return;
+        _lastBoundaryErrorId = id;
+        ReportToolIssue(ex);
+        // Recover so the tool stays interactive (no full-page error / reload).
+        _toolErrorBoundary?.Recover();
+    }
+
+    private bool SlugEquals(string value) => Slug.Equals(value, StringComparison.OrdinalIgnoreCase);
+
+    private bool UsesSecondInput() =>
+        SlugEquals("json-compare") || SlugEquals("diff") || SlugEquals("regex")
+        || SlugEquals("curl") || SlugEquals("conventional-commit");
+
+    private bool IsMarkdownPreview() => SlugEquals("markdown-preview");
+    private bool IsQr() => SlugEquals("qr");
+    private bool IsInputOnly() => SlugEquals("yaml-validator");
+    private bool UsesInputValidity() => SlugEquals("json-formatter") || SlugEquals("yaml-validator");
+
+    private bool NeedsOptions() =>
+        SlugEquals("uuid") || SlugEquals("password-generator")
+        || SlugEquals("curl") || SlugEquals("conventional-commit")
+        || SlugEquals("gitignore") || SlugEquals("cron");
+
+    private string LeftLabel() => Slug.ToLowerInvariant() switch
+    {
+        "regex" => "Input text",
+        "curl" => "URL",
+        "conventional-commit" => "Subject",
+        _ => "A"
+    };
+
+    private string RightLabel() => Slug.ToLowerInvariant() switch
+    {
+        "regex" => "Pattern",
+        "curl" => "Headers (Header: value)",
+        "conventional-commit" => "Body",
+        _ => "B"
+    };
+
+    private IEnumerable<(string Id, string Label, string Icon)> GetActions() => Slug.ToLowerInvariant() switch
+    {
+        "json-formatter" => [("pretty", "Pretty", "auto_fix"), ("minify", "Minify", "compress"), ("validate", "Validate", "check")],
+        "json-compare" => [("compare", "Compare", "compare")],
+        "jwt-decoder" => [("decode", "Decode", "key")],
+        "base64" => [("b64e", "Encode", "lock"), ("b64d", "Decode", "lock_open")],
+        "url-codec" => [("urle", "Encode", "link"), ("urld", "Decode", "link_off")],
+        "sha256" => [("sha", "Hash", "fingerprint")],
+        "uuid" => [("uuid", "Generate", "add")],
+        "unix-timestamp" => [("toUnix", "To Unix", "schedule"), ("fromUnix", "From Unix", "event")],
+        "yaml-validator" => [("yamlVal", "Validate", "fact_check")],
+        "yaml-json" => [("y2j", "YAML → JSON", "swap_horiz"), ("j2y", "JSON → YAML", "swap_horiz")],
+        "xml-formatter" => [("xml", "Format", "code")],
+        "csv-json" => [("c2j", "CSV → JSON", "table"), ("j2c", "JSON → CSV", "table")],
+        "json-to-csharp" => [("cs", "Generate C#", "terminal")],
+        "json-to-typescript" => [("ts", "Generate TS", "javascript")],
+        "sql-formatter" => [("sql", "Format", "storage")],
+        "html-formatter" => [("html", "Format", "html")],
+        "css-formatter" => [("css", "Format", "css")],
+        "js-formatter" => [("js", "Format", "javascript")],
+        "markdown-preview" => [("md", "Preview", "preview")],
+        "html-markdown" => [("h2m", "HTML → MD", "swap_horiz"), ("m2h", "MD → HTML", "swap_horiz")],
+        "diff" => [("diff", "Diff", "difference")],
+        "regex" => [("re", "Test", "regular_expression"), ("reReplace", "Replace", "find_replace")],
+        "password-generator" => [("pw", "Generate", "password")],
+        "password-strength" => [("pws", "Check", "security")],
+        "cron" => [("cron", "Build", "schedule")],
+        "qr" => [("qr", "Generate", "qr_code")],
+        "curl" => [("curl", "Generate", "http")],
+        "gitignore" => [("gi", "Generate", "folder_off")],
+        "conventional-commit" => [("cc", "Generate", "commit")],
+        _ => []
+    };
+
+    private async Task RunAsync(string actionId)
+    {
+        _busy = true;
+        _warning = null;
+        if (UsesInputValidity())
+            _inputValid = null;
+        _toolErrorBoundary?.Recover();
+        try
+        {
+            switch (actionId)
+            {
+                case "pretty": _state.Output = JsonToolTransforms.PrettyPrint(_state.Input); break;
+                case "minify": _state.Output = JsonToolTransforms.Minify(_state.Input); break;
+                case "validate":
+                    JsonToolTransforms.Validate(_state.Input);
+                    _inputValid = true;
+                    break;
+                case "compare": _state.Output = JsonToolTransforms.Compare(_state.Input, _state.Input2); break;
+                case "decode": _state.Output = EncodeToolTransforms.DecodeJwt(_state.Input); break;
+                case "b64e": _state.Output = EncodeToolTransforms.Base64Encode(_state.Input); break;
+                case "b64d": _state.Output = EncodeToolTransforms.Base64Decode(_state.Input); break;
+                case "urle": _state.Output = EncodeToolTransforms.UrlEncode(_state.Input); break;
+                case "urld": _state.Output = EncodeToolTransforms.UrlDecode(_state.Input); break;
+                case "sha": _state.Output = EncodeToolTransforms.Sha256Hex(_state.Input); break;
+                case "uuid": _state.Output = EncodeToolTransforms.NewUuid(_state.Flag); break;
+                case "toUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: true); break;
+                case "fromUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false); break;
+                case "yamlVal":
+                    ConvertToolTransforms.ValidateYaml(_state.Input);
+                    _inputValid = true;
+                    break;
+                case "y2j": _state.Output = ConvertToolTransforms.YamlToJson(_state.Input); break;
+                case "j2y": _state.Output = ConvertToolTransforms.JsonToYaml(_state.Input); break;
+                case "xml": _state.Output = ConvertToolTransforms.FormatXml(_state.Input); break;
+                case "c2j": _state.Output = ConvertToolTransforms.CsvToJson(_state.Input); break;
+                case "j2c": _state.Output = ConvertToolTransforms.JsonToCsv(_state.Input); break;
+                case "cs": _state.Output = ConvertToolTransforms.JsonToCsharp(_state.Input); break;
+                case "ts": _state.Output = ConvertToolTransforms.JsonToTypescript(_state.Input); break;
+                case "sql": _state.Output = TextToolTransforms.FormatSql(_state.Input); break;
+                case "html": _state.Output = await JS.InvokeAsync<string>("ThaiXBeautify", "html", _state.Input); break;
+                case "css": _state.Output = await JS.InvokeAsync<string>("ThaiXBeautify", "css", _state.Input); break;
+                case "js": _state.Output = await JS.InvokeAsync<string>("ThaiXBeautify", "js", _state.Input); break;
+                case "md":
+                    if (_mdPreviewMode)
+                    {
+                        ShowMarkdownEditor();
+                    }
+                    else
+                    {
+                        await RefreshMarkdownAsync();
+                        _mdPreviewMode = true;
+                    }
+                    break;
+                case "h2m": _state.Output = TextToolTransforms.HtmlToMarkdownRough(_state.Input); break;
+                case "m2h": _state.Output = TextToolTransforms.MarkdownToHtml(_state.Input); break;
+                case "diff": _state.Output = TextToolTransforms.Diff(_state.Input, _state.Input2); break;
+                case "re": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, null); break;
+                case "reReplace": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, _state.Option); break;
+                case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
+                case "pws": _state.Output = GeneratorToolTransforms.PasswordStrength(_state.Input); break;
+                case "cron":
+                    var parts = (_state.Option ?? "* * * * *").Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
+                    while (parts.Count < 5) parts.Add("*");
+                    _state.Output = GeneratorToolTransforms.DescribeCron(
+                        GeneratorToolTransforms.BuildCron(parts[0], parts[1], parts[2], parts[3], parts[4]));
+                    break;
+                case "qr":
+                    _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input);
+                    _state.Output = "QR generated.";
+                    break;
+                case "curl":
+                    _state.Output = GeneratorToolTransforms.BuildCurl(
+                        string.IsNullOrWhiteSpace(_state.Option) ? "GET" : _state.Option,
+                        _state.Input, _state.Input2, "");
+                    break;
+                case "gi": _state.Output = GeneratorToolTransforms.GitignorePreset(_state.Option); break;
+                case "cc":
+                    var bits = (_state.Option ?? "feat").Split('/', 2, StringSplitOptions.TrimEntries);
+                    _state.Output = GeneratorToolTransforms.ConventionalCommit(
+                        bits[0], bits.Length > 1 ? bits[1] : "", _state.Input, _state.Flag, _state.Input2);
+                    break;
+            }
+
+            await ScheduleLocalSaveAsync();
+        }
+        catch (Exception ex)
+        {
+            if (actionId is "validate" or "yamlVal")
+                _inputValid = false;
+            ReportToolIssue(ex);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task DownloadQrAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_qrSvg)) return;
+        try
+        {
+            var fileName = $"ThaiX-qr-{DateTime.Now:yyyyMMdd-HHmmss}.png";
+            await JS.InvokeVoidAsync("ThaiXDownloadQrPng", _qrSvg, fileName);
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+    }
+
+    private Task RefreshMarkdownAsync()
+    {
+        try
+        {
+            _previewHtml = TextToolTransforms.MarkdownToHtml(_state.Input);
+            _previewEpoch++;
+            _previewDirty = true;
+            _warning = null;
+        }
+        catch (Exception ex)
+        {
+            _previewHtml = string.Empty;
+            _previewEpoch++;
+            _previewDirty = true;
+            ReportToolIssue(ex);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_previewDirty || !IsMarkdownPreview()) return;
+        _previewDirty = false;
+
+        var epoch = _previewEpoch;
+        var html = _previewHtml;
+        try
+        {
+            // JS owns the preview DOM; epoch cancels stale Mermaid work when user pastes B over A.
+            await JS.InvokeVoidAsync("ThaiXSetMarkdownPreview", _previewRef, html, epoch);
+        }
+        catch (JSDisconnectedException)
+        {
+            /* circuit/page going away */
+        }
+        catch (Exception ex)
+        {
+            if (epoch != _previewEpoch) return;
+            ReportToolIssue(ex);
+            try { await InvokeAsync(StateHasChanged); }
+            catch { /* ignore */ }
+        }
+    }
+
+    private async Task OnMarkdownInputChanged(string? value)
+    {
+        _state.Input = value ?? string.Empty;
+        try
+        {
+            // Live dual-pane preview; Preview button switches to focus mode.
+            await RefreshMarkdownAsync();
+            _ = ScheduleLocalSaveAsync();
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+    }
+
+    private Task CopyPreviewTextAsync() =>
+        CopyPreviewAsync("ThaiXCopyMarkdownPreviewText", L[RK.Tools.MarkdownPreview.CopyAllSuccess]);
+
+    private Task CopyPreviewHtmlAsync() =>
+        CopyPreviewAsync("ThaiXCopyMarkdownPreviewHtml", L[RK.Tools.MarkdownPreview.CopyHtmlSuccess]);
+
+    private async Task CopyPreviewAsync(string jsFunction, string successMessage)
+    {
+        try
+        {
+            var ok = await JS.InvokeAsync<bool>(jsFunction, _previewRef);
+            if (!ok) throw new InvalidOperationException("Clipboard copy returned false.");
+            NotificationService.NotifySuccess(successMessage);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Tools.MarkdownPreview.CopyFailed], ex.Message);
+        }
+    }
+
+    private async Task OnInputChanged(string? value)
+    {
+        try
+        {
+            _state.Input = value ?? string.Empty;
+            _warning = null;
+            _inputValid = null;
+            await ScheduleLocalSaveAsync();
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+    }
+
+    private async Task OnInput2Changed(string? value)
+    {
+        try
+        {
+            _state.Input2 = value ?? string.Empty;
+            _warning = null;
+            await ScheduleLocalSaveAsync();
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+    }
+
+    private async Task OnOutputChanged(string? value)
+    {
+        try
+        {
+            _state.Output = value ?? string.Empty;
+            await ScheduleLocalSaveAsync();
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+    }
+
+    private void OnOptionChanged(string? value)
+    {
+        _state.Option = value ?? string.Empty;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private void OnNumberChanged(int value)
+    {
+        _state.Number = value;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private void OnFlagChanged(bool value)
+    {
+        _state.Flag = value;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private async Task ScheduleLocalSaveAsync()
+    {
+        if (!_loaded || _tool is null) return;
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
+        try
+        {
+            await Task.Delay(400, token);
+            await ToolStateStore.SaveLocalAsync(_tool, SerializeState(), token);
+        }
+        catch (OperationCanceledException) { }
+        catch { }
+    }
+
+    public void Dispose()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+    }
+}

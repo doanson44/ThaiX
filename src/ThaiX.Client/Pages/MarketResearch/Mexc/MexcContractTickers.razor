@@ -1,0 +1,330 @@
+@page "/market-research/mexc/contract-ticker"
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Models.Trading
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-3">
+        @L[RK.MexcContractTickers.Title]
+    </RadzenText>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <div>
+            <label class="rz-label mb-1">@L[RK.MexcContractTickers.SearchPlaceholder]</label>
+            <AsyncSearchSelect TItem="MexcContractTickerDto"
+                               Value="@_selectedSymbol"
+                               ValueChanged="OnSelectedSymbolChanged"
+                               LoadDataAsync="LoadTickersAsync"
+                               GetText="@(x => x.Symbol)"
+                               GetValue="@(x => x.Symbol)"
+                               Placeholder="@L[RK.MexcContractTickers.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filteredTickers.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.MexcContractTickers.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="MexcContractTickerDto"
+                            Data="@_filteredTickers"
+                            Count="@_filteredTickers.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn MinWidth="6.25rem" TItem="MexcContractTickerDto" Property="CompositeScore" Title="@L[RK.MexcContractTickers.CompositeScore]">
+                        <Template Context="ticker">
+                            @if (ticker.CompositeScore.HasValue)
+                            {
+                                <RadzenBadge BadgeStyle="@GetScoreBadgeStyle(ticker.CompositeScore)"
+                                             Text="@(ticker.CompositeScore.Value.ToString("F1"))"
+                                             IsPill="true"
+                                             title="@GetScoreTooltip(ticker.ScoreBreakdown)" />
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="ContractId" Title="@L[RK.MexcContractTickers.ContractId]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]">
+                        <Template Context="ticker">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallRate)">@FormatRawValue(ticker.LastPrice)</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]">
+                        <Template Context="ticker">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallRate)">@FormatSignedRawValue(ticker.RiseFallRate)</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="FundingRate" Title="@L[RK.MexcContractTickers.FundingRate]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Bid1" Title="@L[RK.MexcContractTickers.Bid1]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Ask1" Title="@L[RK.MexcContractTickers.Ask1]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="High24Price" Title="@L[RK.MexcContractTickers.High24Price]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Low24Price" Title="@L[RK.MexcContractTickers.Low24Price]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Volume24" Title="@L[RK.MexcContractTickers.Volume24]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Amount24" Title="@L[RK.MexcContractTickers.Amount24]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="HoldVol" Title="@L[RK.MexcContractTickers.HoldVol]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="IndexPrice" Title="@L[RK.MexcContractTickers.IndexPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="FairPrice" Title="@L[RK.MexcContractTickers.FairPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="MaxBidPrice" Title="@L[RK.MexcContractTickers.MaxBidPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="MinAskPrice" Title="@L[RK.MexcContractTickers.MinAskPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallValue" Title="@L[RK.MexcContractTickers.RiseFallValue]">
+                        <Template Context="ticker">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallValue)">@FormatSignedRawValue(ticker.RiseFallValue)</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Timestamp" Title="@L[RK.MexcContractTickers.Timestamp]">
+                        <Template Context="ticker">
+                            @(ticker.Timestamp.HasValue && ticker.Timestamp.Value > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.Timestamp.Value).LocalDateTime.ToString("g") : "-")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="MexcContractTickerDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]">
+                        <Template Context="ticker">
+                            <RadzenButton Size="ButtonSize.Small"
+                                          Icon="insights"
+                                          Text="@L[RK.TradingSuggestion.Action]"
+                                          Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.Crypto))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="MexcContractTickerDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filteredTickers" Context="ticker" OverscanCount="5">
+                <RadzenCard Class="p-3 mb-3">
+                    <RadzenStack Gap="0.5rem">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                            @if (ticker.CompositeScore.HasValue)
+                            {
+                                <RadzenBadge BadgeStyle="@GetScoreBadgeStyle(ticker.CompositeScore)"
+                                             Text="@(ticker.CompositeScore.Value.ToString("F1"))"
+                                             IsPill="true" />
+                            }
+                        </div>
+                        @if (ticker.ScoreBreakdown is { } bd)
+                        {
+                            <RadzenText TextStyle="TextStyle.Caption" Style="color: var(--rz-text-secondary-color)">
+                                Vol:@bd.VolumeScore.ToString("F0") OI:@bd.OpenInterestScore.ToString("F0") FR:@bd.FundingScore.ToString("F0") Mom:@bd.MomentumScore.ToString("F0") | Broker:@bd.BrokerQualityScore.ToString("F0") Social:@bd.SocialScore.ToString("F0") Supply:@bd.SupplyHealthScore.ToString("F0") Unlock:@bd.UnlockPenalty.ToString("F0") FDV:@bd.FdvOverhangPenalty.ToString("F0")
+                            </RadzenText>
+                        }
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.ContractId]: @ticker.ContractId</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallRate)">@L[RK.MexcContractTickers.LastPrice]: @FormatRawValue(ticker.LastPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallRate)">@L[RK.MexcContractTickers.RiseFallRate]: @FormatSignedRawValue(ticker.RiseFallRate)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.FundingRate]: @ticker.FundingRate?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @ticker.Bid1?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Ask1]: @ticker.Ask1?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.High24Price]: @ticker.High24Price?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Low24Price]: @ticker.Low24Price?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Volume24]: @ticker.Volume24?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Amount24]: @ticker.Amount24?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.HoldVol]: @ticker.HoldVol?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.IndexPrice]: @ticker.IndexPrice?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.FairPrice]: @ticker.FairPrice?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.MaxBidPrice]: @ticker.MaxBidPrice?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.MinAskPrice]: @ticker.MinAskPrice?.ToString()</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallValue)">@L[RK.MexcContractTickers.RiseFallValue]: @FormatSignedRawValue(ticker.RiseFallValue)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Timestamp]: @(ticker.Timestamp.HasValue && ticker.Timestamp > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.Timestamp.Value).LocalDateTime.ToString("g") : "-")</RadzenText>
+                        <RadzenButton Size="ButtonSize.Small"
+                                      Icon="insights"
+                                      Text="@L[RK.TradingSuggestion.Action]"
+                                      Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.Crypto))" />
+                    </RadzenStack>
+                </RadzenCard>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private List<MexcContractTickerDto> _allTickers = [];
+    private List<MexcContractTickerDto> _filteredTickers = [];
+    private bool _isLoading;
+    private string? _selectedSymbol;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetMexcContractTickersAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _allTickers = response.Data.Data ?? new List<MexcContractTickerDto>();
+                _filteredTickers = _allTickers;
+            }
+            else
+            {
+                _allTickers = [];
+                _filteredTickers = [];
+            }
+        }
+        catch
+        {
+            _allTickers = [];
+            _filteredTickers = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private IReadOnlyList<SortOption<MexcContractTickerDto>> SortOptions =>
+    [
+        new("compositeScore", L[RK.MexcContractTickers.CompositeScore], x => x.CompositeScore),
+        new("symbol",         L[RK.MexcContractTickers.Symbol],         x => x.Symbol),
+        new("lastPrice",      L[RK.MexcContractTickers.LastPrice],      x => x.LastPrice),
+        new("riseFallRate",   L[RK.MexcContractTickers.RiseFallRate],   x => x.RiseFallRate),
+        new("amount24",       L[RK.MexcContractTickers.Amount24],       x => x.Amount24),
+        new("holdVol",        L[RK.MexcContractTickers.HoldVol],        x => x.HoldVol),
+        new("fundingRate",    L[RK.MexcContractTickers.FundingRate],    x => x.FundingRate),
+    ];
+
+    private Task OnSelectedSymbolChanged(string? value)
+    {
+        _selectedSymbol = value;
+        ApplyFilter();
+        return Task.CompletedTask;
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<MexcContractTickerDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
+            ? _allTickers
+            : _allTickers.Where(t => t.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (opt is not null)
+                result = _sortAscending
+                    ? result.OrderBy(opt.KeySelector)
+                    : result.OrderByDescending(opt.KeySelector);
+        }
+
+        _filteredTickers = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+    private void OnSortDirectionChanged(bool asc) { _sortAscending = asc; ApplyFilter(); }
+
+    private Task<(IReadOnlyList<MexcContractTickerDto>, int)> LoadTickersAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var query = string.IsNullOrWhiteSpace(search)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+
+        var total = query.Count;
+        var items = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Task.FromResult<(IReadOnlyList<MexcContractTickerDto>, int)>((items, total));
+    }
+
+    private static BadgeStyle GetScoreBadgeStyle(decimal? score) => score switch
+    {
+        >= 70 => BadgeStyle.Success,
+        >= 50 => BadgeStyle.Warning,
+        >= 30 => BadgeStyle.Info,
+        _ => BadgeStyle.Danger
+    };
+
+    private static string GetScoreTooltip(MexcScoreBreakdownDto? bd)
+    {
+        if (bd is null) return string.Empty;
+        return $"Vol:{bd.VolumeScore:F1} OI:{bd.OpenInterestScore:F1} FR:{bd.FundingScore:F1} Mom:{bd.MomentumScore:F1} | Broker:{bd.BrokerQualityScore:F1} Social:{bd.SocialScore:F1} Raise:{bd.FundraisingScore:F1} Supply:{bd.SupplyHealthScore:F1} | Unlock:{bd.UnlockPenalty:F1} FDV:{bd.FdvOverhangPenalty:F1}";
+    }
+
+    private static string GetTrendClass(decimal? value)
+    {
+        if (!value.HasValue || value.Value == 0)
+        {
+            return string.Empty;
+        }
+
+        return value.Value > 0 ? "text-success fw-semibold" : "text-danger fw-semibold";
+    }
+
+    private static string FormatRawValue(decimal? value)
+    {
+        return value?.ToString() ?? "-";
+    }
+
+    private static string FormatSignedRawValue(decimal? value)
+    {
+        if (!value.HasValue)
+        {
+            return "-";
+        }
+
+        var rawValue = value.Value.ToString();
+        return value.Value > 0 ? $"+{rawValue}" : rawValue;
+    }
+
+    private async Task OpenTradeSuggestionAsync(string symbol, MarketType marketType)
+    {
+        await DialogService.OpenAsync<TradeSuggestionDialog>(
+            L[RK.TradingSuggestion.Title],
+            new Dictionary<string, object?>
+            {
+                [nameof(TradeSuggestionDialog.Symbol)] = symbol,
+                [nameof(TradeSuggestionDialog.MarketType)] = marketType
+            },
+            new DialogOptions
+            {
+                Width = "min(680px, 96vw)",
+                CloseDialogOnOverlayClick = true
+            });
+    }
+
+}

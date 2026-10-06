@@ -1,0 +1,529 @@
+@page "/admin/resume"
+@attribute [Authorize(Policy = PermissionNames.ResumeWrite)]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Components.Resume
+@using ThaiX.Client.Models.Resumes
+@using ThaiX.Client.Services.Resumes
+@inject IResumeService ResumeService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.Resume.AdminTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem" Class="tx-resume-toolbar">
+            <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">@L[RK.Resume.AdminTitle]</RadzenText>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                @if (!string.IsNullOrWhiteSpace(_model.Slug))
+                {
+                    <RadzenLink Path="@($"/resume/{_model.Slug}")" Target="_blank" Text="@L[RK.Resume.ViewPublic]" />
+                }
+                @if (!_isLoading)
+                {
+                    <ResponsiveIconButton Text="@L[RK.Resume.Preview]" Icon="visibility" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                  Click="OpenPreviewAsync" />
+                    <ResponsiveIconButton Text="@L[RK.Resume.OptimizeForJob]" Icon="work" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                  Click="OpenOptimizeForJobDialogAsync" />
+                    <ResponsiveIconButton Text="@L[RK.Resume.CheckConsistency]" Icon="fact_check" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                  IsBusy="@_isCheckingConsistency" Disabled="@_isCheckingConsistency" Click="CheckConsistencyAsync" />
+                    <ResponsiveIconButton Text="@L[RK.Resume.Save]" ButtonStyle="ButtonStyle.Primary" Icon="save"
+                                  IsBusy="@_isSaving" Disabled="@_isSaving" Click="SaveAsync" />
+                }
+            </RadzenStack>
+        </RadzenStack>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else
+        {
+            <RadzenCard>
+                <RadzenStack Gap="1rem">
+                    <RadzenText TextStyle="TextStyle.H6">@L[RK.Resume.BasicInfo]</RadzenText>
+
+                    <RadzenRow Gap="0.75rem">
+                        <RadzenColumn Size="6">
+                            <RadzenFormField Text="@L[RK.Resume.Slug]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_model.Slug" Class="w-100" MaxLength="100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="mt-4">
+                                <RadzenSwitch @bind-Value="_model.IsPublished" />
+                                <RadzenLabel Text="@L[RK.Resume.Published]" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenRow Gap="0.75rem">
+                        <RadzenColumn Size="6">
+                            <RadzenFormField Text="@L[RK.Resume.FullName]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_model.FullName" Class="w-100" MaxLength="200" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6">
+                            <RadzenFormField Text="@L[RK.Resume.Headline]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_model.Headline" Class="w-100" MaxLength="200" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenFormField Text="@L[RK.Resume.MetaDescription]" Class="w-100">
+                        <RadzenTextArea @bind-Value="_model.MetaDescription" Class="w-100" Rows="3" MaxLength="300" />
+                    </RadzenFormField>
+
+                    <RadzenFormField Text="@L[RK.Resume.Summary]" Class="w-100">
+                        <RadzenTextArea @bind-Value="_model.Content.Summary" Class="w-100" Rows="5" MaxLength="2000" />
+                    </RadzenFormField>
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Class="mt-n2">
+                        <ResponsiveIconButton Text="@L[RK.Resume.Polish]" Icon="auto_fix_high" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                      IsBusy="@_isPolishingSummary" Disabled="@(_isPolishingSummary || string.IsNullOrWhiteSpace(_model.Content.Summary))"
+                                      Click="PolishSummaryAsync" />
+                        <ResponsiveIconButton Text="@L[RK.Resume.AutoGenerate]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                      IsBusy="@_isGeneratingSummary" Disabled="@_isGeneratingSummary"
+                                      Click="GenerateSummaryAsync" />
+                    </RadzenStack>
+
+                    <RadzenFormField Text="@L[RK.Resume.Skills]" Class="w-100">
+                        <RadzenTextBox @bind-Value="_skillsText" Class="w-100" Placeholder="@L[RK.Resume.SkillsPlaceholder]" />
+                    </RadzenFormField>
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.Resume.Experience]</RadzenText>
+                        <ResponsiveIconButton Text="@L[RK.Resume.AddRow]" Icon="add" Size="ButtonSize.Small" Click="@(() => _model.Content.Experience.Add(new ResumeExperienceDto()))" />
+                    </RadzenStack>
+                    @foreach (var item in _model.Content.Experience)
+                    {
+                        <RadzenCard class="p-3">
+                            <RadzenStack Gap="0.5rem">
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.Company]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.Company" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.Position]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.Position" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.StartDate]" Class="w-100">
+                                            <RadzenDatePicker @bind-Value="item.StartDateValue" Class="w-100" DateFormat="yyyy-MM-dd" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.EndDate]" Class="w-100">
+                                            <RadzenDatePicker @bind-Value="item.EndDateValue" Class="w-100" DateFormat="yyyy-MM-dd" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenFormField Text="@L[RK.Resume.Description]" Class="w-100">
+                                    <RadzenTextArea @bind-Value="item.Description" Class="w-100" Rows="4" />
+                                </RadzenFormField>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                                    <ResponsiveIconButton Text="@L[RK.Resume.Polish]" Icon="auto_fix_high" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                                  IsBusy="@_polishingExperience.Contains(item)" Disabled="@(_polishingExperience.Contains(item) || string.IsNullOrWhiteSpace(item.Description))"
+                                                  Click="@(() => PolishExperienceAsync(item))" />
+                                    <ResponsiveIconButton Text="@L[RK.Resume.Remove]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                                  Click="@(() => _model.Content.Experience.Remove(item))" />
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.Resume.Projects]</RadzenText>
+                        <ResponsiveIconButton Text="@L[RK.Resume.AddRow]" Icon="add" Size="ButtonSize.Small" Click="@(() => _model.Content.Projects.Add(new ResumeProjectDto()))" />
+                    </RadzenStack>
+                    @foreach (var item in _model.Content.Projects)
+                    {
+                        <RadzenCard class="p-3">
+                            <RadzenStack Gap="0.5rem">
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.ProjectName]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.Name" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.TechStack]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.TechStack" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenFormField Text="@L[RK.Resume.Description]" Class="w-100">
+                                    <RadzenTextArea @bind-Value="item.Description" Class="w-100" Rows="4" />
+                                </RadzenFormField>
+                                <RadzenFormField Text="@L[RK.Resume.LinkUrl]" Class="w-100">
+                                    <RadzenTextBox @bind-Value="item.LinkUrl" Class="w-100" Placeholder="@L[RK.Resume.ProjectLinkPlaceholder]" />
+                                </RadzenFormField>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                                    <ResponsiveIconButton Text="@L[RK.Resume.Polish]" Icon="auto_fix_high" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                                  IsBusy="@_polishingProjects.Contains(item)" Disabled="@(_polishingProjects.Contains(item) || string.IsNullOrWhiteSpace(item.Description))"
+                                                  Click="@(() => PolishProjectAsync(item))" />
+                                    <ResponsiveIconButton Text="@L[RK.Resume.Remove]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                                  Click="@(() => _model.Content.Projects.Remove(item))" />
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.Resume.Education]</RadzenText>
+                        <ResponsiveIconButton Text="@L[RK.Resume.AddRow]" Icon="add" Size="ButtonSize.Small" Click="@(() => _model.Content.Education.Add(new ResumeEducationDto()))" />
+                    </RadzenStack>
+                    @foreach (var item in _model.Content.Education)
+                    {
+                        <RadzenCard class="p-3">
+                            <RadzenStack Gap="0.5rem">
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.School]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.School" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.Degree]" Class="w-100">
+                                            <RadzenTextBox @bind-Value="item.Degree" Class="w-100" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.StartDate]" Class="w-100">
+                                            <RadzenDatePicker @bind-Value="item.StartDateValue" Class="w-100" DateFormat="yyyy-MM-dd" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenFormField Text="@L[RK.Resume.EndDate]" Class="w-100">
+                                            <RadzenDatePicker @bind-Value="item.EndDateValue" Class="w-100" DateFormat="yyyy-MM-dd" />
+                                        </RadzenFormField>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <ResponsiveIconButton Text="@L[RK.Resume.Remove]" Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                              Click="@(() => _model.Content.Education.Remove(item))" />
+                            </RadzenStack>
+                        </RadzenCard>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.Resume.Links]</RadzenText>
+                        <ResponsiveIconButton Text="@L[RK.Resume.AddRow]" Icon="add" Size="ButtonSize.Small" Click="@(() => _model.Content.Links.Add(new ResumeLinkDto()))" />
+                    </RadzenStack>
+                    @foreach (var item in _model.Content.Links)
+                    {
+                        <RadzenRow Gap="0.75rem" AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="4">
+                                <RadzenTextBox @bind-Value="item.Label" Class="w-100" Placeholder="@L[RK.Resume.LinkLabel]" />
+                            </RadzenColumn>
+                            <RadzenColumn Size="6">
+                                <RadzenTextBox @bind-Value="item.Url" Class="w-100" Placeholder="@L[RK.Resume.ProfileLinkPlaceholder]" />
+                            </RadzenColumn>
+                            <RadzenColumn Size="2">
+                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                              Click="@(() => _model.Content.Links.Remove(item))" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                <ResponsiveIconButton Text="@L[RK.Resume.Save]" ButtonStyle="ButtonStyle.Primary" Icon="save"
+                              IsBusy="@_isSaving" Disabled="@_isSaving" Click="SaveAsync" />
+            </RadzenStack>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private UpsertResumeRequest _model = new();
+    private string _skillsText = string.Empty;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _isPolishingSummary;
+    private bool _isGeneratingSummary;
+    private bool _isCheckingConsistency;
+    private readonly HashSet<ResumeExperienceDto> _polishingExperience = [];
+    private readonly HashSet<ResumeProjectDto> _polishingProjects = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var resume = await ResumeService.GetMineAsync();
+            if (resume is not null)
+            {
+                _model = new UpsertResumeRequest
+                {
+                    Slug = resume.Slug,
+                    FullName = resume.FullName,
+                    Headline = resume.Headline,
+                    MetaDescription = resume.MetaDescription,
+                    IsPublished = resume.IsPublished,
+                    Content = resume.Content
+                };
+                _skillsText = string.Join(", ", resume.Content.Skills);
+            }
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.LoadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving)
+        {
+            return;
+        }
+
+        _isSaving = true;
+        try
+        {
+            _model.Content.Skills = ParseSkills();
+
+            await ResumeService.SaveAsync(_model);
+            NotificationService.NotifySuccess(L[RK.Resume.SaveSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.SaveFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.SaveFailed], ex.Message);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private List<string> ParseSkills()
+    {
+        return _skillsText
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+    }
+
+    private async Task PolishSummaryAsync()
+    {
+        if (_isPolishingSummary || string.IsNullOrWhiteSpace(_model.Content.Summary))
+        {
+            return;
+        }
+
+        _isPolishingSummary = true;
+        try
+        {
+            _model.Content.Summary = await ResumeService.PolishTextAsync(new PolishResumeTextRequest
+            {
+                Text = _model.Content.Summary,
+                FieldContext = "professional summary"
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _isPolishingSummary = false;
+        }
+    }
+
+    private async Task GenerateSummaryAsync()
+    {
+        if (_isGeneratingSummary)
+        {
+            return;
+        }
+
+        _isGeneratingSummary = true;
+        try
+        {
+            _model.Content.Skills = ParseSkills();
+            _model.Content.Summary = await ResumeService.GenerateSummaryAsync(new GenerateResumeSummaryRequest
+            {
+                FullName = _model.FullName,
+                Headline = _model.Headline,
+                Skills = _model.Content.Skills,
+                Experience = _model.Content.Experience,
+                Projects = _model.Content.Projects,
+                Education = _model.Content.Education
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _isGeneratingSummary = false;
+        }
+    }
+
+    private async Task PolishExperienceAsync(ResumeExperienceDto item)
+    {
+        if (_polishingExperience.Contains(item) || string.IsNullOrWhiteSpace(item.Description))
+        {
+            return;
+        }
+
+        _polishingExperience.Add(item);
+        try
+        {
+            var context = string.IsNullOrWhiteSpace(item.Company) && string.IsNullOrWhiteSpace(item.Position)
+                ? "job description"
+                : $"job description for {item.Position} at {item.Company}";
+
+            item.Description = await ResumeService.PolishTextAsync(new PolishResumeTextRequest
+            {
+                Text = item.Description,
+                FieldContext = context
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _polishingExperience.Remove(item);
+        }
+    }
+
+    private async Task PolishProjectAsync(ResumeProjectDto item)
+    {
+        if (_polishingProjects.Contains(item) || string.IsNullOrWhiteSpace(item.Description))
+        {
+            return;
+        }
+
+        _polishingProjects.Add(item);
+        try
+        {
+            var context = string.IsNullOrWhiteSpace(item.Name)
+                ? "project description"
+                : $"project description for {item.Name}";
+
+            item.Description = await ResumeService.PolishTextAsync(new PolishResumeTextRequest
+            {
+                Text = item.Description,
+                FieldContext = context
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _polishingProjects.Remove(item);
+        }
+    }
+
+    private async Task CheckConsistencyAsync()
+    {
+        if (_isCheckingConsistency)
+        {
+            return;
+        }
+
+        _isCheckingConsistency = true;
+        try
+        {
+            _model.Content.Skills = ParseSkills();
+            var report = await ResumeService.CheckConsistencyAsync(new CheckResumeConsistencyRequest
+            {
+                Content = _model.Content
+            });
+
+            await DialogService.OpenAsync<AiReportDialog>(
+                L[RK.Resume.ConsistencyReportTitle],
+                new Dictionary<string, object?> { [nameof(AiReportDialog.Report)] = report },
+                new DialogOptions { Width = "min(640px, 95vw)", CloseDialogOnOverlayClick = true });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Resume.AiRequestFailed], ex.Message);
+        }
+        finally
+        {
+            _isCheckingConsistency = false;
+        }
+    }
+
+    private async Task OpenOptimizeForJobDialogAsync()
+    {
+        _model.Content.Skills = ParseSkills();
+        await DialogService.OpenAsync<OptimizeForJobDialog>(
+            L[RK.Resume.OptimizeForJob],
+            new Dictionary<string, object?> { [nameof(OptimizeForJobDialog.Content)] = _model.Content },
+            new DialogOptions { Width = "min(640px, 95vw)", CloseDialogOnOverlayClick = true });
+    }
+
+    private async Task OpenPreviewAsync()
+    {
+        _model.Content.Skills = ParseSkills();
+        await DialogService.OpenAsync<ResumeView>(
+            L[RK.Resume.PreviewTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(ResumeView.FullName)] = _model.FullName,
+                [nameof(ResumeView.Headline)] = _model.Headline,
+                [nameof(ResumeView.Content)] = _model.Content
+            },
+            new DialogOptions { Width = "min(820px, 95vw)", CloseDialogOnOverlayClick = true });
+    }
+}

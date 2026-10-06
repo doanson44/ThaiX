@@ -1,0 +1,107 @@
+@page "/blog"
+@layout PublicResumeLayout
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.Blog.Public.ListTitle] - ThaiX</PageTitle>
+<HeadContent>
+    <meta name="description" content="@L[RK.Blog.Public.ListTitle]" />
+</HeadContent>
+
+<div class="container py-4 blog-index">
+    <header class="blog-index__header">
+        <h1 class="blog-index__title">@L[RK.Blog.Public.ListTitle]</h1>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="rz-mb-3">@_error</RadzenAlert>
+    }
+
+    <RadzenDataList TItem="PublishedPostListItemDto"
+                    AllowVirtualization="true"
+                    Class="blog-index__list"
+                    Style="height: calc(100vh - 11rem); overflow: auto;"
+                    LoadData="@LoadDataAsync"
+                    Data="@_items"
+                    Count="@_totalCount"
+                    PageSize="@PageSize"
+                    IsLoading="@_isLoading"
+                    Density="Density.Compact">
+        <Template Context="post">
+            <a class="blog-index__row" href="@($"/blog/{post.Slug}")">
+                <time class="blog-index__date" datetime="@post.PublishedAt?.ToString("yyyy-MM-dd")">
+                    @(post.PublishedAt?.ToString("MMM d") ?? "—")
+                    @if (post.PublishedAt.HasValue)
+                    {
+                        <span class="blog-index__year">@post.PublishedAt.Value.ToString("yyyy")</span>
+                    }
+                </time>
+                <div class="blog-index__body">
+                    <div class="blog-index__meta">
+                        @if (!string.IsNullOrWhiteSpace(post.CategoryName))
+                        {
+                            <span class="blog-index__category">@post.CategoryName</span>
+                        }
+                        <span class="blog-index__read">@post.ReadTimeMinutes @L[RK.Blog.Public.MinRead]</span>
+                    </div>
+                    <h2 class="blog-index__post-title">@post.Title</h2>
+                    @if (!string.IsNullOrWhiteSpace(post.Summary))
+                    {
+                        <p class="blog-index__summary">@post.Summary</p>
+                    }
+                </div>
+                <span class="blog-index__arrow" aria-hidden="true">→</span>
+            </a>
+        </Template>
+        <EmptyTemplate>
+            <p class="blog-index__empty text-muted">@L[RK.Blog.Public.NoPostsFound]</p>
+        </EmptyTemplate>
+    </RadzenDataList>
+</div>
+
+@code {
+    private const int PageSize = 12;
+
+    // Must stay null until first LoadData so Radzen virtualization fires LoadData on first render.
+    private IEnumerable<PublishedPostListItemDto>? _items;
+    private int _totalCount;
+    private bool _isLoading;
+    private string? _error;
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+        _error = null;
+
+        try
+        {
+            var pageSize = args.Top is > 0 ? args.Top.Value : PageSize;
+            var skip = Math.Max(0, args.Skip ?? 0);
+            var pageNumber = (skip / pageSize) + 1;
+
+            var result = await BlogService.GetPublishedPostsAsync(new PublishedPostsListRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
+
+            _items = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.GetDisplayDetail() ?? L[RK.Blog.Public.LoadFailed];
+            _items = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

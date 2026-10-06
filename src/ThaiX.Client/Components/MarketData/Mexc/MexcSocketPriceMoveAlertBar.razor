@@ -1,0 +1,229 @@
+@using System.Globalization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.MarketData
+@using ThaiX.Client.Models.Notifications
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.MarketData
+@using ThaiX.Client.Services.Notifications
+@inject DialogService DialogService
+@inject NotificationService UiNotifications
+@inject INotificationService NotificationClient
+@inject MexcSocketPriceMoveAlertStore AlertStore
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Orientation="Orientation.Horizontal"
+             AlignItems="AlignItems.Center"
+             JustifyContent="JustifyContent.SpaceBetween"
+             Gap="0.75rem"
+             Wrap="FlexWrap.Wrap"
+             Class="w-100">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+        <RadzenSwitch Value="_enabled"
+                      ValueChanged="OnEnabledChangedAsync"
+                      Class="tx-mexc-price-alert-switch" />
+        <RadzenLabel Text="@L[RK.MexcSocketPriceMoveAlert.Enable]" Class="mb-0" />
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+        @if (_enabled)
+        {
+            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">
+                @string.Format(
+                    L[RK.MexcSocketPriceMoveAlert.ActiveSummary].ToString(),
+                    _settings.TimeWindowMinutes,
+                    _settings.AbsoluteChangePercent.ToString("0.##", CultureInfo.InvariantCulture))
+            </RadzenText>
+        }
+        <RadzenButton Icon="settings"
+                      ButtonStyle="ButtonStyle.Light"
+                      Size="ButtonSize.Small"
+                      Class="tx-mexc-price-alert-settings"
+                      title="@L[RK.MexcSocketPriceMoveAlert.SettingsTitle]"
+                      Click="OpenSettingsAsync" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    /// <summary>localStorage key for this page (spot vs contract).</summary>
+    [Parameter, EditorRequired]
+    public string StorageKey { get; set; } = string.Empty;
+
+    /// <summary>Market label included in SystemAlert title (e.g. spot vs contract socket title).</summary>
+    [Parameter, EditorRequired]
+    public string MarketLabel { get; set; } = string.Empty;
+
+    private readonly MexcSocketPriceMoveMonitor _monitor = new();
+    private MexcSocketPriceMoveAlertSettings _settings = new();
+    private bool _enabled;
+    private bool _isDialogOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var state = await AlertStore.LoadAsync(StorageKey);
+            _settings = state.ToSettings();
+            _enabled = state.Enabled;
+            _monitor.Configure(_settings, enabled: _enabled);
+        }
+        catch
+        {
+            // Keep defaults when localStorage is unavailable.
+        }
+    }
+
+    public void Observe(string symbol, decimal price)
+    {
+        if (!_enabled)
+        {
+            return;
+        }
+
+        var alerts = _monitor.Observe(symbol, price);
+        foreach (var alert in alerts)
+        {
+            NotifyAlert(alert);
+        }
+    }
+
+    public void Observe(string symbol, string? priceRaw)
+    {
+        if (MexcSocketPriceMoveMonitor.TryParsePrice(priceRaw, out var price))
+        {
+            Observe(symbol, price);
+        }
+    }
+
+    private async Task OnEnabledChangedAsync(bool value)
+    {
+        if (value)
+        {
+            var saved = await OpenSettingsDialogAsync();
+            if (saved is null)
+            {
+                _enabled = false;
+                _monitor.Disable();
+                await PersistAsync();
+                return;
+            }
+
+            _settings = saved;
+            _enabled = true;
+            _monitor.Configure(_settings, enabled: true);
+            await PersistAsync();
+            UiNotifications.NotifySuccess(L[RK.MexcSocketPriceMoveAlert.Enabled]);
+        }
+        else
+        {
+            _enabled = false;
+            _monitor.Disable();
+            await PersistAsync();
+            UiNotifications.NotifyInfo(L[RK.MexcSocketPriceMoveAlert.Disabled]);
+        }
+    }
+
+    private async Task OpenSettingsAsync()
+    {
+        var saved = await OpenSettingsDialogAsync();
+        if (saved is null)
+        {
+            return;
+        }
+
+        _settings = saved;
+        _monitor.Configure(_settings, enabled: _enabled);
+        await PersistAsync();
+        UiNotifications.NotifySuccess(L[RK.Common.Save]);
+    }
+
+    private async Task PersistAsync()
+    {
+        await AlertStore.SaveAsync(StorageKey, MexcSocketPriceMoveAlertState.From(_enabled, _settings));
+    }
+
+    private async Task<MexcSocketPriceMoveAlertSettings?> OpenSettingsDialogAsync()
+    {
+        if (_isDialogOpen)
+        {
+            return null;
+        }
+
+        _isDialogOpen = true;
+        try
+        {
+            var result = await DialogService.OpenAsync<MexcSocketPriceMoveAlertDialog>(
+                L[RK.MexcSocketPriceMoveAlert.SettingsTitle],
+                new Dictionary<string, object?>
+                {
+                    [nameof(MexcSocketPriceMoveAlertDialog.Settings)] = _settings.Clone()
+                },
+                new DialogOptions
+                {
+                    Width = "min(420px, 96vw)",
+                    CloseDialogOnOverlayClick = false
+                });
+
+            return result as MexcSocketPriceMoveAlertSettings;
+        }
+        finally
+        {
+            _isDialogOpen = false;
+        }
+    }
+
+    private void NotifyAlert(MexcSocketPriceMoveAlert alert)
+    {
+        var signed = alert.ChangePercent >= 0
+            ? $"+{alert.ChangePercent.ToString("0.##", CultureInfo.InvariantCulture)}%"
+            : $"{alert.ChangePercent.ToString("0.##", CultureInfo.InvariantCulture)}%";
+
+        var detail = string.Format(
+            CultureInfo.InvariantCulture,
+            L[RK.MexcSocketPriceMoveAlert.AlertDetail].ToString(),
+            alert.Symbol,
+            signed,
+            alert.ReferencePrice.ToString("0.########", CultureInfo.InvariantCulture),
+            alert.CurrentPrice.ToString("0.########", CultureInfo.InvariantCulture),
+            alert.TimeWindowMinutes);
+
+        var toastTitle = L[RK.MexcSocketPriceMoveAlert.AlertTitle].ToString();
+        if (alert.ChangePercent >= 0)
+        {
+            UiNotifications.NotifySuccess(toastTitle, detail, duration: 8000);
+        }
+        else
+        {
+            UiNotifications.NotifyWarning(toastTitle, detail, duration: 8000);
+        }
+
+        var market = string.IsNullOrWhiteSpace(MarketLabel) ? "MEXC" : MarketLabel.Trim();
+        var systemTitle = $"{market}: {alert.Symbol} {signed}";
+        var severity = alert.ChangePercent >= 0 ? "Info" : "Warning";
+        _ = SendSystemAlertAsync(systemTitle, detail, severity);
+    }
+
+    private async Task SendSystemAlertAsync(string title, string text, string severity)
+    {
+        try
+        {
+            await NotificationClient.SendNotificationAsync(new SendNotificationRequest
+            {
+                EventType = NotificationEventType.SystemAlert,
+                Target = NotificationTarget.Both,
+                Title = title,
+                Text = text,
+                Severity = severity
+            });
+        }
+        catch (ApiException ex)
+        {
+            await InvokeAsync(() =>
+                UiNotifications.NotifyError(L[RK.Notifications.SendFailed], ex.GetDisplayDetail(), duration: 6000));
+        }
+        catch (Exception ex)
+        {
+            await InvokeAsync(() =>
+                UiNotifications.NotifyError(L[RK.Notifications.SendFailed], ex.Message, duration: 6000));
+        }
+    }
+}

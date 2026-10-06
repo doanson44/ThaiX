@@ -1,0 +1,75 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.MarketData
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">
+        @L[RK.MexcSocketPriceMoveAlert.SettingsHint]
+    </RadzenText>
+
+    <RadzenStack Gap="0.35rem">
+        <RadzenLabel Text="@L[RK.MexcSocketPriceMoveAlert.TimeWindowMinutes]" />
+        <RadzenNumeric TValue="int"
+                       @bind-Value="_timeWindowMinutes"
+                       Min="1"
+                       Max="1440"
+                       Step="1"
+                       Class="w-100" />
+    </RadzenStack>
+
+    <RadzenStack Gap="0.35rem">
+        <RadzenLabel Text="@L[RK.MexcSocketPriceMoveAlert.AbsoluteChangePercent]" />
+        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">
+            @L[RK.MexcSocketPriceMoveAlert.AbsoluteChangePercentHint]
+        </RadzenText>
+        <RadzenNumeric TValue="decimal"
+                       @bind-Value="_absoluteChangePercent"
+                       Min="0.01m"
+                       Max="1000"
+                       Step="0.1"
+                       Format="0.##"
+                       Class="w-100" />
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Text="@L[RK.Common.Cancel]"
+                      ButtonStyle="ButtonStyle.Light"
+                      Click="@Cancel" />
+        <RadzenButton Text="@L[RK.Common.Save]"
+                      ButtonStyle="ButtonStyle.Primary"
+                      Disabled="@(!IsValid)"
+                      Click="@Save" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public MexcSocketPriceMoveAlertSettings Settings { get; set; } = new();
+
+    private int _timeWindowMinutes = 3;
+    private decimal _absoluteChangePercent = 10m;
+
+    private bool IsValid => _timeWindowMinutes >= 1 && _absoluteChangePercent > 0m;
+
+    protected override void OnParametersSet()
+    {
+        _timeWindowMinutes = Math.Clamp(Settings.TimeWindowMinutes, 1, 1440);
+        _absoluteChangePercent = Settings.AbsoluteChangePercent > 0m ? Settings.AbsoluteChangePercent : 10m;
+    }
+
+    private void Cancel() => DialogService.Close(null);
+
+    private void Save()
+    {
+        if (!IsValid)
+        {
+            return;
+        }
+
+        DialogService.Close(new MexcSocketPriceMoveAlertSettings
+        {
+            TimeWindowMinutes = _timeWindowMinutes,
+            AbsoluteChangePercent = _absoluteChangePercent
+        });
+    }
+}

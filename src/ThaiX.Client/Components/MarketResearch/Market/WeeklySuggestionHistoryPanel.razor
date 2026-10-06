@@ -1,0 +1,283 @@
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Models.Trading
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Services.Ui
+@using ThaiX.Client.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IFileDownloadService FileDownloadService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inherits ThaiXPageBase
+
+<RadzenCard Class="mt-3">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-2">
+        <RadzenText TextStyle="TextStyle.H6">@L[RK.WeeklySuggestionHistory.Title]</RadzenText>
+        <ResponsiveIconButton Size="ButtonSize.Small" Icon="refresh" Text="@L[RK.WeeklySuggestionHistory.Refresh]" Click="@LoadHistoryAsync" />
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Class="mb-2">
+        <RadzenNumeric TValue="int?" @bind-Value="_lookbackReports" Min="1" Max="52" Placeholder="@L[RK.WeeklySuggestionHistory.LookbackReports]" class="tx-lookback-input" />
+        <ResponsiveIconButton Size="ButtonSize.Small"
+                      Icon="analytics"
+                      Text="@L[RK.WeeklySuggestionHistory.EvaluateVisibleSymbols]"
+                      Click="@EvaluateAsync"
+                      Disabled="@(!CanEvaluate)" />
+    </RadzenStack>
+
+    @if (_isLoadingHistory)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <div class="w-100 overflow-auto">
+            <RadzenDataGrid TItem="WeeklySuggestionHistoryReportDto"
+                            Data="@_history.Items"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 5, 10, 20 })"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Density="Density.Compact"
+                            Class="@(Viewport.IsTablet ? "responsive-grid" : string.Empty)"
+                            IsLoading="@_isLoadingHistory">
+                <EmptyTemplate>
+                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        @L[RK.Common.NoDataFound]
+                    </RadzenAlert>
+                </EmptyTemplate>
+                <Columns>
+                    <RadzenDataGridColumn MinWidth="10rem" TItem="WeeklySuggestionHistoryReportDto" Property="RunAtUtc" Title="@L[RK.WeeklySuggestionHistory.RunAt]" />
+                    <RadzenDataGridColumn MinWidth="13.75rem" TItem="WeeklySuggestionHistoryReportDto" Property="ReportKey" Title="@L[RK.WeeklySuggestionHistory.ReportKey]" />
+                    <RadzenDataGridColumn MinWidth="8.125rem" TItem="WeeklySuggestionHistoryReportDto" Property="Status" Title="@L[RK.WeeklySuggestionHistory.Status]" />
+                    <RadzenDataGridColumn MinWidth="6.25rem" TItem="WeeklySuggestionHistoryReportDto" Property="PickedCount" Title="@L[RK.WeeklySuggestionHistory.Picks]" />
+                    <RadzenDataGridColumn Width="8.5rem" TItem="WeeklySuggestionHistoryReportDto" Filterable="false" Sortable="false" Title="@L[RK.WeeklySuggestionHistory.TemplateFiles]">
+                        <Template Context="report">
+                            <div class="d-flex gap-1 flex-nowrap">
+                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                              Icon="download"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              title="@L[RK.WeeklySuggestionHistory.DownloadCsv]"
+                                              aria-label="@L[RK.WeeklySuggestionHistory.DownloadCsv]"
+                                              Disabled="@(_isDownloadingTemplate)"
+                                              IsBusy="@IsDownloadBusy(report, FormatCsv)"
+                                              Click="@(() => DownloadTemplateAsync(report, FormatCsv))" />
+                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                              Icon="description"
+                                              ButtonStyle="ButtonStyle.Secondary"
+                                              title="@L[RK.WeeklySuggestionHistory.DownloadMarkdown]"
+                                              aria-label="@L[RK.WeeklySuggestionHistory.DownloadMarkdown]"
+                                              Disabled="@(_isDownloadingTemplate)"
+                                              IsBusy="@IsDownloadBusy(report, FormatMarkdown)"
+                                              Click="@(() => DownloadTemplateAsync(report, FormatMarkdown))" />
+                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                              Icon="visibility"
+                                              ButtonStyle="ButtonStyle.Success"
+                                              title="@L[RK.WeeklySuggestionHistory.ViewPicks]"
+                                              aria-label="@L[RK.WeeklySuggestionHistory.ViewPicks]"
+                                              Click="@(() => OpenPicksDialogAsync(report))" />
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (_evaluation is not null)
+    {
+        <RadzenText TextStyle="TextStyle.Body2" Class="mt-3 mb-2">@L[RK.WeeklySuggestionHistory.Matched]: @_evaluation.MatchedCount</RadzenText>
+        @if (!Viewport.IsMobile)
+        {
+            <div class="w-100 overflow-auto">
+                <RadzenDataGrid TItem="EvaluatedWeeklySuggestionDto"
+                                Data="@_evaluation.Items"
+                                AllowFiltering="true"
+                                FilterMode="FilterMode.Advanced"
+                                AllowSorting="true"
+                                AllowPaging="true"
+                                PageSize="10"
+                                PageSizeOptions="@(new[] { 5, 10, 20 })"
+                                ShowPagingSummary="true"
+                                PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                                Density="Density.Compact"
+                                Class="@(Viewport.IsTablet ? "responsive-grid" : string.Empty)">
+                    <EmptyTemplate>
+                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            @L[RK.Common.NoDataFound]
+                        </RadzenAlert>
+                    </EmptyTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn MinWidth="8.75rem" TItem="EvaluatedWeeklySuggestionDto" Property="Symbol" Title="@L[RK.WeeklySuggestionHistory.Symbol]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="EvaluatedWeeklySuggestionDto" Property="RunAtUtc" Title="@L[RK.WeeklySuggestionHistory.RunAt]" />
+                        <RadzenDataGridColumn MinWidth="7.5rem" TItem="EvaluatedWeeklySuggestionDto" Property="Timeframe" Title="@L[RK.WeeklySuggestionHistory.Timeframe]" />
+                        <RadzenDataGridColumn MinWidth="7.5rem" TItem="EvaluatedWeeklySuggestionDto" Property="EntryPrice" Title="@L[RK.WeeklySuggestionHistory.Entry]" />
+                        <RadzenDataGridColumn MinWidth="7.5rem" TItem="EvaluatedWeeklySuggestionDto" Property="CurrentPrice" Title="@L[RK.WeeklySuggestionHistory.Current]" />
+                        <RadzenDataGridColumn MinWidth="8.75rem" TItem="EvaluatedWeeklySuggestionDto" Property="ChangePercentFromEntry" Title="@L[RK.WeeklySuggestionHistory.ChangePercent]" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        }
+        else
+        {
+            <RadzenStack Gap="0.75rem">
+                @foreach (var item in _evaluation.Items)
+                {
+                    <RadzenCard Class="p-3 m-0">
+                        <RadzenStack Gap="0.35rem">
+                            <RadzenText TextStyle="TextStyle.Subtitle2"><strong>@item.Symbol</strong> - @item.Timeframe</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.RunAt]: @item.RunAtUtc.ToLocalTime().ToString("g")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.Entry]: @item.EntryPrice</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.Current]: @(item.CurrentPrice?.ToString() ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.ChangePercent]: @FormatSignedPercent(item.ChangePercentFromEntry)</RadzenText>
+                        </RadzenStack>
+                    </RadzenCard>
+                }
+            </RadzenStack>
+        }
+    }
+</RadzenCard>
+
+@code {
+    [Parameter] public required IReadOnlyList<VnDirectTopStockDto> Stocks { get; set; }
+    [Parameter] public bool IsMainDataLoaded { get; set; }
+
+    private WeeklySuggestionHistoryResultDto _history = new()
+    {
+        Page = 1,
+        PageSize = 20,
+        Total = 0,
+        Items = []
+    };
+    private EvaluateWeeklySuggestionPerformanceResultDto? _evaluation;
+    private bool _isLoadingHistory;
+    private bool _isEvaluating;
+    private bool _isDownloadingTemplate;
+    private string? _downloadingTemplateReportKey;
+    private string? _downloadingTemplateFormat;
+    private const string FormatCsv = "csv";
+    private const string FormatMarkdown = "markdown";
+    private int? _lookbackReports = 12;
+    private bool CanEvaluate => !_isEvaluating && IsMainDataLoaded && Stocks.Count > 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHistoryAsync();
+    }
+
+    private async Task LoadHistoryAsync()
+    {
+        _isLoadingHistory = true;
+        try
+        {
+            _history = await ExternalDataService.GetWeeklySuggestionHistoryAsync(SuggestionAssetClass.Stock, 1, 20);
+        }
+        finally
+        {
+            _isLoadingHistory = false;
+        }
+    }
+
+    private async Task EvaluateAsync()
+    {
+        _isEvaluating = true;
+        try
+        {
+            var payload = new EvaluateWeeklySuggestionPerformanceRequestDto
+            {
+                AssetClass = SuggestionAssetClass.Stock,
+                LookbackReports = _lookbackReports,
+                Symbols = Stocks
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Code))
+                    .Select(x => new EvaluateWeeklySuggestionSymbolInputDto
+                    {
+                        Symbol = x.Code,
+                        CurrentPrice = x.LastPrice
+                    })
+                    .ToList()
+            };
+
+            _evaluation = await ExternalDataService.EvaluateWeeklySuggestionHistoryAsync(payload);
+        }
+        finally
+        {
+            _isEvaluating = false;
+        }
+    }
+
+    private async Task OpenPicksDialogAsync(WeeklySuggestionHistoryReportDto report)
+    {
+        var currentPrices = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+        foreach (var stock in Stocks)
+        {
+            if (!string.IsNullOrWhiteSpace(stock.Code))
+            {
+                currentPrices[stock.Code] = stock.LastPrice;
+            }
+        }
+
+        await DialogService.OpenAsync<WeeklySuggestionPicksDialog>(
+            L[RK.WeeklySuggestionHistory.PicksTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(WeeklySuggestionPicksDialog.Report)] = report,
+                [nameof(WeeklySuggestionPicksDialog.CurrentPrices)] = currentPrices
+            },
+            new DialogOptions { Width = "min(720px, 96vw)", CloseDialogOnOverlayClick = true });
+    }
+
+    private static string FormatSignedPercent(decimal? value)
+    {
+        if (value is null)
+        {
+            return "-";
+        }
+
+        var raw = value.Value.ToString("0.##") + "%";
+        return value.Value > 0 ? $"+{raw}" : raw;
+    }
+
+    private bool IsDownloadBusy(WeeklySuggestionHistoryReportDto report, string format)
+        => _isDownloadingTemplate
+           && string.Equals(_downloadingTemplateReportKey, report.ReportKey, StringComparison.Ordinal)
+           && string.Equals(_downloadingTemplateFormat, format, StringComparison.OrdinalIgnoreCase);
+
+    private async Task DownloadTemplateAsync(WeeklySuggestionHistoryReportDto report, string format)
+    {
+        _isDownloadingTemplate = true;
+        _downloadingTemplateReportKey = report.ReportKey;
+        _downloadingTemplateFormat = format;
+
+        try
+        {
+            var file = await ExternalDataService.ExportWeeklySuggestionTemplateAsync(
+                report.ReportKey,
+                SuggestionAssetClass.Stock,
+                format);
+
+            await FileDownloadService.DownloadAsync(file.FileName, file.ContentType, file.FileContent);
+            NotificationService.NotifySuccess(L[RK.WeeklySuggestionHistory.TemplateFiles], file.FileName);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.WeeklySuggestionHistory.DownloadFailed], ex.GetDisplayDetail());
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.WeeklySuggestionHistory.DownloadFailed], ex.Message);
+        }
+        finally
+        {
+            _isDownloadingTemplate = false;
+            _downloadingTemplateReportKey = null;
+            _downloadingTemplateFormat = null;
+        }
+    }
+
+}

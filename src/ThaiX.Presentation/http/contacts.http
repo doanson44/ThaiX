@@ -1,0 +1,398 @@
+# Contact Management Endpoints
+# GET    /api/contacts
+# GET    /api/contacts/export
+# GET    /api/contacts/import/template
+# GET    /api/contacts/import/jobs/{id}
+# GET    /api/contacts/{id}
+# GET    /api/contacts/{id}/suggest-users
+# POST   /api/contacts
+# POST   /api/contacts/import
+# POST   /api/contacts/import-async
+# PUT    /api/contacts/{id}
+# PATCH  /api/contacts/{id}/archive
+# DELETE /api/contacts/{id}
+# DELETE /api/contacts/{id}/linked-user
+# POST   /api/contacts/{id}/avatar
+# DELETE /api/contacts/{id}/avatar
+# POST   /api/contacts/{id}/emails
+# DELETE /api/contacts/{id}/emails/{emailId}
+# PATCH  /api/contacts/{id}/emails/{emailId}/primary
+# POST   /api/contacts/{id}/phones
+# DELETE /api/contacts/{id}/phones/{phoneId}
+# PATCH  /api/contacts/{id}/phones/{phoneId}/primary
+# POST   /api/contacts/{id}/addresses
+# DELETE /api/contacts/{id}/addresses/{addressId}
+# POST   /api/contacts/{id}/social-links
+# DELETE /api/contacts/{id}/social-links/{socialLinkId}
+# POST   /api/contacts/{id}/tags
+# DELETE /api/contacts/{id}/tags/{tagId}
+# POST   /api/contacts/{id}/bank-accounts
+# DELETE /api/contacts/{id}/bank-accounts/{bankAccountId}
+# POST   /api/contacts/{id}/identity-documents
+# DELETE /api/contacts/{id}/identity-documents/{identityDocumentId}
+# PUT    /api/contacts/{id}/custom-fields
+# DELETE /api/contacts/{id}/custom-fields/{key}
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+@authToken = {{login.response.body.$.data.accessToken}}
+
+# Set IDs for subsequent requests after creating resources:
+@contactId = 00000000-0000-0000-0000-000000000000
+@emailId    = 00000000-0000-0000-0000-000000000001
+@phoneId    = 00000000-0000-0000-0000-000000000002
+@addressId  = 00000000-0000-0000-0000-000000000003
+@socialId   = 00000000-0000-0000-0000-000000000004
+@tagId      = 00000000-0000-0000-0000-000000000005
+@bankId     = 00000000-0000-0000-0000-000000000006
+@docId      = 00000000-0000-0000-0000-000000000007
+
+###
+
+# ============================================================
+# Core CRUD
+# ============================================================
+
+### List contacts (paginated)
+GET {{baseUrl}}/api/contacts/?pageNumber=1&pageSize=10&sortBy=lastname&sortDescending=false
+Authorization: Bearer {{authToken}}
+
+###
+
+### Search contacts by term
+GET {{baseUrl}}/api/contacts/?search=Nguyen&pageSize=20
+Authorization: Bearer {{authToken}}
+
+###
+
+### Filter archived contacts
+GET {{baseUrl}}/api/contacts/?isArchived=true
+Authorization: Bearer {{authToken}}
+
+###
+
+### Filter by tag
+GET {{baseUrl}}/api/contacts/?tag=VIP
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get contact by ID
+GET {{baseUrl}}/api/contacts/{{contactId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Suggest users to link by matching contact phones
+GET {{baseUrl}}/api/contacts/{{contactId}}/suggest-users
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create a new contact
+# @name createContact
+POST {{baseUrl}}/api/contacts/
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Nguyen",
+  "lastName": "Van A",
+  "company": "ThaiX Corp",
+  "jobTitle": "Developer",
+  "notes": "Sample contact"
+}
+
+###
+
+### Update contact profile
+PUT {{baseUrl}}/api/contacts/{{contactId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Nguyen",
+  "lastName": "Van B",
+  "company": "Updated Corp",
+  "jobTitle": "Senior Developer",
+  "avatarUrl": null,
+  "birthday": "1990-01-15",
+  "notes": "Updated notes"
+}
+
+###
+
+### Archive contact
+PATCH {{baseUrl}}/api/contacts/{{contactId}}/archive
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "archive": true
+}
+
+###
+
+### Unarchive contact
+PATCH {{baseUrl}}/api/contacts/{{contactId}}/archive
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "archive": false
+}
+
+###
+
+### Delete contact (soft delete)
+DELETE {{baseUrl}}/api/contacts/{{contactId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Unlink user from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/linked-user
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Emails
+# ============================================================
+
+### Add email to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/emails
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "value": "contact@example.com",
+  "isPrimary": true
+}
+
+###
+
+### Remove email from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/emails/{{emailId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Set email as primary
+PATCH {{baseUrl}}/api/contacts/{{contactId}}/emails/{{emailId}}/primary
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Phones
+# ============================================================
+
+### Add phone to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/phones
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "value": "+84901234567",
+  "isPrimary": true
+}
+
+###
+
+### Remove phone from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/phones/{{phoneId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Set phone as primary
+PATCH {{baseUrl}}/api/contacts/{{contactId}}/phones/{{phoneId}}/primary
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Addresses
+# ============================================================
+
+### Add address to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/addresses
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "street": "123 Nguyen Hue",
+  "countryCode": "VN",
+  "cityCode": "HCM",
+  "districtCode": "Q1",
+  "postalCode": "700000",
+  "isPrimary": true
+}
+
+###
+
+### Remove address from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/addresses/{{addressId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Social Links
+# ============================================================
+
+### Add social link to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/social-links
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "platform": "LinkedIn",
+  "url": "https://linkedin.com/in/sample"
+}
+
+###
+
+### Remove social link from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/social-links/{{socialId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Tags
+# ============================================================
+
+### Add tag to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/tags
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "VIP"
+}
+
+###
+
+### Remove tag from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/tags/{{tagId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Bank Accounts
+# ============================================================
+
+### Add bank account to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/bank-accounts
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "bankCode": "VCB",
+  "branchName": "Ho Chi Minh Branch",
+  "accountNumber": "0123456789",
+  "accountName": "NGUYEN VAN A",
+  "currencyCode": "VND",
+  "isPrimary": true
+}
+
+###
+
+### Remove bank account from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/bank-accounts/{{bankId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Identity Documents
+# ============================================================
+
+### Add identity document to contact
+POST {{baseUrl}}/api/contacts/{{contactId}}/identity-documents
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "documentType": "CCCD",
+  "documentNumber": "012345678901",
+  "issuedBy": "CA TP.HCM",
+  "issuedPlace": "Ho Chi Minh City",
+  "issuedDate": "2020-01-01",
+  "expiryDate": "2035-01-01"
+}
+
+###
+
+### Remove identity document from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/identity-documents/{{docId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Custom Fields
+# ============================================================
+
+### Set a custom field on contact (upsert by key)
+PUT {{baseUrl}}/api/contacts/{{contactId}}/custom-fields
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "key": "internalCode",
+  "value": "EMP-001"
+}
+
+###
+
+### Remove custom field from contact
+DELETE {{baseUrl}}/api/contacts/{{contactId}}/custom-fields/internalCode
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Import / Export
+# ============================================================
+
+### Download CSV import template
+GET {{baseUrl}}/api/contacts/import/template
+Authorization: Bearer {{authToken}}
+
+###
+
+### Export contacts to CSV
+GET {{baseUrl}}/api/contacts/export
+Authorization: Bearer {{authToken}}
+
+###
+
+### Export contacts with filters
+GET {{baseUrl}}/api/contacts/export?search=Nguyen&isArchived=false&tag=VIP
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get status of an async import job
+GET {{baseUrl}}/api/contacts/import/jobs/{{contactId}}
+Authorization: Bearer {{authToken}}

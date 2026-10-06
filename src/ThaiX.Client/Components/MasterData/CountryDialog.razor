@@ -1,0 +1,147 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IMasterDataService MasterDataService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (CountryFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenLabel Text="@L[RK.MasterData.Code]" />
+                <RadzenTextBox Name="countryCode" @bind-Value="_model.Code" class="w-100" />
+                <RadzenRequiredValidator Component="countryCode" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="8">
+                <RadzenLabel Text="@L[RK.MasterData.Name]" />
+                <RadzenTextBox Name="countryName" @bind-Value="_model.Name" class="w-100" />
+                <RadzenRequiredValidator Component="countryName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    @if (!IsCreateMode && CanDelete)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.MasterData.Delete]"
+                                      Icon="delete"
+                                      ButtonStyle="ButtonStyle.Danger"
+                                      Click="@DeleteAsync"
+                                      IsBusy="@_isDeleting"
+                                      Disabled="@_isDeleting" />
+                    }
+                    <ResponsiveIconButton Text="@(IsCreateMode ? L[RK.MasterData.Create] : L[RK.Common.Save])"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public Guid? CountryId { get; set; }
+    [Parameter] public string? Code { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+
+    private readonly CountryFormModel _model = new();
+    private bool _isSaving;
+    private bool _isDeleting;
+
+    private bool IsCreateMode => CountryId is null;
+
+    protected override void OnInitialized()
+    {
+        _model.Code = Code ?? string.Empty;
+        _model.Name = Name ?? string.Empty;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            if (IsCreateMode)
+            {
+                await MasterDataService.CreateCountryAsync(new UpdateMasterDataRequest
+                {
+                    Code = _model.Code.Trim(),
+                    Name = _model.Name.Trim()
+                });
+
+                NotificationService.NotifySuccess(L[RK.MasterData.CreateSuccess]);
+            }
+            else
+            {
+                await MasterDataService.UpdateCountryAsync(CountryId!.Value, new UpdateMasterDataRequest
+                {
+                    Code = _model.Code.Trim(),
+                    Name = _model.Name.Trim()
+                });
+
+                NotificationService.NotifySuccess(L[RK.MasterData.UpdateSuccess]);
+            }
+
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(IsCreateMode ? L[RK.MasterData.CreateFailed] : L[RK.MasterData.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (CountryId is null || _isDeleting)
+        {
+            return;
+        }
+
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.MasterData.ConfirmDelete]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        _isDeleting = true;
+
+        try
+        {
+            await MasterDataService.DeleteCountryAsync(CountryId.Value);
+            NotificationService.NotifySuccess(L[RK.MasterData.DeleteSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.DeleteFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+
+    private sealed class CountryFormModel
+    {
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+}

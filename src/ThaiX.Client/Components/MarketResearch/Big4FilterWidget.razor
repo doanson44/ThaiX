@@ -1,0 +1,102 @@
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Localization
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0.75rem">
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+        <RadzenSwitch Value="_showBig4Only" ValueChanged="@((bool value) => OnFilterChangedAsync(value))" />
+        <RadzenLabel Text="@L[RK.BankInterestRates.ShowBig4Only]" />
+    </RadzenStack>
+    <RadzenText TextStyle="TextStyle.Subtitle1">
+        @L[RK.BankInterestRates.AverageRates] (12M):
+        <strong>
+            @(_average12Month.HasValue
+                ? $"{_average12Month:F2}%"
+                : L[RK.Common.NoDataFound].ToString())
+        </strong>
+    </RadzenText>
+</RadzenStack>
+
+@code {
+    private bool _showBig4Only;
+    private decimal? _average12Month;
+
+    [Parameter]
+    public List<BankInterestRateGridItemDto> Banks { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<List<BankInterestRateGridItemDto>> OnFilterChanged { get; set; }
+
+    private static readonly Dictionary<string, string[]> Big4Aliases = new()
+    {
+        ["VCB"] = new[] { "vcb", "vietcombank", "ngoại thương" },
+        ["BIDV"] = new[] { "bid", "bidv", "đầu tư và phát triển" },
+        ["CTG"] = new[] { "ctg", "vietinbank", "công thương" },
+        ["AGR"] = new[] { "agr", "agribank", "nông nghiệp" }
+    };
+
+    protected override void OnParametersSet()
+    {
+        ComputeBig4Average();
+    }
+
+    private async Task OnFilterChangedAsync(bool value)
+    {
+        _showBig4Only = value;
+
+        var filteredBanks = _showBig4Only
+            ? Banks.Where(IsBig4).ToList()
+            : Banks.ToList();
+
+        // ❗ Average KHÔNG phụ thuộc toggle → luôn recompute từ Big4
+        ComputeBig4Average();
+
+        await OnFilterChanged.InvokeAsync(filteredBanks);
+    }
+
+    private void ComputeBig4Average()
+    {
+        var big4Banks = Banks.Where(IsBig4).ToList();
+
+        var values = big4Banks
+            .Where(b => b.Month12.HasValue)
+            .Select(b => b.Month12!.Value)
+            .ToList();
+
+        _average12Month = values.Any()
+            ? Math.Round(values.Average(), 2)
+            : null;
+    }
+
+    private static bool IsBig4(BankInterestRateGridItemDto bank)
+    {
+        if (bank is null)
+            return false;
+
+        var symbol = Normalize(bank.Symbol);
+        var name = Normalize(bank.BankName);
+
+        foreach (var aliases in Big4Aliases.Values)
+        {
+            if (!string.IsNullOrEmpty(symbol) &&
+                aliases.Any(a => symbol.Contains(a)))
+                return true;
+
+            if (!string.IsNullOrEmpty(name) &&
+                aliases.Any(a => name.Contains(a)))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string Normalize(string? input)
+    {
+        return string.IsNullOrWhiteSpace(input)
+            ? string.Empty
+            : input.ToLowerInvariant().Trim();
+    }
+}

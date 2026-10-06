@@ -1,0 +1,229 @@
+@page "/market-data/sacombank-exchange-rates"
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Services.ExternalData
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<style>
+    .responsive-grid .rz-cell-data {
+        white-space: normal !important;
+        word-wrap: break-word;
+    }
+</style>
+
+<CurrencyConverter Rates="@_exchangeRates" IsLoading="@_isLoading" />
+
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-4">
+        @L[RK.SacombankExchangeRates.Title]
+    </RadzenText>
+
+    @if (_loadErrorMessage is not null)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mb-3">
+            @_loadErrorMessage
+        </RadzenAlert>
+    }
+
+    @if (_updatedAtText is not null)
+    {
+        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-3">
+            @string.Format(L[RK.SacombankExchangeRates.UpdatedAt], _updatedAtText)
+        </RadzenText>
+    }
+
+    @if (Viewport.IsMobile)
+    {
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_exchangeRates.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.Common.NoDataFound]
+            </RadzenAlert>
+        }
+        else
+        {
+            <RadzenStack Gap="1rem">
+                <DebouncedSearchBox Value="@_mobileSearchTerm"
+                                    ValueChanged="OnMobileSearchChanged"
+                                    Placeholder="@L[RK.Common.Search]"
+                                    Name="SacombankSearchMobile"
+                                    CssClass="w-100"
+                                    DebounceMilliseconds="300" />
+
+                @if (!FilteredMobileExchangeRates.Any())
+                {
+                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        @L[RK.Common.NoDataFound]
+                    </RadzenAlert>
+                }
+                else
+                {
+                    @foreach (var rate in FilteredMobileExchangeRates)
+                    {
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-3">
+                                <strong>@rate.CurrencyCode</strong>
+                            </RadzenText>
+
+                            <RadzenRow>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.SacombankExchangeRates.BidInCash]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(rate.BidInCash)</strong></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.SacombankExchangeRates.BidInTransfer]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(rate.BidInTransfer)</strong></RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+
+                            <RadzenRow Class="mt-2">
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.SacombankExchangeRates.OfferInCash]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(rate.OfferInCash)</strong></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.SacombankExchangeRates.OfferInTransfer]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(rate.OfferInTransfer)</strong></RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    }
+                }
+            </RadzenStack>
+        }
+    }
+    else
+    {
+        <div class="w-100 overflow-auto">
+            <RadzenDataGrid Class="@(Viewport.IsTablet ? "responsive-grid" : string.Empty)"
+                            IsLoading="@_isLoading"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowPaging="true"
+                            PageSize="10"
+                            AllowSorting="true"
+                            Data="@_exchangeRates"
+                            TItem="SacombankExchangeRateItemDto"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            PageSizeOptions="@(new[] { 10, 25, 50, 100 })">
+                <EmptyTemplate>
+                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        @L[RK.Common.NoDataFound]
+                    </RadzenAlert>
+                </EmptyTemplate>
+                <Columns>
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="CurrencyCode"
+                                          Title="@L[RK.SacombankExchangeRates.CurrencyCode]" />
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="BidInCash"
+                                          Title="@L[RK.SacombankExchangeRates.BidInCash]">
+                        <Template Context="item">
+                            @FormatRate(item.BidInCash)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="BidInTransfer"
+                                          Title="@L[RK.SacombankExchangeRates.BidInTransfer]">
+                        <Template Context="item">
+                            @FormatRate(item.BidInTransfer)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="OfferInCash"
+                                          Title="@L[RK.SacombankExchangeRates.OfferInCash]">
+                        <Template Context="item">
+                            @FormatRate(item.OfferInCash)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="OfferInTransfer"
+                                          Title="@L[RK.SacombankExchangeRates.OfferInTransfer]">
+                        <Template Context="item">
+                            @FormatRate(item.OfferInTransfer)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="SacombankExchangeRateItemDto"
+                                          Property="CreatedDate"
+                                          Title="@L[RK.SacombankExchangeRates.CreatedDate]"
+                                          Visible="@(!Viewport.IsTablet)">
+                        <Template Context="item">
+                            @(item.CreatedDate ?? "-")
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+</RadzenCard>
+
+@code {
+    private List<SacombankExchangeRateItemDto> _exchangeRates = [];
+    private bool _isLoading;
+    private string? _loadErrorMessage;
+    private string? _updatedAtText;
+    private string _mobileSearchTerm = string.Empty;
+
+    private IEnumerable<SacombankExchangeRateItemDto> FilteredMobileExchangeRates =>
+        string.IsNullOrWhiteSpace(_mobileSearchTerm)
+            ? _exchangeRates
+            : _exchangeRates.Where(x =>
+                x.CurrencyCode.Contains(_mobileSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        _loadErrorMessage = null;
+
+        try
+        {
+            var response = await ExternalDataService.GetSacombankExchangeRatesAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _exchangeRates = response.Data.ExchangeRates
+                    .OrderBy(x => x.CurrencyCode)
+                    .ToList();
+
+                if (response.Data.UpdateDate.HasValue)
+                {
+                    _updatedAtText = response.Data.UpdateDate.Value.ToString("yyyy-MM-dd HH:mm");
+                }
+            }
+            else
+            {
+                _loadErrorMessage = L[RK.SacombankExchangeRates.LoadFailed];
+            }
+        }
+        catch
+        {
+            _loadErrorMessage = L[RK.SacombankExchangeRates.LoadFailed];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private static string FormatRate(decimal value)
+    {
+        return value.ToString("N2");
+    }
+
+    private Task OnMobileSearchChanged(string value)
+    {
+        _mobileSearchTerm = value;
+        return Task.CompletedTask;
+    }
+
+}

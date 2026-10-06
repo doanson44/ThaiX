@@ -1,0 +1,217 @@
+# Master Data Endpoints
+# Countries:  GET/POST /api/master-data/countries  |  PUT/DELETE /api/master-data/countries/{id}  |  POST /api/master-data/countries/import
+# Cities:     GET/POST /api/master-data/cities     |  PUT/DELETE /api/master-data/cities/{id}      |  POST /api/master-data/cities/import
+# Districts:  GET/POST /api/master-data/districts  |  PUT/DELETE /api/master-data/districts/{id}   |  POST /api/master-data/districts/import
+# Banks:      GET/POST /api/master-data/banks      |  PUT/DELETE /api/master-data/banks/{id}        |  POST /api/master-data/banks/import
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+@authToken = {{login.response.body.$.data.accessToken}}
+
+@itemId = 00000000-0000-0000-0000-000000000000
+
+###
+
+# ============================================================
+# Countries
+# ============================================================
+
+### List countries (paginated)
+GET {{baseUrl}}/api/master-data/countries?pageNumber=1&pageSize=10&sortBy=code
+Authorization: Bearer {{authToken}}
+
+###
+
+### Search countries
+GET {{baseUrl}}/api/master-data/countries?search=Viet
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create country
+POST {{baseUrl}}/api/master-data/countries
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "VN",
+  "name": "Viet Nam"
+}
+
+###
+
+### Update country
+PUT {{baseUrl}}/api/master-data/countries/{{itemId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "VN",
+  "name": "Socialist Republic of Viet Nam"
+}
+
+###
+
+### Delete country (soft delete)
+DELETE {{baseUrl}}/api/master-data/countries/{{itemId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Cities
+# ============================================================
+
+### List cities (paginated)
+GET {{baseUrl}}/api/master-data/cities?pageNumber=1&pageSize=10&sortBy=code
+Authorization: Bearer {{authToken}}
+
+###
+
+### Filter cities by country
+GET {{baseUrl}}/api/master-data/cities?parentCode=VN
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create city
+POST {{baseUrl}}/api/master-data/cities
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "HCM",
+  "name": "Ho Chi Minh City",
+  "countryCode": "VN"
+}
+
+###
+
+### Update city
+PUT {{baseUrl}}/api/master-data/cities/{{itemId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "HCM",
+  "name": "Ho Chi Minh City",
+  "parentCode": "VN"
+}
+
+###
+
+### Delete city (soft delete)
+DELETE {{baseUrl}}/api/master-data/cities/{{itemId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Districts
+# ============================================================
+
+### List districts (paginated)
+GET {{baseUrl}}/api/master-data/districts?pageNumber=1&pageSize=10&sortBy=code
+Authorization: Bearer {{authToken}}
+
+###
+
+### Filter districts by city
+GET {{baseUrl}}/api/master-data/districts?parentCode=HCM
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create district
+POST {{baseUrl}}/api/master-data/districts
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "Q1",
+  "name": "District 1",
+  "cityCode": "HCM"
+}
+
+###
+
+### Update district
+PUT {{baseUrl}}/api/master-data/districts/{{itemId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "Q1",
+  "name": "District 1",
+  "parentCode": "HCM"
+}
+
+###
+
+### Delete district (soft delete)
+DELETE {{baseUrl}}/api/master-data/districts/{{itemId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Banks
+# ============================================================
+
+### List banks (paginated)
+GET {{baseUrl}}/api/master-data/banks?pageNumber=1&pageSize=10&sortBy=code
+Authorization: Bearer {{authToken}}
+
+###
+
+### Filter banks by country
+GET {{baseUrl}}/api/master-data/banks?parentCode=VN
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create bank
+POST {{baseUrl}}/api/master-data/banks
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "VCB",
+  "name": "Vietcombank",
+  "countryCode": "VN"
+}
+
+###
+
+### Update bank
+PUT {{baseUrl}}/api/master-data/banks/{{itemId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "VCB",
+  "name": "Joint Stock Commercial Bank for Foreign Trade of Vietnam",
+  "parentCode": "VN"
+}
+
+###
+
+### Delete bank (soft delete)
+DELETE {{baseUrl}}/api/master-data/banks/{{itemId}}
+Authorization: Bearer {{authToken}}

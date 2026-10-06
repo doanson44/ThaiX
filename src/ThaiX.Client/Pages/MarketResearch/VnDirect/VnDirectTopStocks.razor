@@ -1,0 +1,481 @@
+@page "/market-research/vndirect/top-stocks"
+@attribute [Authorize]
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Models.Trading
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inherits ThaiXPageBase
+
+@if (Viewport.IsMobile)
+{
+    <WeeklySuggestionHistoryPanel Stocks="_filteredStocks" IsMainDataLoaded="@(!_isLoading)" />
+}
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.VnDirectTopStocks.Title]
+        </RadzenText>
+        <RadzenButton Text="@L[RK.VnDirectTopStocks.RunWeeklySuggestionJob]"
+                      Icon="play_arrow"
+                      ButtonStyle="ButtonStyle.Secondary"
+                      Size="ButtonSize.Small"
+                      IsBusy="@_isRunningWeeklyJob"
+                      Disabled="@_isRunningWeeklyJob"
+                      Click="RunWeeklySuggestionJobAsync" />
+    </RadzenStack>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+            <label class="rz-label mb-0">@L[RK.VnDirectTopStocks.OnlyTcbsAllTimeHoldings]</label>
+            <RadzenSwitch @bind-Value="_tcbsAllTimeOnly" Change="@(_ => OnTcbsAllTimeOnlyChanged())" />
+        </RadzenStack>
+
+        <div>
+            <label class="rz-label mb-1">@L[RK.VnDirectTopStocks.SearchPlaceholder]</label>
+            <AsyncSearchSelect @key="_stockSelectKey"
+                               TItem="VnDirectTopStockDto"
+                               Value="@_selectedStockCode"
+                               ValueChanged="OnSelectedStockCodeChanged"
+                               LoadDataAsync="LoadStocksAsync"
+                               GetText="@(s => $"{s.Code} - {s.Index}")"
+                               GetValue="@(s => s.Code)"
+                               Placeholder="@L[RK.VnDirectTopStocks.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Disabled="@_isLoading"
+                               Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filteredStocks.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.VnDirectTopStocks.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filteredStocks.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="VnDirectTopStockDto"
+                            Data="@_filteredStocks"
+                            Count="@_filteredStocks.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="Code" Title="@L[RK.VnDirectTopStocks.Code]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="Index" Title="@L[RK.VnDirectTopStocks.Index]" />
+                    <RadzenDataGridColumn MinWidth="7.5rem" TItem="VnDirectTopStockDto" Property="CompositeScore" Title="@L[RK.VnDirectTopStocks.CompositeScore]">
+                        <Template Context="stock">
+                            <RadzenBadge BadgeStyle="@GetScoreBadgeStyle(stock.CompositeScore)"
+                                         Text="@stock.CompositeScore.ToString()"
+                                         IsPill="true" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="8.125rem" TItem="VnDirectTopStockDto" Property="TechnicalScore" Title="@L[RK.VnDirectTopStocks.TechnicalScore]" />
+                    <RadzenDataGridColumn MinWidth="8.125rem" TItem="VnDirectTopStockDto" Property="PortfolioScore" Title="@L[RK.VnDirectTopStocks.PortfolioScore]" />
+                    <RadzenDataGridColumn MinWidth="8.125rem" TItem="VnDirectTopStockDto" Property="EventPenalty" Title="@L[RK.VnDirectTopStocks.EventPenalty]">
+                        <Template Context="stock">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@(stock.EventPenalty < 0 ? "text-danger fw-semibold" : string.Empty)">@stock.EventPenalty</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="8.75rem" TItem="VnDirectTopStockDto" Property="LiquidityPenalty" Title="@L[RK.VnDirectTopStocks.LiquidityPenalty]">
+                        <Template Context="stock">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@(stock.LiquidityPenalty < 0 ? "text-danger fw-semibold" : string.Empty)">@stock.LiquidityPenalty</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="LastPrice" Title="@L[RK.VnDirectTopStocks.LastPrice]">
+                        <Template Context="stock">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgCr1D)">@stock.LastPrice.ToString()</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PriceChgCr1D" Title="@L[RK.VnDirectTopStocks.PriceChange1D]">
+                        <Template Context="stock">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgCr1D)">@FormatSignedValue(stock.PriceChgCr1D)</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PriceChgPctCr1D" Title="@L[RK.VnDirectTopStocks.PriceChangePct1D]">
+                        <Template Context="stock">
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgPctCr1D)">@FormatSignedValue(stock.PriceChgPctCr1D)</RadzenText>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Property="LongSignal" Title="@L[RK.VnDirectTopStocks.LongSignal]">
+                        <Template Context="stock">
+                            @if (!string.IsNullOrWhiteSpace(stock.LongSignal))
+                            {
+                                <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="@stock.LongSignal" IsPill="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Property="ShortSignal" Title="@L[RK.VnDirectTopStocks.ShortSignal]">
+                        <Template Context="stock">
+                            @if (!string.IsNullOrWhiteSpace(stock.ShortSignal))
+                            {
+                                <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="@stock.ShortSignal" IsPill="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="7.5rem" TItem="VnDirectTopStockDto" Property="LongBuyCount" Title="@L[RK.VnDirectTopStocks.LongBuyCount]" />
+                    <RadzenDataGridColumn MinWidth="7.5rem" TItem="VnDirectTopStockDto" Property="LongSellCount" Title="@L[RK.VnDirectTopStocks.LongSellCount]" />
+                    <RadzenDataGridColumn MinWidth="7.5rem" TItem="VnDirectTopStockDto" Property="ShortBuyCount" Title="@L[RK.VnDirectTopStocks.ShortBuyCount]" />
+                    <RadzenDataGridColumn MinWidth="8.125rem" TItem="VnDirectTopStockDto" Property="ShortSellCount" Title="@L[RK.VnDirectTopStocks.ShortSellCount]" />
+                    <RadzenDataGridColumn MinWidth="10rem" TItem="VnDirectTopStockDto" Property="InTcbsCurrentHoldings" Title="@L[RK.VnDirectTopStocks.InTcbs]">
+                        <Template Context="stock">
+                            @if (stock.InTcbsCurrentHoldings)
+                            {
+                                <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="TCBS" IsPill="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="8.75rem" TItem="VnDirectTopStockDto" Property="DragonFundCount" Title="@L[RK.VnDirectTopStocks.DragonFundCount]">
+                        <Template Context="stock">
+                            @if (stock.DragonFundCount > 0)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2" title="@string.Join(", ", stock.DragonFunds)">@stock.DragonFundCount (@string.Join(", ", stock.DragonFunds))</RadzenText>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="10rem" TItem="VnDirectTopStockDto" Property="DragonTotalWeight" Title="@L[RK.VnDirectTopStocks.DragonTotalWeight]">
+                        <Template Context="stock">
+                            @if (stock.DragonTotalWeight > 0)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@stock.DragonTotalWeight.ToString("P2")</RadzenText>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Property="EventRiskLevel" Title="@L[RK.VnDirectTopStocks.EventRiskLevel]">
+                        <Template Context="stock">
+                            @if (!string.IsNullOrWhiteSpace(stock.EventRiskLevel))
+                            {
+                                <RadzenBadge BadgeStyle="@GetEventRiskBadgeStyle(stock.EventRiskLevel)" Text="@stock.EventRiskLevel" IsPill="true" />
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Property="RecentEventCount" Title="@L[RK.VnDirectTopStocks.RecentEventCount]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="MostSevereEventType" Title="@L[RK.VnDirectTopStocks.MostSevereEventType]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="LatestEventEffectiveDate" Title="@L[RK.VnDirectTopStocks.LatestEventEffectiveDate]" />
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Property="DataCompleteness" Title="@L[RK.VnDirectTopStocks.DataCompleteness]">
+                        <Template Context="stock">
+                            <RadzenBadge BadgeStyle="@(stock.DataCompleteness ? BadgeStyle.Success : BadgeStyle.Warning)"
+                                         Text="@(stock.DataCompleteness ? "✓" : "!")" IsPill="true" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="LastUpdated" Title="@L[RK.VnDirectTopStocks.LastUpdated]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="AccumulatedVal" Title="@L[RK.VnDirectTopStocks.AccumulatedValue]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="NmVolumeAvgCr20D" Title="@L[RK.VnDirectTopStocks.NmVolumeAvgCr20D]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="NmVolNmVolAvg20DPctCr" Title="@L[RK.VnDirectTopStocks.NmVolNmVolAvg20DPctCr]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="TotalVolumeAvgCr20D" Title="@L[RK.VnDirectTopStocks.TotalVolumeAvgCr20D]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtVolTotalVolAvg20DPctCr" Title="@L[RK.VnDirectTopStocks.PtVolTotalVolAvg20DPctCr]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtVolAvg5DTotalVolAvg20DPctCr" Title="@L[RK.VnDirectTopStocks.PtVolAvg5DTotalVolAvg20DPctCr]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtVolSumCr5D" Title="@L[RK.VnDirectTopStocks.PtVolSumCr5D]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtValAvgCr5D" Title="@L[RK.VnDirectTopStocks.PtValAvgCr5D]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtVolAvgCr5D" Title="@L[RK.VnDirectTopStocks.PtVolAvgCr5D]" />
+                    <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]">
+                        <Template Context="stock">
+                            <RadzenButton Size="ButtonSize.Small"
+                                          Icon="insights"
+                                          Text="@L[RK.TradingSuggestion.Action]"
+                                          Click="@(() => OpenTradeSuggestionAsync(stock.Code, MarketType.Stock, stock.LastPrice, stock.InTcbsAllTimeHoldings))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filteredStocks.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="VnDirectTopStockDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filteredStocks.ToList()" Context="stock" OverscanCount="5">
+                <div class="mb-3">
+                    <RadzenCard Class="p-3 m-0">
+                        <RadzenStack Gap="0.5rem">
+                            <RadzenRow Gap="0.5rem" AlignItems="AlignItems.Center">
+                                <RadzenColumn Size="8">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@stock.Code - @stock.Index</strong></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="4" Class="text-end">
+                                    <RadzenBadge BadgeStyle="@GetScoreBadgeStyle(stock.CompositeScore)"
+                                                 Text="@string.Format(L[RK.VnDirectTopStocks.ScoreBadge], stock.CompositeScore)" IsPill="true" />
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgCr1D)">@L[RK.VnDirectTopStocks.LastPrice]: @stock.LastPrice.ToString()</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgCr1D)">
+                                @L[RK.VnDirectTopStocks.PriceChange1D]: @FormatSignedValue(stock.PriceChgCr1D)
+                            </RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(stock.PriceChgPctCr1D)">
+                                @L[RK.VnDirectTopStocks.PriceChangePct1D]: @FormatSignedValue(stock.PriceChgPctCr1D)
+                            </RadzenText>
+                            @if (!string.IsNullOrWhiteSpace(stock.LongSignal) || !string.IsNullOrWhiteSpace(stock.ShortSignal))
+                            {
+                                <RadzenRow Gap="0.5rem">
+                                    @if (!string.IsNullOrWhiteSpace(stock.LongSignal))
+                                    {
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="@string.Format(L[RK.VnDirectTopStocks.LongSignalBadge], stock.LongSignal)" IsPill="true" />
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(stock.ShortSignal))
+                                    {
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Danger" Text="@string.Format(L[RK.VnDirectTopStocks.ShortSignalBadge], stock.ShortSignal)" IsPill="true" />
+                                    }
+                                </RadzenRow>
+                            }
+                            <RadzenRow Gap="0.5rem">
+                                @if (stock.InTcbsCurrentHoldings)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Info" Text="TCBS" IsPill="true" />
+                                }
+                                @if (stock.InTcbsAllTimeHoldings)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Success" Text="@L[RK.VnDirectTopStocks.TcbsAllTimeBadge]" IsPill="true" />
+                                }
+                                @if (stock.DragonFundCount > 0)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Text="@string.Format(L[RK.VnDirectTopStocks.DragonCountBadge], stock.DragonFundCount)" IsPill="true" />
+                                }
+                                @if (!string.IsNullOrWhiteSpace(stock.EventRiskLevel))
+                                {
+                                    <RadzenBadge BadgeStyle="@GetEventRiskBadgeStyle(stock.EventRiskLevel)" Text="@stock.EventRiskLevel" IsPill="true" />
+                                }
+                            </RadzenRow>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.TechnicalScore]: @stock.TechnicalScore | @L[RK.VnDirectTopStocks.PortfolioScore]: @stock.PortfolioScore | @L[RK.VnDirectTopStocks.EventPenalty]: @stock.EventPenalty | @L[RK.VnDirectTopStocks.LiquidityPenalty]: @stock.LiquidityPenalty</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.NmVolumeAvgCr20D]: @stock.NmVolumeAvgCr20D</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.NmVolNmVolAvg20DPctCr]: @stock.NmVolNmVolAvg20DPctCr</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.TotalVolumeAvgCr20D]: @stock.TotalVolumeAvgCr20D</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolTotalVolAvg20DPctCr]: @stock.PtVolTotalVolAvg20DPctCr</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolAvg5DTotalVolAvg20DPctCr]: @stock.PtVolAvg5DTotalVolAvg20DPctCr</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolSumCr5D]: @stock.PtVolSumCr5D</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtValAvgCr5D]: @stock.PtValAvgCr5D</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolAvgCr5D]: @stock.PtVolAvgCr5D</RadzenText>
+                            <RadzenButton Size="ButtonSize.Small"
+                                          Icon="insights"
+                                          Text="@L[RK.TradingSuggestion.Action]"
+                                          Click="@(() => OpenTradeSuggestionAsync(stock.Code, MarketType.Stock, stock.LastPrice, stock.InTcbsAllTimeHoldings))" />
+                        </RadzenStack>
+                    </RadzenCard>
+                </div>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@if (!Viewport.IsMobile)
+{
+    <WeeklySuggestionHistoryPanel Stocks="_filteredStocks" IsMainDataLoaded="@(!_isLoading)" />
+}
+
+@code {
+    private List<VnDirectTopStockDto> _allStocks = [];
+    private List<VnDirectTopStockDto> _filteredStocks = [];
+    private bool _isLoading;
+    private int _stockSelectKey;
+    private string? _selectedStockCode;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+    private bool _isRunningWeeklyJob;
+    private bool _tcbsAllTimeOnly;
+
+    private IReadOnlyList<SortOption<VnDirectTopStockDto>> SortOptions =>
+    [
+        new("code",             L[RK.VnDirectTopStocks.Code],             x => x.Code),
+        new("compositeScore",   L[RK.VnDirectTopStocks.CompositeScore],   x => x.CompositeScore),
+        new("technicalScore",   L[RK.VnDirectTopStocks.TechnicalScore],   x => x.TechnicalScore),
+        new("portfolioScore",   L[RK.VnDirectTopStocks.PortfolioScore],   x => x.PortfolioScore),
+        new("eventPenalty",     L[RK.VnDirectTopStocks.EventPenalty],     x => x.EventPenalty),
+        new("liquidityPenalty", L[RK.VnDirectTopStocks.LiquidityPenalty], x => x.LiquidityPenalty),
+        new("lastPrice",        L[RK.VnDirectTopStocks.LastPrice],        x => x.LastPrice),
+        new("priceChg1D",       L[RK.VnDirectTopStocks.PriceChange1D],    x => x.PriceChgCr1D),
+        new("priceChgPct1D",    L[RK.VnDirectTopStocks.PriceChangePct1D], x => x.PriceChgPctCr1D),
+        new("longBuyCount",     L[RK.VnDirectTopStocks.LongBuyCount],     x => x.LongBuyCount),
+        new("dragonFundCount",  L[RK.VnDirectTopStocks.DragonFundCount],  x => x.DragonFundCount),
+        new("dragonWeight",     L[RK.VnDirectTopStocks.DragonTotalWeight],x => x.DragonTotalWeight),
+        new("recentEventCount", L[RK.VnDirectTopStocks.RecentEventCount], x => x.RecentEventCount),
+        new("nmVolAvg20D",      L[RK.VnDirectTopStocks.NmVolumeAvgCr20D], x => x.NmVolumeAvgCr20D),
+        new("accumulatedVal",   L[RK.VnDirectTopStocks.AccumulatedValue], x => x.AccumulatedVal),
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetVnDirectTopStocksAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _allStocks = response.Data.Data;
+                _filteredStocks = _allStocks;
+            }
+        }
+        catch
+        {
+            _allStocks = [];
+            _filteredStocks = [];
+        }
+        finally
+        {
+            _isLoading = false;
+            // Remount select after seed so first LoadData is not against an empty list.
+            _stockSelectKey++;
+        }
+    }
+
+    private Task OnSelectedStockCodeChanged(string? value)
+    {
+        _selectedStockCode = value;
+        ApplyFilter();
+        return Task.CompletedTask;
+    }
+
+    private void OnTcbsAllTimeOnlyChanged()
+    {
+        ApplyFilter();
+        _stockSelectKey++;
+    }
+
+    private void ApplyFilter()
+    {
+        var source = _tcbsAllTimeOnly
+            ? _allStocks.Where(static s => s.InTcbsAllTimeHoldings)
+            : _allStocks.AsEnumerable();
+
+        IEnumerable<VnDirectTopStockDto> result = string.IsNullOrWhiteSpace(_selectedStockCode)
+            ? source
+            : source.Where(s => s.Code.Equals(_selectedStockCode, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (opt is not null)
+                result = _sortAscending
+                    ? result.OrderBy(opt.KeySelector)
+                    : result.OrderByDescending(opt.KeySelector);
+        }
+
+        _filteredStocks = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+    private void OnSortDirectionChanged(bool asc) { _sortAscending = asc; ApplyFilter(); }
+
+    private Task<(IReadOnlyList<VnDirectTopStockDto>, int)> LoadStocksAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var source = _tcbsAllTimeOnly
+            ? _allStocks.Where(static s => s.InTcbsAllTimeHoldings)
+            : _allStocks.AsEnumerable();
+
+        var query = string.IsNullOrWhiteSpace(search) ? source.ToList() : source
+            .Where(x => x.Code.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)
+                     || x.Index.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var total = query.Count;
+        var items = query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Task.FromResult<(IReadOnlyList<VnDirectTopStockDto>, int)>((items, total));
+    }
+
+    private static string GetTrendClass(decimal value)
+    {
+        if (value == 0)
+        {
+            return string.Empty;
+        }
+
+        return value > 0 ? "text-success fw-semibold" : "text-danger fw-semibold";
+    }
+
+    private static string FormatSignedValue(decimal value)
+    {
+        var rawValue = value.ToString();
+        return value > 0 ? $"+{rawValue}" : rawValue;
+    }
+
+    private static BadgeStyle GetScoreBadgeStyle(int score) => score switch
+    {
+        >= 70 => BadgeStyle.Success,
+        >= 40 => BadgeStyle.Warning,
+        _     => BadgeStyle.Danger
+    };
+
+    private static BadgeStyle GetEventRiskBadgeStyle(string riskLevel) =>
+        riskLevel.ToUpperInvariant() switch
+        {
+            "HIGH"   => BadgeStyle.Danger,
+            "MEDIUM" => BadgeStyle.Warning,
+            "LOW"    => BadgeStyle.Info,
+            _        => BadgeStyle.Secondary
+        };
+
+    private async Task OpenTradeSuggestionAsync(string symbol, MarketType marketType, decimal? lastPrice = null, bool inTcbsAllTimeHoldings = false)
+    {
+        await DialogService.OpenAsync<TradeSuggestionDialog>(
+            L[RK.TradingSuggestion.Title],
+            new Dictionary<string, object?>
+            {
+                [nameof(TradeSuggestionDialog.Symbol)] = symbol,
+                [nameof(TradeSuggestionDialog.MarketType)] = marketType,
+                [nameof(TradeSuggestionDialog.LastPrice)] = lastPrice,
+                [nameof(TradeSuggestionDialog.InTcbsAllTimeHoldings)] = inTcbsAllTimeHoldings
+            },
+            new DialogOptions
+            {
+                Width = "min(680px, 96vw)",
+                CloseDialogOnOverlayClick = true
+            });
+    }
+
+    private async Task RunWeeklySuggestionJobAsync()
+    {
+        _isRunningWeeklyJob = true;
+        try
+        {
+            await ExternalDataService.TriggerTopStocksWeeklySuggestionJobAsync();
+            NotificationService.NotifySuccess(L[RK.VnDirectTopStocks.RunWeeklySuggestionJobQueued]);
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.VnDirectTopStocks.RunWeeklySuggestionJobFailed]);
+        }
+        finally
+        {
+            _isRunningWeeklyJob = false;
+        }
+    }
+
+}

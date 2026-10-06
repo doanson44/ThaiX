@@ -1,0 +1,322 @@
+@page "/market-research/chainbroker/unlocks"
+@attribute [Authorize(Policy = PermissionNames.ChainBrokerDataRead)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Components
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.ChainBrokerUnlocks.Title]
+        </RadzenText>
+        @if (_canSync)
+        {
+            <RadzenButton Text="@L[RK.ChainBrokerUnlocks.SyncButton]"
+                          Icon="sync"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          IsBusy="@_isSyncing"
+                          Disabled="@_isSyncing"
+                          Click="OnSyncClickAsync" />
+        }
+    </RadzenStack>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <div>
+            <label class="rz-label mb-1">@L[RK.ChainBrokerUnlocks.SearchPlaceholder]</label>
+            <RadzenTextBox @bind-Value="_search"
+                           Placeholder="@L[RK.ChainBrokerUnlocks.SearchPlaceholder]"
+                           @oninput="OnSearchInput"
+                           Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filtered.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.ChainBrokerUnlocks.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filtered.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="ChainBrokerUnlockDto"
+                            Data="@_filtered"
+                            Count="@_filtered.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="Name" Title="@L[RK.ChainBrokerUnlocks.ColName]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                @if (!string.IsNullOrEmpty(item.Logo))
+                                {
+                                    <SafeImage Src="@item.Logo"
+                                               Alt="@item.Name"
+                                               Style="width:24px;height:24px;border-radius:50%;object-fit:cover;"
+                                               FallbackIcon="business"
+                                               FallbackClass="safe-image-fallback"
+                                               Width="24"
+                                               Height="24" />
+                                }
+                                <span>@(item.Name ?? item.Slug)</span>
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="Ticker" Title="@L[RK.ChainBrokerUnlocks.ColTicker]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="NextUnlockDate" Title="@L[RK.ChainBrokerUnlocks.ColNextUnlockDate]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @item.NextUnlockDate?.ToString("yyyy-MM-dd")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="RoundName" Title="@L[RK.ChainBrokerUnlocks.ColRoundName]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="UnlockAmount" Title="@L[RK.ChainBrokerUnlocks.ColUnlockAmount]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="UnlockValueUsd" Title="@L[RK.ChainBrokerUnlocks.ColUnlockValueUsd]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.UnlockValueUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="UnlockPercent" Title="@L[RK.ChainBrokerUnlocks.ColUnlockPercent]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatPercent(item.UnlockPercent)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="CirculationPercent" Title="@L[RK.ChainBrokerUnlocks.ColCirculationPercent]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatPercent(item.CirculationPercent)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="Volume24hUsd" Title="@L[RK.ChainBrokerUnlocks.ColVolume24h]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.Volume24hUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="PriceChange24h" Title="@L[RK.ChainBrokerUnlocks.ColPriceChange24h]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange24h)">@FormatPercent(item.PriceChange24h)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerUnlockDto" Property="PriceChange7d" Title="@L[RK.ChainBrokerUnlocks.ColPriceChange7d]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange7d)">@FormatPercent(item.PriceChange7d)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filtered.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="ChainBrokerUnlockDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filtered" Context="item" OverscanCount="5">
+                <div class="mb-3">
+                    <RadzenCard Class="p-3 m-0">
+                        <RadzenStack Gap="0.5rem">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                @if (!string.IsNullOrEmpty(item.Logo))
+                                {
+                                    <SafeImage Src="@item.Logo"
+                                               Alt="@item.Name"
+                                               Style="width:28px;height:28px;border-radius:50%;object-fit:cover;"
+                                               FallbackIcon="business"
+                                               FallbackClass="safe-image-fallback"
+                                               Width="28"
+                                               Height="28" />
+                                }
+                                <RadzenText TextStyle="TextStyle.Subtitle1">
+                                    <strong>@(item.Name ?? item.Slug)</strong>
+                                    @if (!string.IsNullOrEmpty(item.Ticker))
+                                    {
+                                        <span class="text-muted ms-1 fs-6">(@item.Ticker)</span>
+                                    }
+                                </RadzenText>
+                            </RadzenStack>
+                            @if (item.NextUnlockDate.HasValue)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerUnlocks.ColNextUnlockDate]: @item.NextUnlockDate.Value.ToString("yyyy-MM-dd")</RadzenText>
+                            }
+                            @if (!string.IsNullOrEmpty(item.RoundName))
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerUnlocks.ColRoundName]: @item.RoundName</RadzenText>
+                            }
+                            @if (!string.IsNullOrEmpty(item.UnlockAmount))
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerUnlocks.ColUnlockAmount]: @item.UnlockAmount</RadzenText>
+                            }
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerUnlocks.ColUnlockValueUsd]: @FormatUsd(item.UnlockValueUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerUnlocks.ColUnlockPercent]: @FormatPercent(item.UnlockPercent)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange24h)">@L[RK.ChainBrokerUnlocks.ColPriceChange24h]: @FormatPercent(item.PriceChange24h)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange7d)">@L[RK.ChainBrokerUnlocks.ColPriceChange7d]: @FormatPercent(item.PriceChange7d)</RadzenText>
+                        </RadzenStack>
+                    </RadzenCard>
+                </div>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private List<ChainBrokerUnlockDto> _all = [];
+    private List<ChainBrokerUnlockDto> _filtered = [];
+    private bool _isLoading;
+    private string? _search;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+    private bool _isSyncing;
+    private bool _canSync;
+
+    private IReadOnlyList<SortOption<ChainBrokerUnlockDto>> SortOptions =>
+    [
+        new("name",           L[RK.ChainBrokerUnlocks.ColName],           x => x.Name),
+        new("ticker",         L[RK.ChainBrokerUnlocks.ColTicker],         x => x.Ticker),
+        new("nextUnlockDate", L[RK.ChainBrokerUnlocks.ColNextUnlockDate], x => x.NextUnlockDate),
+        new("unlockValueUsd", L[RK.ChainBrokerUnlocks.ColUnlockValueUsd], x => x.UnlockValueUsd),
+        new("unlockPercent",  L[RK.ChainBrokerUnlocks.ColUnlockPercent],  x => x.UnlockPercent),
+        new("volume24h",      L[RK.ChainBrokerUnlocks.ColVolume24h],      x => x.Volume24hUsd),
+        new("priceChange24h", L[RK.ChainBrokerUnlocks.ColPriceChange24h], x => x.PriceChange24h),
+        new("priceChange7d",  L[RK.ChainBrokerUnlocks.ColPriceChange7d],  x => x.PriceChange7d),
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canSync = auth.User.HasClaim("scope", PermissionNames.ChainBrokerDataSync);
+
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetChainBrokerUnlocksAsync();
+            _all = response.Data ?? [];
+            _filtered = _all;
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.ChainBrokerUnlocks.LoadFailed]);
+            _all = [];
+            _filtered = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _search = e.Value?.ToString();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<ChainBrokerUnlockDto> result = _all;
+
+        if (!string.IsNullOrWhiteSpace(_search))
+        {
+            var term = _search.Trim();
+            result = result.Where(x =>
+                (x.Name != null && x.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                || x.Slug.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || (x.Ticker != null && x.Ticker.Contains(term, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var option = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (option is not null)
+                result = _sortAscending
+                    ? result.OrderBy(option.KeySelector)
+                    : result.OrderByDescending(option.KeySelector);
+        }
+
+        _filtered = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+    private void OnSortDirectionChanged(bool asc) { _sortAscending = asc; ApplyFilter(); }
+
+    private static string GetChangeClass(decimal? value) =>
+        value switch
+        {
+            null => string.Empty,
+            > 0 => "text-success fw-semibold",
+            < 0 => "text-danger fw-semibold",
+            _ => string.Empty
+        };
+
+    private static string FormatPercent(decimal? value)
+    {
+        if (value is null) return "-";
+        var s = value.Value.ToString("0.##") + "%";
+        return value > 0 ? $"+{s}" : s;
+    }
+
+    private static string FormatUsd(decimal? value)
+    {
+        if (value is null) return "-";
+        if (value >= 1_000_000_000) return $"${value.Value / 1_000_000_000:0.##}B";
+        if (value >= 1_000_000) return $"${value.Value / 1_000_000:0.##}M";
+        if (value >= 1_000) return $"${value.Value / 1_000:0.##}K";
+        return $"${value.Value:0.######}";
+    }
+
+    private async Task OnSyncClickAsync()
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.ChainBrokerUnlocks.SyncConfirmMessage],
+            L[RK.ChainBrokerUnlocks.SyncConfirmTitle],
+            new ConfirmOptions { OkButtonText = L[RK.Common.Yes], CancelButtonText = L[RK.Common.Cancel] });
+
+        if (confirmed != true) return;
+
+        _isSyncing = true;
+        try
+        {
+            await ExternalDataService.TriggerChainBrokerUnlocksSyncAsync();
+            NotificationService.NotifySuccess(L[RK.ChainBrokerUnlocks.SyncSuccess]);
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.ChainBrokerUnlocks.SyncFailed]);
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+
+}

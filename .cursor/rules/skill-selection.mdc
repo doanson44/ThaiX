@@ -1,0 +1,21 @@
+---
+description: Skill selection policy for mapping user requests to existing ThaiX Cursor skills
+alwaysApply: true
+---
+
+# Skill Selection Policy
+
+Before executing a complex task, check `.cursor/skills/README.md` and prefer an existing skill.
+
+## Selection Rules
+
+- Match user intent with skill purpose and trigger keywords from the skill index.
+- If multiple skills match, choose the most specific one.
+- For cross-layer tasks, combine the primary skill with relevant rules in `.cursor/rules/`.
+- If no skill matches well, proceed without forcing a skill and follow core guardrails.
+
+## Priority Order
+
+1. Existing skill with strong keyword and scope match
+2. Existing skill with partial match + explicit rule pairing
+3. No skill (direct execution under `thaix-core.mdc`)

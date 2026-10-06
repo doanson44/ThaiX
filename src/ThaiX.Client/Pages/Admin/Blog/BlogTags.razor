@@ -1,0 +1,212 @@
+@page "/admin/blog/tags"
+@attribute [Authorize(Policy = PermissionNames.BlogRead)]
+@using Microsoft.AspNetCore.Components.Authorization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Blog
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.Blog.Tags.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">@L[RK.Blog.Tags.Title]</RadzenText>
+                    @if (_canWrite)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.Blog.Tags.New]" Icon="add" ButtonStyle="ButtonStyle.Primary" Click="@OpenCreateDialogAsync" />
+                    }
+                </RadzenStack>
+
+                <RadzenLabel Text="@L[RK.Common.Search]" />
+                <div class="ThaiX-input-group">
+                    <RadzenTextBox @bind-Value="_searchTerm"
+                                   Placeholder="@L[RK.Blog.Tags.SearchPlaceholder]"
+                                   Change="@(_ => ReloadAsync())" />
+                    <InputGroupSearchButton Click="@ReloadAsync" />
+                </div>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="TagDto"
+                                    Data="@_items"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadDataAsync"
+                                    AllowPaging="true"
+                                    PageSize="@DefaultPageSize"
+                                    Density="Density.Compact"
+                                    IsLoading="@_isLoading">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="TagDto" Property="Name" Title="@L[RK.Blog.Categories.NameLabel]" />
+                            <RadzenDataGridColumn TItem="TagDto" Property="Slug" Title="@L[RK.Blog.Categories.SlugLabel]" />
+                            @if (_canDelete)
+                            {
+                                <RadzenDataGridColumn TItem="TagDto" Title="" Width="100px" Sortable="false" Filterable="false">
+                                    <Template Context="item">
+                                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            }
+                        </Columns>
+                    </RadzenDataGrid>
+                
+                }
+
+                @if (Viewport.IsMobile)
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_isLoading)
+                        {
+                            <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                        }
+                        else if (_items.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            @foreach (var item in _items)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.5rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@item.Name</RadzenText>
+                                            @if (_canDelete)
+                                            {
+                                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
+                                            }
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">@item.Slug</RadzenText>
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoading" />
+                    </RadzenStack>
+                
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+
+    private RadzenDataGrid<TagDto>? _grid;
+    private IReadOnlyList<TagDto> _items = [];
+    private int _totalCount;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private bool _isLoading;
+    private bool _canWrite;
+    private bool _canDelete;
+    private string? _searchTerm;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.BlogWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.BlogDelete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _grid is not null)
+        {
+            await _grid.Reload();
+        }
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+        try
+        {
+            _pageSize = args.Top ?? DefaultPageSize;
+            _currentPage = _pageSize <= 0 ? 1 : ((args.Skip ?? 0) / _pageSize) + 1;
+
+            var result = await BlogService.SearchTagsAsync(
+                string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm, _currentPage, _pageSize);
+
+            _items = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Categories.LoadFailed], ex.GetDisplayDetail());
+            _items = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ReloadAsync()
+    {
+        if (_grid is null) return;
+        await _grid.Reload();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (_grid is null) return;
+        await _grid.GoToPage(page - 1);
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        if (!_canWrite) return;
+
+        var shouldReload = await DialogService.OpenAsync<BlogTagDialog>(
+            L[RK.Blog.Tags.New],
+            null,
+            new DialogOptions { Width = "min(480px, 95vw)", CloseDialogOnOverlayClick = true });
+
+        if (shouldReload is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(TagDto item)
+    {
+        if (!_canDelete) return;
+
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.Blog.Tags.DeleteConfirm]);
+
+        if (confirmed != true) return;
+
+        try
+        {
+            await BlogService.DeleteTagAsync(item.Id);
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.SaveSuccess]);
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Tags.DeleteFailed], ex.GetDisplayDetail());
+        }
+    }
+}

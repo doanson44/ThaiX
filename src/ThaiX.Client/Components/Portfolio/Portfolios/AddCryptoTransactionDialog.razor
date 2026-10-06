@@ -1,0 +1,113 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.AssetPositions
+@inject IAssetPositionService AssetPositionService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenTemplateForm TItem="AddTransactionFormModel" Data="_model" Submit="SaveAsync">
+    <RadzenStack Gap="1rem">
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.AssetPositions.Symbol]:</RadzenText>
+            <RadzenBadge Text="@Symbol" BadgeStyle="BadgeStyle.Info" />
+        </RadzenStack>
+
+        <RadzenFormField Text="@L[RK.AssetPositions.TransactionType]" Class="w-100">
+            <RadzenDropDown @bind-Value="_model.TransactionType"
+                            Data="_typeOptions"
+                            TextProperty="Label"
+                            ValueProperty="Value"
+                            class="w-100" />
+        </RadzenFormField>
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Quantity]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Quantity" TValue="decimal" Min="0" Step="0.0001m" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Price]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Price" TValue="decimal" Min="0" Step="0.0001m" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Fee]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Fee" TValue="decimal?" Min="0" Step="0.01m" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.TransactedAt]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.TransactedAt" ShowTime="true" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenFormField Text="@L[RK.AssetPositions.Note]" Class="w-100">
+            <RadzenTextArea @bind-Value="_model.Note" class="w-100" Rows="2" MaxLength="500" />
+        </RadzenFormField>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light"
+                          Click="@(_ => DialogService.Close(false))" />
+            <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary"
+                          ButtonType="ButtonType.Submit" Disabled="_isSaving" />
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Guid PositionId { get; set; }
+    [Parameter] public string Symbol { get; set; } = string.Empty;
+
+    private AddTransactionFormModel _model = new();
+    private bool _isSaving;
+
+    private sealed record TypeOption(string Label, string Value);
+    private static readonly List<TypeOption> _typeOptions =
+    [
+        new("Buy", "Buy"),
+        new("Sell", "Sell")
+    ];
+
+    private sealed class AddTransactionFormModel
+    {
+        public string TransactionType { get; set; } = "Buy";
+        public decimal Quantity { get; set; }
+        public decimal Price { get; set; }
+        public decimal? Fee { get; set; }
+        public DateTime TransactedAt { get; set; } = DateTime.UtcNow;
+        public string? Note { get; set; }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            await AssetPositionService.AddCryptoTransactionAsync(PositionId, new AddCryptoTransactionRequest
+            {
+                TransactionType = _model.TransactionType,
+                Quantity = _model.Quantity,
+                Price = _model.Price,
+                Fee = _model.Fee,
+                TransactedAt = _model.TransactedAt,
+                Note = _model.Note
+            });
+            DialogService.Close(true);
+        }
+        catch (Exception)
+        {
+            DialogService.Close(false);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

@@ -1,0 +1,27 @@
+.blog-content-view :deep(pre) {
+    overflow-x: auto;
+    padding: 0.75rem;
+    border-radius: 4px;
+}
+
+.blog-content-view :deep(img) {
+    max-width: 100%;
+}
+
+.blog-content-view :deep(table) {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.blog-content-view :deep(table td),
+.blog-content-view :deep(table th) {
+    border: 1px solid var(--rz-border-color, #444);
+    padding: 0.4rem 0.6rem;
+}
+
+.blog-content-view :deep(blockquote) {
+    border-left: 3px solid var(--rz-primary, #f59e0b);
+    margin-left: 0;
+    padding-left: 1rem;
+    opacity: 0.85;
+}

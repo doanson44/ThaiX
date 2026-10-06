@@ -1,0 +1,306 @@
+@page "/market-research/coingecko"
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Services.ExternalData
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
+            @L[RK.CoinGecko.Title]
+        </RadzenText>
+
+        @if (_listErrorMessage is not null)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @_listErrorMessage
+            </RadzenAlert>
+        }
+
+        @if (Viewport.IsMobile)
+        {
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0">@L[RK.CoinGecko.CoinList]</RadzenText>
+
+                    @if (_isListLoading)
+                    {
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                    }
+                    else if (!_coins.Any())
+                    {
+                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            @L[RK.Common.NoDataFound]
+                        </RadzenAlert>
+                    }
+                    else
+                    {
+                        <DebouncedSearchBox Value="@_mobileSearchTerm"
+                                            ValueChanged="OnMobileSearchChanged"
+                                            Placeholder="@L[RK.Common.Search]"
+                                            Name="CoinSearchMobile"
+                                            CssClass="w-100"
+                                            DebounceMilliseconds="300" />
+
+                        @if (!FilteredMobileCoins.Any())
+                        {
+                            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                @L[RK.Common.NoDataFound]
+                            </RadzenAlert>
+                        }
+                        else
+                        {
+                            <RadzenStack Gap="0.5rem">
+                                @foreach (var coin in FilteredMobileCoins.Take(80))
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                  Variant="Variant.Outlined"
+                                                  Icon="chevron_right"
+                                                  IconPos="IconPos.Right"
+                                                  Text="@($"{coin.Name} ({coin.Symbol.ToUpperInvariant()})")"
+                                                  Click="@(() => OpenCoinDetailDialogAsync(coin))"
+                                                  Class="w-100 text-start" />
+                                }
+                            </RadzenStack>
+                        }
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        }
+        else
+        {
+            <RadzenRow Gap="1rem" RowGap="1rem">
+                <RadzenColumn Size="12" SizeLG="5">
+                    <RadzenCard>
+                        <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-3">@L[RK.CoinGecko.CoinList]</RadzenText>
+
+                        @if (_isListLoading)
+                        {
+                            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                        }
+                        else if (!_coins.Any())
+                        {
+                            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                @L[RK.Common.NoDataFound]
+                            </RadzenAlert>
+                        }
+                        else
+                        {
+                            <RadzenDataGrid Data="@_coins"
+                                            TItem="CoinGeckoCoinDto"
+                                            AllowFiltering="true"
+                                            FilterMode="FilterMode.Advanced"
+                                            AllowPaging="true"
+                                            PageSize="10"
+                                            AllowSorting="true"
+                                            ShowPagingSummary="true"
+                                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                                            PageSizeOptions="@(new[] { 10, 25, 50, 100 })">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="CoinGeckoCoinDto"
+                                                          Property="Name"
+                                                          Title="@L[RK.CoinGecko.CoinName]">
+                                        <Template Context="coin">
+                                            <RadzenButton ButtonStyle="@(IsCoinSelected(coin) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                                          Variant="@(IsCoinSelected(coin) ? Variant.Filled : Variant.Flat)"
+                                                          Text="@($"{coin.Name} ({coin.Symbol.ToUpperInvariant()})")"
+                                                          Click="@(async () => await SelectCoinAsync(coin))"
+                                                          Class="w-100 text-start" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                    </RadzenCard>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12" SizeLG="7">
+                    <RadzenCard>
+                        <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-3">@L[RK.CoinGecko.DetailsTitle]</RadzenText>
+                        @RenderDesktopDetails()
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private List<CoinGeckoCoinDto> _coins = [];
+    private CoinGeckoCoinMarketResponseDto? _selectedCoinMarket;
+    private bool _isListLoading = true;
+    private bool _isDetailsLoading;
+    private string? _listErrorMessage;
+    private string? _detailErrorMessage;
+    private bool _viewportInitialized;
+    private string _mobileSearchTerm = string.Empty;
+    private string? _selectedCoinId;
+
+    private IEnumerable<CoinGeckoCoinDto> FilteredMobileCoins =>
+        string.IsNullOrWhiteSpace(_mobileSearchTerm)
+            ? _coins
+            : _coins.Where(c =>
+                c.Name.Contains(_mobileSearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.Symbol.Contains(_mobileSearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                c.Id.Contains(_mobileSearchTerm, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCoinsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_viewportInitialized)
+        {
+            await Viewport.InitializeAsync();
+            _viewportInitialized = true;
+        }
+    }
+
+    private RenderFragment RenderDesktopDetails() => __builder =>
+    {
+        if (_isDetailsLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (_detailErrorMessage is not null)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @_detailErrorMessage
+            </RadzenAlert>
+        }
+        else if (_selectedCoinMarket?.Data is null)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.CoinGecko.SelectCoinHint]
+            </RadzenAlert>
+        }
+        else
+        {
+            var market = _selectedCoinMarket.Data;
+            <RadzenStack Gap="0.75rem">
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.CoinName]:</strong> @market.Name (@market.Symbol.ToUpperInvariant())
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.CurrentPrice]:</strong> @FormatCurrency(market.CurrentPrice)
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.Market.MarketCap]:</strong> @FormatNullableCurrency(market.MarketCap)
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.MarketCapRank]:</strong> @(market.MarketCapRank?.ToString() ?? "-")
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.High24H]:</strong> @FormatNullableCurrency(market.High24H)
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.Low24H]:</strong> @FormatNullableCurrency(market.Low24H)
+                </RadzenText>
+                <RadzenText>
+                    <strong>@L[RK.CoinGecko.PriceChange24H]:</strong> @FormatNullablePercent(market.PriceChangePercentage24H)
+                </RadzenText>
+            </RadzenStack>
+        }
+    };
+
+    private async Task LoadCoinsAsync()
+    {
+        _isListLoading = true;
+        _listErrorMessage = null;
+        try
+        {
+            var response = await ExternalDataService.GetCoinGeckoCoinsListAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _coins = response.Data.Data
+                    .OrderBy(c => c.Name)
+                    .ToList();
+            }
+            else
+            {
+                _listErrorMessage = L[RK.CoinGecko.LoadListFailed];
+            }
+        }
+        catch
+        {
+            _listErrorMessage = L[RK.CoinGecko.LoadListFailed];
+        }
+        finally
+        {
+            _isListLoading = false;
+        }
+    }
+
+    private async Task OpenCoinDetailDialogAsync(CoinGeckoCoinDto coin)
+    {
+        await DialogService.OpenAsync<CoinGeckoCoinDetailDialog>(
+            $"{coin.Name} ({coin.Symbol.ToUpperInvariant()})",
+            new Dictionary<string, object?>
+            {
+                [nameof(CoinGeckoCoinDetailDialog.CoinId)] = coin.Id,
+                [nameof(CoinGeckoCoinDetailDialog.CoinName)] = coin.Name
+            },
+            new DialogOptions
+            {
+                Width = "min(480px, 95vw)",
+                CloseDialogOnOverlayClick = true
+            });
+    }
+
+    private async Task SelectCoinAsync(CoinGeckoCoinDto coin)
+    {
+        _selectedCoinId = coin.Id;
+        _isDetailsLoading = true;
+        _detailErrorMessage = null;
+        try
+        {
+            var response = await ExternalDataService.GetCoinGeckoCoinMarketByIdAsync(coin.Id);
+            if (response is { Success: true, Data: not null })
+            {
+                _selectedCoinMarket = response.Data;
+            }
+            else
+            {
+                _selectedCoinMarket = null;
+                _detailErrorMessage = L[RK.CoinGecko.LoadDetailFailed];
+            }
+        }
+        catch
+        {
+            _selectedCoinMarket = null;
+            _detailErrorMessage = L[RK.CoinGecko.LoadDetailFailed];
+        }
+        finally
+        {
+            _isDetailsLoading = false;
+        }
+    }
+
+    private bool IsCoinSelected(CoinGeckoCoinDto coin)
+    {
+        return string.Equals(_selectedCoinId, coin.Id, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private Task OnMobileSearchChanged(string value)
+    {
+        _mobileSearchTerm = value;
+        return Task.CompletedTask;
+    }
+
+    private static string FormatCurrency(decimal value) => $"${value:N2}";
+
+    private static string FormatNullableCurrency(decimal? value)
+        => value.HasValue ? $"${value.Value:N2}" : "-";
+
+    private static string FormatNullablePercent(decimal? value)
+        => value.HasValue ? $"{value.Value:N2}%" : "-";
+}

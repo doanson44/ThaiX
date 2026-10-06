@@ -1,0 +1,190 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "kill-presentation-ports",
+      "type": "shell",
+      "command": "fuser -k -n tcp 5005 7129 2>/dev/null || true",
+      "windows": {
+        "command": "powershell",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-Command",
+          "$ports = @(5005, 7129); $connections = Get-NetTCPConnection -LocalPort $ports -State Listen -ErrorAction SilentlyContinue; $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($processId in $processIds) { if ($processId -and $processId -ne $PID) { Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue } }"
+        ]
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/ThaiX.Presentation/ThaiX.Presentation.csproj",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "prepare-debug-presentation",
+      "dependsOn": [
+        "kill-presentation-ports",
+        "build"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    },
+    {
+      "label": "watch-presentation",
+      "type": "shell",
+      "command": "export ASPNETCORE_URLS=http://localhost:5005 ASPNETCORE_ENVIRONMENT=Development; fuser -k -n tcp 5005 7129 2>/dev/null || true; trap 'fuser -k -n tcp 5005 7129 2>/dev/null || true' EXIT; dotnet watch run --non-interactive",
+      "windows": {
+        "command": "powershell",
+        "args": [
+          "-NoProfile",
+          "-ExecutionPolicy",
+          "Bypass",
+          "-Command",
+          "$env:ASPNETCORE_URLS = 'http://localhost:5005'; $env:ASPNETCORE_ENVIRONMENT = 'Development'; function Stop-ThaiXPresentationPorts { $ports = @(5005, 7129); $connections = Get-NetTCPConnection -LocalPort $ports -State Listen -ErrorAction SilentlyContinue; $processIds = $connections | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($processId in $processIds) { if ($processId -and $processId -ne $PID) { Stop-Process -Id $processId -Force -ErrorAction SilentlyContinue } } }; Stop-ThaiXPresentationPorts; try { dotnet watch run --non-interactive } finally { Stop-ThaiXPresentationPorts }"
+        ]
+      },
+      "options": {
+        "cwd": "${workspaceFolder}/src/ThaiX.Presentation"
+      },
+      "dependsOn": [
+        "validate-build-solution"
+      ],
+      "dependsOrder": "sequence",
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "owner": "dotnet-watch-presentation",
+          "pattern": [
+            {
+              "regexp": "^\\s*(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning)\\s+(\\w+):\\s+(.*)$",
+              "file": 1,
+              "line": 2,
+              "column": 3,
+              "severity": 4,
+              "code": 5,
+              "message": 6
+            }
+          ],
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "dotnet watch",
+            "endsPattern": "Now listening on:"
+          }
+        }
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev"
+      }
+    },
+    {
+      "label": "build-presentation",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/ThaiX.Presentation/ThaiX.Presentation.csproj",
+        "--verbosity",
+        "minimal",
+        "/clp:ErrorsOnly",
+        "/property:GenerateFullPaths=true",
+        "/consoleloggerparameters:NoSummary;ForceNoAlign"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "validate-restore",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "restore",
+        "${workspaceFolder}/ThaiX.slnx",
+        "--verbosity",
+        "minimal"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "build"
+      }
+    },
+    {
+      "label": "validate-build-solution",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "build",
+        "${workspaceFolder}/ThaiX.slnx",
+        "-c",
+        "Debug",
+        "--verbosity",
+        "minimal",
+        "/clp:ErrorsOnly",
+        "--no-restore"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "build"
+      }
+    },
+    {
+      "label": "validate-test-solution",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "test",
+        "${workspaceFolder}/ThaiX.slnx",
+        "--no-restore",
+        "--verbosity",
+        "minimal",
+        "/clp:ErrorsOnly"
+      ],
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "build"
+      }
+    },
+    {
+      "label": "validate-solution",
+      "dependsOn": [
+        "validate-restore",
+        "validate-build-solution",
+        "validate-test-solution"
+      ],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}

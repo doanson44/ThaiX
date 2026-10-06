@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug: ThaiX.Presentation",
+      "type": "coreclr",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/ThaiX.Presentation/bin/Debug/net10.0/ThaiX.Presentation.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/src/ThaiX.Presentation",
+      "stopAtEntry": false,
+      "justMyCode": true,
+      "preLaunchTask": "prepare-debug-presentation",
+      "postDebugTask": "kill-presentation-ports",
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)",
+        "uriFormat": "%s"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5005"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+@using ThaiX.Client.Components
+@using ThaiX.Client.Services.MasterData
+@using ThaiX.Client.Models.MasterData
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IMasterDataService MasterDataService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenFormField Text="@L[RK.PriceAlerts.AssetType]" Class="w-100">
+    <RadzenDropDown @bind-Value="AssetType"
+                    Data="_assetTypeOptions"
+                    TextProperty="Label"
+                    ValueProperty="Value"
+                    Change="@OnAssetTypeChanged"
+                    class="w-100" />
+</RadzenFormField>
+
+<RadzenFormField Text="@L[RK.PriceAlerts.Symbol]" Class="w-100">
+    <AsyncSearchSelect TItem="SymbolSearchItemDto"
+                       Name="Symbol"
+                       Value="@SelectedSymbol"
+                       ValueChanged="@OnSymbolChanged"
+                       LoadDataAsync="@LoadSymbolsAsync"
+                       GetText="@(x => x.DisplayText)"
+                       GetValue="@(x => x.Symbol)"
+                       Placeholder="@L[RK.PriceAlerts.SearchPlaceholder]"
+                       SearchPlaceholder="@L[RK.Common.Search]"
+                       LoadingText="@L[RK.Common.Loading]"
+                       EmptyText="@L[RK.Common.NoDataFound]"
+                       PageSize="20"
+                       Class="w-100" />
+</RadzenFormField>
+
+@code {
+    [Parameter] public string AssetType { get; set; } = "CryptoSpot";
+    [Parameter] public string SelectedSymbol { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> AssetTypeChanged { get; set; }
+    [Parameter] public EventCallback<string> SelectedSymbolChanged { get; set; }
+
+    private sealed record DropDownItem(string Value, string Label);
+
+    private readonly List<DropDownItem> _assetTypeOptions =
+    [
+        new("CryptoSpot", "Crypto Spot (MEXC)"),
+        new("VnStock", "VN Stock (VnDirect)")
+    ];
+
+    private async Task OnAssetTypeChanged(object _)
+    {
+        SelectedSymbol = string.Empty;
+        await SelectedSymbolChanged.InvokeAsync(SelectedSymbol);
+        await AssetTypeChanged.InvokeAsync(AssetType);
+        StateHasChanged();
+    }
+
+    private async Task OnSymbolChanged(string? value)
+    {
+        SelectedSymbol = value ?? string.Empty;
+        await SelectedSymbolChanged.InvokeAsync(SelectedSymbol);
+    }
+
+    private async Task<(IReadOnlyList<SymbolSearchItemDto> items, int totalCount)> LoadSymbolsAsync(
+        int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await MasterDataService.SearchSymbolsAsync(
+                AssetType, search, page, pageSize, cancellationToken);
+            return (result.Items, result.TotalCount);
+        }
+        catch
+        {
+            return ([], 0);
+        }
+    }
+}

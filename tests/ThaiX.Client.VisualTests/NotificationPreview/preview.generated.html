@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>ThaiX Notification Design Preview</title>
+<style>
+    body { margin:0; padding:32px; background:#05070b; font-family:'Segoe UI',Arial,sans-serif; color:#e6e8ec; }
+    h1 { font-family:Georgia,serif; font-size:26px; color:#f59e0b; margin:0 0 4px; }
+    h2 { font-size:14px; text-transform:uppercase; letter-spacing:1px; color:#5b6272; margin:40px 0 16px; font-weight:600; }
+    .channel-row { display:flex; gap:20px; margin-bottom:28px; }
+    .channel-col { flex:1; min-width:0; }
+    .chrome-label { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#5b6272; margin-bottom:8px; }
+
+    /* Telegram mock chrome */
+    .tg-app { background:#0e1621; border-radius:12px; padding:16px; }
+    .tg-bubble { background:#182533; border-radius:10px; padding:12px 14px; color:#e9edf1; font-size:14px; line-height:1.5; max-width:100%; }
+    .tg-bot { color:#8fceff; font-weight:600; font-size:12.5px; margin-bottom:6px; }
+    .tg-bubble b { color:#ffffff; }
+    .tg-bubble i { color:#a9b4bf; }
+    .tg-bubble code { background:#0e1621; border-radius:4px; padding:1px 5px; font-family:'Consolas',monospace; color:#7fd8a3; }
+    .tg-bubble a { color:#6cb8ff; }
+
+    /* Slack mock chrome */
+    .sl-app { background:#1a1d21; border-radius:12px; padding:16px; }
+    .sl-msg-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .sl-avatar { width:28px; height:28px; border-radius:6px; background:#f59e0b; color:#1a1207; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px; }
+    .sl-sender { font-weight:700; font-size:13.5px; color:#fff; }
+    .sl-badge { font-size:10px; background:#2b2f36; color:#9a9ea6; padding:1px 5px; border-radius:3px; }
+    .sl-attachment { border-left:4px solid #5b7c99; background:#22252b; border-radius:0 6px 6px 0; padding:10px 14px; }
+    .sl-header { font-weight:700; font-size:15px; color:#fff; margin-bottom:4px; }
+    .sl-context { font-size:12px; color:#9a9ea6; margin:2px 0; }
+    .sl-divider { border:none; border-top:1px solid #34383f; margin:8px 0; }
+    .sl-fields { display:grid; grid-template-columns:1fr 1fr; gap:8px 16px; margin:6px 0; }
+    .sl-field { font-size:13px; color:#d1d3d6; }
+    .sl-section { font-size:13px; color:#d1d3d6; margin:6px 0; }
+    .sl-actions { margin-top:8px; }
+    .sl-btn { display:inline-block; background:#2b2f36; border:1px solid #454951; color:#e9edf1; text-decoration:none; font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:6px; }
+    .sl-attachment strong { color:#fff; }
+    .sl-attachment code { background:#0e0f12; border-radius:4px; padding:1px 5px; font-family:'Consolas',monospace; color:#7fd8a3; }
+
+    .email-frame { width:100%; height:520px; border:1px solid #232838; border-radius:10px; margin-bottom:20px; background:#05070b; }
+</style>
+</head>
+<body>
+    <h1>ThaiX Notification Design Preview</h1>
+    <div style="color:#9aa1ad;font-size:13px;">Rendered directly from the production formatters — Telegram &amp; Slack mockups reproduce native chrome around real output; Email frames are the actual generated documents.</div>
+
+    <h2>Telegram &amp; Slack</h2>
+    <div class="channel-row">
+  <div class="channel-col">
+    <div class="chrome-label">Telegram</div>
+    <div class="tg-app">
+  <div class="tg-bot">ThaiX Bot</div>
+  <div class="tg-bubble">🟡 <b>BTCUSDT crossed above target</b><br/><i>Price Alert</i><br/><br/>Condition   <code>Price &gt; 68000</code><br/>Current     <code>68,420.5</code><br/>Change 24h  <code>+3.42%</code><br/>Status      <code>Triggered</code><br/><br/>🔗 <a href="https://www.mexc.com/exchange/BTC_USDT">Open MEXC</a><br/><br/><i>— ThaiX</i></div>
+</div>
+  </div>
+  <div class="channel-col">
+    <div class="chrome-label">Slack</div>
+    <div class="sl-app">
+  <div class="sl-msg-head">
+    <div class="sl-avatar">T</div>
+    <div class="sl-sender">ThaiX</div>
+    <div class="sl-badge">APP</div>
+  </div>
+  <div class="sl-attachment" style="border-left-color:#f59e0b;"><div class="sl-header">BTCUSDT crossed above target</div><div class="sl-context"><strong>Price Alert</strong>  &#183;  &#128993; Warning</div><hr class="sl-divider"/><div class="sl-fields"><div class="sl-field"><strong>Condition</strong><br/><code>Price &gt; 68000</code></div><div class="sl-field"><strong>Current</strong><br/><code>68,420.5</code></div><div class="sl-field"><strong>Change 24h</strong><br/><code>+3.42%</code></div><div class="sl-field"><strong>Status</strong><br/><code>Triggered</code></div></div><hr class="sl-divider"/><div class="sl-actions"><a class="sl-btn" href="https://www.mexc.com/exchange/BTC_USDT">Open MEXC</a></div><div class="sl-context">ThaiX</div></div>
+</div>
+  </div>
+</div><div class="channel-row">
+  <div class="channel-col">
+    <div class="chrome-label">Telegram</div>
+    <div class="tg-app">
+  <div class="tg-bot">ThaiX Bot</div>
+  <div class="tg-bubble">🔵 <b>MEXC Spot Crypto Suggestions</b><br/><i>Weekly Suggestion</i><br/><br/>Entry      <code>2.145</code><br/>Stop Loss  <code>1.98</code><br/>TP1        <code>2.35</code><br/>TP2        <code>2.61</code><br/>Score      <code>8.4</code><br/><br/><b>🟢 SUIUSDT — Long</b><br/>Breakout above the weekly resistance with rising volume; momentum favors continuation into the next range.<br/><br/>🔗 <a href="https://ThaiX.app/market-research/weekly-suggestions">View Full Report</a><br/><br/><i>— ThaiX</i></div>
+</div>
+  </div>
+  <div class="channel-col">
+    <div class="chrome-label">Slack</div>
+    <div class="sl-app">
+  <div class="sl-msg-head">
+    <div class="sl-avatar">T</div>
+    <div class="sl-sender">ThaiX</div>
+    <div class="sl-badge">APP</div>
+  </div>
+  <div class="sl-attachment" style="border-left-color:#5b7c99;"><div class="sl-header">MEXC Spot Crypto Suggestions</div><div class="sl-context"><strong>Weekly Suggestion</strong>  &#183;  &#128309; Info</div><hr class="sl-divider"/><div class="sl-fields"><div class="sl-field"><strong>Entry</strong><br/><code>2.145</code></div><div class="sl-field"><strong>Stop Loss</strong><br/><code>1.98</code></div><div class="sl-field"><strong>TP1</strong><br/><code>2.35</code></div><div class="sl-field"><strong>TP2</strong><br/><code>2.61</code></div><div class="sl-field"><strong>Score</strong><br/><code>8.4</code></div></div><hr class="sl-divider"/><div class="sl-section"><strong>&#128994; SUIUSDT — Long</strong><br/>Breakout above the weekly resistance with rising volume; momentum favors continuation into the next range.</div><hr class="sl-divider"/><div class="sl-actions"><a class="sl-btn" href="https://ThaiX.app/market-research/weekly-suggestions">View Full Report</a></div><div class="sl-context">ThaiX</div></div>
+</div>
+  </div>
+</div><div class="channel-row">
+  <div class="channel-col">
+    <div class="chrome-label">Telegram</div>
+    <div class="tg-app">
+  <div class="tg-bot">ThaiX Bot</div>
+  <div class="tg-bubble">🆘 <b>ChainBroker sync failed</b><br/><i>System Alert</i><br/><br/>Unlock schedule sync failed after 3 attempts: upstream API returned HTTP 503.<br/><br/><br/><i>— ThaiX</i></div>
+</div>
+  </div>
+  <div class="channel-col">
+    <div class="chrome-label">Slack</div>
+    <div class="sl-app">
+  <div class="sl-msg-head">
+    <div class="sl-avatar">T</div>
+    <div class="sl-sender">ThaiX</div>
+    <div class="sl-badge">APP</div>
+  </div>
+  <div class="sl-attachment" style="border-left-color:#f43f5e;"><div class="sl-header">ChainBroker sync failed</div><div class="sl-context"><strong>System Alert</strong>  &#183;  &#127384; Critical</div><hr class="sl-divider"/><div class="sl-section">Unlock schedule sync failed after 3 attempts: upstream API returned HTTP 503.</div><div class="sl-context">ThaiX</div></div>
+</div>
+  </div>
+</div>
+
+    <h2>Email — notification cards</h2>
+    <iframe class="email-frame" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body style=&quot;margin:0;padding:40px 16px;background:#05070b;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:480px;margin:0 auto;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-bottom:24px;text-align:center;&quot;&gt;
+        &lt;span style=&quot;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:22px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;&quot;&gt;ThaiX&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;background:#11151c;border:1px solid #232838;border-radius:12px;padding:32px 28px;&quot;&gt;
+        &lt;h1 style=&quot;margin:0 0 14px;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:20px;font-weight:700;color:#f5f5f7;&quot;&gt;BTCUSDT crossed above target&lt;/h1&gt;
+        &lt;div style=&quot;font-size:14px;line-height:1.7;color:#c7cbd4;&quot;&gt;&lt;p style=&quot;margin:0 0 18px;font-size:13px;color:#5b6272;&quot;&gt;Price Alert &amp;middot; &#128993; Warning&lt;/p&gt;&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:18px;&quot;&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Condition&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;Price &amp;gt; 68000&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Current&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;68420.5&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Change 24h&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;3.42%&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Status&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;Triggered&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;&lt;p style=&quot;margin:14px 0 0;&quot;&gt;&lt;a href=&quot;https://www.mexc.com/exchange/BTC_USDT&quot; style=&quot;color:#f59e0b;text-decoration:none;font-weight:600;&quot;&gt;&#128279; Open MEXC&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
+        
+        
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-top:20px;text-align:center;font-size:12px;color:#5b6272;&quot;&gt;
+        This email was sent by ThaiX. If you weren&#39;t expecting it, you can safely ignore it.
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+<iframe class="email-frame" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body style=&quot;margin:0;padding:40px 16px;background:#05070b;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:480px;margin:0 auto;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-bottom:24px;text-align:center;&quot;&gt;
+        &lt;span style=&quot;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:22px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;&quot;&gt;ThaiX&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;background:#11151c;border:1px solid #232838;border-radius:12px;padding:32px 28px;&quot;&gt;
+        &lt;h1 style=&quot;margin:0 0 14px;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:20px;font-weight:700;color:#f5f5f7;&quot;&gt;MEXC Spot Crypto Suggestions&lt;/h1&gt;
+        &lt;div style=&quot;font-size:14px;line-height:1.7;color:#c7cbd4;&quot;&gt;&lt;p style=&quot;margin:0 0 18px;font-size:13px;color:#5b6272;&quot;&gt;Weekly Suggestion &amp;middot; &#128309; Info&lt;/p&gt;&lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;margin-bottom:18px;&quot;&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Entry&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;2.145&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Stop Loss&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;1.980&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;TP1&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;2.350&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;TP2&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;2.610&lt;/td&gt;
+&lt;/tr&gt;&lt;tr&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;color:#5b6272;border-bottom:1px solid #232838;&quot;&gt;Score&lt;/td&gt;
+  &lt;td style=&quot;padding:6px 0;font-size:13px;font-family:&#39;Consolas&#39;,&#39;Courier New&#39;,monospace;color:#f5f5f7;text-align:right;border-bottom:1px solid #232838;&quot;&gt;8.4&lt;/td&gt;
+&lt;/tr&gt;&lt;/table&gt;&lt;h4 style=&quot;margin:16px 0 6px;font-size:14px;color:#f5f5f7;&quot;&gt;&amp;#128994; SUIUSDT — Long&lt;/h4&gt;&lt;p style=&quot;margin:0 0 8px;&quot;&gt;Breakout above the weekly resistance with rising volume; momentum favors continuation into the next range.&lt;/p&gt;&lt;p style=&quot;margin:14px 0 0;&quot;&gt;&lt;a href=&quot;https://ThaiX.app/market-research/weekly-suggestions&quot; style=&quot;color:#f59e0b;text-decoration:none;font-weight:600;&quot;&gt;&#128279; View Full Report&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
+        
+        
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-top:20px;text-align:center;font-size:12px;color:#5b6272;&quot;&gt;
+        This email was sent by ThaiX. If you weren&#39;t expecting it, you can safely ignore it.
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+<iframe class="email-frame" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body style=&quot;margin:0;padding:40px 16px;background:#05070b;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:480px;margin:0 auto;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-bottom:24px;text-align:center;&quot;&gt;
+        &lt;span style=&quot;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:22px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;&quot;&gt;ThaiX&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;background:#11151c;border:1px solid #232838;border-radius:12px;padding:32px 28px;&quot;&gt;
+        &lt;h1 style=&quot;margin:0 0 14px;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:20px;font-weight:700;color:#f5f5f7;&quot;&gt;ChainBroker sync failed&lt;/h1&gt;
+        &lt;div style=&quot;font-size:14px;line-height:1.7;color:#c7cbd4;&quot;&gt;&lt;p style=&quot;margin:0 0 18px;font-size:13px;color:#5b6272;&quot;&gt;System Alert &amp;middot; &#127384; Critical&lt;/p&gt;&lt;p style=&quot;margin:0 0 8px;&quot;&gt;Unlock schedule sync failed after 3 attempts: upstream API returned HTTP 503.&lt;/p&gt;&lt;/div&gt;
+        
+        
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-top:20px;text-align:center;font-size:12px;color:#5b6272;&quot;&gt;
+        This email was sent by ThaiX. If you weren&#39;t expecting it, you can safely ignore it.
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+
+    <h2>Email — account &amp; auth</h2>
+    <iframe class="email-frame" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body style=&quot;margin:0;padding:40px 16px;background:#05070b;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:480px;margin:0 auto;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-bottom:24px;text-align:center;&quot;&gt;
+        &lt;span style=&quot;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:22px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;&quot;&gt;ThaiX&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;background:#11151c;border:1px solid #232838;border-radius:12px;padding:32px 28px;&quot;&gt;
+        &lt;h1 style=&quot;margin:0 0 14px;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:20px;font-weight:700;color:#f5f5f7;&quot;&gt;Welcome to ThaiX!&lt;/h1&gt;
+        &lt;div style=&quot;font-size:14px;line-height:1.7;color:#c7cbd4;&quot;&gt;&lt;p&gt;Please confirm your email address to activate your account.&lt;/p&gt;&lt;/div&gt;
+        &lt;div style=&quot;margin-top:28px;text-align:center;&quot;&gt;
+  &lt;a href=&quot;https://ThaiX.app/confirm-email?userId=…&amp;token=…&quot; style=&quot;display:inline-block;padding:12px 32px;background:#f59e0b;color:#1a1207;font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;Confirm Email&lt;/a&gt;
+&lt;/div&gt;
+        &lt;p style=&quot;margin:20px 0 0;font-size:13px;line-height:1.6;color:#5b6272;&quot;&gt;If you did not create an account, you can safely ignore this email.&lt;/p&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-top:20px;text-align:center;font-size:12px;color:#5b6272;&quot;&gt;
+        This email was sent by ThaiX. If you weren&#39;t expecting it, you can safely ignore it.
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+<iframe class="email-frame" srcdoc="&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body style=&quot;margin:0;padding:40px 16px;background:#05070b;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;
+  &lt;table role=&quot;presentation&quot; width=&quot;100%&quot; cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; style=&quot;max-width:480px;margin:0 auto;&quot;&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-bottom:24px;text-align:center;&quot;&gt;
+        &lt;span style=&quot;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:22px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;&quot;&gt;ThaiX&lt;/span&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;background:#11151c;border:1px solid #232838;border-radius:12px;padding:32px 28px;&quot;&gt;
+        &lt;h1 style=&quot;margin:0 0 14px;font-family:Georgia,&#39;Times New Roman&#39;,serif;font-size:20px;font-weight:700;color:#f5f5f7;&quot;&gt;Reset your password&lt;/h1&gt;
+        &lt;div style=&quot;font-size:14px;line-height:1.7;color:#c7cbd4;&quot;&gt;&lt;p&gt;Click the button below to choose a new password.&lt;/p&gt;&lt;/div&gt;
+        &lt;div style=&quot;margin-top:28px;text-align:center;&quot;&gt;
+  &lt;a href=&quot;https://ThaiX.app/reset-password?userId=…&amp;token=…&quot; style=&quot;display:inline-block;padding:12px 32px;background:#f59e0b;color:#1a1207;font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;font-family:&#39;Segoe UI&#39;,Arial,sans-serif;&quot;&gt;Reset Password&lt;/a&gt;
+&lt;/div&gt;
+        &lt;p style=&quot;margin:20px 0 0;font-size:13px;line-height:1.6;color:#5b6272;&quot;&gt;If you did not request this, you can safely ignore this email.&lt;/p&gt;
+      &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;padding-top:20px;text-align:center;font-size:12px;color:#5b6272;&quot;&gt;
+        This email was sent by ThaiX. If you weren&#39;t expecting it, you can safely ignore it.
+      &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;"></iframe>
+</body>
+</html>

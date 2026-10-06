@@ -1,0 +1,156 @@
+@page "/admin/ai-tester"
+@attribute [Authorize(Policy = PermissionNames.SystemAdmin)]
+@using ThaiX.Client.Models.Ai
+@using ThaiX.Client.Services.Ai
+@using AiTesterKeys = ThaiX.Client.Constants.ResourceKeys.AiTester
+@inject IAiService AiService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[AiTesterKeys.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard Class="w-100">
+            <RadzenStack Gap="1rem">
+                <div>
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0">@L[AiTesterKeys.Title]</RadzenText>
+                    <RadzenText Class="text-muted">@L[AiTesterKeys.Description]</RadzenText>
+                </div>
+
+                <RadzenTemplateForm Data="@_request" Submit="@((GenerateAiTextRequest _) => GenerateAsync())">
+                    <RadzenStack Gap="0.75rem">
+                        <RadzenRow Gap="1rem" RowGap="0.75rem">
+                            <RadzenColumn Size="12">
+                                <RadzenFormField Text="@L[AiTesterKeys.SystemPromptOptional]" Variant="Variant.Outlined" Class="w-100">
+                                    <RadzenTextArea Name="systemPrompt"
+                                                    @bind-Value="_request.SystemPrompt"
+                                                    Rows="4"
+                                                    MaxLength="4000"
+                                                    Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem" RowGap="0.75rem">
+                            <RadzenColumn Size="12">
+                                <RadzenFormField Text="@L[AiTesterKeys.Prompt]" Variant="Variant.Outlined" Class="w-100">
+                                    <RadzenTextArea Name="prompt"
+                                                    @bind-Value="_request.Prompt"
+                                                    Rows="8"
+                                                    MaxLength="12000"
+                                                    Class="w-100" />
+                                </RadzenFormField>
+                                <RadzenRequiredValidator Component="prompt"
+                                                         Text="@L[RK.Validation.Required]"
+                                                         Popup="false" />
+                                <RadzenLengthValidator Component="prompt"
+                                                       Max="12000"
+                                                       Popup="false"
+                                                       Text="@L[AiTesterKeys.Max12000]" />
+                                <RadzenText Class="text-muted">@L[AiTesterKeys.PromptHint]</RadzenText>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)"
+                                     AlignItems="AlignItems.Center"
+                                     Gap="0.5rem"
+                                     Wrap="FlexWrap.Wrap">
+                            <RadzenButton Text="@L[AiTesterKeys.GenerateButton]"
+                                          Icon="auto_awesome"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="ButtonType.Submit"
+                                          IsBusy="@_isGenerating"
+                                          Disabled="@_isGenerating"
+                                          BusyText="@L[RK.Common.Loading]"
+                                          Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                            <RadzenButton Text="@L[RK.Common.Refresh]"
+                                          Icon="refresh"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ResetForm"
+                                          Disabled="@_isGenerating"
+                                          Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenTemplateForm>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard Class="w-100">
+            <RadzenStack Gap="0.75rem">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Body1 : TextStyle.H6)" Class="mb-0">@L[AiTesterKeys.Result]</RadzenText>
+
+                @if (_result is null)
+                {
+                    <RadzenText Class="text-muted">@L[AiTesterKeys.NoResult]</RadzenText>
+                }
+                else
+                {
+                    <RadzenRow Gap="1rem" RowGap="0.5rem">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenText Class="fw-semibold">@L[AiTesterKeys.Provider]</RadzenText>
+                            <RadzenText>@_result.Provider</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenText Class="fw-semibold">@L[AiTesterKeys.Model]</RadzenText>
+                            <RadzenText>@_result.Model</RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <div>
+                        <RadzenText Class="fw-semibold">@L[AiTesterKeys.Output]</RadzenText>
+                        <div class="border rounded p-2 bg-body-tertiary">
+                            <pre class="mb-0" style="white-space: pre-wrap; word-break: break-word;">@_result.Text</pre>
+                        </div>
+                    </div>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private GenerateAiTextRequest _request = new();
+    private GenerateAiTextResponse? _result;
+    private bool _isGenerating;
+
+    private async Task GenerateAsync()
+    {
+        if (_isGenerating)
+        {
+            return;
+        }
+
+        _isGenerating = true;
+        try
+        {
+            _request.Prompt = (_request.Prompt ?? string.Empty).Trim();
+            _request.SystemPrompt = string.IsNullOrWhiteSpace(_request.SystemPrompt)
+                ? null
+                : _request.SystemPrompt.Trim();
+
+            _result = await AiService.GenerateAsync(_request);
+            NotificationService.NotifySuccess(L[AiTesterKeys.GenerateSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[AiTesterKeys.GenerateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isGenerating = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        if (_isGenerating)
+        {
+            return;
+        }
+
+        _request = new GenerateAiTextRequest();
+        _result = null;
+    }
+}

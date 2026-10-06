@@ -1,0 +1,476 @@
+@page "/market-data/power-655-analysis"
+@attribute [Authorize]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Lottery
+@inject ILotteryService LotteryService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IJSRuntime JsRuntime
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.Power655.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        @* Header *@
+        <RadzenCard>
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         AlignItems="AlignItems.Center"
+                         JustifyContent="JustifyContent.SpaceBetween"
+                         Wrap="FlexWrap.Wrap"
+                         Gap="0.5rem">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">
+                    @L[RK.Power655.Title]
+                </RadzenText>
+                <div class="d-flex flex-wrap gap-2">
+                    <ResponsiveIconButton Text="@L[RK.Common.Refresh]" Icon="refresh" ButtonStyle="ButtonStyle.Light" Click="@RefreshAsync" Disabled="@_isLoading" />
+                    <ResponsiveIconButton Text="@L[RK.Power655.PredictButton]" Icon="psychology" ButtonStyle="ButtonStyle.Warning" Click="@TriggerPredictAsync" Disabled="@_isPredicting" />
+                    <AuthorizeView Policy="@PermissionNames.SystemAdmin">
+                        <ResponsiveIconButton Text="@L[RK.Power655.SyncButton]" Icon="sync" ButtonStyle="ButtonStyle.Primary" Click="@TriggerSyncAsync" Disabled="@_isSyncing" />
+                    </AuthorizeView>
+                </div>
+            </RadzenStack>
+        </RadzenCard>
+
+        @* Loading state *@
+        @if (_isLoading)
+        {
+            <RadzenCard>
+                <RadzenText>@L[RK.Common.Loading]</RadzenText>
+            </RadzenCard>
+        }
+        else if (_analysis is not null)
+        {
+            <RadzenCard>
+                <RadzenRow Gap="1rem" RowGap="1rem">
+                    <RadzenColumn Size="12" SizeLG="6">
+                        <RadzenStack Gap="0.75rem">
+                            <RadzenStack Orientation="Orientation.Horizontal"
+                                         AlignItems="AlignItems.Center"
+                                         JustifyContent="JustifyContent.SpaceBetween"
+                                         Gap="0.5rem">
+                                <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Power655.MostFrequent]</RadzenText>
+                                <RadzenBadge Text="@L[RK.Power655.HotLabel]" BadgeStyle="BadgeStyle.Danger" />
+                            </RadzenStack>
+                            @if (_analysis.TopMostFrequent.Count == 0)
+                            {
+                                <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                            }
+                            else
+                            {
+                                <RadzenStack Gap="0.5rem">
+                                    @foreach (var item in _analysis.TopMostFrequent)
+                                    {
+                                        var pct = FrequencyBarPercent(item.Frequency, _freqScaleMax);
+                                        <div class="d-flex align-items-center gap-2">
+                                            <RadzenBadge Text="@item.Number.ToString("D2")" BadgeStyle="BadgeStyle.Danger" />
+                                            <div class="progress flex-grow-1" style="height: 0.5rem;">
+                                                <div class="progress-bar bg-danger"
+                                                     role="progressbar"
+                                                     style="@($"width:{pct.ToString(System.Globalization.CultureInfo.InvariantCulture)}%")"
+                                                     aria-valuenow="@item.Frequency"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="@_freqScaleMax"></div>
+                                            </div>
+                                            <span class="small text-nowrap">@item.Frequency <span class="text-muted">@L[RK.Power655.Times]</span></span>
+                                        </div>
+                                    }
+                                </RadzenStack>
+                            }
+                        </RadzenStack>
+                    </RadzenColumn>
+
+                    <RadzenColumn Size="12" SizeLG="6">
+                        <RadzenStack Gap="0.75rem">
+                            <RadzenStack Orientation="Orientation.Horizontal"
+                                         AlignItems="AlignItems.Center"
+                                         JustifyContent="JustifyContent.SpaceBetween"
+                                         Gap="0.5rem">
+                                <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Power655.LeastFrequent]</RadzenText>
+                                <RadzenBadge Text="@L[RK.Power655.ColdLabel]" BadgeStyle="BadgeStyle.Info" />
+                            </RadzenStack>
+                            @if (_analysis.TopLeastFrequent.Count == 0)
+                            {
+                                <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                            }
+                            else
+                            {
+                                <RadzenStack Gap="0.5rem">
+                                    @foreach (var item in _analysis.TopLeastFrequent)
+                                    {
+                                        var pct = FrequencyBarPercent(item.Frequency, _freqScaleMax);
+                                        <div class="d-flex align-items-center gap-2">
+                                            <RadzenBadge Text="@item.Number.ToString("D2")" BadgeStyle="BadgeStyle.Info" />
+                                            <div class="progress flex-grow-1" style="height: 0.5rem;">
+                                                <div class="progress-bar bg-info"
+                                                     role="progressbar"
+                                                     style="@($"width:{pct.ToString(System.Globalization.CultureInfo.InvariantCulture)}%")"
+                                                     aria-valuenow="@item.Frequency"
+                                                     aria-valuemin="0"
+                                                     aria-valuemax="@_freqScaleMax"></div>
+                                            </div>
+                                            <span class="small text-nowrap">@item.Frequency <span class="text-muted">@L[RK.Power655.Times]</span></span>
+                                        </div>
+                                    }
+                                </RadzenStack>
+                            }
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
+
+            @* Predictions *@
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal"
+                                 AlignItems="AlignItems.Center"
+                                 JustifyContent="JustifyContent.SpaceBetween"
+                                 Wrap="FlexWrap.Wrap"
+                                 Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Power655.Predictions]</RadzenText>
+                        <RadzenBadge Text="@_analysis.Predictions.Count.ToString()" BadgeStyle="BadgeStyle.Info" />
+                    </RadzenStack>
+
+                    @if (_analysis.Predictions.Count == 0)
+                    {
+                        <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                    }
+                    else
+                    {
+                        <div class="d-none d-xl-block">
+                            <RadzenDataGrid TItem="Power655PredictionDto"
+                                            Data="@_analysis.Predictions"
+                                            AllowPaging="true"
+                                            PageSize="@DefaultPageSize"
+                                            PageSizeOptions="@PageSizeOptions"
+                                            ShowPagingSummary="true"
+                                            Density="Density.Compact">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Property="TargetDrawDate" Title="@L[RK.Power655.DrawDate]" FormatString="{0:dd/MM/yyyy}" />
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Property="PredictionType" Title="@L[RK.Power655.Type]">
+                                        <Template Context="p">
+                                            <RadzenBadge Text="@p.PredictionType" BadgeStyle="BadgeStyle.Info" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Title="@L[RK.Power655.Numbers]">
+                                        <Template Context="p">
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var num in p.Numbers)
+                                                {
+                                                    <RadzenBadge Text="@num.ToString("D2")" BadgeStyle="@(p.IsCompleted ? BadgeStyle.Success : BadgeStyle.Dark)" />
+                                                }
+                                            </div>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Property="TupleFrequency" Title="@L[RK.Power655.TupleFreq]" />
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Property="MatchedNumbers" Title="@L[RK.Power655.MatchedNumbers]">
+                                        <Template Context="p">
+                                            @if (p.IsCompleted)
+                                            {
+                                                <RadzenBadge Text="@p.MatchedNumbers.ToString()"
+                                                             BadgeStyle="@(p.MatchedNumbers > 0 ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                            }
+                                            else
+                                            {
+                                                <RadzenText class="text-muted">-</RadzenText>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto" Property="Reasoning" Title="@L[RK.Power655.Reasoning]" Width="300px">
+                                        <Template Context="p">
+                                            <RadzenText class="small text-muted mb-0" style="white-space: pre-wrap;">@Truncate(p.Reasoning, 150)</RadzenText>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="Power655PredictionDto"
+                                                          Title="@L[RK.Common.Actions]"
+                                                          Sortable="false"
+                                                          Filterable="false"
+                                                          TextAlign="TextAlign.Center"
+                                                          Width="100px">
+                                        <Template Context="p">
+                                            <ResponsiveIconButton Text="@L[RK.Common.Copy]"
+                                                          Icon="content_copy"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => CopyPredictionAsync(p))" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+
+                        @* Mobile/tablet view *@
+                        <div class="d-xl-none">
+                            <RadzenStack Gap="0.75rem">
+                                @foreach (var pred in _analysis.Predictions.Take(50))
+                                {
+                                    <RadzenCard class="p-3">
+                                        <RadzenStack Gap="0.5rem">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                                <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">
+                                                    @pred.TargetDrawDate.ToString("dd/MM/yyyy")
+                                                </RadzenText>
+                                                <RadzenBadge Text="@pred.PredictionType" BadgeStyle="BadgeStyle.Info" />
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var num in pred.Numbers)
+                                                {
+                                                    <RadzenBadge Text="@num.ToString("D2")"
+                                                                 BadgeStyle="@(pred.IsCompleted ? BadgeStyle.Success : BadgeStyle.Dark)" />
+                                                }
+                                            </div>
+                                            <RadzenText class="small text-muted mb-0">
+                                                @L[RK.Power655.TupleFreq]: @pred.TupleFrequency
+                                                @if (pred.IsCompleted)
+                                                {
+                                                    <span> | @L[RK.Power655.MatchedNumbers]: @pred.MatchedNumbers</span>
+                                                }
+                                            </RadzenText>
+                                            @if (!string.IsNullOrWhiteSpace(pred.Reasoning))
+                                            {
+                                                <RadzenText class="small text-muted mb-0">@Truncate(pred.Reasoning, 120)</RadzenText>
+                                            }
+                                            <ResponsiveIconButton Text="@L[RK.Common.Copy]"
+                                                          Icon="content_copy"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => CopyPredictionAsync(pred))" />
+                                        </RadzenStack>
+                                    </RadzenCard>
+                                }
+                            </RadzenStack>
+                        </div>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            @* Draws table - desktop *@
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenStack Orientation="Orientation.Horizontal"
+                                 AlignItems="AlignItems.Center"
+                                 JustifyContent="JustifyContent.SpaceBetween"
+                                 Wrap="FlexWrap.Wrap"
+                                 Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Power655.DrawHistory]</RadzenText>
+                        <RadzenBadge Text="@_analysis.Draws.Count.ToString()" BadgeStyle="BadgeStyle.Info" />
+                    </RadzenStack>
+
+                    <div class="d-none d-xl-block">
+                        <RadzenDataGrid @ref="_grid"
+                                        TItem="Power655DrawDto"
+                                        Data="@_analysis.Draws"
+                                        AllowPaging="true"
+                                        PageSize="@DefaultPageSize"
+                                        PageSizeOptions="@PageSizeOptions"
+                                        ShowPagingSummary="true"
+                                        Density="Density.Compact"
+                                        IsLoading="@_isLoading">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Property="DrawDate" Title="@L[RK.Power655.DrawDate]" FormatString="{0:dd/MM/yyyy}" />
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Property="DayOfWeek" Title="@L[RK.Power655.DayOfWeek]">
+                                    <Template Context="item">
+                                        <RadzenText>@L[RK.Power655.DayOfWeekLabel(item.DayOfWeek)]</RadzenText>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Title="@L[RK.Power655.Numbers]">
+                                    <Template Context="item">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach (var num in item.Numbers)
+                                            {
+                                                <RadzenBadge Text="@num.ToString("D2")" BadgeStyle="BadgeStyle.Dark" />
+                                            }
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Property="BonusNum" Title="@L[RK.Power655.BonusNum]">
+                                    <Template Context="item">
+                                        <RadzenBadge Text="@item.BonusNum.ToString("D2")" BadgeStyle="BadgeStyle.Light" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Property="Jackpot1Value" Title="@L[RK.Power655.Jackpot1]" FormatString="{0:N0}" />
+                                <RadzenDataGridColumn TItem="Power655DrawDto" Property="Jackpot2Value" Title="@L[RK.Power655.Jackpot2]" FormatString="{0:N0}" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+
+                    @* Draws list - mobile/tablet *@
+                    <div class="d-xl-none">
+                        <RadzenStack Gap="0.75rem">
+                            @foreach (var draw in _analysis.Draws)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.5rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">
+                                                @draw.DrawDate.ToString("dd/MM/yyyy") - @L[RK.Power655.DayOfWeekLabel(draw.DayOfWeek)]
+                                            </RadzenText>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @foreach (var num in draw.Numbers)
+                                            {
+                                                <RadzenBadge Text="@num.ToString("D2")" BadgeStyle="BadgeStyle.Dark" />
+                                            }
+                                            <RadzenBadge Text="@draw.BonusNum.ToString("D2")" BadgeStyle="BadgeStyle.Light" />
+                                        </div>
+                                        @if (draw.Jackpot1Value > 0 || draw.Jackpot2Value > 0)
+                                        {
+                                            <RadzenText class="small text-muted mb-0">
+                                                @L[RK.Power655.Jackpot1]: @draw.Jackpot1Value.ToString("N0")
+                                                | @L[RK.Power655.Jackpot2]: @draw.Jackpot2Value.ToString("N0")
+                                            </RadzenText>
+                                        }
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        </RadzenStack>
+                    </div>
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+    private static readonly IEnumerable<int> PageSizeOptions = [10, 20, 50];
+
+    private RadzenDataGrid<Power655DrawDto>? _grid;
+    private Power655AnalysisResponse? _analysis;
+    private bool _isLoading;
+    private bool _isPredicting;
+    private bool _isSyncing;
+    private int _freqScaleMax = 1;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadAnalysisAsync();
+        }
+    }
+
+    private async Task LoadAnalysisAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            _analysis = await LotteryService.GetAnalysisAsync();
+            _freqScaleMax = ComputeFrequencyScaleMax(_analysis);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Power655.LoadFailed], ex.GetDisplayDetail());
+            _freqScaleMax = 1;
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private static int ComputeFrequencyScaleMax(Power655AnalysisResponse? analysis)
+    {
+        if (analysis is null) return 1;
+        var max = 0;
+        foreach (var item in analysis.TopMostFrequent)
+            max = Math.Max(max, item.Frequency);
+        foreach (var item in analysis.TopLeastFrequent)
+            max = Math.Max(max, item.Frequency);
+        return Math.Max(1, max);
+    }
+
+    private static double FrequencyBarPercent(int frequency, int scaleMax)
+    {
+        if (scaleMax <= 0) return 0;
+        var pct = frequency * 100.0 / scaleMax;
+        return Math.Clamp(pct, frequency > 0 ? 4 : 0, 100);
+    }
+
+    private async Task RefreshAsync()
+    {
+        await LoadAnalysisAsync();
+    }
+
+    private async Task TriggerSyncAsync()
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.Power655.SyncConfirmMessage],
+            L[RK.Power655.SyncConfirmTitle],
+            new ConfirmOptions { OkButtonText = L[RK.Common.Yes], CancelButtonText = L[RK.Common.Cancel] });
+
+        if (confirmed is not true) return;
+
+        _isSyncing = true;
+        StateHasChanged();
+
+        try
+        {
+            await LotteryService.TriggerSyncAsync();
+            NotificationService.NotifySuccess(L[RK.Power655.SyncSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Power655.SyncFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSyncing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task TriggerPredictAsync()
+    {
+        _isPredicting = true;
+        StateHasChanged();
+
+        try
+        {
+            await LotteryService.TriggerPredictAsync();
+            NotificationService.NotifySuccess(L[RK.Power655.PredictSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Power655.PredictFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isPredicting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CopyPredictionAsync(Power655PredictionDto prediction)
+    {
+        var text = FormatPredictionCopyText(prediction);
+        try
+        {
+            var copied = await JsRuntime.InvokeAsync<bool>("copyTextToClipboard", text);
+            if (!copied)
+                throw new InvalidOperationException("Clipboard copy command failed.");
+
+            NotificationService.NotifySuccess(L[RK.Power655.CopySuccess], text);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Power655.CopyFailed], ex.Message);
+        }
+    }
+
+    private static string FormatPredictionCopyText(Power655PredictionDto prediction)
+    {
+        var numbers = string.Join(" ", prediction.Numbers.Take(6).Select(n => n.ToString("D2")));
+        return $"VTM 655 K1 S {numbers}";
+    }
+
+    private static string Truncate(string? text, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+        return text.Length <= maxLength ? text : text[..maxLength] + "...";
+    }
+}

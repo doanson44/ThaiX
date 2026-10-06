@@ -1,0 +1,187 @@
+@page "/admin/blog/categories"
+@attribute [Authorize(Policy = PermissionNames.BlogRead)]
+@using Microsoft.AspNetCore.Components.Authorization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Blog
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.Blog.Categories.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">@L[RK.Blog.Categories.Title]</RadzenText>
+                    @if (_canWrite)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.Blog.Categories.New]" Icon="add" ButtonStyle="ButtonStyle.Primary" Click="@OpenCreateDialogAsync" />
+                    }
+                </RadzenStack>
+
+                <RadzenLabel Text="@L[RK.Common.Search]" />
+                <div class="ThaiX-input-group">
+                    <RadzenTextBox @bind-Value="_searchTerm"
+                                   Placeholder="@L[RK.Blog.Categories.SearchPlaceholder]"
+                                   Change="@(_ => ApplySearch())" />
+                    <InputGroupSearchButton Click="@ApplySearch" />
+                </div>
+
+                @if (_isLoading)
+                {
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                }
+                else if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid TItem="CategoryDto"
+                                    Data="@_filteredCategories"
+                                    AllowSorting="true"
+                                    Density="Density.Compact"
+                                    EmptyText="@L[RK.Common.NoDataFound]"
+                                    RowSelect="@OpenEditDialogAsync">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="CategoryDto" Property="Name" Title="@L[RK.Blog.Categories.NameLabel]" />
+                            <RadzenDataGridColumn TItem="CategoryDto" Property="Slug" Title="@L[RK.Blog.Categories.SlugLabel]" />
+                            <RadzenDataGridColumn TItem="CategoryDto" Property="Description" Title="@L[RK.Blog.Categories.DescriptionLabel]" />
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+                else
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_filteredCategories.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            @foreach (var category in _filteredCategories)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.5rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@category.Name</RadzenText>
+                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                                          Click="@(() => OpenEditDialogAsync(category))" />
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">@category.Slug</RadzenText>
+                                        @if (!string.IsNullOrWhiteSpace(category.Description))
+                                        {
+                                            <RadzenText class="text-muted small mb-0">@category.Description</RadzenText>
+                                        }
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private IReadOnlyList<CategoryDto> _categories = [];
+    private IReadOnlyList<CategoryDto> _filteredCategories = [];
+    private string _searchTerm = string.Empty;
+    private bool _isLoading = true;
+    private bool _canWrite;
+    private bool _canDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.BlogWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.BlogDelete);
+
+        await ReloadAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _categories = await BlogService.GetCategoriesAsync();
+            ApplySearch();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Categories.LoadFailed], ex.GetDisplayDetail());
+            _categories = [];
+            _filteredCategories = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void ApplySearch()
+    {
+        var term = _searchTerm?.Trim();
+        if (string.IsNullOrEmpty(term))
+        {
+            _filteredCategories = _categories;
+            return;
+        }
+
+        _filteredCategories = _categories
+            .Where(c =>
+                (c.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (c.Slug?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (c.Description?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        if (!_canWrite) return;
+
+        var shouldReload = await DialogService.OpenAsync<BlogCategoryDialog>(
+            L[RK.Blog.Categories.New],
+            new Dictionary<string, object?> { [nameof(BlogCategoryDialog.CanDelete)] = false },
+            new DialogOptions { Width = "min(560px, 95vw)", CloseDialogOnOverlayClick = true });
+
+        if (shouldReload is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task OpenEditDialogAsync(CategoryDto item)
+    {
+        if (!_canWrite) return;
+
+        var shouldReload = await DialogService.OpenAsync<BlogCategoryDialog>(
+            L[RK.Blog.Categories.Title],
+            new Dictionary<string, object?>
+            {
+                [nameof(BlogCategoryDialog.CategoryId)] = item.Id,
+                [nameof(BlogCategoryDialog.Name)] = item.Name,
+                [nameof(BlogCategoryDialog.Slug)] = item.Slug,
+                [nameof(BlogCategoryDialog.Description)] = item.Description,
+                [nameof(BlogCategoryDialog.Icon)] = item.Icon,
+                [nameof(BlogCategoryDialog.Color)] = item.Color,
+                [nameof(BlogCategoryDialog.CanDelete)] = _canDelete
+            },
+            new DialogOptions { Width = "min(560px, 95vw)", CloseDialogOnOverlayClick = true });
+
+        if (shouldReload is true)
+        {
+            await ReloadAsync();
+        }
+    }
+}

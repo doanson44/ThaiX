@@ -1,0 +1,48 @@
+@using Microsoft.Extensions.Localization
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Extensions
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inject ILogger<GlobalErrorBoundary> Logger
+
+<ErrorBoundary @ref="_errorBoundary">
+    <ChildContent>
+        @ChildContent
+    </ChildContent>
+    <ErrorContent Context="exception">
+        @{
+            HandleError(exception);
+        }
+        @ChildContent
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private ErrorBoundary? _errorBoundary;
+    private string? _lastErrorId;
+
+    private void HandleError(Exception exception)
+    {
+        // Prevent duplicate notifications for the same error instance
+        var errorId = exception.GetHashCode().ToString();
+        if (errorId == _lastErrorId)
+        {
+            return;
+        }
+
+        _lastErrorId = errorId;
+
+        Logger.LogError(exception, "Unhandled UI error: {Message}", exception.Message);
+
+        NotificationService.NotifyError(
+            summary: L[RK.Common.UnhandledError],
+            detail: exception is ApiException apiEx ? apiEx.GetDisplayDetail() : exception.Message);
+
+        // Recover so the UI doesn't stay in error state
+        _errorBoundary?.Recover();
+    }
+}

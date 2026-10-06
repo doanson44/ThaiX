@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="AGENTS.md" />
+    <File Path="azure-pipelines.yml" />
+    <File Path="Directory.Packages.props" />
+    <File Path="docker-compose.yml" />
+    <File Path="global.json" />
+    <File Path="publish.bat" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/ThaiX.Application/ThaiX.Application.csproj" Id="4a30c022-2682-412a-b358-1fc2b2da3cf4" />
+    <Project Path="src/ThaiX.Client/ThaiX.Client.csproj" Id="8c7e3d1a-5b4f-4e29-9a8c-7d6e2f1b3c4a" />
+    <Project Path="src/ThaiX.Domain/ThaiX.Domain.csproj" Id="d5d40c89-f118-4950-bee0-8eab5e5c8b39" />
+    <Project Path="src/ThaiX.Infrastructure/ThaiX.Infrastructure.csproj" Id="12970da2-6f09-492d-8fbd-968838ce81d0" />
+    <Project Path="src/ThaiX.Presentation/ThaiX.Presentation.csproj" Id="0a923d45-6da7-4a68-b548-e5490affec0c" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj" Id="a1b2c3d4-e5f6-7890-abcd-ef1234567890" />
+    <Project Path="tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj" />
+    <Project Path="tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj" Id="b2c3d4e5-f6a7-8901-bcde-f12345678901" />
+  </Folder>
+</Solution>

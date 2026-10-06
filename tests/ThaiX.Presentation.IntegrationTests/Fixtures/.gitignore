@@ -1,0 +1,7 @@
+# Keep all JSON fixture files in version control
+# These are test data snapshots that should be shared across the team
+
+# Only ignore temporary/backup files
+*.tmp
+*.bak
+*~

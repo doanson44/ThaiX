@@ -1,0 +1,145 @@
+@page "/account/profile"
+@page "/account/change-password"
+@page "/account/2fa"
+@page "/account/personal-data"
+@attribute [Authorize]
+@implements IDisposable
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Account
+
+<PageTitle>@PageTitleText - ThaiX</PageTitle>
+
+<RadzenCard>
+    <RadzenStack Gap="1rem">
+        <RadzenText TextStyle="TextStyle.H4">@L[RK.Profile.Title]</RadzenText>
+
+        <RadzenTabs RenderMode="TabRenderMode.Client"
+                    @bind-SelectedIndex="_selectedTabIndex"
+                    Change="OnTabChanged">
+            <Tabs>
+                <RadzenTabsItem Text="@L[RK.Profile.Title]" Icon="account_circle">
+                    <AccountProfileTab />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Profile.ChangePassword]" Icon="password">
+                    <AccountChangePasswordTab />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Account.TwoFactorTitle]" Icon="security">
+                    <AccountTwoFactorTab ShowSetupOnLoad="@_showAuthenticatorSetup" />
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Account.PersonalDataTitle]" Icon="folder_shared">
+                    <AccountPersonalDataTab />
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </RadzenStack>
+</RadzenCard>
+
+@code {
+    private int _selectedTabIndex;
+    private bool _showAuthenticatorSetup;
+    private bool _syncingFromUri;
+
+    private string PageTitleText => _selectedTabIndex switch
+    {
+        1 => L[RK.Profile.ChangePassword],
+        2 => L[RK.Account.TwoFactorTitle],
+        3 => L[RK.Account.PersonalDataTitle],
+        _ => L[RK.Profile.Title]
+    };
+
+    protected override void OnInitialized()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        SyncFromUri();
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs _)
+    {
+        SyncFromUri();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SyncFromUri()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var path = uri.AbsolutePath.TrimEnd('/');
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "/";
+        }
+
+        _showAuthenticatorSetup = TryGetQueryValue(uri.Query, "setup")
+            is { } setup
+            && string.Equals(setup, "true", StringComparison.OrdinalIgnoreCase);
+
+        var tabIndex = path switch
+        {
+            "/account/change-password" => 1,
+            "/account/2fa" => 2,
+            "/account/personal-data" => 3,
+            _ => 0
+        };
+
+        _syncingFromUri = true;
+        _selectedTabIndex = tabIndex;
+        _syncingFromUri = false;
+    }
+
+    private void OnTabChanged(int index)
+    {
+        if (_syncingFromUri)
+        {
+            return;
+        }
+
+        var path = index switch
+        {
+            1 => "/account/change-password",
+            2 => _showAuthenticatorSetup ? "/account/2fa?setup=true" : "/account/2fa",
+            3 => "/account/personal-data",
+            _ => "/account/profile"
+        };
+
+        var currentPath = new Uri(Navigation.Uri).AbsolutePath.TrimEnd('/');
+        var targetPath = path.Split('?', 2)[0];
+        if (!string.Equals(currentPath, targetPath, StringComparison.OrdinalIgnoreCase)
+            || (index == 2 && _showAuthenticatorSetup && !Navigation.Uri.Contains("setup=true", StringComparison.OrdinalIgnoreCase))
+            || (index != 2 && Navigation.Uri.Contains("setup=true", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (index != 2)
+            {
+                _showAuthenticatorSetup = false;
+            }
+
+            Navigation.NavigateTo(path, replace: true);
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private static string? TryGetQueryValue(string query, string key)
+    {
+        if (string.IsNullOrEmpty(query))
+        {
+            return null;
+        }
+
+        var span = query.AsSpan().TrimStart('?');
+        foreach (var segment in span.ToString().Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = segment.Split('=', 2);
+            if (parts.Length == 2
+                && string.Equals(Uri.UnescapeDataString(parts[0]), key, StringComparison.OrdinalIgnoreCase))
+            {
+                return Uri.UnescapeDataString(parts[1]);
+            }
+        }
+
+        return null;
+    }
+}

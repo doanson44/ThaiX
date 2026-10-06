@@ -1,0 +1,22 @@
+---
+description: Cursor workflow routing for ThaiX prompts and skills
+alwaysApply: true
+---
+
+# Cursor Workflow Routing
+
+Use existing project assets before inventing new patterns:
+
+- Reusable task playbooks are in `.cursor/skills/`.
+- Prompt templates are in `.cursor/prompts/`.
+- Layer guardrails are in `.cursor/rules/*.mdc`.
+- Agent asset synchronization policy is in `.cursor/AGENT_SYNC_POLICY.md`.
+
+## Task Mapping
+
+- New module or CRUD feature -> use `new-module` or `create-feature` skill.
+- Bug fix with existing behavior drift -> use `bug-fix` skill.
+- EF/query/caching changes -> follow `application-layer.mdc` and `data-access.mdc`.
+- External service integration -> use `add-external-api` skill + `external-api.mdc` + `external-api-application.mdc`.
+- UI page/form/list work -> use `create-form-page`, `create-list-page`, `add-widget`, and `blazor-ui.mdc`.
+- PR review/performance/testing -> use `code-review-pr`, `performance-audit`, `add-integration-test`.

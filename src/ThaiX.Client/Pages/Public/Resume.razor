@@ -1,0 +1,86 @@
+@page "/resume/{Slug}"
+@layout PublicResumeLayout
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Resume
+@using ThaiX.Client.Models.Resumes
+@using ThaiX.Client.Services.Resumes
+@using Net.Codecrete.QrCodeGenerator
+@inject IResumeService ResumeService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@_pageTitle</PageTitle>
+<HeadContent>
+    @if (_resume is not null)
+    {
+        <meta name="description" content="@_metaDescription" />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content="@($"{_resume.FullName} — {_resume.Headline}")" />
+        <meta property="og:description" content="@_metaDescription" />
+        <meta property="og:url" content="@Navigation.Uri" />
+    }
+</HeadContent>
+
+@if (_isLoading)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center text-center min-vh-100 p-4 resume-status">
+        @L[RK.Common.Loading]
+    </div>
+}
+else if (_resume is null)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center text-center min-vh-100 p-4 resume-status">
+        <h1 class="resume-status-title">@L[RK.Resume.NotFoundTitle]</h1>
+        <p>@L[RK.Resume.NotFoundMessage]</p>
+    </div>
+}
+else
+{
+    <div class="tx-resume-page resume-page">
+        <div class="d-flex justify-content-end align-items-center gap-3 mb-3 no-print">
+            <div class="resume-qr">@((MarkupString)_qrSvg)</div>
+            <button class="resume-download-btn" @onclick="PrintAsync">@L[RK.Resume.DownloadButton]</button>
+        </div>
+
+        <ResumeView FullName="@_resume.FullName" Headline="@_resume.Headline" Content="@_resume.Content" />
+    </div>
+}
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private ResumeDto? _resume;
+    private bool _isLoading = true;
+    private string _pageTitle = string.Empty;
+    private string _metaDescription = string.Empty;
+    private string _qrSvg = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pageTitle = L[RK.Resume.PageTitleFallback];
+        try
+        {
+            _resume = await ResumeService.GetPublicBySlugAsync(Slug);
+            if (_resume is not null)
+            {
+                _pageTitle = $"{_resume.FullName} — {_resume.Headline}";
+                _metaDescription = string.IsNullOrWhiteSpace(_resume.MetaDescription)
+                    ? _resume.Content.Summary
+                    : _resume.MetaDescription;
+
+                var qr = QrCode.EncodeText(Navigation.Uri, QrCode.Ecc.Medium);
+                _qrSvg = qr.ToSvgString(4);
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task PrintAsync()
+    {
+        await JS.InvokeVoidAsync("printResume");
+    }
+}

@@ -1,0 +1,101 @@
+@page "/portfolio/{Id:guid}"
+@attribute [Authorize(Policy = PermissionNames.PortfolioRead)]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Portfolio.Portfolios
+@inject IBreadcrumbService BreadcrumbService
+@inject IPortfolioService PortfolioService
+@inject IAssetPositionService AssetPositionService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+
+<PageTitle>@(_portfolio?.Name ?? L[RK.Portfolios.Title]) - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                          Click="@(() => Navigation.NavigateTo("/portfolio/list"))" />
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">
+                @(_portfolio?.Name ?? L[RK.Common.Loading])
+            </RadzenText>
+            @if (_portfolio is not null)
+            {
+                <RadzenBadge Text="@_portfolio.PortfolioType" BadgeStyle="BadgeStyle.Info" />
+            }
+        </RadzenStack>
+
+        @if (_loadError)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Danger">@L[RK.Portfolios.LoadFailed]</RadzenAlert>
+        }
+        else if (_portfolio is not null)
+        {
+            <RadzenTabs>
+                <Tabs>
+                    <RadzenTabsItem Text="@L[RK.AssetPositions.CryptoTitle]" Icon="currency_bitcoin">
+                        <CryptoPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="@L[RK.AssetPositions.StockTitle]" Icon="show_chart">
+                        <StockPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="@L[RK.AssetPositions.SavingTitle]" Icon="savings">
+                        <SavingPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private PortfolioDetailDto? _portfolio;
+    private bool _loadError;
+    private bool _canWrite;
+    private bool _canDelete;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.PositionWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.PositionDelete);
+
+        await LoadPortfolioAsync();
+    }
+
+    private async Task LoadPortfolioAsync()
+    {
+        try
+        {
+            var result = await PortfolioService.GetDetailAsync(Id, _cts.Token);
+            _portfolio = result;
+            BreadcrumbService.Set([
+                new BreadcrumbItem(L[RK.Common.Home], "/"),
+                new BreadcrumbItem(L[RK.Breadcrumb.Admin], "/admin"),
+                new BreadcrumbItem(L[RK.Portfolios.Title], "/portfolio/list"),
+                new BreadcrumbItem(_portfolio.Name, null)
+            ]);
+        }
+        catch (Exception)
+        {
+            _loadError = true;
+        }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+}

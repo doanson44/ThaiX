@@ -1,0 +1,174 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IJSRuntime JSRuntime
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem" class="rz-pt-3">
+    <RadzenText>@L[RK.Account.PersonalDataDescription]</RadzenText>
+
+    @if (_isLoading)
+    {
+        <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        @if (_personalData is { Count: > 0 })
+        {
+            <RadzenCard Variant="Variant.Outlined">
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.PersonalDataYourData]</RadzenText>
+                    @foreach (var item in _personalData)
+                    {
+                        <RadzenText><strong>@item.Key:</strong> @item.Value</RadzenText>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+            <RadzenButton Text="@L[RK.Account.PersonalDataDownload]"
+                          Icon="download"
+                          Click="DownloadDataAsFileAsync"
+                          Disabled="@(_isDownloading || _personalData is null)"
+                          IsBusy="@_isDownloading"
+                          ButtonStyle="ButtonStyle.Primary" />
+
+            <RadzenButton Text="@L[RK.Account.PersonalDataDelete]"
+                          Icon="delete_forever"
+                          Click="@(() => _showDeleteConfirm = true)"
+                          ButtonStyle="ButtonStyle.Danger" />
+        </RadzenStack>
+    }
+
+    @if (_showDeleteConfirm)
+    {
+        <RadzenCard Variant="Variant.Outlined" class="border border-danger border-2">
+            <RadzenStack Gap="0.75rem">
+                <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat">
+                    @L[RK.Account.PersonalDataDeleteWarning]
+                </RadzenAlert>
+
+                <RadzenLabel Text="@L[RK.Auth.Password]" />
+                <RadzenPassword @bind-Value="_deletePassword" class="w-100" />
+
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                    <RadzenButton Text="@L[RK.Account.PersonalDataDeleteConfirm]"
+                                  Icon="delete_forever"
+                                  Click="DeleteAccountAsync"
+                                  Disabled="@_isDeleting"
+                                  IsBusy="@_isDeleting"
+                                  ButtonStyle="ButtonStyle.Danger" />
+                    <RadzenButton Text="@L[RK.Common.Cancel]"
+                                  Click="@(() => _showDeleteConfirm = false)"
+                                  ButtonStyle="ButtonStyle.Light" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+    }
+</RadzenStack>
+
+@code {
+    private Dictionary<string, string>? _personalData;
+    private bool _isLoading = true;
+    private bool _isDownloading;
+    private bool _showDeleteConfirm;
+    private string _deletePassword = string.Empty;
+    private bool _isDeleting;
+    private bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (_loaded)
+        {
+            return;
+        }
+
+        try
+        {
+            _personalData = await AuthService.DownloadPersonalDataAsync();
+            _loaded = true;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.PersonalDataLoadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task DownloadDataAsFileAsync()
+    {
+        if (_personalData is null)
+        {
+            return;
+        }
+
+        _isDownloading = true;
+
+        try
+        {
+            var json = System.Text.Json.JsonSerializer.Serialize(_personalData,
+                new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+            var base64 = Convert.ToBase64String(bytes);
+
+            await JSRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    var a = document.createElement('a');
+                    a.href = 'data:application/json;base64,{base64}';
+                    a.download = 'PersonalData.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }})();
+            ");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.PersonalDataLoadFailed], ex is ApiException apiEx ? apiEx.GetDisplayDetail() : ex.Message);
+        }
+        finally
+        {
+            _isDownloading = false;
+        }
+    }
+
+    private async Task DeleteAccountAsync()
+    {
+        if (_isDeleting || string.IsNullOrWhiteSpace(_deletePassword))
+        {
+            return;
+        }
+
+        _isDeleting = true;
+
+        try
+        {
+            await AuthService.DeleteAccountAsync(new DeleteAccountRequest
+            {
+                Password = _deletePassword
+            });
+
+            NotificationService.NotifySuccess(L[RK.Account.PersonalDataDeleteSuccess]);
+            Navigation.NavigateTo("/auth/login", forceLoad: true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.PersonalDataDeleteFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+}

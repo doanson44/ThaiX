@@ -1,0 +1,281 @@
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenCard Class="h-100 w-100">
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center p-4">
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        </div>
+    }
+    else if (_data is null || !_data.Success)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @(_data?.Message ?? L[RK.Vix.LoadFailed])
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+
+            @* A. Header *@
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         AlignItems="AlignItems.Center"
+                         JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H2" Class="mb-0">@L[RK.Vix.Title]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@_data.Symbol</RadzenText>
+                </RadzenStack>
+                <RadzenStack Gap="0" class="text-end">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0"><strong>@_data.CurrentValue?.ToString("N2")</strong></RadzenText>
+                    @if (_data.LastUpdateTime.HasValue)
+                    {
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">
+                            @_data.LastUpdateTime.Value.ToString("yyyy-MM-dd HH:mm")
+                        </RadzenText>
+                    }
+                </RadzenStack>
+            </RadzenStack>
+
+            @* B. Core Signal *@
+            <div class="rounded p-3 text-center @RegimeBgClass">
+                <RadzenStack Gap="0.5rem" AlignItems="AlignItems.Center">
+                    <RadzenBadge BadgeStyle="@RegimeBadgeStyle" Text="@RegimeLabel" IsPill="true" />
+                    <RadzenText TextStyle="TextStyle.H5" Class="mb-0"><strong>@RegimeAction</strong></RadzenText>
+                </RadzenStack>
+            </div>
+
+            @* C. Trend *@
+            <RadzenRow>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Vix.Ema10]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@_data.Ema10?.ToString("N2")</RadzenText>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Vix.Ema20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@_data.Ema20?.ToString("N2")</RadzenText>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Vix.Trend]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@TrendClass">@TrendLabel</RadzenText>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+
+            @* D. Momentum *@
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Vix.Momentum3D]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@(_data.Momentum3D >= 0 ? "text-success" : "text-danger")">
+                            @FormatMomentum(_data.Momentum3D)
+                        </RadzenText>
+                    </RadzenStack>
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Vix.Momentum5D]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@(_data.Momentum5D >= 0 ? "text-success" : "text-danger")">
+                            @FormatMomentum(_data.Momentum5D)
+                        </RadzenText>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+
+            @* E. Macro Mapping *@
+            <RadzenRow>
+                <RadzenColumn Size="6">
+                    <RadzenCard class="p-2 h-100" Style="border: 1px solid var(--rz-border-color);">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.Vix.Liquidity]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@RegimeLiquidity</strong></RadzenText>
+                    </RadzenCard>
+                </RadzenColumn>
+                <RadzenColumn Size="6">
+                    <RadzenCard class="p-2 h-100" Style="border: 1px solid var(--rz-border-color);">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.Vix.CapitalFlow]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@RegimeCapitalFlow</strong></RadzenText>
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+
+            @* F. Percentile + Spike *@
+            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
+                @L[RK.Vix.Percentile]: @((_data.Percentile * 100).ToString("N1"))% | @L[RK.Vix.Spike]: @(_data.IsSpike ? L[RK.Vix.SpikeYes] : L[RK.Vix.SpikeNo])
+            </RadzenText>
+
+            @* G. AI Assessment (requires login; the underlying VIX data above is public, but the
+               AI call has a real cost per request so it's gated and opt-in via a manual button) *@
+            <AuthorizeView>
+                <Authorized>
+                    <RadzenStack Gap="0.5rem">
+                        @if (_aiVerdict is null && !_isLoadingAiVerdict)
+                        {
+                            <RadzenButton Text="@L[RK.Vix.GetAiAssessment]"
+                                          Click="FetchAiVerdictAsync"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Icon="auto_awesome"
+                                          Size="ButtonSize.Small" />
+                        }
+                        else if (_isLoadingAiVerdict)
+                        {
+                            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                        }
+                        else if (!string.IsNullOrWhiteSpace(_aiVerdictError))
+                        {
+                            <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                @_aiVerdictError
+                            </RadzenAlert>
+                        }
+                        else if (_aiVerdict is not null)
+                        {
+                            <RadzenCard class="p-2" Style="border: 1px solid var(--rz-border-color);">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.Vix.AiAssessmentTitle]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@_aiVerdict.Commentary</RadzenText>
+                            </RadzenCard>
+                        }
+                    </RadzenStack>
+                </Authorized>
+            </AuthorizeView>
+
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private VixResponseDto? _data;
+    private bool _isLoading;
+    private bool _isLoadingAiVerdict;
+    private string? _aiVerdictError;
+    private VixVerdictDto? _aiVerdict;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetYahooFinanceVixAsync();
+            if (response is { Data: not null })
+                _data = response.Data;
+        }
+        catch
+        {
+            // _data stays null; widget shows error state
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task FetchAiVerdictAsync()
+    {
+        if (_data is null) return;
+
+        _isLoadingAiVerdict = true;
+        _aiVerdictError = null;
+        try
+        {
+            _aiVerdict = await ExternalDataService.GetVixVerdictAsync(new GetVixVerdictRequest
+            {
+                Symbol = _data.Symbol,
+                CurrentValue = _data.CurrentValue,
+                Ema10 = _data.Ema10,
+                Ema20 = _data.Ema20,
+                Momentum3D = _data.Momentum3D,
+                Momentum5D = _data.Momentum5D,
+                Percentile = _data.Percentile,
+                IsSpike = _data.IsSpike,
+                Regime = _data.Regime
+            });
+        }
+        catch
+        {
+            _aiVerdictError = L[RK.Vix.AiAssessmentLoadFailed];
+        }
+        finally
+        {
+            _isLoadingAiVerdict = false;
+        }
+    }
+
+    private BadgeStyle RegimeBadgeStyle => _data?.Regime switch
+    {
+        "RiskOn"   => BadgeStyle.Success,
+        "Panic"    => BadgeStyle.Danger,
+        "Recovery" => BadgeStyle.Info,
+        "EarlyRisk"=> BadgeStyle.Warning,
+        _          => BadgeStyle.Light
+    };
+
+    private string RegimeBgClass => _data?.Regime switch
+    {
+        "RiskOn"    => "bg-success bg-opacity-10",
+        "Panic"     => "bg-danger bg-opacity-10",
+        "Recovery"  => "bg-info bg-opacity-10",
+        "EarlyRisk" => "bg-warning bg-opacity-10",
+        _           => "bg-secondary bg-opacity-10"
+    };
+
+    private bool IsUptrend =>
+        _data?.Ema10.HasValue == true &&
+        _data?.Ema20.HasValue == true &&
+        _data!.Ema10!.Value > _data!.Ema20!.Value;
+
+    private string TrendLabel => IsUptrend ? L[RK.Vix.Uptrend] : L[RK.Vix.Downtrend];
+    private string TrendClass  => IsUptrend ? "text-success" : "text-danger";
+
+    // Regime-derived display strings (all localized; no English values from backend)
+    private string RegimeLabel => _data?.Regime switch
+    {
+        "RiskOn"    => L[RK.Vix.RegimeRiskOn],
+        "EarlyRisk" => L[RK.Vix.RegimeEarlyRisk],
+        "Panic"     => L[RK.Vix.RegimePanic],
+        "Recovery"  => L[RK.Vix.RegimeRecovery],
+        _           => _data?.Regime ?? "-"
+    };
+
+    private string RegimeAction => _data?.Regime switch
+    {
+        "RiskOn"    => L[RK.Vix.ActionIncreaseExposure],
+        "Panic"     => L[RK.Vix.ActionReduceExposure],
+        "Recovery"  => L[RK.Vix.ActionBuildPosition],
+        "EarlyRisk" => L[RK.Vix.ActionReduceRisk],
+        _           => "-"
+    };
+
+    private string RegimeLiquidity => _data?.Regime switch
+    {
+        "RiskOn"    => L[RK.Vix.LiquidityHigh],
+        "Panic"     => L[RK.Vix.LiquidityLow],
+        "Recovery"  => L[RK.Vix.LiquidityImproving],
+        "EarlyRisk" => L[RK.Vix.LiquidityTightening],
+        _           => "-"
+    };
+
+    private string RegimeCapitalFlow => _data?.Regime switch
+    {
+        "RiskOn"    => L[RK.Vix.CapitalFlowIntoRisk],
+        "Panic"     => L[RK.Vix.CapitalFlowIntoSafe],
+        "Recovery"  => L[RK.Vix.CapitalFlowReEntry],
+        "EarlyRisk" => L[RK.Vix.CapitalFlowDefensive],
+        _           => "-"
+    };
+
+    private static string FormatMomentum(decimal? value)
+    {
+        if (!value.HasValue) return "-";
+        decimal pct = value.Value * 100;
+        return $"{(pct >= 0 ? "+" : "")}{pct:N2}%";
+    }
+}

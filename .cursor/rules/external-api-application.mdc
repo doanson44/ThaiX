@@ -1,0 +1,13 @@
+---
+description: Use when adding Application-layer queries/handlers/DTOs that consume external providers via IExternalDataService.
+globs: src/ThaiX.Application/Features/ExternalData/**
+alwaysApply: false
+---
+
+# External API Application Rules
+
+- Depend on `IExternalDataService` only; never reference provider/infrastructure types.
+- Keep handlers thin: validate input, call service, map to DTO, return result.
+- No direct `HttpClient` usage in Application.
+- No hardcoded endpoint URLs or retry/caching logic in handlers.
+- Keep external response contracts mapped explicitly to Application DTOs.

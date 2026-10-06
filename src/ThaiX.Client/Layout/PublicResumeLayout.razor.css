@@ -1,0 +1,52 @@
+.resume-layout {
+    min-height: 100vh;
+    background: var(--resume-bg);
+    color: var(--resume-fg);
+    font-family: var(--tx-font-body, 'Segoe UI', Arial, sans-serif);
+    position: relative;
+}
+
+.resume-layout-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.65rem 1rem;
+    pointer-events: none;
+}
+
+.resume-layout-theme-select {
+    pointer-events: auto;
+    background: var(--resume-toolbar-bg);
+    border: 1px solid var(--resume-toolbar-border);
+    color: var(--resume-toolbar-fg);
+    font-size: 0.72rem;
+    line-height: 1.2;
+    padding: 0.2rem 0.45rem;
+    min-height: 1.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+}
+
+.resume-layout-theme-select:focus {
+    border-color: var(--tx-accent, #f59e0b);
+}
+
+.resume-layout-theme-select option {
+    background: var(--resume-bg);
+    color: var(--resume-fg);
+}
+
+@media print {
+    .resume-layout {
+        min-height: 0;
+        background: #ffffff;
+        color: #111111;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}

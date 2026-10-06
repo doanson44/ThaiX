@@ -1,0 +1,105 @@
+@using System.Globalization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject IThemeService ThemeService
+@inject ThaiX.Client.Services.Http.Demo.ApiConnectivityState ApiConnectivity
+
+<div class="auth-layout d-flex align-items-center justify-content-center min-vh-100 p-3">
+    <div class="auth-card">
+        <div class="auth-toolbar">
+            <select class="auth-lang-select"
+                    title="@L[RK.Theme.Toggle]"
+                    aria-label="@L[RK.Theme.Toggle]"
+                    value="@_selectedTheme"
+                    @onchange="OnThemeChanged">
+                <option value="dark">@L[RK.Theme.Dark]</option>
+                <option value="light">@L[RK.Theme.Light]</option>
+            </select>
+            <select class="auth-lang-select"
+                    value="@selectedCulture"
+                    @onchange="OnCultureChanged">
+                <option value="en-US">@L[RK.Language.English]</option>
+                <option value="vi-VN">@L[RK.Language.Vietnamese]</option>
+            </select>
+        </div>
+
+        <div class="auth-brand">
+            Thai<span class="auth-brand-accent">X</span>
+        </div>
+
+        @if (ApiConnectivity.IsDemoMode)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Warning"
+                         Variant="Variant.Flat"
+                         Shade="Shade.Lighter"
+                         AllowClose="false"
+                         class="rz-mb-3">
+                @L[RK.Common.DemoModeBanner]
+            </RadzenAlert>
+        }
+
+        <div class="auth-body">
+            @Body
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedCulture = CultureInfo.CurrentUICulture.Name;
+    private string _selectedTheme = "dark";
+
+    protected override void OnInitialized()
+    {
+        ThemeService.OnChanged += OnThemeChangedFromService;
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await ThemeService.InitializeAsync();
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        StateHasChanged();
+    }
+
+    private void OnThemeChangedFromService()
+    {
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnThemeChanged(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        _selectedTheme = value;
+        await ThemeService.SetThemeAsync(value == "light" ? AppTheme.Light : AppTheme.Dark);
+    }
+
+    private async Task OnCultureChanged(ChangeEventArgs args)
+    {
+        var culture = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(culture))
+        {
+            return;
+        }
+
+        selectedCulture = culture;
+        await JS.InvokeVoidAsync("blazorCulture.set", culture);
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnChanged -= OnThemeChangedFromService;
+    }
+}

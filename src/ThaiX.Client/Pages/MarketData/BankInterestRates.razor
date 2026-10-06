@@ -1,0 +1,385 @@
+@page "/market-data/bank-interest-rates"
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using Microsoft.Extensions.Localization
+@using ThaiX.Client.Models.ExternalData
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<style>
+    .responsive-grid .rz-cell-data {
+        white-space: normal !important;
+        word-wrap: break-word;
+    }
+</style>
+
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-2">
+        @L[RK.BankInterestRates.Title]
+    </RadzenText>
+
+    <Big4FilterWidget Banks="@_allBanks" OnFilterChanged="OnBanksFiltered" />
+
+    <RadzenStack Gap="1rem" Class="mt-3">
+        @if (Viewport.IsMobile)
+        {
+            @if (_isLoading)
+            {
+                <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+            }
+            else if (!_filteredBanks.Any())
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @L[RK.Common.NoDataFound]
+                </RadzenAlert>
+            }
+            else
+            {
+                <RadzenStack Gap="1rem">
+                    <div>
+                        <label class="rz-label mb-1">@L[RK.Menu.MasterDataBanks]</label>
+                        <AsyncSearchSelect TItem="BankInterestRateGridItemDto"
+                                           Value="@_selectedBankSymbol"
+                                           ValueChanged="OnSelectedBankChanged"
+                                           LoadDataAsync="LoadBanksForSearchAsync"
+                                           GetText="@FormatBankDisplay"
+                                           GetValue="@(x => x.Symbol)"
+                                           Placeholder="@L[RK.MasterData.SearchPlaceholder]"
+                                           SearchPlaceholder="@L[RK.Common.Search]"
+                                           LoadingText="@L[RK.Common.Loading]"
+                                           EmptyText="@L[RK.Common.NoDataFound]"
+                                           MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                           AllowClear="true"
+                                           Class="w-100" />
+                    </div>
+
+                    <ClientSortBar TItem="BankInterestRateGridItemDto"
+                                   Options="@SortOptions"
+                                   SortKey="@_sortKey"
+                                   SortKeyChanged="OnSortKeyChanged"
+                                   Ascending="@_sortAscending"
+                                   AscendingChanged="OnSortDirectionChanged"
+                                   Label="@L[RK.Common.SortBy]"
+                                   Placeholder="@L[RK.Common.SortBy]"
+                                   AscendingLabel="@L[RK.Common.Ascending]"
+                                   DescendingLabel="@L[RK.Common.Descending]" />
+
+                    @if (TotalPages > 1)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal"
+                                     AlignItems="AlignItems.Center"
+                                     JustifyContent="JustifyContent.End"
+                                     Gap="0.35rem">
+                            <RadzenButton Icon="chevron_left"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Size="ButtonSize.Small"
+                                          Disabled="@(_pageIndex <= 0)"
+                                          title="@L[RK.VnDirectChangePrices.Previous]"
+                                          Click="PreviousPage" />
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0 text-nowrap">
+                                @string.Format(L[RK.VnDirectChangePrices.PageOf], _pageIndex + 1, TotalPages)
+                            </RadzenText>
+                            <RadzenButton Icon="chevron_right"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Size="ButtonSize.Small"
+                                          Disabled="@(_pageIndex >= TotalPages - 1)"
+                                          title="@L[RK.VnDirectChangePrices.Next]"
+                                          Click="NextPage" />
+                        </RadzenStack>
+                    }
+
+                    @foreach (var bank in VisibleBanks)
+                    {
+                        <RadzenCard Class="m-0">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="mb-3">
+                                <SafeImage Src="@bank.IconUrl"
+                                           Alt="@bank.BankName"
+                                           Width="24"
+                                           Height="24"
+                                           Class="img-fluid"
+                                           FallbackIcon="account_balance"
+                                           FallbackClass="safe-image-fallback" />
+                                <RadzenStack Gap="0.15rem" Class="flex-grow-1 min-w-0">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="m-0 text-break"><strong>@bank.BankName</strong></RadzenText>
+                                    @if (!string.IsNullOrWhiteSpace(bank.Symbol))
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="m-0 text-muted">@bank.Symbol</RadzenText>
+                                    }
+                                </RadzenStack>
+                            </RadzenStack>
+
+                            <RadzenRow>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month1]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month1)</strong></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month3]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month3)</strong></RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow Class="mt-2">
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month6]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month6)</strong></RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month12]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month12)</strong></RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    }
+                </RadzenStack>
+            }
+        }
+        else
+        {
+            <div style="width: 100%; overflow-x: auto;">
+                <RadzenDataGrid @ref="_grid"
+                                Class="@(Viewport.IsTablet ? "responsive-grid" : "")"
+                                IsLoading="@_isLoading"
+                                AllowFiltering="true"
+                                FilterMode="FilterMode.Advanced"
+                                AllowPaging="true"
+                                PageSize="10"
+                                AllowSorting="true"
+                                Data="@_filteredBanks"
+                                TItem="BankInterestRateGridItemDto"
+                                ShowPagingSummary="true"
+                                PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                                PageSizeOptions="@(new[] { 10, 25, 50, 100 })">
+                    <EmptyTemplate>
+                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            @L[RK.Common.NoDataFound]
+                        </RadzenAlert>
+                    </EmptyTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto"
+                                              Title="@L[RK.Menu.MasterDataBanks]"
+                                              Property="BankName">
+                            <Template Context="bank">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                    <SafeImage Src="@bank.IconUrl"
+                                               Alt="@bank.BankName"
+                                               Class="img-fluid"
+                                               Width="24"
+                                               Height="24"
+                                               FallbackIcon="account_balance"
+                                               FallbackClass="safe-image-fallback" />
+                                    <span class="text-break">@bank.BankName</span>
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto"
+                                              Property="Symbol"
+                                              Title="@L[RK.MasterData.Code]"
+                                              Width="5rem"
+                                              MinWidth="4.5rem"
+                                              TextAlign="TextAlign.Center">
+                            <Template Context="bank">
+                                <span class="text-nowrap">@(string.IsNullOrWhiteSpace(bank.Symbol) ? "-" : bank.Symbol)</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month1" Title="@L[RK.BankInterestRates.Month1]">
+                            <Template Context="data">
+                                @FormatRate(data.Month1)
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month3" Title="@L[RK.BankInterestRates.Month3]">
+                            <Template Context="data">
+                                @FormatRate(data.Month3)
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month6" Title="@L[RK.BankInterestRates.Month6]">
+                            <Template Context="data">
+                                @FormatRate(data.Month6)
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month12" Title="@L[RK.BankInterestRates.Month12]">
+                            <Template Context="data">
+                                @FormatRate(data.Month12)
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month24" Title="@L[RK.BankInterestRates.Month24]" Visible="@(!Viewport.IsTablet)">
+                            <Template Context="data">
+                                @FormatRate(data.Month24)
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        }
+    </RadzenStack>
+</RadzenCard>
+
+<RadzenStack Gap="1rem" Class="mt-4">
+    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.BankInterestRates.Toolkit]</RadzenText>
+    <CompoundInterestCalculator Bank="@CalculatorBank" ShowTitle="false" />
+</RadzenStack>
+
+@code {
+    private const int MobilePageSize = 6;
+
+    private RadzenDataGrid<BankInterestRateGridItemDto>? _grid;
+    private List<BankInterestRateGridItemDto> _allBanks = [];
+    private List<BankInterestRateGridItemDto> _filteredBanks = [];
+    private bool _isLoading;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+    private int _pageIndex;
+    private string? _selectedBankSymbol;
+
+    private BankInterestRateGridItemDto? CalculatorBank =>
+        _filteredBanks.FirstOrDefault(b =>
+            !string.IsNullOrEmpty(_selectedBankSymbol) &&
+            b.Symbol.Equals(_selectedBankSymbol, StringComparison.OrdinalIgnoreCase))
+        ?? _filteredBanks.FirstOrDefault();
+
+    private IEnumerable<BankInterestRateGridItemDto> SearchFilteredBanks =>
+        string.IsNullOrWhiteSpace(_selectedBankSymbol)
+            ? _filteredBanks
+            : _filteredBanks.Where(b =>
+                b.Symbol.Equals(_selectedBankSymbol, StringComparison.OrdinalIgnoreCase));
+
+    private IReadOnlyList<SortOption<BankInterestRateGridItemDto>> SortOptions =>
+    [
+        new("bankName", L[RK.Menu.MasterDataBanks], x => x.BankName),
+        new("symbol", L[RK.Contacts.BankCode], x => x.Symbol),
+        new("month1", L[RK.BankInterestRates.Month1], x => x.Month1),
+        new("month3", L[RK.BankInterestRates.Month3], x => x.Month3),
+        new("month6", L[RK.BankInterestRates.Month6], x => x.Month6),
+        new("month12", L[RK.BankInterestRates.Month12], x => x.Month12),
+        new("month24", L[RK.BankInterestRates.Month24], x => x.Month24),
+    ];
+
+    private IEnumerable<BankInterestRateGridItemDto> SortedBanks
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_sortKey))
+            {
+                return SearchFilteredBanks;
+            }
+
+            var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (opt is null)
+            {
+                return SearchFilteredBanks;
+            }
+
+            return _sortAscending
+                ? SearchFilteredBanks.OrderBy(opt.KeySelector)
+                : SearchFilteredBanks.OrderByDescending(opt.KeySelector);
+        }
+    }
+
+    private int TotalPages
+    {
+        get
+        {
+            var count = SortedBanks.Count();
+            return count == 0 ? 1 : (int)Math.Ceiling(count / (double)MobilePageSize);
+        }
+    }
+
+    private IEnumerable<BankInterestRateGridItemDto> VisibleBanks =>
+        SortedBanks.Skip(_pageIndex * MobilePageSize).Take(MobilePageSize);
+
+    private void OnSortKeyChanged(string? key)
+    {
+        _sortKey = key;
+        _pageIndex = 0;
+    }
+
+    private void OnSortDirectionChanged(bool asc)
+    {
+        _sortAscending = asc;
+        _pageIndex = 0;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetBankInterestRatesAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _allBanks = response.Data.Data;
+                _filteredBanks = _allBanks;
+                _pageIndex = 0;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task OnBanksFiltered(List<BankInterestRateGridItemDto> banks)
+    {
+        _filteredBanks = banks;
+        _selectedBankSymbol = null;
+        _pageIndex = 0;
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedBankChanged(string? value)
+    {
+        _selectedBankSymbol = value;
+        _pageIndex = 0;
+        return Task.CompletedTask;
+    }
+
+    private Task<(IReadOnlyList<BankInterestRateGridItemDto>, int)> LoadBanksForSearchAsync(
+        int page,
+        int pageSize,
+        string? search,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<BankInterestRateGridItemDto> query = _filteredBanks;
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(b =>
+                b.BankName.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                b.Symbol.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var banks = query
+            .OrderBy(b => b.BankName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var total = banks.Count;
+        var items = banks.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Task.FromResult<(IReadOnlyList<BankInterestRateGridItemDto>, int)>((items, total));
+    }
+
+    private void PreviousPage()
+    {
+        if (_pageIndex > 0)
+        {
+            _pageIndex--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (_pageIndex < TotalPages - 1)
+        {
+            _pageIndex++;
+        }
+    }
+
+    private static string FormatRate(decimal? value) =>
+        value.HasValue ? $"{value.Value:0.##}%" : "-";
+
+    private static string FormatBankDisplay(BankInterestRateGridItemDto bank) =>
+        string.IsNullOrWhiteSpace(bank.Symbol)
+            ? bank.BankName
+            : $"{bank.BankName} ({bank.Symbol})";
+}

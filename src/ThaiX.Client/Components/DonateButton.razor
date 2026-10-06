@@ -1,0 +1,25 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenButton Icon="local_cafe"
+             ButtonStyle="ButtonStyle.Light"
+             Size="ButtonSize.Small"
+             Class="ms-1 tx-donate-btn"
+             title="@L[RK.Donate.Title]"
+             Click="@ShowDonate" />
+
+@code {
+    [Inject] private DialogService DialogService { get; set; } = default!;
+
+    private async Task ShowDonate()
+    {
+        await DialogService.OpenAsync<DonateModal>(
+            L[RK.Donate.Title],
+            options: new DialogOptions
+            {
+                CloseDialogOnOverlayClick = true,
+                ShowClose = true,
+                Width = "360px"
+            });
+    }
+}

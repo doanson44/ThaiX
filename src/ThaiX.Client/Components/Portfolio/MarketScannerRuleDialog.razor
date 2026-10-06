@@ -1,0 +1,234 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IMarketScannerService MarketScannerService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (MarketScannerRuleFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12">
+                <RadzenLabel Text="@L[RK.MarketScanner.Name]" />
+                <RadzenAutoComplete Name="ruleName"
+                                    @bind-Value="_model.Name"
+                                    Data="@_filteredNameSuggestions"
+                                    LoadData="@OnNameFilterChanged"
+                                    MinLength="0"
+                                    class="w-100" />
+                <RadzenRequiredValidator Component="ruleName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.MarketScanner.SignalType]" />
+                @if (IsEdit)
+                {
+                    <div class="form-control-plaintext">
+                        <RadzenBadge Text="@_model.SignalType" BadgeStyle="BadgeStyle.Info" />
+                    </div>
+                }
+                else
+                {
+                    <RadzenDropDown Name="ruleSignalType"
+                                    @bind-Value="_model.SignalType"
+                                    Change="@OnSignalTypeChanged"
+                                    Data="@_signalTypeOptions"
+                                    TextProperty="Label"
+                                    ValueProperty="Value"
+                                    class="w-100" />
+                    <RadzenRequiredValidator Component="ruleSignalType" Text="@L[RK.Validation.Required]" Popup="false" />
+                }
+            </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.MarketScanner.Window]" />
+                <RadzenDropDown Name="ruleWindow"
+                                @bind-Value="_model.Window"
+                                Data="@_windowOptions"
+                                TextProperty="Label"
+                                ValueProperty="Value"
+                                class="w-100" />
+                <RadzenRequiredValidator Component="ruleWindow" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+
+            @if (!_isFundingFlip)
+            {
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenLabel Text="@_thresholdLabel" />
+                    <RadzenNumeric TValue="decimal?" Name="ruleThreshold" @bind-Value="_model.Threshold" class="w-100" Min="0.0001m" />
+                    <RadzenRequiredValidator Component="ruleThreshold" Text="@L[RK.Validation.Required]" Popup="false" />
+                </RadzenColumn>
+            }
+
+            @if (IsEdit)
+            {
+                <RadzenColumn Size="12">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                        <RadzenLabel Text="@L[RK.MarketScanner.IsEnabled]" />
+                        <RadzenSwitch @bind-Value="_model.IsEnabled" />
+                    </RadzenStack>
+                </RadzenColumn>
+            }
+
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2">
+                    <RadzenButton Text="@L[RK.Common.Save]"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                    <RadzenButton Text="@L[RK.Common.Close]" Icon="close" ButtonStyle="ButtonStyle.Light" Click="@CloseAsync" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public Guid? RuleId { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public string? SignalType { get; set; }
+    [Parameter] public string? Window { get; set; }
+    [Parameter] public decimal? Threshold { get; set; }
+    [Parameter] public bool IsEnabled { get; set; }
+
+    private readonly MarketScannerRuleFormModel _model = new();
+    private bool _isSaving;
+
+    private IReadOnlyList<string> _nameSuggestions = [];
+    private IEnumerable<string> _filteredNameSuggestions = [];
+
+    private void OnNameFilterChanged(LoadDataArgs args)
+    {
+        var term = args.Filter?.Trim() ?? string.Empty;
+        _filteredNameSuggestions = string.IsNullOrEmpty(term)
+            ? _nameSuggestions
+            : _nameSuggestions.Where(n => n.Contains(term, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IReadOnlyList<DropdownOption> _signalTypeOptions = [];
+    private IReadOnlyList<DropdownOption> _windowOptions = [];
+
+    protected override void OnInitialized()
+    {
+        _nameSuggestions =
+        [
+            L[RK.MarketScanner.NameSuggestionPricePump5],
+            L[RK.MarketScanner.NameSuggestionPricePump10],
+            L[RK.MarketScanner.NameSuggestionPricePump20],
+            L[RK.MarketScanner.NameSuggestionVolumeSpike2x],
+            L[RK.MarketScanner.NameSuggestionVolumeSpike3x],
+            L[RK.MarketScanner.NameSuggestionVolumeSpike5x],
+            L[RK.MarketScanner.NameSuggestionVolumeSpike10x],
+            L[RK.MarketScanner.NameSuggestionFundingFlipAlert],
+            L[RK.MarketScanner.NameSuggestionFundingRate2x],
+            L[RK.MarketScanner.NameSuggestionFundingRate5x],
+            L[RK.MarketScanner.NameSuggestionFundingRate10x],
+            L[RK.MarketScanner.NameSuggestionAbnormalFundingAlert],
+            L[RK.MarketScanner.NameSuggestionMomentumSurge],
+            L[RK.MarketScanner.NameSuggestionWhaleVolumeAlert],
+            L[RK.MarketScanner.NameSuggestionBreakoutSignal]
+        ];
+
+        _signalTypeOptions =
+        [
+            new("PricePump", L[RK.MarketScanner.SignalTypePricePump]),
+            new("FundingFlip", L[RK.MarketScanner.SignalTypeFundingFlip]),
+            new("FundingMultiple", L[RK.MarketScanner.SignalTypeFundingMultiple]),
+            new("VolumeSpike", L[RK.MarketScanner.SignalTypeVolumeSpike])
+        ];
+
+        _windowOptions =
+        [
+            new("ThreeMinutes", L[RK.MarketScanner.WindowThreeMinutes]),
+            new("SixMinutes", L[RK.MarketScanner.WindowSixMinutes]),
+            new("TwelveMinutes", L[RK.MarketScanner.WindowTwelveMinutes]),
+            new("ThirtyMinutes", L[RK.MarketScanner.WindowThirtyMinutes]),
+            new("OneHour", L[RK.MarketScanner.WindowOneHour])
+        ];
+
+        _model.Name = Name ?? string.Empty;
+        _model.SignalType = IsEdit ? (SignalType ?? "PricePump") : "PricePump";
+        _model.Window = Window ?? "ThreeMinutes";
+        _model.Threshold = _isFundingFlip ? null : (Threshold is > 0 ? Threshold : 1m);
+        _model.IsEnabled = IsEnabled;
+    }
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        try
+        {
+            var threshold = _isFundingFlip ? null : _model.Threshold;
+            if (IsEdit && RuleId.HasValue)
+            {
+                await MarketScannerService.UpdateAsync(RuleId.Value, new UpdateMarketScannerRuleRequest
+                {
+                    Name = _model.Name,
+                    Window = _model.Window,
+                    Threshold = threshold,
+                    IsEnabled = _model.IsEnabled
+                });
+                NotificationService.NotifySuccess(L[RK.MarketScanner.UpdateSuccess]);
+            }
+            else
+            {
+                await MarketScannerService.CreateAsync(new CreateMarketScannerRuleRequest
+                {
+                    Name = _model.Name,
+                    SignalType = _model.SignalType,
+                    Window = _model.Window,
+                    Threshold = threshold
+                });
+                NotificationService.NotifySuccess(L[RK.MarketScanner.CreateSuccess]);
+            }
+
+            DialogService.Close(true);
+        }
+        catch (ApiException ex)
+        {
+            var key = IsEdit ? RK.MarketScanner.UpdateFailed : RK.MarketScanner.CreateFailed;
+            NotificationService.NotifyError(L[key], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private bool _isFundingFlip => _model.SignalType == "FundingFlip";
+
+    private void OnSignalTypeChanged(object? _)
+    {
+        _model.Threshold = _isFundingFlip ? null : (_model.Threshold is > 0 ? _model.Threshold : 1m);
+    }
+
+    private string _thresholdUnit => _model.SignalType switch
+    {
+        "PricePump" => "%",
+        "VolumeSpike" or "FundingMultiple" => "\u00d7",
+        _ => string.Empty
+    };
+
+    private string _thresholdLabel =>
+        _thresholdUnit.Length > 0
+            ? $"{L[RK.MarketScanner.Threshold]} ({_thresholdUnit})"
+            : L[RK.MarketScanner.Threshold];
+
+    private void CloseAsync()
+    {
+        DialogService.Close(false);
+    }
+
+    private sealed class MarketScannerRuleFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string SignalType { get; set; } = string.Empty;
+        public string Window { get; set; } = string.Empty;
+        public decimal? Threshold { get; set; }
+        public bool IsEnabled { get; set; }
+    }
+
+    private sealed record DropdownOption(string Value, string Label);
+}

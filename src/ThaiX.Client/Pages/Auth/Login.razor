@@ -1,0 +1,149 @@
+@page "/auth/login"
+@layout AuthLayout
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inject IConfiguration Configuration
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+<PageTitle>@L[RK.Auth.Login] - ThaiX</PageTitle>
+
+<RadzenText TextStyle="TextStyle.H4">@L[RK.Auth.LoginTitle]</RadzenText>
+
+<RadzenTemplateForm Data="@_model" Submit="@((LoginFormModel _) => OnSubmitAsync())">
+    <div class="mb-3">
+        <RadzenLabel Text="@L[RK.Auth.UsernameOrEmail]" class="mb-1" />
+        <RadzenTextBox Name="username"
+                       @bind-Value="_model.Username"
+                       Placeholder="@L[RK.Auth.UsernameOrEmailPlaceholder]"
+                       class="w-100" />
+        <RadzenRequiredValidator Component="username"
+                                 Text="@L[RK.Validation.Required]"
+                                 Popup="false" />
+    </div>
+
+    <div class="mb-3">
+        <RadzenLabel Text="@L[RK.Auth.Password]" class="mb-1" />
+        <RadzenPassword Name="password"
+                        @bind-Value="_model.Password"
+                        Placeholder="@L[RK.Auth.PasswordPlaceholder]"
+                        class="w-100" />
+        <RadzenRequiredValidator Component="password"
+                                 Text="@L[RK.Validation.Required]"
+                                 Popup="false" />
+    </div>
+
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <RadzenCheckBox TValue="bool"
+                        @bind-Value="_model.RememberMe"
+                        Name="rememberMe" />
+        <RadzenLabel Text="@L[RK.Auth.RememberMe]"
+                    Component="rememberMe" />
+    </div>
+
+    <div class="mb-3">
+        <RadzenButton Text="@L[RK.Auth.Login]"
+                      Icon="login"
+                      ButtonType="ButtonType.Submit"
+                      Disabled="@_isSubmitting"
+                      IsBusy="@_isSubmitting"
+                      BusyText="@L[RK.Common.Loading]"
+                      ButtonStyle="ButtonStyle.Primary"
+                      class="w-100" />
+    </div>
+</RadzenTemplateForm>
+
+<div class="d-flex flex-column gap-1 mt-3">
+    <RadzenLink Path="@($"/{RouteSegments.ForgotPassword}")" Text="@L[RK.Auth.ForgotPasswordLink]" />
+    <div class="d-flex flex-wrap align-items-center gap-1 auth-inline-links">
+        <span class="auth-inline-prompt">@L[RK.Auth.LoginLink]</span>
+        <RadzenLink Path="@($"/{RouteSegments.Register}")" Text="@L[RK.Auth.Register]" />
+    </div>
+    @if (_showResendConfirmationLink)
+    {
+        <RadzenLink href="@ResendConfirmationUrl" Text="@L[RK.Auth.ResendConfirmationLink]" />
+    }
+</div>
+
+<div class="auth-divider">@L[RK.Auth.ExternalLoginOr]</div>
+
+<RadzenButton Text="@L[RK.Auth.ExternalLoginGoogle]"
+              Icon="g_mobiledata"
+              Click="LoginWithGoogle"
+              ButtonStyle="ButtonStyle.Light"
+              class="w-100" />
+
+@code {
+    private LoginFormModel _model = new();
+    private bool _isSubmitting;
+    private bool _showResendConfirmationLink;
+    private string _resendConfirmationEmail = string.Empty;
+
+    private string ResendConfirmationUrl => string.IsNullOrWhiteSpace(_resendConfirmationEmail)
+        ? $"/{RouteSegments.ResendConfirmation}"
+        : $"/{RouteSegments.ResendConfirmation}?email={Uri.EscapeDataString(_resendConfirmationEmail)}";
+
+    private async Task OnSubmitAsync()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _showResendConfirmationLink = false;
+        _isSubmitting = true;
+        try
+        {
+            var loginResponse = await AuthService.LoginAsync(new LoginRequest
+            {
+                Username = _model.Username.Trim(),
+                Password = _model.Password,
+                RememberMe = _model.RememberMe
+            });
+
+            if (loginResponse.RequiresTwoFactor)
+            {
+                Navigation.NavigateTo($"/{RouteSegments.Login2Fa}?sessionToken={Uri.EscapeDataString(loginResponse.TwoFactorSessionToken!)}");
+                return;
+            }
+
+            NotificationService.NotifySuccess(L[RK.Auth.LoginSuccess], L[RK.Auth.LoginSuccessDetail]);
+
+            Navigation.NavigateTo("/");
+        }
+        catch (ApiException ex)
+        {
+            if (AuthErrorCodes.IsLockout(ex))
+            {
+                Navigation.NavigateTo($"/{RouteSegments.Lockout}");
+                return;
+            }
+
+            NotificationService.NotifyError(L[RK.Auth.LoginFailed], ex.GetDisplayDetail());
+            if (AuthErrorCodes.IsAccountNotAllowed(ex))
+            {
+                _showResendConfirmationLink = true;
+                _resendConfirmationEmail = _model.Username.Trim();
+            }
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void LoginWithGoogle()
+    {
+        var apiBaseUrl = (Configuration["Api:BaseUrl"] ?? "http://localhost:5005").TrimEnd('/');
+        var returnUrl = Uri.EscapeDataString(Navigation.BaseUri.TrimEnd('/'));
+        Navigation.NavigateTo($"{apiBaseUrl}/api/account/external-login?provider=Google&returnUrl={returnUrl}", forceLoad: true);
+    }
+
+    private sealed class LoginFormModel
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public bool RememberMe { get; set; }
+    }
+}

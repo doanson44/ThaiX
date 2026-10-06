@@ -1,0 +1,175 @@
+# User Management Endpoints
+# GET    /api/users/me/profile
+# GET    /api/users
+# GET    /api/users/permissions
+# GET    /api/users/{userId}/permissions
+# POST   /api/users
+# PUT    /api/users/{userId}
+# PUT    /api/users/{userId}/lockout
+# PUT    /api/users/{userId}/permissions
+# POST   /api/users/{userId}/reset-password
+# POST   /api/users/{userId}/link-contact
+# GET    /api/users/{userId}/linked-contact
+# DELETE /api/users/{userId}/linked-contact
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+@authToken = {{login.response.body.$.data.accessToken}}
+
+# Set a target userId for user-specific operations:
+@userId = 00000000-0000-0000-0000-000000000000
+@contactId = 00000000-0000-0000-0000-000000000001
+
+###
+
+# ============================================================
+# User Endpoints
+# ============================================================
+
+### Get current user profile (full name, avatar from linked Contact)
+GET {{baseUrl}}/api/users/me/profile
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get paginated list of users
+GET {{baseUrl}}/api/users/?pageNumber=1&pageSize=10&sortBy=email&sortDescending=false
+Authorization: Bearer {{authToken}}
+
+###
+
+### Search users
+GET {{baseUrl}}/api/users/?search=admin&isActive=true
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get all available permission codes
+GET {{baseUrl}}/api/users/permissions
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get permissions assigned to a specific user
+GET {{baseUrl}}/api/users/{{userId}}/permissions
+Authorization: Bearer {{authToken}}
+
+###
+
+### Create a new user
+POST {{baseUrl}}/api/users/
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@thaix.local",
+  "userName": "newuser",
+  "password": "NewUser@123456",
+  "sendActivationEmail": false,
+  "permissions": []
+}
+
+###
+
+### Update user profile information
+PUT {{baseUrl}}/api/users/{{userId}}
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "email": "updated@thaix.local",
+  "phoneNumber": "+84900000000",
+  "emailConfirmed": true,
+  "twoFactorEnabled": false
+}
+
+###
+
+### Set user lockout status (lock)
+PUT {{baseUrl}}/api/users/{{userId}}/lockout
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "isLocked": true,
+  "reason": "Suspicious activity",
+  "lockoutDurationMinutes": 60
+}
+
+###
+
+### Unlock user
+PUT {{baseUrl}}/api/users/{{userId}}/lockout
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "isLocked": false,
+  "reason": null,
+  "lockoutDurationMinutes": null
+}
+
+###
+
+### Set user permissions (replaces existing)
+PUT {{baseUrl}}/api/users/{{userId}}/permissions
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "permissions": [
+    "contact:read",
+    "contact:write"
+  ]
+}
+
+###
+
+### Reset user password (admin operation)
+POST {{baseUrl}}/api/users/{{userId}}/reset-password
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "newPassword": "ResetPass@123456",
+  "requirePasswordChange": true
+}
+
+###
+
+### Link user to a contact
+POST {{baseUrl}}/api/users/{{userId}}/link-contact
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "contactId": "{{contactId}}"
+}
+
+###
+
+### Get contact linked to user
+GET {{baseUrl}}/api/users/{{userId}}/linked-contact
+Authorization: Bearer {{authToken}}
+
+###
+
+### Unlink contact from user
+DELETE {{baseUrl}}/api/users/{{userId}}/linked-contact
+Authorization: Bearer {{authToken}}

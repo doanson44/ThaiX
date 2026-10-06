@@ -1,0 +1,296 @@
+# External Data Endpoints
+# GET /api/external-data/bank-interest-rates
+# GET /api/external-data/market/commodities
+# GET /api/external-data/market/currencies
+# GET /api/external-data/market/cryptocurrencies
+# GET /api/external-data/market/coingecko/coins-list
+# GET /api/external-data/market/coingecko/markets/{coinId}
+# GET /api/external-data/market/price-history/{symbol}
+# GET /api/external-data/market/watchlist-price/{symbol}
+# GET /api/external-data/market/vndirect/top-stocks
+# GET /api/external-data/market/vndirect/ratios/latest/{code}
+# GET /api/external-data/market/vndirect/ratios/latest/market
+# GET /api/external-data/market/vndirect/events
+# GET /api/external-data/market/vndirect/stock-prices/{code}
+# GET /api/external-data/market/vndirect/recommendations
+# GET /api/external-data/market/vndirect/technical-signals
+# GET /api/external-data/market/vndirect/change-prices
+# GET /api/external-data/bybit/linear-tickers
+# GET /api/external-data/bybit/spot-tickers
+# GET /api/external-data/binance/funding-rates
+# GET /api/external-data/binance/futures-ticker-24hr[?symbol=BTCUSDT]
+# GET /api/external-data/binance/spot-depth/{symbol}
+# GET /api/external-data/binance/futures-depth/{symbol}
+# GET /api/external-data/binance/spot-ticker-24hr[?symbol=BTCUSDT]
+# GET /api/external-data/mexc/contract-ticker[?symbol=BTC_USDT]
+# GET /api/external-data/mexc/contract-kline/{symbol}[?interval=Min15]
+# GET /api/external-data/mexc/funding-rate
+# GET /api/external-data/mexc/contract-depth/{symbol}
+# GET /api/external-data/mexc/spot-ticker-24hr[?symbol=BTCUSDT]
+# GET /api/external-data/mexc/spot-klines/{symbol}[?interval=1m]
+# GET /api/external-data/mexc/spot-depth/{symbol}
+# ... iWealth Club, Dragon Capital, Sacombank, Yahoo Finance
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+###
+
+
+@authToken = {{login.response.body.$.data.token}}
+
+
+# ============================================================
+# Bank Interest Rates (CafeF)
+# ============================================================
+
+### Get current bank interest rates
+GET {{baseUrl}}/api/external-data/bank-interest-rates
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Market Data (CafeF, Yahoo Finance, CoinGecko, VnDirect)
+# ============================================================
+
+### Get commodity prices (gold, silver, oil, metals)
+GET {{baseUrl}}/api/external-data/market/commodities
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get currency exchange rates (USD, EUR, GBP, etc.)
+GET {{baseUrl}}/api/external-data/market/currencies
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get cryptocurrency prices (Bitcoin, Ethereum, etc.)
+GET {{baseUrl}}/api/external-data/market/cryptocurrencies
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get CoinGecko coins list (id, symbol, name)
+GET {{baseUrl}}/api/external-data/market/coingecko/coins-list
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get CoinGecko coin market data by coin ID
+GET {{baseUrl}}/api/external-data/market/coingecko/markets/bitcoin
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get stock price history by symbol (CafeF)
+GET {{baseUrl}}/api/external-data/market/price-history/VNM
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get current watchlist price snapshot by symbol (CafeF)
+GET {{baseUrl}}/api/external-data/market/watchlist-price/VNM
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect top stocks list
+GET {{baseUrl}}/api/external-data/market/vndirect/top-stocks
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect latest ratios by stock code
+GET {{baseUrl}}/api/external-data/market/vndirect/ratios/latest/VNM
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect latest market ratios by item codes
+GET {{baseUrl}}/api/external-data/market/vndirect/ratios/latest/market
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect stock events (nomargin, halt, suspend, etc.)
+GET {{baseUrl}}/api/external-data/market/vndirect/events
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect stock price history by code
+GET {{baseUrl}}/api/external-data/market/vndirect/stock-prices/VNM
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect recommendations
+GET {{baseUrl}}/api/external-data/market/vndirect/recommendations
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect technical signals (default strategy: cipLong)
+GET {{baseUrl}}/api/external-data/market/vndirect/technical-signals
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect technical signals with specific strategy
+GET {{baseUrl}}/api/external-data/market/vndirect/technical-signals?strategy=cipShort
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get VnDirect change prices for indices (VNINDEX, HNX, UPCOM, VN30, VN30F1M) - period 1D
+GET {{baseUrl}}/api/external-data/market/vndirect/change-prices
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Bybit
+# ============================================================
+
+### Get Bybit linear/perpetual market tickers
+GET {{baseUrl}}/api/external-data/bybit/linear-tickers
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Bybit spot market tickers
+GET {{baseUrl}}/api/external-data/bybit/spot-tickers
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# Binance
+# ============================================================
+
+### Get Binance funding rate history
+GET {{baseUrl}}/api/external-data/binance/funding-rates
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get all Binance futures 24hr tickers
+GET {{baseUrl}}/api/external-data/binance/futures-ticker-24hr
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Binance futures 24hr ticker by symbol
+GET {{baseUrl}}/api/external-data/binance/futures-ticker-24hr?symbol=BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Binance spot order book depth by symbol
+GET {{baseUrl}}/api/external-data/binance/spot-depth/BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Binance futures order book depth by symbol
+GET {{baseUrl}}/api/external-data/binance/futures-depth/BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get all Binance spot 24hr tickers
+GET {{baseUrl}}/api/external-data/binance/spot-ticker-24hr
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get Binance spot 24hr ticker by symbol
+GET {{baseUrl}}/api/external-data/binance/spot-ticker-24hr?symbol=BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+# ============================================================
+# MEXC
+# ============================================================
+
+### Get all MEXC contract tickers
+GET {{baseUrl}}/api/external-data/mexc/contract-ticker
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC contract ticker by symbol
+GET {{baseUrl}}/api/external-data/mexc/contract-ticker?symbol=BTC_USDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC contract kline (default interval: Min1)
+GET {{baseUrl}}/api/external-data/mexc/contract-kline/BTC_USDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC contract kline with specific interval
+GET {{baseUrl}}/api/external-data/mexc/contract-kline/BTC_USDT?interval=Min15
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC contract funding rates (all symbols)
+GET {{baseUrl}}/api/external-data/mexc/funding-rate
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC contract order book depth by symbol
+GET {{baseUrl}}/api/external-data/mexc/contract-depth/BTC_USDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get all MEXC spot 24hr tickers
+GET {{baseUrl}}/api/external-data/mexc/spot-ticker-24hr
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC spot 24hr ticker by symbol
+GET {{baseUrl}}/api/external-data/mexc/spot-ticker-24hr?symbol=BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC spot klines by symbol (default interval: 1m)
+GET {{baseUrl}}/api/external-data/mexc/spot-klines/BTCUSDT
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC spot klines with specific interval
+GET {{baseUrl}}/api/external-data/mexc/spot-klines/BTCUSDT?interval=15m
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get MEXC spot order book depth by symbol
+GET {{baseUrl}}/api/external-data/mexc/spot-depth/BTCUSDT
+Authorization: Bearer {{authToken}}

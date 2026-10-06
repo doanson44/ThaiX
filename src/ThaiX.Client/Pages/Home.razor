@@ -1,0 +1,75 @@
+@page "/"
+@using ThaiX.Client.Components.MarketData.Dashboard
+@inject Microsoft.Extensions.Localization.IStringLocalizer<ThaiX.Client.Localization.SharedResource> L
+@inject NavigationManager Navigation
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.Menu.Home] - ThaiX</PageTitle>
+
+<RadzenCard>
+    <RadzenStack Gap="1rem">
+        <RadzenText TextStyle="TextStyle.H3">@L[RK.HomePage.Welcome]</RadzenText>
+        <RadzenText>@L[RK.HomePage.Description]</RadzenText>
+
+        <AuthorizeView>
+            <Authorized Context="auth">
+                <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat">
+                    @L[RK.HomePage.AuthenticatedAs] @auth.User.FindFirst("email")?.Value
+                </RadzenAlert>
+
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                    <RadzenButton Text="@L[RK.Menu.Profile]"
+                                  Icon="account_circle"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Click="@(() => Navigation.NavigateTo("/account/profile"))" />
+
+                    @if (auth.User.HasClaim("scope", PermissionNames.UserRead))
+                    {
+                        <RadzenButton Text="@L[RK.Menu.Users]"
+                                      Icon="groups"
+                                      ButtonStyle="ButtonStyle.Info"
+                                      Click="@(() => Navigation.NavigateTo("/admin/users"))" />
+                    }
+                </RadzenStack>
+            </Authorized>
+            <NotAuthorized>
+                <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                    @L[RK.HomePage.NotAuthenticated]
+                </RadzenAlert>
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                    <RadzenButton Text="@L[RK.Menu.Login]"
+                                  Icon="login"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Click="@(() => Navigation.NavigateTo("/auth/login"))" />
+                    <RadzenButton Text="@L[RK.Menu.Register]"
+                                  Icon="person_add"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@(() => Navigation.NavigateTo("/auth/register"))" />
+                </RadzenStack>
+            </NotAuthorized>
+        </AuthorizeView>
+    </RadzenStack>
+</RadzenCard>
+
+<div class="mt-4">
+    <RadzenStack Gap="1rem">
+        <RadzenRow class="align-items-stretch">
+            <RadzenColumn Size="12" SizeMD="6" class="d-flex">
+                <VixAnalysisWidget />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6" class="d-flex">
+                <VnDirectChangePricesWidget />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow class="align-items-stretch">
+            <RadzenColumn Size="12" SizeLG="4" class="d-flex">
+                <CommoditiesWidget />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeLG="4" class="d-flex">
+                <CurrenciesWidget />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeLG="4" class="d-flex">
+                <CryptocurrenciesWidget />
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenStack>
+</div>

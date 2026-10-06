@@ -1,0 +1,63 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@implements IDisposable
+
+<RadzenTextBox Value="@_localValue"
+               Placeholder="@Placeholder"
+               Name="@Name"
+               Class="@CssClass"
+               @oninput="HandleInput" />
+
+@code {
+    private CancellationTokenSource? _debounceCts;
+    private string _localValue = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public string Placeholder { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Name { get; set; } = "DebouncedSearchBox";
+
+    [Parameter]
+    public string CssClass { get; set; } = "w-100";
+
+    [Parameter]
+    public int DebounceMilliseconds { get; set; } = 300;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.Equals(Value, _localValue, StringComparison.Ordinal))
+        {
+            _localValue = Value;
+        }
+    }
+
+    private async Task HandleInput(ChangeEventArgs args)
+    {
+        _localValue = args.Value?.ToString() ?? string.Empty;
+
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+        _debounceCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(DebounceMilliseconds, _debounceCts.Token);
+            await ValueChanged.InvokeAsync(_localValue);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
+    }
+}

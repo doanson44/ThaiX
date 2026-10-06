@@ -1,0 +1,46 @@
+@inherits ThaiXPageBase
+
+<RadzenButton Text="@DisplayText"
+              Icon="@Icon"
+              ButtonStyle="@ButtonStyle"
+              ButtonType="@ButtonType"
+              Size="@Size"
+              IsBusy="@IsBusy"
+              Disabled="@Disabled"
+              title="@AccessibleName"
+              aria-label="@AccessibleName"
+              class="@Class"
+              Click="@Click" />
+
+@code {
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public string Icon { get; set; } = string.Empty;
+
+    [Parameter]
+    public ButtonStyle ButtonStyle { get; set; } = ButtonStyle.Primary;
+
+    [Parameter]
+    public ButtonType ButtonType { get; set; } = ButtonType.Button;
+
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Medium;
+
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public EventCallback Click { get; set; }
+
+    private string? DisplayText => Viewport.IsMobile ? null : Text;
+
+    private string AccessibleName => string.IsNullOrWhiteSpace(Text) ? Icon : Text;
+}

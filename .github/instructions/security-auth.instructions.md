@@ -1,0 +1,42 @@
+---
+description: "Use when implementing authentication, authorization, JWT tokens, permissions, Identity configuration, or security-related code. Covers JWT schemes, claim-based permissions, and security boundaries."
+---
+
+# Security and Authentication Rules
+
+## Authentication Schemes
+
+- **JWT Bearer** (SPA, mobile, M2M): Self-issued HMAC-SHA256, symmetric key min 256 bits.
+- **Cookies** (internal Blazor SSR): HttpOnly cookies, sliding expiration.
+
+## JWT Token Types
+
+1. **User Tokens**: `actor_type: "user"`, claims: sub, email, scope. Lifetime: 30 min.
+2. **System Tokens** (M2M): `actor_type: "system"`, claims: sub, client_id, scope. Lifetime: 1 hour.
+
+## Authorization
+
+- Policy-based with permission claims only.
+- Claim type: `permission` (`ClaimTypeConstants.Permission`).
+- Claim value format: `Feature.Action` (e.g., `Contact.Read`, `Contact.Write`).
+- Use `Permissions.*` constants -- NEVER hardcode strings.
+- Endpoints use `.RequireAuthorization(Permissions.X)`.
+- No role-based checks in business logic. Roles are administrative grouping only.
+
+## Special Endpoints
+
+- Hangfire Dashboard: `HangfireDashboardAuthorizationFilter`, permission `System.Admin`.
+- Swagger UI: `SwaggerAuthorizationMiddleware`, permission `Swagger.View`.
+
+## Identity Architecture
+
+- ASP.NET Core Identity in Infrastructure only.
+- `ApplicationUser : IdentityUser<Guid>` -- no business fields.
+- Identity and Domain models NEVER merged.
+
+## Prohibited
+
+- No auth logic in Domain layer.
+- No secret/token/PII logging.
+- No merging Identity into Domain models.
+- No role-based authorization in business logic.

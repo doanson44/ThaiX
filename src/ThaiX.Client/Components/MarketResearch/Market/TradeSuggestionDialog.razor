@@ -1,0 +1,373 @@
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Models.Trading
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.ExternalData
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="0.75rem">
+    <RadzenText TextStyle="TextStyle.Body2">@L[RK.TradingSuggestion.Symbol]: <strong>@Symbol</strong></RadzenText>
+    <RadzenText TextStyle="TextStyle.Body2">@L[RK.TradingSuggestion.Market]: <strong>@MarketType</strong></RadzenText>
+
+    @if (MarketType == MarketType.Crypto || MarketType == MarketType.CryptoSpot)
+    {
+        <div>
+            <label class="rz-label mb-1">@L[RK.TradingSuggestion.Timeframe]</label>
+            <RadzenDropDown Data="@(MarketType == MarketType.CryptoSpot ? CryptoSpotTimeframes : CryptoTimeframes)"
+                            TValue="string"
+                            @bind-Value="_selectedTimeframe"
+                            Class="w-100" />
+        </div>
+    }
+    else if (MarketType == MarketType.Stock)
+    {
+        <RadzenStack Gap="0.5rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox TValue="bool" @bind-Value="_useLongTermTimeframe" />
+                <RadzenText TextStyle="TextStyle.Body2">@L[RK.TradingSuggestion.UseLongTermTimeframe]</RadzenText>
+            </RadzenStack>
+
+            @if (_useLongTermTimeframe)
+            {
+                <div>
+                    <label class="rz-label mb-1">@L[RK.TradingSuggestion.LongTermTimeframe]</label>
+                    <RadzenDropDown Data="@GetStockLongTimeframeOptions()"
+                                    TValue="string"
+                                    TextProperty="Text"
+                                    ValueProperty="Value"
+                                    @bind-Value="_selectedStockLongTimeframe"
+                                    Class="w-100" />
+                </div>
+            }
+        </RadzenStack>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+        <RadzenSwitch @bind-Value="_enableAiVerdict" />
+        <RadzenLabel Text="@L[RK.TradingSuggestion.EnableAiVerdict]" />
+    </RadzenStack>
+
+    <RadzenButton Text="@L[RK.TradingSuggestion.Run]"
+                  Click="FetchSuggestionAsync"
+                  Disabled="_isLoading"
+                  ButtonStyle="ButtonStyle.Primary" />
+
+    @if (_isLoading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    }
+    else if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @_error
+        </RadzenAlert>
+    }
+    else if (_result is not null)
+    {
+        <RadzenCard>
+            <RadzenStack Gap="0.4rem">
+                <RadzenText>@L[RK.TradingSuggestion.Trend]: <strong>@_result.Trend</strong></RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.Momentum]: <strong>@_result.Momentum</strong></RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.Setup]: <strong>@_result.Setup</strong></RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.Signal]: <strong>@_result.Signal</strong></RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.EntryPrice]: @Format(_result.EntryPrice)</RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.StopLoss]: @Format(_result.StopLoss)</RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.TakeProfit1]: @Format(_result.TakeProfit1)</RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.TakeProfit2]: @Format(_result.TakeProfit2)</RadzenText>
+                <RadzenText>@L[RK.TradingSuggestion.Confidence]: @_result.Confidence.ToString("P2")</RadzenText>
+            </RadzenStack>
+        </RadzenCard>
+
+        @if (_enableAiVerdict)
+        {
+            @if (_isLoadingVerdict)
+            {
+                <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+            }
+            else if (!string.IsNullOrWhiteSpace(_verdictError))
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @_verdictError
+                </RadzenAlert>
+            }
+            else if (_verdict is not null)
+            {
+                <RadzenCard>
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenBadge Text="@_verdict.Verdict"
+                                     BadgeStyle="@(_verdict.Verdict == "TRADE" ? BadgeStyle.Success : _verdict.Verdict == "NO TRADE" ? BadgeStyle.Danger : BadgeStyle.Warning)"
+                                     IsPill="true" />
+                        <RadzenText TextStyle="TextStyle.Body2">@_verdict.Reasoning</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+            }
+        }
+
+        @if (InTcbsAllTimeHoldings)
+        {
+            <div class="border-top pt-2 mt-2">
+                @if (_isLoadingPriceComparison)
+                {
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100 mt-2" />
+                }
+                else if (!string.IsNullOrWhiteSpace(_priceComparisonError))
+                {
+                    <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
+                        @_priceComparisonError
+                    </RadzenAlert>
+                }
+                else if (_priceComparison is { Count: > 0 })
+                {
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Class="mt-2 mb-1">@L[RK.TradingSuggestion.PriceComparison]</RadzenText>
+                    <div style="width: 100%; overflow-x: auto;">
+                        <RadzenDataGrid TItem="PriceComparisonPeriodDto"
+                                        Data="@_priceComparison"
+                                        AllowSorting="false"
+                                        AllowPaging="false"
+                                        Density="Density.Compact">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="PriceComparisonPeriodDto" Property="Period" Title="@L[RK.TradingSuggestion.Period]" />
+                                <RadzenDataGridColumn TItem="PriceComparisonPeriodDto" Property="BetterVolume" Title="@PriceComparisonTitle(RK.TradingSuggestion.BetterVolume, '>')">
+                                    <Template Context="item">
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="text-success fw-semibold">
+                                            @item.BetterVolume.ToString("N0") (@item.BetterPercent.ToString("F2")%)
+                                        </RadzenText>
+                                        @foreach (var p in item.Top3Highest)
+                                        {
+                                            <RadzenText TextStyle="TextStyle.Caption" Class="d-block text-secondary">
+                                                @p.Price.ToString("F2") : @FormatVolume(p.Volume)
+                                            </RadzenText>
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PriceComparisonPeriodDto" Property="WorseVolume" Title="@PriceComparisonTitle(RK.TradingSuggestion.WorseVolume, '<')">
+                                    <Template Context="item">
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="text-danger fw-semibold">
+                                            @item.WorseVolume.ToString("N0") (@item.WorsePercent.ToString("F2")%)
+                                        </RadzenText>
+                                        @foreach (var p in item.Top3Lowest)
+                                        {
+                                            <RadzenText TextStyle="TextStyle.Caption" Class="d-block text-secondary">
+                                                @p.Price.ToString("F2") : @FormatVolume(p.Volume)
+                                            </RadzenText>
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PriceComparisonPeriodDto" Property="AveragePrice" Title="@L[RK.TradingSuggestion.AveragePrice]">
+                                    <Template Context="item">
+                                        <RadzenText TextStyle="TextStyle.Body2">@item.AveragePrice.ToString("F2")</RadzenText>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                }
+                else if (_priceComparison is { Count: 0 })
+                {
+                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
+                        @L[RK.TradingSuggestion.PriceComparisonNoData]
+                    </RadzenAlert>
+                }
+            </div>
+        }
+    }
+</RadzenStack>
+
+@code {
+    private static readonly IReadOnlyList<string> CryptoTimeframes =
+    [
+        "Min1", "Min5", "Min15", "Min30", "Min60", "Hour4", "Hour8", "Day1", "Week1", "Month1"
+    ];
+
+    private static readonly IReadOnlyList<string> CryptoSpotTimeframes =
+    [
+        "Min1", "Min5", "Min15", "Min30", "Min60", "Hour4", "Day1", "Week1", "Month1"
+    ];
+
+    private TradeSuggestionDto? _result;
+    private string? _error;
+    private bool _isLoading;
+    private string _selectedTimeframe = "Min15";
+    private string _selectedStockLongTimeframe = "Week1";
+    private bool _useLongTermTimeframe;
+    private bool _enableAiVerdict;
+    private bool _isLoadingVerdict;
+    private string? _verdictError;
+    private TradeVerdictDto? _verdict;
+
+    private bool _isLoadingPriceComparison;
+    private string? _priceComparisonError;
+    private List<PriceComparisonPeriodDto>? _priceComparison;
+
+    [Parameter]
+    public required string Symbol { get; set; }
+
+    [Parameter]
+    public required MarketType MarketType { get; set; }
+
+    [Parameter]
+    public decimal? LastPrice { get; set; }
+
+    [Parameter]
+    public bool InTcbsAllTimeHoldings { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (MarketType == MarketType.Stock)
+        {
+            _selectedTimeframe = "Day1";
+        }
+
+        await FetchSuggestionAsync();
+
+        if (InTcbsAllTimeHoldings)
+        {
+            await LoadPriceComparisonAsync();
+        }
+    }
+
+    private async Task FetchSuggestionAsync()
+    {
+        _isLoading = true;
+        _error = null;
+        _result = null;
+        _verdict = null;
+        _verdictError = null;
+
+        var timeframe = MarketType == MarketType.Stock && _useLongTermTimeframe
+            ? _selectedStockLongTimeframe
+            : _selectedTimeframe;
+
+        try
+        {
+            var request = new GetTradeSuggestionRequest
+            {
+                Symbol = Symbol,
+                MarketType = MarketType,
+                Timeframe = timeframe,
+                UseLongTermTimeframe = MarketType == MarketType.Stock && _useLongTermTimeframe
+            };
+
+            _result = await ExternalDataService.GetTradeSuggestionAsync(request);
+        }
+        catch (ApiException ex)
+        {
+            _error = ex.Message;
+        }
+        catch
+        {
+            _error = L[RK.TradingSuggestion.LoadFailed];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+        if (_enableAiVerdict && _result is not null)
+        {
+            await FetchVerdictAsync(timeframe, _result);
+        }
+    }
+
+    private async Task FetchVerdictAsync(string timeframe, TradeSuggestionDto result)
+    {
+        _isLoadingVerdict = true;
+        try
+        {
+            _verdict = await ExternalDataService.GetTradeVerdictAsync(new GetTradeVerdictRequest
+            {
+                Symbol = Symbol,
+                MarketType = MarketType.ToString(),
+                Timeframe = timeframe,
+                Trend = result.Trend,
+                Momentum = result.Momentum,
+                Setup = result.Setup,
+                Signal = result.Signal,
+                EntryPrice = result.EntryPrice,
+                StopLoss = result.StopLoss,
+                TakeProfit1 = result.TakeProfit1,
+                TakeProfit2 = result.TakeProfit2,
+                Confidence = result.Confidence
+            });
+        }
+        catch
+        {
+            // The verdict is a bonus on top of the core suggestion — don't fail the whole
+            // dialog if it errors out, just show a small inline notice.
+            _verdictError = L[RK.TradingSuggestion.VerdictLoadFailed];
+        }
+        finally
+        {
+            _isLoadingVerdict = false;
+        }
+    }
+
+    private static string FormatVolume(long volume) => volume switch
+    {
+        >= 1_000_000_000 => $"{volume / 1_000_000_000f:F1}B",
+        >= 1_000_000 => $"{volume / 1_000_000f:F1}M",
+        >= 1_000 => $"{volume / 1_000f:F1}K",
+        _ => volume.ToString("N0")
+    };
+
+    private string PriceComparisonTitle(string key, char sign)
+    {
+        var baseTitle = L[key];
+        var price = LastPrice?.ToString("F2") ?? "?";
+        return $"{baseTitle} ({sign} {price})";
+    }
+
+    private async Task LoadPriceComparisonAsync()
+    {
+        _isLoadingPriceComparison = true;
+        _priceComparisonError = null;
+        _priceComparison = null;
+
+        try
+        {
+            var response = await ExternalDataService.GetTwentyFourHMoneyTransactionHistoryAsync(
+                Symbol, LastPrice);
+
+            if (response is { Success: true, Data.PriceComparison: not null })
+            {
+                _priceComparison = response.Data.PriceComparison;
+            }
+            else
+            {
+                _priceComparison = [];
+                _priceComparisonError = response.Data?.Message ?? response.Error?.Message;
+            }
+        }
+        catch (ApiException ex)
+        {
+            _priceComparisonError = ex.Message;
+        }
+        catch
+        {
+            _priceComparisonError = L[RK.TradingSuggestion.VerdictLoadFailed];
+        }
+        finally
+        {
+            _isLoadingPriceComparison = false;
+        }
+    }
+
+    private static string Format(decimal? value)
+    {
+        return value?.ToString() ?? "-";
+    }
+
+    private IReadOnlyList<TimeframeOption> GetStockLongTimeframeOptions()
+    {
+        return
+        [
+            new TimeframeOption("Week1", L[RK.TradingSuggestion.Week1]),
+            new TimeframeOption("Month1", L[RK.TradingSuggestion.Month1])
+        ];
+    }
+
+    private sealed record TimeframeOption(string Value, string Text);
+}

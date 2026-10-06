@@ -1,0 +1,17 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <div class="border rounded p-2 bg-body-tertiary">
+        <pre class="mb-0" style="white-space: pre-wrap; word-break: break-word;">@Report</pre>
+    </div>
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+        <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public string Report { get; set; } = string.Empty;
+}

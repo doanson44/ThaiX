@@ -1,0 +1,116 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IApiClientService ApiClientService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (ApiClientFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            @if (!IsEdit)
+            {
+                <RadzenColumn Size="12">
+                    <RadzenLabel Text="@L[RK.ApiClients.ClientId]" Component="clientId" />
+                    <RadzenTextBox Name="clientId"
+                                   @bind-Value="_model.ClientId"
+                                   Placeholder="@L[RK.ApiClients.ClientIdPlaceholder]"
+                                   class="w-100" />
+                    <RadzenRequiredValidator Component="clientId" Text="@L[RK.Validation.Required]" Popup="false" />
+                </RadzenColumn>
+            }
+
+            <RadzenColumn Size="12">
+                <RadzenLabel Text="@L[RK.ApiClients.Name]" Component="clientName" />
+                <RadzenTextBox Name="clientName"
+                               @bind-Value="_model.Name"
+                               class="w-100" />
+                <RadzenRequiredValidator Component="clientName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+
+            <RadzenColumn Size="12">
+                <RadzenLabel Text="@L[RK.ApiClients.Description]" Component="clientDescription" />
+                <RadzenTextArea Name="clientDescription"
+                                @bind-Value="_model.Description"
+                                Rows="3"
+                                class="w-100" />
+            </RadzenColumn>
+
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2">
+                    <RadzenButton Text="@L[RK.Common.Save]"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                    <RadzenButton Text="@L[RK.Common.Close]"
+                                  Icon="close"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@(() => DialogService.Close(false))" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public Guid? ClientGuid { get; set; }
+    [Parameter] public string? InitialName { get; set; }
+    [Parameter] public string? InitialDescription { get; set; }
+
+    private readonly ApiClientFormModel _model = new();
+    private bool _isSaving;
+
+    protected override void OnInitialized()
+    {
+        _model.Name = InitialName ?? string.Empty;
+        _model.Description = InitialDescription;
+    }
+
+    private async Task SaveAsync()
+    {
+        _isSaving = true;
+        try
+        {
+            if (IsEdit && ClientGuid.HasValue)
+            {
+                await ApiClientService.UpdateAsync(ClientGuid.Value, new UpdateApiClientRequest
+                {
+                    Name = _model.Name.Trim(),
+                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description.Trim()
+                });
+                NotificationService.NotifySuccess(L[RK.ApiClients.UpdateSuccess]);
+                DialogService.Close(true);
+            }
+            else
+            {
+                var created = await ApiClientService.CreateAsync(new CreateApiClientRequest
+                {
+                    ClientId = _model.ClientId.Trim(),
+                    Name = _model.Name.Trim(),
+                    Description = string.IsNullOrWhiteSpace(_model.Description) ? null : _model.Description.Trim()
+                });
+                NotificationService.NotifySuccess(L[RK.ApiClients.CreateSuccess]);
+                // Return the created response so the page can show the secret
+                DialogService.Close(created);
+            }
+        }
+        catch (ApiException ex)
+        {
+            var key = IsEdit ? RK.ApiClients.UpdateFailed : RK.ApiClients.CreateFailed;
+            NotificationService.NotifyError(L[key], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private sealed class ApiClientFormModel
+    {
+        public string ClientId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+}

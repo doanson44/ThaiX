@@ -1,0 +1,416 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.ExpenseTracker
+@using ThaiX.Client.Services.ExpenseTracker
+@inject IExpenseTrackerService ExpenseTrackerService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenTemplateForm TItem="ExpenseTrackerFormState" Data="_model" Submit="SaveAsync">
+    <RadzenStack Gap="1rem">
+        @switch (_model.Kind)
+        {
+            case ExpenseResourceKind.Wallet:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Name]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.Name" class="w-100" MaxLength="100" Name="Name" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Type]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Type" Data="_walletTypes" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Currency]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.Currency" class="w-100" MaxLength="10" />
+                </RadzenFormField>
+                @if (!_model.IsEdit)
+                {
+                    <RadzenFormField Text="@L[RK.ExpenseTracker.Balance]" Class="w-100">
+                        <RadzenNumeric @bind-Value="_model.InitialBalance" TValue="decimal" Min="0" class="w-100" />
+                    </RadzenFormField>
+                }
+                break;
+
+            case ExpenseResourceKind.Category:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Name]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.Name" class="w-100" MaxLength="100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Type]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Type" Data="_incomeExpenseTypes" class="w-100" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.Transaction:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Wallets]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.WalletId" Data="Wallets" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Categories]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.CategoryId" Data="Categories" TextProperty="Name" ValueProperty="Id"
+                                    AllowClear="true" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Type]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Type" Data="_incomeExpenseTypes" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Amount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Amount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.Common.CreatedAt]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.OccurredOn" ShowTime="true" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Note]" Class="w-100">
+                    <RadzenTextArea @bind-Value="_model.Note" Rows="2" class="w-100" MaxLength="500" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.Transfer:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.SourceWallet]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.SourceWalletId" Data="Wallets" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.TargetWallet]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.TargetWalletId" Data="Wallets" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Amount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Amount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.Common.CreatedAt]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.TransferredOn" ShowTime="true" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Note]" Class="w-100">
+                    <RadzenTextArea @bind-Value="_model.Note" Rows="2" class="w-100" MaxLength="500" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.Budget:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Categories]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.CategoryId" Data="Categories" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Period]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Period" Data="_periods" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Amount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Amount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.StartDate]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.StartDate" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.EndDate]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.EndDate" class="w-100" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.SavingGoal:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Wallets]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.WalletId" Data="Wallets" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Name]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.Name" class="w-100" MaxLength="100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.TargetAmount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.TargetAmount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.CurrentAmount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.CurrentAmount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.TargetDate]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.TargetDate" AllowClear="true" class="w-100" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.Tag:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Name]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.Name" class="w-100" MaxLength="100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Color]" Class="w-100">
+                    <RadzenTextBox @bind-Value="_model.ColorHex" class="w-100" MaxLength="20" Placeholder="#2563eb" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.TransactionTag:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Transaction]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.TransactionId" Data="Transactions" TextProperty="Id" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Tag]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.TagId" Data="Tags" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                break;
+
+            case ExpenseResourceKind.Recurring:
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Wallets]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.WalletId" Data="Wallets" TextProperty="Name" ValueProperty="Id" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Categories]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.CategoryId" Data="Categories" TextProperty="Name" ValueProperty="Id"
+                                    AllowClear="true" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Type]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Type" Data="_incomeExpenseTypes" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Amount]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.Amount" TValue="decimal" Min="0" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Frequency]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Frequency" Data="_frequencies" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.NextRun]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.NextRun" class="w-100" />
+                </RadzenFormField>
+                <RadzenFormField Text="@L[RK.ExpenseTracker.EndDate]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.RecurringEndDate" AllowClear="true" class="w-100" />
+                </RadzenFormField>
+                @if (_model.IsEdit)
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                        <RadzenCheckBox @bind-Value="_model.IsActive" />
+                        <RadzenLabel Text="@L[RK.Common.Enabled]" />
+                    </RadzenStack>
+                }
+                <RadzenFormField Text="@L[RK.ExpenseTracker.Note]" Class="w-100">
+                    <RadzenTextArea @bind-Value="_model.Note" Rows="2" class="w-100" MaxLength="500" />
+                </RadzenFormField>
+                break;
+        }
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light" Click="@(_ => DialogService.Close(false))" />
+            <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Disabled="_isSaving" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public ExpenseTrackerFormState State { get; set; } = new();
+    [Parameter] public IReadOnlyList<ExpenseWalletDto> Wallets { get; set; } = [];
+    [Parameter] public IReadOnlyList<ExpenseCategoryDto> Categories { get; set; } = [];
+    [Parameter] public IReadOnlyList<ExpenseTransactionDto> Transactions { get; set; } = [];
+    [Parameter] public IReadOnlyList<ExpenseTagDto> Tags { get; set; } = [];
+
+    private ExpenseTrackerFormState _model = new();
+    private bool _isSaving;
+
+    private readonly string[] _walletTypes = ["Cash", "Bank", "EWallet", "Crypto", "Other"];
+    private readonly string[] _incomeExpenseTypes = ["Income", "Expense"];
+    private readonly string[] _periods = ["Monthly", "Quarterly", "Yearly"];
+    private readonly string[] _frequencies = ["Daily", "Weekly", "Monthly", "Yearly"];
+
+    protected override void OnParametersSet()
+    {
+        _model = new ExpenseTrackerFormState
+        {
+            Kind = State.Kind,
+            IsEdit = State.IsEdit,
+            EntityId = State.EntityId,
+            Name = State.Name,
+            Type = string.IsNullOrWhiteSpace(State.Type) ? DefaultType(State.Kind) : State.Type,
+            Currency = string.IsNullOrWhiteSpace(State.Currency) ? "VND" : State.Currency,
+            InitialBalance = State.InitialBalance,
+            Amount = State.Amount,
+            TargetAmount = State.TargetAmount,
+            CurrentAmount = State.CurrentAmount,
+            WalletId = State.WalletId != Guid.Empty ? State.WalletId : Wallets.FirstOrDefault()?.Id ?? Guid.Empty,
+            CategoryId = State.CategoryId,
+            SourceWalletId = State.SourceWalletId != Guid.Empty ? State.SourceWalletId : Wallets.FirstOrDefault()?.Id ?? Guid.Empty,
+            TargetWalletId = State.TargetWalletId != Guid.Empty
+                ? State.TargetWalletId
+                : Wallets.Skip(1).FirstOrDefault()?.Id ?? Wallets.FirstOrDefault()?.Id ?? Guid.Empty,
+            TransactionId = State.TransactionId != Guid.Empty ? State.TransactionId : Transactions.FirstOrDefault()?.Id ?? Guid.Empty,
+            TagId = State.TagId != Guid.Empty ? State.TagId : Tags.FirstOrDefault()?.Id ?? Guid.Empty,
+            OccurredOn = State.OccurredOn == default ? DateTime.UtcNow : State.OccurredOn,
+            TransferredOn = State.TransferredOn == default ? DateTime.UtcNow : State.TransferredOn,
+            StartDate = State.StartDate == default ? DateTime.UtcNow.Date : State.StartDate,
+            EndDate = State.EndDate == default ? DateTime.UtcNow.Date.AddMonths(1).AddDays(-1) : State.EndDate,
+            NextRun = State.NextRun == default ? DateTime.UtcNow.Date.AddDays(1) : State.NextRun,
+            TargetDate = State.TargetDate,
+            RecurringEndDate = State.RecurringEndDate,
+            Period = string.IsNullOrWhiteSpace(State.Period) ? "Monthly" : State.Period,
+            Frequency = string.IsNullOrWhiteSpace(State.Frequency) ? "Monthly" : State.Frequency,
+            Note = State.Note,
+            ColorHex = State.ColorHex,
+            IsActive = State.IsActive,
+            ParentCategoryId = State.ParentCategoryId
+        };
+    }
+
+    private static string DefaultType(ExpenseResourceKind kind) => kind switch
+    {
+        ExpenseResourceKind.Wallet => "Cash",
+        ExpenseResourceKind.Category or ExpenseResourceKind.Transaction or ExpenseResourceKind.Recurring => "Expense",
+        _ => string.Empty
+    };
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            if (_model.IsEdit)
+                await UpdateAsync();
+            else
+                await CreateAsync();
+
+            NotificationService.NotifySuccess(L[RK.ExpenseTracker.SaveSuccess]);
+            DialogService.Close(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.ExpenseTracker.SaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task CreateAsync()
+    {
+        switch (_model.Kind)
+        {
+            case ExpenseResourceKind.Wallet:
+                await ExpenseTrackerService.CreateWalletAsync(new ExpenseWalletWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    WalletType = _model.Type,
+                    Currency = _model.Currency.Trim(),
+                    InitialBalance = _model.InitialBalance
+                });
+                break;
+            case ExpenseResourceKind.Category:
+                await ExpenseTrackerService.CreateCategoryAsync(new ExpenseCategoryWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    CategoryType = _model.Type,
+                    ParentCategoryId = _model.ParentCategoryId
+                });
+                break;
+            case ExpenseResourceKind.Transaction:
+                await ExpenseTrackerService.CreateTransactionAsync(ToTransactionRequest());
+                break;
+            case ExpenseResourceKind.Transfer:
+                await ExpenseTrackerService.CreateTransferAsync(ToTransferRequest());
+                break;
+            case ExpenseResourceKind.Budget:
+                await ExpenseTrackerService.CreateBudgetAsync(ToBudgetRequest());
+                break;
+            case ExpenseResourceKind.SavingGoal:
+                await ExpenseTrackerService.CreateSavingGoalAsync(ToSavingGoalRequest());
+                break;
+            case ExpenseResourceKind.Tag:
+                await ExpenseTrackerService.CreateTagAsync(new ExpenseTagWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    ColorHex = string.IsNullOrWhiteSpace(_model.ColorHex) ? null : _model.ColorHex.Trim()
+                });
+                break;
+            case ExpenseResourceKind.TransactionTag:
+                await ExpenseTrackerService.CreateTransactionTagAsync(new ExpenseTransactionTagWriteRequest
+                {
+                    TransactionId = _model.TransactionId,
+                    TagId = _model.TagId
+                });
+                break;
+            case ExpenseResourceKind.Recurring:
+                await ExpenseTrackerService.CreateRecurringTransactionAsync(ToRecurringRequest());
+                break;
+        }
+    }
+
+    private async Task UpdateAsync()
+    {
+        var id = _model.EntityId;
+        switch (_model.Kind)
+        {
+            case ExpenseResourceKind.Wallet:
+                await ExpenseTrackerService.UpdateWalletAsync(id, new ExpenseWalletWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    WalletType = _model.Type,
+                    Currency = _model.Currency.Trim()
+                });
+                break;
+            case ExpenseResourceKind.Category:
+                await ExpenseTrackerService.UpdateCategoryAsync(id, new ExpenseCategoryWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    CategoryType = _model.Type,
+                    ParentCategoryId = _model.ParentCategoryId
+                });
+                break;
+            case ExpenseResourceKind.Transaction:
+                await ExpenseTrackerService.UpdateTransactionAsync(id, ToTransactionRequest());
+                break;
+            case ExpenseResourceKind.Transfer:
+                await ExpenseTrackerService.UpdateTransferAsync(id, ToTransferRequest());
+                break;
+            case ExpenseResourceKind.Budget:
+                await ExpenseTrackerService.UpdateBudgetAsync(id, ToBudgetRequest());
+                break;
+            case ExpenseResourceKind.SavingGoal:
+                await ExpenseTrackerService.UpdateSavingGoalAsync(id, ToSavingGoalRequest());
+                break;
+            case ExpenseResourceKind.Tag:
+                await ExpenseTrackerService.UpdateTagAsync(id, new ExpenseTagWriteRequest
+                {
+                    Name = _model.Name.Trim(),
+                    ColorHex = string.IsNullOrWhiteSpace(_model.ColorHex) ? null : _model.ColorHex.Trim()
+                });
+                break;
+            case ExpenseResourceKind.TransactionTag:
+                await ExpenseTrackerService.UpdateTransactionTagAsync(id, new ExpenseTransactionTagWriteRequest
+                {
+                    TransactionId = _model.TransactionId,
+                    TagId = _model.TagId
+                });
+                break;
+            case ExpenseResourceKind.Recurring:
+                await ExpenseTrackerService.UpdateRecurringTransactionAsync(id, ToRecurringRequest());
+                break;
+        }
+    }
+
+    private ExpenseTransactionWriteRequest ToTransactionRequest() => new()
+    {
+        WalletId = _model.WalletId,
+        CategoryId = _model.CategoryId,
+        TransactionType = _model.Type,
+        Amount = _model.Amount,
+        OccurredOn = _model.OccurredOn,
+        Note = _model.Note
+    };
+
+    private ExpenseTransferWriteRequest ToTransferRequest() => new()
+    {
+        SourceWalletId = _model.SourceWalletId,
+        TargetWalletId = _model.TargetWalletId,
+        Amount = _model.Amount,
+        TransferredOn = _model.TransferredOn,
+        Note = _model.Note
+    };
+
+    private ExpenseBudgetWriteRequest ToBudgetRequest() => new()
+    {
+        CategoryId = _model.CategoryId ?? Guid.Empty,
+        Period = _model.Period,
+        Amount = _model.Amount,
+        StartDate = _model.StartDate,
+        EndDate = _model.EndDate
+    };
+
+    private ExpenseSavingGoalWriteRequest ToSavingGoalRequest() => new()
+    {
+        WalletId = _model.WalletId,
+        Name = _model.Name.Trim(),
+        TargetAmount = _model.TargetAmount,
+        CurrentAmount = _model.CurrentAmount,
+        TargetDate = _model.TargetDate
+    };
+
+    private ExpenseRecurringWriteRequest ToRecurringRequest() => new()
+    {
+        WalletId = _model.WalletId,
+        CategoryId = _model.CategoryId,
+        TransactionType = _model.Type,
+        Amount = _model.Amount,
+        Frequency = _model.Frequency,
+        NextRun = _model.NextRun,
+        EndDate = _model.RecurringEndDate,
+        IsActive = _model.IsActive,
+        Note = _model.Note
+    };
+}

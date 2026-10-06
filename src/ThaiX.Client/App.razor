@@ -1,0 +1,19 @@
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+<RadzenTooltip />
+
+<CascadingAuthenticationState>
+    <GlobalErrorBoundary>
+        <Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(NotFound)">
+            <Found Context="routeData">
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                    <NotAuthorized>
+                        <AccessDenied />
+                    </NotAuthorized>
+                </AuthorizeRouteView>
+                <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            </Found>
+        </Router>
+    </GlobalErrorBoundary>
+</CascadingAuthenticationState>

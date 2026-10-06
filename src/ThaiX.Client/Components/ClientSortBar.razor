@@ -1,0 +1,72 @@
+@typeparam TItem
+
+<div class="@($"tx-sort-bar w-100 {Class}")" style="@Style">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="rz-label mb-1 d-block">@Label</label>
+    }
+
+    <div class="ThaiX-input-group">
+        <RadzenDropDown TValue="string?"
+                        Data="@Options"
+                        Value="@SortKey"
+                        ValueChanged="OnSortKeyChanged"
+                        TextProperty="@nameof(SortOption<TItem>.Label)"
+                        ValueProperty="@nameof(SortOption<TItem>.Key)"
+                        Placeholder="@Placeholder"
+                        AllowClear="true"
+                        Class="tx-sort-dropdown" />
+
+        @if (HasSort)
+        {
+            <RadzenButton Icon="@(Ascending ? "arrow_upward" : "arrow_downward")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="ToggleDirectionAsync"
+                          title="@(Ascending ? AscendingLabel : DescendingLabel)" />
+        }
+        else
+        {
+            <RadzenButton Text="−"
+                          ButtonStyle="ButtonStyle.Light"
+                          Disabled="true"
+                          Class="tx-sort-direction-idle"
+                          title="@Placeholder" />
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>List of sortable fields to display in the dropdown.</summary>
+    [Parameter] public required IReadOnlyList<SortOption<TItem>> Options { get; set; }
+
+    /// <summary>The currently selected sort key (two-way bindable).</summary>
+    [Parameter] public string? SortKey { get; set; }
+    [Parameter] public EventCallback<string?> SortKeyChanged { get; set; }
+
+    /// <summary>Sort direction: true = ascending, false = descending (two-way bindable).</summary>
+    [Parameter] public bool Ascending { get; set; } = true;
+    [Parameter] public EventCallback<bool> AscendingChanged { get; set; }
+
+    /// <summary>Optional label shown above the dropdown, e.g. "Sort by".</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>Placeholder text shown inside the dropdown when no field is selected.</summary>
+    [Parameter] public string Placeholder { get; set; } = "Sort by...";
+
+    /// <summary>Tooltip for the direction toggle button when ascending.</summary>
+    [Parameter] public string AscendingLabel { get; set; } = "Ascending";
+
+    /// <summary>Tooltip for the direction toggle button when descending.</summary>
+    [Parameter] public string DescendingLabel { get; set; } = "Descending";
+
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private bool HasSort => !string.IsNullOrEmpty(SortKey);
+
+    private async Task OnSortKeyChanged(string? key)
+        => await SortKeyChanged.InvokeAsync(key);
+
+    private async Task ToggleDirectionAsync()
+        => await AscendingChanged.InvokeAsync(!Ascending);
+}

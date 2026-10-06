@@ -1,0 +1,61 @@
+@if (!_failed && !string.IsNullOrWhiteSpace(Src))
+{
+    <img src="@Src"
+         alt="@Alt"
+         class="@Class"
+         style="@Style"
+         width="@Width"
+         height="@Height"
+         @onerror="OnError" />
+}
+else if (ChildContent is not null)
+{
+    @ChildContent
+}
+else
+{
+    <div class="@FallbackClass" style="@FallbackBoxStyle" aria-hidden="true">
+        <RadzenIcon Icon="@FallbackIcon" class="safe-image-fallback__icon" />
+    </div>
+}
+
+@code {
+    [Parameter] public string? Src { get; set; }
+    [Parameter] public string? Alt { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+    [Parameter] public string? Width { get; set; }
+    [Parameter] public string? Height { get; set; }
+    [Parameter] public string FallbackIcon { get; set; } = "broken_image";
+    [Parameter] public string FallbackClass { get; set; } = "safe-image-fallback";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private bool _failed;
+    private string? _lastSrc;
+
+    private string? FallbackBoxStyle
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(Style))
+                parts.Add(Style.Trim().TrimEnd(';'));
+            if (!string.IsNullOrWhiteSpace(Width))
+                parts.Add($"width:{Width}px");
+            if (!string.IsNullOrWhiteSpace(Height))
+                parts.Add($"height:{Height}px");
+            return parts.Count == 0 ? null : string.Join(";", parts);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_lastSrc != Src)
+        {
+            _lastSrc = Src;
+            _failed = false;
+        }
+    }
+
+    private void OnError() => _failed = true;
+}

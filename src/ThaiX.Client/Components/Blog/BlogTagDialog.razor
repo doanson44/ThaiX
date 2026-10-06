@@ -1,0 +1,73 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (TagFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12">
+                <RadzenLabel Text="@L[RK.Blog.Categories.NameLabel]" />
+                <RadzenTextBox Name="tagName" @bind-Value="_model.Name" class="w-100" MaxLength="100" />
+                <RadzenRequiredValidator Component="tagName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2">
+                    <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                    <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@CloseAsync" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    private readonly TagFormModel _model = new();
+    private bool _isSaving;
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+
+        try
+        {
+            await BlogService.CreateTagAsync(new CreateTagRequest { Name = _model.Name.Trim() });
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.SaveSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Tags.SaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        await CloseDialogAfterDelayAsync(false);
+    }
+
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+
+    private sealed class TagFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+}

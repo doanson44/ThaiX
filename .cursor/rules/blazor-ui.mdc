@@ -1,0 +1,145 @@
+---
+description: Use when writing Blazor WASM pages, Razor components, layouts, or CSS for the ThaiX.Client project. Covers Radzen Blazor, Bootstrap 5 dark mode, responsive design, admin CRUD patterns, and component conventions.
+globs: src/ThaiX.Client/**
+alwaysApply: false
+---
+
+# Blazor UI Rules (ThaiX.Client)
+
+## Mandatory
+
+- Every user-facing string must use `IStringLocalizer<SharedResource>` with `ResourceKeys`.
+- No hardcoded UI text in `.razor` or `.razor.cs`.
+- Build responsive layouts with `RadzenRow` + `RadzenColumn` (`Size` + `SizeMD`/`SizeLG`).
+- Avoid fixed pixel widths and inline styles that break mobile rendering.
+
+## Theme and Layout
+
+- Bootstrap 5.3 dark mode via `data-bs-theme="dark"` on `<html>`.
+- Radzen theme: `standard-dark-base.css`.
+- Use CSS variables (`var(--bs-*)`, `var(--rz-*)`) instead of hardcoded colors.
+- `MainLayout`: default admin shell (sidebar, header, breadcrumb, content).
+- `AuthLayout`: standalone for auth pages.
+- Auth pages (`Pages/Auth/`) must use `@layout AuthLayout`.
+
+## Folder Organization and Routing (MANDATORY)
+
+All Pages and Components MUST be placed in the correct menu-grouped folder.
+
+**Pages Folder → Route Mapping:**
+
+| Folder | Route Prefix |
+|--------|-------------|
+| `Pages/Home/` | `/` |
+| `Pages/Account/` | `/account/` |
+| `Pages/Administration/` | `/admin/` |
+| `Pages/Auth/` | `/auth/` |
+| `Pages/Crm/` | `/crm/` |
+| `Pages/MarketData/` | `/market-data/` |
+| `Pages/MarketResearch/` | `/market-research/` |
+| `Pages/MasterData/` | `/master-data/` |
+| `Pages/Notification/` | `/notifications/` |
+| `Pages/Portfolio/` | `/portfolio/` |
+| `Pages/Security/` | `/security/` |
+
+**Components Folder → Namespace Mapping:**
+
+| Folder | Namespace |
+|--------|-----------|
+| `Components/Administration/` | `ThaiX.Client.Components.Administration` |
+| `Components/Crm/Contacts/` | `ThaiX.Client.Components.Crm.Contacts` |
+| `Components/Crm/Notes/` | `ThaiX.Client.Components.Crm.Notes` |
+| `Components/MarketData/Dashboard/` | `ThaiX.Client.Components.MarketData.Dashboard` |
+| `Components/MarketResearch/Market/` | `ThaiX.Client.Components.MarketResearch.Market` |
+| `Components/MasterData/` | `ThaiX.Client.Components.MasterData` |
+| `Components/Notification/` | `ThaiX.Client.Components.Notification` |
+| `Components/Portfolio/Portfolios/` | `ThaiX.Client.Components.Portfolio.Portfolios` |
+| `Components/Security/` | `ThaiX.Client.Components.Security` |
+| `Components/Shared/` | `ThaiX.Client.Components.Shared` |
+
+**New Page Checklist:** 1) Pick folder from table. 2) Place in `Pages/<Group>/`. 3) Set `@page "/<prefix>/<name>"`. 4) Update `_Imports.razor` if needed. 5) Add path to `RouteSegments.cs`. 6) Add to `NavMenu.razor`. 7) Add breadcrumb in `MainLayout.razor` → `GetSegmentLabel()`.
+
+**New Component Checklist:** 1) Pick folder from table. 2) Place in `Components/<Group>/`. 3) Set `@namespace` matching table. 4) Update `_Imports.razor` if needed. 5) Never place in `Pages/` — that's only for routable pages.
+
+## Breadcrumb
+
+- `RadzenBreadCrumb` in `MainLayout` above content.
+- Default trail from URL via `RouteSegments` and `ResourceKeys`.
+- Override via `IBreadcrumbService.Set(...)`.
+- New routes: update `RouteSegments`, `ResourceKeys`, `MainLayout.GetSegmentLabel()`.
+
+## Admin CRUD Pattern
+
+- `Data Grid + Edit Panel` pattern. Primary surface: `RadzenDataGrid`.
+- Every grid: `FilterMode="FilterMode.Advanced"`, `ShowPagingSummary="true"`, `PageSizeOptions`.
+- Use `AllowFiltering="true"` with `LoadData` (server-side).
+- Desktop (>=1200px): grid + side panel or dialog for edit.
+- Tablet (768-1199px): `RadzenDialog` for edit.
+- Mobile (<768px): compact list/card + full-width dialog.
+- No full-page navigation for CRUD. No inline forms above/below grid.
+- Row click to open edit. Delete via Radzen confirmation (not browser `confirm()`).
+
+## Responsive Conventions
+
+When implementing responsive layouts in Blazor:
+- Avoid custom JS resize listeners.
+- Use `@inject ThaiX.Client.Services.Ui.IViewportService Viewport`.
+- Use `Viewport.IsMobile`, `Viewport.IsTablet`, and `Viewport.IsDesktop`.
+- Subscribe `Viewport.OnBreakpointChanged += StateHasChanged;` and unsubscribe in `Dispose()`.
+
+## Mobile Lists (Virtualize & SortBar)
+
+- When rendering lists of cards for mobile view fallback, **never** use a simple `@foreach` loop if the dataset is large (causes extreme DOM lag).
+- **Always** wrap the mobile card loop inside a `<Virtualize Items="@_items" Context="item" OverscanCount="5">` component.
+- For client-side sorting of the rendered lists, utilize the custom `<ClientSortBar>` component paired with `SortOption<T>` records.
+
+## CSS: Utility-First
+
+- Prefer Bootstrap 5 / Radzen utility classes over `Style=` and custom CSS.
+- `class="w-100"` not `Style="width: 100%;"`.
+- Scoped `.razor.css` only for truly component-specific styles.
+- No fixed pixel widths that break on mobile.
+
+## JavaScript (Strict)
+
+- Prefer Blazor/Radzen/Bootstrap behavior first.
+- No custom JS for CRUD, modals, confirmations, or layout.
+- No `JSRuntime.InvokeVoidAsync("eval", ...)`.
+- No browser `confirm()` in admin flows.
+
+## Component Conventions
+
+- `RadzenCard` as primary container.
+- `RadzenTemplateForm` with validators for forms.
+- `RadzenStack` for layout; `Gap` over manual margins.
+- `IsBusy`/`Disabled` on submit buttons.
+- Async flags: `_isSubmitting`, `_isLoading`, `_isSaving`.
+
+## Notifications
+
+- Use `NotificationExtensions`: `NotifySuccess()`, `NotifyError()`, `NotifyInfo()`, `NotifyWarning()`.
+- Not `NotificationService.Notify()` directly.
+
+## Localization
+
+- `IStringLocalizer` with `ResourceKeys` constants from `ThaiX.Client.Constants.ResourceKeys`.
+- Use `L[Auth.LoginTitle]` not `L["Auth.Login.Title"]`.
+- Never use raw string literals for keys.
+
+## Performance
+
+- Server-side paging for large datasets.
+- Lazy loading for expensive detail content.
+- No full dataset loading into browser.
+
+## AsyncSearchSelect Usage
+
+`Shared/AsyncSearchSelect.razor` is the approved custom searchable dropdown with infinite scroll. Use it instead of `RadzenDropDown` whenever the list has more than ~20 items or needs keyword filtering.
+
+Use either server-backed loading or in-memory loading based on data size.
+`AsyncSearchSelect` cannot be a child of `RadzenFormField`; render label separately.
+Always provide these localized parameters:
+- `SearchPlaceholder="@L[ResourceKeys.Common.Search]"`
+- `LoadingText="@L[ResourceKeys.Common.Loading]"`
+- `EmptyText="@L[ResourceKeys.Common.NoDataFound]"`
+- `MoreHint="@L[ResourceKeys.MasterData.SelectScrollMore]"`
