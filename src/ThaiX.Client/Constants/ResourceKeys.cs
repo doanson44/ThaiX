@@ -1626,6 +1626,8 @@ public static class ResourceKeys
             public const string ListTitle = "Blog.Public.ListTitle";
             public const string ReadMore = "Blog.Public.ReadMore";
             public const string NoPostsFound = "Blog.Public.NoPostsFound";
+            public const string EmptyTitle = "Blog.Public.EmptyTitle";
+            public const string EmptyDescription = "Blog.Public.EmptyDescription";
             public const string MinRead = "Blog.Public.MinRead";
             public const string LoadFailed = "Blog.Public.LoadFailed";
             public const string NotFoundTitle = "Blog.Public.NotFoundTitle";
