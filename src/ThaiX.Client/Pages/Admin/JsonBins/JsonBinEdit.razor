@@ -1,0 +1,359 @@
+@page "/admin/json-bins/{Id:guid}"
+@attribute [Authorize(Policy = PermissionNames.JsonBinRead)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.JsonBins
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.JsonBins
+@inject IJsonBinService JsonBinService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.JsonBins.EditTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    @if (_loading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    }
+    else if (_model is null)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
+            @L[RK.JsonBins.NotFound]
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         JustifyContent="JustifyContent.SpaceBetween"
+                         AlignItems="AlignItems.Center"
+                         Wrap="FlexWrap.Wrap"
+                         Gap="0.5rem">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenButton Icon="arrow_back"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small"
+                                  Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H1" Class="mb-0">
+                        @L[RK.JsonBins.EditTitle]
+                    </RadzenText>
+                </RadzenStack>
+                @if (_canWrite)
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                        <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                              Icon="save"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              IsBusy="@_busy"
+                                              Disabled="@(_busy || !_codeAvailable)"
+                                              Click="@OnSubmit" />
+                        <ResponsiveIconButton Text="@L[RK.JsonBins.Share]"
+                                              Icon="share"
+                                              ButtonStyle="ButtonStyle.Info"
+                                              Disabled="@_busy"
+                                              Click="ShareAsync" />
+                        @if (_isShared)
+                        {
+                            <ResponsiveIconButton Text="@L[RK.JsonBins.RevokeShare]"
+                                                  Icon="link_off"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Disabled="@_busy"
+                                                  Click="RevokeShareAsync" />
+                        }
+                        <ResponsiveIconButton Text="@L[RK.JsonBins.Expire]"
+                                              Icon="timer_off"
+                                              ButtonStyle="ButtonStyle.Warning"
+                                              Disabled="@_busy"
+                                              Click="ExpireAsync" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+
+            <RadzenCard>
+                <RadzenTemplateForm @key="Id" TItem="UpdateJsonBinModel" Data="@_model" Submit="OnSubmit">
+                    <RadzenStack Gap="1rem">
+                        <fieldset disabled="@(!_canWrite)" class="border-0 p-0 m-0">
+                            <RadzenRow Gap="1rem" RowGap="1rem">
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenFormField Text="@L[RK.JsonBins.Code]" Class="w-100">
+                                        <RadzenTextBox @bind-Value="_model.Code" Name="Code" Class="w-100" Change="OnCodeChanged" />
+                                    </RadzenFormField>
+                                    @if (!string.IsNullOrWhiteSpace(_codeHint))
+                                    {
+                                        <RadzenAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
+                                                     Shade="Shade.Lighter"
+                                                     AllowClose="false"
+                                                     Class="rz-mt-2">
+                                            @_codeHint
+                                        </RadzenAlert>
+                                    }
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenFormField Text="@L[RK.JsonBins.Name]" Class="w-100">
+                                        <RadzenTextBox @bind-Value="_model.Name" Name="Name" Class="w-100" />
+                                    </RadzenFormField>
+                                    <RadzenRequiredValidator Component="Name" Text="@L[RK.JsonBins.NameRequired]" />
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="4">
+                                    <RadzenFormField Text="@L[RK.JsonBins.Category]" Class="w-100">
+                                        <RadzenDropDown @bind-Value="_model.Category" Data="_categories" Class="w-100" />
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="8">
+                                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" Class="rz-mt-md-4">
+                                        <RadzenCheckBox @bind-Value="_compress" Name="Compress" />
+                                        <RadzenLabel Text="@L[RK.JsonBins.Compress]" Component="Compress" />
+                                    </RadzenStack>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12">
+                                    <RadzenFormField Text="@L[RK.JsonBins.Content]" Class="w-100">
+                                        <RadzenTextArea @bind-Value="_model.ContentJson"
+                                                        Rows="@(Viewport.IsMobile ? 10 : 14)"
+                                                        Class="w-100"
+                                                        Style="font-family: monospace;" />
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </fieldset>
+
+                        @if (!string.IsNullOrWhiteSpace(_shareUrl))
+                        {
+                            <RadzenStack Gap="0.5rem">
+                                <RadzenLabel Text="@L[RK.JsonBins.ShareLink]" />
+                                <div class="d-flex gap-2 align-items-start">
+                                    <RadzenTextBox Value="@_shareUrl" ReadOnly="true" Class="w-100 font-monospace text-break" />
+                                    <RadzenButton Icon="content_copy"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Click="@CopyShareUrlAsync"
+                                                  title="@L[RK.Common.Copy]"
+                                                  aria-label="@L[RK.Common.Copy]" />
+                                </div>
+                            </RadzenStack>
+                        }
+
+                        @if (_canWrite && Viewport.IsMobile)
+                        {
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                                <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                                      Icon="save"
+                                                      ButtonStyle="ButtonStyle.Primary"
+                                                      ButtonType="ButtonType.Submit"
+                                                      IsBusy="@_busy"
+                                                      Disabled="@(_busy || !_codeAvailable)" />
+                                <ResponsiveIconButton Text="@L[RK.JsonBins.Share]"
+                                                      Icon="share"
+                                                      ButtonStyle="ButtonStyle.Info"
+                                                      Disabled="@_busy"
+                                                      Click="ShareAsync" />
+                                @if (_isShared)
+                                {
+                                    <ResponsiveIconButton Text="@L[RK.JsonBins.RevokeShare]"
+                                                          Icon="link_off"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Disabled="@_busy"
+                                                          Click="RevokeShareAsync" />
+                                }
+                                <ResponsiveIconButton Text="@L[RK.JsonBins.Expire]"
+                                                      Icon="timer_off"
+                                                      ButtonStyle="ButtonStyle.Warning"
+                                                      Disabled="@_busy"
+                                                      Click="ExpireAsync" />
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTemplateForm>
+            </RadzenCard>
+        </RadzenStack>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private UpdateJsonBinModel? _model;
+    private readonly JsonBinCategories[] _categories = Enum.GetValues<JsonBinCategories>();
+    private bool _loading = true;
+    private bool _busy;
+    private bool _canWrite;
+    private bool _codeAvailable = true;
+    private bool _compress;
+    private string? _codeHint;
+    private bool _isShared;
+    private string? _shareUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.JsonBinWrite);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        try
+        {
+            var detail = await JsonBinService.GetByIdAsync(Id);
+            _model = detail is null
+                ? null
+                : new UpdateJsonBinModel
+                {
+                    Code = detail.Code,
+                    Name = detail.Name,
+                    Category = detail.Category,
+                    ContentJson = detail.ContentJson,
+                    ContentType = detail.ContentType,
+                    Compress = detail.IsCompressed,
+                    Tags = detail.Tags,
+                    ReferenceId = detail.ReferenceId,
+                    ExpiredAtUtc = detail.ExpiredAtUtc
+                };
+            _compress = detail?.IsCompressed == true;
+            _isShared = detail?.IsShared == true;
+            _shareUrl = detail?.IsShared == true && !string.IsNullOrWhiteSpace(detail.ShareToken)
+                ? Navigation.ToAbsoluteUri($"/public/json-bins/share/{detail.ShareToken}").ToString()
+                : null;
+        }
+        catch (ApiException ex)
+        {
+            _model = null;
+            NotificationService.NotifyError(L[RK.JsonBins.LoadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task OnCodeChanged()
+    {
+        if (!_canWrite || _model is null || string.IsNullOrWhiteSpace(_model.Code))
+        {
+            _codeHint = L[RK.JsonBins.CodeKeepExisting];
+            _codeAvailable = true;
+            return;
+        }
+
+        try
+        {
+            var result = await JsonBinService.ValidateCodeAsync(_model.Code, Id);
+            _codeAvailable = result.IsAvailable;
+            _codeHint = result.Exists ? L[RK.JsonBins.CodeExists] : L[RK.JsonBins.CodeAvailable];
+        }
+        catch (ApiException ex)
+        {
+            _codeAvailable = false;
+            _codeHint = null;
+            NotificationService.NotifyError(L[RK.JsonBins.ValidateCodeFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        if (!_canWrite || _model is null) return;
+        await OnCodeChanged();
+        if (!_codeAvailable) return;
+
+        _busy = true;
+        try
+        {
+            _model.Compress = _compress;
+            _ = await JsonBinService.UpdateAsync(Id, _model);
+            NotificationService.NotifySuccess(L[RK.JsonBins.UpdateSuccess]);
+            Navigation.NavigateTo("/admin/json-bins");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ExpireAsync()
+    {
+        if (!_canWrite) return;
+        _busy = true;
+        try
+        {
+            await JsonBinService.ExpireAsync(Id);
+            NotificationService.NotifySuccess(L[RK.JsonBins.ExpireSuccess]);
+            Navigation.NavigateTo("/admin/json-bins");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.ExpireFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ShareAsync()
+    {
+        if (!_canWrite) return;
+        _busy = true;
+        try
+        {
+            var result = await JsonBinService.GenerateShareLinkAsync(Id);
+            _isShared = true;
+            _shareUrl = Navigation.ToAbsoluteUri($"/public/json-bins/share/{result.Token}").ToString();
+            NotificationService.NotifySuccess(L[RK.JsonBins.ShareSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.ShareFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task RevokeShareAsync()
+    {
+        if (!_canWrite) return;
+        _busy = true;
+        try
+        {
+            await JsonBinService.RevokeShareLinkAsync(Id);
+            _isShared = false;
+            _shareUrl = null;
+            NotificationService.NotifySuccess(L[RK.JsonBins.RevokeShareSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.RevokeShareFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task CopyShareUrlAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_shareUrl)) return;
+
+        try
+        {
+            var copied = await JS.InvokeAsync<bool>("copyTextToClipboard", _shareUrl);
+            if (!copied)
+            {
+                throw new InvalidOperationException("Clipboard copy command failed.");
+            }
+
+            NotificationService.NotifySuccess(L[RK.JsonBins.CopySuccess]);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.CopyFailed], ex.Message);
+        }
+    }
+}

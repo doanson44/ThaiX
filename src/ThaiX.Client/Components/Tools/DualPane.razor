@@ -1,0 +1,25 @@
+@inherits ThaiXPageBase
+
+@if (Viewport.IsMobile)
+{
+    <RadzenStack Gap="1rem" Class="ThaiX-tools-dual ThaiX-tools-dual--stack">
+        <div class="ThaiX-tools-dual__pane">@Left</div>
+        <div class="ThaiX-tools-dual__pane">@Right</div>
+    </RadzenStack>
+}
+else
+{
+    <RadzenRow Gap="1rem" RowGap="1rem" Class="ThaiX-tools-dual">
+        <RadzenColumn Size="12" SizeMD="6" Class="ThaiX-tools-dual__pane">
+            @Left
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" Class="ThaiX-tools-dual__pane">
+            @Right
+        </RadzenColumn>
+    </RadzenRow>
+}
+
+@code {
+    [Parameter] public RenderFragment? Left { get; set; }
+    [Parameter] public RenderFragment? Right { get; set; }
+}

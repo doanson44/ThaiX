@@ -1,0 +1,1779 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="App.Title" xml:space="preserve"><value>ThaiX Client</value></data>
+
+  <data name="Language.English" xml:space="preserve"><value>English</value></data>
+  <data name="Language.Vietnamese" xml:space="preserve"><value>Vietnamese</value></data>
+  <data name="Language.Toggle" xml:space="preserve"><value>Language</value></data>
+  <data name="Theme.Dark" xml:space="preserve"><value>Dark</value></data>
+  <data name="Theme.Light" xml:space="preserve"><value>Light</value></data>
+  <data name="Theme.Toggle" xml:space="preserve"><value>Theme</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Settings</value></data>
+
+  <data name="Menu.Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Menu.Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Menu.Logout" xml:space="preserve"><value>Logout</value></data>
+  <data name="Menu.Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Menu.Register" xml:space="preserve"><value>Register</value></data>
+  <data name="Menu.ChangePassword" xml:space="preserve"><value>Change Password</value></data>
+  <data name="Menu.TwoFactor" xml:space="preserve"><value>Two-Factor Auth</value></data>
+  <data name="Menu.PersonalData" xml:space="preserve"><value>Personal Data</value></data>
+  <data name="Menu.Users" xml:space="preserve"><value>Users</value></data>
+  <data name="Menu.Contacts" xml:space="preserve"><value>Contacts</value></data>
+  <data name="Menu.MarketData" xml:space="preserve"><value>Market Data</value></data>
+  <data name="Menu.MarketResearch" xml:space="preserve"><value>Market Research</value></data>
+  <data name="Menu.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+  <data name="Menu.CRM" xml:space="preserve"><value>CRM</value></data>
+  <data name="Menu.Portfolio" xml:space="preserve"><value>Portfolio</value></data>
+  <data name="Menu.NotificationCenter" xml:space="preserve"><value>Notification Center</value></data>
+  <data name="Menu.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Menu.Administration" xml:space="preserve"><value>Administration</value></data>
+
+  <data name="Breadcrumb.Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Breadcrumb.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+  <data name="Breadcrumb.Admin" xml:space="preserve"><value>Admin</value></data>
+  <data name="Breadcrumb.JsonBinCreate" xml:space="preserve"><value>Create</value></data>
+  <data name="Breadcrumb.JsonBinEdit" xml:space="preserve"><value>Edit</value></data>
+
+  <data name="Common.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Common.Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Common.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Common.Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Common.Home" xml:space="preserve"><value>Back to home</value></data>
+  <data name="Common.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Common.No" xml:space="preserve"><value>No</value></data>
+  <data name="Common.Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Common.Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common.UnhandledError" xml:space="preserve"><value>An unexpected error occurred</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Common.NoDataFound" xml:space="preserve"><value>No records to display</value></data>
+  <data name="Common.Enabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="Common.Disabled" xml:space="preserve"><value>Disabled</value></data>
+  <data name="Common.Actions" xml:space="preserve"><value>Actions</value></data>
+
+  <data name="Home.Welcome" xml:space="preserve"><value>Welcome to ThaiX Client</value></data>
+  <data name="Home.Description" xml:space="preserve"><value>Sign in to manage users, portfolios, and other ThaiX admin features.</value></data>
+  <data name="Home.AuthenticatedAs" xml:space="preserve"><value>Authenticated as:</value></data>
+  <data name="Home.NotAuthenticated" xml:space="preserve"><value>You are not signed in.</value></data>
+
+  <data name="Auth.AccessDenied.Title" xml:space="preserve"><value>Access denied</value></data>
+  <data name="Auth.AccessDenied.Description" xml:space="preserve"><value>You must sign in with proper permissions to continue.</value></data>
+  <data name="Auth.UsernameOrEmail" xml:space="preserve"><value>Username or email</value></data>
+  <data name="Auth.UsernameOrEmail.Placeholder" xml:space="preserve"><value>Enter username or email</value></data>
+  <data name="Auth.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Auth.Email.Placeholder" xml:space="preserve"><value>Enter email</value></data>
+  <data name="Auth.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Auth.Password.Placeholder" xml:space="preserve"><value>Enter password</value></data>
+  <data name="Auth.RememberMe" xml:space="preserve"><value>Remember me</value></data>
+  <data name="Auth.ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="Auth.ConfirmPassword.Placeholder" xml:space="preserve"><value>Re-enter password</value></data>
+  <data name="Auth.Login" xml:space="preserve"><value>Login</value></data>
+  <data name="Auth.Login.Title" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Auth.Login.Success" xml:space="preserve"><value>Login succeeded</value></data>
+  <data name="Auth.Login.Success.Detail" xml:space="preserve"><value>Your session is now active.</value></data>
+  <data name="Auth.Login.Failed" xml:space="preserve"><value>Login failed</value></data>
+  <data name="Auth.Login.Link" xml:space="preserve"><value>Do not have an account?</value></data>
+  <data name="Auth.Register" xml:space="preserve"><value>Register</value></data>
+  <data name="Auth.Register.Title" xml:space="preserve"><value>Create account</value></data>
+  <data name="Auth.Register.Description" xml:space="preserve"><value>Enter your email and password to create an account.</value></data>
+  <data name="Auth.Register.Success" xml:space="preserve"><value>Registration succeeded</value></data>
+  <data name="Auth.Register.Success.Detail" xml:space="preserve"><value>Your account was created. Please sign in.</value></data>
+  <data name="Auth.Register.Failed" xml:space="preserve"><value>Registration failed</value></data>
+  <data name="Auth.Register.Link" xml:space="preserve"><value>Already have an account? Login</value></data>
+  <data name="Auth.Logout.Success" xml:space="preserve"><value>Logged out</value></data>
+  <data name="Auth.Logout.Success.Detail" xml:space="preserve"><value>Your local token has been removed.</value></data>
+  <data name="Auth.Logout.Warning" xml:space="preserve"><value>Logout warning</value></data>
+
+  <data name="Profile.Title" xml:space="preserve"><value>My profile</value></data>
+  <data name="Profile.ChangePassword" xml:space="preserve"><value>Change password</value></data>
+  <data name="Profile.ChangePassword.Description" xml:space="preserve"><value>Enter your current password and choose a new one.</value></data>
+  <data name="Profile.ChangePassword.Success" xml:space="preserve"><value>Password changed</value></data>
+  <data name="Profile.ChangePassword.Success.Detail" xml:space="preserve"><value>Your password has been updated.</value></data>
+  <data name="Profile.ChangePassword.Failed" xml:space="preserve"><value>Password change failed</value></data>
+  <data name="Profile.CurrentPassword" xml:space="preserve"><value>Current password</value></data>
+  <data name="Profile.NewPassword" xml:space="preserve"><value>New password</value></data>
+  <data name="Profile.ConfirmNewPassword" xml:space="preserve"><value>Confirm new password</value></data>
+  <data name="Profile.UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="Profile.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Profile.EmailConfirmed" xml:space="preserve"><value>Email confirmed</value></data>
+  <data name="Profile.Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Profile.NoPermissions" xml:space="preserve"><value>No permissions assigned.</value></data>
+  <data name="Profile.LoadFailed" xml:space="preserve"><value>Failed to load profile</value></data>
+
+  <data name="Users.Title" xml:space="preserve"><value>User management</value></data>
+  <data name="Users.List.Title" xml:space="preserve"><value>Users</value></data>
+  <data name="Users.LoadFailed" xml:space="preserve"><value>Failed to load users</value></data>
+  <data name="Users.Search.Placeholder" xml:space="preserve"><value>Search by email or username...</value></data>
+  <data name="Users.Filter.All" xml:space="preserve"><value>All statuses</value></data>
+  <data name="Users.Filter.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Users.Filter.Inactive" xml:space="preserve"><value>Locked</value></data>
+  <data name="Users.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Users.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Users.EmailConfirmed" xml:space="preserve"><value>Email confirmed</value></data>
+  <data name="Users.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Users.PhoneNumber" xml:space="preserve"><value>Phone number</value></data>
+  <data name="Users.PhoneNumber.Placeholder" xml:space="preserve"><value>e.g. +84xxx, 0xxx, 84xxx (normalized on save)</value></data>
+  <data name="Users.LinkedContact" xml:space="preserve"><value>Linked contact</value></data>
+  <data name="Users.UnlinkContact" xml:space="preserve"><value>Unlink</value></data>
+  <data name="Users.NoLinkedContact" xml:space="preserve"><value>No contact linked</value></data>
+  <data name="Users.RequirePasswordChange" xml:space="preserve"><value>Require password change</value></data>
+  <data name="Users.SendActivationEmail" xml:space="preserve"><value>Send activation email</value></data>
+  <data name="Users.LockoutEnd" xml:space="preserve"><value>Lockout until</value></data>
+  <data name="Users.Create.Title" xml:space="preserve"><value>Create user</value></data>
+  <data name="Users.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="Users.Create.Success" xml:space="preserve"><value>User created</value></data>
+  <data name="Users.Create.Failed" xml:space="preserve"><value>Create user failed</value></data>
+  <data name="Users.CreatedUserId" xml:space="preserve"><value>Created user id:</value></data>
+  <data name="Users.Update.Success" xml:space="preserve"><value>User updated</value></data>
+  <data name="Users.Update.Failed" xml:space="preserve"><value>Update user failed</value></data>
+  <data name="Users.LockUser" xml:space="preserve"><value>Lock user</value></data>
+  <data name="Users.LockReason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Users.LockDurationMinutes" xml:space="preserve"><value>Duration (minutes)</value></data>
+  <data name="Users.ApplyLockout" xml:space="preserve"><value>Apply lockout</value></data>
+  <data name="Users.Lockout.Success" xml:space="preserve"><value>Lockout updated</value></data>
+  <data name="Users.Lockout.Failed" xml:space="preserve"><value>Lockout update failed</value></data>
+  <data name="Users.SetPermissions" xml:space="preserve"><value>Replace permissions</value></data>
+  <data name="Users.ApplyPermissions" xml:space="preserve"><value>Apply permissions</value></data>
+  <data name="Users.Permission.Success" xml:space="preserve"><value>Permissions updated</value></data>
+  <data name="Users.Permission.Failed" xml:space="preserve"><value>Permission update failed</value></data>
+  <data name="Users.NewPasswordOptional" xml:space="preserve"><value>New password (optional)</value></data>
+  <data name="Users.ResetPassword" xml:space="preserve"><value>Reset password</value></data>
+  <data name="Users.ResetPassword.Success" xml:space="preserve"><value>Password reset completed</value></data>
+  <data name="Users.ResetPassword.Failed" xml:space="preserve"><value>Password reset failed</value></data>
+  <data name="Users.TemporaryPassword" xml:space="preserve"><value>Temporary password:</value></data>
+  <data name="Users.OperationCompleted" xml:space="preserve"><value>Operation completed.</value></data>
+
+  <data name="Users.Tab.Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Users.Tab.Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Users.Tab.Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Users.Tab.Lockout" xml:space="preserve"><value>Lockout</value></data>
+  <data name="Users.Tab.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Users.CurrentPermissions" xml:space="preserve"><value>Current permissions</value></data>
+  <data name="Users.NoPermissionsAssigned" xml:space="preserve"><value>No permissions assigned.</value></data>
+
+  <data name="Contacts.Title" xml:space="preserve"><value>Contact management</value></data>
+  <data name="Contacts.List.Title" xml:space="preserve"><value>Contacts</value></data>
+  <data name="Contacts.Create.Title" xml:space="preserve"><value>Create contact</value></data>
+  <data name="Contacts.AddNew" xml:space="preserve"><value>Add New</value></data>
+  <data name="Contacts.Search.Label" xml:space="preserve"><value>Search</value></data>
+  <data name="Contacts.Search.Placeholder" xml:space="preserve"><value>Search by name, email, phone, company...</value></data>
+  <data name="Contacts.Filter.Tag" xml:space="preserve"><value>Tag</value></data>
+  <data name="Contacts.Filter.Archive" xml:space="preserve"><value>Status</value></data>
+  <data name="Contacts.Filter.Archive.All" xml:space="preserve"><value>All</value></data>
+  <data name="Contacts.Filter.Archive.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Contacts.Filter.Archive.Archived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Contacts.Profile.Title" xml:space="preserve"><value>Contact profile</value></data>
+  <data name="Contacts.FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="Contacts.LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="Contacts.PrimaryEmail" xml:space="preserve"><value>Primary email</value></data>
+  <data name="Contacts.PrimaryPhone" xml:space="preserve"><value>Primary phone</value></data>
+  <data name="Contacts.Company" xml:space="preserve"><value>Company</value></data>
+  <data name="Contacts.JobTitle" xml:space="preserve"><value>Job title</value></data>
+  <data name="Contacts.AvatarUrl" xml:space="preserve"><value>Avatar URL</value></data>
+  <data name="Contacts.ChangeAvatar" xml:space="preserve"><value>Change avatar</value></data>
+  <data name="Contacts.RemoveAvatar" xml:space="preserve"><value>Remove avatar</value></data>
+  <data name="Contacts.AvatarTooLarge" xml:space="preserve"><value>Avatar must not exceed 2 MB.</value></data>
+  <data name="Contacts.AvatarUploadFailed" xml:space="preserve"><value>Avatar upload failed.</value></data>
+  <data name="Contacts.Birthday" xml:space="preserve"><value>Birthday</value></data>
+  <data name="Contacts.Notes" xml:space="preserve"><value>Notes</value></data>
+  <data name="Contacts.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Contacts.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Contacts.LastUpdated" xml:space="preserve"><value>Last update</value></data>
+  <data name="Contacts.View" xml:space="preserve"><value>View</value></data>
+  <data name="Contacts.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Contacts.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Contacts.Create.Success" xml:space="preserve"><value>Contact created</value></data>
+  <data name="Contacts.Create.Failed" xml:space="preserve"><value>Create contact failed</value></data>
+  <data name="Contacts.Update.Success" xml:space="preserve"><value>Contact updated</value></data>
+  <data name="Contacts.Update.Failed" xml:space="preserve"><value>Update contact failed</value></data>
+  <data name="Contacts.Delete.Success" xml:space="preserve"><value>Contact deleted</value></data>
+  <data name="Contacts.Delete.Failed" xml:space="preserve"><value>Delete contact failed</value></data>
+  <data name="Contacts.LoadFailed" xml:space="preserve"><value>Failed to load contacts</value></data>
+  <data name="Contacts.SuggestedUsers" xml:space="preserve"><value>Suggested users (by phone)</value></data>
+  <data name="Contacts.SuggestedUsers.None" xml:space="preserve"><value>No matches by phone.</value></data>
+  <data name="Contacts.LinkUser" xml:space="preserve"><value>Link</value></data>
+  <data name="Contacts.LinkToUser.Section" xml:space="preserve"><value>Link to user (search any user)</value></data>
+  <data name="Contacts.SelectUserToLink.Placeholder" xml:space="preserve"><value>Search and select user...</value></data>
+  <data name="Contacts.LinkSelectedUser" xml:space="preserve"><value>Link selected user</value></data>
+  <data name="Contacts.LinkedUser" xml:space="preserve"><value>Linked user</value></data>
+  <data name="Contacts.UnlinkUser" xml:space="preserve"><value>Unlink</value></data>
+  <data name="Contacts.NoLinkedUser" xml:space="preserve"><value>No user linked</value></data>
+  <data name="Contacts.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this contact?</value></data>
+  <data name="Contacts.Value" xml:space="preserve"><value>Value</value></data>
+  <data name="Contacts.IsPrimary" xml:space="preserve"><value>Primary</value></data>
+  <data name="Contacts.SetAsPrimary" xml:space="preserve"><value>Set as primary</value></data>
+  <data name="Contacts.Emails" xml:space="preserve"><value>Emails</value></data>
+  <data name="Contacts.Phones" xml:space="preserve"><value>Phones</value></data>
+  <data name="Contacts.Addresses" xml:space="preserve"><value>Addresses</value></data>
+  <data name="Contacts.SocialLinks" xml:space="preserve"><value>Social links</value></data>
+  <data name="Contacts.Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="Contacts.BankAccounts" xml:space="preserve"><value>Bank accounts</value></data>
+  <data name="Contacts.IdentityDocuments" xml:space="preserve"><value>Identity documents</value></data>
+  <data name="Contacts.CustomFields" xml:space="preserve"><value>Custom fields</value></data>
+  <data name="Contacts.Tab.General" xml:space="preserve"><value>General</value></data>
+  <data name="Contacts.Tab.ContactInfo" xml:space="preserve"><value>Contact info</value></data>
+  <data name="Contacts.Street" xml:space="preserve"><value>Street</value></data>
+  <data name="Contacts.CountryCode" xml:space="preserve"><value>Country code</value></data>
+  <data name="Contacts.CityCode" xml:space="preserve"><value>City code</value></data>
+  <data name="Contacts.DistrictCode" xml:space="preserve"><value>District code</value></data>
+  <data name="Contacts.PostalCode" xml:space="preserve"><value>Postal code</value></data>
+  <data name="Contacts.Platform" xml:space="preserve"><value>Platform</value></data>
+  <data name="Contacts.Url" xml:space="preserve"><value>URL</value></data>
+  <data name="Contacts.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Contacts.BankCode" xml:space="preserve"><value>Bank code</value></data>
+  <data name="Contacts.BranchName" xml:space="preserve"><value>Branch name</value></data>
+  <data name="Contacts.AccountNumber" xml:space="preserve"><value>Account number</value></data>
+  <data name="Contacts.AccountName" xml:space="preserve"><value>Account name</value></data>
+  <data name="Contacts.CurrencyCode" xml:space="preserve"><value>Currency code</value></data>
+  <data name="Contacts.DocumentType" xml:space="preserve"><value>Document type</value></data>
+  <data name="Contacts.DocumentNumber" xml:space="preserve"><value>Document number</value></data>
+  <data name="Contacts.IssuedBy" xml:space="preserve"><value>Issued by</value></data>
+  <data name="Contacts.IssuedDate" xml:space="preserve"><value>Issued date</value></data>
+  <data name="Contacts.Key" xml:space="preserve"><value>Key</value></data>
+  <data name="Contacts.Import.Csv" xml:space="preserve"><value>Import from CSV</value></data>
+  <data name="Contacts.Import.DownloadTemplate" xml:space="preserve"><value>Download template</value></data>
+  <data name="Contacts.Import.TemplateNote" xml:space="preserve"><value>Use the standard CSV template. Convert your file to match the template columns before importing.</value></data>
+  <data name="Contacts.Import.Success" xml:space="preserve"><value>Contact import completed</value></data>
+  <data name="Contacts.Import.Failed" xml:space="preserve"><value>Contact import failed</value></data>
+  <data name="Contacts.Import.Result" xml:space="preserve"><value>Imported: {0} inserted, {1} updated, {2} skipped</value></data>
+  <data name="Contacts.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="Contacts.Export" xml:space="preserve"><value>Export CSV</value></data>
+  <data name="Contacts.Export.Success" xml:space="preserve"><value>Export completed</value></data>
+  <data name="Contacts.Export.Failed" xml:space="preserve"><value>Export failed</value></data>
+
+  <data name="NotFound.Title" xml:space="preserve"><value>Page not found</value></data>
+  <data name="NotFound.Description" xml:space="preserve"><value>The requested page does not exist.</value></data>
+
+  <data name="Health.PageTitle" xml:space="preserve"><value>Health</value></data>
+  <data name="Health.Title" xml:space="preserve"><value>Health</value></data>
+  <data name="Health.Subtitle" xml:space="preserve"><value>Quick runtime checks for frontend and backend connectivity.</value></data>
+  <data name="Health.Frontend" xml:space="preserve"><value>Frontend</value></data>
+  <data name="Health.ApiViaProxy" xml:space="preserve"><value>API via Proxy</value></data>
+  <data name="Health.ApiDirect" xml:space="preserve"><value>API Direct</value></data>
+  <data name="Health.Status.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Health.Status.Unknown" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Health.Status.Error" xml:space="preserve"><value>Error</value></data>
+
+  <data name="Validation.Required" xml:space="preserve"><value>This field is required.</value></data>
+  <data name="Validation.Email" xml:space="preserve"><value>Invalid email format.</value></data>
+  <data name="Validation.PasswordMismatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="Validation.MustBeGreaterThanZero" xml:space="preserve"><value>Must be greater than zero.</value></data>
+
+  <data name="Auth.ForgotPassword.Link" xml:space="preserve"><value>Forgot your password?</value></data>
+  <data name="Auth.Login.Link.GoToLogin" xml:space="preserve"><value>Go to login</value></data>
+  <data name="Auth.ExternalLogin.Or" xml:space="preserve"><value>OR SIGN IN WITH</value></data>
+  <data name="Auth.ExternalLogin.Google" xml:space="preserve"><value>Sign in with Google</value></data>
+  <data name="Auth.Register.ConfirmEmail.Detail" xml:space="preserve"><value>A confirmation email has been sent. Please check your inbox.</value></data>
+  <data name="Auth.ResendConfirmation.Link" xml:space="preserve"><value>Resend confirmation email</value></data>
+
+  <data name="Account.ConfirmEmail.Title" xml:space="preserve"><value>Confirm email</value></data>
+  <data name="Account.ConfirmEmail.Processing" xml:space="preserve"><value>Confirming your email...</value></data>
+  <data name="Account.ConfirmEmail.Success" xml:space="preserve"><value>Your email has been confirmed. You can now sign in.</value></data>
+  <data name="Account.ConfirmEmail.InvalidLink" xml:space="preserve"><value>Invalid confirmation link.</value></data>
+
+  <data name="Account.ResendConfirmation.Title" xml:space="preserve"><value>Resend confirmation email</value></data>
+  <data name="Account.ResendConfirmation.Description" xml:space="preserve"><value>Enter your email to receive a new confirmation link.</value></data>
+  <data name="Account.ResendConfirmation.Submit" xml:space="preserve"><value>Send confirmation link</value></data>
+  <data name="Account.ResendConfirmation.Success" xml:space="preserve"><value>If the email is registered, a new confirmation link has been sent.</value></data>
+  <data name="Account.ResendConfirmation.Failed" xml:space="preserve"><value>Request failed</value></data>
+
+  <data name="Account.ForgotPassword.Title" xml:space="preserve"><value>Forgot password</value></data>
+  <data name="Account.ForgotPassword.Description" xml:space="preserve"><value>Enter your email to receive a password reset link.</value></data>
+  <data name="Account.ForgotPassword.Submit" xml:space="preserve"><value>Send reset link</value></data>
+  <data name="Account.ForgotPassword.EmailSent" xml:space="preserve"><value>If the email is registered, a reset link has been sent.</value></data>
+  <data name="Account.ForgotPassword.Failed" xml:space="preserve"><value>Request failed</value></data>
+
+  <data name="Account.ResetPassword.Title" xml:space="preserve"><value>Reset password</value></data>
+  <data name="Account.ResetPassword.Submit" xml:space="preserve"><value>Reset password</value></data>
+  <data name="Account.ResetPassword.Success" xml:space="preserve"><value>Your password has been reset. You can now sign in.</value></data>
+  <data name="Account.ResetPassword.InvalidLink" xml:space="preserve"><value>Invalid or expired reset link.</value></data>
+  <data name="Account.ResetPassword.Failed" xml:space="preserve"><value>Password reset failed</value></data>
+
+  <data name="Account.LoginWith2fa.Title" xml:space="preserve"><value>Two-factor authentication</value></data>
+  <data name="Account.LoginWith2fa.Description" xml:space="preserve"><value>Your login requires a two-factor authentication code.</value></data>
+  <data name="Account.LoginWith2fa.NoSession" xml:space="preserve"><value>No 2FA session found. Please log in again.</value></data>
+  <data name="Account.LoginWith2fa.Code" xml:space="preserve"><value>Authenticator code</value></data>
+  <data name="Account.LoginWith2fa.Code.Placeholder" xml:space="preserve"><value>Enter 6-digit code</value></data>
+  <data name="Account.LoginWith2fa.Submit" xml:space="preserve"><value>Verify</value></data>
+  <data name="Account.LoginWith2fa.Failed" xml:space="preserve"><value>Verification failed</value></data>
+  <data name="Account.LoginWith2fa.UseRecoveryCode" xml:space="preserve"><value>Use a recovery code instead</value></data>
+  <data name="Account.LoginWith2fa.UseAuthenticatorCode" xml:space="preserve"><value>Use authenticator code</value></data>
+  <data name="Account.LoginWith2fa.RecoveryCode" xml:space="preserve"><value>Recovery code</value></data>
+  <data name="Account.LoginWith2fa.RecoveryCode.Placeholder" xml:space="preserve"><value>Enter recovery code</value></data>
+  <data name="Account.LoginWith2fa.SubmitRecovery" xml:space="preserve"><value>Verify recovery code</value></data>
+  <data name="Account.LoginWith2fa.RecoveryFailed" xml:space="preserve"><value>Recovery code verification failed</value></data>
+
+  <data name="Account.Lockout.Title" xml:space="preserve"><value>Account locked</value></data>
+  <data name="Account.Lockout.Description" xml:space="preserve"><value>Your account has been temporarily locked due to too many failed login attempts. Please try again later.</value></data>
+
+  <data name="Account.TwoFactor.Title" xml:space="preserve"><value>Two-factor authentication</value></data>
+  <data name="Account.TwoFactor.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Account.TwoFactor.Enabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="Account.TwoFactor.Disabled" xml:space="preserve"><value>Disabled</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes" xml:space="preserve"><value>Recovery codes remaining</value></data>
+  <data name="Account.TwoFactor.Setup" xml:space="preserve"><value>Set up authenticator</value></data>
+  <data name="Account.TwoFactor.Disable" xml:space="preserve"><value>Disable 2FA</value></data>
+  <data name="Account.TwoFactor.ResetKey" xml:space="preserve"><value>Reset authenticator key</value></data>
+  <data name="Account.TwoFactor.ResetKey.Success" xml:space="preserve"><value>Authenticator key has been reset</value></data>
+  <data name="Account.TwoFactor.GenerateCodes" xml:space="preserve"><value>Generate new recovery codes</value></data>
+  <data name="Account.TwoFactor.GenerateCodes.Success" xml:space="preserve"><value>New recovery codes generated</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes.New" xml:space="preserve"><value>Recovery codes</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes.Warning" xml:space="preserve"><value>Save these recovery codes in a safe place. They will not be shown again.</value></data>
+  <data name="Account.TwoFactor.Error" xml:space="preserve"><value>2FA error</value></data>
+  <data name="Account.TwoFactor.BackToStatus" xml:space="preserve"><value>Back to 2FA settings</value></data>
+
+  <data name="Account.EnableAuthenticator.Step1" xml:space="preserve"><value>Step 1: Download an authenticator app</value></data>
+  <data name="Account.EnableAuthenticator.Step1.Description" xml:space="preserve"><value>Download Microsoft Authenticator or Google Authenticator on your phone.</value></data>
+  <data name="Account.EnableAuthenticator.Step2" xml:space="preserve"><value>Step 2: Scan the QR code or enter the key</value></data>
+  <data name="Account.EnableAuthenticator.QrCodeInstruction" xml:space="preserve"><value>Scan the QR code or enter the following key manually in your authenticator app.</value></data>
+  <data name="Account.EnableAuthenticator.ManualKey" xml:space="preserve"><value>Manual entry key</value></data>
+  <data name="Account.EnableAuthenticator.Step3" xml:space="preserve"><value>Step 3: Enter the verification code</value></data>
+  <data name="Account.EnableAuthenticator.VerificationCode" xml:space="preserve"><value>Verification code</value></data>
+  <data name="Account.EnableAuthenticator.VerificationCode.Placeholder" xml:space="preserve"><value>Enter the 6-digit code from your app</value></data>
+  <data name="Account.EnableAuthenticator.Verify" xml:space="preserve"><value>Verify and enable</value></data>
+  <data name="Account.EnableAuthenticator.Success" xml:space="preserve"><value>Authenticator app has been enabled successfully!</value></data>
+  <data name="Account.EnableAuthenticator.Failed" xml:space="preserve"><value>Failed to load authenticator setup</value></data>
+  <data name="Account.EnableAuthenticator.VerifyFailed" xml:space="preserve"><value>Verification failed</value></data>
+
+  <data name="Account.ExternalLogin.Title" xml:space="preserve"><value>External login</value></data>
+  <data name="Account.ExternalLogin.Processing" xml:space="preserve"><value>Processing external login...</value></data>
+  <data name="Account.ExternalLogin.Failed" xml:space="preserve"><value>External login failed</value></data>
+
+  <data name="Account.ExternalLogins.Title" xml:space="preserve"><value>Linked accounts</value></data>
+  <data name="Account.ExternalLogins.Description" xml:space="preserve"><value>Accounts linked for sign-in. You can remove a link; ensure you have a password or another way to sign in.</value></data>
+  <data name="Account.ExternalLogins.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Account.ExternalLogins.NoLogins" xml:space="preserve"><value>No external accounts linked.</value></data>
+  <data name="Account.ExternalLogins.HasPassword" xml:space="preserve"><value>You have a password set for this account.</value></data>
+  <data name="Account.ExternalLogins.RemoveSuccess" xml:space="preserve"><value>External login removed.</value></data>
+  <data name="Account.ExternalLogins.RemoveFailed" xml:space="preserve"><value>Failed to remove external login.</value></data>
+
+  <data name="Account.PersonalData.Title" xml:space="preserve"><value>Personal data</value></data>
+  <data name="Account.PersonalData.Description" xml:space="preserve"><value>Your account contains personal data that you have given us. You can download or delete this data.</value></data>
+  <data name="Account.PersonalData.Download" xml:space="preserve"><value>Download my data</value></data>
+  <data name="Account.PersonalData.Delete" xml:space="preserve"><value>Delete my account</value></data>
+  <data name="Account.PersonalData.YourData" xml:space="preserve"><value>Your personal data</value></data>
+  <data name="Account.PersonalData.LoadFailed" xml:space="preserve"><value>Failed to load personal data</value></data>
+  <data name="Account.PersonalData.Delete.Warning" xml:space="preserve"><value>This action is irreversible. All your data will be permanently deleted.</value></data>
+  <data name="Account.PersonalData.Delete.Confirm" xml:space="preserve"><value>Delete my account permanently</value></data>
+  <data name="Account.PersonalData.Delete.Success" xml:space="preserve"><value>Your account has been deleted.</value></data>
+  <data name="Account.PersonalData.Delete.Failed" xml:space="preserve"><value>Account deletion failed</value></data>
+
+  <data name="Menu.MasterData" xml:space="preserve"><value>Master Data</value></data>
+  <data name="Menu.MasterData.Countries" xml:space="preserve"><value>Countries</value></data>
+  <data name="Menu.MasterData.Cities" xml:space="preserve"><value>Cities</value></data>
+  <data name="Menu.MasterData.Districts" xml:space="preserve"><value>Districts</value></data>
+  <data name="Menu.MasterData.Banks" xml:space="preserve"><value>Banks</value></data>
+
+  <data name="MasterData.Countries" xml:space="preserve"><value>Countries</value></data>
+  <data name="MasterData.Cities" xml:space="preserve"><value>Cities</value></data>
+  <data name="MasterData.Districts" xml:space="preserve"><value>Districts</value></data>
+  <data name="MasterData.Banks" xml:space="preserve"><value>Banks</value></data>
+  <data name="MasterData.Code" xml:space="preserve"><value>Code</value></data>
+  <data name="MasterData.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="MasterData.Country" xml:space="preserve"><value>Country</value></data>
+  <data name="MasterData.City" xml:space="preserve"><value>City</value></data>
+  <data name="MasterData.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="MasterData.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="MasterData.Import.Csv" xml:space="preserve"><value>Import from CSV</value></data>
+  <data name="MasterData.List.Title" xml:space="preserve"><value>List</value></data>
+  <data name="MasterData.Search.Placeholder" xml:space="preserve"><value>Search by code or name...</value></data>
+  <data name="MasterData.Search.Label" xml:space="preserve"><value>Search</value></data>
+  <data name="MasterData.Create.Title" xml:space="preserve"><value>Create new</value></data>
+  <data name="MasterData.Edit.Title" xml:space="preserve"><value>Edit</value></data>
+  <data name="MasterData.LoadFailed" xml:space="preserve"><value>Failed to load data</value></data>
+  <data name="MasterData.Create.Success" xml:space="preserve"><value>Created successfully</value></data>
+  <data name="MasterData.Create.Failed" xml:space="preserve"><value>Create failed</value></data>
+  <data name="MasterData.Update.Success" xml:space="preserve"><value>Updated successfully</value></data>
+  <data name="MasterData.Update.Failed" xml:space="preserve"><value>Update failed</value></data>
+  <data name="MasterData.Delete.Success" xml:space="preserve"><value>Deleted successfully</value></data>
+  <data name="MasterData.Delete.Failed" xml:space="preserve"><value>Delete failed</value></data>
+  <data name="MasterData.Import.Success" xml:space="preserve"><value>Import completed</value></data>
+  <data name="MasterData.Import.Failed" xml:space="preserve"><value>Import failed</value></data>
+  <data name="MasterData.Import.Result" xml:space="preserve"><value>Imported: {0} inserted, {1} updated, {2} skipped</value></data>
+  <data name="MasterData.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="MasterData.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this item?</value></data>
+  <data name="MasterData.Select.Placeholder" xml:space="preserve"><value>Select...</value></data>
+  <data name="MasterData.Select.Empty" xml:space="preserve"><value>No items</value></data>
+  <data name="MasterData.Select.ScrollMore" xml:space="preserve"><value>Scroll for more</value></data>
+  <data name="BankInterestRates" xml:space="preserve"><value>Bank Interest Rates</value></data>
+  <data name="1Month" xml:space="preserve"><value>1 Month</value></data>
+  <data name="3Months" xml:space="preserve"><value>3 Months</value></data>
+  <data name="6Months" xml:space="preserve"><value>6 Months</value></data>
+  <data name="9Months" xml:space="preserve"><value>9 Months</value></data>
+  <data name="12Months" xml:space="preserve"><value>12 Months</value></data>
+  <data name="24Months" xml:space="preserve"><value>24 Months</value></data>
+  <data name="PagingSummaryFormat" xml:space="preserve"><value>Page {0} of {1} ({2} items)</value></data>
+  <data name="BankInterestRates.ShowBig4Only" xml:space="preserve"><value>Show Big4 only</value></data>
+  <data name="BankInterestRates.Toolkit" xml:space="preserve"><value>Toolkit</value></data>
+  <data name="BankInterestRates.AverageRates" xml:space="preserve"><value>Average Rates</value></data>
+  <data name="BankInterestRates.CompoundInterestCalculator" xml:space="preserve"><value>Compound Interest Calculator</value></data>
+  <data name="BankInterestRates.InputSection" xml:space="preserve"><value>Input details</value></data>
+  <data name="BankInterestRates.PrincipalAmount" xml:space="preserve"><value>Principal amount</value></data>
+  <data name="BankInterestRates.TermMonths" xml:space="preserve"><value>Term</value></data>
+  <data name="BankInterestRates.AnnualRate" xml:space="preserve"><value>Annual Rate</value></data>
+  <data name="BankInterestRates.CurrencySuffixVnd" xml:space="preserve"><value>VND</value></data>
+  <data name="BankInterestRates.RateSuffixPerYear" xml:space="preserve"><value>%/year</value></data>
+  <data name="BankInterestRates.MonthsSuffix" xml:space="preserve"><value>months</value></data>
+  <data name="BankInterestRates.CalculateAction" xml:space="preserve"><value>Calculate</value></data>
+  <data name="BankInterestRates.FromBank" xml:space="preserve"><value>(from {0})</value></data>
+  <data name="BankInterestRates.NoBankSelected" xml:space="preserve"><value>No bank selected</value></data>
+  <data name="BankInterestRates.ResultSummary" xml:space="preserve"><value>Result summary</value></data>
+  <data name="BankInterestRates.FinalAmount" xml:space="preserve"><value>Final Amount</value></data>
+  <data name="BankInterestRates.Profit" xml:space="preserve"><value>Profit</value></data>
+  <data name="BankInterestRates.TotalReturn" xml:space="preserve"><value>Total return</value></data>
+  <data name="BankInterestRates.OverMonths" xml:space="preserve"><value>over {0} months</value></data>
+  <data name="Market.Title" xml:space="preserve"><value>Market Overview</value></data>
+  <data name="Market.Commodities" xml:space="preserve"><value>Commodities</value></data>
+  <data name="Market.Currencies" xml:space="preserve"><value>Currencies</value></data>
+  <data name="Market.Cryptocurrencies" xml:space="preserve"><value>Cryptocurrencies</value></data>
+  <data name="Market.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="Market.Change" xml:space="preserve"><value>Change</value></data>
+  <data name="Market.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Market.MarketCap" xml:space="preserve"><value>Market Cap</value></data>
+  <data name="Vix.Title" xml:space="preserve"><value>VIX Index</value></data>
+  <data name="Vix.LoadFailed" xml:space="preserve"><value>Failed to load VIX data.</value></data>
+  <data name="Vix.Trend" xml:space="preserve"><value>Trend</value></data>
+  <data name="Vix.Ema10" xml:space="preserve"><value>EMA 10</value></data>
+  <data name="Vix.Ema20" xml:space="preserve"><value>EMA 20</value></data>
+  <data name="Vix.Uptrend" xml:space="preserve"><value>Uptrend (Rising)</value></data>
+  <data name="Vix.Downtrend" xml:space="preserve"><value>Downtrend (Falling)</value></data>
+  <data name="Vix.Momentum3D" xml:space="preserve"><value>Momentum 3D</value></data>
+  <data name="Vix.Momentum5D" xml:space="preserve"><value>Momentum 5D</value></data>
+  <data name="Vix.Liquidity" xml:space="preserve"><value>Liquidity</value></data>
+  <data name="Vix.CapitalFlow" xml:space="preserve"><value>Capital Flow</value></data>
+  <data name="Vix.Percentile" xml:space="preserve"><value>Percentile</value></data>
+  <data name="Vix.Spike" xml:space="preserve"><value>Spike</value></data>
+  <data name="Vix.SpikeYes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Vix.SpikeNo" xml:space="preserve"><value>No</value></data>
+  <data name="Vix.RegimeRiskOn" xml:space="preserve"><value>Risk On</value></data>
+  <data name="Vix.RegimeEarlyRisk" xml:space="preserve"><value>Early Risk</value></data>
+  <data name="Vix.RegimePanic" xml:space="preserve"><value>Panic</value></data>
+  <data name="Vix.RegimeRecovery" xml:space="preserve"><value>Recovery</value></data>
+  <data name="Vix.ActionIncreaseExposure" xml:space="preserve"><value>Increase Exposure</value></data>
+  <data name="Vix.ActionReduceExposure" xml:space="preserve"><value>Reduce Exposure</value></data>
+  <data name="Vix.ActionBuildPosition" xml:space="preserve"><value>Build Position</value></data>
+  <data name="Vix.ActionReduceRisk" xml:space="preserve"><value>Reduce Risk</value></data>
+  <data name="Vix.LiquidityHigh" xml:space="preserve"><value>High</value></data>
+  <data name="Vix.LiquidityLow" xml:space="preserve"><value>Low</value></data>
+  <data name="Vix.LiquidityImproving" xml:space="preserve"><value>Improving</value></data>
+  <data name="Vix.LiquidityTightening" xml:space="preserve"><value>Tightening</value></data>
+
+  <data name="VnDirect.ChangePrices.Title" xml:space="preserve"><value>VnDirect Index Change Prices</value></data>
+  <data name="VnDirect.ChangePrices.LoadFailed" xml:space="preserve"><value>Failed to load VnDirect change prices.</value></data>
+  <data name="VnDirect.ChangePrices.IndexValue" xml:space="preserve"><value>Index</value></data>
+  <data name="VnDirect.ChangePrices.Change" xml:space="preserve"><value>Change</value></data>
+  <data name="VnDirect.ChangePrices.ChangePct" xml:space="preserve"><value>Change %</value></data>
+  <data name="VnDirect.ChangePrices.LastUpdated" xml:space="preserve"><value>Last Updated</value></data>
+  <data name="VnDirect.ChangePrices.Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="VnDirect.ChangePrices.Next" xml:space="preserve"><value>Next</value></data>
+  <data name="VnDirect.ChangePrices.PageOf" xml:space="preserve"><value>{0} / {1}</value></data>
+  <data name="VnDirect.TopStocks.Title" xml:space="preserve"><value>VnDirect Top Stocks</value></data>
+  <data name="VnDirect.TopStocks.SearchPlaceholder" xml:space="preserve"><value>Search stock code or index...</value></data>
+  <data name="VnDirect.TopStocks.NoDataFound" xml:space="preserve"><value>No top stocks found.</value></data>
+  <data name="VnDirect.TopStocks.Code" xml:space="preserve"><value>Code</value></data>
+  <data name="VnDirect.TopStocks.Index" xml:space="preserve"><value>Index</value></data>
+  <data name="VnDirect.TopStocks.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="VnDirect.TopStocks.PriceChange1D" xml:space="preserve"><value>Change (1D)</value></data>
+  <data name="VnDirect.TopStocks.PriceChangePct1D" xml:space="preserve"><value>Change% (1D)</value></data>
+  <data name="VnDirect.TopStocks.AccumulatedValue" xml:space="preserve"><value>Accumulated Value</value></data>
+  <data name="VnDirect.TopStocks.NmVolumeAvgCr20D" xml:space="preserve"><value>Avg Volume 20D</value></data>
+  <data name="VnDirect.TopStocks.NmVolNmVolAvg20DPctCr" xml:space="preserve"><value>NM Vol vs Avg 20D %</value></data>
+  <data name="VnDirect.TopStocks.TotalVolumeAvgCr20D" xml:space="preserve"><value>Total Volume Avg 20D</value></data>
+  <data name="VnDirect.TopStocks.PtVolTotalVolAvg20DPctCr" xml:space="preserve"><value>PtVol/TotalVol Avg 20D %</value></data>
+  <data name="VnDirect.TopStocks.PtVolAvg5DTotalVolAvg20DPctCr" xml:space="preserve"><value>PtVol Avg5D / TotalVol Avg20D %</value></data>
+  <data name="VnDirect.TopStocks.PtVolSumCr5D" xml:space="preserve"><value>PtVol Sum 5D</value></data>
+  <data name="VnDirect.TopStocks.PtValAvgCr5D" xml:space="preserve"><value>PtVal Avg 5D</value></data>
+  <data name="VnDirect.TopStocks.PtVolAvgCr5D" xml:space="preserve"><value>PtVol Avg 5D</value></data>
+  <data name="VnDirect.TopStocks.LastUpdated" xml:space="preserve"><value>Last Updated</value></data>
+  <data name="VnDirect.TopStocks.LongSignal" xml:space="preserve"><value>Long Signal</value></data>
+  <data name="VnDirect.TopStocks.ShortSignal" xml:space="preserve"><value>Short Signal</value></data>
+  <data name="VnDirect.TopStocks.LongBuyCount" xml:space="preserve"><value>Long Buy Count</value></data>
+  <data name="VnDirect.TopStocks.LongSellCount" xml:space="preserve"><value>Long Sell Count</value></data>
+  <data name="VnDirect.TopStocks.ShortBuyCount" xml:space="preserve"><value>Short Buy Count</value></data>
+  <data name="VnDirect.TopStocks.ShortSellCount" xml:space="preserve"><value>Short Sell Count</value></data>
+  <data name="VnDirect.TopStocks.InTcbs" xml:space="preserve"><value>In TCBS Holdings</value></data>
+  <data name="VnDirect.TopStocks.OnlyTcbsAllTimeHoldings" xml:space="preserve"><value>Only TCBS AllTime holdings</value></data>
+  <data name="VnDirect.TopStocks.DragonFundCount" xml:space="preserve"><value>Dragon Fund Count</value></data>
+  <data name="VnDirect.TopStocks.DragonTotalWeight" xml:space="preserve"><value>Dragon Total Weight</value></data>
+  <data name="VnDirect.TopStocks.EventRiskLevel" xml:space="preserve"><value>Event Risk</value></data>
+  <data name="VnDirect.TopStocks.RecentEventCount" xml:space="preserve"><value>Recent Events</value></data>
+  <data name="VnDirect.TopStocks.MostSevereEventType" xml:space="preserve"><value>Most Severe Event</value></data>
+  <data name="VnDirect.TopStocks.LatestEventEffectiveDate" xml:space="preserve"><value>Latest Event Date</value></data>
+  <data name="VnDirect.TopStocks.CompositeScore" xml:space="preserve"><value>Score</value></data>
+  <data name="VnDirect.TopStocks.TechnicalScore" xml:space="preserve"><value>Tech Score</value></data>
+  <data name="VnDirect.TopStocks.PortfolioScore" xml:space="preserve"><value>Portfolio Score</value></data>
+  <data name="VnDirect.TopStocks.EventPenalty" xml:space="preserve"><value>Event Penalty</value></data>
+  <data name="VnDirect.TopStocks.LiquidityPenalty" xml:space="preserve"><value>Liquidity Penalty</value></data>
+  <data name="VnDirect.TopStocks.DataCompleteness" xml:space="preserve"><value>Data Complete</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJob" xml:space="preserve"><value>Run Weekly Suggestion Job</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJobQueued" xml:space="preserve"><value>Weekly suggestion job has been queued.</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJobFailed" xml:space="preserve"><value>Failed to trigger weekly suggestion job.</value></data>
+  <data name="Mexc.ContractTickers.Title" xml:space="preserve"><value>MEXC Contract Tickers</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Enable" xml:space="preserve"><value>Price move alerts</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.SettingsTitle" xml:space="preserve"><value>Price move alert settings</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.SettingsHint" xml:space="preserve"><value>Notify on this device when a symbol moves by at least the absolute percent within the time window. Client-side only.</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.TimeWindowMinutes" xml:space="preserve"><value>Time window (minutes)</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercent" xml:space="preserve"><value>Absolute price change (%)</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercentHint" xml:space="preserve"><value>Applies to both up and down moves (e.g. 10 = ±10%).</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.ActiveSummary" xml:space="preserve"><value>{0} min / ±{1}%</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AlertTitle" xml:space="preserve"><value>Price move alert</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} moved {1} in {4} min ({2} → {3})</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Enabled" xml:space="preserve"><value>Price move alerts enabled</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Price move alerts disabled</value></data>
+  <data name="Mexc.ContractTickers.SocketTitle" xml:space="preserve"><value>MEXC Contract Tickers (WebSocket)</value></data>
+  <data name="Mexc.ContractTickers.LoadFailed" xml:space="preserve"><value>Failed to load MEXC contract tickers.</value></data>
+  <data name="Mexc.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Search contract symbol...</value></data>
+  <data name="Mexc.ContractTickers.NoDataFound" xml:space="preserve"><value>No contract tickers found.</value></data>
+  <data name="Mexc.ContractTickers.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="Mexc.ContractTickers.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="Mexc.ContractTickers.Bid1" xml:space="preserve"><value>Bid</value></data>
+  <data name="Mexc.ContractTickers.Ask1" xml:space="preserve"><value>Ask</value></data>
+  <data name="Mexc.ContractTickers.High24Price" xml:space="preserve"><value>24h High</value></data>
+  <data name="Mexc.ContractTickers.Low24Price" xml:space="preserve"><value>24h Low</value></data>
+  <data name="Mexc.ContractTickers.Volume24" xml:space="preserve"><value>24h Volume</value></data>
+  <data name="Mexc.ContractTickers.Amount24" xml:space="preserve"><value>24h Amount</value></data>
+  <data name="Mexc.ContractTickers.RiseFallRate" xml:space="preserve"><value>Change Rate</value></data>
+  <data name="Mexc.ContractTickers.RiseFallValue" xml:space="preserve"><value>Rise/fall value</value></data>
+  <data name="Mexc.ContractTickers.ContractId" xml:space="preserve"><value>Contract Id</value></data>
+  <data name="Mexc.ContractTickers.HoldVol" xml:space="preserve"><value>Hold volume</value></data>
+  <data name="Mexc.ContractTickers.FundingRate" xml:space="preserve"><value>Funding rate</value></data>
+  <data name="Mexc.ContractTickers.IndexPrice" xml:space="preserve"><value>Index price</value></data>
+  <data name="Mexc.ContractTickers.FairPrice" xml:space="preserve"><value>Fair price</value></data>
+  <data name="Mexc.ContractTickers.MaxBidPrice" xml:space="preserve"><value>Max bid price</value></data>
+  <data name="Mexc.ContractTickers.MinAskPrice" xml:space="preserve"><value>Min ask price</value></data>
+  <data name="Mexc.ContractTickers.Timestamp" xml:space="preserve"><value>Timestamp</value></data>
+  <data name="Mexc.ContractTickers.CompositeScore" xml:space="preserve"><value>Score</value></data>
+  <data name="Mexc.SpotTicker24Hr.Title" xml:space="preserve"><value>MEXC Spot Ticker 24h</value></data>
+  <data name="Mexc.SpotTicker24Hr.SocketTitle" xml:space="preserve"><value>MEXC Spot Mini Ticker (WebSocket)</value></data>
+  <data name="Mexc.SpotTicker24Hr.LoadFailed" xml:space="preserve"><value>Failed to load MEXC spot ticker data.</value></data>
+  <data name="Mexc.SpotTicker24Hr.SearchPlaceholder" xml:space="preserve"><value>Search symbol...</value></data>
+  <data name="Mexc.SpotTicker24Hr.NoDataFound" xml:space="preserve"><value>No spot tickers found.</value></data>
+  <data name="Mexc.SpotTicker24Hr.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="Mexc.SpotTicker24Hr.PriceChange" xml:space="preserve"><value>Price Change</value></data>
+  <data name="Mexc.SpotTicker24Hr.PriceChangePercent" xml:space="preserve"><value>Change %</value></data>
+  <data name="Mexc.SpotTicker24Hr.PrevClosePrice" xml:space="preserve"><value>Prev Close</value></data>
+  <data name="Mexc.SpotTicker24Hr.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.BidPrice" xml:space="preserve"><value>Bid Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.BidQty" xml:space="preserve"><value>Bid Qty</value></data>
+  <data name="Mexc.SpotTicker24Hr.AskPrice" xml:space="preserve"><value>Ask Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.AskQty" xml:space="preserve"><value>Ask Qty</value></data>
+  <data name="Mexc.SpotTicker24Hr.OpenPrice" xml:space="preserve"><value>Open Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.HighPrice" xml:space="preserve"><value>High Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.LowPrice" xml:space="preserve"><value>Low Price</value></data>
+  <data name="Mexc.SpotTicker24Hr.Volume" xml:space="preserve"><value>Volume</value></data>
+  <data name="Mexc.SpotTicker24Hr.QuoteVolume" xml:space="preserve"><value>Quote Volume</value></data>
+  <data name="Mexc.SpotTicker24Hr.OpenTime" xml:space="preserve"><value>Open Time</value></data>
+  <data name="Mexc.SpotTicker24Hr.CloseTime" xml:space="preserve"><value>Close Time</value></data>
+  <data name="Mexc.SpotTicker24Hr.Count" xml:space="preserve"><value>Count</value></data>
+  <data name="Mexc.SpotTicker24Hr.CompositeScore" xml:space="preserve"><value>Score</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJob" xml:space="preserve"><value>Run Weekly Suggestion Job</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJobQueued" xml:space="preserve"><value>Weekly spot suggestion job has been queued.</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJobFailed" xml:space="preserve"><value>Failed to trigger weekly spot suggestion job.</value></data>
+    <data name="Mexc.SpotTicker24Hr.Rate" xml:space="preserve"><value>Rate (UTC+8)</value></data>
+    <data name="Mexc.SpotTicker24Hr.ZonedRate" xml:space="preserve"><value>Rate (Local)</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseRate" xml:space="preserve"><value>Prev Close Rate</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseZonedRate" xml:space="preserve"><value>Prev Close Rate (Local)</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseHigh" xml:space="preserve"><value>Prev Close High</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseLow" xml:space="preserve"><value>Prev Close Low</value></data>
+    <data name="Vix.CapitalFlowIntoRisk" xml:space="preserve"><value>Into Risk Assets</value></data>
+  <data name="Vix.CapitalFlowIntoSafe" xml:space="preserve"><value>Into Safe Assets</value></data>
+  <data name="Vix.CapitalFlowReEntry" xml:space="preserve"><value>Gradual Risk Re-entry</value></data>
+  <data name="Vix.CapitalFlowDefensive" xml:space="preserve"><value>Defensive Rotation</value></data>
+  <data name="Vix.AiAssessmentTitle" xml:space="preserve"><value>AI Assessment</value></data>
+  <data name="Vix.GetAiAssessment" xml:space="preserve"><value>Get AI Assessment</value></data>
+  <data name="Vix.AiAssessmentLoadFailed" xml:space="preserve"><value>Could not load AI assessment. Please try again.</value></data>
+  <data name="CoinGecko.Title" xml:space="preserve"><value>CoinGecko</value></data>
+  <data name="CoinGecko.CoinList" xml:space="preserve"><value>Coin List</value></data>
+  <data name="CoinGecko.CoinName" xml:space="preserve"><value>Coin</value></data>
+  <data name="CoinGecko.SelectCoinHint" xml:space="preserve"><value>Select a coin to see details.</value></data>
+  <data name="CoinGecko.DetailsTitle" xml:space="preserve"><value>Coin Details</value></data>
+  <data name="CoinGecko.CurrentPrice" xml:space="preserve"><value>Current Price</value></data>
+  <data name="CoinGecko.MarketCapRank" xml:space="preserve"><value>Market Cap Rank</value></data>
+  <data name="CoinGecko.High24H" xml:space="preserve"><value>24h High</value></data>
+  <data name="CoinGecko.Low24H" xml:space="preserve"><value>24h Low</value></data>
+  <data name="CoinGecko.PriceChange24H" xml:space="preserve"><value>24h Change</value></data>
+  <data name="CoinGecko.LoadListFailed" xml:space="preserve"><value>Failed to load coin list.</value></data>
+  <data name="CoinGecko.LoadDetailFailed" xml:space="preserve"><value>Failed to load coin details.</value></data>
+  <data name="BankDepositRates.Title" xml:space="preserve"><value>Bank Deposit Rates</value></data>
+  <data name="BankDepositRates.Subtitle" xml:space="preserve"><value>Deposit interest rates by term, for the online channel and at the counter.</value></data>
+  <data name="BankDepositRates.OnlineChannel" xml:space="preserve"><value>Online Channel</value></data>
+  <data name="BankDepositRates.OfflineChannel" xml:space="preserve"><value>At the Counter</value></data>
+  <data name="BankDepositRates.Bank" xml:space="preserve"><value>Bank</value></data>
+  <data name="BankDepositRates.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="BankDepositRates.SearchPlaceholder" xml:space="preserve"><value>Search by bank name...</value></data>
+  <data name="BankDepositRates.UpdatedAt" xml:space="preserve"><value>Updated at: {0}</value></data>
+  <data name="BankDepositRates.LoadFailed" xml:space="preserve"><value>Failed to load bank deposit rates.</value></data>
+  <data name="SacombankExchangeRates.Title" xml:space="preserve"><value>Sacombank Exchange Rates</value></data>
+  <data name="SacombankExchangeRates.CurrencyCode" xml:space="preserve"><value>Code</value></data>
+  <data name="SacombankExchangeRates.BidInCash" xml:space="preserve"><value>Bid (Cash)</value></data>
+  <data name="SacombankExchangeRates.BidInTransfer" xml:space="preserve"><value>Bid (Transfer)</value></data>
+  <data name="SacombankExchangeRates.OfferInCash" xml:space="preserve"><value>Offer (Cash)</value></data>
+  <data name="SacombankExchangeRates.OfferInTransfer" xml:space="preserve"><value>Offer (Transfer)</value></data>
+  <data name="SacombankExchangeRates.CreatedDate" xml:space="preserve"><value>Created Date</value></data>
+  <data name="SacombankExchangeRates.UpdatedAt" xml:space="preserve"><value>Updated at: {0}</value></data>
+  <data name="SacombankExchangeRates.LoadFailed" xml:space="preserve"><value>Failed to load Sacombank exchange rates.</value></data>
+  <data name="CurrencyConverter.Title" xml:space="preserve"><value>Currency Converter</value></data>
+  <data name="CurrencyConverter.FromCurrency" xml:space="preserve"><value>From</value></data>
+  <data name="CurrencyConverter.ToCurrency" xml:space="preserve"><value>To</value></data>
+  <data name="CurrencyConverter.Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="CurrencyConverter.Swap" xml:space="preserve"><value>Swap</value></data>
+  <data name="CurrencyConverter.RateType" xml:space="preserve"><value>Rate type</value></data>
+  <data name="CurrencyConverter.Cash" xml:space="preserve"><value>Cash</value></data>
+  <data name="CurrencyConverter.Transfer" xml:space="preserve"><value>Transfer</value></data>
+  <data name="CurrencyConverter.ConvertedResult" xml:space="preserve"><value>Result</value></data>
+  <data name="CurrencyConverter.SelectCurrency" xml:space="preserve"><value>Select currency</value></data>
+  <data name="Menu.CommandTester" xml:space="preserve"><value>Command Tester</value></data>
+  <data name="Menu.AiTester" xml:space="preserve"><value>AI Tester</value></data>
+  <data name="ChainBrokerFunds.Title" xml:space="preserve"><value>ChainBroker Funds</value></data>
+  <data name="ChainBrokerFunds.SearchPlaceholder" xml:space="preserve"><value>Search by name or slug...</value></data>
+  <data name="ChainBrokerFunds.NoDataFound" xml:space="preserve"><value>No funds found.</value></data>
+  <data name="ChainBrokerFunds.LoadFailed" xml:space="preserve"><value>Failed to load funds.</value></data>
+  <data name="ChainBrokerFunds.SyncSuccess" xml:space="preserve"><value>Sync job queued successfully.</value></data>
+  <data name="ChainBrokerFunds.SyncFailed" xml:space="preserve"><value>Failed to trigger sync.</value></data>
+  <data name="ChainBrokerFunds.ColName" xml:space="preserve"><value>Name</value></data>
+  <data name="ChainBrokerFunds.ColFundType" xml:space="preserve"><value>Fund Type</value></data>
+  <data name="ChainBrokerFunds.ColStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="ChainBrokerFunds.ColProjectCount" xml:space="preserve"><value>Projects</value></data>
+  <data name="ChainBrokerFunds.ColAvgRoi" xml:space="preserve"><value>Avg ROI</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange24h" xml:space="preserve"><value>Avg 24h %</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange7d" xml:space="preserve"><value>Avg 7d %</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange30d" xml:space="preserve"><value>Avg 30d %</value></data>
+  <data name="ChainBrokerFunds.ColYearFounded" xml:space="preserve"><value>Founded</value></data>
+  <data name="ChainBrokerFunds.ColLastInvestment" xml:space="preserve"><value>Last Investment</value></data>
+  <data name="ChainBrokerFunds.ColGainers" xml:space="preserve"><value>Gainers</value></data>
+  <data name="ChainBrokerFunds.ColLosers" xml:space="preserve"><value>Losers</value></data>
+  <data name="ChainBrokerFunds.SyncButton" xml:space="preserve"><value>Sync Data</value></data>
+  <data name="ChainBrokerFunds.SyncConfirmTitle" xml:space="preserve"><value>Confirm Sync</value></data>
+  <data name="ChainBrokerFunds.SyncConfirmMessage" xml:space="preserve"><value>This will queue a background job to sync all ChainBroker data. Continue?</value></data>
+  <data name="ChainBrokerProjects.Title" xml:space="preserve"><value>ChainBroker Projects</value></data>
+  <data name="ChainBrokerProjects.SearchPlaceholder" xml:space="preserve"><value>Search by name, slug or ticker...</value></data>
+  <data name="ChainBrokerProjects.NoDataFound" xml:space="preserve"><value>No projects found.</value></data>
+  <data name="ChainBrokerProjects.LoadFailed" xml:space="preserve"><value>Failed to load projects.</value></data>
+  <data name="ChainBrokerProjects.ColName" xml:space="preserve"><value>Name</value></data>
+  <data name="ChainBrokerProjects.ColTicker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="ChainBrokerProjects.ColRank" xml:space="preserve"><value>Rank</value></data>
+  <data name="ChainBrokerProjects.ColCurrentPrice" xml:space="preserve"><value>Price (USD)</value></data>
+  <data name="ChainBrokerProjects.ColPublicPrice" xml:space="preserve"><value>Public Price</value></data>
+  <data name="ChainBrokerProjects.ColPrivatePrice" xml:space="preserve"><value>Private Price</value></data>
+  <data name="ChainBrokerProjects.ColAthPrice" xml:space="preserve"><value>ATH Price</value></data>
+  <data name="ChainBrokerProjects.ColPublicRoi" xml:space="preserve"><value>Public ROI</value></data>
+  <data name="ChainBrokerProjects.ColPrivateRoi" xml:space="preserve"><value>Private ROI</value></data>
+  <data name="ChainBrokerProjects.ColPublicAthRoi" xml:space="preserve"><value>Public ATH ROI</value></data>
+  <data name="ChainBrokerProjects.ColPrivateAthRoi" xml:space="preserve"><value>Private ATH ROI</value></data>
+  <data name="ChainBrokerProjects.ColBrokerScore" xml:space="preserve"><value>Broker Score</value></data>
+  <data name="ChainBrokerProjects.ColSecurityScore" xml:space="preserve"><value>Security Score</value></data>
+  <data name="ChainBrokerProjects.ColTwitterScore" xml:space="preserve"><value>Twitter Score</value></data>
+  <data name="ChainBrokerProjects.ColPublicRaise" xml:space="preserve"><value>Public Raise</value></data>
+  <data name="ChainBrokerProjects.ColPrivateRaise" xml:space="preserve"><value>Private Raise</value></data>
+  <data name="ChainBrokerProjects.ColTotalRaise" xml:space="preserve"><value>Total Raise</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange24h" xml:space="preserve"><value>24h %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange7d" xml:space="preserve"><value>7d %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange30d" xml:space="preserve"><value>30d %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange1y" xml:space="preserve"><value>1y %</value></data>
+  <data name="ChainBrokerProjects.ColMarketCap" xml:space="preserve"><value>Market Cap</value></data>
+  <data name="ChainBrokerProjects.ColFdmc" xml:space="preserve"><value>FDMC</value></data>
+  <data name="ChainBrokerProjects.ColVolume24h" xml:space="preserve"><value>Volume 24h</value></data>
+  <data name="ChainBrokerProjects.ColCurrentCirculation" xml:space="preserve"><value>Current Circulation</value></data>
+  <data name="ChainBrokerProjects.ColTotalCirculation" xml:space="preserve"><value>Total Circulation</value></data>
+  <data name="ChainBrokerProjects.ColPercentCirculating" xml:space="preserve"><value>% Circulating</value></data>
+  <data name="ChainBrokerProjects.ColPrivateAnnounceDate" xml:space="preserve"><value>Private Announce Date</value></data>
+  <data name="ChainBrokerProjects.ColListingDate" xml:space="preserve"><value>Listing Date</value></data>
+  <data name="ChainBrokerProjects.ColIdoDate" xml:space="preserve"><value>IDO Date</value></data>
+  <data name="ChainBrokerProjects.ColNextUnlockDate" xml:space="preserve"><value>Next Unlock Date</value></data>
+  <data name="ChainBrokerProjects.ColFundCount" xml:space="preserve"><value># Funds</value></data>
+  <data name="ChainBrokerProjects.ColBlockchains" xml:space="preserve"><value>Blockchains</value></data>
+  <data name="ChainBrokerProjects.SyncSuccess" xml:space="preserve"><value>Sync job queued successfully.</value></data>
+  <data name="ChainBrokerProjects.SyncFailed" xml:space="preserve"><value>Failed to trigger sync.</value></data>
+  <data name="ChainBrokerProjects.SyncButton" xml:space="preserve"><value>Sync Data</value></data>
+  <data name="ChainBrokerProjects.SyncConfirmTitle" xml:space="preserve"><value>Confirm Sync</value></data>
+  <data name="ChainBrokerProjects.SyncConfirmMessage" xml:space="preserve"><value>This will queue a background job to sync all ChainBroker projects. Continue?</value></data>
+  <data name="ChainBrokerProjects.FilterByFund" xml:space="preserve"><value>Filter by fund</value></data>
+  <data name="ChainBrokerUnlocks.Title" xml:space="preserve"><value>ChainBroker Unlocks</value></data>
+  <data name="ChainBrokerUnlocks.SearchPlaceholder" xml:space="preserve"><value>Search by name, slug or ticker...</value></data>
+  <data name="ChainBrokerUnlocks.NoDataFound" xml:space="preserve"><value>No unlocks found.</value></data>
+  <data name="ChainBrokerUnlocks.LoadFailed" xml:space="preserve"><value>Failed to load unlocks.</value></data>
+  <data name="ChainBrokerUnlocks.ColName" xml:space="preserve"><value>Name</value></data>
+  <data name="ChainBrokerUnlocks.ColTicker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="ChainBrokerUnlocks.ColNextUnlockDate" xml:space="preserve"><value>Next Unlock</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockAmount" xml:space="preserve"><value>Amount</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockValueUsd" xml:space="preserve"><value>Value (USD)</value></data>
+  <data name="ChainBrokerUnlocks.ColRoundName" xml:space="preserve"><value>Round</value></data>
+  <data name="ChainBrokerUnlocks.ColCirculationPercent" xml:space="preserve"><value>Circ. %</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockPercent" xml:space="preserve"><value>Unlock %</value></data>
+  <data name="ChainBrokerUnlocks.ColVolume24h" xml:space="preserve"><value>Volume 24h</value></data>
+  <data name="ChainBrokerUnlocks.ColPriceChange24h" xml:space="preserve"><value>24h %</value></data>
+  <data name="ChainBrokerUnlocks.ColPriceChange7d" xml:space="preserve"><value>7d %</value></data>
+  <data name="ChainBrokerUnlocks.SyncSuccess" xml:space="preserve"><value>Sync job queued successfully.</value></data>
+  <data name="ChainBrokerUnlocks.SyncFailed" xml:space="preserve"><value>Failed to trigger sync.</value></data>
+  <data name="ChainBrokerUnlocks.SyncButton" xml:space="preserve"><value>Sync Data</value></data>
+  <data name="ChainBrokerUnlocks.SyncConfirmTitle" xml:space="preserve"><value>Confirm Sync</value></data>
+  <data name="ChainBrokerUnlocks.SyncConfirmMessage" xml:space="preserve"><value>This will queue a background job to sync all ChainBroker unlocks. Continue?</value></data>
+  <data name="SlackCommands.Description" xml:space="preserve"><value>Execute Slack bot commands and inspect sync or async responses.</value></data>
+  <data name="SlackCommands.Channel" xml:space="preserve"><value>Channel</value></data>
+  <data name="SlackCommands.ExternalUserId" xml:space="preserve"><value>External User Id</value></data>
+  <data name="SlackCommands.ExternalChannelId" xml:space="preserve"><value>External Channel Id</value></data>
+  <data name="SlackCommands.ChannelPlaceholder" xml:space="preserve"><value>Select a channel</value></data>
+  <data name="SlackCommands.ChannelLoadFailed" xml:space="preserve"><value>Failed to load configured channels. You can still enter a channel id manually.</value></data>
+  <data name="SlackCommands.SampleCommands" xml:space="preserve"><value>Sample Commands</value></data>
+  <data name="SlackCommands.SampleCommandsHint" xml:space="preserve"><value>Click a command to fill the text box</value></data>
+  <data name="SlackCommands.RawCommand" xml:space="preserve"><value>Raw Command</value></data>
+  <data name="SlackCommands.RawCommandHint" xml:space="preserve"><value>Example: /help, /pc BTCUSDT, /signal BTCUSDT --async</value></data>
+  <data name="SlackCommands.ExecuteButton" xml:space="preserve"><value>Execute Command</value></data>
+  <data name="SlackCommands.ExecuteSuccess" xml:space="preserve"><value>Command executed successfully.</value></data>
+  <data name="SlackCommands.ExecuteFailed" xml:space="preserve"><value>Failed to execute command.</value></data>
+  <data name="SlackCommands.ExecutionResult" xml:space="preserve"><value>Execution Result</value></data>
+  <data name="SlackCommands.NoExecutionResult" xml:space="preserve"><value>Execute a command to see the immediate response.</value></data>
+  <data name="SlackCommands.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="SlackCommands.ExecutionId" xml:space="preserve"><value>Execution Id</value></data>
+  <data name="SlackCommands.PlainText" xml:space="preserve"><value>Plain Text</value></data>
+  <data name="SlackCommands.ErrorCode" xml:space="preserve"><value>Error Code</value></data>
+  <data name="AiTester.Title" xml:space="preserve"><value>AI Provider Tester</value></data>
+  <data name="AiTester.Description" xml:space="preserve"><value>Send a prompt to the backend AI endpoint and inspect provider fallback output.</value></data>
+  <data name="AiTester.SystemPromptOptional" xml:space="preserve"><value>System prompt (optional)</value></data>
+  <data name="AiTester.Prompt" xml:space="preserve"><value>Prompt</value></data>
+  <data name="AiTester.PromptHint" xml:space="preserve"><value>Write a clear prompt to validate quality and fallback behavior.</value></data>
+  <data name="AiTester.GenerateButton" xml:space="preserve"><value>Generate</value></data>
+  <data name="AiTester.GenerateSuccess" xml:space="preserve"><value>AI response generated successfully.</value></data>
+  <data name="AiTester.GenerateFailed" xml:space="preserve"><value>AI generation failed.</value></data>
+  <data name="AiTester.Result" xml:space="preserve"><value>Generation Result</value></data>
+  <data name="AiTester.NoResult" xml:space="preserve"><value>No result yet. Submit a prompt to test AI providers.</value></data>
+  <data name="AiTester.Provider" xml:space="preserve"><value>Provider</value></data>
+  <data name="AiTester.Model" xml:space="preserve"><value>Model</value></data>
+  <data name="AiTester.Output" xml:space="preserve"><value>Output</value></data>
+  <data name="AiTester.Max12000" xml:space="preserve"><value>Max 12000 characters.</value></data>
+
+  <data name="TcbsTop10.Title" xml:space="preserve"><value>TCBS Top 10 Portfolios</value></data>
+  <data name="TcbsTop10.NoDataFound" xml:space="preserve"><value>No portfolios found.</value></data>
+  <data name="TcbsTop10.LoadFailed" xml:space="preserve"><value>Failed to load TCBS Top 10 portfolios.</value></data>
+  <data name="TcbsTop10.PostedAt" xml:space="preserve"><value>Posted</value></data>
+  <data name="TcbsTop10.EffectiveDate" xml:space="preserve"><value>Effective Date</value></data>
+  <data name="TcbsTop10.AddedTickers" xml:space="preserve"><value>Added</value></data>
+  <data name="TcbsTop10.RemovedTickers" xml:space="preserve"><value>Removed</value></data>
+  <data name="TcbsTop10.ImagePortfolioDetail" xml:space="preserve"><value>Portfolio Detail</value></data>
+  <data name="TcbsTop10.ImagePeriodPerformance" xml:space="preserve"><value>Period Performance</value></data>
+  <data name="TcbsTop10.ImageYtdPerformance" xml:space="preserve"><value>YTD Performance</value></data>
+  <data name="TcbsTop10.Images" xml:space="preserve"><value>Images</value></data>
+  <data name="TcbsTop10.SyncButton" xml:space="preserve"><value>Sync Data</value></data>
+  <data name="TcbsTop10.SyncSuccess" xml:space="preserve"><value>Sync job queued successfully.</value></data>
+  <data name="TcbsTop10.SyncFailed" xml:space="preserve"><value>Failed to trigger sync.</value></data>
+  <data name="TcbsTop10.CurrentHoldings" xml:space="preserve"><value>Current Holdings</value></data>
+  <data name="DragonCapitalFunds.Title" xml:space="preserve"><value>Dragon Capital Funds</value></data>
+  <data name="DragonCapitalFunds.NoDataFound" xml:space="preserve"><value>No data found.</value></data>
+  <data name="DragonCapitalFunds.LoadFailed" xml:space="preserve"><value>Failed to load fund data.</value></data>
+  <data name="DragonCapitalFunds.TradingDate" xml:space="preserve"><value>Trading Date</value></data>
+  <data name="DragonCapitalFunds.Top10Holdings" xml:space="preserve"><value>Top 10 Holdings</value></data>
+  <data name="DragonCapitalFunds.AssetAllocation" xml:space="preserve"><value>Asset Allocation</value></data>
+  <data name="DragonCapitalFunds.SectorAllocation" xml:space="preserve"><value>Sector Allocation</value></data>
+  <data name="DragonCapitalFunds.ColAssetId" xml:space="preserve"><value>Stock</value></data>
+  <data name="DragonCapitalFunds.ColWeight" xml:space="preserve"><value>Weight (%)</value></data>
+  <data name="DragonCapitalFunds.ColExchange" xml:space="preserve"><value>Exchange</value></data>
+  <data name="DragonCapitalFunds.ColIndustry" xml:space="preserve"><value>Industry</value></data>
+  <data name="DragonCapitalFunds.ColSector" xml:space="preserve"><value>Sector</value></data>
+  <data name="DragonCapitalFunds.ColHoldingVolume" xml:space="preserve"><value>Volume</value></data>
+  <data name="DragonCapitalFunds.ColMarketValueBillion" xml:space="preserve"><value>Market Value (B)</value></data>
+  <data name="DragonCapitalFunds.MostFrequentAssets" xml:space="preserve"><value>Most frequent assets across funds</value></data>
+  <data name="TcbsTop10.SyncConfirmTitle" xml:space="preserve"><value>Confirm Sync</value></data>
+  <data name="TcbsTop10.SyncConfirmMessage" xml:space="preserve"><value>This will queue a background job to sync TCBS Top 10 portfolios. Continue?</value></data>
+  <data name="TradingSuggestion.Title" xml:space="preserve"><value>Trade Suggestion</value></data>
+  <data name="TradingSuggestion.Action" xml:space="preserve"><value>Suggest</value></data>
+  <data name="TradingSuggestion.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="TradingSuggestion.Market" xml:space="preserve"><value>Market</value></data>
+  <data name="TradingSuggestion.Timeframe" xml:space="preserve"><value>Timeframe</value></data>
+  <data name="TradingSuggestion.UseLongTermTimeframe" xml:space="preserve"><value>Use long-term timeframe</value></data>
+  <data name="TradingSuggestion.LongTermTimeframe" xml:space="preserve"><value>Long-term timeframe</value></data>
+  <data name="TradingSuggestion.Week1" xml:space="preserve"><value>1 Week</value></data>
+  <data name="TradingSuggestion.Month1" xml:space="preserve"><value>1 Month</value></data>
+  <data name="TradingSuggestion.Run" xml:space="preserve"><value>Run Suggestion</value></data>
+  <data name="TradingSuggestion.Trend" xml:space="preserve"><value>Trend</value></data>
+  <data name="TradingSuggestion.Momentum" xml:space="preserve"><value>Momentum</value></data>
+  <data name="TradingSuggestion.Setup" xml:space="preserve"><value>Setup</value></data>
+  <data name="TradingSuggestion.Signal" xml:space="preserve"><value>Signal</value></data>
+  <data name="TradingSuggestion.EntryPrice" xml:space="preserve"><value>Entry Price</value></data>
+  <data name="TradingSuggestion.StopLoss" xml:space="preserve"><value>Stop Loss</value></data>
+  <data name="TradingSuggestion.TakeProfit1" xml:space="preserve"><value>Take Profit 1</value></data>
+  <data name="TradingSuggestion.TakeProfit2" xml:space="preserve"><value>Take Profit 2</value></data>
+  <data name="TradingSuggestion.Confidence" xml:space="preserve"><value>Confidence</value></data>
+  <data name="TradingSuggestion.LoadFailed" xml:space="preserve"><value>Failed to load trade suggestion.</value></data>
+  <data name="TradingSuggestion.EnableAiVerdict" xml:space="preserve"><value>Enable AI verdict</value></data>
+  <data name="TradingSuggestion.VerdictLoadFailed" xml:space="preserve"><value>AI verdict failed to load.</value></data>
+  <data name="TradingSuggestion.PriceComparison" xml:space="preserve"><value>Volume-Weighted Price Comparison</value></data>
+  <data name="TradingSuggestion.PriceComparisonNoData" xml:space="preserve"><value>No transaction history available for this stock.</value></data>
+  <data name="TradingSuggestion.Period" xml:space="preserve"><value>Period</value></data>
+  <data name="TradingSuggestion.BetterVolume" xml:space="preserve"><value>Above Volume</value></data>
+  <data name="TradingSuggestion.WorseVolume" xml:space="preserve"><value>Below Volume</value></data>
+  <data name="TradingSuggestion.AveragePrice" xml:space="preserve"><value>Avg Price</value></data>
+  <data name="WeeklySuggestionHistory.Title" xml:space="preserve"><value>Weekly Suggestion History</value></data>
+  <data name="WeeklySuggestionHistory.Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="WeeklySuggestionHistory.EvaluateVisibleSymbols" xml:space="preserve"><value>Evaluate Visible Symbols</value></data>
+  <data name="WeeklySuggestionHistory.LookbackReports" xml:space="preserve"><value>Lookback reports</value></data>
+  <data name="WeeklySuggestionHistory.Matched" xml:space="preserve"><value>Matched</value></data>
+  <data name="WeeklySuggestionHistory.RunAt" xml:space="preserve"><value>Run At</value></data>
+  <data name="WeeklySuggestionHistory.ReportKey" xml:space="preserve"><value>Report Key</value></data>
+  <data name="WeeklySuggestionHistory.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="WeeklySuggestionHistory.Picks" xml:space="preserve"><value>Picks</value></data>
+  <data name="WeeklySuggestionHistory.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="WeeklySuggestionHistory.Timeframe" xml:space="preserve"><value>Timeframe</value></data>
+  <data name="WeeklySuggestionHistory.Entry" xml:space="preserve"><value>Entry</value></data>
+  <data name="WeeklySuggestionHistory.Current" xml:space="preserve"><value>Current</value></data>
+  <data name="WeeklySuggestionHistory.ChangePercent" xml:space="preserve"><value>% Change</value></data>
+  <data name="WeeklySuggestionHistory.TemplateFiles" xml:space="preserve"><value>Template Files</value></data>
+  <data name="WeeklySuggestionHistory.DownloadCsv" xml:space="preserve"><value>Download CSV</value></data>
+  <data name="WeeklySuggestionHistory.DownloadMarkdown" xml:space="preserve"><value>Download Markdown</value></data>
+  <data name="WeeklySuggestionHistory.DownloadFailed" xml:space="preserve"><value>Failed to download weekly template file.</value></data>
+  <data name="WeeklySuggestionHistory.ViewPicks" xml:space="preserve"><value>View</value></data>
+  <data name="WeeklySuggestionHistory.PicksTitle" xml:space="preserve"><value>Picks</value></data>
+  <data name="WeeklySuggestionHistory.Rank" xml:space="preserve"><value>Rank</value></data>
+  <data name="WeeklySuggestionHistory.Signal" xml:space="preserve"><value>Signal</value></data>
+  <data name="Common.SortBy" xml:space="preserve"><value>Sort by</value></data>
+  <data name="Common.Ascending" xml:space="preserve"><value>Ascending</value></data>
+  <data name="Common.Descending" xml:space="preserve"><value>Descending</value></data>
+  <data name="Common.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Common.View" xml:space="preserve"><value>View</value></data>
+  <data name="Common.CreatedAt" xml:space="preserve"><value>Created At</value></data>
+  <data name="Common.DemoModeBanner" xml:space="preserve"><value>Demo mode — API offline; using dummy data. Sign in with any credentials (admin).</value></data>
+  <data name="MarketScanner.List.Title" xml:space="preserve"><value>Market Scanner Rules</value></data>
+  <data name="MarketScanner.Title" xml:space="preserve"><value>Market Scanner</value></data>
+  <data name="MarketScanner.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="MarketScanner.SignalType" xml:space="preserve"><value>Signal Type</value></data>
+  <data name="MarketScanner.SignalType.PricePump" xml:space="preserve"><value>Price Pump</value></data>
+  <data name="MarketScanner.SignalType.FundingFlip" xml:space="preserve"><value>Funding Flip</value></data>
+  <data name="MarketScanner.SignalType.FundingMultiple" xml:space="preserve"><value>Funding Multiple</value></data>
+  <data name="MarketScanner.SignalType.VolumeSpike" xml:space="preserve"><value>Volume Spike</value></data>
+  <data name="MarketScanner.Window" xml:space="preserve"><value>Time Window</value></data>
+  <data name="MarketScanner.Window.ThreeMinutes" xml:space="preserve"><value>3 minutes</value></data>
+  <data name="MarketScanner.Window.SixMinutes" xml:space="preserve"><value>6 minutes</value></data>
+  <data name="MarketScanner.Window.TwelveMinutes" xml:space="preserve"><value>12 minutes</value></data>
+  <data name="MarketScanner.Window.ThirtyMinutes" xml:space="preserve"><value>30 minutes</value></data>
+  <data name="MarketScanner.Window.OneHour" xml:space="preserve"><value>60 minutes</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump5" xml:space="preserve"><value>Price Pump 5%</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump10" xml:space="preserve"><value>Price Pump 10%</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump20" xml:space="preserve"><value>Price Pump 20%</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike2x" xml:space="preserve"><value>Volume Spike 2x</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike3x" xml:space="preserve"><value>Volume Spike 3x</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike5x" xml:space="preserve"><value>Volume Spike 5x</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike10x" xml:space="preserve"><value>Volume Spike 10x</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingFlipAlert" xml:space="preserve"><value>Funding Flip Alert</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate2x" xml:space="preserve"><value>Funding Rate 2x</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate5x" xml:space="preserve"><value>Funding Rate 5x</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate10x" xml:space="preserve"><value>Funding Rate 10x</value></data>
+  <data name="MarketScanner.NameSuggestion.AbnormalFundingAlert" xml:space="preserve"><value>Abnormal Funding Alert</value></data>
+  <data name="MarketScanner.NameSuggestion.MomentumSurge" xml:space="preserve"><value>Momentum Surge</value></data>
+  <data name="MarketScanner.NameSuggestion.WhaleVolumeAlert" xml:space="preserve"><value>Whale Volume Alert</value></data>
+  <data name="MarketScanner.NameSuggestion.BreakoutSignal" xml:space="preserve"><value>Breakout Signal</value></data>
+  <data name="MarketScanner.Threshold" xml:space="preserve"><value>Threshold</value></data>
+  <data name="MarketScanner.IsEnabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="MarketScanner.Create.Title" xml:space="preserve"><value>Create Rule</value></data>
+  <data name="MarketScanner.Edit.Title" xml:space="preserve"><value>Edit Rule</value></data>
+  <data name="MarketScanner.Search.Placeholder" xml:space="preserve"><value>Search by name...</value></data>
+  <data name="MarketScanner.LoadFailed" xml:space="preserve"><value>Failed to load market scanner rules.</value></data>
+  <data name="MarketScanner.Create.Success" xml:space="preserve"><value>Rule created successfully.</value></data>
+  <data name="MarketScanner.Create.Failed" xml:space="preserve"><value>Failed to create rule.</value></data>
+  <data name="MarketScanner.Update.Success" xml:space="preserve"><value>Rule updated successfully.</value></data>
+  <data name="MarketScanner.Update.Failed" xml:space="preserve"><value>Failed to update rule.</value></data>
+  <data name="MarketScanner.Delete.Success" xml:space="preserve"><value>Rule deleted successfully.</value></data>
+  <data name="MarketScanner.Delete.Failed" xml:space="preserve"><value>Failed to delete rule.</value></data>
+  <data name="MarketScanner.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this rule?</value></data>
+  <data name="PriceAlerts.List.Title" xml:space="preserve"><value>Price Alerts</value></data>
+  <data name="PriceAlerts.Title" xml:space="preserve"><value>Price Alerts</value></data>
+  <data name="PriceAlerts.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="PriceAlerts.AssetType" xml:space="preserve"><value>Asset Type</value></data>
+  <data name="PriceAlerts.Condition" xml:space="preserve"><value>Condition</value></data>
+  <data name="PriceAlerts.TargetPrice" xml:space="preserve"><value>Target Price</value></data>
+  <data name="PriceAlerts.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="PriceAlerts.IsEnabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="PriceAlerts.IsOneTime" xml:space="preserve"><value>One-Time</value></data>
+  <data name="PriceAlerts.TriggerCount" xml:space="preserve"><value>Triggers</value></data>
+  <data name="PriceAlerts.LastTriggeredAt" xml:space="preserve"><value>Last Triggered</value></data>
+  <data name="PriceAlerts.Create.Title" xml:space="preserve"><value>Create Price Alert</value></data>
+  <data name="PriceAlerts.Edit.Title" xml:space="preserve"><value>Edit Price Alert</value></data>
+  <data name="PriceAlerts.Search.Placeholder" xml:space="preserve"><value>Search by symbol...</value></data>
+  <data name="PriceAlerts.LoadFailed" xml:space="preserve"><value>Failed to load price alerts.</value></data>
+  <data name="PriceAlerts.Create.Success" xml:space="preserve"><value>Price alert created successfully.</value></data>
+  <data name="PriceAlerts.Create.Failed" xml:space="preserve"><value>Failed to create price alert.</value></data>
+  <data name="PriceAlerts.Update.Success" xml:space="preserve"><value>Price alert updated successfully.</value></data>
+  <data name="PriceAlerts.Update.Failed" xml:space="preserve"><value>Failed to update price alert.</value></data>
+  <data name="PriceAlerts.Delete.Success" xml:space="preserve"><value>Price alert deleted successfully.</value></data>
+  <data name="PriceAlerts.Delete.Failed" xml:space="preserve"><value>Failed to delete price alert.</value></data>
+  <data name="PriceAlerts.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this price alert?</value></data>
+  <data name="Menu.Portfolios" xml:space="preserve"><value>Portfolios</value></data>
+  <data name="Portfolios.List.Title" xml:space="preserve"><value>Portfolios</value></data>
+  <data name="Portfolios.Title" xml:space="preserve"><value>Portfolio</value></data>
+  <data name="Portfolios.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Portfolios.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Portfolios.PortfolioType" xml:space="preserve"><value>Type</value></data>
+  <data name="Portfolios.Type.Trading" xml:space="preserve"><value>Trading</value></data>
+  <data name="Portfolios.Type.LongTerm" xml:space="preserve"><value>Long Term</value></data>
+  <data name="Portfolios.Type.Retirement" xml:space="preserve"><value>Retirement</value></data>
+  <data name="Portfolios.Type.Savings" xml:space="preserve"><value>Savings</value></data>
+  <data name="Portfolios.Create.Title" xml:space="preserve"><value>Create Portfolio</value></data>
+  <data name="Portfolios.Edit.Title" xml:space="preserve"><value>Edit Portfolio</value></data>
+  <data name="Portfolios.Search.Placeholder" xml:space="preserve"><value>Search portfolios...</value></data>
+  <data name="Portfolios.LoadFailed" xml:space="preserve"><value>Failed to load portfolios.</value></data>
+  <data name="Portfolios.Create.Success" xml:space="preserve"><value>Portfolio created successfully.</value></data>
+  <data name="Portfolios.Update.Success" xml:space="preserve"><value>Portfolio updated successfully.</value></data>
+  <data name="Portfolios.Delete.Success" xml:space="preserve"><value>Portfolio deleted successfully.</value></data>
+  <data name="Portfolios.Delete.Failed" xml:space="preserve"><value>Failed to delete portfolio.</value></data>
+  <data name="Portfolios.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this portfolio?</value></data>
+  <data name="Portfolios.Export" xml:space="preserve"><value>Export</value></data>
+  <data name="Portfolios.Export.Success" xml:space="preserve"><value>Portfolio export completed.</value></data>
+  <data name="Portfolios.Export.Failed" xml:space="preserve"><value>Failed to export portfolios.</value></data>
+  <data name="Portfolios.Import.Csv" xml:space="preserve"><value>Import CSV</value></data>
+  <data name="Portfolios.Import.DownloadTemplate" xml:space="preserve"><value>Download import template</value></data>
+  <data name="Portfolios.Import.TemplateNote" xml:space="preserve"><value>Download the template and fill portfolio rows before importing.</value></data>
+  <data name="Portfolios.Import.Success" xml:space="preserve"><value>Portfolio import completed.</value></data>
+  <data name="Portfolios.Import.Failed" xml:space="preserve"><value>Failed to import portfolios.</value></data>
+  <data name="Portfolios.Import.Result" xml:space="preserve"><value>Inserted: {0}, Updated: {1}, Skipped: {2}</value></data>
+  <data name="Portfolios.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="AssetPositions.Crypto.Title" xml:space="preserve"><value>Crypto Positions</value></data>
+  <data name="AssetPositions.Stock.Title" xml:space="preserve"><value>Stock Positions</value></data>
+  <data name="AssetPositions.Saving.Title" xml:space="preserve"><value>Saving Positions</value></data>
+  <data name="AssetPositions.Open" xml:space="preserve"><value>Open</value></data>
+  <data name="AssetPositions.Closed" xml:space="preserve"><value>Closed</value></data>
+  <data name="AssetPositions.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="AssetPositions.Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="AssetPositions.AverageEntryPrice" xml:space="preserve"><value>Avg. Entry Price</value></data>
+  <data name="AssetPositions.TotalInvested" xml:space="preserve"><value>Total Invested</value></data>
+  <data name="AssetPositions.RealizedPnl" xml:space="preserve"><value>Realized P&amp;L</value></data>
+  <data name="AssetPositions.TargetPrice" xml:space="preserve"><value>Target Price</value></data>
+  <data name="AssetPositions.StopLoss" xml:space="preserve"><value>Stop Loss</value></data>
+  <data name="AssetPositions.EnablePriceAlerts" xml:space="preserve"><value>Enable price alerts</value></data>
+  <data name="AssetPositions.EnablePriceAlertsHint" xml:space="preserve"><value>Automatically notify me when the price reaches the target or hits the stop-loss.</value></data>
+  <data name="AssetPositions.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="AssetPositions.Exchange" xml:space="preserve"><value>Exchange</value></data>
+  <data name="AssetPositions.Exchange.Hose" xml:space="preserve"><value>HOSE</value></data>
+  <data name="AssetPositions.Exchange.Hnx" xml:space="preserve"><value>HNX</value></data>
+  <data name="AssetPositions.Exchange.Upcom" xml:space="preserve"><value>UPCOM</value></data>
+  <data name="AssetPositions.Exchange.Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Menu.ApiClients" xml:space="preserve"><value>API Clients</value></data>
+  <data name="Menu.Notes" xml:space="preserve"><value>Notes</value></data>
+  <data name="ApiClients.Title" xml:space="preserve"><value>API Clients</value></data>
+  <data name="ApiClients.ListTitle" xml:space="preserve"><value>Manage API Clients</value></data>
+  <data name="ApiClients.Create.Title" xml:space="preserve"><value>Create API Client</value></data>
+  <data name="ApiClients.Edit.Title" xml:space="preserve"><value>Edit API Client</value></data>
+  <data name="ApiClients.Scopes.Title" xml:space="preserve"><value>Manage Scopes</value></data>
+  <data name="ApiClients.Secret.Title" xml:space="preserve"><value>Client Secret</value></data>
+  <data name="ApiClients.ClientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="ApiClients.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="ApiClients.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="ApiClients.IsActive" xml:space="preserve"><value>Status</value></data>
+  <data name="ApiClients.Scopes" xml:space="preserve"><value>Scopes</value></data>
+  <data name="ApiClients.Search.Placeholder" xml:space="preserve"><value>Search by name or client ID...</value></data>
+  <data name="ApiClients.LoadFailed" xml:space="preserve"><value>Failed to load API clients</value></data>
+  <data name="ApiClients.Create.Success" xml:space="preserve"><value>API client created successfully</value></data>
+  <data name="ApiClients.Create.Failed" xml:space="preserve"><value>Failed to create API client</value></data>
+  <data name="ApiClients.Update.Success" xml:space="preserve"><value>API client updated successfully</value></data>
+  <data name="ApiClients.Update.Failed" xml:space="preserve"><value>Failed to update API client</value></data>
+  <data name="ApiClients.Delete.Success" xml:space="preserve"><value>API client deleted</value></data>
+  <data name="ApiClients.Delete.Failed" xml:space="preserve"><value>Failed to delete API client</value></data>
+  <data name="ApiClients.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this API client?</value></data>
+  <data name="ApiClients.Activate.Success" xml:space="preserve"><value>API client activated</value></data>
+  <data name="ApiClients.Activate.Failed" xml:space="preserve"><value>Failed to activate API client</value></data>
+  <data name="ApiClients.Deactivate.Success" xml:space="preserve"><value>API client deactivated</value></data>
+  <data name="ApiClients.Deactivate.Failed" xml:space="preserve"><value>Failed to deactivate API client</value></data>
+  <data name="ApiClients.RegenerateSecret.Success" xml:space="preserve"><value>Secret regenerated successfully</value></data>
+  <data name="ApiClients.RegenerateSecret.Failed" xml:space="preserve"><value>Failed to regenerate secret</value></data>
+  <data name="ApiClients.ConfirmRegenerateSecret" xml:space="preserve"><value>Regenerating the secret will invalidate the current one. Continue?</value></data>
+  <data name="ApiClients.Secret.Note" xml:space="preserve"><value>Copy this secret now. It will not be shown again.</value></data>
+  <data name="ApiClients.Copy.Success" xml:space="preserve"><value>Client secret copied successfully</value></data>
+  <data name="ApiClients.Copy.Failed" xml:space="preserve"><value>Failed to copy client secret</value></data>
+  <data name="ApiClients.Scopes.Updated.Success" xml:space="preserve"><value>Scopes updated successfully</value></data>
+  <data name="ApiClients.Scopes.Updated.Failed" xml:space="preserve"><value>Failed to update scopes</value></data>
+  <data name="ApiClients.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="ApiClients.Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="ApiClients.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="ApiClients.NoData" xml:space="preserve"><value>No API clients found</value></data>
+  <data name="ApiClients.Action.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="ApiClients.Action.Activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="ApiClients.Action.Deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="ApiClients.Action.RegenerateSecret" xml:space="preserve"><value>Regenerate Secret</value></data>
+  <data name="ApiClients.Action.ManageScopes" xml:space="preserve"><value>Manage Scopes</value></data>
+  <data name="ApiClients.AvailableScopes" xml:space="preserve"><value>Available Scopes</value></data>
+  <data name="JsonBins.Title" xml:space="preserve"><value>JSON Bins</value></data>
+  <data name="JsonBins.ListTitle" xml:space="preserve"><value>Bins</value></data>
+  <data name="JsonBins.Create.Title" xml:space="preserve"><value>Create JSON Bin</value></data>
+  <data name="JsonBins.Edit.Title" xml:space="preserve"><value>Edit JSON Bin</value></data>
+  <data name="JsonBins.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="JsonBins.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="JsonBins.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this JSON bin?</value></data>
+  <data name="JsonBins.Search.Placeholder" xml:space="preserve"><value>Search by code, name or tags</value></data>
+  <data name="JsonBins.Code" xml:space="preserve"><value>Code</value></data>
+  <data name="JsonBins.Code.OptionalHint" xml:space="preserve"><value>Leave Code empty to auto-generate (includes category).</value></data>
+  <data name="JsonBins.Code.AutoPlaceholder" xml:space="preserve"><value>Optional — auto if empty</value></data>
+  <data name="JsonBins.Code.WillAutoGenerate" xml:space="preserve"><value>Code will be auto-generated from category</value></data>
+  <data name="JsonBins.Code.KeepExisting" xml:space="preserve"><value>Empty code keeps the current value</value></data>
+  <data name="JsonBins.Code.Exists" xml:space="preserve"><value>This code is already in use</value></data>
+  <data name="JsonBins.Code.Available" xml:space="preserve"><value>Code is available</value></data>
+  <data name="JsonBins.Share" xml:space="preserve"><value>Share link</value></data>
+  <data name="JsonBins.RevokeShare" xml:space="preserve"><value>Revoke share</value></data>
+  <data name="JsonBins.ShareLink" xml:space="preserve"><value>Public share URL</value></data>
+  <data name="JsonBins.Shared.Title" xml:space="preserve"><value>Shared JSON</value></data>
+  <data name="JsonBins.Share.NotFound" xml:space="preserve"><value>This share link is invalid or has expired</value></data>
+  <data name="JsonBins.Share.Expires" xml:space="preserve"><value>Link expires</value></data>
+  <data name="JsonBins.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="JsonBins.Category" xml:space="preserve"><value>Category</value></data>
+  <data name="JsonBins.Size" xml:space="preserve"><value>Size</value></data>
+  <data name="JsonBins.Expires" xml:space="preserve"><value>Expires</value></data>
+  <data name="JsonBins.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="JsonBins.Content" xml:space="preserve"><value>Content</value></data>
+  <data name="JsonBins.Compress" xml:space="preserve"><value>Compress content</value></data>
+  <data name="JsonBins.Expire" xml:space="preserve"><value>Expire now</value></data>
+  <data name="JsonBins.NotFound" xml:space="preserve"><value>JSON Bin not found</value></data>
+  <data name="JsonBins.Name.Required" xml:space="preserve"><value>Name is required</value></data>
+  <data name="JsonBins.Content.Required" xml:space="preserve"><value>Content is required</value></data>
+  <data name="JsonBins.LoadFailed" xml:space="preserve"><value>Failed to load JSON bins</value></data>
+  <data name="JsonBins.Create.Success" xml:space="preserve"><value>JSON bin created</value></data>
+  <data name="JsonBins.Create.Failed" xml:space="preserve"><value>Failed to create JSON bin</value></data>
+  <data name="JsonBins.Update.Success" xml:space="preserve"><value>JSON bin updated</value></data>
+  <data name="JsonBins.Update.Failed" xml:space="preserve"><value>Failed to update JSON bin</value></data>
+  <data name="JsonBins.Delete.Success" xml:space="preserve"><value>JSON bin deleted</value></data>
+  <data name="JsonBins.Delete.Failed" xml:space="preserve"><value>Failed to delete JSON bin</value></data>
+  <data name="JsonBins.Expire.Success" xml:space="preserve"><value>JSON bin expired</value></data>
+  <data name="JsonBins.Expire.Failed" xml:space="preserve"><value>Failed to expire JSON bin</value></data>
+  <data name="JsonBins.Share.Success" xml:space="preserve"><value>Share link created</value></data>
+  <data name="JsonBins.Share.Failed" xml:space="preserve"><value>Failed to create share link</value></data>
+  <data name="JsonBins.RevokeShare.Success" xml:space="preserve"><value>Share link revoked</value></data>
+  <data name="JsonBins.RevokeShare.Failed" xml:space="preserve"><value>Failed to revoke share link</value></data>
+  <data name="JsonBins.Copy.Success" xml:space="preserve"><value>Share link copied</value></data>
+  <data name="JsonBins.Copy.Failed" xml:space="preserve"><value>Failed to copy share link</value></data>
+  <data name="JsonBins.ValidateCode.Failed" xml:space="preserve"><value>Failed to validate code</value></data>
+  <data name="AssetPositions.BankName" xml:space="preserve"><value>Bank Name</value></data>
+  <data name="AssetPositions.AccountNumber" xml:space="preserve"><value>Account Number</value></data>
+  <data name="AssetPositions.PrincipalAmount" xml:space="preserve"><value>Principal Amount</value></data>
+  <data name="AssetPositions.InterestRate" xml:space="preserve"><value>Interest Rate (%)</value></data>
+  <data name="AssetPositions.InterestType" xml:space="preserve"><value>Interest Type</value></data>
+  <data name="AssetPositions.InterestType.Simple" xml:space="preserve"><value>Simple</value></data>
+  <data name="AssetPositions.InterestType.Compound" xml:space="preserve"><value>Compound</value></data>
+  <data name="AssetPositions.DepositDate" xml:space="preserve"><value>Deposit Date</value></data>
+  <data name="AssetPositions.MaturityDate" xml:space="preserve"><value>Maturity Date</value></data>
+  <data name="AssetPositions.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="AssetPositions.LoadFailed" xml:space="preserve"><value>Failed to load positions.</value></data>
+  <data name="AssetPositions.Create.Success" xml:space="preserve"><value>Position created successfully.</value></data>
+  <data name="AssetPositions.Create.Failed" xml:space="preserve"><value>Failed to create position.</value></data>
+  <data name="AssetPositions.Delete.Success" xml:space="preserve"><value>Position deleted successfully.</value></data>
+  <data name="AssetPositions.Delete.Failed" xml:space="preserve"><value>Failed to delete position.</value></data>
+  <data name="AssetPositions.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this position?</value></data>
+  <data name="AssetPositions.TransactionType" xml:space="preserve"><value>Transaction Type</value></data>
+  <data name="AssetPositions.TransactionType.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="AssetPositions.TransactionType.Sell" xml:space="preserve"><value>Sell</value></data>
+  <data name="AssetPositions.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="AssetPositions.Fee" xml:space="preserve"><value>Fee</value></data>
+  <data name="AssetPositions.TransactedAt" xml:space="preserve"><value>Transaction Date</value></data>
+  <data name="AssetPositions.AddTransaction" xml:space="preserve"><value>Add Transaction</value></data>
+  <data name="AssetPositions.Withdraw" xml:space="preserve"><value>Withdraw</value></data>
+  <data name="AssetPositions.Withdraw.Success" xml:space="preserve"><value>Saving position withdrawn successfully.</value></data>
+  <data name="AssetPositions.Withdraw.Failed" xml:space="preserve"><value>Failed to withdraw saving position.</value></data>
+  <data name="AssetPositions.CurrentPrice" xml:space="preserve"><value>Current Price</value></data>
+  <data name="AssetPositions.UnrealizedPnl" xml:space="preserve"><value>Unrealized P&amp;L</value></data>
+  <data name="AssetPositions.RefreshPrices" xml:space="preserve"><value>Refresh Prices</value></data>
+  <data name="Menu.NotificationSender" xml:space="preserve"><value>Notification Sender</value></data>
+  <data name="Notifications.Title" xml:space="preserve"><value>Notification Sender</value></data>
+  <data name="Notifications.Description" xml:space="preserve"><value>Send a notification to Slack, Telegram, or both according to configured routing.</value></data>
+  <data name="Notifications.EventType" xml:space="preserve"><value>Event Type</value></data>
+  <data name="Notifications.Target" xml:space="preserve"><value>Target</value></data>
+  <data name="Notifications.Target.Slack" xml:space="preserve"><value>Slack Only</value></data>
+  <data name="Notifications.Target.Telegram" xml:space="preserve"><value>Telegram Only</value></data>
+  <data name="Notifications.Target.Both" xml:space="preserve"><value>Both (Slack + Telegram)</value></data>
+  <data name="Notifications.SeverityOptional" xml:space="preserve"><value>Severity (optional)</value></data>
+  <data name="Notifications.TitleOptional" xml:space="preserve"><value>Title (optional)</value></data>
+  <data name="Notifications.Message" xml:space="preserve"><value>Message</value></data>
+  <data name="Notifications.Max64" xml:space="preserve"><value>Max 64 characters.</value></data>
+  <data name="Notifications.Max256" xml:space="preserve"><value>Max 256 characters.</value></data>
+  <data name="Notifications.Max20000" xml:space="preserve"><value>Max 20000 characters (long messages will be split automatically).</value></data>
+  <data name="Notifications.SentSuccess" xml:space="preserve"><value>Notification sent via configured routing.</value></data>
+  <data name="Notifications.SendFailed" xml:space="preserve"><value>Failed to send notification.</value></data>
+  <data name="Notifications.Event.MarketOverview" xml:space="preserve"><value>Market Overview</value></data>
+  <data name="Notifications.Event.PriceUpdate" xml:space="preserve"><value>Price Update</value></data>
+  <data name="Notifications.Event.CryptoSpike" xml:space="preserve"><value>Crypto Spike</value></data>
+  <data name="Notifications.Event.GoodEntryCrypto" xml:space="preserve"><value>Good Entry Crypto</value></data>
+  <data name="Notifications.Event.GoodEntryStocks" xml:space="preserve"><value>Good Entry Stocks</value></data>
+  <data name="Notifications.Event.SystemAlert" xml:space="preserve"><value>System Alert</value></data>
+  <data name="Notifications.Event.DataSync" xml:space="preserve"><value>Data Sync</value></data>
+  <data name="Notifications.Event.MarketScanner" xml:space="preserve"><value>Market Scanner</value></data>
+  <data name="Notifications.Event.PriceAlert" xml:space="preserve"><value>Price Alert</value></data>
+
+  <data name="Notes.Title" xml:space="preserve"><value>Notes</value></data>
+  <data name="Notes.CreateNote" xml:space="preserve"><value>Create Note</value></data>
+  <data name="Notes.EditNote" xml:space="preserve"><value>Edit Note</value></data>
+  <data name="Notes.TitlePlaceholder" xml:space="preserve"><value>Title</value></data>
+  <data name="Notes.ContentPlaceholder" xml:space="preserve"><value>Take a note...</value></data>
+  <data name="Notes.TakeNote" xml:space="preserve"><value>Take a note...</value></data>
+  <data name="Notes.Pin" xml:space="preserve"><value>Pin</value></data>
+  <data name="Notes.Unpin" xml:space="preserve"><value>Unpin</value></data>
+  <data name="Notes.Archive" xml:space="preserve"><value>Archive</value></data>
+  <data name="Notes.Unarchive" xml:space="preserve"><value>Unarchive</value></data>
+  <data name="Notes.Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Notes.Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="Notes.FilterAll" xml:space="preserve"><value>All</value></data>
+  <data name="Notes.FilterPinned" xml:space="preserve"><value>Pinned</value></data>
+  <data name="Notes.FilterArchived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Notes.FilterTrash" xml:space="preserve"><value>Trash</value></data>
+  <data name="Notes.NoNotes" xml:space="preserve"><value>No notes to display</value></data>
+  <data name="Notes.ConfirmDelete" xml:space="preserve"><value>Are you sure you want to delete this note? It will be moved to Trash.</value></data>
+  <data name="Notes.Create.Success" xml:space="preserve"><value>Note created successfully.</value></data>
+  <data name="Notes.Update.Success" xml:space="preserve"><value>Note updated successfully.</value></data>
+  <data name="Notes.Delete.Success" xml:space="preserve"><value>Note moved to Trash.</value></data>
+  <data name="Notes.Pin.Success" xml:space="preserve"><value>Note pinned.</value></data>
+  <data name="Notes.Unpin.Success" xml:space="preserve"><value>Note unpinned.</value></data>
+  <data name="Notes.Archive.Success" xml:space="preserve"><value>Note archived.</value></data>
+  <data name="Notes.Unarchive.Success" xml:space="preserve"><value>Note unarchived.</value></data>
+  <data name="Notes.Restore.Success" xml:space="preserve"><value>Note restored.</value></data>
+  <data name="Menu.NotificationSchedules" xml:space="preserve"><value>Notification Schedules</value></data>
+  <data name="Menu.CredentialAccounts" xml:space="preserve"><value>Credential Accounts</value></data>
+  <data name="Menu.Resume" xml:space="preserve"><value>Resume Editor</value></data>
+  <data name="Menu.JsonBins" xml:space="preserve"><value>JSON Bins</value></data>
+  <data name="Menu.PublicResume" xml:space="preserve"><value>Public Resume</value></data>
+  <data name="Menu.Blog" xml:space="preserve"><value>Blog</value></data>
+  <data name="Menu.BlogPosts" xml:space="preserve"><value>Posts</value></data>
+  <data name="Menu.BlogCategories" xml:space="preserve"><value>Categories</value></data>
+  <data name="Menu.BlogTags" xml:space="preserve"><value>Tags</value></data>
+
+  <data name="NotificationSchedules.Title" xml:space="preserve"><value>Notification Schedules</value></data>
+  <data name="NotificationSchedules.NewSchedule" xml:space="preserve"><value>New Schedule</value></data>
+  <data name="NotificationSchedules.Loading" xml:space="preserve"><value>Loading schedules...</value></data>
+  <data name="NotificationSchedules.LoadFailed" xml:space="preserve"><value>Failed to load schedules:</value></data>
+  <data name="NotificationSchedules.Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="NotificationSchedules.Column.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="NotificationSchedules.Column.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="NotificationSchedules.Column.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="NotificationSchedules.Column.NextRun" xml:space="preserve"><value>Next Run</value></data>
+  <data name="NotificationSchedules.Column.Runs" xml:space="preserve"><value>Runs</value></data>
+  <data name="NotificationSchedules.Column.Failures" xml:space="preserve"><value>Failures</value></data>
+  <data name="NotificationSchedules.Column.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="NotificationSchedules.Status.All" xml:space="preserve"><value>All statuses</value></data>
+  <data name="NotificationSchedules.Status.Active" xml:space="preserve"><value>Active</value></data>
+  <data name="NotificationSchedules.Status.Paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="NotificationSchedules.Status.Disabled" xml:space="preserve"><value>Disabled</value></data>
+  <data name="NotificationSchedules.Status.Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="NotificationSchedules.Action.Create" xml:space="preserve"><value>Create</value></data>
+  <data name="NotificationSchedules.Action.Update" xml:space="preserve"><value>Update</value></data>
+  <data name="NotificationSchedules.Action.Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="NotificationSchedules.Action.RunNow" xml:space="preserve"><value>Run now</value></data>
+  <data name="NotificationSchedules.Action.Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="NotificationSchedules.Action.Activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="NotificationSchedules.Form.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="NotificationSchedules.Form.TemplateKey" xml:space="preserve"><value>Template Key</value></data>
+  <data name="NotificationSchedules.Form.Subject" xml:space="preserve"><value>Subject</value></data>
+  <data name="NotificationSchedules.Form.Body" xml:space="preserve"><value>Body</value></data>
+  <data name="NotificationSchedules.Form.ScheduleType" xml:space="preserve"><value>Schedule Type</value></data>
+  <data name="NotificationSchedules.Form.ExecuteTimeLocal" xml:space="preserve"><value>Execute Time (Local)</value></data>
+  <data name="NotificationSchedules.Form.TimeZoneId" xml:space="preserve"><value>Time Zone</value></data>
+  <data name="NotificationSchedules.Form.IntervalDays" xml:space="preserve"><value>Interval (Days)</value></data>
+  <data name="NotificationSchedules.Form.DayOfWeek" xml:space="preserve"><value>Day of Week</value></data>
+  <data name="NotificationSchedules.Form.DayOfMonth" xml:space="preserve"><value>Day of Month</value></data>
+  <data name="NotificationSchedules.Form.MonthlyOverflowPolicy" xml:space="preserve"><value>Overflow Policy</value></data>
+  <data name="NotificationSchedules.Form.StartDateLocal" xml:space="preserve"><value>Start Date (Local)</value></data>
+  <data name="NotificationSchedules.Form.OneTimeAtLocal" xml:space="preserve"><value>Execute At (Local Date &amp; Time)</value></data>
+  <data name="NotificationSchedules.Form.Option.OneTime" xml:space="preserve"><value>One Time</value></data>
+  <data name="NotificationSchedules.Form.Option.EveryXDays" xml:space="preserve"><value>Every X Days</value></data>
+  <data name="NotificationSchedules.Form.Option.Weekly" xml:space="preserve"><value>Weekly</value></data>
+  <data name="NotificationSchedules.Form.Option.Monthly" xml:space="preserve"><value>Monthly</value></data>
+  <data name="NotificationSchedules.Form.Option.Monday" xml:space="preserve"><value>Monday</value></data>
+  <data name="NotificationSchedules.Form.Option.Tuesday" xml:space="preserve"><value>Tuesday</value></data>
+  <data name="NotificationSchedules.Form.Option.Wednesday" xml:space="preserve"><value>Wednesday</value></data>
+  <data name="NotificationSchedules.Form.Option.Thursday" xml:space="preserve"><value>Thursday</value></data>
+  <data name="NotificationSchedules.Form.Option.Friday" xml:space="preserve"><value>Friday</value></data>
+  <data name="NotificationSchedules.Form.Option.Saturday" xml:space="preserve"><value>Saturday</value></data>
+  <data name="NotificationSchedules.Form.Option.Sunday" xml:space="preserve"><value>Sunday</value></data>
+  <data name="NotificationSchedules.Form.Option.SkipMonth" xml:space="preserve"><value>Skip Month</value></data>
+  <data name="NotificationSchedules.Form.Option.RunOnLastDay" xml:space="preserve"><value>Run on Last Day</value></data>
+  <data name="NotificationSchedules.RunNow.Success" xml:space="preserve"><value>Success</value></data>
+  <data name="NotificationSchedules.RunNow.Message" xml:space="preserve"><value>Schedule executed.</value></data>
+  <data name="NotificationSchedules.RunNow.Failed" xml:space="preserve"><value>Failed to run schedule.</value></data>
+  <data name="NotificationSchedules.ConfirmDelete" xml:space="preserve"><value>Delete this schedule?</value></data>
+  <data name="NotificationSchedules.Delete.Success" xml:space="preserve"><value>Schedule deleted.</value></data>
+  <data name="NotificationSchedules.Create.Success" xml:space="preserve"><value>Schedule created.</value></data>
+  <data name="NotificationSchedules.Create.Failed" xml:space="preserve"><value>Failed to create schedule.</value></data>
+  <data name="NotificationSchedules.Update.Success" xml:space="preserve"><value>Schedule updated.</value></data>
+  <data name="NotificationSchedules.Update.Failed" xml:space="preserve"><value>Failed to update schedule.</value></data>
+  <data name="NotificationSchedules.Validation.FixErrors" xml:space="preserve"><value>Please fix the validation errors before submitting.</value></data>
+  <data name="CredentialAccounts.Title" xml:space="preserve"><value>Credential Account Management</value></data>
+  <data name="CredentialAccounts.List.Title" xml:space="preserve"><value>Credential Accounts</value></data>
+  <data name="CredentialAccounts.Create.Title" xml:space="preserve"><value>Create Credential Account</value></data>
+  <data name="CredentialAccounts.Edit.Title" xml:space="preserve"><value>Edit Credential Account</value></data>
+  <data name="CredentialAccounts.Search.Placeholder" xml:space="preserve"><value>Search by username or description...</value></data>
+  <data name="CredentialAccounts.Filter.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="CredentialAccounts.Filter.All" xml:space="preserve"><value>All statuses</value></data>
+  <data name="CredentialAccounts.Filter.Used" xml:space="preserve"><value>Used</value></data>
+  <data name="CredentialAccounts.Filter.Unused" xml:space="preserve"><value>Unused</value></data>
+  <data name="CredentialAccounts.Username" xml:space="preserve"><value>Username</value></data>
+  <data name="CredentialAccounts.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="CredentialAccounts.NewPassword" xml:space="preserve"><value>New Password</value></data>
+  <data name="CredentialAccounts.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="CredentialAccounts.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="CredentialAccounts.Used" xml:space="preserve"><value>Used</value></data>
+  <data name="CredentialAccounts.Unused" xml:space="preserve"><value>Unused</value></data>
+  <data name="CredentialAccounts.LastUsed" xml:space="preserve"><value>Last Used</value></data>
+  <data name="CredentialAccounts.UsedBy" xml:space="preserve"><value>Used By</value></data>
+  <data name="CredentialAccounts.UsageCount" xml:space="preserve"><value>Usage Count</value></data>
+  <data name="CredentialAccounts.Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="CredentialAccounts.ViewPassword" xml:space="preserve"><value>View Password</value></data>
+  <data name="CredentialAccounts.CopyUsername" xml:space="preserve"><value>Copy Username</value></data>
+  <data name="CredentialAccounts.CopyPassword" xml:space="preserve"><value>Copy Password</value></data>
+  <data name="CredentialAccounts.CopyAll" xml:space="preserve"><value>Copy All</value></data>
+  <data name="CredentialAccounts.MarkUsed" xml:space="preserve"><value>Mark Used</value></data>
+  <data name="CredentialAccounts.ResetUsed" xml:space="preserve"><value>Reset Used</value></data>
+  <data name="CredentialAccounts.ViewAuditLogs" xml:space="preserve"><value>View Audit Logs</value></data>
+  <data name="CredentialAccounts.AuditLogs.Title" xml:space="preserve"><value>Credential Account Audit Logs</value></data>
+  <data name="CredentialAccounts.Audit.Action" xml:space="preserve"><value>Action</value></data>
+  <data name="CredentialAccounts.Audit.User" xml:space="preserve"><value>User</value></data>
+  <data name="CredentialAccounts.Audit.CreatedAt" xml:space="preserve"><value>Created At</value></data>
+  <data name="CredentialAccounts.PasswordDialog.Title" xml:space="preserve"><value>Credential Password</value></data>
+  <data name="CredentialAccounts.Details" xml:space="preserve"><value>Details</value></data>
+  <data name="CredentialAccounts.LoadFailed" xml:space="preserve"><value>Failed to load credential accounts</value></data>
+  <data name="CredentialAccounts.Create.Success" xml:space="preserve"><value>Credential account created</value></data>
+  <data name="CredentialAccounts.Create.Failed" xml:space="preserve"><value>Failed to create credential account</value></data>
+  <data name="CredentialAccounts.Update.Success" xml:space="preserve"><value>Credential account updated</value></data>
+  <data name="CredentialAccounts.Update.Failed" xml:space="preserve"><value>Failed to update credential account</value></data>
+  <data name="CredentialAccounts.Delete.Success" xml:space="preserve"><value>Credential account deleted</value></data>
+  <data name="CredentialAccounts.Delete.Failed" xml:space="preserve"><value>Failed to delete credential account</value></data>
+  <data name="CredentialAccounts.ConfirmDelete" xml:space="preserve"><value>Delete this credential account?</value></data>
+  <data name="CredentialAccounts.MarkUsed.Success" xml:space="preserve"><value>Credential account marked as used</value></data>
+  <data name="CredentialAccounts.MarkUsed.Failed" xml:space="preserve"><value>Failed to mark credential account as used</value></data>
+  <data name="CredentialAccounts.ResetUsed.Success" xml:space="preserve"><value>Credential account usage reset</value></data>
+  <data name="CredentialAccounts.ResetUsed.Failed" xml:space="preserve"><value>Failed to reset credential account usage</value></data>
+  <data name="CredentialAccounts.PasswordChanged.Success" xml:space="preserve"><value>Password changed successfully</value></data>
+  <data name="CredentialAccounts.Copy.Success" xml:space="preserve"><value>Copied to clipboard</value></data>
+  <data name="CredentialAccounts.Copy.Failed" xml:space="preserve"><value>Failed to copy to clipboard</value></data>
+  <data name="CredentialAccounts.ViewPassword.Failed" xml:space="preserve"><value>Failed to load password</value></data>
+  <data name="CredentialAccounts.Audit.LoadFailed" xml:space="preserve"><value>Failed to load audit logs</value></data>
+  <data name="Resume.AdminTitle" xml:space="preserve"><value>Resume Editor</value></data>
+  <data name="Resume.BasicInfo" xml:space="preserve"><value>Basic Info</value></data>
+  <data name="Resume.Slug" xml:space="preserve"><value>Public URL Slug</value></data>
+  <data name="Resume.FullName" xml:space="preserve"><value>Full Name</value></data>
+  <data name="Resume.Headline" xml:space="preserve"><value>Headline</value></data>
+  <data name="Resume.MetaDescription" xml:space="preserve"><value>SEO Description</value></data>
+  <data name="Resume.Published" xml:space="preserve"><value>Published</value></data>
+  <data name="Resume.Summary" xml:space="preserve"><value>Summary</value></data>
+  <data name="Resume.Skills" xml:space="preserve"><value>Skills</value></data>
+  <data name="Resume.SkillsPlaceholder" xml:space="preserve"><value>Comma-separated, e.g. C#, React, SQL</value></data>
+  <data name="Resume.Experience" xml:space="preserve"><value>Experience</value></data>
+  <data name="Resume.Projects" xml:space="preserve"><value>Projects</value></data>
+  <data name="Resume.Education" xml:space="preserve"><value>Education</value></data>
+  <data name="Resume.Links" xml:space="preserve"><value>Links</value></data>
+  <data name="Resume.AddRow" xml:space="preserve"><value>Add</value></data>
+  <data name="Resume.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Resume.Company" xml:space="preserve"><value>Company</value></data>
+  <data name="Resume.Position" xml:space="preserve"><value>Position</value></data>
+  <data name="Resume.StartDate" xml:space="preserve"><value>Start</value></data>
+  <data name="Resume.EndDate" xml:space="preserve"><value>End (blank = present)</value></data>
+  <data name="Resume.Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Resume.ProjectName" xml:space="preserve"><value>Project Name</value></data>
+  <data name="Resume.TechStack" xml:space="preserve"><value>Tech Stack</value></data>
+  <data name="Resume.LinkUrl" xml:space="preserve"><value>Link</value></data>
+  <data name="Resume.School" xml:space="preserve"><value>School</value></data>
+  <data name="Resume.Degree" xml:space="preserve"><value>Degree</value></data>
+  <data name="Resume.LinkLabel" xml:space="preserve"><value>Label</value></data>
+  <data name="Resume.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Resume.SaveSuccess" xml:space="preserve"><value>Resume saved.</value></data>
+  <data name="Resume.SaveFailed" xml:space="preserve"><value>Failed to save resume.</value></data>
+  <data name="Resume.LoadFailed" xml:space="preserve"><value>Failed to load resume.</value></data>
+  <data name="Resume.ViewPublic" xml:space="preserve"><value>View public page</value></data>
+  <data name="Resume.NotFoundTitle" xml:space="preserve"><value>Resume not found</value></data>
+  <data name="Resume.NotFoundMessage" xml:space="preserve"><value>This resume doesn't exist or isn't published yet.</value></data>
+  <data name="Resume.DownloadButton" xml:space="preserve"><value>Download Resume</value></data>
+  <data name="Resume.Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Resume.PreviewTitle" xml:space="preserve"><value>Resume Preview</value></data>
+  <data name="Resume.OptimizeForJob" xml:space="preserve"><value>Optimize for Job</value></data>
+  <data name="Resume.CheckConsistency" xml:space="preserve"><value>Check Consistency</value></data>
+  <data name="Resume.ConsistencyReportTitle" xml:space="preserve"><value>Consistency Report</value></data>
+  <data name="Resume.Polish" xml:space="preserve"><value>Polish</value></data>
+  <data name="Resume.AutoGenerate" xml:space="preserve"><value>Auto-generate</value></data>
+  <data name="Resume.AiRequestFailed" xml:space="preserve"><value>AI request failed.</value></data>
+  <data name="Resume.JobDescription" xml:space="preserve"><value>Job Description</value></data>
+  <data name="Resume.Analyze" xml:space="preserve"><value>Analyze</value></data>
+  <data name="Blog.Editor.InsertImage" xml:space="preserve"><value>Insert image</value></data>
+  <data name="Blog.Editor.ImageTooLarge" xml:space="preserve"><value>Image is too large (max 5 MB).</value></data>
+  <data name="Blog.Editor.ImageUploadFailed" xml:space="preserve"><value>Image upload failed. Please try again.</value></data>
+  <data name="Blog.Posts.Title" xml:space="preserve"><value>Blog Posts</value></data>
+  <data name="Blog.Posts.New" xml:space="preserve"><value>New Post</value></data>
+  <data name="Blog.Posts.ColumnTitle" xml:space="preserve"><value>Title</value></data>
+  <data name="Blog.Posts.ColumnStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="Blog.Posts.ColumnCategory" xml:space="preserve"><value>Category</value></data>
+  <data name="Blog.Posts.ColumnPublishedAt" xml:space="preserve"><value>Published</value></data>
+  <data name="Blog.Posts.ColumnReadTime" xml:space="preserve"><value>Read Time</value></data>
+  <data name="Blog.Posts.StatusDraft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Blog.Posts.StatusScheduled" xml:space="preserve"><value>Scheduled</value></data>
+  <data name="Blog.Posts.StatusPublished" xml:space="preserve"><value>Published</value></data>
+  <data name="Blog.Posts.StatusArchived" xml:space="preserve"><value>Archived</value></data>
+  <data name="Blog.Posts.FilterAllStatuses" xml:space="preserve"><value>All statuses</value></data>
+  <data name="Blog.Posts.SearchPlaceholder" xml:space="preserve"><value>Search by title...</value></data>
+  <data name="Blog.Posts.ActionDelete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Blog.Posts.ActionPublish" xml:space="preserve"><value>Publish</value></data>
+  <data name="Blog.Posts.ActionUnpublish" xml:space="preserve"><value>Unpublish</value></data>
+  <data name="Blog.Posts.ActionArchive" xml:space="preserve"><value>Archive</value></data>
+  <data name="Blog.Posts.ConfirmDeleteMessage" xml:space="preserve"><value>Are you sure you want to delete this post? You can restore it later.</value></data>
+  <data name="Blog.Posts.LoadFailed" xml:space="preserve"><value>Could not load posts.</value></data>
+  <data name="Blog.Posts.SaveSuccess" xml:space="preserve"><value>Post saved.</value></data>
+  <data name="Blog.Posts.SaveFailed" xml:space="preserve"><value>Could not save the post.</value></data>
+  <data name="Blog.Posts.ActionSuccess" xml:space="preserve"><value>Action completed.</value></data>
+  <data name="Blog.Posts.ActionFailed" xml:space="preserve"><value>Action failed.</value></data>
+  <data name="Blog.Posts.EditorTitleLabel" xml:space="preserve"><value>Title</value></data>
+  <data name="Blog.Posts.SlugLabel" xml:space="preserve"><value>Slug</value></data>
+  <data name="Blog.Posts.SummaryLabel" xml:space="preserve"><value>Summary</value></data>
+  <data name="Blog.Posts.ContentLabel" xml:space="preserve"><value>Content</value></data>
+  <data name="Blog.Posts.CategoryLabel" xml:space="preserve"><value>Category</value></data>
+  <data name="Blog.Posts.TagsLabel" xml:space="preserve"><value>Tags</value></data>
+  <data name="Blog.Posts.FeaturedImageLabel" xml:space="preserve"><value>Featured Image</value></data>
+  <data name="Blog.Posts.MetaTitleLabel" xml:space="preserve"><value>Meta Title</value></data>
+  <data name="Blog.Posts.MetaDescriptionLabel" xml:space="preserve"><value>Meta Description</value></data>
+  <data name="Blog.Posts.SchedulePublishAt" xml:space="preserve"><value>Publish at</value></data>
+  <data name="Blog.Posts.ScheduleConfirm" xml:space="preserve"><value>Confirm Schedule</value></data>
+  <data name="Blog.Posts.NewPostTitle" xml:space="preserve"><value>New Post</value></data>
+  <data name="Blog.Posts.EditPostTitle" xml:space="preserve"><value>Edit Post</value></data>
+  <data name="Blog.Posts.SectionPublish" xml:space="preserve"><value>Publish</value></data>
+  <data name="Blog.Posts.SectionOrganize" xml:space="preserve"><value>Category &amp; Tags</value></data>
+  <data name="Blog.Posts.SectionSeo" xml:space="preserve"><value>SEO</value></data>
+  <data name="Blog.Ai.GenerateTitle" xml:space="preserve"><value>Generate Title</value></data>
+  <data name="Blog.Ai.GenerateSummary" xml:space="preserve"><value>Generate Summary</value></data>
+  <data name="Blog.Ai.Rewrite" xml:space="preserve"><value>Rewrite</value></data>
+  <data name="Blog.Ai.ImproveGrammar" xml:space="preserve"><value>Improve Grammar</value></data>
+  <data name="Blog.Ai.GenerateTags" xml:space="preserve"><value>Generate Tags</value></data>
+  <data name="Blog.Ai.GenerateSeo" xml:space="preserve"><value>Generate SEO</value></data>
+  <data name="Blog.Ai.Review" xml:space="preserve"><value>AI Review</value></data>
+  <data name="Blog.Ai.ActionFailed" xml:space="preserve"><value>AI request failed.</value></data>
+  <data name="Blog.Categories.Title" xml:space="preserve"><value>Blog Categories</value></data>
+  <data name="Blog.Categories.New" xml:space="preserve"><value>New Category</value></data>
+  <data name="Blog.Categories.NameLabel" xml:space="preserve"><value>Name</value></data>
+  <data name="Blog.Categories.SlugLabel" xml:space="preserve"><value>Slug</value></data>
+  <data name="Blog.Categories.DescriptionLabel" xml:space="preserve"><value>Description</value></data>
+  <data name="Blog.Categories.IconLabel" xml:space="preserve"><value>Icon</value></data>
+  <data name="Blog.Categories.ColorLabel" xml:space="preserve"><value>Color</value></data>
+  <data name="Blog.Categories.DeleteConfirm" xml:space="preserve"><value>Are you sure you want to delete this category?</value></data>
+  <data name="Blog.Categories.SaveSuccess" xml:space="preserve"><value>Category saved.</value></data>
+  <data name="Blog.Categories.SaveFailed" xml:space="preserve"><value>Could not save the category.</value></data>
+  <data name="Blog.Categories.DeleteSuccess" xml:space="preserve"><value>Category deleted.</value></data>
+  <data name="Blog.Categories.DeleteFailed" xml:space="preserve"><value>Could not delete the category.</value></data>
+  <data name="Blog.Categories.LoadFailed" xml:space="preserve"><value>Could not load categories.</value></data>
+  <data name="Blog.Categories.SearchPlaceholder" xml:space="preserve"><value>Search categories...</value></data>
+  <data name="Blog.Tags.Title" xml:space="preserve"><value>Blog Tags</value></data>
+  <data name="Blog.Tags.SearchPlaceholder" xml:space="preserve"><value>Search tags...</value></data>
+  <data name="Blog.Tags.New" xml:space="preserve"><value>New Tag</value></data>
+  <data name="Blog.Tags.DeleteConfirm" xml:space="preserve"><value>Are you sure you want to delete this tag?</value></data>
+  <data name="Blog.Tags.SaveFailed" xml:space="preserve"><value>Could not save the tag.</value></data>
+  <data name="Blog.Tags.DeleteFailed" xml:space="preserve"><value>Could not delete the tag.</value></data>
+  <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Read more</value></data>
+  <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>No posts found.</value></data>
+  <data name="Blog.Public.MinRead" xml:space="preserve"><value>min read</value></data>
+  <data name="Blog.Public.LoadFailed" xml:space="preserve"><value>Could not load this article.</value></data>
+  <data name="Blog.Public.NotFoundTitle" xml:space="preserve"><value>Post Not Found</value></data>
+  <data name="Blog.Public.NotFoundMessage" xml:space="preserve"><value>This post doesn't exist or hasn't been published yet.</value></data>
+
+  <data name="Power655.Title" xml:space="preserve"><value>Power 6/55 Lottery</value></data>
+  <data name="Power655.SyncButton" xml:space="preserve"><value>Sync Now</value></data>
+  <data name="Power655.PredictButton" xml:space="preserve"><value>Generate Prediction</value></data>
+  <data name="Power655.SyncConfirmTitle" xml:space="preserve"><value>Sync Power 6/55 Data</value></data>
+  <data name="Power655.SyncConfirmMessage" xml:space="preserve"><value>Trigger sync of Power 6/55 results from ketquadientoan.com?</value></data>
+  <data name="Power655.SyncSuccess" xml:space="preserve"><value>Sync job triggered successfully.</value></data>
+  <data name="Power655.SyncFailed" xml:space="preserve"><value>Failed to trigger sync job.</value></data>
+  <data name="Power655.PredictSuccess" xml:space="preserve"><value>Prediction job triggered successfully.</value></data>
+  <data name="Power655.PredictFailed" xml:space="preserve"><value>Failed to trigger prediction job.</value></data>
+  <data name="Power655.LoadFailed" xml:space="preserve"><value>Failed to load Power 6/55 analysis.</value></data>
+  <data name="Power655.MostFrequent" xml:space="preserve"><value>Most Frequent Numbers</value></data>
+  <data name="Power655.LeastFrequent" xml:space="preserve"><value>Least Frequent Numbers</value></data>
+  <data name="Power655.HotLabel" xml:space="preserve"><value>Hot</value></data>
+  <data name="Power655.ColdLabel" xml:space="preserve"><value>Cold</value></data>
+  <data name="Power655.Times" xml:space="preserve"><value>times</value></data>
+  <data name="Power655.Predictions" xml:space="preserve"><value>Predictions</value></data>
+  <data name="Power655.CopySuccess" xml:space="preserve"><value>Copied to clipboard</value></data>
+  <data name="Power655.CopyFailed" xml:space="preserve"><value>Could not copy prediction</value></data>
+  <data name="Power655.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Power655.TupleFreq" xml:space="preserve"><value>Tuple Freq</value></data>
+  <data name="Power655.Reasoning" xml:space="preserve"><value>Reasoning</value></data>
+  <data name="Power655.MatchedNumbers" xml:space="preserve"><value>Matched Numbers</value></data>
+  <data name="Power655.DrawHistory" xml:space="preserve"><value>Draw History</value></data>
+  <data name="Power655.DrawDate" xml:space="preserve"><value>Draw Date</value></data>
+  <data name="Power655.DayOfWeek" xml:space="preserve"><value>Day</value></data>
+  <data name="Power655.Numbers" xml:space="preserve"><value>Numbers</value></data>
+  <data name="Power655.BonusNum" xml:space="preserve"><value>Bonus</value></data>
+  <data name="Power655.Jackpot1" xml:space="preserve"><value>Jackpot 1</value></data>
+  <data name="Power655.Jackpot2" xml:space="preserve"><value>Jackpot 2</value></data>
+
+  <data name="DayOfWeek.Monday" xml:space="preserve"><value>Monday</value></data>
+  <data name="DayOfWeek.Tuesday" xml:space="preserve"><value>Tuesday</value></data>
+  <data name="DayOfWeek.Wednesday" xml:space="preserve"><value>Wednesday</value></data>
+  <data name="DayOfWeek.Thursday" xml:space="preserve"><value>Thursday</value></data>
+  <data name="DayOfWeek.Friday" xml:space="preserve"><value>Friday</value></data>
+  <data name="DayOfWeek.Saturday" xml:space="preserve"><value>Saturday</value></data>
+  <data name="DayOfWeek.Sunday" xml:space="preserve"><value>Sunday</value></data>
+
+  <data name="Common.Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Common.PoweredBy" xml:space="preserve"><value>Powered by</value></data>
+  <data name="Donate.Title" xml:space="preserve"><value>Buy me a coffee</value></data>
+  <data name="Donate.ScanQr" xml:space="preserve"><value>Scan QR to send a coffee</value></data>
+  <data name="Donate.QrAlt" xml:space="preserve"><value>Donate QR</value></data>
+  <data name="Donate.ThankYou" xml:space="preserve"><value>Thank you for your support!</value></data>
+  <data name="Contacts.AvatarFormatHint" xml:space="preserve"><value>JPEG, PNG, WebP; max 2 MB</value></data>
+  <data name="Contacts.AvatarAlt" xml:space="preserve"><value>Avatar</value></data>
+  <data name="VnDirect.TopStocks.ScoreBadge" xml:space="preserve"><value>Score: {0}</value></data>
+  <data name="VnDirect.TopStocks.LongSignalBadge" xml:space="preserve"><value>L: {0}</value></data>
+  <data name="VnDirect.TopStocks.ShortSignalBadge" xml:space="preserve"><value>S: {0}</value></data>
+  <data name="VnDirect.TopStocks.DragonCountBadge" xml:space="preserve"><value>Dragon x{0}</value></data>
+  <data name="VnDirect.TopStocks.TcbsAllTimeBadge" xml:space="preserve"><value>TCBS AllTime</value></data>
+  <data name="AssetPositions.StockSymbolPlaceholder" xml:space="preserve"><value>VNM, HPG, VIC...</value></data>
+  <data name="AssetPositions.CryptoSymbolPlaceholder" xml:space="preserve"><value>BTC, ETH, SOL...</value></data>
+  <data name="ApiClients.ClientIdPlaceholder" xml:space="preserve"><value>my-service-client</value></data>
+  <data name="Resume.Present" xml:space="preserve"><value>Present</value></data>
+  <data name="Resume.PageTitleFallback" xml:space="preserve"><value>Resume</value></data>
+  <data name="Resume.ProjectLinkPlaceholder" xml:space="preserve"><value>https://github.com/...</value></data>
+  <data name="Resume.ProfileLinkPlaceholder" xml:space="preserve"><value>https://linkedin.com/in/...</value></data>
+  <data name="Blog.PublicFallbackTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.PublicTitleFormat" xml:space="preserve"><value>{0} - Blog</value></data>
+  <data name="Menu.Tools" xml:space="preserve"><value>Tools</value></data>
+  <data name="Tools.Hub.Title" xml:space="preserve"><value>Tools</value></data>
+  <data name="Tools.Hub.Description" xml:space="preserve"><value>Client-side developer utilities and trading/risk/crypto calculators. Drafts restore from this browser; some tools can Save/Share via JSON Bin when signed in.</value></data>
+  <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Search tools…</value></data>
+  <data name="Tools.Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Tools.Share" xml:space="preserve"><value>Share</value></data>
+  <data name="Tools.ClearDraft" xml:space="preserve"><value>Clear draft</value></data>
+  <data name="Tools.ShareLink" xml:space="preserve"><value>Share URL (expires in 4 hours)</value></data>
+  <data name="Tools.Input" xml:space="preserve"><value>Input</value></data>
+  <data name="Tools.Validation.Title" xml:space="preserve"><value>Could not process</value></data>
+  <data name="Tools.Validation.Generic" xml:space="preserve"><value>Something went wrong while processing. Check the input and try again.</value></data>
+  <data name="Tools.Output" xml:space="preserve"><value>Output</value></data>
+  <data name="Tools.QrDownload" xml:space="preserve"><value>Download QR</value></data>
+  <data name="Tools.NotFound" xml:space="preserve"><value>Tool not found</value></data>
+  <data name="Tools.Draft.Restored" xml:space="preserve"><value>Draft restored</value></data>
+  <data name="Tools.Save.Success" xml:space="preserve"><value>Saved to JSON Bin</value></data>
+  <data name="Tools.Save.Failed" xml:space="preserve"><value>Failed to save</value></data>
+  <data name="Tools.Share.Success" xml:space="preserve"><value>Share link created (4 hours)</value></data>
+  <data name="Tools.Share.Failed" xml:space="preserve"><value>Failed to create share link</value></data>
+  <data name="Tools.Clear.Success" xml:space="preserve"><value>Draft cleared</value></data>
+  <data name="Tools.SignInRequired" xml:space="preserve"><value>Sign in to save or share</value></data>
+  <data name="Tools.CloudBinNamePrefix" xml:space="preserve"><value>DevTools ·</value></data>
+  <data name="Tools.Privacy.LocalOnly" xml:space="preserve"><value>Drafts are saved in this browser only. Sign in to sync across devices.</value></data>
+  <data name="Tools.Privacy.CloudSync" xml:space="preserve"><value>Drafts sync to your account and follow you when you sign in elsewhere.</value></data>
+  <data name="Tools.Category.Data" xml:space="preserve"><value>Data</value></data>
+  <data name="Tools.Category.CodeGen" xml:space="preserve"><value>Code generation</value></data>
+  <data name="Tools.Category.Format" xml:space="preserve"><value>Format</value></data>
+  <data name="Tools.Category.Encode" xml:space="preserve"><value>Encode</value></data>
+  <data name="Tools.Category.Security" xml:space="preserve"><value>Security</value></data>
+  <data name="Tools.Category.Generators" xml:space="preserve"><value>Generators</value></data>
+  <data name="Tools.Category.TextTime" xml:space="preserve"><value>Text and time</value></data>
+  <data name="Tools.JsonFormatter.Title" xml:space="preserve"><value>JSON Formatter</value></data>
+  <data name="Tools.JsonFormatter.Description" xml:space="preserve"><value>Pretty-print, minify, and validate JSON</value></data>
+  <data name="Tools.JsonCompare.Title" xml:space="preserve"><value>JSON Compare</value></data>
+  <data name="Tools.JsonCompare.Description" xml:space="preserve"><value>Compare two JSON documents</value></data>
+  <data name="Tools.YamlValidator.Title" xml:space="preserve"><value>YAML Validator</value></data>
+  <data name="Tools.YamlValidator.Description" xml:space="preserve"><value>Validate YAML syntax</value></data>
+  <data name="Tools.YamlJson.Title" xml:space="preserve"><value>YAML ⇄ JSON</value></data>
+  <data name="Tools.YamlJson.Description" xml:space="preserve"><value>Convert between YAML and JSON</value></data>
+  <data name="Tools.XmlFormatter.Title" xml:space="preserve"><value>XML Formatter</value></data>
+  <data name="Tools.XmlFormatter.Description" xml:space="preserve"><value>Pretty-print XML</value></data>
+  <data name="Tools.CsvJson.Title" xml:space="preserve"><value>CSV ⇄ JSON</value></data>
+  <data name="Tools.CsvJson.Description" xml:space="preserve"><value>Convert between CSV and JSON</value></data>
+  <data name="Tools.JsonToCsharp.Title" xml:space="preserve"><value>JSON to C#</value></data>
+  <data name="Tools.JsonToCsharp.Description" xml:space="preserve"><value>Generate C# classes from JSON</value></data>
+  <data name="Tools.JsonToTypescript.Title" xml:space="preserve"><value>JSON to TypeScript</value></data>
+  <data name="Tools.JsonToTypescript.Description" xml:space="preserve"><value>Generate TypeScript types from JSON</value></data>
+  <data name="Tools.SqlFormatter.Title" xml:space="preserve"><value>SQL Formatter</value></data>
+  <data name="Tools.SqlFormatter.Description" xml:space="preserve"><value>Pretty-print SQL</value></data>
+  <data name="Tools.HtmlFormatter.Title" xml:space="preserve"><value>HTML Formatter</value></data>
+  <data name="Tools.HtmlFormatter.Description" xml:space="preserve"><value>Pretty-print HTML</value></data>
+  <data name="Tools.CssFormatter.Title" xml:space="preserve"><value>CSS Formatter</value></data>
+  <data name="Tools.CssFormatter.Description" xml:space="preserve"><value>Pretty-print CSS</value></data>
+  <data name="Tools.JsFormatter.Title" xml:space="preserve"><value>JS Formatter</value></data>
+  <data name="Tools.JsFormatter.Description" xml:space="preserve"><value>Pretty-print JavaScript</value></data>
+  <data name="Tools.MarkdownPreview.Title" xml:space="preserve"><value>Markdown Preview</value></data>
+  <data name="Tools.MarkdownPreview.Description" xml:space="preserve"><value>Preview Markdown with Mermaid diagrams</value></data>
+  <data name="Tools.MarkdownPreview.Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="Tools.MarkdownPreview.ShowEditor" xml:space="preserve"><value>Edit</value></data>
+  <data name="Tools.MarkdownPreview.Toolbar" xml:space="preserve"><value>Markdown formatting</value></data>
+  <data name="Tools.MarkdownPreview.Heading" xml:space="preserve"><value>Heading</value></data>
+  <data name="Tools.MarkdownPreview.Bold" xml:space="preserve"><value>Bold</value></data>
+  <data name="Tools.MarkdownPreview.Italic" xml:space="preserve"><value>Italic</value></data>
+  <data name="Tools.MarkdownPreview.Strike" xml:space="preserve"><value>Strikethrough</value></data>
+  <data name="Tools.MarkdownPreview.Quote" xml:space="preserve"><value>Quote</value></data>
+  <data name="Tools.MarkdownPreview.BulletList" xml:space="preserve"><value>Bullet list</value></data>
+  <data name="Tools.MarkdownPreview.NumberedList" xml:space="preserve"><value>Numbered list</value></data>
+  <data name="Tools.MarkdownPreview.InlineCode" xml:space="preserve"><value>Inline code</value></data>
+  <data name="Tools.MarkdownPreview.CodeBlock" xml:space="preserve"><value>Code block</value></data>
+  <data name="Tools.MarkdownPreview.Link" xml:space="preserve"><value>Link</value></data>
+  <data name="Tools.MarkdownPreview.HorizontalRule" xml:space="preserve"><value>Horizontal rule</value></data>
+  <data name="Tools.MarkdownPreview.EditorPlaceholder" xml:space="preserve"><value>Write Markdown here…</value></data>
+  <data name="Tools.MarkdownPreview.CopyAll" xml:space="preserve"><value>Copy all</value></data>
+  <data name="Tools.MarkdownPreview.CopyHtml" xml:space="preserve"><value>Copy HTML</value></data>
+  <data name="Tools.MarkdownPreview.CopyAllSuccess" xml:space="preserve"><value>Preview copied for Word / rich paste</value></data>
+  <data name="Tools.MarkdownPreview.CopyHtmlSuccess" xml:space="preserve"><value>Preview copied as HTML</value></data>
+  <data name="Tools.MarkdownPreview.CopyFailed" xml:space="preserve"><value>Could not copy preview</value></data>
+  <data name="Tools.HtmlMarkdown.Title" xml:space="preserve"><value>HTML ⇄ Markdown</value></data>
+  <data name="Tools.HtmlMarkdown.Description" xml:space="preserve"><value>Convert between HTML and Markdown</value></data>
+  <data name="Tools.Base64.Title" xml:space="preserve"><value>Base64 Encode/Decode</value></data>
+  <data name="Tools.Base64.Description" xml:space="preserve"><value>Encode or decode Base64</value></data>
+  <data name="Tools.UrlCodec.Title" xml:space="preserve"><value>URL Encode/Decode</value></data>
+  <data name="Tools.UrlCodec.Description" xml:space="preserve"><value>Encode or decode URL components</value></data>
+  <data name="Tools.Sha256.Title" xml:space="preserve"><value>SHA256 Generator</value></data>
+  <data name="Tools.Sha256.Description" xml:space="preserve"><value>Hash text with SHA-256</value></data>
+  <data name="Tools.JwtDecoder.Title" xml:space="preserve"><value>JWT Decoder</value></data>
+  <data name="Tools.JwtDecoder.Description" xml:space="preserve"><value>Decode JWT header and payload locally</value></data>
+  <data name="Tools.PasswordGenerator.Title" xml:space="preserve"><value>Password Generator</value></data>
+  <data name="Tools.PasswordGenerator.Description" xml:space="preserve"><value>Generate strong passwords</value></data>
+  <data name="Tools.PasswordStrength.Title" xml:space="preserve"><value>Password Strength</value></data>
+  <data name="Tools.PasswordStrength.Description" xml:space="preserve"><value>Estimate password strength</value></data>
+  <data name="Tools.Uuid.Title" xml:space="preserve"><value>UUID Generator</value></data>
+  <data name="Tools.Uuid.Description" xml:space="preserve"><value>Generate UUID v4 or v7</value></data>
+  <data name="Tools.Cron.Title" xml:space="preserve"><value>Cron Generator</value></data>
+  <data name="Tools.Cron.Description" xml:space="preserve"><value>Build cron expressions</value></data>
+  <data name="Tools.Qr.Title" xml:space="preserve"><value>QR Code Generator</value></data>
+  <data name="Tools.Qr.Description" xml:space="preserve"><value>Create QR codes from text</value></data>
+  <data name="Tools.Curl.Title" xml:space="preserve"><value>cURL Generator</value></data>
+  <data name="Tools.Curl.Description" xml:space="preserve"><value>Build a cURL command</value></data>
+  <data name="Tools.Gitignore.Title" xml:space="preserve"><value>Git Ignore Generator</value></data>
+  <data name="Tools.Gitignore.Description" xml:space="preserve"><value>Generate .gitignore presets</value></data>
+  <data name="Tools.ConventionalCommit.Title" xml:space="preserve"><value>Conventional Commit</value></data>
+  <data name="Tools.ConventionalCommit.Description" xml:space="preserve"><value>Compose a conventional commit message</value></data>
+  <data name="Tools.Regex.Title" xml:space="preserve"><value>Regex Tester</value></data>
+  <data name="Tools.Regex.Description" xml:space="preserve"><value>Test regular expressions</value></data>
+  <data name="Tools.UnixTimestamp.Title" xml:space="preserve"><value>Unix Timestamp</value></data>
+  <data name="Tools.UnixTimestamp.Description" xml:space="preserve"><value>Convert Unix timestamps</value></data>
+  <data name="Tools.Diff.Title" xml:space="preserve"><value>Diff Checker</value></data>
+  <data name="Tools.Diff.Description" xml:space="preserve"><value>Compare two text blocks</value></data>
+  <data name="Tools.Category.Developer" xml:space="preserve"><value>Developer</value></data>
+  <data name="Tools.Category.Trading" xml:space="preserve"><value>Trading</value></data>
+  <data name="Tools.Category.Risk" xml:space="preserve"><value>Risk</value></data>
+  <data name="Tools.Category.Crypto" xml:space="preserve"><value>Crypto</value></data>
+  <data name="Tools.PositionSize.Title" xml:space="preserve"><value>Position Size</value></data>
+  <data name="Tools.PositionSize.Description" xml:space="preserve"><value>Size a position from account risk and stop distance</value></data>
+  <data name="Tools.RiskReward.Title" xml:space="preserve"><value>Risk / Reward</value></data>
+  <data name="Tools.RiskReward.Description" xml:space="preserve"><value>Compute R:R from entry, stop loss, and take profit</value></data>
+  <data name="Tools.FuturesPnl.Title" xml:space="preserve"><value>Futures PnL</value></data>
+  <data name="Tools.FuturesPnl.Description" xml:space="preserve"><value>Isolated futures profit/loss with fees and ROE</value></data>
+  <data name="Tools.Liquidation.Title" xml:space="preserve"><value>Liquidation Price</value></data>
+  <data name="Tools.Liquidation.Description" xml:space="preserve"><value>Estimate isolated liquidation price</value></data>
+  <data name="Tools.AverageEntry.Title" xml:space="preserve"><value>Average Entry</value></data>
+  <data name="Tools.AverageEntry.Description" xml:space="preserve"><value>Weighted average entry from multiple fills</value></data>
+  <data name="Tools.Dca.Title" xml:space="preserve"><value>DCA Calculator</value></data>
+  <data name="Tools.Dca.Description" xml:space="preserve"><value>Average cost from dollar-cost averaging buys</value></data>
+  <data name="Tools.BreakEven.Title" xml:space="preserve"><value>Break-Even Price</value></data>
+  <data name="Tools.BreakEven.Description" xml:space="preserve"><value>Break-even after open and close fees</value></data>
+  <data name="Tools.TradingFee.Title" xml:space="preserve"><value>Trading Fee</value></data>
+  <data name="Tools.TradingFee.Description" xml:space="preserve"><value>Fee amount from notional and fee rate</value></data>
+  <data name="Tools.Funding.Title" xml:space="preserve"><value>Funding</value></data>
+  <data name="Tools.Funding.Description" xml:space="preserve"><value>Funding paid or received over periods</value></data>
+  <data name="Tools.Leverage.Title" xml:space="preserve"><value>Leverage</value></data>
+  <data name="Tools.Leverage.Description" xml:space="preserve"><value>Effective leverage from notional and margin</value></data>
+  <data name="Tools.StopLoss.Title" xml:space="preserve"><value>Stop Loss</value></data>
+  <data name="Tools.StopLoss.Description" xml:space="preserve"><value>Stop price from account risk and position size</value></data>
+  <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Take Profit</value></data>
+  <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Take-profit from target % or R:R</value></data>
+  <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Risk of Ruin</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Simplified fixed-fractional risk-of-ruin estimate</value></data>
+  <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Max Drawdown</value></data>
+  <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>Maximum drawdown from peak/trough or equity series</value></data>
+  <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Loss Recovery</value></data>
+  <data name="Tools.LossRecovery.Description" xml:space="preserve"><value>Gain required to recover from a loss percentage</value></data>
+  <data name="Tools.Expectancy.Title" xml:space="preserve"><value>Expectancy</value></data>
+  <data name="Tools.Expectancy.Description" xml:space="preserve"><value>Expected value per trade</value></data>
+  <data name="Tools.KellyCriterion.Title" xml:space="preserve"><value>Kelly Criterion</value></data>
+  <data name="Tools.KellyCriterion.Description" xml:space="preserve"><value>Full, half, and quarter Kelly fractions</value></data>
+  <data name="Tools.ConsecutiveLoss.Title" xml:space="preserve"><value>Consecutive Losses</value></data>
+  <data name="Tools.ConsecutiveLoss.Description" xml:space="preserve"><value>Equity left after N losing trades at fixed risk</value></data>
+  <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Market Cap</value></data>
+  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Market capitalization from price and supply</value></data>
+  <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>Market Cap Compare</value></data>
+  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Implied price for a target market cap</value></data>
+  <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>ATH Drawdown</value></data>
+  <data name="Tools.AthDrawdown.Description" xml:space="preserve"><value>Drawdown from all-time high and recovery needed</value></data>
+  <data name="Calc.Calculate" xml:space="preserve"><value>Calculate</value></data>
+  <data name="Calc.Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Calc.Results" xml:space="preserve"><value>Results</value></data>
+  <data name="Calc.Formula" xml:space="preserve"><value>Formula</value></data>
+  <data name="Calc.Interpretation" xml:space="preserve"><value>Interpretation</value></data>
+  <data name="Calc.RiskDisclaimer" xml:space="preserve"><value>Educational estimate only — not financial advice. Past patterns do not guarantee future results.</value></data>
+  <data name="Calc.Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Calc.No" xml:space="preserve"><value>No</value></data>
+  <data name="Calc.Side.Long" xml:space="preserve"><value>Long</value></data>
+  <data name="Calc.Side.Short" xml:space="preserve"><value>Short</value></data>
+  <data name="Calc.Fee.Taker" xml:space="preserve"><value>Taker</value></data>
+  <data name="Calc.Fee.Maker" xml:space="preserve"><value>Maker</value></data>
+  <data name="Calc.Fee.Custom" xml:space="preserve"><value>Custom</value></data>
+  <data name="Calc.Currency.USDT" xml:space="preserve"><value>USDT</value></data>
+  <data name="Calc.Currency.USD" xml:space="preserve"><value>USD</value></data>
+  <data name="Calc.Currency.VND" xml:space="preserve"><value>VND</value></data>
+  <data name="Calc.Currency.BTC" xml:space="preserve"><value>BTC</value></data>
+  <data name="Calc.Margin.Isolated" xml:space="preserve"><value>Margin mode: Isolated</value></data>
+  <data name="Calc.Field.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="Calc.Field.Side" xml:space="preserve"><value>Side</value></data>
+  <data name="Calc.Field.FeeMode" xml:space="preserve"><value>Fee mode</value></data>
+  <data name="Calc.Field.Account" xml:space="preserve"><value>Account equity</value></data>
+  <data name="Calc.Field.RiskPct" xml:space="preserve"><value>Risk %</value></data>
+  <data name="Calc.Field.Entry" xml:space="preserve"><value>Entry price</value></data>
+  <data name="Calc.Field.Exit" xml:space="preserve"><value>Exit price</value></data>
+  <data name="Calc.Field.StopLoss" xml:space="preserve"><value>Stop loss</value></data>
+  <data name="Calc.Field.TakeProfit" xml:space="preserve"><value>Take profit</value></data>
+  <data name="Calc.Field.Size" xml:space="preserve"><value>Position size (qty)</value></data>
+  <data name="Calc.Field.Leverage" xml:space="preserve"><value>Leverage</value></data>
+  <data name="Calc.Field.MakerPct" xml:space="preserve"><value>Maker fee %</value></data>
+  <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Taker fee %</value></data>
+  <data name="Calc.Field.OpenFeePct" xml:space="preserve"><value>Open fee %</value></data>
+  <data name="Calc.Field.CloseFeePct" xml:space="preserve"><value>Close fee %</value></data>
+  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Fee %</value></data>
+  <data name="Calc.Field.MmrPct" xml:space="preserve"><value>Maintenance margin %</value></data>
+  <data name="Calc.Field.Notional" xml:space="preserve"><value>Notional</value></data>
+  <data name="Calc.Field.Margin" xml:space="preserve"><value>Margin</value></data>
+  <data name="Calc.Field.FundingRatePct" xml:space="preserve"><value>Funding rate %</value></data>
+  <data name="Calc.Field.Periods" xml:space="preserve"><value>Periods</value></data>
+  <data name="Calc.Field.TargetPct" xml:space="preserve"><value>Target % (optional)</value></data>
+  <data name="Calc.Field.TargetRr" xml:space="preserve"><value>Target R:R (optional)</value></data>
+  <data name="Calc.Field.LegsPriceQty" xml:space="preserve"><value>Fills (price,qty)</value></data>
+  <data name="Calc.Field.LegsPriceAmount" xml:space="preserve"><value>Buys (price,amount)</value></data>
+  <data name="Calc.Field.WinRatePct" xml:space="preserve"><value>Win rate %</value></data>
+  <data name="Calc.Field.RiskReward" xml:space="preserve"><value>Risk:reward</value></data>
+  <data name="Calc.Field.RiskPerTradePct" xml:space="preserve"><value>Risk per trade %</value></data>
+  <data name="Calc.Field.Peak" xml:space="preserve"><value>Peak equity</value></data>
+  <data name="Calc.Field.Trough" xml:space="preserve"><value>Trough equity</value></data>
+  <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Equity series (optional)</value></data>
+  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Loss %</value></data>
+  <data name="Calc.Field.AvgWin" xml:space="preserve"><value>Average win</value></data>
+  <data name="Calc.Field.AvgLoss" xml:space="preserve"><value>Average loss</value></data>
+  <data name="Calc.Field.PayoffRatio" xml:space="preserve"><value>Payoff ratio (b)</value></data>
+  <data name="Calc.Field.Equity" xml:space="preserve"><value>Equity</value></data>
+  <data name="Calc.Field.Losses" xml:space="preserve"><value>Consecutive losses (N)</value></data>
+  <data name="Calc.Field.Price" xml:space="preserve"><value>Price</value></data>
+  <data name="Calc.Field.Supply" xml:space="preserve"><value>Circulating supply</value></data>
+  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Target market cap</value></data>
+  <data name="Calc.Field.Ath" xml:space="preserve"><value>All-time high</value></data>
+  <data name="Calc.Field.Current" xml:space="preserve"><value>Current price</value></data>
+  <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>e.g. 100,1;102,2</value></data>
+  <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>e.g. 100,50;90,50</value></data>
+  <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>e.g. 10000,9800,10200,9500</value></data>
+  <data name="Calc.Result.RiskAmount" xml:space="preserve"><value>Risk amount</value></data>
+  <data name="Calc.Result.Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Calc.Result.Notional" xml:space="preserve"><value>Notional</value></data>
+  <data name="Calc.Result.RiskDistance" xml:space="preserve"><value>Risk distance</value></data>
+  <data name="Calc.Result.RewardDistance" xml:space="preserve"><value>Reward distance</value></data>
+  <data name="Calc.Result.RiskReward" xml:space="preserve"><value>Risk:reward</value></data>
+  <data name="Calc.Result.LevelsAligned" xml:space="preserve"><value>Levels aligned with side</value></data>
+  <data name="Calc.Result.GrossPnl" xml:space="preserve"><value>Gross PnL</value></data>
+  <data name="Calc.Result.Fees" xml:space="preserve"><value>Fees</value></data>
+  <data name="Calc.Result.NetPnl" xml:space="preserve"><value>Net PnL</value></data>
+  <data name="Calc.Result.Margin" xml:space="preserve"><value>Margin</value></data>
+  <data name="Calc.Result.RoePct" xml:space="preserve"><value>ROE %</value></data>
+  <data name="Calc.Result.LiquidationPrice" xml:space="preserve"><value>Liquidation price</value></data>
+  <data name="Calc.Result.AverageEntry" xml:space="preserve"><value>Average entry</value></data>
+  <data name="Calc.Result.Cost" xml:space="preserve"><value>Total cost</value></data>
+  <data name="Calc.Result.Invested" xml:space="preserve"><value>Invested</value></data>
+  <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Break-even price</value></data>
+  <data name="Calc.Result.FundingCashflow" xml:space="preserve"><value>Funding cashflow</value></data>
+  <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
+  <data name="Calc.Result.EffectiveLeverage" xml:space="preserve"><value>Effective leverage</value></data>
+  <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Required margin</value></data>
+  <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Stop-loss price</value></data>
+  <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Take-profit price</value></data>
+  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Expected profit</value></data>
+  <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Risk of ruin %</value></data>
+  <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Max drawdown</value></data>
+  <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Max drawdown %</value></data>
+  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Recovery %</value></data>
+  <data name="Calc.Result.Expectancy" xml:space="preserve"><value>Expectancy</value></data>
+  <data name="Calc.Result.KellyFull" xml:space="preserve"><value>Full Kelly %</value></data>
+  <data name="Calc.Result.KellyHalf" xml:space="preserve"><value>Half Kelly %</value></data>
+  <data name="Calc.Result.KellyQuarter" xml:space="preserve"><value>Quarter Kelly %</value></data>
+  <data name="Calc.Result.RemainingEquity" xml:space="preserve"><value>Remaining equity</value></data>
+  <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Market cap</value></data>
+  <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Implied price</value></data>
+  <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Risking {0}% suggests qty {1} (notional {2}).</value></data>
+  <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Reward is {0}× the risk distance.</value></data>
+  <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>Net PnL {0}; ROE {1}%.</value></data>
+  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Estimated isolated liquidation near {0}.</value></data>
+  <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Weighted average entry {0} on total qty {1}.</value></data>
+  <data name="Calc.Interp.Dca" xml:space="preserve"><value>Average cost {0} after investing {1}.</value></data>
+  <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Fees imply break-even around {0}.</value></data>
+  <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Estimated fee {0}.</value></data>
+  <data name="Calc.Interp.Funding" xml:space="preserve"><value>Net funding cashflow {0} (positive = received).</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×.</value></data>
+  <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Stop loss near {0} for the chosen risk.</value></data>
+  <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Simplified RoR ≈ {0}% (educational model).</value></data>
+  <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Maximum drawdown about {0}%.</value></data>
+  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Need about {0}% gain to recover.</value></data>
+  <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
+  <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Full Kelly ≈ {0}% of bankroll.</value></data>
+  <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>After losses, equity ≈ {0} (drawdown {1}%).</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Market cap ≈ {0}.</value></data>
+  <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Implied price ≈ {0}.</value></data>
+  <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Down {0}% from ATH; need {1}% to recover.</value></data>
+  <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Expense Tracker</value></data>
+  <data name="ExpenseTracker.Title" xml:space="preserve"><value>Expense Tracker</value></data>
+  <data name="ExpenseTracker.Wallets" xml:space="preserve"><value>Wallets</value></data>
+  <data name="ExpenseTracker.Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="ExpenseTracker.Transactions" xml:space="preserve"><value>Transactions</value></data>
+  <data name="ExpenseTracker.Transfers" xml:space="preserve"><value>Transfers</value></data>
+  <data name="ExpenseTracker.Budgets" xml:space="preserve"><value>Budgets</value></data>
+  <data name="ExpenseTracker.SavingGoals" xml:space="preserve"><value>Saving Goals</value></data>
+  <data name="ExpenseTracker.Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="ExpenseTracker.TransactionTags" xml:space="preserve"><value>Transaction Tags</value></data>
+  <data name="ExpenseTracker.RecurringTransactions" xml:space="preserve"><value>Recurring Transactions</value></data>
+  <data name="ExpenseTracker.TotalAsset" xml:space="preserve"><value>Total Asset</value></data>
+  <data name="ExpenseTracker.IncomeToday" xml:space="preserve"><value>Income Today</value></data>
+  <data name="ExpenseTracker.ExpenseToday" xml:space="preserve"><value>Expense Today</value></data>
+  <data name="ExpenseTracker.CashFlow" xml:space="preserve"><value>Cash Flow</value></data>
+  <data name="ExpenseTracker.Name" xml:space="preserve"><value>Name</value></data>
+  <data name="ExpenseTracker.Type" xml:space="preserve"><value>Type</value></data>
+  <data name="ExpenseTracker.Currency" xml:space="preserve"><value>Currency</value></data>
+  <data name="ExpenseTracker.Balance" xml:space="preserve"><value>Balance</value></data>
+  <data name="ExpenseTracker.Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="ExpenseTracker.Note" xml:space="preserve"><value>Note</value></data>
+  <data name="ExpenseTracker.Period" xml:space="preserve"><value>Period</value></data>
+  <data name="ExpenseTracker.StartDate" xml:space="preserve"><value>Start Date</value></data>
+  <data name="ExpenseTracker.EndDate" xml:space="preserve"><value>End Date</value></data>
+  <data name="ExpenseTracker.TargetAmount" xml:space="preserve"><value>Target Amount</value></data>
+  <data name="ExpenseTracker.CurrentAmount" xml:space="preserve"><value>Current Amount</value></data>
+  <data name="ExpenseTracker.Color" xml:space="preserve"><value>Color</value></data>
+  <data name="ExpenseTracker.Transaction" xml:space="preserve"><value>Transaction</value></data>
+  <data name="ExpenseTracker.Tag" xml:space="preserve"><value>Tag</value></data>
+  <data name="ExpenseTracker.Frequency" xml:space="preserve"><value>Frequency</value></data>
+  <data name="ExpenseTracker.NextRun" xml:space="preserve"><value>Next Run</value></data>
+  <data name="ExpenseTracker.Create.Title" xml:space="preserve"><value>Create</value></data>
+  <data name="ExpenseTracker.Edit.Title" xml:space="preserve"><value>Edit</value></data>
+  <data name="ExpenseTracker.ConfirmDelete" xml:space="preserve"><value>Delete this item?</value></data>
+  <data name="ExpenseTracker.Save.Success" xml:space="preserve"><value>Saved successfully.</value></data>
+  <data name="ExpenseTracker.Save.Failed" xml:space="preserve"><value>Save failed.</value></data>
+  <data name="ExpenseTracker.Delete.Success" xml:space="preserve"><value>Deleted successfully.</value></data>
+  <data name="ExpenseTracker.Delete.Failed" xml:space="preserve"><value>Delete failed.</value></data>
+  <data name="ExpenseTracker.SourceWallet" xml:space="preserve"><value>Source Wallet</value></data>
+  <data name="ExpenseTracker.TargetWallet" xml:space="preserve"><value>Target Wallet</value></data>
+  <data name="ExpenseTracker.TargetDate" xml:space="preserve"><value>Target Date</value></data>
+  <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Initial Balance</value></data>
+</root>

@@ -1,0 +1,129 @@
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using Microsoft.Extensions.Localization
+@using ThaiX.Client.Models.ExternalData
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenCard Class="h-100 w-100">
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center p-4">
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        </div>
+    }
+    else if (!_data.Any())
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @L[RK.Common.NoDataFound]
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         AlignItems="AlignItems.Center"
+                         JustifyContent="JustifyContent.SpaceBetween"
+                         Gap="0.5rem"
+                         Wrap="FlexWrap.Wrap">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">
+                    @L[RK.Market.Currencies]
+                </RadzenText>
+
+                @if (TotalPages > 1)
+                {
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.35rem">
+                        <RadzenButton Icon="chevron_left"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Size="ButtonSize.Small"
+                                      Disabled="@(_pageIndex <= 0)"
+                                      title="@L[RK.VnDirectChangePrices.Previous]"
+                                      Click="PreviousPage" />
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0 text-nowrap">
+                            @string.Format(L[RK.VnDirectChangePrices.PageOf], _pageIndex + 1, TotalPages)
+                        </RadzenText>
+                        <RadzenButton Icon="chevron_right"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Size="ButtonSize.Small"
+                                      Disabled="@(_pageIndex >= TotalPages - 1)"
+                                      title="@L[RK.VnDirectChangePrices.Next]"
+                                      Click="NextPage" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+
+            <RadzenStack Gap="0.75rem">
+                @foreach (var item in VisibleItems)
+                {
+                    <RadzenCard Class="p-3" Style="border: 1px solid var(--rz-border-color);">
+                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-1"><strong>@item.ProductName</strong></RadzenText>
+                        <RadzenRow>
+                            <RadzenColumn Size="6">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.Market.Price]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2"><strong>@item.CurrentPrice.ToString("N2")</strong></RadzenText>
+                            </RadzenColumn>
+                            <RadzenColumn Size="6" Class="text-end">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.Market.Change]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">
+                                    <strong class="@(item.Change24H >= 0 ? "text-success" : "text-danger")">
+                                        @(item.Change24H >= 0 ? "+" : "")@item.Change24H.ToString("N2")%
+                                    </strong>
+                                </RadzenText>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenCard>
+                }
+            </RadzenStack>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private const int PageSize = 6;
+
+    private List<CurrencyDto> _data = [];
+    private bool _isLoading;
+    private int _pageIndex;
+
+    private int TotalPages =>
+        _data.Count == 0 ? 1 : (int)Math.Ceiling(_data.Count / (double)PageSize);
+
+    private IEnumerable<CurrencyDto> VisibleItems =>
+        _data.Skip(_pageIndex * PageSize).Take(PageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetCurrenciesAsync();
+            if (response is { Success: true, Data: not null })
+            {
+                _data = response.Data.Data;
+                _pageIndex = 0;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (_pageIndex > 0)
+        {
+            _pageIndex--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (_pageIndex < TotalPages - 1)
+        {
+            _pageIndex++;
+        }
+    }
+}

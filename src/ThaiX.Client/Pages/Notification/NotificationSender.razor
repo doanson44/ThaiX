@@ -1,0 +1,192 @@
+@page "/notifications/sender"
+@attribute [Authorize(Policy = PermissionNames.SystemAdmin)]
+@using ThaiX.Client.Models.Notifications
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.Notifications
+@inject INotificationService NotificationClient
+@inject Radzen.NotificationService RadzenNotificationService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.Notifications.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenCard Class="w-100">
+        <RadzenStack Gap="1rem">
+            <div>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0">@L[RK.Notifications.Title]</RadzenText>
+                <RadzenText Class="text-muted">@L[RK.Notifications.Description]</RadzenText>
+            </div>
+
+            <RadzenTemplateForm Data="@_model" Submit="@((SendNotificationRequest _) => OnSubmitAsync())">
+                <RadzenStack Gap="0.75rem">
+                    <RadzenRow Gap="1rem" RowGap="0.75rem">
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                            <RadzenFormField Text="@L[RK.Notifications.EventType]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenDropDown Name="eventType"
+                                                Data="@_eventOptions"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                TValue="NotificationEventType"
+                                                @bind-Value="_model.EventType"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                            <RadzenFormField Text="@L[RK.Notifications.Target]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenDropDown Name="target"
+                                                Data="@_targetOptions"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                TValue="NotificationTarget"
+                                                @bind-Value="_model.Target"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                            <RadzenFormField Text="@L[RK.Notifications.SeverityOptional]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenTextBox Name="severity"
+                                               @bind-Value="_model.Severity"
+                                               MaxLength="64"
+                                               Class="w-100" />
+                            </RadzenFormField>
+                            <RadzenLengthValidator Component="severity"
+                                                   Max="64"
+                                                   Popup="false"
+                                                   Text="@L[RK.Notifications.Max64]" />
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenRow Gap="1rem" RowGap="0.75rem">
+                        <RadzenColumn Size="12">
+                            <RadzenFormField Text="@L[RK.Notifications.TitleOptional]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenTextBox Name="title"
+                                               @bind-Value="_model.Title"
+                                               MaxLength="256"
+                                               Class="w-100" />
+                            </RadzenFormField>
+                            <RadzenLengthValidator Component="title"
+                                                   Max="256"
+                                                   Popup="false"
+                                                   Text="@L[RK.Notifications.Max256]" />
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenRow Gap="1rem">
+                        <RadzenColumn Size="12">
+                            <RadzenFormField Text="@L[RK.Notifications.Message]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenTextArea Name="text"
+                                                @bind-Value="_model.Text"
+                                                Rows="8"
+                                                MaxLength="20000"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                            <RadzenRequiredValidator Component="text"
+                                                     Text="@L[RK.Validation.Required]"
+                                                     Popup="false" />
+                            <RadzenLengthValidator Component="text"
+                                                   Max="20000"
+                                                   Popup="false"
+                                                   Text="@L[RK.Notifications.Max20000]" />
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)"
+                                 AlignItems="AlignItems.Center"
+                                 Gap="0.5rem"
+                                 Wrap="FlexWrap.Wrap">
+                        <RadzenButton Text="@L[RK.Common.Save]"
+                                      Icon="send"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      ButtonType="ButtonType.Submit"
+                                      IsBusy="@_isSubmitting"
+                                      Disabled="@_isSubmitting"
+                                      BusyText="@L[RK.Common.Loading]"
+                                      Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                        <RadzenButton Text="@L[RK.Common.Cancel]"
+                                      Icon="refresh"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Click="@ResetForm"
+                                      Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </RadzenStack>
+    </RadzenCard>
+</div>
+
+@code {
+    private SendNotificationRequest _model = new();
+    private bool _isSubmitting;
+    private IReadOnlyList<EventOption> _eventOptions = [];
+    private IReadOnlyList<TargetOption> _targetOptions = [];
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _eventOptions =
+        [
+            new(NotificationEventType.MarketOverview, L[RK.Notifications.EventMarketOverview]),
+            new(NotificationEventType.PriceUpdate, L[RK.Notifications.EventPriceUpdate]),
+            new(NotificationEventType.CryptoSpike, L[RK.Notifications.EventCryptoSpike]),
+            new(NotificationEventType.GoodEntryCrypto, L[RK.Notifications.EventGoodEntryCrypto]),
+            new(NotificationEventType.GoodEntryStocks, L[RK.Notifications.EventGoodEntryStocks]),
+            new(NotificationEventType.SystemAlert, L[RK.Notifications.EventSystemAlert]),
+            new(NotificationEventType.DataSync, L[RK.Notifications.EventDataSync]),
+            new(NotificationEventType.MarketScanner, L[RK.Notifications.EventMarketScanner]),
+            new(NotificationEventType.PriceAlert, L[RK.Notifications.EventPriceAlert])
+        ];
+
+        _targetOptions =
+        [
+            new(NotificationTarget.Both, L[RK.Notifications.TargetBoth]),
+            new(NotificationTarget.Slack, L[RK.Notifications.TargetSlack]),
+            new(NotificationTarget.Telegram, L[RK.Notifications.TargetTelegram])
+        ];
+    }
+
+    private async Task OnSubmitAsync()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        try
+        {
+            _model.Text = _model.Text.Trim();
+            _model.Title = string.IsNullOrWhiteSpace(_model.Title) ? null : _model.Title.Trim();
+            _model.Severity = string.IsNullOrWhiteSpace(_model.Severity) ? null : _model.Severity.Trim();
+
+            await NotificationClient.SendNotificationAsync(_model);
+            RadzenNotificationService.Notify(Radzen.NotificationSeverity.Success, L[RK.Notifications.SentSuccess]!, duration: 4000);
+            _model = new SendNotificationRequest
+            {
+                EventType = _model.EventType,
+                Target = _model.Target
+            };
+        }
+        catch (ApiException ex)
+        {
+            RadzenNotificationService.Notify(Radzen.NotificationSeverity.Error, L[RK.Notifications.SendFailed]!, ex.GetDisplayDetail(), 6000);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _model = new SendNotificationRequest();
+    }
+
+    private sealed record EventOption(NotificationEventType Value, string Text);
+    private sealed record TargetOption(NotificationTarget Value, string Text);
+}

@@ -1,0 +1,62 @@
+# File Endpoints
+# POST   /api/files/upload
+# GET    /api/files/{id}
+# DELETE /api/files/{id}
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+@authToken = {{login.response.body.$.data.accessToken}}
+
+@fileId = 00000000-0000-0000-0000-000000000000
+
+###
+
+# ============================================================
+# File Endpoints
+# ============================================================
+
+### Upload a file
+# Note: Use multipart/form-data. storageKey example: contacts/{contactId}/avatar/avatar.webp
+# This example uses a form boundary; adjust for your HTTP client.
+POST {{baseUrl}}/api/files/upload
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="storageKey"
+
+contacts/00000000-0000-0000-0000-000000000000/avatar/avatar.webp
+------FormBoundary
+Content-Disposition: form-data; name="file"; filename="avatar.webp"
+Content-Type: image/webp
+
+< ./sample-avatar.webp
+------FormBoundary--
+
+###
+
+### Get file metadata and public URL by ID
+GET {{baseUrl}}/api/files/{{fileId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Delete file from storage and remove metadata
+DELETE {{baseUrl}}/api/files/{{fileId}}
+Authorization: Bearer {{authToken}}

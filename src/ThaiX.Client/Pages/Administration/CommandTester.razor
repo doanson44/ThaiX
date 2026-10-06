@@ -1,0 +1,315 @@
+@page "/admin/command-tester"
+@attribute [Authorize(Policy = PermissionNames.SystemAdmin)]
+@using ThaiX.Client.Models.Slack
+@using ThaiX.Client.Services.Slack
+@inject IBotCommandTesterService TesterService
+@inject ISlackService SlackService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.Menu.CommandTester] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+
+        @* ===== Execute Form ===== *@
+        <RadzenCard Class="w-100">
+            <RadzenStack Gap="1rem">
+                <div>
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0">@L[RK.Menu.CommandTester]</RadzenText>
+                    <RadzenText Class="text-muted">@L[RK.SlackCommands.Description]</RadzenText>
+                </div>
+
+                <RadzenTemplateForm Data="@_request" Submit="@((ExecuteBotCommandTesterRequest _) => ExecuteCommandAsync())">
+                    <RadzenStack Gap="0.75rem">
+
+                        <RadzenRow Gap="1rem" RowGap="0.75rem">
+                            <RadzenColumn Size="12" SizeMD="4">
+                                <RadzenFormField Text="@L[RK.SlackCommands.Channel]" Variant="Variant.Outlined" Class="w-100">
+                                    <RadzenDropDown Name="channel"
+                                                    Data="@_channels"
+                                                    @bind-Value="_request.Channel"
+                                                    Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="4">
+                                <RadzenFormField Text="@L[RK.SlackCommands.ExternalUserId]" Variant="Variant.Outlined" Class="w-100">
+                                    <RadzenTextBox Name="externalUserId"
+                                                   @bind-Value="_request.ExternalUserId"
+                                                   MaxLength="256"
+                                                   Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="4">
+                                <RadzenFormField Text="@L[RK.SlackCommands.ExternalChannelId]" Variant="Variant.Outlined" Class="w-100">
+                                    @if (_request.Channel == "Slack" && _slackChannels.Count > 0)
+                                    {
+                                        <RadzenDropDown Name="externalChannelId"
+                                                        TextProperty="Name"
+                                                        ValueProperty="Id"
+                                                        Data="@_slackChannels"
+                                                        @bind-Value="_request.ExternalChannelId"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        Placeholder="@L[RK.SlackCommands.ChannelPlaceholder]"
+                                                        Class="w-100" />
+                                    }
+                                    else if (_request.Channel == "Telegram" && _telegramChannels.Count > 0)
+                                    {
+                                        <RadzenDropDown Name="externalChannelId"
+                                                        TextProperty="Name"
+                                                        ValueProperty="Id"
+                                                        Data="@_telegramChannels"
+                                                        @bind-Value="_request.ExternalChannelId"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        Placeholder="@L[RK.SlackCommands.ChannelPlaceholder]"
+                                                        Class="w-100" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenTextBox Name="externalChannelId"
+                                                       @bind-Value="_request.ExternalChannelId"
+                                                       MaxLength="256"
+                                                       Class="w-100" />
+                                    }
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        @* Sample commands panel *@
+                        <div>
+                            <RadzenText Class="fw-semibold mb-1">@L[RK.SlackCommands.SampleCommands]</RadzenText>
+                            <RadzenText Class="text-muted mb-2" Style="font-size:0.8rem">@L[RK.SlackCommands.SampleCommandsHint]</RadzenText>
+                            <RadzenStack Gap="0.5rem">
+                                @foreach (var group in _sampleCommandGroups)
+                                {
+                                    <div class="d-flex flex-wrap align-items-center gap-1">
+                                        <RadzenText Class="small text-muted me-1 flex-shrink-0">@group.Category</RadzenText>
+                                        @foreach (var cmd in group.Commands)
+                                        {
+                                            <RadzenButton Text="@cmd"
+                                                          Size="ButtonSize.ExtraSmall"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Click="@(() => FillCommand(cmd))"
+                                                          Class="font-monospace" />
+                                        }
+                                    </div>
+                                }
+                            </RadzenStack>
+                        </div>
+
+                        <div>
+                            <RadzenFormField Text="@L[RK.SlackCommands.RawCommand]" Variant="Variant.Outlined" Class="w-100">
+                                <RadzenTextArea Name="rawText"
+                                                @bind-Value="_request.RawText"
+                                                Rows="3"
+                                                MaxLength="2000"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                            <RadzenRequiredValidator Component="rawText"
+                                                     Text="@L[RK.Validation.Required]"
+                                                     Popup="false" />
+                            <RadzenText Class="text-muted">@L[RK.SlackCommands.RawCommandHint]</RadzenText>
+                        </div>
+
+                        <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)"
+                                     AlignItems="AlignItems.Center"
+                                     Gap="0.5rem"
+                                     Wrap="FlexWrap.Wrap">
+                            <RadzenButton Text="@L[RK.SlackCommands.ExecuteButton]"
+                                          Icon="play_arrow"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="ButtonType.Submit"
+                                          IsBusy="@_isExecuting"
+                                          Disabled="@_isExecuting"
+                                          BusyText="@L[RK.Common.Loading]"
+                                          Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                            <RadzenButton Text="@L[RK.Common.Refresh]"
+                                          Icon="refresh"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ResetExecutionForm"
+                                          Disabled="@_isExecuting"
+                                          Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenTemplateForm>
+            </RadzenStack>
+        </RadzenCard>
+
+        @* Execution Result *@
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12">
+                <RadzenCard Class="w-100 h-100">
+                    <RadzenStack Gap="0.75rem">
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Body1 : TextStyle.H6)" Class="mb-0">@L[RK.SlackCommands.ExecutionResult]</RadzenText>
+
+                        @if (_executionResult is null)
+                        {
+                            <RadzenText Class="text-muted">@L[RK.SlackCommands.NoExecutionResult]</RadzenText>
+                        }
+                        else
+                        {
+                            @RenderExecutionResult(_executionResult)
+                        }
+                    </RadzenStack>
+                </RadzenCard>
+            </RadzenColumn>
+        </RadzenRow>
+
+    </RadzenStack>
+</div>
+
+@code {
+    private record SampleCommandGroup(string Category, string[] Commands);
+
+    private static readonly SampleCommandGroup[] _sampleCommandGroups =
+    [
+        new("Utility",     ["/help"]),
+        new("Stock",       ["/ps VNM", "/ps VHM", "/psi VNM", "/psi HPG 1d"]),
+        new("Crypto",      ["/pc BTC", "/pc ETH", "/pci BTC", "/pci ETH 4h"]),
+        new("Signal",      ["/signal VNM --stock", "/signal BTC --crypto"]),
+        new("Portfolio",   ["/pf"]),
+        new("Alert",       ["/alert list", "/alert VNM > 50000 stock", "/alert BTC < 60000 crypto --repeat"]),
+        new("TCBS",        ["/tcbs"]),
+        new("Note",        ["/note Can mua BTC khi ve 60k", "/note list"]),
+        new("Price",      ["/p Phan tich co phieu VNM hom nay nhu the nao?"]),
+    ];
+
+    private static readonly string _autoExternalUserId = $"test-{Guid.NewGuid():N}"[..12];
+
+    private readonly List<string> _channels = ["Slack", "Telegram"];
+    private ExecuteBotCommandTesterRequest _request = new()
+    {
+        Channel = "Slack",
+        ExternalUserId = _autoExternalUserId
+    };
+    private bool _isExecuting;
+    private BotCommandExecutionDto? _executionResult;
+    private readonly List<ChannelInfoDto> _slackChannels = [];
+    private readonly List<ChannelInfoDto> _telegramChannels = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var slackChannels = await SlackService.GetCommandChannelsAsync();
+            _slackChannels.Clear();
+            _slackChannels.AddRange(slackChannels);
+
+            if (_slackChannels.Count > 0 && string.IsNullOrWhiteSpace(_request.ExternalChannelId))
+            {
+                _request.ExternalChannelId = _slackChannels[0].Id;
+            }
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyWarning(L[RK.SlackCommands.ChannelLoadFailed], ex.GetDisplayDetail());
+        }
+
+        try
+        {
+            var telegramChannels = await SlackService.GetTelegramChannelsAsync();
+            _telegramChannels.Clear();
+            _telegramChannels.AddRange(telegramChannels);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyWarning(L[RK.SlackCommands.ChannelLoadFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private void FillCommand(string command)
+    {
+        _request.RawText = command;
+    }
+
+    private async Task ExecuteCommandAsync()
+    {
+        if (_isExecuting)
+        {
+            return;
+        }
+
+        _isExecuting = true;
+        try
+        {
+            _request.RawText = (_request.RawText ?? string.Empty).Trim();
+            _request.ExternalUserId = _request.ExternalUserId.Trim();
+            _request.ExternalChannelId = _request.ExternalChannelId?.Trim();
+
+            _executionResult = await TesterService.ExecuteCommandAsync(_request);
+
+            NotificationService.NotifySuccess(L[RK.SlackCommands.ExecuteSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.SlackCommands.ExecuteFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isExecuting = false;
+        }
+    }
+
+    private void ResetExecutionForm()
+    {
+        if (_isExecuting)
+        {
+            return;
+        }
+
+        _request = new ExecuteBotCommandTesterRequest
+        {
+            Channel = _request.Channel,
+            ExternalUserId = _autoExternalUserId
+        };
+        _executionResult = null;
+    }
+
+    private RenderFragment RenderExecutionResult(BotCommandExecutionDto result) => @<div>
+        <RadzenStack Gap="0.75rem">
+            <RadzenRow Gap="1rem" RowGap="0.5rem">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenText Class="fw-semibold">@L[RK.SlackCommands.Status]</RadzenText>
+                    <RadzenText>@result.Status</RadzenText>
+                </RadzenColumn>
+                @if (!string.IsNullOrWhiteSpace(result.ExecutionId))
+                {
+                    <RadzenColumn Size="12" SizeMD="8">
+                        <RadzenText Class="fw-semibold">@L[RK.SlackCommands.ExecutionId]</RadzenText>
+                        <RadzenText Style="word-break:break-all">@result.ExecutionId</RadzenText>
+                    </RadzenColumn>
+                }
+                @if (!string.IsNullOrWhiteSpace(result.ErrorCode))
+                {
+                    <RadzenColumn Size="12">
+                        <RadzenText Class="fw-semibold">@L[RK.SlackCommands.ErrorCode]</RadzenText>
+                        <RadzenText>@result.ErrorCode</RadzenText>
+                    </RadzenColumn>
+                }
+            </RadzenRow>
+
+            <div>
+                <RadzenText Class="fw-semibold">@L[RK.SlackCommands.PlainText]</RadzenText>
+                <div class="border rounded p-2 bg-body-tertiary">
+                    <pre class="mb-0" style="white-space:pre-wrap;word-break:break-word">@result.PlainText</pre>
+                </div>
+            </div>
+
+            @if (result is { Status: "Rejected", ErrorCode: not null })
+            {
+                <RadzenStack Gap="0.5rem">
+                    @if (!string.IsNullOrWhiteSpace(result.ErrorCode))
+                    {
+                        <div>
+                            <RadzenText Class="fw-semibold">@L[RK.SlackCommands.ErrorCode]</RadzenText>
+                            <RadzenText>@result.ErrorCode</RadzenText>
+                        </div>
+                    }
+                </RadzenStack>
+            }
+        </RadzenStack>
+    </div>;
+}

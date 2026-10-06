@@ -1,0 +1,757 @@
+@page "/portfolio/expense-tracker"
+@attribute [Authorize(Policy = PermissionNames.ExpenseTransactionRead)]
+@inherits ThaiXPageBase
+@using ThaiX.Client.Models.ExpenseTracker
+@using ThaiX.Client.Components.Portfolio
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject ThaiX.Client.Services.ExpenseTracker.IExpenseTrackerService ExpenseTrackerService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.ExpenseTracker.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">
+                @L[RK.ExpenseTracker.Title]
+            </RadzenText>
+        </RadzenCard>
+
+        @if (_isLoading)
+        {
+            <RadzenCard>
+                <RadzenText>@L[RK.Common.Loading]</RadzenText>
+            </RadzenCard>
+        }
+        else
+        {
+            <RadzenCard>
+                <RadzenRow Gap="1rem">
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.ExpenseTracker.TotalAsset]</RadzenText>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">
+                            @_dashboard?.Summary.TotalAsset.ToString("N2")
+                        </RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.ExpenseTracker.IncomeToday]</RadzenText>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">
+                            @_dashboard?.Summary.IncomeToday.ToString("N2")
+                        </RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.ExpenseTracker.ExpenseToday]</RadzenText>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">
+                            @_dashboard?.Summary.ExpenseToday.ToString("N2")
+                        </RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+                        <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.ExpenseTracker.CashFlow]</RadzenText>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">
+                            @_dashboard?.CashFlow.ToString("N2")
+                        </RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
+
+            @if (Viewport.IsMobile)
+            {
+                <RadzenCard>
+                    <RadzenStack Gap="0.75rem">
+                        <RadzenDropDown TValue="string"
+                                        Data="@_sectionOptions"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        @bind-Value="_selectedSection"
+                                        Style="width:100%"
+                                        Change="@(_ => StateHasChanged())" />
+                        @RenderSectionToolbar(_selectedSection)
+                        @RenderSectionBody(_selectedSection)
+                    </RadzenStack>
+                </RadzenCard>
+            }
+            else
+            {
+                <RadzenTabs @bind-SelectedIndex="_selectedTabIndex">
+                    <Tabs>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Wallets]">
+                            @RenderSectionToolbar("wallets")
+                            @RenderWallets(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Categories]">
+                            @RenderSectionToolbar("categories")
+                            @RenderCategories(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Transactions]">
+                            @RenderSectionToolbar("transactions")
+                            @RenderTransactions(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Transfers]">
+                            @RenderSectionToolbar("transfers")
+                            @RenderTransfers(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Budgets]">
+                            @RenderSectionToolbar("budgets")
+                            @RenderBudgets(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.SavingGoals]">
+                            @RenderSectionToolbar("saving-goals")
+                            @RenderSavingGoals(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.Tags]">
+                            @RenderSectionToolbar("tags")
+                            @RenderTags(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.TransactionTags]">
+                            @RenderSectionToolbar("transaction-tags")
+                            @RenderTransactionTags(desktop: true)
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@L[RK.ExpenseTracker.RecurringTransactions]">
+                            @RenderSectionToolbar("recurring")
+                            @RenderRecurring(desktop: true)
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            }
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private ExpenseDashboardDataDto? _dashboard;
+    private IReadOnlyList<ExpenseWalletDto> _wallets = [];
+    private IReadOnlyList<ExpenseCategoryDto> _categories = [];
+    private IReadOnlyList<ExpenseTransactionDto> _transactions = [];
+    private IReadOnlyList<ExpenseTransferDto> _transfers = [];
+    private IReadOnlyList<ExpenseBudgetDto> _budgets = [];
+    private IReadOnlyList<ExpenseSavingGoalDto> _savingGoals = [];
+    private IReadOnlyList<ExpenseTagDto> _tags = [];
+    private IReadOnlyList<ExpenseTransactionTagDto> _transactionTags = [];
+    private IReadOnlyList<ExpenseRecurringTransactionDto> _recurringTransactions = [];
+    private bool _isLoading = true;
+    private int _selectedTabIndex;
+    private string _selectedSection = "wallets";
+    private List<SectionOption> _sectionOptions = [];
+    private readonly Dictionary<string, bool> _canWrite = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, bool> _canDelete = new(StringComparer.OrdinalIgnoreCase);
+
+    private sealed record SectionOption(string Value, string Text);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _sectionOptions =
+        [
+            new("wallets", L[RK.ExpenseTracker.Wallets]),
+            new("categories", L[RK.ExpenseTracker.Categories]),
+            new("transactions", L[RK.ExpenseTracker.Transactions]),
+            new("transfers", L[RK.ExpenseTracker.Transfers]),
+            new("budgets", L[RK.ExpenseTracker.Budgets]),
+            new("saving-goals", L[RK.ExpenseTracker.SavingGoals]),
+            new("tags", L[RK.ExpenseTracker.Tags]),
+            new("transaction-tags", L[RK.ExpenseTracker.TransactionTags]),
+            new("recurring", L[RK.ExpenseTracker.RecurringTransactions])
+        ];
+
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        SetPerm("wallets", user, PermissionNames.WalletWrite, PermissionNames.WalletDelete);
+        SetPerm("categories", user, PermissionNames.ExpenseCategoryWrite, PermissionNames.ExpenseCategoryDelete);
+        SetPerm("transactions", user, PermissionNames.ExpenseTransactionWrite, PermissionNames.ExpenseTransactionDelete);
+        SetPerm("transfers", user, PermissionNames.TransferWrite, PermissionNames.TransferDelete);
+        SetPerm("budgets", user, PermissionNames.BudgetWrite, PermissionNames.BudgetDelete);
+        SetPerm("saving-goals", user, PermissionNames.SavingGoalWrite, PermissionNames.SavingGoalDelete);
+        SetPerm("tags", user, PermissionNames.ExpenseTagWrite, PermissionNames.ExpenseTagDelete);
+        SetPerm("transaction-tags", user, PermissionNames.TransactionTagWrite, PermissionNames.TransactionTagDelete);
+        SetPerm("recurring", user, PermissionNames.RecurringTransactionWrite, PermissionNames.RecurringTransactionDelete);
+
+        await ReloadAsync();
+    }
+
+    private void SetPerm(string section, System.Security.Claims.ClaimsPrincipal user, string write, string delete)
+    {
+        _canWrite[section] = user.HasClaim("scope", write);
+        _canDelete[section] = user.HasClaim("scope", delete);
+    }
+
+    private async Task ReloadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _dashboard = await ExpenseTrackerService.GetDashboardAsync();
+            var request = new ExpenseListRequest { PageNumber = 1, PageSize = 50, SortBy = "createdat", SortDescending = true };
+            _wallets = (await ExpenseTrackerService.GetWalletsAsync(request)).Data ?? [];
+            _categories = (await ExpenseTrackerService.GetCategoriesAsync(request)).Data ?? [];
+            _transactions = (await ExpenseTrackerService.GetTransactionsAsync(request)).Data ?? [];
+            _transfers = (await ExpenseTrackerService.GetTransfersAsync(request)).Data ?? [];
+            _budgets = (await ExpenseTrackerService.GetBudgetsAsync(request)).Data ?? [];
+            _savingGoals = (await ExpenseTrackerService.GetSavingGoalsAsync(request)).Data ?? [];
+            _tags = (await ExpenseTrackerService.GetTagsAsync(request)).Data ?? [];
+            _transactionTags = (await ExpenseTrackerService.GetTransactionTagsAsync(request)).Data ?? [];
+            _recurringTransactions = (await ExpenseTrackerService.GetRecurringTransactionsAsync(request)).Data ?? [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private RenderFragment RenderSectionBody(string section) => section switch
+    {
+        "categories" => RenderCategories(desktop: false),
+        "transactions" => RenderTransactions(desktop: false),
+        "transfers" => RenderTransfers(desktop: false),
+        "budgets" => RenderBudgets(desktop: false),
+        "saving-goals" => RenderSavingGoals(desktop: false),
+        "tags" => RenderTags(desktop: false),
+        "transaction-tags" => RenderTransactionTags(desktop: false),
+        "recurring" => RenderRecurring(desktop: false),
+        _ => RenderWallets(desktop: false)
+    };
+
+    private RenderFragment RenderSectionToolbar(string section) => __builder =>
+    {
+        if (_canWrite.GetValueOrDefault(section))
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" class="mb-2">
+                <ResponsiveIconButton Text="@L[RK.ExpenseTracker.CreateTitle]"
+                                      Icon="add"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Click="@(() => OpenCreateAsync(ToKind(section)))" />
+            </RadzenStack>
+        }
+    };
+
+    private static ExpenseResourceKind ToKind(string section) => section switch
+    {
+        "categories" => ExpenseResourceKind.Category,
+        "transactions" => ExpenseResourceKind.Transaction,
+        "transfers" => ExpenseResourceKind.Transfer,
+        "budgets" => ExpenseResourceKind.Budget,
+        "saving-goals" => ExpenseResourceKind.SavingGoal,
+        "tags" => ExpenseResourceKind.Tag,
+        "transaction-tags" => ExpenseResourceKind.TransactionTag,
+        "recurring" => ExpenseResourceKind.Recurring,
+        _ => ExpenseResourceKind.Wallet
+    };
+
+    private RenderFragment RenderWallets(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseWalletDto" Data="@_wallets" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseWalletDto" Property="Name" Title="@L[RK.ExpenseTracker.Name]" />
+                    <RadzenDataGridColumn TItem="ExpenseWalletDto" Property="WalletType" Title="@L[RK.ExpenseTracker.Type]" />
+                    <RadzenDataGridColumn TItem="ExpenseWalletDto" Property="Currency" Title="@L[RK.ExpenseTracker.Currency]" />
+                    <RadzenDataGridColumn TItem="ExpenseWalletDto" Property="CurrentBalance" Title="@L[RK.ExpenseTracker.Balance]" />
+                    <RadzenDataGridColumn TItem="ExpenseWalletDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("wallets", () => OpenEditWalletAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Wallet, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _wallets,
+                w => w.Name,
+                w => $"{w.WalletType} · {w.Currency}",
+                w => w.CurrentBalance.ToString("N2"),
+                "wallets",
+                w => OpenEditWalletAsync(w),
+                w => ConfirmDeleteAsync(ExpenseResourceKind.Wallet, w.Id))
+        }
+    };
+
+    private RenderFragment RenderCategories(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseCategoryDto" Data="@_categories" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseCategoryDto" Property="Name" Title="@L[RK.ExpenseTracker.Name]" />
+                    <RadzenDataGridColumn TItem="ExpenseCategoryDto" Property="CategoryType" Title="@L[RK.ExpenseTracker.Type]" />
+                    <RadzenDataGridColumn TItem="ExpenseCategoryDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("categories", () => OpenEditCategoryAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Category, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _categories,
+                c => c.Name,
+                c => c.CategoryType,
+                _ => null,
+                "categories",
+                c => OpenEditCategoryAsync(c),
+                c => ConfirmDeleteAsync(ExpenseResourceKind.Category, c.Id))
+        }
+    };
+
+    private RenderFragment RenderTransactions(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseTransactionDto" Data="@_transactions" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseTransactionDto" Property="TransactionType" Title="@L[RK.ExpenseTracker.Type]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionDto" Property="Amount" Title="@L[RK.ExpenseTracker.Amount]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionDto" Property="OccurredOn" Title="@L[RK.Common.CreatedAt]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionDto" Property="Note" Title="@L[RK.ExpenseTracker.Note]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("transactions", () => OpenEditTransactionAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Transaction, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _transactions,
+                t => t.TransactionType,
+                t => $"{t.Amount:N2} · {t.OccurredOn:yyyy-MM-dd}",
+                t => t.Note,
+                "transactions",
+                t => OpenEditTransactionAsync(t),
+                t => ConfirmDeleteAsync(ExpenseResourceKind.Transaction, t.Id))
+        }
+    };
+
+    private RenderFragment RenderTransfers(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseTransferDto" Data="@_transfers" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseTransferDto" Property="Amount" Title="@L[RK.ExpenseTracker.Amount]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransferDto" Property="TransferredOn" Title="@L[RK.Common.CreatedAt]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransferDto" Property="Note" Title="@L[RK.ExpenseTracker.Note]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransferDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("transfers", () => OpenEditTransferAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Transfer, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _transfers,
+                t => t.Amount.ToString("N2"),
+                t => t.TransferredOn.ToString("yyyy-MM-dd"),
+                t => t.Note,
+                "transfers",
+                t => OpenEditTransferAsync(t),
+                t => ConfirmDeleteAsync(ExpenseResourceKind.Transfer, t.Id))
+        }
+    };
+
+    private RenderFragment RenderBudgets(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseBudgetDto" Data="@_budgets" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseBudgetDto" Property="Period" Title="@L[RK.ExpenseTracker.Period]" />
+                    <RadzenDataGridColumn TItem="ExpenseBudgetDto" Property="Amount" Title="@L[RK.ExpenseTracker.Amount]" />
+                    <RadzenDataGridColumn TItem="ExpenseBudgetDto" Property="StartDate" Title="@L[RK.ExpenseTracker.StartDate]" />
+                    <RadzenDataGridColumn TItem="ExpenseBudgetDto" Property="EndDate" Title="@L[RK.ExpenseTracker.EndDate]" />
+                    <RadzenDataGridColumn TItem="ExpenseBudgetDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("budgets", () => OpenEditBudgetAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Budget, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _budgets,
+                b => b.Period,
+                b => b.Amount.ToString("N2"),
+                b => $"{b.StartDate:yyyy-MM-dd} → {b.EndDate:yyyy-MM-dd}",
+                "budgets",
+                b => OpenEditBudgetAsync(b),
+                b => ConfirmDeleteAsync(ExpenseResourceKind.Budget, b.Id))
+        }
+    };
+
+    private RenderFragment RenderSavingGoals(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseSavingGoalDto" Data="@_savingGoals" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseSavingGoalDto" Property="Name" Title="@L[RK.ExpenseTracker.Name]" />
+                    <RadzenDataGridColumn TItem="ExpenseSavingGoalDto" Property="TargetAmount" Title="@L[RK.ExpenseTracker.TargetAmount]" />
+                    <RadzenDataGridColumn TItem="ExpenseSavingGoalDto" Property="CurrentAmount" Title="@L[RK.ExpenseTracker.CurrentAmount]" />
+                    <RadzenDataGridColumn TItem="ExpenseSavingGoalDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("saving-goals", () => OpenEditSavingGoalAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.SavingGoal, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _savingGoals,
+                g => g.Name,
+                g => $"{g.CurrentAmount:N2} / {g.TargetAmount:N2}",
+                _ => null,
+                "saving-goals",
+                g => OpenEditSavingGoalAsync(g),
+                g => ConfirmDeleteAsync(ExpenseResourceKind.SavingGoal, g.Id))
+        }
+    };
+
+    private RenderFragment RenderTags(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseTagDto" Data="@_tags" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseTagDto" Property="Name" Title="@L[RK.ExpenseTracker.Name]" />
+                    <RadzenDataGridColumn TItem="ExpenseTagDto" Property="ColorHex" Title="@L[RK.ExpenseTracker.Color]" />
+                    <RadzenDataGridColumn TItem="ExpenseTagDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("tags", () => OpenEditTagAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Tag, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _tags,
+                t => t.Name,
+                t => t.ColorHex ?? "--",
+                _ => null,
+                "tags",
+                t => OpenEditTagAsync(t),
+                t => ConfirmDeleteAsync(ExpenseResourceKind.Tag, t.Id))
+        }
+    };
+
+    private RenderFragment RenderTransactionTags(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseTransactionTagDto" Data="@_transactionTags" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseTransactionTagDto" Property="TransactionId" Title="@L[RK.ExpenseTracker.Transaction]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionTagDto" Property="TagId" Title="@L[RK.ExpenseTracker.Tag]" />
+                    <RadzenDataGridColumn TItem="ExpenseTransactionTagDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("transaction-tags", () => OpenEditTransactionTagAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.TransactionTag, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _transactionTags,
+                t => t.TransactionId.ToString("N")[..8],
+                t => t.TagId.ToString("N")[..8],
+                _ => null,
+                "transaction-tags",
+                t => OpenEditTransactionTagAsync(t),
+                t => ConfirmDeleteAsync(ExpenseResourceKind.TransactionTag, t.Id))
+        }
+    };
+
+    private RenderFragment RenderRecurring(bool desktop) => __builder =>
+    {
+        if (desktop)
+        {
+            <RadzenDataGrid TItem="ExpenseRecurringTransactionDto" Data="@_recurringTransactions" AllowPaging="false" AllowSorting="true" Density="Density.Compact">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ExpenseRecurringTransactionDto" Property="TransactionType" Title="@L[RK.ExpenseTracker.Type]" />
+                    <RadzenDataGridColumn TItem="ExpenseRecurringTransactionDto" Property="Frequency" Title="@L[RK.ExpenseTracker.Frequency]" />
+                    <RadzenDataGridColumn TItem="ExpenseRecurringTransactionDto" Property="Amount" Title="@L[RK.ExpenseTracker.Amount]" />
+                    <RadzenDataGridColumn TItem="ExpenseRecurringTransactionDto" Property="NextRun" Title="@L[RK.ExpenseTracker.NextRun]" />
+                    <RadzenDataGridColumn TItem="ExpenseRecurringTransactionDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="100px">
+                        <Template Context="item">
+                            @RenderRowActions("recurring", () => OpenEditRecurringAsync(item), () => ConfirmDeleteAsync(ExpenseResourceKind.Recurring, item.Id))
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        }
+        else
+        {
+            @RenderMobileCards(
+                _recurringTransactions,
+                r => r.TransactionType,
+                r => $"{r.Frequency} · {r.Amount:N2}",
+                r => r.NextRun.ToString("yyyy-MM-dd"),
+                "recurring",
+                r => OpenEditRecurringAsync(r),
+                r => ConfirmDeleteAsync(ExpenseResourceKind.Recurring, r.Id))
+        }
+    };
+
+    private RenderFragment RenderRowActions(string section, Func<Task> onEdit, Func<Task> onDelete) => __builder =>
+    {
+        <div class="d-flex gap-1">
+            @if (_canWrite.GetValueOrDefault(section))
+            {
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(_ => onEdit())" />
+            }
+            @if (_canDelete.GetValueOrDefault(section))
+            {
+                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(_ => onDelete())" />
+            }
+        </div>
+    };
+
+    private RenderFragment RenderMobileCards<T>(
+        IReadOnlyList<T> items,
+        Func<T, string> title,
+        Func<T, string> subtitle,
+        Func<T, string?> detail,
+        string section,
+        Func<T, Task> onEdit,
+        Func<T, Task> onDelete)
+    {
+        return __builder =>
+        {
+            if (items.Count == 0)
+            {
+                <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+            }
+            else
+            {
+                <RadzenStack Gap="0.75rem">
+                    @foreach (var item in items)
+                    {
+                        <RadzenCard class="p-3 m-0">
+                            <RadzenStack Gap="0.25rem">
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Start">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@title(item)</RadzenText>
+                                    @RenderRowActions(section, () => onEdit(item), () => onDelete(item))
+                                </RadzenStack>
+                                <RadzenText class="text-muted small mb-0">@subtitle(item)</RadzenText>
+                                @{
+                                    var d = detail(item);
+                                }
+                                @if (!string.IsNullOrWhiteSpace(d))
+                                {
+                                    <RadzenText class="text-muted small mb-0">@d</RadzenText>
+                                }
+                            </RadzenStack>
+                        </RadzenCard>
+                    }
+                </RadzenStack>
+            }
+        };
+    }
+
+    private static DialogOptions BuildDialogOptions() => new()
+    {
+        Width = "min(520px, 96vw)",
+        Height = "auto",
+        Resizable = false,
+        Draggable = false,
+        CloseDialogOnEsc = true,
+        ShowClose = true,
+        CloseDialogOnOverlayClick = false
+    };
+
+    private async Task OpenDialogAsync(ExpenseTrackerFormState state)
+    {
+        var result = await DialogService.OpenAsync<ExpenseTrackerDialog>(
+            state.IsEdit ? L[RK.ExpenseTracker.EditTitle] : L[RK.ExpenseTracker.CreateTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(ExpenseTrackerDialog.State)] = state,
+                [nameof(ExpenseTrackerDialog.Wallets)] = _wallets,
+                [nameof(ExpenseTrackerDialog.Categories)] = _categories,
+                [nameof(ExpenseTrackerDialog.Transactions)] = _transactions,
+                [nameof(ExpenseTrackerDialog.Tags)] = _tags
+            },
+            BuildDialogOptions());
+
+        if (result is true)
+            await ReloadAsync();
+    }
+
+    private Task OpenCreateAsync(ExpenseResourceKind kind) =>
+        OpenDialogAsync(new ExpenseTrackerFormState { Kind = kind, IsEdit = false });
+
+    private Task OpenEditWalletAsync(ExpenseWalletDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Wallet,
+            IsEdit = true,
+            EntityId = item.Id,
+            Name = item.Name,
+            Type = item.WalletType,
+            Currency = item.Currency
+        });
+
+    private Task OpenEditCategoryAsync(ExpenseCategoryDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Category,
+            IsEdit = true,
+            EntityId = item.Id,
+            Name = item.Name,
+            Type = item.CategoryType,
+            ParentCategoryId = item.ParentCategoryId
+        });
+
+    private Task OpenEditTransactionAsync(ExpenseTransactionDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Transaction,
+            IsEdit = true,
+            EntityId = item.Id,
+            WalletId = item.WalletId,
+            CategoryId = item.CategoryId,
+            Type = item.TransactionType,
+            Amount = item.Amount,
+            OccurredOn = item.OccurredOn,
+            Note = item.Note
+        });
+
+    private Task OpenEditTransferAsync(ExpenseTransferDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Transfer,
+            IsEdit = true,
+            EntityId = item.Id,
+            SourceWalletId = item.SourceWalletId,
+            TargetWalletId = item.TargetWalletId,
+            Amount = item.Amount,
+            TransferredOn = item.TransferredOn,
+            Note = item.Note
+        });
+
+    private Task OpenEditBudgetAsync(ExpenseBudgetDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Budget,
+            IsEdit = true,
+            EntityId = item.Id,
+            CategoryId = item.CategoryId,
+            Period = item.Period,
+            Amount = item.Amount,
+            StartDate = item.StartDate,
+            EndDate = item.EndDate
+        });
+
+    private Task OpenEditSavingGoalAsync(ExpenseSavingGoalDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.SavingGoal,
+            IsEdit = true,
+            EntityId = item.Id,
+            WalletId = item.WalletId,
+            Name = item.Name,
+            TargetAmount = item.TargetAmount,
+            CurrentAmount = item.CurrentAmount,
+            TargetDate = item.TargetDate
+        });
+
+    private Task OpenEditTagAsync(ExpenseTagDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Tag,
+            IsEdit = true,
+            EntityId = item.Id,
+            Name = item.Name,
+            ColorHex = item.ColorHex
+        });
+
+    private Task OpenEditTransactionTagAsync(ExpenseTransactionTagDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.TransactionTag,
+            IsEdit = true,
+            EntityId = item.Id,
+            TransactionId = item.TransactionId,
+            TagId = item.TagId
+        });
+
+    private Task OpenEditRecurringAsync(ExpenseRecurringTransactionDto item) =>
+        OpenDialogAsync(new ExpenseTrackerFormState
+        {
+            Kind = ExpenseResourceKind.Recurring,
+            IsEdit = true,
+            EntityId = item.Id,
+            WalletId = item.WalletId,
+            CategoryId = item.CategoryId,
+            Type = item.TransactionType,
+            Amount = item.Amount,
+            Frequency = item.Frequency,
+            NextRun = item.NextRun,
+            RecurringEndDate = item.EndDate,
+            IsActive = item.IsActive,
+            Note = item.Note
+        });
+
+    private async Task ConfirmDeleteAsync(ExpenseResourceKind kind, Guid id)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.ExpenseTracker.ConfirmDelete]);
+        if (confirmed is not true) return;
+
+        try
+        {
+            switch (kind)
+            {
+                case ExpenseResourceKind.Wallet:
+                    await ExpenseTrackerService.DeleteWalletAsync(id);
+                    break;
+                case ExpenseResourceKind.Category:
+                    await ExpenseTrackerService.DeleteCategoryAsync(id);
+                    break;
+                case ExpenseResourceKind.Transaction:
+                    await ExpenseTrackerService.DeleteTransactionAsync(id);
+                    break;
+                case ExpenseResourceKind.Transfer:
+                    await ExpenseTrackerService.DeleteTransferAsync(id);
+                    break;
+                case ExpenseResourceKind.Budget:
+                    await ExpenseTrackerService.DeleteBudgetAsync(id);
+                    break;
+                case ExpenseResourceKind.SavingGoal:
+                    await ExpenseTrackerService.DeleteSavingGoalAsync(id);
+                    break;
+                case ExpenseResourceKind.Tag:
+                    await ExpenseTrackerService.DeleteTagAsync(id);
+                    break;
+                case ExpenseResourceKind.TransactionTag:
+                    await ExpenseTrackerService.DeleteTransactionTagAsync(id);
+                    break;
+                case ExpenseResourceKind.Recurring:
+                    await ExpenseTrackerService.DeleteRecurringTransactionAsync(id);
+                    break;
+            }
+
+            NotificationService.NotifySuccess(L[RK.ExpenseTracker.DeleteSuccess]);
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.ExpenseTracker.DeleteFailed], ex.GetDisplayDetail());
+        }
+    }
+}

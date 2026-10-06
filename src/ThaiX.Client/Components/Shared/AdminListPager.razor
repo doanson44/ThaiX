@@ -1,0 +1,47 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<RadzenStack Orientation="Orientation.Horizontal"
+             AlignItems="AlignItems.Center"
+             JustifyContent="JustifyContent.SpaceBetween"
+             Wrap="FlexWrap.Wrap"
+             Gap="0.75rem"
+             class="pt-2">
+    <RadzenText class="text-muted small mb-0">
+        @SummaryText
+    </RadzenText>
+
+    <div class="d-flex align-items-center gap-2">
+        <RadzenButton Icon="chevron_left"
+                      ButtonStyle="ButtonStyle.Light"
+                      Size="ButtonSize.Small"
+                      Disabled="@(!CanGoPrevious)"
+                      Click="@GoPreviousAsync" />
+        <RadzenText class="small mb-0">
+            @PageLabel
+        </RadzenText>
+        <RadzenButton Icon="chevron_right"
+                      ButtonStyle="ButtonStyle.Light"
+                      Size="ButtonSize.Small"
+                      Disabled="@(!CanGoNext)"
+                      Click="@GoNextAsync" />
+    </div>
+</RadzenStack>
+
+@code {
+    [Parameter] public int TotalCount { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalCount / (double)Math.Max(PageSize, 1)));
+    private bool CanGoPrevious => !Disabled && CurrentPage > 1;
+    private bool CanGoNext => !Disabled && CurrentPage < TotalPages;
+    private string PageLabel => $"{CurrentPage}/{TotalPages}";
+    private string SummaryText => TotalCount == 0
+        ? "0"
+        : $"{((CurrentPage - 1) * PageSize) + 1}-{Math.Min(CurrentPage * PageSize, TotalCount)} / {TotalCount}";
+
+    private Task GoPreviousAsync() => CurrentPageChanged.InvokeAsync(CurrentPage - 1);
+
+    private Task GoNextAsync() => CurrentPageChanged.InvokeAsync(CurrentPage + 1);
+}

@@ -1,0 +1,275 @@
+/* ── Auth Layout: Glassmorphism Dark Theme ── */
+
+/* Full-page gradient background */
+.auth-layout {
+    background: radial-gradient(circle at 80% 50%, #1c1207 0%, #020202 80%);
+    background-attachment: fixed;
+}
+
+/* ── Glassmorphism Card ── */
+.auth-card {
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+/* ── Theme + language (top-right of card) ── */
+.auth-toolbar {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 0.35rem;
+    z-index: 1;
+}
+
+.auth-lang-select {
+    position: static;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+}
+
+.auth-lang-select:focus {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.auth-lang-select option {
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+/* ── Brand Logo ── */
+.auth-brand {
+    font-family: var(--tx-font-display, serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
+    letter-spacing: -0.5px;
+    color: #fff;
+}
+
+.auth-brand-accent {
+    color: var(--tx-accent, #f59e0b);
+}
+
+/* ── Radzen Text Overrides ── */
+.auth-body ::deep h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.auth-body ::deep .rz-text-h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.auth-body ::deep .rz-text-body1 {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* ── Form Labels ── */
+.auth-body ::deep .rz-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #e2e8f0;
+}
+
+/* ── Input / TextBox / Password ── */
+.auth-body ::deep .rz-textbox,
+.auth-body ::deep .rz-password input {
+    background-color: #0b1121 !important;
+    border: 1px solid #1e293b !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    font-size: 0.95rem;
+}
+
+.auth-body ::deep .rz-textbox::placeholder,
+.auth-body ::deep .rz-password input::placeholder {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.auth-body ::deep .rz-textbox:focus,
+.auth-body ::deep .rz-password input:focus {
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25) !important;
+    outline: none;
+}
+
+/* ── Checkbox ── */
+.auth-body ::deep .rz-chkbox-box {
+    border-color: #1e293b !important;
+    background-color: #0b1121 !important;
+}
+
+.auth-body ::deep .rz-chkbox-box.rz-state-active {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+}
+
+/* ── Primary Button (Login, Register, etc.) ── */
+.auth-body ::deep .rz-button.rz-button-primary {
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%) !important;
+    border: none !important;
+    color: #1a1207 !important;
+    border-radius: 6px !important;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem;
+    transition: opacity 0.3s ease;
+}
+
+.auth-body ::deep .rz-button.rz-button-primary:hover {
+    opacity: 0.9;
+}
+
+/* ── Light Button (Google) ── */
+.auth-body ::deep .rz-button-light {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem;
+}
+
+.auth-body ::deep .rz-button-light:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* ── Links ── */
+.auth-body ::deep .rz-link a {
+    color: #fbbf24;
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+.auth-body ::deep .rz-link a:hover {
+    text-decoration: underline;
+    color: #fcd34d;
+}
+
+.auth-body ::deep .auth-inline-links {
+    line-height: 1.25;
+}
+
+.auth-body ::deep .auth-inline-prompt {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: inherit;
+}
+
+.auth-body ::deep .auth-inline-links .rz-link {
+    display: inline-flex;
+    align-items: center;
+    line-height: inherit;
+    margin: 0;
+}
+
+/* ── Divider (Or) ── */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.25rem 0;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #1e293b;
+}
+
+.auth-divider::before {
+    margin-right: 0.5em;
+}
+
+.auth-divider::after {
+    margin-left: 0.5em;
+}
+
+/* ── Alert Overrides ── */
+.auth-body ::deep .rz-alert {
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* ── Progress Bar ── */
+.auth-body ::deep .rz-progressbar-circular {
+    color: #f59e0b;
+}
+
+
+
+/* ── Responsive: Tablet+ ── */
+@media (min-width: 576px) {
+    .auth-card {
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .auth-brand {
+        font-size: 2rem;
+    }
+
+    .auth-toolbar {
+        top: 20px;
+        right: 20px;
+    }
+
+    .auth-lang-select {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+    }
+
+    .auth-divider {
+        margin: 1.5rem 0;
+    }
+}
+
+/* ── Responsive: Very small screens ── */
+@media (max-width: 360px) {
+    .auth-card {
+        padding: 1.5rem 1rem;
+    }
+
+    .auth-brand {
+        font-size: 1.5rem;
+    }
+
+    .auth-body ::deep h3,
+    .auth-body ::deep .rz-text-h4 {
+        font-size: 1.3rem;
+    }
+}

@@ -1,0 +1,1450 @@
+@namespace ThaiX.Client.Components.Crm.Contacts
+@using Microsoft.AspNetCore.Components.Forms
+@using ThaiX.Client.Models.Contacts
+@using ThaiX.Client.Models.MasterData
+@using ThaiX.Client.Models.Users
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.Users
+@using ThaiX.Client.Services.MasterData
+@using ThaiX.Client.Services.Contacts
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IConfiguration Configuration
+
+<RadzenStack Gap="1rem">
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 JustifyContent="JustifyContent.SpaceBetween"
+                 AlignItems="AlignItems.Center"
+                 Wrap="FlexWrap.Wrap"
+                 Gap="0.5rem">
+        <div>
+            @if (!string.IsNullOrWhiteSpace(Title))
+            {
+                <RadzenText TextStyle="TextStyle.H5" class="mb-0">@Title</RadzenText>
+            }
+            <RadzenText class="text-muted">@L[RK.Contacts.ProfileTitle]</RadzenText>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <RadzenBadge Text="@FormModeLabel" BadgeStyle="@FormModeBadgeStyle" />
+            <RadzenButton Icon="arrow_back" Text="@L[RK.Common.Back]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@OnBack" aria-label="@L[RK.Common.Back]" />
+        </div>
+    </RadzenStack>
+    <RadzenTemplateForm Data="@_profile" Submit="@(async (ContactProfileFormModel _) => await OnSubmitAsync())">
+        <RadzenTabs class="overflow-auto">
+            <Tabs>
+                <RadzenTabsItem Text="@L[RK.Contacts.TabGeneral]" Value="general">
+                    <div class="row g-2 pt-2">
+                        @if (DetailForView is not null || _avatarUrlOverride is not null)
+                        {
+                            <div class="col-12">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative">
+                                        <SafeImage Src="@(DisplayAvatarUrl is not null ? GetAvatarImageUrl(DisplayAvatarUrl) : null)"
+                                                   Alt="@L[RK.Contacts.AvatarAlt]"
+                                                   Class="rounded-circle"
+                                                   Style="width: 80px; height: 80px; object-fit: cover;"
+                                                   FallbackIcon="person"
+                                                   FallbackClass="safe-image-fallback rounded-circle bg-light">
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                <RadzenIcon Icon="person" style="font-size: 2rem; color: var(--rz-base-400);" />
+                                            </div>
+                                        </SafeImage>
+                                        @if (IsEditMode && EditContactId is not null)
+                                        {
+                                            <label class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0 mb-0 me-0 rounded-circle p-1" style="cursor: pointer;" title="@L[RK.Contacts.ChangeAvatar]">
+                                                <InputFile Accept="image/jpeg,image/png,image/webp" OnChange="HandleAvatarFileSelected" style="display: none;" />
+                                                <RadzenIcon Icon="camera_alt" />
+                                            </label>
+                                        }
+                                    </div>
+                                    @if (IsEditMode && EditContactId is not null)
+                                    {
+                                        <div>
+                                            <RadzenText TextStyle="TextStyle.Caption">@L[RK.Contacts.AvatarUrl]</RadzenText>
+                                            <RadzenText class="d-block text-muted small">@L[RK.Contacts.ChangeAvatar] (@L[RK.Contacts.AvatarFormatHint])</RadzenText>
+                                            @if (DisplayAvatarUrl is not null)
+                                            {
+                                                <ResponsiveIconButton ButtonStyle="ButtonStyle.Light"
+                                                             Size="ButtonSize.Small"
+                                                             Icon="delete"
+                                                             Text="@L[RK.Contacts.RemoveAvatar]"
+                                                             Click="@RemoveAvatarAsync"
+                                                             Disabled="@_removingAvatar"
+                                                             class="mt-1" />
+                                            }
+                                            @if (_uploadingAvatar) { <RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" /> }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@L[RK.Contacts.FirstName]" />
+                            <RadzenTextBox Name="formFirstName" @bind-Value="_profile.FirstName" class="w-100" ReadOnly="@IsViewMode" />
+                            @if (!IsViewMode)
+                            {
+                                <RadzenRequiredValidator Component="formFirstName" Text="@L[RK.Validation.Required]" Popup="false" />
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@L[RK.Contacts.LastName]" />
+                            <RadzenTextBox Name="formLastName" @bind-Value="_profile.LastName" class="w-100" ReadOnly="@IsViewMode" />
+                            @if (!IsViewMode)
+                            {
+                                <RadzenRequiredValidator Component="formLastName" Text="@L[RK.Validation.Required]" Popup="false" />
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@L[RK.Contacts.Company]" />
+                            <RadzenTextBox @bind-Value="_profile.Company" class="w-100" ReadOnly="@IsViewMode" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@L[RK.Contacts.JobTitle]" />
+                            <RadzenTextBox @bind-Value="_profile.JobTitle" class="w-100" ReadOnly="@IsViewMode" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@L[RK.Contacts.Birthday]" />
+                            <RadzenDatePicker TValue="DateTime?" @bind-Value="_birthday" class="w-100" DateFormat="yyyy-MM-dd" ReadOnly="@IsViewMode" Disabled="@IsViewMode" />
+                        </div>
+                        <div class="col-12">
+                            <RadzenLabel Text="@L[RK.Contacts.Notes]" />
+                            <RadzenTextArea @bind-Value="_profile.Notes" class="w-100" Rows="2" ReadOnly="@IsViewMode" />
+                        </div>
+                        @if (IsViewMode && DetailForView is not null)
+                        {
+                            <div class="col-12 pt-2">
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.LinkedUser]</RadzenText>
+                                <RadzenText class="d-block pt-1">@(DetailForView.LinkedUserId is not null ? (DetailForView.LinkedUserEmail ?? DetailForView.LinkedUserId.ToString()) : L[RK.Contacts.NoLinkedUser].Value)</RadzenText>
+                            </div>
+                        }
+                        @if (IsEditMode && EditContactId is not null)
+                        {
+                            <div class="col-12">
+                                <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveGeneralSectionAsync" IsBusy="_savingGeneral" Disabled="_savingGeneral" />
+                            </div>
+                            <div class="col-12 pt-2">
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.LinkedUser]</RadzenText>
+                                @if (DetailForView?.LinkedUserId is not null)
+                                {
+                                    <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
+                                        <RadzenText class="mb-0">@(DetailForView.LinkedUserEmail ?? DetailForView.LinkedUserId.ToString())</RadzenText>
+                                        <RadzenButton Icon="link_off" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Text="@L[RK.Contacts.UnlinkUser]" Click="@UnlinkUserAsync" Disabled="_unlinkingUser" aria-label="@L[RK.Contacts.UnlinkUser]" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <RadzenText class="text-muted small">@L[RK.Contacts.NoLinkedUser]</RadzenText>
+                                }
+                            </div>
+                            <div class="col-12 pt-2">
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.SuggestedUsers]</RadzenText>
+                                @if (_loadingSuggestions)
+                                {
+                                    <RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+                                }
+                                else if (_suggestedUsers.Count == 0)
+                                {
+                                    <RadzenText class="text-muted small">@L[RK.Contacts.SuggestedUsersNone]</RadzenText>
+                                }
+                                else
+                                {
+                                    <RadzenStack Gap="0.25rem" class="pt-1">
+                                        @foreach (var u in _suggestedUsers)
+                                        {
+                                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                                <RadzenText class="mb-0">@u.Email @(string.IsNullOrWhiteSpace(u.PhoneNumber) ? "" : "(" + u.PhoneNumber + ")")</RadzenText>
+                                                <RadzenButton Icon="link" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Text="@L[RK.Contacts.LinkUser]" Click="@(() => LinkUserAsync(u.Id))" Disabled="_linkingUserIds.Contains(u.Id)" aria-label="@L[RK.Contacts.LinkUser]" />
+                                            </div>
+                                        }
+                                    </RadzenStack>
+                                }
+                            </div>
+                            <div class="col-12 pt-2">
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.LinkToUserSection]</RadzenText>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" class="pt-1 flex-wrap align-items-end">
+                                    <AsyncSearchSelect TItem="UserListItemDto"
+                                                       Value="@_selectedUserIdForLink"
+                                                       ValueChanged="@OnSelectedUserForLinkChanged"
+                                                       LoadDataAsync="LoadUsersForLinkAsync"
+                                                       GetText="x => x.Email"
+                                                       GetValue="x => x.Id.ToString()"
+                                                       Placeholder="@L[RK.Contacts.SelectUserToLinkPlaceholder]"
+                                                       SearchPlaceholder="@L[RK.Common.Search]"
+                                                       LoadingText="@L[RK.Common.Loading]"
+                                                       EmptyText="@L[RK.MasterData.SelectEmpty]"
+                                                       MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                                       AllowClear="true"
+                                                       Class="w-100 tx-control-max-20" />
+                                    <RadzenButton Icon="link"
+                                                  ButtonStyle="ButtonStyle.Primary"
+                                                  Size="ButtonSize.Medium"
+                                                  Text="@L[RK.Contacts.LinkSelectedUser]"
+                                                  Click="@LinkSelectedUserAsync"
+                                                  Disabled="@(string.IsNullOrEmpty(_selectedUserIdForLink) || _linkingUserIds.Count > 0)"
+                                                  aria-label="@L[RK.Contacts.LinkSelectedUser]" />
+                                </RadzenStack>
+                            </div>
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.TabContactInfo]" Value="contact">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null)
+                            {
+                                <RadzenStack Gap="0.5rem">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.Emails]</RadzenText>
+                                    @if (DetailForView.Emails.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { @foreach (var e in DetailForView.Emails) { <RadzenText>@e.Value @(e.IsPrimary ? "(" + L[RK.Contacts.IsPrimary].Value + ")" : "")</RadzenText> } }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.Phones]</RadzenText>
+                                    @if (DetailForView.Phones.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { @foreach (var p in DetailForView.Phones) { <RadzenText>@p.Value @(p.IsPrimary ? "(" + L[RK.Contacts.IsPrimary].Value + ")" : "")</RadzenText> } }
+                                </RadzenStack>
+                            }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else
+                        {
+                            @if (IsEditMode && DetailForView is not null)
+                            {
+                                <RadzenStack Gap="0.75rem">
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.Emails]</RadzenText>
+                                    @if (DetailForView.Emails.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { <RadzenStack Gap="0.25rem">@foreach (var e in DetailForView.Emails) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@e.Value @(e.IsPrimary ? "(" + L[RK.Contacts.IsPrimary].Value + ")" : "")</RadzenText>@if (!e.IsPrimary) { <RadzenButton Icon="star" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Text="@L[RK.Contacts.SetAsPrimary]" Click="@(() => SetEmailPrimaryAsync(e.Id))" aria-label="@L[RK.Contacts.SetAsPrimary]" /> }<RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveEmailAsync(e.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.Phones]</RadzenText>
+                                    @if (DetailForView.Phones.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { <RadzenStack Gap="0.25rem">@foreach (var p in DetailForView.Phones) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@p.Value @(p.IsPrimary ? "(" + L[RK.Contacts.IsPrimary].Value + ")" : "")</RadzenText>@if (!p.IsPrimary) { <RadzenButton Icon="star" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Text="@L[RK.Contacts.SetAsPrimary]" Click="@(() => SetPhonePrimaryAsync(p.Id))" aria-label="@L[RK.Contacts.SetAsPrimary]" /> }<RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemovePhoneAsync(p.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <RadzenLabel Text="@L[RK.Contacts.Emails]" />
+                                            <RadzenTextBox @bind-Value="_email" Placeholder="@L[RK.Contacts.Value]" class="w-100" />
+                                            <RadzenCheckBox @bind-Value="_newEmailIsPrimary" Name="newEmailPrimary" />
+                                            <RadzenLabel Text="@L[RK.Contacts.IsPrimary]" Component="newEmailPrimary" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <RadzenLabel Text="@L[RK.Contacts.Phones]" />
+                                            <RadzenTextBox @bind-Value="_phone" Placeholder="@L[RK.Contacts.Value]" class="w-100" />
+                                            <RadzenCheckBox @bind-Value="_newPhoneIsPrimary" Name="newPhonePrimary" />
+                                            <RadzenLabel Text="@L[RK.Contacts.IsPrimary]" Component="newPhonePrimary" />
+                                        </div>
+                                    </div>
+                                    <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveContactInfoSectionAsync" IsBusy="_savingContactInfo" Disabled="_savingContactInfo" />
+                                </RadzenStack>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <RadzenLabel Text="@L[RK.Contacts.Emails]" />
+                                        <RadzenTextBox @bind-Value="_email" Placeholder="@L[RK.Contacts.Value]" class="w-100" />
+                                        <RadzenCheckBox @bind-Value="_emailIsPrimary" Name="emailPrimary" />
+                                        <RadzenLabel Text="@L[RK.Contacts.IsPrimary]" Component="emailPrimary" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <RadzenLabel Text="@L[RK.Contacts.Phones]" />
+                                        <RadzenTextBox @bind-Value="_phone" Placeholder="@L[RK.Contacts.Value]" class="w-100" />
+                                        <RadzenCheckBox @bind-Value="_phoneIsPrimary" Name="phonePrimary" />
+                                        <RadzenLabel Text="@L[RK.Contacts.IsPrimary]" Component="phonePrimary" />
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.Addresses]" Value="addresses">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.Addresses.Count > 0) { <RadzenStack Gap="0.25rem">@foreach (var a in DetailForView.Addresses) { <RadzenText>@a.Street, @a.CountryCode @a.CityCode @a.DistrictCode @a.PostalCode @(a.IsPrimary ? "(" + L[RK.Contacts.IsPrimary].Value + ")" : "")</RadzenText> }</RadzenStack> }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else
+                        {
+                            @if (IsEditMode && DetailForView is not null)
+                            {
+                                <RadzenStack Gap="0.75rem">
+                                    @if (DetailForView.Addresses.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { <RadzenStack Gap="0.25rem">@foreach (var a in DetailForView.Addresses) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@a.Street, @a.CountryCode @a.CityCode @a.DistrictCode @a.PostalCode</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveAddressAsync(a.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                    <div class="row g-2">
+                                        <div class="col-12"><RadzenLabel Text="@L[RK.Contacts.Street]" /><RadzenTextBox @bind-Value="_address.Street" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CountryCode]" /><AsyncSearchSelect TItem="CountryListItemDto" Value="@_address.CountryCode" ValueChanged="OnCountryCodeChanged" LoadDataAsync="LoadCountriesAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CityCode]" /><AsyncSearchSelect TItem="CityListItemDto" Value="@_address.CityCode" ValueChanged="OnCityCodeChanged" LoadDataAsync="LoadCitiesAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DistrictCode]" /><AsyncSearchSelect TItem="DistrictListItemDto" @bind-Value="_address.DistrictCode" LoadDataAsync="LoadDistrictsAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.PostalCode]" /><RadzenTextBox @bind-Value="_address.PostalCode" class="w-100" /></div>
+                                    </div>
+                                    <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveAddressSectionAsync" IsBusy="_savingAddress" Disabled="_savingAddress" />
+                                </RadzenStack>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-12"><RadzenLabel Text="@L[RK.Contacts.Street]" /><RadzenTextBox @bind-Value="_address.Street" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CountryCode]" /><AsyncSearchSelect TItem="CountryListItemDto" Value="@_address.CountryCode" ValueChanged="OnCountryCodeChanged" LoadDataAsync="LoadCountriesAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CityCode]" /><AsyncSearchSelect TItem="CityListItemDto" Value="@_address.CityCode" ValueChanged="OnCityCodeChanged" LoadDataAsync="LoadCitiesAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DistrictCode]" /><AsyncSearchSelect TItem="DistrictListItemDto" @bind-Value="_address.DistrictCode" LoadDataAsync="LoadDistrictsAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.PostalCode]" /><RadzenTextBox @bind-Value="_address.PostalCode" class="w-100" /></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.BankAccounts]" Value="bank">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.BankAccounts.Count > 0) { <RadzenStack Gap="0.25rem">@foreach (var b in DetailForView.BankAccounts) { <RadzenText>@b.BankCode @(string.IsNullOrWhiteSpace(b.BranchName) ? "" : " | " + b.BranchName) | ****@b.AccountNumberLast4 | @b.AccountName | @b.CurrencyCode</RadzenText> }</RadzenStack> }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else
+                        {
+                            @if (IsEditMode && DetailForView is not null)
+                            {
+                                <RadzenStack Gap="0.75rem">
+                                    @if (DetailForView.BankAccounts.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { <RadzenStack Gap="0.25rem">@foreach (var b in DetailForView.BankAccounts) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@b.BankCode | ****@b.AccountNumberLast4 | @b.AccountName</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveBankAccountAsync(b.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                    <div class="row g-2">
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.BankCode]" /><AsyncSearchSelect TItem="BankListItemDto" @bind-Value="_bank.BankCode" LoadDataAsync="LoadBanksAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.BranchName]" /><RadzenTextBox @bind-Value="_bank.BranchName" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.AccountNumber]" /><RadzenTextBox @bind-Value="_bank.AccountNumber" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.AccountName]" /><RadzenTextBox @bind-Value="_bank.AccountName" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CurrencyCode]" /><RadzenDropDown TValue="string?" @bind-Value="_bank.CurrencyCode" Data="@_currencyOptions" TextProperty="Code" ValueProperty="Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" AllowClear="true" Style="width: 100%;" class="w-100" /></div>
+                                    </div>
+                                    <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveBankSectionAsync" IsBusy="_savingBank" Disabled="_savingBank" />
+                                </RadzenStack>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.BankCode]" /><AsyncSearchSelect TItem="BankListItemDto" @bind-Value="_bank.BankCode" LoadDataAsync="LoadBanksAsync" GetText="x => x.DisplayText" GetValue="x => x.Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]" LoadingText="@L[RK.Common.Loading]" EmptyText="@L[RK.MasterData.SelectEmpty]" MoreHint="@L[RK.MasterData.SelectScrollMore]" AllowClear="true" Style="min-width: 100%;" Class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.BranchName]" /><RadzenTextBox @bind-Value="_bank.BranchName" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.AccountNumber]" /><RadzenTextBox @bind-Value="_bank.AccountNumber" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.AccountName]" /><RadzenTextBox @bind-Value="_bank.AccountName" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.CurrencyCode]" /><RadzenDropDown TValue="string?" @bind-Value="_bank.CurrencyCode" Data="@_currencyOptions" TextProperty="Code" ValueProperty="Code" Placeholder="@L[RK.MasterData.SelectPlaceholder]" AllowClear="true" Style="width: 100%;" class="w-100" /></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.IdentityDocuments]" Value="identity">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.IdentityDocuments.Count > 0) { <RadzenStack Gap="0.25rem">@foreach (var d in DetailForView.IdentityDocuments) { <RadzenText>@d.DocumentType | ****@d.DocumentNumberLast4 | @d.IssuedBy | @d.IssuedDate.ToString("yyyy-MM-dd")</RadzenText> }</RadzenStack> }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else
+                        {
+                            @if (IsEditMode && DetailForView is not null)
+                            {
+                                <RadzenStack Gap="0.75rem">
+                                    @if (DetailForView.IdentityDocuments.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                    else { <RadzenStack Gap="0.25rem">@foreach (var d in DetailForView.IdentityDocuments) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@d.DocumentType | ****@d.DocumentNumberLast4 | @d.IssuedBy</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveIdentityDocumentAsync(d.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                    <div class="row g-2">
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DocumentType]" /><RadzenTextBox @bind-Value="_identity.DocumentType" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DocumentNumber]" /><RadzenTextBox @bind-Value="_identity.DocumentNumber" class="w-100" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.IssuedDate]" /><RadzenDatePicker @bind-Value="_identity.IssuedDate" class="w-100" DateFormat="yyyy-MM-dd" /></div>
+                                        <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.IssuedBy]" /><RadzenTextBox @bind-Value="_identity.IssuedBy" class="w-100" /></div>
+                                    </div>
+                                    <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveIdentitySectionAsync" IsBusy="_savingIdentity" Disabled="_savingIdentity" />
+                                </RadzenStack>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DocumentType]" /><RadzenTextBox @bind-Value="_identity.DocumentType" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.DocumentNumber]" /><RadzenTextBox @bind-Value="_identity.DocumentNumber" class="w-100" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.IssuedDate]" /><RadzenDatePicker @bind-Value="_identity.IssuedDate" class="w-100" DateFormat="yyyy-MM-dd" /></div>
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.IssuedBy]" /><RadzenTextBox @bind-Value="_identity.IssuedBy" class="w-100" /></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.Tags]" Value="tags">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.Tags.Count > 0)
+                            {
+                                <RadzenStack Gap="0.25rem">@foreach (var t in DetailForView.Tags) { <RadzenText>@t.Name</RadzenText> }</RadzenStack>
+                            }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else if (IsEditMode && DetailForView is not null)
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (DetailForView.Tags.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var t in DetailForView.Tags) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@t.Name</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveTagAsync(t.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.Name]" /><RadzenTextBox @bind-Value="_tagName" Placeholder="@L[RK.Contacts.Name]" class="w-100" /></div>
+                                    <div class="col-12 col-md-6 d-grid d-md-flex align-items-md-end"><RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@AddTagAsync" IsBusy="_savingTag" Disabled="_savingTag" class="w-100" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                        else
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (_pendingTags.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var name in _pendingTags) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@name</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemovePendingTag(name))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-6"><RadzenLabel Text="@L[RK.Contacts.Name]" /><RadzenTextBox @bind-Value="_tagName" Placeholder="@L[RK.Contacts.Name]" class="w-100" /></div>
+                                    <div class="col-12 col-md-6 d-grid d-md-flex align-items-md-end"><RadzenButton Text="@L[RK.Contacts.AddNew]" ButtonStyle="ButtonStyle.Primary" Click="@AddPendingTag" class="w-100" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.SocialLinks]" Value="social">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.SocialLinks.Count > 0)
+                            {
+                                <RadzenStack Gap="0.25rem">@foreach (var s in DetailForView.SocialLinks) { <RadzenText>@s.Platform: @s.Url</RadzenText> }</RadzenStack>
+                            }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else if (IsEditMode && DetailForView is not null)
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (DetailForView.SocialLinks.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var s in DetailForView.SocialLinks) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@s.Platform: @s.Url</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveSocialLinkAsync(s.Id))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Platform]" /><RadzenTextBox @bind-Value="_socialPlatform" Placeholder="@L[RK.Contacts.Platform]" class="w-100" /></div>
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Url]" /><RadzenTextBox @bind-Value="_socialUrl" Placeholder="@L[RK.Contacts.Url]" class="w-100" /></div>
+                                    <div class="col-md-4 d-flex align-items-end"><RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@AddSocialLinkAsync" IsBusy="_savingSocial" Disabled="_savingSocial" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                        else
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (_pendingSocialLinks.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var s in _pendingSocialLinks) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@s.Platform: @s.Url</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemovePendingSocialLink(s))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Platform]" /><RadzenTextBox @bind-Value="_socialPlatform" Placeholder="@L[RK.Contacts.Platform]" class="w-100" /></div>
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Url]" /><RadzenTextBox @bind-Value="_socialUrl" Placeholder="@L[RK.Contacts.Url]" class="w-100" /></div>
+                                    <div class="col-md-4 d-flex align-items-end"><RadzenButton Text="@L[RK.Contacts.AddNew]" ButtonStyle="ButtonStyle.Primary" Click="@AddPendingSocialLink" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                    </div>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="@L[RK.Contacts.CustomFields]" Value="custom">
+                    <div class="pt-2">
+                        @if (IsViewMode)
+                        {
+                            @if (DetailForView is not null && DetailForView.CustomFields.Count > 0)
+                            {
+                                <RadzenStack Gap="0.25rem">@foreach (var f in DetailForView.CustomFields) { <RadzenText>@f.Key: @f.Value</RadzenText> }</RadzenStack>
+                            }
+                            else { <RadzenText class="text-muted">--</RadzenText> }
+                        }
+                        else if (IsEditMode && DetailForView is not null)
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (DetailForView.CustomFields.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var f in DetailForView.CustomFields) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@f.Key: @f.Value</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveCustomFieldAsync(f.Key))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Key]" /><RadzenTextBox @bind-Value="_customFieldKey" Placeholder="@L[RK.Contacts.Key]" class="w-100" /></div>
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Value]" /><RadzenTextBox @bind-Value="_customFieldValue" Placeholder="@L[RK.Contacts.Value]" class="w-100" /></div>
+                                    <div class="col-12 col-md-4 d-grid d-md-flex align-items-md-end"><RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@AddCustomFieldAsync" IsBusy="_savingCustomField" Disabled="_savingCustomField" class="w-100" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                        else
+                        {
+                            <RadzenStack Gap="0.75rem">
+                                @if (_pendingCustomFields.Count == 0) { <RadzenText class="text-muted">--</RadzenText> }
+                                else { <RadzenStack Gap="0.25rem">@foreach (var f in _pendingCustomFields) { <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2"><RadzenText class="mb-0">@f.Key: @f.Value</RadzenText><RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemovePendingCustomField(f))" aria-label="@L[RK.Common.Remove]" /></div> }</RadzenStack> }
+                                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.Contacts.AddNew]</RadzenText>
+                                <div class="row g-2">
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Key]" /><RadzenTextBox @bind-Value="_customFieldKey" Placeholder="@L[RK.Contacts.Key]" class="w-100" /></div>
+                                    <div class="col-md-4"><RadzenLabel Text="@L[RK.Contacts.Value]" /><RadzenTextBox @bind-Value="_customFieldValue" Placeholder="@L[RK.Contacts.Value]" class="w-100" /></div>
+                                    <div class="col-12 col-md-4 d-grid d-md-flex align-items-md-end"><RadzenButton Text="@L[RK.Contacts.AddNew]" ButtonStyle="ButtonStyle.Primary" Click="@AddPendingCustomField" class="w-100" /></div>
+                                </div>
+                            </RadzenStack>
+                        }
+                    </div>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+        <div class="row g-2 mt-1">
+            @if (IsViewMode)
+            {
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@OnBack" class="w-100" />
+                </div>
+            }
+            else if (IsEditMode)
+            {
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <RadzenButton Text="@L[RK.Common.Back]" ButtonStyle="ButtonStyle.Light" Click="@OnBack" class="w-100" />
+                </div>
+            }
+            else
+            {
+                <div class="col-12 col-md-auto ms-md-auto">
+                    <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light" Click="@OnBack" class="w-100" />
+                </div>
+                <div class="col-12 col-md-auto">
+                    <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" IsBusy="@IsBusy" Disabled="@IsBusy" class="w-100" />
+                </div>
+            }
+        </div>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public bool IsEditMode { get; set; }
+    [Parameter] public bool IsViewMode { get; set; }
+    [Parameter] public ContactFormDialogInitialData? InitialData { get; set; }
+    [Parameter] public ContactDetailDto? DetailForView { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+    [Parameter] public EventCallback<ContactFormDialogResult> OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnSectionSaved { get; set; }
+
+    [Inject] private IStringLocalizer<SharedResource> L { get; set; } = null!;
+    [Inject] private IMasterDataService MasterDataService { get; set; } = null!;
+    [Inject] private IContactService ContactService { get; set; } = null!;
+    [Inject] private IUserService UserService { get; set; } = null!;
+    [Inject] private NotificationService NotificationService { get; set; } = null!;
+
+    private Guid? EditContactId => InitialData is ContactFormDialogInitialDataWithId withId ? withId.Id : null;
+
+    private static readonly IReadOnlyList<CurrencyOption> CurrencyOptions =
+    [
+        new CurrencyOption("VND"),
+        new CurrencyOption("USD"),
+        new CurrencyOption("EUR"),
+        new CurrencyOption("GBP"),
+        new CurrencyOption("JPY"),
+        new CurrencyOption("THB"),
+        new CurrencyOption("SGD"),
+        new CurrencyOption("AUD"),
+        new CurrencyOption("CHF"),
+        new CurrencyOption("CNY"),
+        new CurrencyOption("KRW")
+    ];
+
+    private IReadOnlyList<CurrencyOption> _currencyOptions => CurrencyOptions;
+
+    private readonly ContactProfileFormModel _profile = new();
+    private DateTime? _birthday;
+    private string? _email;
+    private string? _phone;
+    private bool _emailIsPrimary = true;
+    private bool _phoneIsPrimary = true;
+    private bool _newEmailIsPrimary = true;
+    private bool _newPhoneIsPrimary = true;
+    private readonly AddressFormModel _address = new();
+    private readonly IdentityDocumentFormModel _identity = new();
+    private readonly BankAccountFormModel _bank = new();
+    private bool _loaded;
+    private Guid? _boundContactId;
+    private bool _savingGeneral;
+    private bool _savingContactInfo;
+    private bool _savingAddress;
+    private bool _savingBank;
+    private bool _savingIdentity;
+    private bool _savingTag;
+    private bool _savingSocial;
+    private bool _savingCustomField;
+    private string? _tagName;
+    private string? _socialPlatform;
+    private string? _socialUrl;
+    private string? _customFieldKey;
+    private string? _customFieldValue;
+    private string? _avatarUrlOverride;
+    private bool _uploadingAvatar;
+    private bool _removingAvatar;
+    private IReadOnlyList<SuggestedUserDto> _suggestedUsers = [];
+    private bool _loadingSuggestions;
+    private bool _suggestedUsersLoaded;
+    private readonly HashSet<Guid> _linkingUserIds = [];
+    private string? _selectedUserIdForLink;
+    private bool _unlinkingUser;
+    private readonly List<string> _pendingTags = [];
+    private readonly List<ContactFormSocialLinkPart> _pendingSocialLinks = [];
+    private readonly List<ContactFormCustomFieldPart> _pendingCustomFields = [];
+    private string FormModeLabel => IsViewMode
+        ? L[RK.Contacts.View].Value
+        : IsEditMode
+            ? L[RK.Contacts.Edit].Value
+            : L[RK.Contacts.CreateTitle].Value;
+
+    private BadgeStyle FormModeBadgeStyle => IsViewMode
+        ? BadgeStyle.Info
+        : IsEditMode
+            ? BadgeStyle.Warning
+            : BadgeStyle.Success;
+
+    private string? DisplayAvatarUrl => _avatarUrlOverride ?? DetailForView?.AvatarUrl;
+
+    private string GetAvatarImageUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return string.Empty;
+        if (!url.StartsWith("/", StringComparison.Ordinal)) return url;
+        var baseUrl = (Configuration["Api:BaseUrl"] ?? "http://localhost:5005").TrimEnd('/');
+        return baseUrl + url;
+    }
+
+    /// <summary>
+    /// Appends a cache-busting query parameter so the browser fetches a fresh image after upload (same path, new file).
+    /// </summary>
+    private static string AppendCacheBuster(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return url;
+        var separator = url.Contains('?', StringComparison.Ordinal) ? "&" : "?";
+        return url + separator + "t=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+    }
+
+    protected override void OnParametersSet()
+    {
+        var editId = EditContactId;
+        if (editId.HasValue && editId != _boundContactId)
+        {
+            _boundContactId = editId;
+            _avatarUrlOverride = null;
+            _loaded = false;
+            _suggestedUsersLoaded = false;
+            _selectedUserIdForLink = null;
+        }
+        if (_loaded) return;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (EditContactId.HasValue && IsEditMode && !_suggestedUsersLoaded)
+            await LoadSuggestedUsersAsync();
+        if (_loaded) return;
+        _loaded = true;
+        if (InitialData is not null)
+        {
+            _profile.FirstName = InitialData.FirstName;
+            _profile.LastName = InitialData.LastName;
+            _profile.Company = InitialData.Company;
+            _profile.JobTitle = InitialData.JobTitle;
+            _profile.Notes = InitialData.Notes;
+            _birthday = InitialData.Birthday?.ToDateTime(TimeOnly.MinValue);
+        }
+        else
+        {
+            _profile.Reset();
+            _birthday = null;
+            _email = null;
+            _phone = null;
+            _emailIsPrimary = true;
+            _phoneIsPrimary = true;
+            _newEmailIsPrimary = true;
+            _newPhoneIsPrimary = true;
+            _address.Reset();
+            _identity.Reset();
+            _bank.Reset();
+            _pendingTags.Clear();
+            _pendingSocialLinks.Clear();
+            _pendingCustomFields.Clear();
+            _tagName = null;
+            _socialPlatform = null;
+            _socialUrl = null;
+            _customFieldKey = null;
+            _customFieldValue = null;
+        }
+    }
+
+    private async Task OnBack()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    private async Task SaveGeneralSectionAsync()
+    {
+        if (EditContactId is null || _savingGeneral) return;
+        if (string.IsNullOrWhiteSpace(_profile.FirstName) || string.IsNullOrWhiteSpace(_profile.LastName))
+        {
+            NotificationService.NotifyWarning(L[RK.Validation.Required]);
+            return;
+        }
+        var result = BuildResult();
+        if (result is null) return;
+        _savingGeneral = true;
+        try
+        {
+            await OnSave.InvokeAsync(result);
+        }
+        finally { _savingGeneral = false; }
+    }
+
+    private async Task LoadSuggestedUsersAsync()
+    {
+        if (EditContactId is null || _loadingSuggestions) return;
+        _loadingSuggestions = true;
+        try
+        {
+            _suggestedUsers = await ContactService.GetSuggestedUsersAsync(EditContactId.Value);
+            _suggestedUsersLoaded = true;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.LoadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _loadingSuggestions = false;
+        }
+    }
+
+    private async Task LinkUserAsync(Guid userId)
+    {
+        if (EditContactId is null || _linkingUserIds.Contains(userId)) return;
+        _linkingUserIds.Add(userId);
+        try
+        {
+            await ContactService.LinkUserToContactAsync(EditContactId.Value, userId);
+            _suggestedUsers = _suggestedUsers.Where(u => u.Id != userId).ToList();
+            if (_selectedUserIdForLink == userId.ToString())
+                _selectedUserIdForLink = null;
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _linkingUserIds.Remove(userId);
+        }
+    }
+
+    private async Task<(IReadOnlyList<UserListItemDto> items, int totalCount)> LoadUsersForLinkAsync(int pageNumber, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var request = new GetUsersRequest
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+            SortBy = "email",
+            SortDescending = false
+        };
+        var response = await UserService.GetUsersAsync(request, cancellationToken);
+        var items = (IReadOnlyList<UserListItemDto>)(response.Data ?? []);
+        var total = response.Metadata?.TotalCount ?? 0;
+        return (items, total);
+    }
+
+    private void OnSelectedUserForLinkChanged(string? value)
+    {
+        _selectedUserIdForLink = value;
+    }
+
+    private async Task LinkSelectedUserAsync()
+    {
+        if (EditContactId is null || string.IsNullOrEmpty(_selectedUserIdForLink) || !Guid.TryParse(_selectedUserIdForLink, out var userId))
+            return;
+        await LinkUserAsync(userId);
+        _selectedUserIdForLink = null;
+    }
+
+    private async Task UnlinkUserAsync()
+    {
+        if (EditContactId is null || _unlinkingUser) return;
+        _unlinkingUser = true;
+        try
+        {
+            await ContactService.UnlinkUserFromContactAsync(EditContactId.Value);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _unlinkingUser = false;
+        }
+    }
+
+    private const long MaxAvatarSizeBytes = 2 * 1024 * 1024;
+
+    private async Task HandleAvatarFileSelected(InputFileChangeEventArgs e)
+    {
+        if (EditContactId is null || _uploadingAvatar) return;
+        var file = e.File;
+        if (file.Size > MaxAvatarSizeBytes)
+        {
+            NotificationService.NotifyWarning(L[RK.Contacts.AvatarTooLarge]);
+            return;
+        }
+        var contentType = file.ContentType;
+        if (string.IsNullOrEmpty(contentType) || !contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            NotificationService.NotifyWarning(L[RK.Contacts.AvatarUploadFailed]);
+            return;
+        }
+        _uploadingAvatar = true;
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: MaxAvatarSizeBytes);
+            var url = await ContactService.UploadContactAvatarAsync(EditContactId.Value, stream, file.Name, contentType);
+            _avatarUrlOverride = AppendCacheBuster(url);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.AvatarUploadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _uploadingAvatar = false;
+        }
+    }
+
+    private async Task RemoveAvatarAsync()
+    {
+        if (EditContactId is null || _removingAvatar) return;
+        _removingAvatar = true;
+        try
+        {
+            await ContactService.RemoveContactAvatarAsync(EditContactId.Value);
+            _avatarUrlOverride = null;
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.AvatarUploadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _removingAvatar = false;
+        }
+    }
+
+    private async Task SaveContactInfoSectionAsync()
+    {
+        if (EditContactId is null || _savingContactInfo) return;
+        var trim = (string? x) => string.IsNullOrWhiteSpace(x) ? null : x.Trim();
+        var email = trim(_email);
+        var phone = trim(_phone);
+        if (email is null && phone is null) return;
+        _savingContactInfo = true;
+        try
+        {
+            if (!string.IsNullOrEmpty(email))
+            {
+                await ContactService.AddContactEmailAsync(EditContactId!.Value, new AddEmailRequest { Value = email!, IsPrimary = _newEmailIsPrimary });
+                _email = null;
+            }
+            if (!string.IsNullOrEmpty(phone))
+            {
+                await ContactService.AddContactPhoneAsync(EditContactId!.Value, new AddPhoneRequest { Value = phone!, IsPrimary = _newPhoneIsPrimary });
+                _phone = null;
+            }
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingContactInfo = false; }
+    }
+
+    private async Task RemoveEmailAsync(Guid emailId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactEmailAsync(EditContactId.Value, emailId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task SetEmailPrimaryAsync(Guid emailId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.SetContactEmailPrimaryAsync(EditContactId.Value, emailId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task RemovePhoneAsync(Guid phoneId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactPhoneAsync(EditContactId.Value, phoneId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task SetPhonePrimaryAsync(Guid phoneId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.SetContactPhonePrimaryAsync(EditContactId.Value, phoneId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task AddTagAsync()
+    {
+        if (EditContactId is null || _savingTag) return;
+        var name = string.IsNullOrWhiteSpace(_tagName) ? null : _tagName.Trim();
+        if (name is null) return;
+        _savingTag = true;
+        try
+        {
+            await ContactService.AddContactTagAsync(EditContactId.Value, new AddTagRequest { Name = name });
+            _tagName = null;
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingTag = false; }
+    }
+
+    private async Task RemoveTagAsync(Guid tagId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactTagAsync(EditContactId.Value, tagId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private void AddPendingTag()
+    {
+        var name = string.IsNullOrWhiteSpace(_tagName) ? null : _tagName.Trim();
+        if (name is null) return;
+        _pendingTags.Add(name);
+        _tagName = null;
+    }
+
+    private void RemovePendingTag(string name)
+    {
+        _pendingTags.Remove(name);
+    }
+
+    private async Task AddSocialLinkAsync()
+    {
+        if (EditContactId is null || _savingSocial) return;
+        var platform = string.IsNullOrWhiteSpace(_socialPlatform) ? null : _socialPlatform.Trim();
+        var url = string.IsNullOrWhiteSpace(_socialUrl) ? null : _socialUrl.Trim();
+        if (platform is null || url is null) return;
+        _savingSocial = true;
+        try
+        {
+            await ContactService.AddContactSocialLinkAsync(EditContactId.Value, new AddSocialLinkRequest { Platform = platform, Url = url });
+            _socialPlatform = null;
+            _socialUrl = null;
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingSocial = false; }
+    }
+
+    private async Task RemoveSocialLinkAsync(Guid socialLinkId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactSocialLinkAsync(EditContactId.Value, socialLinkId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private void AddPendingSocialLink()
+    {
+        var platform = string.IsNullOrWhiteSpace(_socialPlatform) ? null : _socialPlatform.Trim();
+        var url = string.IsNullOrWhiteSpace(_socialUrl) ? null : _socialUrl.Trim();
+        if (platform is null || url is null) return;
+        _pendingSocialLinks.Add(new ContactFormSocialLinkPart(platform, url));
+        _socialPlatform = null;
+        _socialUrl = null;
+    }
+
+    private void RemovePendingSocialLink(ContactFormSocialLinkPart item)
+    {
+        _pendingSocialLinks.Remove(item);
+    }
+
+    private async Task AddCustomFieldAsync()
+    {
+        if (EditContactId is null || _savingCustomField) return;
+        var key = string.IsNullOrWhiteSpace(_customFieldKey) ? null : _customFieldKey.Trim();
+        var value = _customFieldValue?.Trim() ?? string.Empty;
+        if (key is null) return;
+        _savingCustomField = true;
+        try
+        {
+            await ContactService.SetContactCustomFieldAsync(EditContactId.Value, new SetCustomFieldRequest { Key = key, Value = value });
+            _customFieldKey = null;
+            _customFieldValue = null;
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingCustomField = false; }
+    }
+
+    private async Task RemoveCustomFieldAsync(string key)
+    {
+        if (EditContactId is null || string.IsNullOrWhiteSpace(key)) return;
+        try
+        {
+            await ContactService.RemoveContactCustomFieldAsync(EditContactId.Value, key);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private void AddPendingCustomField()
+    {
+        var key = string.IsNullOrWhiteSpace(_customFieldKey) ? null : _customFieldKey.Trim();
+        if (key is null) return;
+        var value = _customFieldValue?.Trim() ?? string.Empty;
+        _pendingCustomFields.Add(new ContactFormCustomFieldPart(key, value));
+        _customFieldKey = null;
+        _customFieldValue = null;
+    }
+
+    private void RemovePendingCustomField(ContactFormCustomFieldPart item)
+    {
+        _pendingCustomFields.Remove(item);
+    }
+
+    private async Task SaveAddressSectionAsync()
+    {
+        if (EditContactId is null || _savingAddress) return;
+        var trim = (string? x) => string.IsNullOrWhiteSpace(x) ? null : x.Trim();
+        if (string.IsNullOrWhiteSpace(_address.Street) || string.IsNullOrWhiteSpace(_address.CountryCode))
+        {
+            NotificationService.NotifyWarning(L[RK.Validation.Required]);
+            return;
+        }
+        _savingAddress = true;
+        try
+        {
+            await ContactService.AddContactAddressAsync(EditContactId!.Value, new AddAddressRequest
+            {
+                Street = _address.Street!.Trim(),
+                CountryCode = _address.CountryCode!.Trim(),
+                CityCode = _address.CityCode ?? string.Empty,
+                DistrictCode = _address.DistrictCode ?? string.Empty,
+                PostalCode = _address.PostalCode ?? string.Empty,
+                IsPrimary = false
+            });
+            _address.Reset();
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingAddress = false; }
+    }
+
+    private async Task RemoveAddressAsync(Guid addressId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactAddressAsync(EditContactId.Value, addressId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task SaveBankSectionAsync()
+    {
+        if (EditContactId is null || _savingBank) return;
+        var trim = (string? x) => string.IsNullOrWhiteSpace(x) ? null : x.Trim();
+        if (string.IsNullOrWhiteSpace(_bank.BankCode) || string.IsNullOrWhiteSpace(_bank.AccountNumber) || string.IsNullOrWhiteSpace(_bank.AccountName) || string.IsNullOrWhiteSpace(_bank.CurrencyCode))
+        {
+            NotificationService.NotifyWarning(L[RK.Validation.Required]);
+            return;
+        }
+        _savingBank = true;
+        try
+        {
+            await ContactService.AddContactBankAccountAsync(EditContactId!.Value, new AddBankAccountRequest
+            {
+                BankCode = _bank.BankCode!,
+                BranchName = trim(_bank.BranchName),
+                AccountNumber = _bank.AccountNumber!,
+                AccountName = _bank.AccountName!,
+                CurrencyCode = _bank.CurrencyCode!,
+                IsPrimary = false
+            });
+            _bank.Reset();
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingBank = false; }
+    }
+
+    private async Task RemoveBankAccountAsync(Guid bankAccountId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactBankAccountAsync(EditContactId.Value, bankAccountId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task SaveIdentitySectionAsync()
+    {
+        if (EditContactId is null || _savingIdentity) return;
+        if (!_identity.IssuedDate.HasValue || string.IsNullOrWhiteSpace(_identity.DocumentType) || string.IsNullOrWhiteSpace(_identity.DocumentNumber))
+        {
+            NotificationService.NotifyWarning(L[RK.Validation.Required]);
+            return;
+        }
+        _savingIdentity = true;
+        try
+        {
+            await ContactService.AddContactIdentityDocumentAsync(EditContactId!.Value, new AddIdentityDocumentRequest
+            {
+                DocumentType = _identity.DocumentType!,
+                DocumentNumber = _identity.DocumentNumber!,
+                IssuedBy = _identity.IssuedBy ?? string.Empty,
+                IssuedPlace = _identity.IssuedPlace ?? string.Empty,
+                IssuedDate = DateOnly.FromDateTime(_identity.IssuedDate.Value.Date),
+                ExpiryDate = _identity.ExpiryDate.HasValue ? DateOnly.FromDateTime(_identity.ExpiryDate.Value.Date) : null
+            });
+            _identity.Reset();
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally { _savingIdentity = false; }
+    }
+
+    private async Task RemoveIdentityDocumentAsync(Guid identityDocumentId)
+    {
+        if (EditContactId is null) return;
+        try
+        {
+            await ContactService.RemoveContactIdentityDocumentAsync(EditContactId.Value, identityDocumentId);
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await OnSectionSaved.InvokeAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private void OnCountryCodeChanged(string? value)
+    {
+        _address.CountryCode = value;
+        _address.CityCode = null;
+        _address.DistrictCode = null;
+    }
+
+    private void OnCityCodeChanged(string? value)
+    {
+        _address.CityCode = value;
+        _address.DistrictCode = null;
+    }
+
+    private async Task<(IReadOnlyList<CountryListItemDto> items, int totalCount)> LoadCountriesAsync(int pageNumber, int pageSize, string? search, CancellationToken ct)
+    {
+        try
+        {
+            var result = await MasterDataService.GetCountriesAsync(new MasterDataListRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortBy = "name",
+                SortDescending = false,
+                SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim()
+            }, ct);
+            return (result.Data ?? [], result.Metadata.TotalCount);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.LoadFailed], ex.GetDisplayDetail());
+            return ([], 0);
+        }
+    }
+
+    private async Task<(IReadOnlyList<CityListItemDto> items, int totalCount)> LoadCitiesAsync(int pageNumber, int pageSize, string? search, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(_address.CountryCode))
+            return ([], 0);
+        try
+        {
+            var result = await MasterDataService.GetCitiesAsync(new MasterDataListWithParentRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortBy = "name",
+                SortDescending = false,
+                SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+                ParentCode = _address.CountryCode.Trim()
+            }, ct);
+            return (result.Data ?? [], result.Metadata.TotalCount);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.LoadFailed], ex.GetDisplayDetail());
+            return ([], 0);
+        }
+    }
+
+    private async Task<(IReadOnlyList<DistrictListItemDto> items, int totalCount)> LoadDistrictsAsync(int pageNumber, int pageSize, string? search, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(_address.CityCode))
+            return ([], 0);
+        try
+        {
+            var result = await MasterDataService.GetDistrictsAsync(new MasterDataListWithParentRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortBy = "name",
+                SortDescending = false,
+                SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim(),
+                ParentCode = _address.CityCode.Trim()
+            }, ct);
+            return (result.Data ?? [], result.Metadata.TotalCount);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.LoadFailed], ex.GetDisplayDetail());
+            return ([], 0);
+        }
+    }
+
+    private async Task<(IReadOnlyList<BankListItemDto> items, int totalCount)> LoadBanksAsync(int pageNumber, int pageSize, string? search, CancellationToken ct)
+    {
+        try
+        {
+            var result = await MasterDataService.GetBanksAsync(new MasterDataListWithParentRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortBy = "name",
+                SortDescending = false,
+                SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim()
+            }, ct);
+            return (result.Data ?? [], result.Metadata.TotalCount);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.LoadFailed], ex.GetDisplayDetail());
+            return ([], 0);
+        }
+    }
+
+    private async Task OnSubmitAsync()
+    {
+        if (IsViewMode) return;
+        var result = BuildResult();
+        if (result is not null)
+            await OnSave.InvokeAsync(result);
+    }
+
+    private ContactFormDialogResult? BuildResult()
+    {
+        if (string.IsNullOrWhiteSpace(_profile.FirstName) || string.IsNullOrWhiteSpace(_profile.LastName))
+            return null;
+
+        var trim = (string? x) => string.IsNullOrWhiteSpace(x) ? null : x.Trim();
+
+        if (IsEditMode)
+        {
+            return new ContactFormDialogResult
+            {
+                EditId = InitialData is ContactFormDialogInitialDataWithId withId ? withId.Id : null,
+                FirstName = _profile.FirstName.Trim(),
+                LastName = _profile.LastName.Trim(),
+                Company = trim(_profile.Company),
+                JobTitle = trim(_profile.JobTitle),
+                AvatarUrl = DisplayAvatarUrl,
+                Birthday = _birthday.HasValue ? DateOnly.FromDateTime(_birthday.Value.Date) : null,
+                Notes = trim(_profile.Notes)
+            };
+        }
+
+        ContactFormAddressPart? addressPart = null;
+        if (!string.IsNullOrWhiteSpace(_address.Street) && !string.IsNullOrWhiteSpace(_address.CountryCode))
+            addressPart = new ContactFormAddressPart
+            {
+                Street = _address.Street!.Trim(),
+                CountryCode = _address.CountryCode!.Trim(),
+                CityCode = _address.CityCode ?? string.Empty,
+                DistrictCode = _address.DistrictCode ?? string.Empty,
+                PostalCode = _address.PostalCode ?? string.Empty,
+                IsPrimary = true
+            };
+
+        ContactFormIdentityPart? identityPart = null;
+        if (_identity.IssuedDate.HasValue && !string.IsNullOrWhiteSpace(_identity.DocumentType) && !string.IsNullOrWhiteSpace(_identity.DocumentNumber))
+            identityPart = new ContactFormIdentityPart
+            {
+                DocumentType = _identity.DocumentType!,
+                DocumentNumber = _identity.DocumentNumber!,
+                IssuedBy = _identity.IssuedBy ?? string.Empty,
+                IssuedPlace = _identity.IssuedPlace ?? string.Empty,
+                IssuedDate = DateOnly.FromDateTime(_identity.IssuedDate.Value.Date),
+                ExpiryDate = _identity.ExpiryDate.HasValue ? DateOnly.FromDateTime(_identity.ExpiryDate.Value.Date) : null,
+                IsPrimary = true
+            };
+
+        ContactFormBankPart? bankPart = null;
+        if (!string.IsNullOrWhiteSpace(_bank.BankCode) && !string.IsNullOrWhiteSpace(_bank.AccountNumber) && !string.IsNullOrWhiteSpace(_bank.AccountName) && !string.IsNullOrWhiteSpace(_bank.CurrencyCode))
+            bankPart = new ContactFormBankPart
+            {
+                BankCode = _bank.BankCode!,
+                BranchName = trim(_bank.BranchName),
+                AccountNumber = _bank.AccountNumber!,
+                AccountName = _bank.AccountName!,
+                CurrencyCode = _bank.CurrencyCode!,
+                IsPrimary = true
+            };
+
+        return new ContactFormDialogResult
+        {
+            FirstName = _profile.FirstName.Trim(),
+            LastName = _profile.LastName.Trim(),
+            Company = trim(_profile.Company),
+            JobTitle = trim(_profile.JobTitle),
+            Birthday = _birthday.HasValue ? DateOnly.FromDateTime(_birthday.Value.Date) : null,
+            Notes = trim(_profile.Notes),
+            Email = trim(_email),
+            EmailIsPrimary = _emailIsPrimary,
+            Phone = trim(_phone),
+            PhoneIsPrimary = _phoneIsPrimary,
+            Address = addressPart,
+            Identity = identityPart,
+            Bank = bankPart,
+            Tags = _pendingTags.Count > 0 ? _pendingTags.ToList() : null,
+            SocialLinks = _pendingSocialLinks.Count > 0 ? _pendingSocialLinks.ToList() : null,
+            CustomFields = _pendingCustomFields.Count > 0 ? _pendingCustomFields.ToList() : null
+        };
+    }
+
+    private sealed class ContactProfileFormModel
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string? Company { get; set; }
+        public string? JobTitle { get; set; }
+        public string? Notes { get; set; }
+        public void Reset() { FirstName = string.Empty; LastName = string.Empty; Company = null; JobTitle = null; Notes = null; }
+    }
+
+    private sealed class AddressFormModel
+    {
+        public string? Street { get; set; }
+        public string? CountryCode { get; set; }
+        public string? CityCode { get; set; }
+        public string? DistrictCode { get; set; }
+        public string? PostalCode { get; set; }
+        public void Reset() { Street = null; CountryCode = null; CityCode = null; DistrictCode = null; PostalCode = null; }
+    }
+
+    private sealed class IdentityDocumentFormModel
+    {
+        public string? DocumentType { get; set; }
+        public string? DocumentNumber { get; set; }
+        public string? IssuedBy { get; set; }
+        public string? IssuedPlace { get; set; }
+        public DateTime? IssuedDate { get; set; } = DateTime.Today;
+        public DateTime? ExpiryDate { get; set; }
+        public void Reset() { DocumentType = null; DocumentNumber = null; IssuedBy = null; IssuedPlace = null; IssuedDate = DateTime.Today; ExpiryDate = null; }
+    }
+
+    private sealed class BankAccountFormModel
+    {
+        public string? BankCode { get; set; }
+        public string? BranchName { get; set; }
+        public string? AccountNumber { get; set; }
+        public string? AccountName { get; set; }
+        public string? CurrencyCode { get; set; }
+        public void Reset() { BankCode = null; BranchName = null; AccountNumber = null; AccountName = null; CurrencyCode = null; }
+    }
+
+    private sealed record CurrencyOption(string Code);
+}

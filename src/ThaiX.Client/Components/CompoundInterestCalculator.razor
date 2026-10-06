@@ -1,0 +1,222 @@
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Localization
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    @if (ShowTitle)
+    {
+        <RadzenText TextStyle="TextStyle.H6" Class="mb-0">
+            @L[RK.BankInterestRates.CompoundInterestCalculator]
+        </RadzenText>
+    }
+
+    <RadzenStack Gap="1rem">
+        <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">
+            @L[RK.BankInterestRates.InputSection]
+        </RadzenText>
+
+        <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenStack Gap="0.35rem">
+                    <RadzenLabel Text="@L[RK.BankInterestRates.PrincipalAmount]" />
+                    <RadzenText TextStyle="TextStyle.Caption" TextColor="TextColor.Secondary" Class="mb-0">
+                        @L[RK.BankInterestRates.CurrencySuffixVnd]
+                    </RadzenText>
+                    <RadzenNumeric TValue="decimal"
+                                   @bind-Value="Principal"
+                                   Min="0"
+                                   Step="1000"
+                                   Format="N0"
+                                   Class="w-100" />
+                </RadzenStack>
+            </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenStack Gap="0.35rem">
+                    <RadzenLabel Text="@L[RK.BankInterestRates.AnnualRate]" />
+                    <RadzenText TextStyle="TextStyle.Caption" TextColor="TextColor.Secondary" Class="mb-0">
+                        @L[RK.BankInterestRates.RateSuffixPerYear]
+                    </RadzenText>
+                    <RadzenNumeric TValue="decimal"
+                                   @bind-Value="AnnualRateInput"
+                                   Min="0"
+                                   Max="100"
+                                   Step="0.1"
+                                   Format="0.##"
+                                   Class="w-100" />
+                </RadzenStack>
+            </RadzenColumn>
+
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenStack Gap="0.35rem">
+                    <RadzenLabel Text="@L[RK.BankInterestRates.TermMonths]" />
+                    <RadzenText TextStyle="TextStyle.Caption" TextColor="TextColor.Secondary" Class="mb-0">
+                        @L[RK.BankInterestRates.MonthsSuffix]
+                    </RadzenText>
+                    <RadzenNumeric TValue="int"
+                                   @bind-Value="TermMonths"
+                                   Min="1"
+                                   Max="600"
+                                   Step="1"
+                                   Class="w-100" />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenButton Text="@L[RK.BankInterestRates.CalculateAction]"
+                      ButtonStyle="ButtonStyle.Primary"
+                      Click="@OnCalculateClicked"
+                      Class="w-100" />
+    </RadzenStack>
+
+    @if (Bank != null && Bank.Month12.HasValue)
+    {
+        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0 text-break">
+            @L[RK.BankInterestRates.AnnualRate]:
+            @FormatRate(Bank.Month12.Value / 100)
+            @string.Format(L[RK.BankInterestRates.FromBank].ToString(), Bank.BankName)
+        </RadzenText>
+    }
+    else
+    {
+        <RadzenText TextStyle="TextStyle.Caption" Class="text-warning mb-0">
+            @L[RK.BankInterestRates.NoBankSelected]
+        </RadzenText>
+    }
+
+    @if (_finalAmount > 0)
+    {
+        <RadzenStack Gap="0.75rem">
+            <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">
+                @L[RK.BankInterestRates.ResultSummary]
+            </RadzenText>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.BankInterestRates.PrincipalAmount]</span>
+                <strong class="text-break">@FormatCurrency(_principal)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.BankInterestRates.AnnualRate]</span>
+                <strong>@FormatRate(_annualRateInput / 100m)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.BankInterestRates.TermMonths]</span>
+                <strong>@_termMonths @L[RK.BankInterestRates.MonthsSuffix]</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.BankInterestRates.Profit]</span>
+                <strong class="text-success text-break">@FormatCurrency(_profit)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.BankInterestRates.TotalReturn]</span>
+                <strong>@FormatRate(_totalReturnPercentage / 100m)</strong>
+            </div>
+
+            <RadzenStack Gap="0.25rem" Class="pt-2">
+                <span class="text-muted small">@L[RK.BankInterestRates.FinalAmount]</span>
+                <RadzenText TextStyle="TextStyle.H6" Class="mb-0 text-break">@FormatCurrency(_finalAmount)</RadzenText>
+                <span class="small text-muted">
+                    @string.Format(L[RK.BankInterestRates.OverMonths].ToString(), _termMonths)
+                </span>
+            </RadzenStack>
+        </RadzenStack>
+    }
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public BankInterestRateGridItemDto? Bank { get; set; }
+
+    [Parameter]
+    public bool ShowTitle { get; set; } = true;
+
+    private decimal _principal = 1_000_000;
+    private int _termMonths = 60;
+    private decimal _annualRateInput = 7;
+
+    private decimal _finalAmount;
+    private decimal _profit;
+    private decimal _totalReturnPercentage;
+
+    private decimal Principal
+    {
+        get => _principal;
+        set
+        {
+            if (_principal != value)
+            {
+                _principal = value;
+                Calculate();
+            }
+        }
+    }
+
+    private int TermMonths
+    {
+        get => _termMonths;
+        set
+        {
+            if (_termMonths != value)
+            {
+                _termMonths = value;
+                Calculate();
+            }
+        }
+    }
+
+    private decimal AnnualRateInput
+    {
+        get => _annualRateInput;
+        set
+        {
+            if (_annualRateInput != value)
+            {
+                _annualRateInput = value;
+                Calculate();
+            }
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Bank?.Month12 is decimal rate)
+        {
+            _annualRateInput = rate;
+        }
+
+        Calculate();
+    }
+
+    private void Calculate()
+    {
+        if (_principal <= 0 || _termMonths <= 0)
+        {
+            _finalAmount = 0;
+            _profit = 0;
+            _totalReturnPercentage = 0;
+            return;
+        }
+
+        var rate = _annualRateInput / 100m;
+        var termInYears = _termMonths / 12m;
+        var factor = (decimal)Math.Pow((double)(1 + rate), (double)termInYears);
+
+        _finalAmount = Math.Round(_principal * factor, 0);
+        _profit = Math.Round(_finalAmount - _principal, 0);
+        _totalReturnPercentage = Math.Round((_profit / _principal) * 100, 2);
+    }
+
+    private void OnCalculateClicked()
+    {
+        Calculate();
+    }
+
+    private static string FormatRate(decimal rate)
+        => $"{rate:P2}";
+
+    private static string FormatCurrency(decimal amount)
+        => $"{amount:N0}";
+}

@@ -1,0 +1,33 @@
+---
+description: Core ThaiX coding and architecture guardrails
+alwaysApply: true
+---
+
+# ThaiX Core Guardrails
+
+Apply these rules in every task:
+
+- Keep Clean Architecture + DDD + CQRS boundaries strict.
+- Keep endpoints thin; business logic stays in Domain/Application.
+- Application must not depend on Infrastructure/Presentation.
+- Keep EF Core data access in Infrastructure only.
+- Use English for code and logs; localize user-facing text via resources.
+- Use `ResourceKeys` constants; do not hardcode UI/API messages.
+- Use ASCII in source files; `.resx` is the only Unicode exception.
+- Keep package versions in `Directory.Packages.props` only.
+- Do not auto-stage or auto-commit unless user explicitly requests it.
+- Agent asset changes must follow `.cursor/AGENT_SYNC_POLICY.md`.
+- If any asset under `.github/`, `.codex/`, or `.cursor/` changes, apply the equivalent change to all three folders in the same turn.
+- Before changing a skill, prompt, instruction, or rule, read the corresponding asset in each runtime folder and preserve runtime-specific conventions.
+
+## Rule Routing
+
+- Domain work -> `domain-layer.mdc`
+- CQRS/Application work -> `application-layer.mdc`
+- EF/Infrastructure work -> `data-access.mdc`
+- API integration work -> `external-api.mdc`
+- External API application handlers -> `external-api-application.mdc`
+- Auth/security in Presentation -> `security-auth.mdc`
+- Identity/token persistence in Infrastructure -> `security-identity-infra.mdc`
+- Client UI work -> `blazor-ui.mdc`
+- Tests work -> `testing.mdc`

@@ -1,0 +1,603 @@
+@page "/admin/blog/posts/new"
+@page "/admin/blog/posts/{Id:guid}"
+@attribute [Authorize(Policy = PermissionNames.BlogWrite)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Blog
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@(Id.HasValue ? L[RK.Blog.Posts.EditPostTitle] : L[RK.Blog.Posts.NewPostTitle]) - ThaiX</PageTitle>
+
+<div class="container-fluid py-2 blog-editor-page">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => Navigation.NavigateTo("/admin/blog/posts"))" />
+                <RadzenText TextStyle="TextStyle.H5" Class="mb-0">@(Id.HasValue ? L[RK.Blog.Posts.EditPostTitle] : L[RK.Blog.Posts.NewPostTitle])</RadzenText>
+                @if (_post is not null)
+                {
+                    <RadzenBadge Text="@_post.Status" BadgeStyle="@StatusBadgeStyle(_post.Status)" />
+                }
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                <ResponsiveIconButton Text="@L[RK.Blog.Ai.Review]" Icon="fact_check" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                              IsBusy="@_isReviewing" Disabled="@_isReviewing" Click="ReviewAsync" />
+                <ResponsiveIconButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Icon="save"
+                              IsBusy="@_isSaving" Disabled="@_isSaving" Click="SaveAsync" />
+            </RadzenStack>
+        </RadzenStack>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else
+        {
+            @if (_reviewResult is not null)
+            {
+                <RadzenCard>
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenBadge Text="@_reviewResult.Verdict"
+                                     BadgeStyle="@(_reviewResult.Verdict == "READY TO PUBLISH" ? BadgeStyle.Success : _reviewResult.Verdict == "NEEDS WORK" ? BadgeStyle.Danger : BadgeStyle.Warning)"
+                                     IsPill="true" />
+                        <RadzenText TextStyle="TextStyle.Body2" style="white-space: pre-wrap;">@_reviewResult.Report</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+            }
+
+            <RadzenRow Gap="1rem">
+                <RadzenColumn Size="12" SizeMD="8">
+                    <RadzenCard>
+                        <RadzenStack Gap="0.75rem">
+                            <RadzenRow Gap="0.75rem">
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenFormField Text="@L[RK.Blog.Posts.EditorTitleLabel]" Class="w-100">
+                                        <RadzenTextBox @bind-Value="_model.Title" Class="w-100" MaxLength="200" Change="@OnTitleChanged" />
+                                    </RadzenFormField>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="6">
+                                    <RadzenFormField Text="@L[RK.Blog.Posts.SlugLabel]" Class="w-100">
+                                        <RadzenTextBox @bind-Value="_model.Slug" Class="w-100" MaxLength="200" />
+                                    </RadzenFormField>
+                                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Class="mt-1">
+                                        <ResponsiveIconButton Text="@L[RK.Blog.Ai.GenerateTitle]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                                      IsBusy="@_isGeneratingTitle" Disabled="@(_isGeneratingTitle || string.IsNullOrWhiteSpace(_model.ContentHtml))"
+                                                      Click="GenerateTitleAsync" />
+                                    </RadzenStack>
+                                </RadzenColumn>
+                            </RadzenRow>
+
+                            <RadzenFormField Text="@L[RK.Blog.Posts.SummaryLabel]" Class="w-100">
+                                <RadzenTextArea @bind-Value="_model.Summary" Class="w-100" Rows="3" MaxLength="500" />
+                            </RadzenFormField>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                                <ResponsiveIconButton Text="@L[RK.Blog.Ai.GenerateSummary]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                              IsBusy="@_isGeneratingSummary" Disabled="@(_isGeneratingSummary || string.IsNullOrWhiteSpace(_model.ContentHtml))"
+                                              Click="GenerateSummaryAsync" />
+                                <ResponsiveIconButton Text="@L[RK.Blog.Ai.Rewrite]" Icon="auto_fix_high" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                              IsBusy="@_isRewriting" Disabled="@(_isRewriting || string.IsNullOrWhiteSpace(_model.Summary))"
+                                              Click="RewriteSummaryAsync" />
+                                <ResponsiveIconButton Text="@L[RK.Blog.Ai.ImproveGrammar]" Icon="spellcheck" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                              IsBusy="@_isImprovingGrammar" Disabled="@(_isImprovingGrammar || string.IsNullOrWhiteSpace(_model.Summary))"
+                                              Click="ImproveGrammarAsync" />
+                            </RadzenStack>
+
+                            <RadzenFormField Text="@L[RK.Blog.Posts.ContentLabel]" Class="w-100">
+                                <RichTextEditor @bind-Value="_model.ContentHtml" Rows="18" />
+                            </RadzenFormField>
+                        </RadzenStack>
+                    </RadzenCard>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenStack Gap="1rem">
+                        @if (Id.HasValue && _post is not null)
+                        {
+                            <RadzenCard>
+                                <RadzenStack Gap="0.75rem">
+                                    <RadzenText TextStyle="TextStyle.Overline" Class="mb-0">@L[RK.Blog.Posts.SectionPublish]</RadzenText>
+                                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                                        @if (_post.Status is "Draft" or "Scheduled")
+                                        {
+                                            <ResponsiveIconButton Text="@L[RK.Blog.Posts.ActionPublish]" Icon="publish" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small"
+                                                          Click="PublishAsync" />
+                                        }
+                                        @if (_post.Status is "Published" or "Scheduled")
+                                        {
+                                            <ResponsiveIconButton Text="@L[RK.Blog.Posts.ActionUnpublish]" Icon="unpublished" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
+                                                          Click="UnpublishAsync" />
+                                        }
+                                        @if (_post.Status is not "Archived")
+                                        {
+                                            <ResponsiveIconButton Text="@L[RK.Blog.Posts.ActionArchive]" Icon="archive" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small"
+                                                          Click="ArchiveAsync" />
+                                        }
+                                    </RadzenStack>
+                                    <RadzenFormField Text="@L[RK.Blog.Posts.SchedulePublishAt]" Class="w-100">
+                                        <RadzenDatePicker @bind-Value="_scheduleDate" ShowTime="true" DateFormat="yyyy-MM-dd HH:mm" Class="w-100" />
+                                    </RadzenFormField>
+                                    <ResponsiveIconButton Text="@L[RK.Blog.Posts.ScheduleConfirm]" Icon="schedule" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small"
+                                                  Click="ScheduleAsync" Class="w-100" />
+                                </RadzenStack>
+                            </RadzenCard>
+                        }
+
+                        <RadzenCard>
+                            <RadzenStack Gap="0.75rem">
+                                <RadzenText TextStyle="TextStyle.Overline" Class="mb-0">@L[RK.Blog.Posts.FeaturedImageLabel]</RadzenText>
+                                @if (!string.IsNullOrWhiteSpace(_model.FeaturedImageUrl))
+                                {
+                                    <SafeImage Src="@_model.FeaturedImageUrl"
+                                               Alt=""
+                                               Style="width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px;"
+                                               FallbackIcon="image"
+                                               FallbackClass="safe-image-fallback" />
+                                }
+                                <div class="d-flex align-items-center gap-2">
+                                    <InputFile OnChange="HandleFeaturedImageSelectedAsync" accept="image/*" disabled="@_isUploadingFeaturedImage" />
+                                    @if (_isUploadingFeaturedImage)
+                                    {
+                                        <RadzenProgressBarCircular Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Size="ProgressBarCircularSize.ExtraSmall" />
+                                    }
+                                </div>
+                            </RadzenStack>
+                        </RadzenCard>
+
+                        <RadzenCard>
+                            <RadzenStack Gap="0.75rem">
+                                <RadzenText TextStyle="TextStyle.Overline" Class="mb-0">@L[RK.Blog.Posts.SectionOrganize]</RadzenText>
+                                <RadzenFormField Text="@L[RK.Blog.Posts.CategoryLabel]" Class="w-100">
+                                    <RadzenDropDown TValue="Guid?"
+                                                    @bind-Value="_model.CategoryId"
+                                                    Data="@_categories"
+                                                    TextProperty="Name"
+                                                    ValueProperty="Id"
+                                                    AllowClear="true"
+                                                    Class="w-100" />
+                                </RadzenFormField>
+                                <RadzenFormField Text="@L[RK.Blog.Posts.TagsLabel]" Class="w-100">
+                                    <AsyncSearchSelect TItem="TagDto"
+                                                        @bind-Value="_tagPickerValue"
+                                                        LoadDataAsync="LoadTagsAsync"
+                                                        GetText="@(t => t.Name)"
+                                                        GetValue="@(t => t.Id.ToString())"
+                                                        Placeholder="@L[RK.Blog.Tags.SearchPlaceholder]"
+                                                        Class="w-100" />
+                                </RadzenFormField>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                    @foreach (var tag in _selectedTags)
+                                    {
+                                        <RadzenBadge Text="@tag.Name" BadgeStyle="BadgeStyle.Info" IsPill="true">
+                                            <RadzenButton Icon="close" Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Light"
+                                                          Click="@(() => _selectedTags.Remove(tag))" />
+                                        </RadzenBadge>
+                                    }
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+
+                        <RadzenCard>
+                            <RadzenStack Gap="0.75rem">
+                                <RadzenText TextStyle="TextStyle.Overline" Class="mb-0">@L[RK.Blog.Posts.SectionSeo]</RadzenText>
+                                <RadzenFormField Text="@L[RK.Blog.Posts.MetaTitleLabel]" Class="w-100">
+                                    <RadzenTextBox @bind-Value="_model.MetaTitle" Class="w-100" MaxLength="70" />
+                                </RadzenFormField>
+                                <RadzenFormField Text="@L[RK.Blog.Posts.MetaDescriptionLabel]" Class="w-100">
+                                    <RadzenTextBox @bind-Value="_model.MetaDescription" Class="w-100" MaxLength="160" />
+                                </RadzenFormField>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                                    <ResponsiveIconButton Text="@L[RK.Blog.Ai.GenerateSeo]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                                  IsBusy="@_isGeneratingSeo" Disabled="@(_isGeneratingSeo || string.IsNullOrWhiteSpace(_model.Title))"
+                                                  Click="GenerateSeoAsync" />
+                                    <ResponsiveIconButton Text="@L[RK.Blog.Ai.GenerateTags]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+                                                  IsBusy="@_isGeneratingTags" Disabled="@(_isGeneratingTags || string.IsNullOrWhiteSpace(_model.ContentHtml))"
+                                                  Click="GenerateTagsAsync" />
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+                    </RadzenStack>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private PostDto? _post;
+    private UpdatePostRequest _model = new();
+    private IReadOnlyList<CategoryDto> _categories = [];
+    private readonly List<TagDto> _selectedTags = [];
+    private readonly Dictionary<string, TagDto> _tagCache = [];
+    private string? _tagPickerValue;
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private bool _isUploadingFeaturedImage;
+    private bool _isGeneratingTitle;
+    private bool _isGeneratingSummary;
+    private bool _isRewriting;
+    private bool _isImprovingGrammar;
+    private bool _isGeneratingSeo;
+    private bool _isGeneratingTags;
+    private bool _isReviewing;
+    private ReviewPostResponseDto? _reviewResult;
+    private DateTime _scheduleDate = DateTime.Now.AddDays(1);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _categories = await BlogService.GetCategoriesAsync();
+        }
+        catch (ApiException)
+        {
+            _categories = [];
+        }
+
+        if (Id.HasValue)
+        {
+            try
+            {
+                _post = await BlogService.GetPostByIdAsync(Id.Value);
+                if (_post is not null)
+                {
+                    _model = new UpdatePostRequest
+                    {
+                        Title = _post.Title,
+                        Slug = _post.Slug,
+                        Summary = _post.Summary,
+                        ContentHtml = _post.ContentHtml,
+                        FeaturedImageUrl = _post.FeaturedImageUrl,
+                        CategoryId = _post.CategoryId,
+                        MetaTitle = _post.MetaTitle,
+                        MetaDescription = _post.MetaDescription,
+                        TagIds = _post.TagIds
+                    };
+
+                    for (var i = 0; i < _post.TagIds.Count && i < _post.TagNames.Count; i++)
+                    {
+                        _selectedTags.Add(new TagDto { Id = _post.TagIds[i], Name = _post.TagNames[i] });
+                    }
+                }
+            }
+            catch (ApiException ex)
+            {
+                NotificationService.NotifyError(L[RK.Blog.Posts.LoadFailed], ex.GetDisplayDetail());
+            }
+        }
+
+        _isLoading = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(_tagPickerValue) && _tagCache.TryGetValue(_tagPickerValue, out var picked))
+        {
+            if (!_selectedTags.Any(t => t.Id == picked.Id))
+            {
+                _selectedTags.Add(picked);
+            }
+            _tagPickerValue = null;
+        }
+    }
+
+    private async Task<(IReadOnlyList<TagDto> items, int totalCount)> LoadTagsAsync(
+        int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var result = await BlogService.SearchTagsAsync(search, page, pageSize, cancellationToken);
+        var items = result.Data ?? [];
+        foreach (var tag in items)
+        {
+            _tagCache[tag.Id.ToString()] = tag;
+        }
+        return (items, result.Metadata.TotalCount);
+    }
+
+    private void OnTitleChanged(string? value)
+    {
+        if (Id.HasValue) return;
+        _model.Slug = BuildSlug(value ?? string.Empty);
+    }
+
+    private static string BuildSlug(string value)
+    {
+        var lowered = value.Trim().ToLowerInvariant();
+        var chars = lowered.Select(c => char.IsLetterOrDigit(c) ? c : (char.IsWhiteSpace(c) || c == '-' ? '-' : '\0'))
+            .Where(c => c != '\0')
+            .ToArray();
+        var slug = new string(chars);
+        while (slug.Contains("--")) slug = slug.Replace("--", "-");
+        return slug.Trim('-');
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+        try
+        {
+            _model.TagIds = _selectedTags.Select(t => t.Id).ToList();
+
+            if (Id.HasValue)
+            {
+                await BlogService.UpdatePostAsync(Id.Value, _model);
+                NotificationService.NotifySuccess(L[RK.Blog.Posts.SaveSuccess]);
+                _post = await BlogService.GetPostByIdAsync(Id.Value);
+            }
+            else
+            {
+                var request = new CreatePostRequest
+                {
+                    Title = _model.Title,
+                    Slug = _model.Slug,
+                    Summary = _model.Summary,
+                    ContentHtml = _model.ContentHtml,
+                    FeaturedImageUrl = _model.FeaturedImageUrl,
+                    CategoryId = _model.CategoryId,
+                    MetaTitle = _model.MetaTitle,
+                    MetaDescription = _model.MetaDescription,
+                    TagIds = _model.TagIds
+                };
+                var newId = await BlogService.CreatePostAsync(request);
+                NotificationService.NotifySuccess(L[RK.Blog.Posts.SaveSuccess]);
+                Navigation.NavigateTo($"/admin/blog/posts/{newId}");
+            }
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Posts.SaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task HandleFeaturedImageSelectedAsync(InputFileChangeEventArgs e)
+    {
+        _isUploadingFeaturedImage = true;
+        try
+        {
+            const long maxSizeBytes = 5 * 1024 * 1024;
+            var file = e.File;
+            if (file.Size > maxSizeBytes)
+            {
+                NotificationService.NotifyError(L[RK.Blog.Editor.ImageTooLarge]);
+                return;
+            }
+
+            await using var stream = file.OpenReadStream(maxSizeBytes);
+            _model.FeaturedImageUrl = await BlogService.UploadImageAsync(stream, file.Name, file.ContentType);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Editor.ImageUploadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isUploadingFeaturedImage = false;
+        }
+    }
+
+    private async Task GenerateTitleAsync()
+    {
+        _isGeneratingTitle = true;
+        try
+        {
+            var suggestions = await BlogService.GenerateTitleAsync(new GenerateTitleRequest { ContentHtml = _model.ContentHtml });
+            var first = suggestions.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(first))
+            {
+                _model.Title = first;
+                OnTitleChanged(first);
+            }
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isGeneratingTitle = false;
+        }
+    }
+
+    private async Task GenerateSummaryAsync()
+    {
+        _isGeneratingSummary = true;
+        try
+        {
+            _model.Summary = await BlogService.GenerateSummaryAsync(new GenerateSummaryRequest { Title = _model.Title, ContentHtml = _model.ContentHtml });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isGeneratingSummary = false;
+        }
+    }
+
+    private async Task RewriteSummaryAsync()
+    {
+        _isRewriting = true;
+        try
+        {
+            _model.Summary = await BlogService.RewriteTextAsync(new RewriteTextRequest { Text = _model.Summary, Tone = "Professional" });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isRewriting = false;
+        }
+    }
+
+    private async Task ImproveGrammarAsync()
+    {
+        _isImprovingGrammar = true;
+        try
+        {
+            _model.Summary = await BlogService.ImproveGrammarAsync(new ImproveGrammarRequest { Text = _model.Summary });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isImprovingGrammar = false;
+        }
+    }
+
+    private async Task GenerateSeoAsync()
+    {
+        _isGeneratingSeo = true;
+        try
+        {
+            var seo = await BlogService.GenerateSeoAsync(new GenerateSeoRequest { Title = _model.Title, Summary = _model.Summary });
+            if (!string.IsNullOrWhiteSpace(seo.MetaTitle)) _model.MetaTitle = seo.MetaTitle;
+            if (!string.IsNullOrWhiteSpace(seo.MetaDescription)) _model.MetaDescription = seo.MetaDescription;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isGeneratingSeo = false;
+        }
+    }
+
+    private async Task GenerateTagsAsync()
+    {
+        _isGeneratingTags = true;
+        try
+        {
+            var suggestions = await BlogService.GenerateTagsAsync(new GenerateTagsRequest { Title = _model.Title, ContentHtml = _model.ContentHtml });
+            var names = suggestions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var name in names)
+            {
+                var tagId = await BlogService.CreateTagAsync(new CreateTagRequest { Name = name });
+                if (!_selectedTags.Any(t => t.Id == tagId))
+                {
+                    _selectedTags.Add(new TagDto { Id = tagId, Name = name, Slug = name.ToLowerInvariant() });
+                }
+            }
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isGeneratingTags = false;
+        }
+    }
+
+    private async Task ReviewAsync()
+    {
+        _isReviewing = true;
+        try
+        {
+            var categoryName = _categories.FirstOrDefault(c => c.Id == _model.CategoryId)?.Name;
+            _reviewResult = await BlogService.ReviewPostAsync(new ReviewPostRequest
+            {
+                Title = _model.Title,
+                Summary = _model.Summary,
+                ContentHtml = _model.ContentHtml,
+                MetaTitle = _model.MetaTitle,
+                MetaDescription = _model.MetaDescription,
+                CategoryName = categoryName
+            });
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Ai.ActionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isReviewing = false;
+        }
+    }
+
+    private async Task PublishAsync()
+    {
+        if (!Id.HasValue) return;
+        try
+        {
+            await BlogService.PublishPostAsync(Id.Value);
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.ActionSuccess]);
+            _post = await BlogService.GetPostByIdAsync(Id.Value);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Posts.ActionFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task UnpublishAsync()
+    {
+        if (!Id.HasValue) return;
+        try
+        {
+            await BlogService.UnpublishPostAsync(Id.Value);
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.ActionSuccess]);
+            _post = await BlogService.GetPostByIdAsync(Id.Value);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Posts.ActionFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task ArchiveAsync()
+    {
+        if (!Id.HasValue) return;
+        try
+        {
+            await BlogService.ArchivePostAsync(Id.Value);
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.ActionSuccess]);
+            _post = await BlogService.GetPostByIdAsync(Id.Value);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Posts.ActionFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task ScheduleAsync()
+    {
+        if (!Id.HasValue) return;
+        try
+        {
+            await BlogService.SchedulePostAsync(Id.Value, new SchedulePostRequest { PublishAt = _scheduleDate.ToUniversalTime() });
+            NotificationService.NotifySuccess(L[RK.Blog.Posts.ActionSuccess]);
+            _post = await BlogService.GetPostByIdAsync(Id.Value);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Posts.ActionFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private static BadgeStyle StatusBadgeStyle(string status) => status switch
+    {
+        "Draft" => BadgeStyle.Light,
+        "Scheduled" => BadgeStyle.Info,
+        "Published" => BadgeStyle.Success,
+        "Archived" => BadgeStyle.Warning,
+        _ => BadgeStyle.Light
+    };
+}

@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE / Editor
+.vs
+.vscode
+*.user
+*.suo
+*.sln.docstates
+
+# Build artifacts
+artifacts/
+**/bin/
+**/obj/
+
+# Tests
+tests/
+
+# Docker files (avoid recursive copy)
+**/Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+LICENSE
+
+# Scripts
+*.ps1
+*.sh
+
+# Logs
+logs/
+**/Logs/
+
+# Misc
+*.slnLaunch
+favicon-preview.html

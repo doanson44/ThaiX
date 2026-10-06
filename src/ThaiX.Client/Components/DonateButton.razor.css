@@ -1,0 +1,7 @@
+::deep .tx-donate-btn.rz-button.rz-light {
+    color: var(--tx-accent, #f59e0b);
+}
+
+::deep .tx-donate-btn.rz-button.rz-light:hover {
+    color: var(--tx-accent-light, #fbbf24);
+}

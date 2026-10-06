@@ -1,0 +1,515 @@
+@page "/notifications/schedules"
+@attribute [Authorize(Policy = "NotificationSchedule.Read")]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Shared
+@using ThaiX.Client.Services.Notifications
+@using ThaiX.Client.Components.Notification
+@using ThaiX.Client.Extensions
+@inject INotificationScheduleService ScheduleService
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.NotificationSchedules.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0">
+                        @L[RK.NotificationSchedules.Title]
+                    </RadzenText>
+                    <ResponsiveIconButton Text="@L[RK.NotificationSchedules.NewSchedule]"
+                                  Icon="add"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Click="@CreateSchedule" />
+                </RadzenStack>
+
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    <RadzenColumn Size="12">
+                        <RadzenLabel Text="@L[RK.Common.Search]" />
+                        <div class="ThaiX-input-group">
+                            <RadzenTextBox @bind-Value="_searchTerm"
+                                           Placeholder="@L[RK.Common.Search]"
+                                           Change="@(_ => ApplyFiltersAsync())" />
+                            <InputGroupSearchButton Click="@ApplyFiltersAsync" />
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Column.Status]" />
+                        <RadzenDropDown Data="@_statusOptions"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        TValue="string"
+                                        @bind-Value="_selectedStatus"
+                                        Class="w-100"
+                                        Change="@(_ => ApplyFiltersAsync())" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Body1 : TextStyle.H6)" Class="mb-0">
+                        @L[RK.NotificationSchedules.Title]
+                    </RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (_isLoading && !_hasLoadedOnce)
+                {
+                    <RadzenStack AlignItems="AlignItems.Center" Gap="0.5rem" Class="py-5">
+                        <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate"
+                                                   Size="ProgressBarCircularSize.Medium" />
+                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted">
+                            @L[RK.NotificationSchedules.Loading]
+                        </RadzenText>
+                    </RadzenStack>
+                }
+                else if (_errorMessage is not null)
+                {
+                    <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-3">
+                        <RadzenText>@L[RK.NotificationSchedules.LoadFailed] @_errorMessage</RadzenText>
+                    </RadzenAlert>
+                    <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Retry]"
+                                  Icon="refresh"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Click="@RefreshAsync" />
+                }
+                else if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="NotificationScheduleListItemDto"
+                                    Data="@_schedules"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadDataAsync"
+                                    AllowPaging="true"
+                                    AllowSorting="false"
+                                    AllowFiltering="true"
+                                    FilterMode="FilterMode.Advanced"
+                                    PageSize="@DefaultPageSize"
+                                    PageSizeOptions="@PageSizeOptions"
+                                    ShowPagingSummary="true"
+                                    Density="Density.Compact"
+                                    IsLoading="@_isLoading"
+                                    Class="w-100">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.Name)"
+                                                  Title="@L[RK.NotificationSchedules.Column.Name]" />
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.Type)"
+                                                  Title="@L[RK.NotificationSchedules.Column.Type]"
+                                                  Width="140px" />
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.Status)"
+                                                  Title="@L[RK.NotificationSchedules.Column.Status]"
+                                                  Width="120px">
+                                <Template Context="item">
+                                    <RadzenBadge BadgeStyle="@StatusBadge(item.Status)"
+                                                 Text="@GetStatusText(item.Status)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.NextExecuteAtUtc)"
+                                                  Title="@L[RK.NotificationSchedules.Column.NextRun]"
+                                                  Width="180px">
+                                <Template Context="item">
+                                    @FormatUtc(item.NextExecuteAtUtc)
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.ExecutionCount)"
+                                                  Title="@L[RK.NotificationSchedules.Column.Runs]"
+                                                  Width="90px" />
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Property="@nameof(NotificationScheduleListItemDto.FailureCount)"
+                                                  Title="@L[RK.NotificationSchedules.Column.Failures]"
+                                                  Width="90px" />
+                            <RadzenDataGridColumn TItem="NotificationScheduleListItemDto"
+                                                  Title="@L[RK.NotificationSchedules.Column.Actions]"
+                                                  Width="180px"
+                                                  Frozen="true"
+                                                  Filterable="false"
+                                                  Sortable="false">
+                                <Template Context="item">
+                                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                        <RadzenButton Icon="edit"
+                                                      ButtonStyle="ButtonStyle.Light"
+                                                      Size="ButtonSize.Small"
+                                                      aria-label="@L[RK.NotificationSchedules.Action.Edit]"
+                                                      Click="@(() => OpenEdit(item.Id))" />
+                                        <RadzenButton Icon="play_arrow"
+                                                      ButtonStyle="ButtonStyle.Success"
+                                                      Size="ButtonSize.Small"
+                                                      Disabled="@(!CanRunNow(item.Status))"
+                                                      aria-label="@L[RK.NotificationSchedules.Action.RunNow]"
+                                                      Click="@(() => RunNow(item.Id))" />
+                                        @if (item.Status == ScheduleStatuses.Active)
+                                        {
+                                            <RadzenButton Icon="pause"
+                                                          ButtonStyle="ButtonStyle.Warning"
+                                                          Size="ButtonSize.Small"
+                                                          aria-label="@L[RK.NotificationSchedules.Action.Pause]"
+                                                          Click="@(() => TogglePause(item.Id))" />
+                                        }
+                                        else if (item.Status == ScheduleStatuses.Paused)
+                                        {
+                                            <RadzenButton Icon="play_circle"
+                                                          ButtonStyle="ButtonStyle.Secondary"
+                                                          Size="ButtonSize.Small"
+                                                          aria-label="@L[RK.NotificationSchedules.Action.Activate]"
+                                                          Click="@(() => Activate(item.Id))" />
+                                        }
+                                        <RadzenButton Icon="delete"
+                                                      ButtonStyle="ButtonStyle.Danger"
+                                                      Size="ButtonSize.Small"
+                                                      aria-label="@L[RK.Common.Delete]"
+                                                      Click="@(() => DeleteSchedule(item.Id))" />
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+                else
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_schedules.Count == 0)
+                        {
+                            <RadzenText Class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            <Virtualize Items="@_schedules" TItem="NotificationScheduleListItemDto" Context="schedule" OverscanCount="5">
+                                <div class="mb-2">
+                                    <RadzenCard Class="p-3 m-0">
+                                        <RadzenStack Gap="0.5rem">
+                                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                                <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0 text-break">@schedule.Name</RadzenText>
+                                                <RadzenBadge BadgeStyle="@StatusBadge(schedule.Status)"
+                                                             Text="@GetStatusText(schedule.Status)" />
+                                            </div>
+                                            <RadzenText Class="text-muted small mb-0">
+                                                @L[RK.NotificationSchedules.Column.Type]: @schedule.Type
+                                            </RadzenText>
+                                            <RadzenText Class="text-muted small mb-0">
+                                                @L[RK.NotificationSchedules.Column.NextRun]: @FormatUtc(schedule.NextExecuteAtUtc)
+                                            </RadzenText>
+                                            <RadzenText Class="text-muted small mb-0">
+                                                @L[RK.NotificationSchedules.Column.Runs]: @schedule.ExecutionCount |
+                                                @L[RK.NotificationSchedules.Column.Failures]: @schedule.FailureCount
+                                            </RadzenText>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Action.Edit]"
+                                                              Icon="edit"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => OpenEdit(schedule.Id))" />
+                                                <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Action.RunNow]"
+                                                              Icon="play_arrow"
+                                                              ButtonStyle="ButtonStyle.Success"
+                                                              Size="ButtonSize.Small"
+                                                              Disabled="@(!CanRunNow(schedule.Status))"
+                                                              Click="@(() => RunNow(schedule.Id))" />
+                                                @if (schedule.Status == ScheduleStatuses.Active)
+                                                {
+                                                    <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Action.Pause]"
+                                                                  Icon="pause"
+                                                                  ButtonStyle="ButtonStyle.Warning"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@(() => TogglePause(schedule.Id))" />
+                                                }
+                                                else if (schedule.Status == ScheduleStatuses.Paused)
+                                                {
+                                                    <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Action.Activate]"
+                                                                  Icon="play_circle"
+                                                                  ButtonStyle="ButtonStyle.Secondary"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@(() => Activate(schedule.Id))" />
+                                                }
+                                                <ResponsiveIconButton Text="@L[RK.Common.Delete]"
+                                                              Icon="delete"
+                                                              ButtonStyle="ButtonStyle.Danger"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => DeleteSchedule(schedule.Id))" />
+                                            </div>
+                                        </RadzenStack>
+                                    </RadzenCard>
+                                </div>
+                            </Virtualize>
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoading" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+    private static readonly IEnumerable<int> PageSizeOptions = [10, 20, 50, 100];
+
+    private RadzenDataGrid<NotificationScheduleListItemDto>? _grid;
+    private List<NotificationScheduleListItemDto> _schedules = [];
+    private bool _isLoading = true;
+    private bool _hasLoadedOnce;
+    private string? _errorMessage;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private int _totalCount;
+    private string? _searchTerm;
+    private string _selectedStatus = string.Empty;
+    private IReadOnlyList<StatusOption> _statusOptions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        _statusOptions =
+        [
+            new(string.Empty, L[RK.NotificationSchedules.Status.All]),
+            new(ScheduleStatuses.Active, L[RK.NotificationSchedules.Status.Active]),
+            new(ScheduleStatuses.Paused, L[RK.NotificationSchedules.Status.Paused]),
+            new(ScheduleStatuses.Disabled, L[RK.NotificationSchedules.Status.Disabled]),
+            new(ScheduleStatuses.Completed, L[RK.NotificationSchedules.Status.Completed])
+        ];
+
+        await LoadPageAsync();
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _pageSize = args.Top ?? DefaultPageSize;
+        _currentPage = _pageSize <= 0 ? 1 : ((args.Skip ?? 0) / _pageSize) + 1;
+        await LoadPageAsync();
+    }
+
+    private async Task LoadPageAsync()
+    {
+        _isLoading = true;
+        if (!_hasLoadedOnce)
+        {
+            _errorMessage = null;
+        }
+
+        try
+        {
+            var response = await ScheduleService.GetSchedulesAsync(
+                pageNumber: _currentPage,
+                pageSize: _pageSize,
+                search: string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm.Trim(),
+                status: string.IsNullOrWhiteSpace(_selectedStatus) ? null : _selectedStatus);
+
+            _schedules = response.Data ?? [];
+            _totalCount = response.Metadata.TotalCount;
+            _errorMessage = null;
+            _hasLoadedOnce = true;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            if (!_hasLoadedOnce)
+            {
+                _schedules = [];
+                _totalCount = 0;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task RefreshAsync()
+    {
+        if (_grid is not null && !Viewport.IsMobile)
+        {
+            await _grid.Reload();
+            return;
+        }
+
+        await LoadPageAsync();
+    }
+
+    private async Task ApplyFiltersAsync()
+    {
+        _currentPage = 1;
+
+        if (_grid is not null && !Viewport.IsMobile)
+        {
+            await _grid.GoToPage(0);
+            return;
+        }
+
+        await LoadPageAsync();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (_grid is not null && !Viewport.IsMobile)
+        {
+            await _grid.GoToPage(page - 1);
+            return;
+        }
+
+        _currentPage = page;
+        await LoadPageAsync();
+    }
+
+    private async Task CreateSchedule()
+    {
+        var saved = await DialogService.OpenAsync<ScheduleFormDialog>(
+            L[RK.NotificationSchedules.NewSchedule],
+            new Dictionary<string, object> { { "Schedule", null } },
+            BuildDialogOptions());
+
+        if (saved is true)
+        {
+            await RefreshAsync();
+        }
+    }
+
+    private async Task OpenEdit(Guid id)
+    {
+        try
+        {
+            var detail = await ScheduleService.GetScheduleAsync(id);
+            var saved = await DialogService.OpenAsync<ScheduleFormDialog>(
+                L[RK.NotificationSchedules.Action.Edit],
+                new Dictionary<string, object> { { "Schedule", detail } },
+                BuildDialogOptions());
+
+            if (saved is true)
+            {
+                await RefreshAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.NotificationSchedules.LoadFailed], ex.Message);
+        }
+    }
+
+    private async Task RunNow(Guid id)
+    {
+        try
+        {
+            await ScheduleService.RunNowAsync(id);
+            NotificationService.NotifySuccess(
+                L[RK.NotificationSchedules.RunNowSuccess],
+                L[RK.NotificationSchedules.RunNowMessage]);
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(
+                L[RK.NotificationSchedules.RunNowFailed],
+                ex.Message);
+        }
+    }
+
+    private async Task Activate(Guid id)
+    {
+        try
+        {
+            await ScheduleService.ActivateAsync(id);
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.NotificationSchedules.LoadFailed], ex.Message);
+        }
+    }
+
+    private async Task TogglePause(Guid id)
+    {
+        try
+        {
+            await ScheduleService.PauseAsync(id);
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.NotificationSchedules.LoadFailed], ex.Message);
+        }
+    }
+
+    private async Task DeleteSchedule(Guid id)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.NotificationSchedules.ConfirmDelete]);
+        if (confirmed != true) return;
+
+        try
+        {
+            await ScheduleService.DeleteScheduleAsync(id);
+            NotificationService.NotifySuccess(L[RK.NotificationSchedules.DeleteSuccess]);
+            await RefreshAsync();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.NotificationSchedules.LoadFailed], ex.Message);
+        }
+    }
+
+    private static BadgeStyle StatusBadge(string status) => status switch
+    {
+        ScheduleStatuses.Active => BadgeStyle.Success,
+        ScheduleStatuses.Paused => BadgeStyle.Warning,
+        ScheduleStatuses.Disabled => BadgeStyle.Light,
+        ScheduleStatuses.Completed => BadgeStyle.Info,
+        _ => BadgeStyle.Secondary
+    };
+
+    private string GetStatusText(string status) => status switch
+    {
+        ScheduleStatuses.Active => L[RK.NotificationSchedules.Status.Active],
+        ScheduleStatuses.Paused => L[RK.NotificationSchedules.Status.Paused],
+        ScheduleStatuses.Disabled => L[RK.NotificationSchedules.Status.Disabled],
+        ScheduleStatuses.Completed => L[RK.NotificationSchedules.Status.Completed],
+        _ => status
+    };
+
+    private static bool CanRunNow(string status) => status == ScheduleStatuses.Active;
+
+    private static string FormatUtc(DateTime? value) =>
+        value.HasValue ? $"{value.Value:yyyy-MM-dd HH:mm} UTC" : "--";
+
+    private static DialogOptions BuildDialogOptions() => new()
+    {
+        Width = "min(700px, 96vw)",
+        Height = "min(80vh, 96vh)",
+        Resizable = false,
+        Draggable = false,
+        CloseDialogOnEsc = true,
+        ShowClose = true,
+        CloseDialogOnOverlayClick = false
+    };
+
+    private static class ScheduleStatuses
+    {
+        public const string Active = "Active";
+        public const string Paused = "Paused";
+        public const string Disabled = "Disabled";
+        public const string Completed = "Completed";
+    }
+
+    private sealed record StatusOption(string Value, string Text);
+}

@@ -1,0 +1,181 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.PriceAlerts
+@using ThaiX.Client.Components.Shared
+@inject IPriceAlertService PriceAlertService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenTemplateForm TItem="PriceAlertFormModel" Data="_model" Submit="SaveAsync">
+    <RadzenStack Gap="1rem">
+
+        @if (!IsEdit)
+        {
+            <AssetTypeSymbolPicker AssetType="@_model.AssetType"
+                                  AssetTypeChanged="@(v => _model.AssetType = v)"
+                                  SelectedSymbol="@_model.Symbol"
+                                  SelectedSymbolChanged="@(v => _model.Symbol = v)" />
+        }
+        else
+        {
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center">
+                <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.PriceAlerts.Symbol]:</RadzenText>
+                <RadzenBadge Text="@Symbol" BadgeStyle="BadgeStyle.Info" />
+                <RadzenBadge Text="@AssetType" BadgeStyle="BadgeStyle.Secondary" />
+            </RadzenStack>
+        }
+
+        <RadzenFormField Text="@L[RK.PriceAlerts.Condition]" Class="w-100">
+            <RadzenDropDown @bind-Value="_model.Condition"
+                            Data="_conditionOptions"
+                            TextProperty="Label"
+                            ValueProperty="Value"
+                            class="w-100" />
+        </RadzenFormField>
+
+        <RadzenFormField Text="@L[RK.PriceAlerts.TargetPrice]" Class="w-100">
+            <ChildContent>
+                <RadzenNumeric @bind-Value="_model.TargetPrice"
+                               Name="TargetPrice"
+                               TValue="decimal"
+                               Min="0"
+                               Step="0.01"
+                               class="w-100" />
+            </ChildContent>
+            <Helper>
+                <RadzenNumericRangeValidator Component="TargetPrice" Min="0.000001m" Text="@L[RK.Validation.Required]" />
+            </Helper>
+        </RadzenFormField>
+
+        <RadzenFormField Text="@L[RK.PriceAlerts.Note]" Class="w-100">
+            <RadzenTextArea @bind-Value="_model.Note" class="w-100" Rows="2" MaxLength="500" />
+        </RadzenFormField>
+
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1.5rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox @bind-Value="_model.IsOneTime" />
+                <RadzenLabel Text="@L[RK.PriceAlerts.IsOneTime]" />
+            </RadzenStack>
+
+            @if (IsEdit)
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenCheckBox @bind-Value="_model.IsEnabled" />
+                    <RadzenLabel Text="@L[RK.PriceAlerts.IsEnabled]" />
+                </RadzenStack>
+            }
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton Text="@L[RK.Common.Cancel]"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@(_ => DialogService.Close(false))" />
+            <RadzenButton Text="@L[RK.Common.Save]"
+                          ButtonStyle="ButtonStyle.Primary"
+                          ButtonType="ButtonType.Submit"
+                          Disabled="_isSaving" />
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public Guid AlertId { get; set; }
+    [Parameter] public string Symbol { get; set; } = string.Empty;
+    [Parameter] public string AssetType { get; set; } = string.Empty;
+    [Parameter] public string Condition { get; set; } = string.Empty;
+    [Parameter] public decimal TargetPrice { get; set; }
+    [Parameter] public string? Note { get; set; }
+    [Parameter] public bool IsOneTime { get; set; }
+    [Parameter] public bool IsEnabled { get; set; } = true;
+
+    private PriceAlertFormModel _model = new();
+    private bool _isSaving;
+
+    private sealed class PriceAlertFormModel
+    {
+        public string Symbol { get; set; } = string.Empty;
+        public string AssetType { get; set; } = "CryptoSpot";
+        public string Condition { get; set; } = "Above";
+        public decimal TargetPrice { get; set; }
+        public string? Note { get; set; }
+        public bool IsOneTime { get; set; }
+        public bool IsEnabled { get; set; } = true;
+    }
+
+    private sealed record DropDownItem(string Value, string Label);
+
+    private readonly List<DropDownItem> _conditionOptions =
+    [
+        new("Above", "Above (>=)"),
+        new("Below", "Below (<=)")
+    ];
+
+    protected override void OnParametersSet()
+    {
+        _model = new PriceAlertFormModel
+        {
+            Symbol = Symbol,
+            AssetType = string.IsNullOrWhiteSpace(AssetType) ? "CryptoSpot" : AssetType,
+            Condition = string.IsNullOrWhiteSpace(Condition) ? "Above" : Condition,
+            TargetPrice = TargetPrice,
+            Note = Note,
+            IsOneTime = IsOneTime,
+            IsEnabled = IsEnabled
+        };
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+
+        if (!IsEdit && string.IsNullOrWhiteSpace(_model.Symbol))
+        {
+            NotificationService.NotifyError(L[RK.PriceAlerts.Symbol], L[RK.Validation.Required]);
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            if (IsEdit)
+            {
+                await PriceAlertService.UpdateAsync(AlertId, new UpdatePriceAlertRequest
+                {
+                    Condition = _model.Condition,
+                    TargetPrice = _model.TargetPrice,
+                    Note = string.IsNullOrWhiteSpace(_model.Note) ? null : _model.Note.Trim(),
+                    IsOneTime = _model.IsOneTime,
+                    IsEnabled = _model.IsEnabled
+                });
+                NotificationService.NotifySuccess(L[RK.PriceAlerts.UpdateSuccess]);
+            }
+            else
+            {
+                await PriceAlertService.CreateAsync(new CreatePriceAlertRequest
+                {
+                    Symbol = _model.Symbol.Trim().ToUpperInvariant(),
+                    AssetType = _model.AssetType,
+                    Condition = _model.Condition,
+                    TargetPrice = _model.TargetPrice,
+                    Note = string.IsNullOrWhiteSpace(_model.Note) ? null : _model.Note.Trim(),
+                    IsOneTime = _model.IsOneTime
+                });
+                NotificationService.NotifySuccess(L[RK.PriceAlerts.CreateSuccess]);
+            }
+
+            DialogService.Close(true);
+        }
+        catch (ApiException ex)
+        {
+            var key = IsEdit ? RK.PriceAlerts.UpdateFailed : RK.PriceAlerts.CreateFailed;
+            NotificationService.NotifyError(L[key], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+}

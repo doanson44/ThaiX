@@ -1,0 +1,42 @@
+---
+description: Use when writing unit tests, integration tests, or test infrastructure. Covers xUnit, Moq, FluentAssertions, naming conventions, and coverage requirements.
+globs: tests/**
+alwaysApply: false
+---
+
+# Testing Rules
+
+## Organization
+
+- Feature-based test organization.
+- Unit: `tests/ThaiX.Application.UnitTests/` -- xUnit + Moq + FluentAssertions.
+- Integration: `tests/ThaiX.Presentation.IntegrationTests/` -- WebApplicationFactory + Testcontainers.MsSql.
+
+## Naming
+
+- Pattern: `{Method}_{Scenario}_{ExpectedResult}`.
+- Examples: `CreateContact_WithValidData_ShouldReturn200`, `CreateContact_WithoutPermission_ShouldReturn403`.
+
+## Coverage (Every Endpoint)
+
+1. Happy path (valid input, correct DB state).
+2. Authorization (401 unauthenticated, 403 missing permission).
+3. Validation (400 with validation errors).
+4. Not Found (404 for single-resource endpoints).
+5. Business rules (domain invariants enforced).
+
+## Rules
+
+- AAA pattern with `// Arrange`, `// Act`, `// Assert` comments.
+- `Mock<IApplicationDbContext>` -- no in-memory database for unit tests.
+- FluentAssertions for all assertions.
+- Keep tests deterministic and isolated.
+- No shared mutable state across tests.
+- Add or update tests when behavior changes.
+
+## Build and Run
+
+```bash
+dotnet build ThaiX.slnx
+dotnet test tests/ThaiX.Application.UnitTests
+```

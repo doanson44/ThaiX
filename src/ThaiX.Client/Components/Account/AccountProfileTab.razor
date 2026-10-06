@@ -1,0 +1,158 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+
+@if (_isLoading)
+{
+    <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" class="rz-mt-3" />
+}
+else if (_profile is null)
+{
+    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" class="rz-mt-3">
+        @L[RK.Profile.LoadFailed]
+    </RadzenAlert>
+}
+else
+{
+    <RadzenRow Gap="1rem" class="rz-pt-3">
+        <RadzenColumn Size="12" SizeLG="6">
+            <RadzenCard Variant="Variant.Outlined">
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText><strong>@L[RK.Profile.UserId]:</strong> @_profile.UserId</RadzenText>
+                    <RadzenText><strong>@L[RK.Profile.Email]:</strong> @_profile.Email</RadzenText>
+                    <RadzenText>
+                        <strong>@L[RK.Profile.EmailConfirmed]:</strong>
+                        @(_profile.EmailConfirmed ? L[RK.Common.Yes] : L[RK.Common.No])
+                    </RadzenText>
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenCard Variant="Variant.Outlined" class="rz-mt-3">
+        <RadzenStack Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Profile.Permissions]</RadzenText>
+            @if (_profile.Permissions.Count == 0)
+            {
+                <RadzenText class="text-muted">@L[RK.Profile.NoPermissions]</RadzenText>
+            }
+            else
+            {
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var permission in _profile.Permissions)
+                    {
+                        <RadzenBadge Text="@permission" BadgeStyle="BadgeStyle.Info" />
+                    }
+                </div>
+            }
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (_externalLogins is not null)
+    {
+        <RadzenCard Variant="Variant.Outlined" class="rz-mt-3">
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.ExternalLoginsTitle]</RadzenText>
+                <RadzenText>@L[RK.Account.ExternalLoginsDescription]</RadzenText>
+                @if (_externalLogins.ExternalLogins.Count == 0)
+                {
+                    <RadzenText>@L[RK.Account.ExternalLoginsNoLogins]</RadzenText>
+                }
+                else
+                {
+                    @if (_externalLogins.HasPassword)
+                    {
+                        <RadzenText TextStyle="TextStyle.Caption">@L[RK.Account.ExternalLoginsHasPassword]</RadzenText>
+                    }
+                    <RadzenStack Gap="0.25rem">
+                        @foreach (var login in _externalLogins.ExternalLogins)
+                        {
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                                <RadzenText>@(login.ProviderDisplayName ?? login.LoginProvider)</RadzenText>
+                                <RadzenButton Text="@L[RK.Account.ExternalLoginsRemove]"
+                                              Icon="link_off"
+                                              ButtonStyle="ButtonStyle.Danger"
+                                              Variant="Variant.Text"
+                                              Size="ButtonSize.Small"
+                                              Disabled="@(_removingLoginProvider == login.LoginProvider)"
+                                              Click="@(() => RemoveExternalLoginAsync(login))" />
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    }
+}
+
+@code {
+    private UserInfoResponse? _profile;
+    private ExternalLoginsResponse? _externalLogins;
+    private bool _isLoading = true;
+    private string? _removingLoginProvider;
+    private bool _loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (_loaded)
+        {
+            return;
+        }
+
+        _isLoading = true;
+        try
+        {
+            _profile = await AuthService.GetCurrentUserAsync();
+            _externalLogins = await AuthService.GetExternalLoginsAsync();
+            _loaded = true;
+        }
+        catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Navigation.NavigateTo("/auth/login");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Profile.LoadFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RemoveExternalLoginAsync(ExternalLoginDto login)
+    {
+        if (_removingLoginProvider != null)
+        {
+            return;
+        }
+
+        _removingLoginProvider = login.LoginProvider;
+        try
+        {
+            await AuthService.RemoveExternalLoginAsync(new RemoveExternalLoginRequest
+            {
+                LoginProvider = login.LoginProvider,
+                ProviderKey = login.ProviderKey
+            });
+            NotificationService.NotifySuccess(L[RK.Account.ExternalLoginsRemoveSuccess]);
+            _externalLogins = await AuthService.GetExternalLoginsAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.ExternalLoginsRemoveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _removingLoginProvider = null;
+        }
+    }
+}

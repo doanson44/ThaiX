@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "ThaiX",
+    "Projects": [
+      {
+        "Path": "src\\ThaiX.Client\\ThaiX.Client.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\ThaiX.Presentation\\ThaiX.Presentation.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

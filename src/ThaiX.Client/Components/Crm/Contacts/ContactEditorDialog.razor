@@ -1,0 +1,254 @@
+@using static ThaiX.Client.Constants.DialogModes
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IContactService ContactService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+@if (_isLoading)
+{
+    <RadzenStack Gap="1rem">
+        <RadzenText>@L[RK.Common.Loading]</RadzenText>
+    </RadzenStack>
+}
+else
+{
+    <ContactForm Title="@DialogTitle"
+                 IsEditMode="@IsEditMode"
+                 IsViewMode="@IsViewMode"
+                 InitialData="@InitialData"
+                 DetailForView="_detail"
+                 IsBusy="@_isSaving"
+                 OnSave="@HandleSaveAsync"
+                 OnSectionSaved="@ReloadSelectedDetailAsync"
+                 OnCancel="@CloseAsync" />
+}
+
+@code {
+    [Parameter] public string Mode { get; set; } = View;
+    [Parameter] public Guid? ContactId { get; set; }
+
+    private ContactDetailDto? _detail;
+    private bool _isLoading;
+    private bool _isSaving;
+    private bool _shouldReload;
+
+    private bool IsCreateMode => Mode == Create;
+    private bool IsEditMode => Mode == Edit;
+    private bool IsViewMode => Mode == View;
+    // Create uses DialogService chrome title only; edit/view show the contact name inside the form.
+    private string DialogTitle => Mode switch
+    {
+        Create => string.Empty,
+        View when _detail is not null => $"{L[RK.Contacts.ProfileTitle]} - {_detail.FirstName} {_detail.LastName}",
+        Edit when _detail is not null => $"{L[RK.Contacts.ProfileTitle]} - {_detail.FirstName} {_detail.LastName}",
+        _ => string.Empty
+    };
+
+    private ContactFormDialogInitialData? InitialData => _detail is null
+        ? null
+        : new ContactFormDialogInitialDataWithId
+        {
+            Id = _detail.Id,
+            FirstName = _detail.FirstName,
+            LastName = _detail.LastName,
+            Company = _detail.Company,
+            JobTitle = _detail.JobTitle,
+            Birthday = _detail.Birthday,
+            Notes = _detail.Notes
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ContactId.HasValue)
+        {
+            await LoadDetailAsync(ContactId.Value);
+        }
+    }
+
+    private async Task HandleSaveAsync(ContactFormDialogResult result)
+    {
+        if (result.EditId is not null)
+        {
+            await UpdateContactAsync(result);
+            return;
+        }
+
+        await CreateContactAsync(result);
+    }
+
+    private async Task CreateContactAsync(ContactFormDialogResult result)
+    {
+        if (_isSaving)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            var id = await ContactService.CreateContactAsync(new CreateContactRequest
+            {
+                FirstName = result.FirstName,
+                LastName = result.LastName,
+                Company = result.Company,
+                JobTitle = result.JobTitle,
+                Birthday = result.Birthday,
+                Notes = result.Notes
+            });
+
+            if (!string.IsNullOrWhiteSpace(result.Email))
+                await ContactService.AddContactEmailAsync(id, new AddEmailRequest { Value = result.Email!, IsPrimary = result.EmailIsPrimary });
+            if (!string.IsNullOrWhiteSpace(result.Phone))
+                await ContactService.AddContactPhoneAsync(id, new AddPhoneRequest { Value = result.Phone!, IsPrimary = result.PhoneIsPrimary });
+            if (result.Address is not null)
+                await ContactService.AddContactAddressAsync(id, new AddAddressRequest
+                {
+                    Street = result.Address.Street,
+                    CountryCode = result.Address.CountryCode,
+                    CityCode = result.Address.CityCode,
+                    DistrictCode = result.Address.DistrictCode,
+                    PostalCode = result.Address.PostalCode,
+                    IsPrimary = result.Address.IsPrimary
+                });
+            if (result.Identity is not null)
+                await ContactService.AddContactIdentityDocumentAsync(id, new AddIdentityDocumentRequest
+                {
+                    DocumentType = result.Identity.DocumentType,
+                    DocumentNumber = result.Identity.DocumentNumber,
+                    IssuedBy = result.Identity.IssuedBy,
+                    IssuedPlace = result.Identity.IssuedPlace,
+                    IssuedDate = result.Identity.IssuedDate,
+                    ExpiryDate = result.Identity.ExpiryDate
+                });
+            if (result.Bank is not null)
+                await ContactService.AddContactBankAccountAsync(id, new AddBankAccountRequest
+                {
+                    BankCode = result.Bank.BankCode,
+                    BranchName = result.Bank.BranchName,
+                    AccountNumber = result.Bank.AccountNumber,
+                    AccountName = result.Bank.AccountName,
+                    CurrencyCode = result.Bank.CurrencyCode,
+                    IsPrimary = result.Bank.IsPrimary
+                });
+            if (result.Tags is not null)
+            {
+                foreach (var tagName in result.Tags)
+                {
+                    if (!string.IsNullOrWhiteSpace(tagName))
+                        await ContactService.AddContactTagAsync(id, new AddTagRequest { Name = tagName.Trim() });
+                }
+            }
+            if (result.SocialLinks is not null)
+            {
+                foreach (var social in result.SocialLinks)
+                {
+                    if (!string.IsNullOrWhiteSpace(social.Platform) && !string.IsNullOrWhiteSpace(social.Url))
+                        await ContactService.AddContactSocialLinkAsync(id, new AddSocialLinkRequest { Platform = social.Platform.Trim(), Url = social.Url.Trim() });
+                }
+            }
+            if (result.CustomFields is not null)
+            {
+                foreach (var field in result.CustomFields)
+                {
+                    if (!string.IsNullOrWhiteSpace(field.Key))
+                        await ContactService.SetContactCustomFieldAsync(id, new SetCustomFieldRequest { Key = field.Key.Trim(), Value = field.Value ?? string.Empty });
+                }
+            }
+
+            NotificationService.NotifySuccess(L[RK.Contacts.CreateSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.CreateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task UpdateContactAsync(ContactFormDialogResult result)
+    {
+        if (_isSaving || result.EditId is null)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            await ContactService.UpdateContactProfileAsync(result.EditId.Value, new UpdateContactProfileRequest
+            {
+                FirstName = result.FirstName,
+                LastName = result.LastName,
+                Company = result.Company,
+                JobTitle = result.JobTitle,
+                AvatarUrl = result.AvatarUrl,
+                Birthday = result.Birthday,
+                Notes = result.Notes
+            });
+
+            _shouldReload = true;
+            NotificationService.NotifySuccess(L[RK.Contacts.UpdateSuccess]);
+            await ReloadSelectedDetailAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task LoadDetailAsync(Guid id)
+    {
+        _isLoading = true;
+
+        try
+        {
+            _detail = await ContactService.GetContactByIdAsync(id);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.LoadFailed], ex.GetDisplayDetail());
+            _detail = null;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task ReloadSelectedDetailAsync()
+    {
+        if (_detail is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        _shouldReload = true;
+        return LoadDetailAsync(_detail.Id);
+    }
+
+    private async Task CloseAsync()
+    {
+        var result = _shouldReload;
+        await CloseDialogAfterDelayAsync(result);
+    }
+
+    /// <summary>
+    /// Defer close to avoid DotNetObjectReference disposed error when Radzen dialog
+    /// tears down and JS tries to callback into the dialog component (Blazor WebAssembly).
+    /// </summary>
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+}

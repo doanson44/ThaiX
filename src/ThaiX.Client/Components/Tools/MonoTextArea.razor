@@ -1,0 +1,151 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<RadzenStack Gap="0.25rem" Class="w-100">
+    @if (!string.IsNullOrWhiteSpace(Label) || IsValid.HasValue || ShowStats)
+    {
+        <RadzenStack Orientation="Orientation.Horizontal"
+                     AlignItems="AlignItems.Center"
+                     JustifyContent="JustifyContent.SpaceBetween"
+                     Gap="0.35rem"
+                     Class="w-100">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.35rem">
+                @if (!string.IsNullOrWhiteSpace(Label))
+                {
+                    <RadzenLabel Text="@Label" Class="mb-0" />
+                }
+                @if (IsValid == true)
+                {
+                    <RadzenIcon Icon="check_circle" Class="text-success" Style="font-size: 1.15rem;" title="Valid" />
+                }
+                else if (IsValid == false)
+                {
+                    <RadzenIcon Icon="cancel" Class="text-danger" Style="font-size: 1.15rem;" title="Invalid" />
+                }
+            </RadzenStack>
+            @if (ShowStats)
+            {
+                <span class="text-muted small text-nowrap">@FormatStats(Value)</span>
+            }
+        </RadzenStack>
+    }
+
+    <div class="ThaiX-mono-editor">
+        @if (ShowLineNumbers)
+        {
+            <pre @ref="_gutter"
+                 class="ThaiX-mono-editor__gutter"
+                 style="@GutterWidthStyle"
+                 aria-hidden="true">@LineNumbers</pre>
+        }
+        <textarea @ref="_textarea"
+                  class="ThaiX-mono-editor__input"
+                  value="@Value"
+                  @oninput="OnInput"
+                  rows="@Rows"
+                  wrap="off"
+                  spellcheck="false"
+                  disabled="@Disabled"
+                  placeholder="@Placeholder"></textarea>
+    </div>
+</RadzenStack>
+
+@code {
+    private ElementReference _textarea;
+    private ElementReference _gutter;
+    private IJSObjectReference? _scrollBinding;
+
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public int Rows { get; set; } = 12;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public bool? IsValid { get; set; }
+    [Parameter] public bool ShowStats { get; set; } = true;
+    [Parameter] public bool ShowLineNumbers { get; set; } = true;
+
+    private int LineCount => CountLines(Value);
+
+    private string LineNumbers
+    {
+        get
+        {
+            var count = Math.Max(1, LineCount);
+            var sb = new System.Text.StringBuilder(count * 4);
+            for (var i = 1; i <= count; i++)
+            {
+                if (i > 1) sb.Append('\n');
+                sb.Append(i);
+            }
+            return sb.ToString();
+        }
+    }
+
+    private string GutterWidthStyle
+    {
+        get
+        {
+            var digits = Math.Max(2, Math.Max(1, LineCount).ToString().Length);
+            return $"--ThaiX-mono-gutter-ch:{digits + 1}ch;";
+        }
+    }
+
+    private Task OnInput(ChangeEventArgs args) =>
+        ValueChanged.InvokeAsync(args.Value?.ToString());
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!ShowLineNumbers || _scrollBinding is not null) return;
+
+        try
+        {
+            _scrollBinding = await JS.InvokeAsync<IJSObjectReference>(
+                "ThaiXBindMonoEditorScroll", _textarea, _gutter);
+        }
+        catch (JSDisconnectedException)
+        {
+            /* circuit/page going away */
+        }
+        catch
+        {
+            /* keep editor usable without scroll sync */
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_scrollBinding is not null)
+            {
+                await _scrollBinding.InvokeVoidAsync("dispose");
+                await _scrollBinding.DisposeAsync();
+            }
+        }
+        catch
+        {
+            /* ignore */
+        }
+    }
+
+    private static int CountLines(string? value)
+    {
+        if (string.IsNullOrEmpty(value)) return 0;
+        var lines = 1;
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (value[i] == '\n')
+                lines++;
+        }
+        return lines;
+    }
+
+    private static string FormatStats(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "0 lines · 0 chars";
+
+        return $"{CountLines(value)} lines · {value.Length} chars";
+    }
+}

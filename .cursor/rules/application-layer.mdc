@@ -1,0 +1,68 @@
+---
+description: Use when writing CQRS commands, queries, handlers, validators, DTOs, or mapping in the Application layer. Covers MediatR pipeline, FluentValidation, caching, and projection rules.
+globs: src/ThaiX.Application/**
+alwaysApply: false
+---
+
+# Application Layer Rules
+
+## Core Contracts
+
+All commands and queries use marker interfaces from `ThaiX.Application.Common.Interfaces.Messaging`:
+
+- **`IAppCommand<T>`** — for operations that modify the database (create, update, delete, upsert, import, toggle status, etc.). Use `IAppCommand<Unit>` for void returns.
+- **`IAppQuery<T>`** — for read-only operations that only fetch/retrieve data (get, list, search, export, etc.). Never mutates state.
+
+Rule: if the handler calls `SaveChangesAsync`, it MUST be `IAppCommand`. If it only reads, it MUST be `IAppQuery`.
+
+- Commands: `IAppCommand<Unit>` for void: keep `using MediatR;` for `Unit`, handler returns `Unit.Value`. `IAppCommand<T>` (T not `Unit`): drop `using MediatR;`.
+- Queries: `IAppQuery<T>`. Import via `using ThaiX.Application.Common.Interfaces.Messaging;`. Do NOT import `MediatR`.
+- Commands return `void` or identifiers (`Guid`), never domain entities.
+- Queries return DTOs, never domain entities.
+- Co-locate feature files under `Features/{Area}/Commands/*` and `Features/{Area}/Queries/*`.
+
+> Exception: Auth/bot command flows that produce tokens but don't write DB may use `IAppQuery<T>` in `Commands/` folders.
+
+## Mandatory Pipeline
+
+1. LoggingBehavior
+2. ValidationBehavior
+3. QueryCachingBehavior (queries only)
+4. CommandCacheInvalidationBehavior (commands only)
+
+## Query Shape (Order Is Required)
+
+1. Build predicate (`PredicateExtensions.True<T>()` + combinators)
+2. `DbSet` access
+3. `.AsNoTracking()` when materializing entities
+4. `.Where(...)`
+5. `.OrderBy(...)` / `.ThenBy(...)`
+6. `.Select(...)` projection to DTO
+7. Materialize (`ToPagedListAsync` / `ToListAsync` / `FirstOrDefaultAsync`)
+
+## Guardrails
+
+- No Repository layer over EF Core; use `IApplicationDbContext`.
+- No `Func<T, bool>`, `.Compile()`, `.AsEnumerable()` pre-filter, or in-memory filtering.
+- No manual paging; use `ToPagedListAsync()`.
+- FluentValidation only; validators stay with command/query.
+- No AutoMapper; map explicitly by projection or DTO constructors.
+
+## Cache Rules
+
+- Query caching via `ICacheableQuery` (`CacheKey`, `Expiration`, `CacheGroup`).
+- Command invalidation via `[InvalidateCache(CacheGroups.X)]` (multiple groups allowed).
+- Handlers must not contain cache implementation logic.
+- Use constants from `CacheKeys.*` and `CacheGroups.*` only.
+
+## Async Locking
+
+- NEVER use raw `SemaphoreSlim` or `lock` for async critical sections.
+- Use `AsyncLock` from `ThaiX.Application.Common.Helpers` for all async mutual exclusion.
+- Always pass `CancellationToken` to `LockAsync()`.
+- Use `using` pattern to guarantee release.
+- Key naming convention: `"domain:entity:operation"` (e.g. `"sync:chainbroker:projects"`).
+
+```csharp
+using var _ = await AsyncLock.GetLockByKey("sync:chainbroker:projects").LockAsync(cancellationToken);
+```

@@ -1,0 +1,156 @@
+@page "/public/json-bins/share/{Token}"
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.JsonBins
+@using ThaiX.Client.Services.JsonBins
+@using ThaiX.Client.Services.Tools
+@using ThaiX.Client.Services.Tools.Transforms
+@using System.Text.Json
+@inject IJsonBinService JsonBinService
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
+@attribute [AllowAnonymous]
+@inherits ThaiXPageBase
+
+<PageTitle>@(_shared?.Name ?? L[RK.JsonBins.SharedTitle]) - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem" Style="max-width: 960px; margin: 0 auto;">
+        @if (_loading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (_shared is null)
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
+                @L[RK.JsonBins.ShareNotFound]
+            </RadzenAlert>
+        }
+        else
+        {
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H1" Class="mb-0 text-break">
+                        @_shared.Name
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0 text-break">
+                        @L[RK.JsonBins.Code]: @_shared.Code
+                    </RadzenText>
+                    @if (_shared.ShareExpiresAtUtc.HasValue)
+                    {
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">
+                            @L[RK.JsonBins.ShareExpires]: @_shared.ShareExpiresAtUtc.Value.ToString("u")
+                        </RadzenText>
+                    }
+                    @if (_isMarkdownPreview)
+                    {
+                        <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0">@L[RK.Tools.MarkdownPreview.Preview]</RadzenText>
+                        <div @ref="_previewRef" class="ThaiX-md-preview border rounded p-3"
+                             style="min-height: 16rem; overflow: auto;"></div>
+                    }
+                    else
+                    {
+                        <RadzenTextArea Value="@_shared.ContentJson"
+                                        Rows="@(Viewport.IsMobile ? 12 : 20)"
+                                        ReadOnly="true"
+                                        Class="w-100"
+                                        Style="font-family: monospace;" />
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    private JsonBinSharedModel? _shared;
+    private bool _loading = true;
+    private bool _isMarkdownPreview;
+    private ElementReference _previewRef;
+    private string _previewHtml = string.Empty;
+    private int _previewEpoch;
+    private bool _previewDirty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _loading = true;
+        try
+        {
+            _shared = string.IsNullOrWhiteSpace(Token)
+                ? null
+                : await JsonBinService.GetSharedAsync(Token);
+
+            PreparePreview();
+        }
+        catch
+        {
+            _shared = null;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    /// <summary>
+    /// Shared DevTools bins store a ToolStateEnvelope. For markdown-preview bins we
+    /// render the actual Markdown instead of dumping the raw envelope JSON.
+    /// </summary>
+    private void PreparePreview()
+    {
+        _isMarkdownPreview = false;
+        _previewHtml = string.Empty;
+
+        if (_shared is null || !IsMarkdownToolBin(_shared.Code))
+            return;
+
+        try
+        {
+            var envelope = JsonSerializer.Deserialize<ToolStateEnvelope>(_shared.ContentJson, JsonOptions);
+            var state = envelope is null || string.IsNullOrWhiteSpace(envelope.StateJson)
+                ? null
+                : JsonSerializer.Deserialize<ToolWorkspaceState>(envelope.StateJson, JsonOptions);
+
+            if (state is null || string.IsNullOrWhiteSpace(state.Input))
+                return;
+
+            _isMarkdownPreview = true;
+            _previewEpoch++;
+            _previewHtml = TextToolTransforms.MarkdownToHtml(state.Input);
+            _previewDirty = true;
+        }
+        catch (JsonException)
+        {
+            // Not a tool envelope — fall back to the raw content view.
+        }
+    }
+
+    private static bool IsMarkdownToolBin(string code) =>
+        code.StartsWith("TOOLS.", StringComparison.OrdinalIgnoreCase)
+        && code.EndsWith(".MARKDOWN-PREVIEW", StringComparison.OrdinalIgnoreCase);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_previewDirty || !_isMarkdownPreview) return;
+        _previewDirty = false;
+
+        var epoch = _previewEpoch;
+        var html = _previewHtml;
+        try
+        {
+            // JS owns the preview DOM; epoch cancels stale Mermaid work.
+            await JS.InvokeVoidAsync("ThaiXSetMarkdownPreview", _previewRef, html, epoch);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Page/circuit going away.
+        }
+        catch
+        {
+            // Ignore JS failures on a one-shot share view.
+        }
+    }
+}

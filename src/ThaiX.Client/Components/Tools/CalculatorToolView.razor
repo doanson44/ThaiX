@@ -1,0 +1,259 @@
+@using System.Globalization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Services.Tools
+@using ThaiX.Client.Services.Tools.Calculators
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenRow Gap="1rem" RowGap="1rem" Class="ThaiX-calc">
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="6">
+        <RadzenStack Gap="0.75rem" Class="ThaiX-calc__form">
+            @if (Tool.Category is ToolCategory.Trading or ToolCategory.Risk)
+            {
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Calc.MarginIsolated]</RadzenText>
+            }
+
+            <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                @foreach (var field in VisibleFields())
+                {
+                    <RadzenColumn Size="12" SizeSM="@FieldColumnSize(field)">
+                        <RadzenStack Gap="0.25rem" Class="ThaiX-calc__field">
+                            <RadzenLabel Text="@L[field.LabelKey]" />
+                            @if (field.Kind == CalcFieldKind.Select && field.Options is not null)
+                            {
+                                <RadzenDropDown TValue="string"
+                                                Value="@GetField(field.Key)"
+                                                ValueChanged="@(v => SetField(field.Key, v))"
+                                                Data="@LocalizedOptions(field.Options)"
+                                                TextProperty="Label"
+                                                ValueProperty="Value"
+                                                Class="w-100"
+                                                aria-label="@L[field.LabelKey]" />
+                            }
+                            else if (field.Kind == CalcFieldKind.Text)
+                            {
+                                <RadzenTextArea Value="@GetField(field.Key)"
+                                                ValueChanged="@(v => SetField(field.Key, v))"
+                                                Rows="@(Viewport.IsMobile ? 3 : 4)"
+                                                Class="w-100 font-monospace"
+                                                Placeholder="@(field.PlaceholderKey is null ? null : L[field.PlaceholderKey].Value)"
+                                                aria-label="@L[field.LabelKey]" />
+                            }
+                            else
+                            {
+                                <RadzenTextBox Value="@GetField(field.Key)"
+                                               ValueChanged="@(v => SetField(field.Key, v))"
+                                               Class="w-100"
+                                               Inputmode="decimal"
+                                               aria-label="@L[field.LabelKey]" />
+                            }
+                        </RadzenStack>
+                    </RadzenColumn>
+                }
+            </RadzenRow>
+
+            <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)"
+                         Gap="0.5rem"
+                         Wrap="FlexWrap.Wrap"
+                         Class="ThaiX-calc__actions">
+                <RadzenButton Text="@L[RK.Calc.Calculate]"
+                              Icon="calculate"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Class="@(Viewport.IsMobile ? "w-100" : null)"
+                              Click="Calculate"
+                              aria-label="@L[RK.Calc.Calculate]" />
+                <RadzenButton Text="@L[RK.Calc.Reset]"
+                              Icon="restart_alt"
+                              ButtonStyle="ButtonStyle.Light"
+                              Class="@(Viewport.IsMobile ? "w-100" : null)"
+                              Click="Reset"
+                              aria-label="@L[RK.Calc.Reset]" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenColumn>
+
+    <RadzenColumn Size="12" SizeMD="6" SizeLG="6">
+        <RadzenStack Gap="0.75rem" Class="ThaiX-calc__results">
+            @if (Tool.Category == ToolCategory.Risk)
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
+                    @L[RK.Calc.RiskDisclaimer]
+                </RadzenAlert>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(_warning))
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Warning"
+                             Shade="Shade.Lighter"
+                             Variant="Variant.Flat"
+                             AllowClose="true"
+                             Close="@(() => _warning = null)"
+                             Class="ThaiX-tools__alert">
+                    <strong>@L[RK.Tools.ValidationTitle]</strong>
+                    <div class="rz-mt-1 text-break">@_warning</div>
+                </RadzenAlert>
+            }
+
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
+                @L[RK.Calc.Results]
+            </RadzenText>
+
+            @if (_result is null)
+            {
+                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">—</RadzenText>
+            }
+            else
+            {
+                <RadzenStack Gap="0.35rem" Class="ThaiX-calc__breakdown">
+                    @foreach (var line in _result.Breakdown)
+                    {
+                        <div class="ThaiX-calc__line">
+                            <span class="ThaiX-calc__line-label">@L[line.LabelKey]</span>
+                            <span class="ThaiX-calc__line-value font-monospace">@FormatValue(line.Value)</span>
+                        </div>
+                    }
+                </RadzenStack>
+
+                <RadzenStack Gap="0.25rem">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Calc.Formula]</RadzenText>
+                    <div class="ThaiX-calc__formula font-monospace">@_result.Formula</div>
+                </RadzenStack>
+
+                <RadzenStack Gap="0.25rem">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Calc.Interpretation]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2" Class="mb-0 text-break">@FormatInterp()</RadzenText>
+                </RadzenStack>
+            }
+        </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+
+@code {
+    [Parameter, EditorRequired] public ToolDefinition Tool { get; set; } = null!;
+    [Parameter, EditorRequired] public ToolWorkspaceState State { get; set; } = null!;
+    [Parameter] public EventCallback StateChanged { get; set; }
+    [Parameter] public string? AutoCalculateToken { get; set; }
+
+    private CalculatorResult? _result;
+    private string? _warning;
+    private string? _lastAutoCalculateToken;
+
+    private sealed record SelectItem(string Value, string Label);
+
+    private IEnumerable<SelectItem> LocalizedOptions(IReadOnlyList<CalcFieldOption> options) =>
+        options.Select(o => new SelectItem(o.Value, L[o.LabelKey]));
+
+    protected override void OnParametersSet()
+    {
+        CalculatorFieldCatalog.EnsureDefaults(Tool.Slug, State.Fields);
+
+        if (!string.IsNullOrWhiteSpace(AutoCalculateToken) && !string.Equals(AutoCalculateToken, _lastAutoCalculateToken, StringComparison.Ordinal))
+        {
+            _lastAutoCalculateToken = AutoCalculateToken;
+            Calculate();
+        }
+    }
+
+    private static int FieldColumnSize(CalcFieldDef field) =>
+        field.Kind == CalcFieldKind.Text || field.Key is "currency" or "side" or "feeMode"
+            ? 12
+            : 6;
+
+    private IEnumerable<CalcFieldDef> VisibleFields()
+    {
+        var feeMode = GetField("feeMode");
+        var isCustom = string.Equals(feeMode, "custom", StringComparison.OrdinalIgnoreCase);
+        foreach (var f in CalculatorFieldCatalog.FieldsFor(Tool.Slug))
+        {
+            if (f.ShowWhenFeeCustom && !isCustom) continue;
+            if (!f.ShowWhenFeeCustom
+                && (f.Key is "makerPct" or "takerPct")
+                && isCustom
+                && CalculatorFieldCatalog.FieldsFor(Tool.Slug).Any(x => x.ShowWhenFeeCustom))
+            {
+                continue;
+            }
+
+            yield return f;
+        }
+    }
+
+    private string GetField(string key) =>
+        State.Fields.TryGetValue(key, out var v) ? v ?? "" : "";
+
+    private async Task SetField(string key, string? value)
+    {
+        State.Fields[key] = value ?? "";
+        await StateChanged.InvokeAsync();
+        Calculate();
+    }
+
+    private void Calculate()
+    {
+        _warning = null;
+        try
+        {
+            var fields = new Dictionary<string, string>(State.Fields, StringComparer.OrdinalIgnoreCase);
+            ApplyResolvedFees(fields);
+            _result = CalculatorRunner.Run(Tool.Slug, fields);
+        }
+        catch (CalculatorInputException ex)
+        {
+            _result = null;
+            _warning = ex.Message;
+        }
+        catch (FormatException ex)
+        {
+            _result = null;
+            _warning = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            _result = null;
+            _warning = string.IsNullOrWhiteSpace(ex.Message) ? L[RK.Tools.ValidationGeneric] : ex.Message;
+        }
+    }
+
+    private static void ApplyResolvedFees(Dictionary<string, string> fields)
+    {
+        if (!fields.TryGetValue("feeMode", out var mode) || string.IsNullOrWhiteSpace(mode))
+            return;
+        if (string.Equals(mode, "custom", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var pct = CalculatorRunner.ResolveFeePct(fields).ToString(CultureInfo.InvariantCulture);
+        fields["openFeePct"] = pct;
+        fields["closeFeePct"] = pct;
+        fields["feePct"] = pct;
+    }
+
+    private async Task Reset()
+    {
+        State.Fields = ToolSampleCatalog.Create(Tool.Slug).Fields;
+        Calculate();
+        await StateChanged.InvokeAsync();
+    }
+
+    private string FormatValue(string value)
+    {
+        if (value.StartsWith("Calc.", StringComparison.Ordinal))
+            return L[value];
+
+        if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var n))
+            return n.ToString("N8", CultureInfo.CurrentCulture).TrimEnd('0').TrimEnd('.');
+
+        return value;
+    }
+
+    private string FormatInterp()
+    {
+        if (_result is null) return "";
+        var args = _result.InterpretationArgs?
+            .Select(a => decimal.TryParse(a, NumberStyles.Number, CultureInfo.InvariantCulture, out var n)
+                ? n.ToString("N4", CultureInfo.CurrentCulture).TrimEnd('0').TrimEnd('.')
+                : a)
+            .Cast<object>()
+            .ToArray() ?? [];
+        return args.Length == 0 ? L[_result.InterpretationKey] : L[_result.InterpretationKey, args];
+    }
+}

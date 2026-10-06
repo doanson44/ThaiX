@@ -1,0 +1,26 @@
+.blog-post__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--resume-muted, #a1a1aa);
+    text-decoration: none;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.blog-post__back:hover,
+.blog-post__back:focus-visible {
+    color: var(--tx-accent, #f59e0b);
+    outline: none;
+}
+
+.blog-post__back:hover span,
+.blog-post__back:focus-visible span {
+    transform: translateX(-0.15rem);
+}
+
+.blog-post__back span {
+    display: inline-block;
+    transition: transform 0.15s ease;
+}

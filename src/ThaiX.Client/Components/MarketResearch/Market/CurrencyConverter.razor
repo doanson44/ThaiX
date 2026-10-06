@@ -1,0 +1,293 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+@if (IsLoading && !Rates.Any())
+{
+    <RadzenCard Class="mb-4">
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    </RadzenCard>
+}
+else if (Rates.Any())
+{
+    <RadzenCard Class="mb-4">
+        <RadzenRow AlignItems="AlignItems.Center" Class="mb-3">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H2" Class="mb-0">
+                    @L[RK.CurrencyConverter.Title]
+                </RadzenText>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6" Class="@ColumnClass">
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.CurrencyConverter.RateType]:</RadzenText>
+                <RadzenRadioButtonList TValue="bool" @bind-Value="_useTransfer" @bind-Value:after="Compute"
+                                       Orientation="Orientation.Horizontal">
+                    <Items>
+                        <RadzenRadioButtonListItem Text="@L[RK.CurrencyConverter.Cash]" Value="false" />
+                        <RadzenRadioButtonListItem Text="@L[RK.CurrencyConverter.Transfer]" Value="true" />
+                    </Items>
+                </RadzenRadioButtonList>
+            </RadzenColumn>
+        </RadzenRow>
+
+        @if (Viewport.IsMobile)
+        {
+            <RadzenStack Gap="0.75rem">
+                <div>
+                    <label class="rz-label mb-1">@L[RK.CurrencyConverter.FromCurrency]</label>
+                    <AsyncSearchSelect TItem="string"
+                                       Value="@_fromCurrency"
+                                       ValueChanged="OnFromCurrencyChanged"
+                                       LoadDataAsync="LoadFromCurrenciesAsync"
+                                       GetText="@(c => c)"
+                                       GetValue="@(c => c)"
+                                       Placeholder="@L[RK.CurrencyConverter.SelectCurrency]"
+                                       SearchPlaceholder="@L[RK.Common.Search]"
+                                       LoadingText="@L[RK.Common.Loading]"
+                                       EmptyText="@L[RK.Common.NoDataFound]"
+                                       MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                       Class="w-100" />
+                </div>
+
+                <RadzenFormField Text="@L[RK.CurrencyConverter.Amount]" class="w-100">
+                    <RadzenNumeric TValue="decimal" @bind-Value="_amount" @bind-Value:after="Compute"
+                                   Min="0"
+                                   class="w-100" />
+                </RadzenFormField>
+
+                <RadzenButton Text="@L[RK.CurrencyConverter.Swap]"
+                              ButtonStyle="ButtonStyle.Light"
+                              Icon="swap_horiz"
+                              Click="OnSwap"
+                              class="w-100" />
+
+                <div>
+                    <label class="rz-label mb-1">@L[RK.CurrencyConverter.ToCurrency]</label>
+                    <AsyncSearchSelect TItem="string"
+                                       Value="@_toCurrency"
+                                       ValueChanged="OnToCurrencyChanged"
+                                       LoadDataAsync="LoadToCurrenciesAsync"
+                                       GetText="@(c => c)"
+                                       GetValue="@(c => c)"
+                                       Placeholder="@L[RK.CurrencyConverter.SelectCurrency]"
+                                       SearchPlaceholder="@L[RK.Common.Search]"
+                                       LoadingText="@L[RK.Common.Loading]"
+                                       EmptyText="@L[RK.Common.NoDataFound]"
+                                       MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                       Class="w-100" />
+                </div>
+
+                <RadzenCard Variant="Variant.Outlined">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.CurrencyConverter.ConvertedResult]</RadzenText>
+                    @if (_convertedAmount.HasValue)
+                    {
+                        <RadzenText TextStyle="TextStyle.H5" Class="mb-0"><strong>@_convertedAmount.Value.ToString("N2") @_toCurrency</strong></RadzenText>
+                        @if (_rateInfoText is not null)
+                        {
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mt-1 mb-0">@_rateInfoText</RadzenText>
+                        }
+                    }
+                    else
+                    {
+                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">-</RadzenText>
+                    }
+                </RadzenCard>
+            </RadzenStack>
+        }
+        else
+        {
+            <RadzenRow Gap="0.75rem" AlignItems="AlignItems.End">
+                <RadzenColumn Size="12" SizeMD="3">
+                    <div>
+                        <label class="rz-label mb-1">@L[RK.CurrencyConverter.FromCurrency]</label>
+                        <AsyncSearchSelect TItem="string"
+                                           Value="@_fromCurrency"
+                                           ValueChanged="OnFromCurrencyChanged"
+                                           LoadDataAsync="LoadFromCurrenciesAsync"
+                                           GetText="@(c => c)"
+                                           GetValue="@(c => c)"
+                                           Placeholder="@L[RK.CurrencyConverter.SelectCurrency]"
+                                           SearchPlaceholder="@L[RK.Common.Search]"
+                                           LoadingText="@L[RK.Common.Loading]"
+                                           EmptyText="@L[RK.Common.NoDataFound]"
+                                           MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                           Class="w-100" />
+                    </div>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenFormField Text="@L[RK.CurrencyConverter.Amount]" class="w-100">
+                        <RadzenNumeric TValue="decimal" @bind-Value="_amount" @bind-Value:after="Compute"
+                                       Min="0"
+                                       class="w-100" />
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="1" Class="d-flex justify-content-center align-items-end pb-1">
+                    <RadzenButton Icon="swap_horiz"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="OnSwap"
+                                  Title="@L[RK.CurrencyConverter.Swap]" />
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <div>
+                        <label class="rz-label mb-1">@L[RK.CurrencyConverter.ToCurrency]</label>
+                        <AsyncSearchSelect TItem="string"
+                                           Value="@_toCurrency"
+                                           ValueChanged="OnToCurrencyChanged"
+                                           LoadDataAsync="LoadToCurrenciesAsync"
+                                           GetText="@(c => c)"
+                                           GetValue="@(c => c)"
+                                           Placeholder="@L[RK.CurrencyConverter.SelectCurrency]"
+                                           SearchPlaceholder="@L[RK.Common.Search]"
+                                           LoadingText="@L[RK.Common.Loading]"
+                                           EmptyText="@L[RK.Common.NoDataFound]"
+                                           MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                           Class="w-100" />
+                    </div>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="2">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.CurrencyConverter.ConvertedResult]</RadzenText>
+                    @if (_convertedAmount.HasValue)
+                    {
+                        <RadzenText TextStyle="TextStyle.H6" Class="mb-0"><strong>@_convertedAmount.Value.ToString("N2") @_toCurrency</strong></RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">-</RadzenText>
+                    }
+                </RadzenColumn>
+            </RadzenRow>
+
+            @if (_rateInfoText is not null && _convertedAmount.HasValue)
+            {
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mt-2">@_rateInfoText</RadzenText>
+            }
+        }
+    </RadzenCard>
+}
+
+@code {
+    [Parameter] public List<SacombankExchangeRateItemDto> Rates { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+
+    private List<string> _currencyCodes = [];
+    private string _fromCurrency = "USD";
+    private string _toCurrency = "VND";
+    private decimal _amount = 1;
+    private bool _useTransfer = true;
+    private decimal? _convertedAmount;
+    private string? _rateInfoText;
+
+    private string ColumnClass => $"d-flex flex-wrap align-items-center {(Viewport.IsMobile ? "mt-2" : "justify-content-end")} gap-2";
+
+    protected override void OnParametersSet()
+    {
+        var newCodes = new List<string> { "VND" }
+            .Concat(Rates.Select(r => r.CurrencyCode))
+            .ToList();
+
+        if (!newCodes.SequenceEqual(_currencyCodes))
+        {
+            _currencyCodes = newCodes;
+
+            if (!_currencyCodes.Contains(_fromCurrency))
+                _fromCurrency = _currencyCodes.Count > 1 ? _currencyCodes[1] : "VND";
+
+            if (!_currencyCodes.Contains(_toCurrency))
+                _toCurrency = "VND";
+        }
+
+        Compute();
+    }
+
+    private Task<(IReadOnlyList<string> items, int totalCount)> LoadFromCurrenciesAsync(
+        int page, int pageSize, string? search, CancellationToken _) =>
+        FilterCurrenciesAsync(page, pageSize, search);
+
+    private Task<(IReadOnlyList<string> items, int totalCount)> LoadToCurrenciesAsync(
+        int page, int pageSize, string? search, CancellationToken _) =>
+        FilterCurrenciesAsync(page, pageSize, search);
+
+    private Task<(IReadOnlyList<string> items, int totalCount)> FilterCurrenciesAsync(
+        int page, int pageSize, string? search)
+    {
+        var filtered = string.IsNullOrWhiteSpace(search)
+            ? _currencyCodes
+            : _currencyCodes
+                .Where(c => c.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        IReadOnlyList<string> paged = filtered
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Task.FromResult((paged, filtered.Count));
+    }
+
+    private void OnFromCurrencyChanged(string? value)
+    {
+        _fromCurrency = value ?? string.Empty;
+        Compute();
+    }
+
+    private void OnToCurrencyChanged(string? value)
+    {
+        _toCurrency = value ?? string.Empty;
+        Compute();
+    }
+
+    private void OnSwap()
+    {
+        (_fromCurrency, _toCurrency) = (_toCurrency, _fromCurrency);
+        Compute();
+    }
+
+    private void Compute()
+    {
+        if (string.IsNullOrEmpty(_fromCurrency) || string.IsNullOrEmpty(_toCurrency))
+        {
+            _convertedAmount = null;
+            _rateInfoText = null;
+            return;
+        }
+
+        if (_fromCurrency == _toCurrency)
+        {
+            _convertedAmount = _amount;
+            _rateInfoText = null;
+            return;
+        }
+
+        decimal fromRateInVnd = GetRateInVnd(_fromCurrency, isBid: true);
+        decimal toRateInVnd = GetRateInVnd(_toCurrency, isBid: false);
+
+        if (fromRateInVnd <= 0 || toRateInVnd <= 0)
+        {
+            _convertedAmount = null;
+            _rateInfoText = null;
+            return;
+        }
+
+        // Universal cross-rate via VND base:
+        // amount(from) * fromRateInVnd / toRateInVnd = amount(to)
+        // VND special case: GetRateInVnd("VND", _) returns 1, so formula holds automatically.
+        _convertedAmount = _amount * fromRateInVnd / toRateInVnd;
+
+        decimal unitRate = fromRateInVnd / toRateInVnd;
+        string rateFormat = unitRate >= 100 ? "N2" : unitRate >= 1 ? "N4" : "N6";
+        _rateInfoText = $"1 {_fromCurrency} = {unitRate.ToString(rateFormat)} {_toCurrency}";
+    }
+
+    private decimal GetRateInVnd(string currencyCode, bool isBid)
+    {
+        if (currencyCode == "VND") return 1m;
+        var item = Rates.FirstOrDefault(r => r.CurrencyCode == currencyCode);
+        if (item is null) return 0m;
+        return isBid
+            ? (_useTransfer ? item.BidInTransfer : item.BidInCash)
+            : (_useTransfer ? item.OfferInTransfer : item.OfferInCash);
+    }
+
+}

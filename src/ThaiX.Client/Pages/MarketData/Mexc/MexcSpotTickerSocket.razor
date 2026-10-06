@@ -1,0 +1,408 @@
+@page "/market-data/mexc/spot-ticker-socket"
+@using ThaiX.Client.Components
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Services.Http.Demo
+@using ThaiX.Client.Services.MarketData
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inject IMexcSpotTickerSocketService SpotSocketService
+@inject IExternalDataService ExternalDataService
+@inject ApiConnectivityState ApiConnectivity
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 AlignItems="AlignItems.Center"
+                 JustifyContent="JustifyContent.SpaceBetween"
+                 Gap="0.75rem"
+                 Wrap="FlexWrap.Wrap"
+                 Class="mb-3">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.MexcSpotTicker24Hr.SocketTitle]
+        </RadzenText>
+    </RadzenStack>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <MexcSocketPriceMoveAlertBar @ref="_priceMoveAlertBar"
+                                     StorageKey="@MexcSocketPriceMoveAlertStore.SpotStorageKey"
+                                     MarketLabel="@L[RK.MexcSpotTicker24Hr.SocketTitle]" />
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_allTickers.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.MexcSpotTicker24Hr.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _allTickers.Any())
+    {
+        <div class="w-100 overflow-auto">
+            <RadzenDataGrid @ref="_dataGrid"
+                            TItem="MexcSpotTicker24HrDto"
+                            Data="@_allTickers"
+                            Count="@_allTickers.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="Symbol" Title="@L[RK.MexcSpotTicker24Hr.Symbol]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="LastPrice" Title="@L[RK.MexcSpotTicker24Hr.LastPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="PriceChange" Title="@L[RK.MexcSpotTicker24Hr.PriceChange]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="PriceChangePercent" Title="@L[RK.MexcSpotTicker24Hr.PriceChangePercent]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="PrevClosePrice" Title="@L[RK.MexcSpotTicker24Hr.PrevClosePrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="OpenPrice" Title="@L[RK.MexcSpotTicker24Hr.OpenPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="HighPrice" Title="@L[RK.MexcSpotTicker24Hr.HighPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="LowPrice" Title="@L[RK.MexcSpotTicker24Hr.LowPrice]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="Volume" Title="@L[RK.MexcSpotTicker24Hr.Volume]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="QuoteVolume" Title="@L[RK.MexcSpotTicker24Hr.QuoteVolume]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="Rate" Title="@L[RK.MexcSpotTicker24Hr.Rate]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="ZonedRate" Title="@L[RK.MexcSpotTicker24Hr.ZonedRate]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="LastCloseRate" Title="@L[RK.MexcSpotTicker24Hr.LastCloseRate]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="LastCloseZonedRate" Title="@L[RK.MexcSpotTicker24Hr.LastCloseZonedRate]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="LastCloseHigh" Title="@L[RK.MexcSpotTicker24Hr.LastCloseHigh]" />
+                        <RadzenDataGridColumn MinWidth="10rem" TItem="MexcSpotTicker24HrDto" Property="LastCloseLow" Title="@L[RK.MexcSpotTicker24Hr.LastCloseLow]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="OpenTime" Title="@L[RK.MexcSpotTicker24Hr.OpenTime]">
+                        <Template Context="ticker">
+                            @(ticker.OpenTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.OpenTime).LocalDateTime.ToString("g") : "-")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="CloseTime" Title="@L[RK.MexcSpotTicker24Hr.CloseTime]">
+                        <Template Context="ticker">
+                            @(ticker.CloseTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.CloseTime).LocalDateTime.ToString("g") : "-")
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _allTickers.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <div>
+                <label class="rz-label mb-1">@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]</label>
+                <AsyncSearchSelect TItem="MexcSpotTicker24HrDto"
+                                   Value="@_selectedSymbol"
+                                   ValueChanged="OnSelectedSymbolChanged"
+                                   LoadDataAsync="LoadSymbolsAsync"
+                                   GetText="@(x => x.Symbol)"
+                                   GetValue="@(x => x.Symbol)"
+                                   Placeholder="@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]"
+                                   SearchPlaceholder="@L[RK.Common.Search]"
+                                   LoadingText="@L[RK.Common.Loading]"
+                                   EmptyText="@L[RK.Common.NoDataFound]"
+                                   MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                   AllowClear="true"
+                                   Class="w-100" />
+            </div>
+
+            <ClientSortBar TItem="MexcSpotTicker24HrDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+
+            <Virtualize Items="@_mobileViewTickers" Context="ticker" OverscanCount="5">
+                <RadzenCard Class="p-3 mb-3">
+                    <RadzenStack Gap="0.4rem">
+                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LastPrice]: @(ticker.LastPrice ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.PriceChange]: @(ticker.PriceChange ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.PriceChangePercent]: @(ticker.PriceChangePercent ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.PrevClosePrice]: @(ticker.PrevClosePrice ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.OpenPrice]: @(ticker.OpenPrice ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.HighPrice]: @(ticker.HighPrice ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LowPrice]: @(ticker.LowPrice ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.Volume]: @(ticker.Volume ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.QuoteVolume]: @(ticker.QuoteVolume ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.OpenTime]: @(ticker.OpenTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.OpenTime).LocalDateTime.ToString("g") : "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.Rate]: @(ticker.Rate ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.ZonedRate]: @(ticker.ZonedRate ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LastCloseRate]: @(ticker.LastCloseRate ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LastCloseZonedRate]: @(ticker.LastCloseZonedRate ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LastCloseHigh]: @(ticker.LastCloseHigh ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.LastCloseLow]: @(ticker.LastCloseLow ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.CloseTime]: @(ticker.CloseTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.CloseTime).LocalDateTime.ToString("g") : "-")</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private readonly Dictionary<string, MexcSpotTicker24HrDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private List<MexcSpotTicker24HrDto> _allTickers = [];
+    private List<MexcSpotTicker24HrDto> _mobileViewTickers = [];
+    private RadzenDataGrid<MexcSpotTicker24HrDto>? _dataGrid;
+    private MexcSocketPriceMoveAlertBar? _priceMoveAlertBar;
+    private bool _isLoading = true;
+    private string? _selectedSymbol;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+
+    private IReadOnlyList<SortOption<MexcSpotTicker24HrDto>> SortOptions =>
+    [
+        new("symbol",             L[RK.MexcSpotTicker24Hr.Symbol],             x => x.Symbol),
+        new("lastPrice",          L[RK.MexcSpotTicker24Hr.LastPrice],          x => ParseSortableDecimal(x.LastPrice)),
+        new("priceChange",        L[RK.MexcSpotTicker24Hr.PriceChange],        x => ParseSortableDecimal(x.PriceChange)),
+        new("priceChangePercent", L[RK.MexcSpotTicker24Hr.PriceChangePercent], x => ParseSortableDecimal(x.PriceChangePercent)),
+        new("volume",             L[RK.MexcSpotTicker24Hr.Volume],             x => ParseSortableDecimal(x.Volume)),
+        new("quoteVolume",        L[RK.MexcSpotTicker24Hr.QuoteVolume],        x => ParseSortableDecimal(x.QuoteVolume)),
+        new("rate",               L[RK.MexcSpotTicker24Hr.Rate],               x => ParseSortableDecimal(x.Rate)),
+        new("zonedRate",          L[RK.MexcSpotTicker24Hr.ZonedRate],          x => ParseSortableDecimal(x.ZonedRate)),
+        new("lastCloseRate",      L[RK.MexcSpotTicker24Hr.LastCloseRate],      x => ParseSortableDecimal(x.LastCloseRate)),
+        new("closeTime",          L[RK.MexcSpotTicker24Hr.CloseTime],          x => x.CloseTime)
+    ];
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (ApiConnectivity.IsDemoMode)
+        {
+            return;
+        }
+
+        SpotSocketService.TickersUpdated += OnTickersUpdated;
+        SpotSocketService.StreamError += OnStreamError;
+        _ = SpotSocketService.StartAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!ApiConnectivity.IsDemoMode)
+        {
+            return;
+        }
+
+        try
+        {
+            var response = await ExternalDataService.GetMexcSpotTicker24HrAsync();
+            var rows = response.Data?.Data ?? [];
+            foreach (var ticker in rows)
+            {
+                if (string.IsNullOrWhiteSpace(ticker.Symbol))
+                {
+                    continue;
+                }
+
+                _tickerMap[ticker.Symbol] = ticker;
+                _allTickers.Add(ticker);
+            }
+
+            ApplyMobileView();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async void OnTickersUpdated(
+    IReadOnlyCollection<MexcSpotTicker24HrDto> tickers)
+    {
+        var hasChanges = false;
+
+        foreach (var ticker in tickers)
+        {
+            if (string.IsNullOrWhiteSpace(ticker.Symbol)
+                || !ticker.Symbol.EndsWith("USDT", StringComparison.OrdinalIgnoreCase)
+                || !HasValidPrice(ticker.LastPrice))
+            {
+                continue;
+            }
+
+            if (_tickerMap.TryGetValue(ticker.Symbol, out var existingTicker))
+            {
+                if (HasSpotTickerChanged(existingTicker, ticker))
+                {
+                    UpdateTickerInPlace(existingTicker, ticker);
+                    hasChanges = true;
+                    _priceMoveAlertBar?.Observe(ticker.Symbol, ticker.LastPrice);
+                }
+            }
+            else
+            {
+                _tickerMap[ticker.Symbol] = ticker;
+                _allTickers.Add(ticker);
+                hasChanges = true;
+                _priceMoveAlertBar?.Observe(ticker.Symbol, ticker.LastPrice);
+            }
+        }
+
+        if (!hasChanges && !_isLoading)
+        {
+            return;
+        }
+
+        _isLoading = false;
+
+        ApplyMobileView();
+
+        if (_dataGrid is null)
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            await InvokeAsync(async () => await _dataGrid.Reload());
+        }
+    }
+
+    private void UpdateTickerInPlace(MexcSpotTicker24HrDto existing, MexcSpotTicker24HrDto updated)
+    {
+        existing.PriceChange = updated.PriceChange;
+        existing.PriceChangePercent = updated.PriceChangePercent;
+        existing.PrevClosePrice = updated.PrevClosePrice;
+        existing.LastPrice = updated.LastPrice;
+        existing.BidPrice = updated.BidPrice;
+        existing.BidQty = updated.BidQty;
+        existing.AskPrice = updated.AskPrice;
+        existing.AskQty = updated.AskQty;
+        existing.OpenPrice = updated.OpenPrice;
+        existing.HighPrice = updated.HighPrice;
+        existing.LowPrice = updated.LowPrice;
+        existing.Volume = updated.Volume;
+        existing.QuoteVolume = updated.QuoteVolume;
+        existing.OpenTime = updated.OpenTime;
+        existing.CloseTime = updated.CloseTime;
+        existing.Count = updated.Count;
+        existing.CompositeScore = updated.CompositeScore;
+        existing.ScoreBreakdown = updated.ScoreBreakdown;
+
+        existing.Rate = updated.Rate;
+        existing.ZonedRate = updated.ZonedRate;
+        existing.LastCloseRate = updated.LastCloseRate;
+        existing.LastCloseZonedRate = updated.LastCloseZonedRate;
+        existing.LastCloseHigh = updated.LastCloseHigh;
+        existing.LastCloseLow = updated.LastCloseLow;
+    }
+
+    private static bool HasSpotTickerChanged(MexcSpotTicker24HrDto existing, MexcSpotTicker24HrDto incoming)
+    {
+        return existing.LastPrice != incoming.LastPrice
+            || existing.PriceChangePercent != incoming.PriceChangePercent
+            || existing.HighPrice != incoming.HighPrice
+            || existing.LowPrice != incoming.LowPrice
+            || existing.Volume != incoming.Volume
+            || existing.QuoteVolume != incoming.QuoteVolume
+            || existing.Rate != incoming.Rate
+            || existing.ZonedRate != incoming.ZonedRate
+            || existing.LastCloseRate != incoming.LastCloseRate
+            || existing.LastCloseZonedRate != incoming.LastCloseZonedRate
+            || existing.LastCloseHigh != incoming.LastCloseHigh
+            || existing.LastCloseLow != incoming.LastCloseLow
+            || existing.OpenTime != incoming.OpenTime
+            || existing.CloseTime != incoming.CloseTime;
+    }
+
+    private static bool HasValidPrice(string? lastPrice)
+    {
+        if (string.IsNullOrWhiteSpace(lastPrice)) return false;
+        return decimal.TryParse(lastPrice, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var price) && price > 0m;
+    }
+
+    private Task OnSelectedSymbolChanged(string? value)
+    {
+        _selectedSymbol = value;
+        ApplyMobileView();
+        return Task.CompletedTask;
+    }
+
+    private void OnSortKeyChanged(string? key)
+    {
+        _sortKey = key;
+        ApplyMobileView();
+    }
+
+    private void OnSortDirectionChanged(bool asc)
+    {
+        _sortAscending = asc;
+        ApplyMobileView();
+    }
+
+    private void ApplyMobileView()
+    {
+        IEnumerable<MexcSpotTicker24HrDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (opt is not null)
+            {
+                result = _sortAscending
+                    ? result.OrderBy(opt.KeySelector)
+                    : result.OrderByDescending(opt.KeySelector);
+            }
+        }
+
+        _mobileViewTickers = result.ToList();
+    }
+
+    private Task<(IReadOnlyList<MexcSpotTicker24HrDto>, int)> LoadSymbolsAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        IEnumerable<MexcSpotTicker24HrDto> query = _allTickers;
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        var symbols = query
+            .GroupBy(x => x.Symbol, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .OrderBy(x => x.Symbol, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var total = symbols.Count;
+        var items = symbols.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+        return Task.FromResult<(IReadOnlyList<MexcSpotTicker24HrDto>, int)>((items, total));
+    }
+
+    private static decimal ParseSortableDecimal(string? value) =>
+        decimal.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsed)
+            ? parsed
+            : 0m;
+
+    private void OnStreamError(string errorMessage)
+    {
+        _ = InvokeAsync(() =>
+        {
+            _isLoading = false;
+            NotificationService.NotifyError(L[RK.MexcSpotTicker24Hr.LoadFailed]);
+            StateHasChanged();
+        });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !ApiConnectivity.IsDemoMode)
+        {
+            SpotSocketService.TickersUpdated -= OnTickersUpdated;
+            SpotSocketService.StreamError -= OnStreamError;
+            _ = SpotSocketService.StopAsync();
+        }
+        base.Dispose(disposing);
+    }
+}

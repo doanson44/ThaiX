@@ -1,0 +1,85 @@
+@typeparam TItem
+
+@if (!string.IsNullOrEmpty(Name))
+{
+    <input type="hidden" name="@Name" id="@Name" value="@(Value ?? "")" />
+}
+
+<RadzenDropDown TValue="string"
+                @bind-Value="@_selectedValue"
+                Data="@_items"
+                Count="@_count"
+                LoadData="@OnLoadData"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                AllowClear="@AllowClear"
+                Placeholder="@Placeholder"
+                TextProperty="DisplayText"
+                ValueProperty="ItemValue"
+                Disabled="@Disabled"
+                Class="@Class"
+                Style="@Style" />
+
+@code {
+    private sealed record SelectItem(string DisplayText, string ItemValue);
+
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public required Func<int, int, string?, CancellationToken, Task<(IReadOnlyList<TItem> items, int totalCount)>> LoadDataAsync { get; set; }
+    [Parameter] public required Func<TItem, string> GetText { get; set; }
+    [Parameter] public required Func<TItem, string> GetValue { get; set; }
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public bool AllowClear { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public int PageSize { get; set; } = 20;
+    [Parameter] public string? Style { get; set; }
+    [Parameter] public string? Class { get; set; }
+
+    // Kept for backward source compatibility – no longer used internally
+    [Parameter] public string SearchPlaceholder { get; set; } = "Search...";
+    [Parameter] public string LoadingText { get; set; } = "Loading...";
+    [Parameter] public string EmptyText { get; set; } = "No items";
+    [Parameter] public string MoreHint { get; set; } = "Scroll for more";
+    [Parameter] public int SearchDebounceMs { get; set; } = 300;
+
+    private string? _selectedValue;
+    private IEnumerable<SelectItem> _items = [];
+    private int _count;
+    private bool _suppressValueNotify;
+
+    protected override void OnParametersSet()
+    {
+        if (Value != _selectedValue)
+        {
+            _suppressValueNotify = true;
+            _selectedValue = Value;
+        }
+    }
+
+    private async Task OnLoadData(LoadDataArgs args)
+    {
+        var search = string.IsNullOrWhiteSpace(args.Filter) ? null : args.Filter;
+        // DropDown filtering expects a full filtered set in Data (not a single virtual page).
+        var pageSize = Math.Max(args.Top ?? 0, Math.Max(200, PageSize));
+        var (items, totalCount) = await LoadDataAsync(1, pageSize, search, CancellationToken.None);
+        _items = items
+            .Select(i => new SelectItem(GetText(i), GetValue(i)))
+            .DistinctBy(si => si.ItemValue)
+            .ToList();
+        _count = totalCount > 0 ? totalCount : _items.Count();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_suppressValueNotify)
+        {
+            _suppressValueNotify = false;
+            return;
+        }
+
+        if (_selectedValue != Value)
+            await ValueChanged.InvokeAsync(_selectedValue);
+    }
+}

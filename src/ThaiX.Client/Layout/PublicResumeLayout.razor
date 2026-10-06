@@ -1,0 +1,58 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject IStringLocalizer<SharedResource> L
+@inject IThemeService ThemeService
+
+<div class="resume-layout">
+    <div class="resume-layout-toolbar no-print">
+        <select class="resume-layout-theme-select"
+                title="@L[RK.Theme.Toggle]"
+                aria-label="@L[RK.Theme.Toggle]"
+                value="@_selectedTheme"
+                @onchange="OnThemeChanged">
+            <option value="dark">@L[RK.Theme.Dark]</option>
+            <option value="light">@L[RK.Theme.Light]</option>
+        </select>
+    </div>
+    @Body
+</div>
+
+@code {
+    private string _selectedTheme = "dark";
+
+    protected override void OnInitialized()
+    {
+        ThemeService.OnChanged += OnThemeChangedFromService;
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await ThemeService.InitializeAsync();
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        StateHasChanged();
+    }
+
+    private void OnThemeChangedFromService()
+    {
+        _selectedTheme = ThemeService.Current == AppTheme.Light ? "light" : "dark";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnThemeChanged(ChangeEventArgs args)
+    {
+        var value = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(value)) return;
+
+        _selectedTheme = value;
+        await ThemeService.SetThemeAsync(value == "light" ? AppTheme.Light : AppTheme.Dark);
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnChanged -= OnThemeChangedFromService;
+    }
+}

@@ -1,0 +1,186 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IMasterDataService MasterDataService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (BankFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12" SizeMD="4">
+                <RadzenLabel Text="@L[RK.MasterData.Country]" />
+                <RadzenTextBox Name="bankCountry" @bind-Value="_model.CountryCode" style="display:none" />
+                <AsyncSearchSelect TItem="CountryListItemDto"
+                                   @bind-Value="_model.CountryCode"
+                                   LoadDataAsync="LoadCountriesForSelectAsync"
+                                   GetText="x => x.Name"
+                                   GetValue="x => x.Code"
+                                   Placeholder="@L[RK.MasterData.SelectPlaceholder]"
+                                   SearchPlaceholder="@L[RK.MasterData.SearchPlaceholder]"
+                                   LoadingText="@L[RK.Common.Loading]"
+                                   EmptyText="@L[RK.MasterData.SelectEmpty]"
+                                   MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                                   Class="w-100" />
+                <RadzenRequiredValidator Component="bankCountry" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="3">
+                <RadzenLabel Text="@L[RK.MasterData.Code]" />
+                <RadzenTextBox Name="bankCode" @bind-Value="_model.Code" class="w-100" />
+                <RadzenRequiredValidator Component="bankCode" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="5">
+                <RadzenLabel Text="@L[RK.MasterData.Name]" />
+                <RadzenTextBox Name="bankName" @bind-Value="_model.Name" class="w-100" />
+                <RadzenRequiredValidator Component="bankName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    @if (!IsCreateMode && CanDelete)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.MasterData.Delete]"
+                                      Icon="delete"
+                                      ButtonStyle="ButtonStyle.Danger"
+                                      Click="@DeleteAsync"
+                                      IsBusy="@_isDeleting"
+                                      Disabled="@_isDeleting" />
+                    }
+                    <ResponsiveIconButton Text="@(IsCreateMode ? L[RK.MasterData.Create] : L[RK.Common.Save])"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public Guid? BankId { get; set; }
+    [Parameter] public string? CountryCode { get; set; }
+    [Parameter] public string? Code { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+
+    private readonly BankFormModel _model = new();
+    private bool _isSaving;
+    private bool _isDeleting;
+
+    private bool IsCreateMode => BankId is null;
+
+    protected override void OnInitialized()
+    {
+        _model.CountryCode = CountryCode;
+        _model.Code = Code ?? string.Empty;
+        _model.Name = Name ?? string.Empty;
+    }
+
+    private async Task<(IReadOnlyList<CountryListItemDto> items, int totalCount)> LoadCountriesForSelectAsync(int pageNumber, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await MasterDataService.GetCountriesAsync(new MasterDataListRequest
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortBy = "name",
+                SearchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim()
+            }, cancellationToken);
+            return (result.Data ?? [], result.Metadata.TotalCount);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.LoadFailed], ex.GetDisplayDetail());
+            return ([], 0);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving)
+        {
+            return;
+        }
+
+        _isSaving = true;
+
+        try
+        {
+            if (IsCreateMode)
+            {
+                await MasterDataService.CreateBankAsync(new CreateBankRequest
+                {
+                    CountryCode = _model.CountryCode!.Trim(),
+                    Code = _model.Code.Trim(),
+                    Name = _model.Name.Trim()
+                });
+                NotificationService.NotifySuccess(L[RK.MasterData.CreateSuccess]);
+            }
+            else
+            {
+                await MasterDataService.UpdateBankAsync(BankId!.Value, new UpdateChildMasterDataRequest
+                {
+                    ParentCode = _model.CountryCode!.Trim(),
+                    Code = _model.Code.Trim(),
+                    Name = _model.Name.Trim()
+                });
+                NotificationService.NotifySuccess(L[RK.MasterData.UpdateSuccess]);
+            }
+
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(IsCreateMode ? L[RK.MasterData.CreateFailed] : L[RK.MasterData.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (BankId is null || _isDeleting)
+        {
+            return;
+        }
+
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.MasterData.ConfirmDelete]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        _isDeleting = true;
+
+        try
+        {
+            await MasterDataService.DeleteBankAsync(BankId.Value);
+            NotificationService.NotifySuccess(L[RK.MasterData.DeleteSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MasterData.DeleteFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+
+    private sealed class BankFormModel
+    {
+        public string? CountryCode { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+    }
+}

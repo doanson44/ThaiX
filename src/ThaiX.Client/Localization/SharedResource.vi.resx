@@ -1,0 +1,1778 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="App.Title" xml:space="preserve"><value>ThaiX Client</value></data>
+
+  <data name="Language.English" xml:space="preserve"><value>Tiếng Anh</value></data>
+  <data name="Language.Vietnamese" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="Language.Toggle" xml:space="preserve"><value>Ngôn ngữ</value></data>
+  <data name="Theme.Dark" xml:space="preserve"><value>Tối</value></data>
+  <data name="Theme.Light" xml:space="preserve"><value>Sáng</value></data>
+  <data name="Theme.Toggle" xml:space="preserve"><value>Giao diện</value></data>
+  <data name="Sidebar.Settings" xml:space="preserve"><value>Cài đặt</value></data>
+
+  <data name="Menu.Home" xml:space="preserve"><value>Trang chủ</value></data>
+  <data name="Menu.Login" xml:space="preserve"><value>Đăng nhập</value></data>
+  <data name="Menu.Logout" xml:space="preserve"><value>Đăng xuất</value></data>
+  <data name="Menu.Profile" xml:space="preserve"><value>Hồ sơ</value></data>
+  <data name="Menu.Register" xml:space="preserve"><value>Đăng ký</value></data>
+  <data name="Menu.ChangePassword" xml:space="preserve"><value>Đổi mật khẩu</value></data>
+  <data name="Menu.TwoFactor" xml:space="preserve"><value>Xác thực 2 yếu tố</value></data>
+  <data name="Menu.PersonalData" xml:space="preserve"><value>Dữ liệu cá nhân</value></data>
+  <data name="Menu.Users" xml:space="preserve"><value>Người dùng</value></data>
+  <data name="Menu.MarketData" xml:space="preserve"><value>Dữ liệu thị trường</value></data>
+  <data name="Menu.MarketResearch" xml:space="preserve"><value>Nghiên cứu thị trường</value></data>
+  <data name="Menu.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+  <data name="Menu.CRM" xml:space="preserve"><value>CRM</value></data>
+  <data name="Menu.Portfolio" xml:space="preserve"><value>Danh mục đầu tư</value></data>
+  <data name="Menu.NotificationCenter" xml:space="preserve"><value>Trung tâm thông báo</value></data>
+  <data name="Menu.Security" xml:space="preserve"><value>Bảo mật</value></data>
+  <data name="Menu.Administration" xml:space="preserve"><value>Quản trị hệ thống</value></data>
+
+  <data name="Breadcrumb.Account" xml:space="preserve"><value>Tài khoản</value></data>
+  <data name="Breadcrumb.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+  <data name="Breadcrumb.Admin" xml:space="preserve"><value>Quản trị</value></data>
+  <data name="Breadcrumb.JsonBinCreate" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="Breadcrumb.JsonBinEdit" xml:space="preserve"><value>Sửa</value></data>
+
+  <data name="Common.Cancel" xml:space="preserve"><value>Hủy</value></data>
+  <data name="Common.Close" xml:space="preserve"><value>Đóng</value></data>
+  <data name="Common.Copy" xml:space="preserve"><value>Sao chép</value></data>
+  <data name="Common.Delete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Common.Back" xml:space="preserve"><value>Quay lại</value></data>
+  <data name="Common.Home" xml:space="preserve"><value>Về trang chủ</value></data>
+  <data name="Common.Loading" xml:space="preserve"><value>Đang tải...</value></data>
+  <data name="Common.No" xml:space="preserve"><value>Không</value></data>
+  <data name="Common.Refresh" xml:space="preserve"><value>Làm mới</value></data>
+  <data name="Common.Search" xml:space="preserve"><value>Tìm kiếm</value></data>
+  <data name="Common.Save" xml:space="preserve"><value>Lưu</value></data>
+  <data name="Common.UnhandledError" xml:space="preserve"><value>Đã xảy ra lỗi không mong muốn</value></data>
+  <data name="Common.Yes" xml:space="preserve"><value>Có</value></data>
+  <data name="Common.NoDataFound" xml:space="preserve"><value>Không tìm thấy dữ liệu</value></data>
+  <data name="Common.Enabled" xml:space="preserve"><value>Đang bật</value></data>
+  <data name="Common.Disabled" xml:space="preserve"><value>Đã tắt</value></data>
+  <data name="Common.Actions" xml:space="preserve"><value>Thao tác</value></data>
+
+  <data name="Home.Welcome" xml:space="preserve"><value>Chào mừng đến ThaiX</value></data>
+  <data name="Home.Description" xml:space="preserve"><value>Đăng nhập để quản trị người dùng, danh mục và các tính năng ThaiX khác.</value></data>
+  <data name="Home.AuthenticatedAs" xml:space="preserve"><value>Đăng nhập với:</value></data>
+  <data name="Home.NotAuthenticated" xml:space="preserve"><value>Bạn chưa đăng nhập.</value></data>
+
+  <data name="Auth.AccessDenied.Title" xml:space="preserve"><value>Không đủ quyền</value></data>
+  <data name="Auth.AccessDenied.Description" xml:space="preserve"><value>Cần đăng nhập và có quyền phù hợp để tiếp tục.</value></data>
+  <data name="Auth.UsernameOrEmail" xml:space="preserve"><value>Tên đăng nhập hoặc email</value></data>
+  <data name="Auth.UsernameOrEmail.Placeholder" xml:space="preserve"><value>Nhập tên đăng nhập hoặc email</value></data>
+  <data name="Auth.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Auth.Email.Placeholder" xml:space="preserve"><value>Nhập email</value></data>
+  <data name="Auth.Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="Auth.Password.Placeholder" xml:space="preserve"><value>Nhập mật khẩu</value></data>
+  <data name="Auth.RememberMe" xml:space="preserve"><value>Ghi nhớ đăng nhập</value></data>
+  <data name="Auth.ConfirmPassword" xml:space="preserve"><value>Xác nhận mật khẩu</value></data>
+  <data name="Auth.ConfirmPassword.Placeholder" xml:space="preserve"><value>Nhập lại mật khẩu</value></data>
+  <data name="Auth.Login" xml:space="preserve"><value>Đăng nhập</value></data>
+  <data name="Auth.Login.Title" xml:space="preserve"><value>Đăng nhập hệ thống</value></data>
+  <data name="Auth.Login.Success" xml:space="preserve"><value>Đăng nhập thành công</value></data>
+  <data name="Auth.Login.Success.Detail" xml:space="preserve"><value>Phiên đăng nhập đã được kích hoạt.</value></data>
+  <data name="Auth.Login.Failed" xml:space="preserve"><value>Đăng nhập thất bại</value></data>
+  <data name="Auth.Login.Link" xml:space="preserve"><value>Chưa có tài khoản?</value></data>
+  <data name="Auth.Register" xml:space="preserve"><value>Đăng ký</value></data>
+  <data name="Auth.Register.Title" xml:space="preserve"><value>Tạo tài khoản</value></data>
+  <data name="Auth.Register.Description" xml:space="preserve"><value>Nhập email và mật khẩu để tạo tài khoản.</value></data>
+  <data name="Auth.Register.Success" xml:space="preserve"><value>Đăng ký thành công</value></data>
+  <data name="Auth.Register.Success.Detail" xml:space="preserve"><value>Tài khoản đã tạo. Hãy đăng nhập.</value></data>
+  <data name="Auth.Register.Failed" xml:space="preserve"><value>Đăng ký thất bại</value></data>
+  <data name="Auth.Register.Link" xml:space="preserve"><value>Đã có tài khoản? Đăng nhập</value></data>
+  <data name="Auth.Logout.Success" xml:space="preserve"><value>Đăng xuất thành công</value></data>
+  <data name="Auth.Logout.Success.Detail" xml:space="preserve"><value>Token cục bộ đã được xóa.</value></data>
+  <data name="Auth.Logout.Warning" xml:space="preserve"><value>Cảnh báo đăng xuất</value></data>
+
+  <data name="Profile.Title" xml:space="preserve"><value>Thông tin cá nhân</value></data>
+  <data name="Profile.ChangePassword" xml:space="preserve"><value>Đổi mật khẩu</value></data>
+  <data name="Profile.ChangePassword.Description" xml:space="preserve"><value>Nhập mật khẩu hiện tại và chọn mật khẩu mới.</value></data>
+  <data name="Profile.ChangePassword.Success" xml:space="preserve"><value>Đổi mật khẩu thành công</value></data>
+  <data name="Profile.ChangePassword.Success.Detail" xml:space="preserve"><value>Mật khẩu của bạn đã được cập nhật.</value></data>
+  <data name="Profile.ChangePassword.Failed" xml:space="preserve"><value>Đổi mật khẩu thất bại</value></data>
+  <data name="Profile.CurrentPassword" xml:space="preserve"><value>Mật khẩu hiện tại</value></data>
+  <data name="Profile.NewPassword" xml:space="preserve"><value>Mật khẩu mới</value></data>
+  <data name="Profile.ConfirmNewPassword" xml:space="preserve"><value>Xác nhận mật khẩu mới</value></data>
+  <data name="Profile.UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="Profile.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Profile.EmailConfirmed" xml:space="preserve"><value>Email đã xác nhận</value></data>
+  <data name="Profile.Permissions" xml:space="preserve"><value>Quyền</value></data>
+  <data name="Profile.NoPermissions" xml:space="preserve"><value>Không có quyền nào.</value></data>
+  <data name="Profile.LoadFailed" xml:space="preserve"><value>Không tải được thông tin</value></data>
+
+  <data name="Users.Title" xml:space="preserve"><value>Quản lý người dùng</value></data>
+  <data name="Users.List.Title" xml:space="preserve"><value>Danh sách người dùng</value></data>
+  <data name="Users.LoadFailed" xml:space="preserve"><value>Tải danh sách thất bại</value></data>
+  <data name="Users.Search.Placeholder" xml:space="preserve"><value>Tìm theo email hoặc username...</value></data>
+  <data name="Users.Filter.All" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="Users.Filter.Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="Users.Filter.Inactive" xml:space="preserve"><value>Đang khóa</value></data>
+  <data name="Users.Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="Users.Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Users.EmailConfirmed" xml:space="preserve"><value>Email đã xác nhận</value></data>
+  <data name="Users.Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="Users.PhoneNumber" xml:space="preserve"><value>Số điện thoại</value></data>
+  <data name="Users.PhoneNumber.Placeholder" xml:space="preserve"><value>VD: +84xxx, 0xxx, 84xxx (chuẩn hóa khi lưu)</value></data>
+  <data name="Users.LinkedContact" xml:space="preserve"><value>Liên hệ đã liên kết</value></data>
+  <data name="Users.UnlinkContact" xml:space="preserve"><value>Hủy liên kết</value></data>
+  <data name="Users.NoLinkedContact" xml:space="preserve"><value>Chưa liên kết liên hệ</value></data>
+  <data name="Users.RequirePasswordChange" xml:space="preserve"><value>Bắt buộc đổi mật khẩu</value></data>
+  <data name="Users.SendActivationEmail" xml:space="preserve"><value>Gửi email kích hoạt</value></data>
+  <data name="Users.LockoutEnd" xml:space="preserve"><value>Khóa đến</value></data>
+  <data name="Users.Create.Title" xml:space="preserve"><value>Tạo người dùng</value></data>
+  <data name="Users.Create" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="Users.Create.Success" xml:space="preserve"><value>Tạo người dùng thành công</value></data>
+  <data name="Users.Create.Failed" xml:space="preserve"><value>Tạo người dùng thất bại</value></data>
+  <data name="Users.CreatedUserId" xml:space="preserve"><value>ID người dùng mới:</value></data>
+  <data name="Users.Update.Success" xml:space="preserve"><value>Cập nhật người dùng thành công</value></data>
+  <data name="Users.Update.Failed" xml:space="preserve"><value>Cập nhật người dùng thất bại</value></data>
+  <data name="Users.LockUser" xml:space="preserve"><value>Khóa tài khoản</value></data>
+  <data name="Users.LockReason" xml:space="preserve"><value>Lý do</value></data>
+  <data name="Users.LockDurationMinutes" xml:space="preserve"><value>Thời lượng (phút)</value></data>
+  <data name="Users.ApplyLockout" xml:space="preserve"><value>Áp dụng khóa/mở khóa</value></data>
+  <data name="Users.Lockout.Success" xml:space="preserve"><value>Cập nhật trạng thái khóa thành công</value></data>
+  <data name="Users.Lockout.Failed" xml:space="preserve"><value>Cập nhật trạng thái khóa thất bại</value></data>
+  <data name="Users.SetPermissions" xml:space="preserve"><value>Thay thế quyền</value></data>
+  <data name="Users.ApplyPermissions" xml:space="preserve"><value>Áp dụng quyền</value></data>
+  <data name="Users.Permission.Success" xml:space="preserve"><value>Cập nhật quyền thành công</value></data>
+  <data name="Users.Permission.Failed" xml:space="preserve"><value>Cập nhật quyền thất bại</value></data>
+  <data name="Users.NewPasswordOptional" xml:space="preserve"><value>Mật khẩu mới (tùy chọn)</value></data>
+  <data name="Users.ResetPassword" xml:space="preserve"><value>Đặt lại mật khẩu</value></data>
+  <data name="Users.ResetPassword.Success" xml:space="preserve"><value>Đặt lại mật khẩu thành công</value></data>
+  <data name="Users.ResetPassword.Failed" xml:space="preserve"><value>Đặt lại mật khẩu thất bại</value></data>
+  <data name="Users.TemporaryPassword" xml:space="preserve"><value>Mật khẩu tạm thời:</value></data>
+  <data name="Users.OperationCompleted" xml:space="preserve"><value>Đã hoàn tất thao tác.</value></data>
+
+  <data name="Users.Tab.Account" xml:space="preserve"><value>Tài khoản</value></data>
+  <data name="Users.Tab.Permissions" xml:space="preserve"><value>Quyền</value></data>
+  <data name="Users.Tab.Profile" xml:space="preserve"><value>Hồ sơ</value></data>
+  <data name="Users.Tab.Lockout" xml:space="preserve"><value>Khóa tài khoản</value></data>
+  <data name="Users.Tab.Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="Users.CurrentPermissions" xml:space="preserve"><value>Quyền hiện có</value></data>
+  <data name="Users.NoPermissionsAssigned" xml:space="preserve"><value>Chưa gán quyền nào.</value></data>
+
+  <data name="NotFound.Title" xml:space="preserve"><value>Không tìm thấy trang</value></data>
+  <data name="NotFound.Description" xml:space="preserve"><value>Trang bạn yêu cầu không tồn tại.</value></data>
+
+  <data name="Health.PageTitle" xml:space="preserve"><value>Tình trạng hệ thống</value></data>
+  <data name="Health.Title" xml:space="preserve"><value>Tình trạng hệ thống</value></data>
+  <data name="Health.Subtitle" xml:space="preserve"><value>Kiểm tra nhanh kết nối frontend và backend.</value></data>
+  <data name="Health.Frontend" xml:space="preserve"><value>Frontend</value></data>
+  <data name="Health.ApiViaProxy" xml:space="preserve"><value>API qua Proxy</value></data>
+  <data name="Health.ApiDirect" xml:space="preserve"><value>API trực tiếp</value></data>
+  <data name="Health.Status.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Health.Status.Unknown" xml:space="preserve"><value>Chưa rõ</value></data>
+  <data name="Health.Status.Error" xml:space="preserve"><value>Lỗi</value></data>
+
+  <data name="Validation.Required" xml:space="preserve"><value>Trường này bắt buộc.</value></data>
+  <data name="Validation.Email" xml:space="preserve"><value>Email không hợp lệ.</value></data>
+  <data name="Validation.PasswordMismatch" xml:space="preserve"><value>Mật khẩu xác nhận không khớp.</value></data>
+  <data name="Validation.MustBeGreaterThanZero" xml:space="preserve"><value>Phải lớn hơn 0.</value></data>
+
+  <data name="Auth.ForgotPassword.Link" xml:space="preserve"><value>Quên mật khẩu?</value></data>
+  <data name="Auth.Login.Link.GoToLogin" xml:space="preserve"><value>Đi đến trang đăng nhập</value></data>
+  <data name="Auth.ExternalLogin.Or" xml:space="preserve"><value>HOẶC ĐĂNG NHẬP VỚI</value></data>
+  <data name="Auth.ExternalLogin.Google" xml:space="preserve"><value>Đăng nhập bằng Google</value></data>
+  <data name="Auth.Register.ConfirmEmail.Detail" xml:space="preserve"><value>Email xác nhận đã được gửi. Vui lòng kiểm tra hộp thư.</value></data>
+  <data name="Auth.ResendConfirmation.Link" xml:space="preserve"><value>Gửi lại email xác nhận</value></data>
+
+  <data name="Account.ConfirmEmail.Title" xml:space="preserve"><value>Xác nhận email</value></data>
+  <data name="Account.ConfirmEmail.Processing" xml:space="preserve"><value>Đang xác nhận email...</value></data>
+  <data name="Account.ConfirmEmail.Success" xml:space="preserve"><value>Email đã được xác nhận. Bạn có thể đăng nhập.</value></data>
+  <data name="Account.ConfirmEmail.InvalidLink" xml:space="preserve"><value>Liên kết xác nhận không hợp lệ.</value></data>
+
+  <data name="Account.ResendConfirmation.Title" xml:space="preserve"><value>Gửi lại email xác nhận</value></data>
+  <data name="Account.ResendConfirmation.Description" xml:space="preserve"><value>Nhập email để nhận liên kết xác nhận mới.</value></data>
+  <data name="Account.ResendConfirmation.Submit" xml:space="preserve"><value>Gửi liên kết xác nhận</value></data>
+  <data name="Account.ResendConfirmation.Success" xml:space="preserve"><value>Nếu email đã đăng ký, liên kết xác nhận mới đã được gửi.</value></data>
+  <data name="Account.ResendConfirmation.Failed" xml:space="preserve"><value>Yêu cầu thất bại</value></data>
+
+  <data name="Account.ForgotPassword.Title" xml:space="preserve"><value>Quên mật khẩu</value></data>
+  <data name="Account.ForgotPassword.Description" xml:space="preserve"><value>Nhập email để nhận liên kết đặt lại mật khẩu.</value></data>
+  <data name="Account.ForgotPassword.Submit" xml:space="preserve"><value>Gửi liên kết đặt lại</value></data>
+  <data name="Account.ForgotPassword.EmailSent" xml:space="preserve"><value>Nếu email đã đăng ký, liên kết đặt lại đã được gửi.</value></data>
+  <data name="Account.ForgotPassword.Failed" xml:space="preserve"><value>Yêu cầu thất bại</value></data>
+
+  <data name="Account.ResetPassword.Title" xml:space="preserve"><value>Đặt lại mật khẩu</value></data>
+  <data name="Account.ResetPassword.Submit" xml:space="preserve"><value>Đặt lại mật khẩu</value></data>
+  <data name="Account.ResetPassword.Success" xml:space="preserve"><value>Mật khẩu đã được đặt lại. Bạn có thể đăng nhập.</value></data>
+  <data name="Account.ResetPassword.InvalidLink" xml:space="preserve"><value>Liên kết đặt lại không hợp lệ hoặc đã hết hạn.</value></data>
+  <data name="Account.ResetPassword.Failed" xml:space="preserve"><value>Đặt lại mật khẩu thất bại</value></data>
+
+  <data name="Account.LoginWith2fa.Title" xml:space="preserve"><value>Xác thực hai yếu tố</value></data>
+  <data name="Account.LoginWith2fa.Description" xml:space="preserve"><value>Đăng nhập của bạn yêu cầu mã xác thực hai yếu tố.</value></data>
+  <data name="Account.LoginWith2fa.NoSession" xml:space="preserve"><value>Không tìm thấy phiên 2FA. Vui lòng đăng nhập lại.</value></data>
+  <data name="Account.LoginWith2fa.Code" xml:space="preserve"><value>Mã xác thực</value></data>
+  <data name="Account.LoginWith2fa.Code.Placeholder" xml:space="preserve"><value>Nhập mã 6 chữ số</value></data>
+  <data name="Account.LoginWith2fa.Submit" xml:space="preserve"><value>Xác minh</value></data>
+  <data name="Account.LoginWith2fa.Failed" xml:space="preserve"><value>Xác minh thất bại</value></data>
+  <data name="Account.LoginWith2fa.UseRecoveryCode" xml:space="preserve"><value>Sử dụng mã khôi phục</value></data>
+  <data name="Account.LoginWith2fa.UseAuthenticatorCode" xml:space="preserve"><value>Sử dụng mã xác thực</value></data>
+  <data name="Account.LoginWith2fa.RecoveryCode" xml:space="preserve"><value>Mã khôi phục</value></data>
+  <data name="Account.LoginWith2fa.RecoveryCode.Placeholder" xml:space="preserve"><value>Nhập mã khôi phục</value></data>
+  <data name="Account.LoginWith2fa.SubmitRecovery" xml:space="preserve"><value>Xác minh mã khôi phục</value></data>
+  <data name="Account.LoginWith2fa.RecoveryFailed" xml:space="preserve"><value>Xác minh mã khôi phục thất bại</value></data>
+
+  <data name="Account.Lockout.Title" xml:space="preserve"><value>Tài khoản bị khóa</value></data>
+  <data name="Account.Lockout.Description" xml:space="preserve"><value>Tài khoản của bạn đã bị khóa tạm thời do nhập sai mật khẩu quá nhiều lần. Vui lòng thử lại sau.</value></data>
+
+  <data name="Account.TwoFactor.Title" xml:space="preserve"><value>Xác thực hai yếu tố</value></data>
+  <data name="Account.TwoFactor.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="Account.TwoFactor.Enabled" xml:space="preserve"><value>Đã bật</value></data>
+  <data name="Account.TwoFactor.Disabled" xml:space="preserve"><value>Đã tắt</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes" xml:space="preserve"><value>Mã khôi phục còn lại</value></data>
+  <data name="Account.TwoFactor.Setup" xml:space="preserve"><value>Thiết lập ứng dụng xác thực</value></data>
+  <data name="Account.TwoFactor.Disable" xml:space="preserve"><value>Tắt 2FA</value></data>
+  <data name="Account.TwoFactor.ResetKey" xml:space="preserve"><value>Đặt lại khóa xác thực</value></data>
+  <data name="Account.TwoFactor.ResetKey.Success" xml:space="preserve"><value>Khóa xác thực đã được đặt lại</value></data>
+  <data name="Account.TwoFactor.GenerateCodes" xml:space="preserve"><value>Tạo mã khôi phục mới</value></data>
+  <data name="Account.TwoFactor.GenerateCodes.Success" xml:space="preserve"><value>Đã tạo mã khôi phục mới</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes.New" xml:space="preserve"><value>Mã khôi phục</value></data>
+  <data name="Account.TwoFactor.RecoveryCodes.Warning" xml:space="preserve"><value>Lưu các mã khôi phục này ở nơi an toàn. Chúng sẽ không hiển thị lại.</value></data>
+  <data name="Account.TwoFactor.Error" xml:space="preserve"><value>Lỗi 2FA</value></data>
+  <data name="Account.TwoFactor.BackToStatus" xml:space="preserve"><value>Quay lại cài đặt 2FA</value></data>
+
+  <data name="Account.EnableAuthenticator.Step1" xml:space="preserve"><value>Bước 1: Tải ứng dụng xác thực</value></data>
+  <data name="Account.EnableAuthenticator.Step1.Description" xml:space="preserve"><value>Tải Microsoft Authenticator hoặc Google Authenticator trên điện thoại.</value></data>
+  <data name="Account.EnableAuthenticator.Step2" xml:space="preserve"><value>Bước 2: Quét mã QR hoặc nhập khóa</value></data>
+  <data name="Account.EnableAuthenticator.QrCodeInstruction" xml:space="preserve"><value>Quét mã QR hoặc nhập khóa thủ công vào ứng dụng xác thực.</value></data>
+  <data name="Account.EnableAuthenticator.ManualKey" xml:space="preserve"><value>Khóa nhập thủ công</value></data>
+  <data name="Account.EnableAuthenticator.Step3" xml:space="preserve"><value>Bước 3: Nhập mã xác minh</value></data>
+  <data name="Account.EnableAuthenticator.VerificationCode" xml:space="preserve"><value>Mã xác minh</value></data>
+  <data name="Account.EnableAuthenticator.VerificationCode.Placeholder" xml:space="preserve"><value>Nhập mã 6 chữ số từ ứng dụng</value></data>
+  <data name="Account.EnableAuthenticator.Verify" xml:space="preserve"><value>Xác minh và bật</value></data>
+  <data name="Account.EnableAuthenticator.Success" xml:space="preserve"><value>Ứng dụng xác thực đã được bật thành công!</value></data>
+  <data name="Account.EnableAuthenticator.Failed" xml:space="preserve"><value>Không tải được thiết lập xác thực</value></data>
+  <data name="Account.EnableAuthenticator.VerifyFailed" xml:space="preserve"><value>Xác minh thất bại</value></data>
+
+  <data name="Account.ExternalLogin.Title" xml:space="preserve"><value>Đăng nhập bên ngoài</value></data>
+  <data name="Account.ExternalLogin.Processing" xml:space="preserve"><value>Đang xử lý đăng nhập bên ngoài...</value></data>
+  <data name="Account.ExternalLogin.Failed" xml:space="preserve"><value>Đăng nhập bên ngoài thất bại</value></data>
+
+  <data name="Account.ExternalLogins.Title" xml:space="preserve"><value>Tài khoản liên kết</value></data>
+  <data name="Account.ExternalLogins.Description" xml:space="preserve"><value>Tài khoản liên kết để đăng nhập. Bạn có thể gỡ liên kết; đảm bảo bạn có mật khẩu hoặc cách đăng nhập khác.</value></data>
+  <data name="Account.ExternalLogins.Remove" xml:space="preserve"><value>Gỡ liên kết</value></data>
+  <data name="Account.ExternalLogins.NoLogins" xml:space="preserve"><value>Chưa có tài khoản bên ngoài nào được liên kết.</value></data>
+  <data name="Account.ExternalLogins.HasPassword" xml:space="preserve"><value>Bạn đã đặt mật khẩu cho tài khoản này.</value></data>
+  <data name="Account.ExternalLogins.RemoveSuccess" xml:space="preserve"><value>Đã gỡ đăng nhập bên ngoài.</value></data>
+  <data name="Account.ExternalLogins.RemoveFailed" xml:space="preserve"><value>Gỡ đăng nhập bên ngoài thất bại.</value></data>
+
+  <data name="Account.PersonalData.Title" xml:space="preserve"><value>Dữ liệu cá nhân</value></data>
+  <data name="Account.PersonalData.Description" xml:space="preserve"><value>Tài khoản của bạn chứa dữ liệu cá nhân. Bạn có thể tải xuống hoặc xóa dữ liệu này.</value></data>
+  <data name="Account.PersonalData.Download" xml:space="preserve"><value>Tải dữ liệu của tôi</value></data>
+  <data name="Account.PersonalData.Delete" xml:space="preserve"><value>Xóa tài khoản</value></data>
+  <data name="Account.PersonalData.YourData" xml:space="preserve"><value>Dữ liệu cá nhân của bạn</value></data>
+  <data name="Account.PersonalData.LoadFailed" xml:space="preserve"><value>Không tải được dữ liệu cá nhân</value></data>
+  <data name="Account.PersonalData.Delete.Warning" xml:space="preserve"><value>Thao tác này không thể hoàn tác. Tất cả dữ liệu sẽ bị xóa vĩnh viễn.</value></data>
+  <data name="Account.PersonalData.Delete.Confirm" xml:space="preserve"><value>Xóa tài khoản vĩnh viễn</value></data>
+  <data name="Account.PersonalData.Delete.Success" xml:space="preserve"><value>Tài khoản của bạn đã bị xóa.</value></data>
+  <data name="Account.PersonalData.Delete.Failed" xml:space="preserve"><value>Xóa tài khoản thất bại</value></data>
+
+  <data name="Menu.MasterData" xml:space="preserve"><value>Dữ liệu chuẩn</value></data>
+  <data name="Menu.MasterData.Countries" xml:space="preserve"><value>Quốc gia</value></data>
+  <data name="Menu.MasterData.Cities" xml:space="preserve"><value>Thành phố / Tỉnh</value></data>
+  <data name="Menu.MasterData.Districts" xml:space="preserve"><value>Quận / Huyện</value></data>
+  <data name="Menu.MasterData.Banks" xml:space="preserve"><value>Ngân hàng</value></data>
+
+  <data name="MasterData.Countries" xml:space="preserve"><value>Quốc gia</value></data>
+  <data name="MasterData.Cities" xml:space="preserve"><value>Thành phố / Tỉnh</value></data>
+  <data name="MasterData.Districts" xml:space="preserve"><value>Quận / Huyện</value></data>
+  <data name="MasterData.Banks" xml:space="preserve"><value>Ngân hàng</value></data>
+  <data name="MasterData.Code" xml:space="preserve"><value>Mã</value></data>
+  <data name="MasterData.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="MasterData.Country" xml:space="preserve"><value>Quốc gia</value></data>
+  <data name="MasterData.City" xml:space="preserve"><value>Thành phố / Tỉnh</value></data>
+  <data name="MasterData.Create" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="MasterData.Delete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="MasterData.Import.Csv" xml:space="preserve"><value>Import từ file CSV</value></data>
+  <data name="MasterData.List.Title" xml:space="preserve"><value>Danh sách</value></data>
+  <data name="MasterData.Search.Placeholder" xml:space="preserve"><value>Tìm theo mã hoặc tên...</value></data>
+  <data name="MasterData.Search.Label" xml:space="preserve"><value>Tìm kiếm</value></data>
+  <data name="MasterData.Create.Title" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="MasterData.Edit.Title" xml:space="preserve"><value>Chỉnh sửa</value></data>
+  <data name="MasterData.LoadFailed" xml:space="preserve"><value>Không tải được dữ liệu</value></data>
+  <data name="MasterData.Create.Success" xml:space="preserve"><value>Tạo thành công</value></data>
+  <data name="MasterData.Create.Failed" xml:space="preserve"><value>Tạo thất bại</value></data>
+  <data name="MasterData.Update.Success" xml:space="preserve"><value>Cập nhật thành công</value></data>
+  <data name="MasterData.Update.Failed" xml:space="preserve"><value>Cập nhật thất bại</value></data>
+  <data name="MasterData.Delete.Success" xml:space="preserve"><value>Xóa thành công</value></data>
+  <data name="MasterData.Delete.Failed" xml:space="preserve"><value>Xóa thất bại</value></data>
+  <data name="MasterData.Import.Success" xml:space="preserve"><value>Import hoàn tất</value></data>
+  <data name="MasterData.Import.Failed" xml:space="preserve"><value>Import thất bại</value></data>
+  <data name="MasterData.Import.Result" xml:space="preserve"><value>Đã import: {0} thêm mới, {1} cập nhật, {2} bỏ qua</value></data>
+  <data name="MasterData.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="MasterData.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa mục này?</value></data>
+  <data name="MasterData.Select.Placeholder" xml:space="preserve"><value>Chọn...</value></data>
+  <data name="MasterData.Select.Empty" xml:space="preserve"><value>Không có mục nào</value></data>
+  <data name="MasterData.Select.ScrollMore" xml:space="preserve"><value>Cuộn để xem thêm</value></data>
+  <data name="Menu.Contacts" xml:space="preserve"><value>Danh bạ</value></data>
+
+  <data name="Contacts.Title" xml:space="preserve"><value>Quản lý liên hệ</value></data>
+  <data name="Contacts.List.Title" xml:space="preserve"><value>Danh sách liên hệ</value></data>
+  <data name="Contacts.Create.Title" xml:space="preserve"><value>Tạo liên hệ</value></data>
+  <data name="Contacts.AddNew" xml:space="preserve"><value>Thêm mới</value></data>
+  <data name="Contacts.Search.Label" xml:space="preserve"><value>Tìm kiếm</value></data>
+  <data name="Contacts.Search.Placeholder" xml:space="preserve"><value>Tìm theo tên, email, điện thoại, công ty...</value></data>
+  <data name="Contacts.Filter.Tag" xml:space="preserve"><value>Tag</value></data>
+  <data name="Contacts.Filter.Archive" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="Contacts.Filter.Archive.All" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="Contacts.Filter.Archive.Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="Contacts.Filter.Archive.Archived" xml:space="preserve"><value>Đã lưu trữ</value></data>
+  <data name="Contacts.Profile.Title" xml:space="preserve"><value>Thông tin liên hệ</value></data>
+  <data name="Contacts.FirstName" xml:space="preserve"><value>Tên</value></data>
+  <data name="Contacts.LastName" xml:space="preserve"><value>Họ</value></data>
+  <data name="Contacts.PrimaryEmail" xml:space="preserve"><value>Email chính</value></data>
+  <data name="Contacts.PrimaryPhone" xml:space="preserve"><value>Điện thoại chính</value></data>
+  <data name="Contacts.Company" xml:space="preserve"><value>Công ty</value></data>
+  <data name="Contacts.JobTitle" xml:space="preserve"><value>Chức danh</value></data>
+  <data name="Contacts.AvatarUrl" xml:space="preserve"><value>URL ảnh đại diện</value></data>
+  <data name="Contacts.ChangeAvatar" xml:space="preserve"><value>Đổi ảnh đại diện</value></data>
+  <data name="Contacts.RemoveAvatar" xml:space="preserve"><value>Xóa ảnh đại diện</value></data>
+  <data name="Contacts.AvatarTooLarge" xml:space="preserve"><value>Ảnh đại diện không được vượt quá 2 MB.</value></data>
+  <data name="Contacts.AvatarUploadFailed" xml:space="preserve"><value>Tải ảnh đại diện thất bại.</value></data>
+  <data name="Contacts.Birthday" xml:space="preserve"><value>Ngày sinh</value></data>
+  <data name="Contacts.Notes" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="Contacts.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="Contacts.Actions" xml:space="preserve"><value>Thao tác</value></data>
+  <data name="Contacts.LastUpdated" xml:space="preserve"><value>Cập nhật lúc</value></data>
+  <data name="Contacts.View" xml:space="preserve"><value>Xem</value></data>
+  <data name="Contacts.Edit" xml:space="preserve"><value>Sửa</value></data>
+  <data name="Contacts.Delete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Contacts.Create.Success" xml:space="preserve"><value>Tạo liên hệ thành công</value></data>
+  <data name="Contacts.Create.Failed" xml:space="preserve"><value>Tạo liên hệ thất bại</value></data>
+  <data name="Contacts.Update.Success" xml:space="preserve"><value>Cập nhật liên hệ thành công</value></data>
+  <data name="Contacts.Update.Failed" xml:space="preserve"><value>Cập nhật liên hệ thất bại</value></data>
+  <data name="Contacts.Delete.Success" xml:space="preserve"><value>Xóa liên hệ thành công</value></data>
+  <data name="Contacts.Delete.Failed" xml:space="preserve"><value>Xóa liên hệ thất bại</value></data>
+  <data name="Contacts.LoadFailed" xml:space="preserve"><value>Không tải được danh sách liên hệ</value></data>
+  <data name="Contacts.SuggestedUsers" xml:space="preserve"><value>Gợi ý người dùng (theo số điện thoại)</value></data>
+  <data name="Contacts.SuggestedUsers.None" xml:space="preserve"><value>Không có kết quả khớp theo số điện thoại.</value></data>
+  <data name="Contacts.LinkUser" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="Contacts.LinkToUser.Section" xml:space="preserve"><value>Liên kết với người dùng (tìm bất kỳ)</value></data>
+  <data name="Contacts.SelectUserToLink.Placeholder" xml:space="preserve"><value>Tìm và chọn người dùng...</value></data>
+  <data name="Contacts.LinkSelectedUser" xml:space="preserve"><value>Liên kết người dùng đã chọn</value></data>
+  <data name="Contacts.LinkedUser" xml:space="preserve"><value>Người dùng đã liên kết</value></data>
+  <data name="Contacts.UnlinkUser" xml:space="preserve"><value>Hủy liên kết</value></data>
+  <data name="Contacts.NoLinkedUser" xml:space="preserve"><value>Chưa liên kết người dùng</value></data>
+  <data name="Contacts.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa liên hệ này?</value></data>
+  <data name="Contacts.Value" xml:space="preserve"><value>Giá trị</value></data>
+  <data name="Contacts.IsPrimary" xml:space="preserve"><value>Mặc định</value></data>
+  <data name="Contacts.SetAsPrimary" xml:space="preserve"><value>Đặt làm mặc định</value></data>
+  <data name="Contacts.Emails" xml:space="preserve"><value>Email</value></data>
+  <data name="Contacts.Phones" xml:space="preserve"><value>Điện thoại</value></data>
+  <data name="Contacts.Addresses" xml:space="preserve"><value>Địa chỉ</value></data>
+  <data name="Contacts.SocialLinks" xml:space="preserve"><value>Liên kết mạng xã hội</value></data>
+  <data name="Contacts.Tags" xml:space="preserve"><value>Tag</value></data>
+  <data name="Contacts.BankAccounts" xml:space="preserve"><value>Tài khoản ngân hàng</value></data>
+  <data name="Contacts.IdentityDocuments" xml:space="preserve"><value>Giấy tờ định danh</value></data>
+  <data name="Contacts.CustomFields" xml:space="preserve"><value>Trường tùy chỉnh</value></data>
+  <data name="Contacts.Tab.General" xml:space="preserve"><value>Chung</value></data>
+  <data name="Contacts.Tab.ContactInfo" xml:space="preserve"><value>Liên hệ</value></data>
+  <data name="Contacts.Street" xml:space="preserve"><value>Đường</value></data>
+  <data name="Contacts.CountryCode" xml:space="preserve"><value>Mã quốc gia</value></data>
+  <data name="Contacts.CityCode" xml:space="preserve"><value>Mã thành phố</value></data>
+  <data name="Contacts.DistrictCode" xml:space="preserve"><value>Mã quận/huyện</value></data>
+  <data name="Contacts.PostalCode" xml:space="preserve"><value>Mã bưu chính</value></data>
+  <data name="Contacts.Platform" xml:space="preserve"><value>Nền tảng</value></data>
+  <data name="Contacts.Url" xml:space="preserve"><value>URL</value></data>
+  <data name="Contacts.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="Contacts.BankCode" xml:space="preserve"><value>Mã ngân hàng</value></data>
+  <data name="Contacts.BranchName" xml:space="preserve"><value>Tên chi nhánh</value></data>
+  <data name="Contacts.AccountNumber" xml:space="preserve"><value>Số tài khoản</value></data>
+  <data name="Contacts.AccountName" xml:space="preserve"><value>Tên tài khoản</value></data>
+  <data name="Contacts.CurrencyCode" xml:space="preserve"><value>Mã tiền tệ</value></data>
+  <data name="Contacts.DocumentType" xml:space="preserve"><value>Loại giấy tờ</value></data>
+  <data name="Contacts.DocumentNumber" xml:space="preserve"><value>Số giấy tờ</value></data>
+  <data name="Contacts.IssuedBy" xml:space="preserve"><value>Cơ quan cấp</value></data>
+  <data name="Contacts.IssuedDate" xml:space="preserve"><value>Ngày cấp</value></data>
+  <data name="Contacts.Key" xml:space="preserve"><value>Khóa</value></data>
+  <data name="Contacts.Import.Csv" xml:space="preserve"><value>Import từ CSV</value></data>
+  <data name="Contacts.Import.DownloadTemplate" xml:space="preserve"><value>Tải mẫu</value></data>
+  <data name="Contacts.Import.TemplateNote" xml:space="preserve"><value>Sử dụng mẫu CSV chuẩn. Chuyển đổi file của bạn theo đúng cột của mẫu trước khi import.</value></data>
+  <data name="Contacts.Import.Success" xml:space="preserve"><value>Import liên hệ hoàn tất</value></data>
+  <data name="Contacts.Import.Failed" xml:space="preserve"><value>Import liên hệ thất bại</value></data>
+  <data name="Contacts.Import.Result" xml:space="preserve"><value>Đã import: {0} thêm mới, {1} cập nhật, {2} bỏ qua</value></data>
+  <data name="Contacts.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="Contacts.Export" xml:space="preserve"><value>Xuất CSV</value></data>
+  <data name="Contacts.Export.Success" xml:space="preserve"><value>Xuất file thành công</value></data>
+  <data name="Contacts.Export.Failed" xml:space="preserve"><value>Xuất file thất bại</value></data>
+  <data name="BankInterestRates" xml:space="preserve"><value>Lãi Suất Ngân Hàng</value></data>
+  <data name="1Month" xml:space="preserve"><value>1 Tháng</value></data>
+  <data name="3Months" xml:space="preserve"><value>3 Tháng</value></data>
+  <data name="6Months" xml:space="preserve"><value>6 Tháng</value></data>
+  <data name="9Months" xml:space="preserve"><value>9 Tháng</value></data>
+  <data name="12Months" xml:space="preserve"><value>12 Tháng</value></data>
+  <data name="24Months" xml:space="preserve"><value>24 Tháng</value></data>
+  <data name="PagingSummaryFormat" xml:space="preserve"><value>Trang {0} của {1} ({2} mục)</value></data>
+  <data name="BankInterestRates.ShowBig4Only" xml:space="preserve"><value>Chỉ hiển thị Big4</value></data>
+  <data name="BankInterestRates.Toolkit" xml:space="preserve"><value>Bộ công cụ</value></data>
+  <data name="BankInterestRates.AverageRates" xml:space="preserve"><value>Lãi suất trung bình</value></data>
+  <data name="BankInterestRates.CompoundInterestCalculator" xml:space="preserve"><value>Máy tính lãi kép</value></data>
+  <data name="BankInterestRates.InputSection" xml:space="preserve"><value>Thông tin đầu vào</value></data>
+  <data name="BankInterestRates.PrincipalAmount" xml:space="preserve"><value>Số tiền gốc</value></data>
+  <data name="BankInterestRates.TermMonths" xml:space="preserve"><value>Kỳ hạn</value></data>
+  <data name="BankInterestRates.AnnualRate" xml:space="preserve"><value>Lãi suất năm</value></data>
+  <data name="BankInterestRates.CurrencySuffixVnd" xml:space="preserve"><value>VND</value></data>
+  <data name="BankInterestRates.RateSuffixPerYear" xml:space="preserve"><value>%/năm</value></data>
+  <data name="BankInterestRates.MonthsSuffix" xml:space="preserve"><value>tháng</value></data>
+  <data name="BankInterestRates.CalculateAction" xml:space="preserve"><value>Tính toán</value></data>
+  <data name="BankInterestRates.FromBank" xml:space="preserve"><value>(từ {0})</value></data>
+  <data name="BankInterestRates.NoBankSelected" xml:space="preserve"><value>Chưa chọn ngân hàng</value></data>
+  <data name="BankInterestRates.ResultSummary" xml:space="preserve"><value>Tóm tắt kết quả</value></data>
+  <data name="BankInterestRates.FinalAmount" xml:space="preserve"><value>Số tiền cuối cùng</value></data>
+  <data name="BankInterestRates.Profit" xml:space="preserve"><value>Lợi nhuận</value></data>
+  <data name="BankInterestRates.TotalReturn" xml:space="preserve"><value>Tổng lợi nhuận</value></data>
+  <data name="BankInterestRates.OverMonths" xml:space="preserve"><value>trong {0} tháng</value></data>
+  <data name="Market.Title" xml:space="preserve"><value>Tổng quan Thị trường</value></data>
+  <data name="Market.Commodities" xml:space="preserve"><value>Hàng hóa</value></data>
+  <data name="Market.Currencies" xml:space="preserve"><value>Ngoại tệ</value></data>
+  <data name="Market.Cryptocurrencies" xml:space="preserve"><value>Tiền mã hóa</value></data>
+  <data name="Market.LastPrice" xml:space="preserve"><value>Giá gần nhất</value></data>
+  <data name="Market.Change" xml:space="preserve"><value>Thay đổi</value></data>
+  <data name="Market.Price" xml:space="preserve"><value>Giá cả</value></data>
+  <data name="Market.MarketCap" xml:space="preserve"><value>Vốn hóa</value></data>
+  <data name="Vix.Title" xml:space="preserve"><value>Chỉ số VIX</value></data>
+  <data name="Vix.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu VIX.</value></data>
+  <data name="Vix.Trend" xml:space="preserve"><value>Xu hướng</value></data>
+  <data name="Vix.Ema10" xml:space="preserve"><value>EMA 10</value></data>
+  <data name="Vix.Ema20" xml:space="preserve"><value>EMA 20</value></data>
+  <data name="Vix.Uptrend" xml:space="preserve"><value>Tăng (Uptrend)</value></data>
+  <data name="Vix.Downtrend" xml:space="preserve"><value>Giảm (Downtrend)</value></data>
+  <data name="Vix.Momentum3D" xml:space="preserve"><value>Động lực 3 ngày</value></data>
+  <data name="Vix.Momentum5D" xml:space="preserve"><value>Động lực 5 ngày</value></data>
+  <data name="Vix.Liquidity" xml:space="preserve"><value>Thanh khoản</value></data>
+  <data name="Vix.CapitalFlow" xml:space="preserve"><value>Dòng tiền</value></data>
+  <data name="Vix.Percentile" xml:space="preserve"><value>Phân vị</value></data>
+  <data name="Vix.Spike" xml:space="preserve"><value>Đột biến</value></data>
+  <data name="Vix.SpikeYes" xml:space="preserve"><value>Có</value></data>
+  <data name="Vix.SpikeNo" xml:space="preserve"><value>Không</value></data>
+  <data name="Vix.RegimeRiskOn" xml:space="preserve"><value>Ưa rủi ro</value></data>
+  <data name="Vix.RegimeEarlyRisk" xml:space="preserve"><value>Rủi ro sớm</value></data>
+  <data name="Vix.RegimePanic" xml:space="preserve"><value>Hoảng loạn</value></data>
+  <data name="Vix.RegimeRecovery" xml:space="preserve"><value>Phục hồi</value></data>
+  <data name="Vix.ActionIncreaseExposure" xml:space="preserve"><value>Tăng tỷ trọng</value></data>
+  <data name="Vix.ActionReduceExposure" xml:space="preserve"><value>Giảm tỷ trọng</value></data>
+  <data name="Vix.ActionBuildPosition" xml:space="preserve"><value>Xây dựng vị thế</value></data>
+  <data name="Vix.ActionReduceRisk" xml:space="preserve"><value>Giảm rủi ro</value></data>
+  <data name="Vix.LiquidityHigh" xml:space="preserve"><value>Cao</value></data>
+  <data name="Vix.LiquidityLow" xml:space="preserve"><value>Thấp</value></data>
+  <data name="Vix.LiquidityImproving" xml:space="preserve"><value>Đang cải thiện</value></data>
+  <data name="Vix.LiquidityTightening" xml:space="preserve"><value>Đang thắt chặt</value></data>
+  <data name="Vix.CapitalFlowIntoRisk" xml:space="preserve"><value>Vào tài sản rủi ro</value></data>
+  <data name="Vix.CapitalFlowIntoSafe" xml:space="preserve"><value>Vào tài sản an toàn</value></data>
+  <data name="Vix.CapitalFlowReEntry" xml:space="preserve"><value>Tái nhập dần rủi ro</value></data>
+  <data name="Vix.CapitalFlowDefensive" xml:space="preserve"><value>Xoay phòng thủ</value></data>
+  <data name="Vix.AiAssessmentTitle" xml:space="preserve"><value>Nhận định AI</value></data>
+  <data name="Vix.GetAiAssessment" xml:space="preserve"><value>Lấy nhận định AI</value></data>
+  <data name="Vix.AiAssessmentLoadFailed" xml:space="preserve"><value>Không thể tải nhận định AI. Vui lòng thử lại.</value></data>
+  <data name="VnDirect.ChangePrices.Title" xml:space="preserve"><value>Giá thay đổi chỉ số VnDirect</value></data>
+  <data name="VnDirect.ChangePrices.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu giá thay đổi VnDirect.</value></data>
+  <data name="VnDirect.ChangePrices.IndexValue" xml:space="preserve"><value>Chỉ số</value></data>
+  <data name="VnDirect.ChangePrices.Change" xml:space="preserve"><value>Thay đổi</value></data>
+  <data name="VnDirect.ChangePrices.ChangePct" xml:space="preserve"><value>Tỷ lệ %</value></data>
+  <data name="VnDirect.ChangePrices.LastUpdated" xml:space="preserve"><value>Cập nhật</value></data>
+  <data name="VnDirect.ChangePrices.Previous" xml:space="preserve"><value>Trước</value></data>
+  <data name="VnDirect.ChangePrices.Next" xml:space="preserve"><value>Sau</value></data>
+  <data name="VnDirect.ChangePrices.PageOf" xml:space="preserve"><value>{0} / {1}</value></data>
+  <data name="VnDirect.TopStocks.Title" xml:space="preserve"><value>Top cổ phiếu VnDirect</value></data>
+  <data name="VnDirect.TopStocks.SearchPlaceholder" xml:space="preserve"><value>Tìm mã hoặc chỉ số...</value></data>
+  <data name="VnDirect.TopStocks.NoDataFound" xml:space="preserve"><value>Không tìm thấy cổ phiếu nào.</value></data>
+  <data name="VnDirect.TopStocks.Code" xml:space="preserve"><value>Mã</value></data>
+  <data name="VnDirect.TopStocks.Index" xml:space="preserve"><value>Chỉ số</value></data>
+  <data name="VnDirect.TopStocks.LastPrice" xml:space="preserve"><value>Giá cuối</value></data>
+  <data name="VnDirect.TopStocks.PriceChange1D" xml:space="preserve"><value>Thay đổi (1D)</value></data>
+  <data name="VnDirect.TopStocks.PriceChangePct1D" xml:space="preserve"><value>% thay đổi (1D)</value></data>
+  <data name="VnDirect.TopStocks.AccumulatedValue" xml:space="preserve"><value>Giá trị tích lũy</value></data>
+  <data name="VnDirect.TopStocks.NmVolumeAvgCr20D" xml:space="preserve"><value>Khối lượng trung bình 20 ngày</value></data>
+  <data name="VnDirect.TopStocks.NmVolNmVolAvg20DPctCr" xml:space="preserve"><value>Tỷ lệ NM Vol/VL trung bình 20 ngày %</value></data>
+  <data name="VnDirect.TopStocks.TotalVolumeAvgCr20D" xml:space="preserve"><value>Tổng khối lượng trung bình 20 ngày</value></data>
+  <data name="VnDirect.TopStocks.PtVolTotalVolAvg20DPctCr" xml:space="preserve"><value>Tỷ lệ PtVol/TổngVol trung bình 20 ngày %</value></data>
+  <data name="VnDirect.TopStocks.PtVolAvg5DTotalVolAvg20DPctCr" xml:space="preserve"><value>Tỷ lệ PtVol 5D/TổngVol 20D %</value></data>
+  <data name="VnDirect.TopStocks.PtVolSumCr5D" xml:space="preserve"><value>PtVol Tổng 5D</value></data>
+  <data name="VnDirect.TopStocks.PtValAvgCr5D" xml:space="preserve"><value>PtVal Trung bình 5D</value></data>
+  <data name="VnDirect.TopStocks.PtVolAvgCr5D" xml:space="preserve"><value>PtVol Trung bình 5D</value></data>
+  <data name="VnDirect.TopStocks.LastUpdated" xml:space="preserve"><value>Cập nhật lúc</value></data>
+  <data name="VnDirect.TopStocks.LongSignal" xml:space="preserve"><value>Tín hiệu Long</value></data>
+  <data name="VnDirect.TopStocks.ShortSignal" xml:space="preserve"><value>Tín hiệu Short</value></data>
+  <data name="VnDirect.TopStocks.LongBuyCount" xml:space="preserve"><value>Long Mua</value></data>
+  <data name="VnDirect.TopStocks.LongSellCount" xml:space="preserve"><value>Long Bán</value></data>
+  <data name="VnDirect.TopStocks.ShortBuyCount" xml:space="preserve"><value>Short Mua</value></data>
+  <data name="VnDirect.TopStocks.ShortSellCount" xml:space="preserve"><value>Short Bán</value></data>
+  <data name="VnDirect.TopStocks.InTcbs" xml:space="preserve"><value>Trong danh mục TCBS</value></data>
+  <data name="VnDirect.TopStocks.OnlyTcbsAllTimeHoldings" xml:space="preserve"><value>Chỉ lấy mã trong TCBS Toàn thời gian</value></data>
+  <data name="VnDirect.TopStocks.DragonFundCount" xml:space="preserve"><value>Số quỹ Dragon</value></data>
+  <data name="VnDirect.TopStocks.DragonTotalWeight" xml:space="preserve"><value>Tổng tỷ trọng Dragon</value></data>
+  <data name="VnDirect.TopStocks.EventRiskLevel" xml:space="preserve"><value>Rủi ro sự kiện</value></data>
+  <data name="VnDirect.TopStocks.RecentEventCount" xml:space="preserve"><value>Sự kiện gần đây</value></data>
+  <data name="VnDirect.TopStocks.MostSevereEventType" xml:space="preserve"><value>Sự kiện nghiêm trọng nhất</value></data>
+  <data name="VnDirect.TopStocks.LatestEventEffectiveDate" xml:space="preserve"><value>Ngày sự kiện mới nhất</value></data>
+  <data name="VnDirect.TopStocks.CompositeScore" xml:space="preserve"><value>Điểm tổng hợp</value></data>
+  <data name="VnDirect.TopStocks.TechnicalScore" xml:space="preserve"><value>Điểm kỹ thuật</value></data>
+  <data name="VnDirect.TopStocks.PortfolioScore" xml:space="preserve"><value>Điểm danh mục</value></data>
+  <data name="VnDirect.TopStocks.EventPenalty" xml:space="preserve"><value>Trừ điểm sự kiện</value></data>
+  <data name="VnDirect.TopStocks.LiquidityPenalty" xml:space="preserve"><value>Trừ điểm thanh khoản</value></data>
+  <data name="VnDirect.TopStocks.DataCompleteness" xml:space="preserve"><value>Dữ liệu đầy đủ</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJob" xml:space="preserve"><value>Chạy job gợi ý tuần</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJobQueued" xml:space="preserve"><value>Đã đưa job gợi ý tuần vào hàng đợi.</value></data>
+  <data name="VnDirect.TopStocks.RunWeeklySuggestionJobFailed" xml:space="preserve"><value>Kích hoạt job gợi ý tuần thất bại.</value></data>
+  <data name="Mexc.ContractTickers.Title" xml:space="preserve"><value>Cổ phiếu hợp đồng MEXC</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Enable" xml:space="preserve"><value>Cảnh báo biến động giá</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.SettingsTitle" xml:space="preserve"><value>Cài đặt cảnh báo biến động giá</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.SettingsHint" xml:space="preserve"><value>Thông báo trên thiết bị này khi một mã thay đổi ít nhất theo phần trăm tuyệt đối trong khung thời gian. Chỉ chạy trên client.</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.TimeWindowMinutes" xml:space="preserve"><value>Khung thời gian (phút)</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercent" xml:space="preserve"><value>Biến động giá tuyệt đối (%)</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercentHint" xml:space="preserve"><value>Áp dụng cho cả tăng và giảm (ví dụ 10 = ±10%).</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.ActiveSummary" xml:space="preserve"><value>{0} phút / ±{1}%</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AlertTitle" xml:space="preserve"><value>Cảnh báo biến động giá</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} biến động {1} trong {4} phút ({2} → {3})</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Enabled" xml:space="preserve"><value>Đã bật cảnh báo biến động giá</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Đã tắt cảnh báo biến động giá</value></data>
+  <data name="Mexc.ContractTickers.SocketTitle" xml:space="preserve"><value>Bảng hợp đồng MEXC (WebSocket)</value></data>
+  <data name="Mexc.ContractTickers.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu hợp đồng MEXC.</value></data>
+  <data name="Mexc.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Tìm mã hợp đồng...</value></data>
+  <data name="Mexc.ContractTickers.NoDataFound" xml:space="preserve"><value>Không tìm thấy hợp đồng nào.</value></data>
+  <data name="Mexc.ContractTickers.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="Mexc.ContractTickers.LastPrice" xml:space="preserve"><value>Giá cuối</value></data>
+  <data name="Mexc.ContractTickers.Bid1" xml:space="preserve"><value>Giá mua</value></data>
+  <data name="Mexc.ContractTickers.Ask1" xml:space="preserve"><value>Giá bán</value></data>
+  <data name="Mexc.ContractTickers.High24Price" xml:space="preserve"><value>Cao nhất 24h</value></data>
+  <data name="Mexc.ContractTickers.Low24Price" xml:space="preserve"><value>Thấp nhất 24h</value></data>
+  <data name="Mexc.ContractTickers.Volume24" xml:space="preserve"><value>Khối lượng 24h</value></data>
+  <data name="Mexc.ContractTickers.Amount24" xml:space="preserve"><value>Giá trị 24h</value></data>
+  <data name="Mexc.ContractTickers.RiseFallRate" xml:space="preserve"><value>Tỷ lệ thay đổi</value></data>
+  <data name="Mexc.ContractTickers.RiseFallValue" xml:space="preserve"><value>Giá trị thay đổi</value></data>
+  <data name="Mexc.ContractTickers.ContractId" xml:space="preserve"><value>Mã hợp đồng</value></data>
+  <data name="Mexc.ContractTickers.HoldVol" xml:space="preserve"><value>Khối lượng giữ</value></data>
+  <data name="Mexc.ContractTickers.FundingRate" xml:space="preserve"><value>Funding rate</value></data>
+  <data name="Mexc.ContractTickers.IndexPrice" xml:space="preserve"><value>Giá chỉ số</value></data>
+  <data name="Mexc.ContractTickers.FairPrice" xml:space="preserve"><value>Giá hợp lý</value></data>
+  <data name="Mexc.ContractTickers.MaxBidPrice" xml:space="preserve"><value>Giá mua tối đa</value></data>
+  <data name="Mexc.ContractTickers.MinAskPrice" xml:space="preserve"><value>Giá bán tối thiểu</value></data>
+  <data name="Mexc.ContractTickers.Timestamp" xml:space="preserve"><value>Thời gian</value></data>
+  <data name="Mexc.ContractTickers.CompositeScore" xml:space="preserve"><value>Điểm</value></data>
+  <data name="Mexc.SpotTicker24Hr.Title" xml:space="preserve"><value>Cổ phiếu MEXC spot 24h</value></data>
+  <data name="Mexc.SpotTicker24Hr.SocketTitle" xml:space="preserve"><value>Bảng spot MEXC mini ticker (WebSocket)</value></data>
+  <data name="Mexc.SpotTicker24Hr.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu spot MEXC.</value></data>
+  <data name="Mexc.SpotTicker24Hr.SearchPlaceholder" xml:space="preserve"><value>Tìm mã...</value></data>
+  <data name="Mexc.SpotTicker24Hr.NoDataFound" xml:space="preserve"><value>Không tìm thấy dữ liệu.</value></data>
+  <data name="Mexc.SpotTicker24Hr.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="Mexc.SpotTicker24Hr.PriceChange" xml:space="preserve"><value>Thay đổi giá</value></data>
+  <data name="Mexc.SpotTicker24Hr.PriceChangePercent" xml:space="preserve"><value>% thay đổi</value></data>
+  <data name="Mexc.SpotTicker24Hr.PrevClosePrice" xml:space="preserve"><value>Giá đóng trước đó</value></data>
+  <data name="Mexc.SpotTicker24Hr.LastPrice" xml:space="preserve"><value>Giá cuối</value></data>
+  <data name="Mexc.SpotTicker24Hr.BidPrice" xml:space="preserve"><value>Giá mua</value></data>
+  <data name="Mexc.SpotTicker24Hr.BidQty" xml:space="preserve"><value>KL mua</value></data>
+  <data name="Mexc.SpotTicker24Hr.AskPrice" xml:space="preserve"><value>Giá bán</value></data>
+  <data name="Mexc.SpotTicker24Hr.AskQty" xml:space="preserve"><value>KL bán</value></data>
+  <data name="Mexc.SpotTicker24Hr.OpenPrice" xml:space="preserve"><value>Giá mở</value></data>
+  <data name="Mexc.SpotTicker24Hr.HighPrice" xml:space="preserve"><value>Cao nhất</value></data>
+  <data name="Mexc.SpotTicker24Hr.LowPrice" xml:space="preserve"><value>Thấp nhất</value></data>
+  <data name="Mexc.SpotTicker24Hr.Volume" xml:space="preserve"><value>Khối lượng</value></data>
+  <data name="Mexc.SpotTicker24Hr.QuoteVolume" xml:space="preserve"><value>Giá trị</value></data>
+  <data name="Mexc.SpotTicker24Hr.OpenTime" xml:space="preserve"><value>Thời gian mở</value></data>
+  <data name="Mexc.SpotTicker24Hr.CloseTime" xml:space="preserve"><value>Thời gian đóng</value></data>
+  <data name="Mexc.SpotTicker24Hr.Count" xml:space="preserve"><value>Số lượng</value></data>
+  <data name="Mexc.SpotTicker24Hr.CompositeScore" xml:space="preserve"><value>Điểm</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJob" xml:space="preserve"><value>Chạy job gợi ý tuần</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJobQueued" xml:space="preserve"><value>Đã đưa job gợi ý spot tuần vào hàng đợi.</value></data>
+  <data name="Mexc.SpotTicker24Hr.RunWeeklySuggestionJobFailed" xml:space="preserve"><value>Kích hoạt job gợi ý spot tuần thất bại.</value></data>
+    <data name="Mexc.SpotTicker24Hr.Rate" xml:space="preserve"><value>Tỉ lệ (UTC+8)</value></data>
+    <data name="Mexc.SpotTicker24Hr.ZonedRate" xml:space="preserve"><value>Tỉ lệ (địa phương)</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseRate" xml:space="preserve"><value>Tỉ lệ đóng cửa hôm trước</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseZonedRate" xml:space="preserve"><value>Tỉ lệ đóng cửa hôm trước (địa phương)</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseHigh" xml:space="preserve"><value>Cao nhất từ đóng cửa hôm trước</value></data>
+    <data name="Mexc.SpotTicker24Hr.LastCloseLow" xml:space="preserve"><value>Thấp nhất từ đóng cửa hôm trước</value></data>
+    <data name="CoinGecko.Title" xml:space="preserve"><value>CoinGecko</value></data>
+  <data name="CoinGecko.CoinList" xml:space="preserve"><value>Danh sách coin</value></data>
+  <data name="CoinGecko.CoinName" xml:space="preserve"><value>Đồng coin</value></data>
+  <data name="CoinGecko.SelectCoinHint" xml:space="preserve"><value>Hãy chọn một coin để xem chi tiết.</value></data>
+  <data name="CoinGecko.DetailsTitle" xml:space="preserve"><value>Chi tiết coin</value></data>
+  <data name="CoinGecko.CurrentPrice" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="CoinGecko.MarketCapRank" xml:space="preserve"><value>Hạng vốn hóa</value></data>
+  <data name="CoinGecko.High24H" xml:space="preserve"><value>Cao nhất 24h</value></data>
+  <data name="CoinGecko.Low24H" xml:space="preserve"><value>Thấp nhất 24h</value></data>
+  <data name="CoinGecko.PriceChange24H" xml:space="preserve"><value>Biến động 24h</value></data>
+  <data name="CoinGecko.LoadListFailed" xml:space="preserve"><value>Không thể tải danh sách coin.</value></data>
+  <data name="CoinGecko.LoadDetailFailed" xml:space="preserve"><value>Không thể tải chi tiết coin.</value></data>
+  <data name="BankDepositRates.Title" xml:space="preserve"><value>Lãi Suất Huy Động</value></data>
+  <data name="BankDepositRates.Subtitle" xml:space="preserve"><value>Lãi suất tiền gửi theo kỳ hạn, kênh online và tại quầy.</value></data>
+  <data name="BankDepositRates.OnlineChannel" xml:space="preserve"><value>Kênh Online</value></data>
+  <data name="BankDepositRates.OfflineChannel" xml:space="preserve"><value>Tại Quầy</value></data>
+  <data name="BankDepositRates.Bank" xml:space="preserve"><value>Ngân hàng</value></data>
+  <data name="BankDepositRates.Note" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="BankDepositRates.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tên ngân hàng...</value></data>
+  <data name="BankDepositRates.UpdatedAt" xml:space="preserve"><value>Cập nhật lúc: {0}</value></data>
+  <data name="BankDepositRates.LoadFailed" xml:space="preserve"><value>Không thể tải lãi suất huy động.</value></data>
+  <data name="SacombankExchangeRates.Title" xml:space="preserve"><value>Tỷ giá Sacombank</value></data>
+  <data name="SacombankExchangeRates.CurrencyCode" xml:space="preserve"><value>Mã</value></data>
+  <data name="SacombankExchangeRates.BidInCash" xml:space="preserve"><value>Mua tiền mặt</value></data>
+  <data name="SacombankExchangeRates.BidInTransfer" xml:space="preserve"><value>Mua chuyển khoản</value></data>
+  <data name="SacombankExchangeRates.OfferInCash" xml:space="preserve"><value>Bán tiền mặt</value></data>
+  <data name="SacombankExchangeRates.OfferInTransfer" xml:space="preserve"><value>Bán chuyển khoản</value></data>
+  <data name="SacombankExchangeRates.CreatedDate" xml:space="preserve"><value>Thời điểm tạo</value></data>
+  <data name="SacombankExchangeRates.UpdatedAt" xml:space="preserve"><value>Cập nhật lúc: {0}</value></data>
+  <data name="SacombankExchangeRates.LoadFailed" xml:space="preserve"><value>Không thể tải tỷ giá Sacombank.</value></data>
+  <data name="CurrencyConverter.Title" xml:space="preserve"><value>Công cụ đổi tiền</value></data>
+  <data name="CurrencyConverter.FromCurrency" xml:space="preserve"><value>Từ</value></data>
+  <data name="CurrencyConverter.ToCurrency" xml:space="preserve"><value>Đến</value></data>
+  <data name="CurrencyConverter.Amount" xml:space="preserve"><value>Số tiền</value></data>
+  <data name="CurrencyConverter.Swap" xml:space="preserve"><value>Hoán đổi</value></data>
+  <data name="CurrencyConverter.RateType" xml:space="preserve"><value>Loại tỷ giá</value></data>
+  <data name="CurrencyConverter.Cash" xml:space="preserve"><value>Tiền mặt</value></data>
+  <data name="CurrencyConverter.Transfer" xml:space="preserve"><value>Chuyển khoản</value></data>
+  <data name="CurrencyConverter.ConvertedResult" xml:space="preserve"><value>Kết quả</value></data>
+  <data name="CurrencyConverter.SelectCurrency" xml:space="preserve"><value>Chọn loại tiền</value></data>
+  <data name="Menu.CommandTester" xml:space="preserve"><value>Kiểm thử lệnh</value></data>
+  <data name="Menu.AiTester" xml:space="preserve"><value>Kiểm thử AI</value></data>
+  <data name="ChainBrokerFunds.Title" xml:space="preserve"><value>Quỹ ChainBroker</value></data>
+  <data name="ChainBrokerFunds.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tên hoặc slug...</value></data>
+  <data name="ChainBrokerFunds.NoDataFound" xml:space="preserve"><value>Không tìm thấy quỹ nào.</value></data>
+  <data name="ChainBrokerFunds.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách quỹ.</value></data>
+  <data name="ChainBrokerFunds.SyncSuccess" xml:space="preserve"><value>Đã xếp hàng đồng bộ thành công.</value></data>
+  <data name="ChainBrokerFunds.SyncFailed" xml:space="preserve"><value>Không thể kích hoạt đồng bộ.</value></data>
+  <data name="ChainBrokerFunds.ColName" xml:space="preserve"><value>Tên</value></data>
+  <data name="ChainBrokerFunds.ColFundType" xml:space="preserve"><value>Loại quỹ</value></data>
+  <data name="ChainBrokerFunds.ColStatus" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="ChainBrokerFunds.ColProjectCount" xml:space="preserve"><value>Dự án</value></data>
+  <data name="ChainBrokerFunds.ColAvgRoi" xml:space="preserve"><value>ROI trung bình</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange24h" xml:space="preserve"><value>TB 24h %</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange7d" xml:space="preserve"><value>TB 7d %</value></data>
+  <data name="ChainBrokerFunds.ColAvgPriceChange30d" xml:space="preserve"><value>TB 30d %</value></data>
+  <data name="ChainBrokerFunds.ColYearFounded" xml:space="preserve"><value>Thành lập</value></data>
+  <data name="ChainBrokerFunds.ColLastInvestment" xml:space="preserve"><value>Đầu tư gần nhất</value></data>
+  <data name="ChainBrokerFunds.ColGainers" xml:space="preserve"><value>Tăng giá</value></data>
+  <data name="ChainBrokerFunds.ColLosers" xml:space="preserve"><value>Giảm giá</value></data>
+  <data name="ChainBrokerFunds.SyncButton" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="ChainBrokerFunds.SyncConfirmTitle" xml:space="preserve"><value>Xác nhận đồng bộ</value></data>
+  <data name="ChainBrokerFunds.SyncConfirmMessage" xml:space="preserve"><value>Thao tác này sẽ xếp hàng một tác vụ nền để đồng bộ toàn bộ dữ liệu ChainBroker. Tiếp tục?</value></data>
+  <data name="ChainBrokerProjects.Title" xml:space="preserve"><value>Dự án ChainBroker</value></data>
+  <data name="ChainBrokerProjects.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tên, slug hoặc ticker...</value></data>
+  <data name="ChainBrokerProjects.NoDataFound" xml:space="preserve"><value>Không tìm thấy dự án nào.</value></data>
+  <data name="ChainBrokerProjects.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách dự án.</value></data>
+  <data name="ChainBrokerProjects.ColName" xml:space="preserve"><value>Tên</value></data>
+  <data name="ChainBrokerProjects.ColTicker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="ChainBrokerProjects.ColRank" xml:space="preserve"><value>Hạng</value></data>
+  <data name="ChainBrokerProjects.ColCurrentPrice" xml:space="preserve"><value>Giá (USD)</value></data>
+  <data name="ChainBrokerProjects.ColPublicPrice" xml:space="preserve"><value>Giá public</value></data>
+  <data name="ChainBrokerProjects.ColPrivatePrice" xml:space="preserve"><value>Giá private</value></data>
+  <data name="ChainBrokerProjects.ColAthPrice" xml:space="preserve"><value>Giá ATH</value></data>
+  <data name="ChainBrokerProjects.ColPublicRoi" xml:space="preserve"><value>ROI công khai</value></data>
+  <data name="ChainBrokerProjects.ColPrivateRoi" xml:space="preserve"><value>ROI riêng tư</value></data>
+  <data name="ChainBrokerProjects.ColPublicAthRoi" xml:space="preserve"><value>ROI ATH public</value></data>
+  <data name="ChainBrokerProjects.ColPrivateAthRoi" xml:space="preserve"><value>ROI ATH private</value></data>
+  <data name="ChainBrokerProjects.ColBrokerScore" xml:space="preserve"><value>Điểm broker</value></data>
+  <data name="ChainBrokerProjects.ColSecurityScore" xml:space="preserve"><value>Điểm bảo mật</value></data>
+  <data name="ChainBrokerProjects.ColTwitterScore" xml:space="preserve"><value>Điểm Twitter</value></data>
+  <data name="ChainBrokerProjects.ColPublicRaise" xml:space="preserve"><value>Vốn gọi public</value></data>
+  <data name="ChainBrokerProjects.ColPrivateRaise" xml:space="preserve"><value>Vốn gọi private</value></data>
+  <data name="ChainBrokerProjects.ColTotalRaise" xml:space="preserve"><value>Tổng vốn gọi</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange24h" xml:space="preserve"><value>24h %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange7d" xml:space="preserve"><value>7d %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange30d" xml:space="preserve"><value>30d %</value></data>
+  <data name="ChainBrokerProjects.ColPriceChange1y" xml:space="preserve"><value>1y %</value></data>
+  <data name="ChainBrokerProjects.ColMarketCap" xml:space="preserve"><value>Vốn hóa</value></data>
+  <data name="ChainBrokerProjects.ColFdmc" xml:space="preserve"><value>FDMC</value></data>
+  <data name="ChainBrokerProjects.ColVolume24h" xml:space="preserve"><value>Khối lượng 24h</value></data>
+  <data name="ChainBrokerProjects.ColCurrentCirculation" xml:space="preserve"><value>Cung lưu hành hiện tại</value></data>
+  <data name="ChainBrokerProjects.ColTotalCirculation" xml:space="preserve"><value>Tổng cung lưu hành</value></data>
+  <data name="ChainBrokerProjects.ColPercentCirculating" xml:space="preserve"><value>% lưu hành</value></data>
+  <data name="ChainBrokerProjects.ColPrivateAnnounceDate" xml:space="preserve"><value>Ngày công bố private</value></data>
+  <data name="ChainBrokerProjects.ColListingDate" xml:space="preserve"><value>Ngày niêm yết</value></data>
+  <data name="ChainBrokerProjects.ColIdoDate" xml:space="preserve"><value>Ngày IDO</value></data>
+  <data name="ChainBrokerProjects.ColNextUnlockDate" xml:space="preserve"><value>Ngày mở khóa tiếp theo</value></data>
+  <data name="ChainBrokerProjects.ColFundCount" xml:space="preserve"><value>Số quỹ</value></data>
+  <data name="ChainBrokerProjects.ColBlockchains" xml:space="preserve"><value>Blockchain</value></data>
+  <data name="ChainBrokerProjects.SyncSuccess" xml:space="preserve"><value>Đã xếp hàng đồng bộ thành công.</value></data>
+  <data name="ChainBrokerProjects.SyncFailed" xml:space="preserve"><value>Không thể kích hoạt đồng bộ.</value></data>
+  <data name="ChainBrokerProjects.SyncButton" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="ChainBrokerProjects.SyncConfirmTitle" xml:space="preserve"><value>Xác nhận đồng bộ</value></data>
+  <data name="ChainBrokerProjects.SyncConfirmMessage" xml:space="preserve"><value>Thao tác này sẽ xếp hàng một tác vụ nền để đồng bộ toàn bộ dự án ChainBroker. Tiếp tục?</value></data>
+  <data name="ChainBrokerProjects.FilterByFund" xml:space="preserve"><value>Lọc theo quỹ đầu tư</value></data>
+  <data name="ChainBrokerUnlocks.Title" xml:space="preserve"><value>Mở khóa ChainBroker</value></data>
+  <data name="ChainBrokerUnlocks.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tên, slug hoặc ticker...</value></data>
+  <data name="ChainBrokerUnlocks.NoDataFound" xml:space="preserve"><value>Không tìm thấy dữ liệu mở khóa.</value></data>
+  <data name="ChainBrokerUnlocks.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách mở khóa.</value></data>
+  <data name="ChainBrokerUnlocks.ColName" xml:space="preserve"><value>Tên</value></data>
+  <data name="ChainBrokerUnlocks.ColTicker" xml:space="preserve"><value>Ticker</value></data>
+  <data name="ChainBrokerUnlocks.ColNextUnlockDate" xml:space="preserve"><value>Mở khóa tiếp theo</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockAmount" xml:space="preserve"><value>Số lượng</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockValueUsd" xml:space="preserve"><value>Giá trị (USD)</value></data>
+  <data name="ChainBrokerUnlocks.ColRoundName" xml:space="preserve"><value>Vòng</value></data>
+  <data name="ChainBrokerUnlocks.ColCirculationPercent" xml:space="preserve"><value>Lưu thông %</value></data>
+  <data name="ChainBrokerUnlocks.ColUnlockPercent" xml:space="preserve"><value>Mở khóa %</value></data>
+  <data name="ChainBrokerUnlocks.ColVolume24h" xml:space="preserve"><value>Khối lượng 24h</value></data>
+  <data name="ChainBrokerUnlocks.ColPriceChange24h" xml:space="preserve"><value>24h %</value></data>
+  <data name="ChainBrokerUnlocks.ColPriceChange7d" xml:space="preserve"><value>7d %</value></data>
+  <data name="ChainBrokerUnlocks.SyncSuccess" xml:space="preserve"><value>Đã xếp hàng đồng bộ thành công.</value></data>
+  <data name="ChainBrokerUnlocks.SyncFailed" xml:space="preserve"><value>Không thể kích hoạt đồng bộ.</value></data>
+  <data name="ChainBrokerUnlocks.SyncButton" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="ChainBrokerUnlocks.SyncConfirmTitle" xml:space="preserve"><value>Xác nhận đồng bộ</value></data>
+  <data name="ChainBrokerUnlocks.SyncConfirmMessage" xml:space="preserve"><value>Thao tác này sẽ xếp hàng một tác vụ nền để đồng bộ toàn bộ dữ liệu mở khóa ChainBroker. Tiếp tục?</value></data>
+  <data name="SlackCommands.Description" xml:space="preserve"><value>Thực thi lệnh bot Slack và kiểm tra phản hồi đồng bộ hoặc bất đồng bộ.</value></data>
+  <data name="SlackCommands.Channel" xml:space="preserve"><value>Kênh</value></data>
+  <data name="SlackCommands.ExternalUserId" xml:space="preserve"><value>Id người dùng bên ngoài</value></data>
+  <data name="SlackCommands.ExternalChannelId" xml:space="preserve"><value>Id kênh bên ngoài</value></data>
+  <data name="SlackCommands.ChannelPlaceholder" xml:space="preserve"><value>Chọn kênh</value></data>
+  <data name="SlackCommands.ChannelLoadFailed" xml:space="preserve"><value>Không thể tải danh sách kênh đã cấu hình. Bạn vẫn có thể nhập thủ công id kênh.</value></data>
+  <data name="SlackCommands.SampleCommands" xml:space="preserve"><value>Lệnh mẫu</value></data>
+  <data name="SlackCommands.SampleCommandsHint" xml:space="preserve"><value>Nhấn vào lệnh để điền vào ô nhập</value></data>
+  <data name="SlackCommands.RawCommand" xml:space="preserve"><value>Lệnh thô</value></data>
+  <data name="SlackCommands.RawCommandHint" xml:space="preserve"><value>Ví dụ: /help, /pc BTCUSDT, /signal BTCUSDT --async</value></data>
+  <data name="SlackCommands.ExecuteButton" xml:space="preserve"><value>Thực thi lệnh</value></data>
+  <data name="SlackCommands.ExecuteSuccess" xml:space="preserve"><value>Thực thi lệnh thành công.</value></data>
+  <data name="SlackCommands.ExecuteFailed" xml:space="preserve"><value>Thực thi lệnh thất bại.</value></data>
+  <data name="SlackCommands.ExecutionResult" xml:space="preserve"><value>Kết quả thực thi</value></data>
+  <data name="SlackCommands.NoExecutionResult" xml:space="preserve"><value>Hãy thực thi một lệnh để xem phản hồi tức thì.</value></data>
+  <data name="SlackCommands.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="SlackCommands.ExecutionId" xml:space="preserve"><value>Execution Id</value></data>
+  <data name="SlackCommands.PlainText" xml:space="preserve"><value>Văn bản thuần</value></data>
+  <data name="SlackCommands.ErrorCode" xml:space="preserve"><value>Mã lỗi</value></data>
+  <data name="AiTester.Title" xml:space="preserve"><value>Kiểm thử nhà cung cấp AI</value></data>
+  <data name="AiTester.Description" xml:space="preserve"><value>Gửi prompt tới API AI của backend và kiểm tra kết quả fallback giữa các provider.</value></data>
+  <data name="AiTester.SystemPromptOptional" xml:space="preserve"><value>System prompt (tùy chọn)</value></data>
+  <data name="AiTester.Prompt" xml:space="preserve"><value>Prompt</value></data>
+  <data name="AiTester.PromptHint" xml:space="preserve"><value>Nhập prompt rõ ràng để kiểm tra chất lượng và hành vi fallback.</value></data>
+  <data name="AiTester.GenerateButton" xml:space="preserve"><value>Tạo nội dung</value></data>
+  <data name="AiTester.GenerateSuccess" xml:space="preserve"><value>Tạo phản hồi AI thành công.</value></data>
+  <data name="AiTester.GenerateFailed" xml:space="preserve"><value>Tạo phản hồi AI thất bại.</value></data>
+  <data name="AiTester.Result" xml:space="preserve"><value>Kết quả sinh nội dung</value></data>
+  <data name="AiTester.NoResult" xml:space="preserve"><value>Chưa có kết quả. Hãy gửi prompt để kiểm thử các provider AI.</value></data>
+  <data name="AiTester.Provider" xml:space="preserve"><value>Nhà cung cấp</value></data>
+  <data name="AiTester.Model" xml:space="preserve"><value>Model</value></data>
+  <data name="AiTester.Output" xml:space="preserve"><value>Kết quả</value></data>
+  <data name="AiTester.Max12000" xml:space="preserve"><value>Tối đa 12000 ký tự.</value></data>
+
+  <data name="TcbsTop10.Title" xml:space="preserve"><value>Danh mục Top 10 TCBS</value></data>
+  <data name="TcbsTop10.NoDataFound" xml:space="preserve"><value>Không tìm thấy danh mục nào.</value></data>
+  <data name="TcbsTop10.LoadFailed" xml:space="preserve"><value>Không thể tải danh mục Top 10 TCBS.</value></data>
+  <data name="TcbsTop10.PostedAt" xml:space="preserve"><value>Ngày đăng</value></data>
+  <data name="TcbsTop10.EffectiveDate" xml:space="preserve"><value>Ngày hiệu lực</value></data>
+  <data name="TcbsTop10.AddedTickers" xml:space="preserve"><value>Thêm mới</value></data>
+  <data name="TcbsTop10.RemovedTickers" xml:space="preserve"><value>Loại bỏ</value></data>
+  <data name="TcbsTop10.ImagePortfolioDetail" xml:space="preserve"><value>Chi tiết danh mục</value></data>
+  <data name="TcbsTop10.ImagePeriodPerformance" xml:space="preserve"><value>Hiệu suất kỳ</value></data>
+  <data name="TcbsTop10.ImageYtdPerformance" xml:space="preserve"><value>Hiệu suất YTD</value></data>
+  <data name="TcbsTop10.Images" xml:space="preserve"><value>Hình ảnh</value></data>
+  <data name="TcbsTop10.SyncButton" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="TcbsTop10.SyncSuccess" xml:space="preserve"><value>Đã xếp hàng công việc đồng bộ thành công.</value></data>
+  <data name="TcbsTop10.SyncFailed" xml:space="preserve"><value>Không thể kích hoạt đồng bộ.</value></data>
+  <data name="TcbsTop10.CurrentHoldings" xml:space="preserve"><value>Danh mục đang nắm giữ</value></data>
+  <data name="DragonCapitalFunds.Title" xml:space="preserve"><value>Quỹ Dragon Capital</value></data>
+  <data name="DragonCapitalFunds.NoDataFound" xml:space="preserve"><value>Không có dữ liệu.</value></data>
+  <data name="DragonCapitalFunds.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu quỹ.</value></data>
+  <data name="DragonCapitalFunds.TradingDate" xml:space="preserve"><value>Ngày giao dịch</value></data>
+  <data name="DragonCapitalFunds.Top10Holdings" xml:space="preserve"><value>Top 10 cổ phiếu</value></data>
+  <data name="DragonCapitalFunds.AssetAllocation" xml:space="preserve"><value>Cơ cấu tài sản</value></data>
+  <data name="DragonCapitalFunds.SectorAllocation" xml:space="preserve"><value>Cơ cấu ngành</value></data>
+  <data name="DragonCapitalFunds.ColAssetId" xml:space="preserve"><value>Mã cổ phiếu</value></data>
+  <data name="DragonCapitalFunds.ColWeight" xml:space="preserve"><value>Tỷ trọng (%)</value></data>
+  <data name="DragonCapitalFunds.ColExchange" xml:space="preserve"><value>Sàn</value></data>
+  <data name="DragonCapitalFunds.ColIndustry" xml:space="preserve"><value>Ngành</value></data>
+  <data name="DragonCapitalFunds.ColSector" xml:space="preserve"><value>Lĩnh vực</value></data>
+  <data name="DragonCapitalFunds.ColHoldingVolume" xml:space="preserve"><value>Khối lượng</value></data>
+  <data name="DragonCapitalFunds.ColMarketValueBillion" xml:space="preserve"><value>Giá trị (tỷ đồng)</value></data>
+  <data name="DragonCapitalFunds.MostFrequentAssets" xml:space="preserve"><value>Các cổ phiếu xuất hiện nhiều nhất trong các quỹ</value></data>
+  <data name="TcbsTop10.SyncConfirmTitle" xml:space="preserve"><value>Xác nhận đồng bộ</value></data>
+  <data name="TcbsTop10.SyncConfirmMessage" xml:space="preserve"><value>Thao tác này sẽ xếp hàng công việc nền để đồng bộ danh mục Top 10 TCBS. Tiếp tục?</value></data>
+  <data name="TradingSuggestion.Title" xml:space="preserve"><value>Gợi ý giao dịch</value></data>
+  <data name="TradingSuggestion.Action" xml:space="preserve"><value>Gợi ý</value></data>
+  <data name="TradingSuggestion.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="TradingSuggestion.Market" xml:space="preserve"><value>Thị trường</value></data>
+  <data name="TradingSuggestion.Timeframe" xml:space="preserve"><value>Khung thời gian</value></data>
+  <data name="TradingSuggestion.UseLongTermTimeframe" xml:space="preserve"><value>Dùng khung thời gian dài hạn</value></data>
+  <data name="TradingSuggestion.LongTermTimeframe" xml:space="preserve"><value>Khung thời gian dài hạn</value></data>
+  <data name="TradingSuggestion.Week1" xml:space="preserve"><value>1 tuần</value></data>
+  <data name="TradingSuggestion.Month1" xml:space="preserve"><value>1 tháng</value></data>
+  <data name="TradingSuggestion.Run" xml:space="preserve"><value>Chạy gợi ý</value></data>
+  <data name="TradingSuggestion.Trend" xml:space="preserve"><value>Xu hướng</value></data>
+  <data name="TradingSuggestion.Momentum" xml:space="preserve"><value>Động lượng</value></data>
+  <data name="TradingSuggestion.Setup" xml:space="preserve"><value>Thiết lập</value></data>
+  <data name="TradingSuggestion.Signal" xml:space="preserve"><value>Tín hiệu</value></data>
+  <data name="TradingSuggestion.EntryPrice" xml:space="preserve"><value>Giá vào</value></data>
+  <data name="TradingSuggestion.StopLoss" xml:space="preserve"><value>Cắt lỗ</value></data>
+  <data name="TradingSuggestion.TakeProfit1" xml:space="preserve"><value>Chốt lời 1</value></data>
+  <data name="TradingSuggestion.TakeProfit2" xml:space="preserve"><value>Chốt lời 2</value></data>
+  <data name="TradingSuggestion.Confidence" xml:space="preserve"><value>Độ tin cậy</value></data>
+  <data name="TradingSuggestion.LoadFailed" xml:space="preserve"><value>Không thể tải gợi ý giao dịch.</value></data>
+  <data name="TradingSuggestion.EnableAiVerdict" xml:space="preserve"><value>Bật nhận định AI</value></data>
+  <data name="TradingSuggestion.VerdictLoadFailed" xml:space="preserve"><value>Không thể tải nhận định AI.</value></data>
+  <data name="TradingSuggestion.PriceComparison" xml:space="preserve"><value>So sánh giá theo khối lượng</value></data>
+  <data name="TradingSuggestion.PriceComparisonNoData" xml:space="preserve"><value>Không có dữ liệu lịch sử giao dịch cho mã này.</value></data>
+  <data name="TradingSuggestion.Period" xml:space="preserve"><value>Khoảng thời gian</value></data>
+  <data name="TradingSuggestion.BetterVolume" xml:space="preserve"><value>KL Trên</value></data>
+  <data name="TradingSuggestion.WorseVolume" xml:space="preserve"><value>KL Dưới</value></data>
+  <data name="TradingSuggestion.AveragePrice" xml:space="preserve"><value>Giá TB</value></data>
+  <data name="WeeklySuggestionHistory.Title" xml:space="preserve"><value>Lịch sử gợi ý tuần</value></data>
+  <data name="WeeklySuggestionHistory.Refresh" xml:space="preserve"><value>Làm mới</value></data>
+  <data name="WeeklySuggestionHistory.EvaluateVisibleSymbols" xml:space="preserve"><value>Đánh giá các mã đang hiển thị</value></data>
+  <data name="WeeklySuggestionHistory.LookbackReports" xml:space="preserve"><value>Số report truy vết</value></data>
+  <data name="WeeklySuggestionHistory.Matched" xml:space="preserve"><value>Khớp</value></data>
+  <data name="WeeklySuggestionHistory.RunAt" xml:space="preserve"><value>Thời điểm chạy</value></data>
+  <data name="WeeklySuggestionHistory.ReportKey" xml:space="preserve"><value>Mã report</value></data>
+  <data name="WeeklySuggestionHistory.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="WeeklySuggestionHistory.Picks" xml:space="preserve"><value>Số mã phím</value></data>
+  <data name="WeeklySuggestionHistory.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="WeeklySuggestionHistory.Timeframe" xml:space="preserve"><value>Khung thời gian</value></data>
+  <data name="WeeklySuggestionHistory.Entry" xml:space="preserve"><value>Giá vào</value></data>
+  <data name="WeeklySuggestionHistory.Current" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="WeeklySuggestionHistory.ChangePercent" xml:space="preserve"><value>% thay đổi</value></data>
+  <data name="WeeklySuggestionHistory.TemplateFiles" xml:space="preserve"><value>Tệp mẫu</value></data>
+  <data name="WeeklySuggestionHistory.DownloadCsv" xml:space="preserve"><value>Tải CSV</value></data>
+  <data name="WeeklySuggestionHistory.DownloadMarkdown" xml:space="preserve"><value>Tải Markdown</value></data>
+  <data name="WeeklySuggestionHistory.DownloadFailed" xml:space="preserve"><value>Không thể tải tệp mẫu gợi ý tuần.</value></data>
+  <data name="WeeklySuggestionHistory.ViewPicks" xml:space="preserve"><value>Xem</value></data>
+  <data name="WeeklySuggestionHistory.PicksTitle" xml:space="preserve"><value>Danh sách mã chọn</value></data>
+  <data name="WeeklySuggestionHistory.Rank" xml:space="preserve"><value>Thứ hạng</value></data>
+  <data name="WeeklySuggestionHistory.Signal" xml:space="preserve"><value>Tín hiệu</value></data>
+  <data name="Common.SortBy" xml:space="preserve"><value>Sắp xếp theo</value></data>
+  <data name="Common.Ascending" xml:space="preserve"><value>Tăng dần</value></data>
+  <data name="Common.Descending" xml:space="preserve"><value>Giảm dần</value></data>
+  <data name="Common.Confirm" xml:space="preserve"><value>Xác nhận</value></data>
+  <data name="Common.View" xml:space="preserve"><value>Xem</value></data>
+  <data name="Common.CreatedAt" xml:space="preserve"><value>Ngày tạo</value></data>
+  <data name="Common.DemoModeBanner" xml:space="preserve"><value>Chế độ Demo — API offline; đang dùng dữ liệu giả. Đăng nhập bằng bất kỳ tài khoản nào (admin).</value></data>
+  <data name="MarketScanner.List.Title" xml:space="preserve"><value>Quy tắc quét thị trường</value></data>
+  <data name="MarketScanner.Title" xml:space="preserve"><value>Quét thị trường</value></data>
+  <data name="MarketScanner.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="MarketScanner.SignalType" xml:space="preserve"><value>Loại tín hiệu</value></data>
+  <data name="MarketScanner.SignalType.PricePump" xml:space="preserve"><value>Bơm giá</value></data>
+  <data name="MarketScanner.SignalType.FundingFlip" xml:space="preserve"><value>Đảo chiều funding</value></data>
+  <data name="MarketScanner.SignalType.FundingMultiple" xml:space="preserve"><value>Funding bội số</value></data>
+  <data name="MarketScanner.SignalType.VolumeSpike" xml:space="preserve"><value>Tăng vọt khối lượng</value></data>
+  <data name="MarketScanner.Window" xml:space="preserve"><value>Khung thời gian</value></data>
+  <data name="MarketScanner.Window.ThreeMinutes" xml:space="preserve"><value>3 phút</value></data>
+  <data name="MarketScanner.Window.SixMinutes" xml:space="preserve"><value>6 phút</value></data>
+  <data name="MarketScanner.Window.TwelveMinutes" xml:space="preserve"><value>12 phút</value></data>
+  <data name="MarketScanner.Window.ThirtyMinutes" xml:space="preserve"><value>30 phút</value></data>
+  <data name="MarketScanner.Window.OneHour" xml:space="preserve"><value>60 phút</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump5" xml:space="preserve"><value>Bơm giá 5%</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump10" xml:space="preserve"><value>Bơm giá 10%</value></data>
+  <data name="MarketScanner.NameSuggestion.PricePump20" xml:space="preserve"><value>Bơm giá 20%</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike2x" xml:space="preserve"><value>Khối lượng tăng 2 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike3x" xml:space="preserve"><value>Khối lượng tăng 3 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike5x" xml:space="preserve"><value>Khối lượng tăng 5 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.VolumeSpike10x" xml:space="preserve"><value>Khối lượng tăng 10 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingFlipAlert" xml:space="preserve"><value>Cảnh báo đảo chiều funding</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate2x" xml:space="preserve"><value>Funding tăng 2 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate5x" xml:space="preserve"><value>Funding tăng 5 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.FundingRate10x" xml:space="preserve"><value>Funding tăng 10 lần</value></data>
+  <data name="MarketScanner.NameSuggestion.AbnormalFundingAlert" xml:space="preserve"><value>Cảnh báo funding bất thường</value></data>
+  <data name="MarketScanner.NameSuggestion.MomentumSurge" xml:space="preserve"><value>Bứt phá động lượng</value></data>
+  <data name="MarketScanner.NameSuggestion.WhaleVolumeAlert" xml:space="preserve"><value>Cảnh báo khối lượng cá voi</value></data>
+  <data name="MarketScanner.NameSuggestion.BreakoutSignal" xml:space="preserve"><value>Tín hiệu bứt phá</value></data>
+  <data name="MarketScanner.Threshold" xml:space="preserve"><value>Ngưỡng</value></data>
+  <data name="MarketScanner.IsEnabled" xml:space="preserve"><value>Kích hoạt</value></data>
+  <data name="MarketScanner.Create.Title" xml:space="preserve"><value>Tạo quy tắc</value></data>
+  <data name="MarketScanner.Edit.Title" xml:space="preserve"><value>Sửa quy tắc</value></data>
+  <data name="MarketScanner.Search.Placeholder" xml:space="preserve"><value>Tìm theo tên...</value></data>
+  <data name="MarketScanner.LoadFailed" xml:space="preserve"><value>Không thể tải quy tắc quét thị trường.</value></data>
+  <data name="MarketScanner.Create.Success" xml:space="preserve"><value>Tạo quy tắc thành công.</value></data>
+  <data name="MarketScanner.Create.Failed" xml:space="preserve"><value>Không thể tạo quy tắc.</value></data>
+  <data name="MarketScanner.Update.Success" xml:space="preserve"><value>Cập nhật quy tắc thành công.</value></data>
+  <data name="MarketScanner.Update.Failed" xml:space="preserve"><value>Không thể cập nhật quy tắc.</value></data>
+  <data name="MarketScanner.Delete.Success" xml:space="preserve"><value>Xóa quy tắc thành công.</value></data>
+  <data name="MarketScanner.Delete.Failed" xml:space="preserve"><value>Không thể xóa quy tắc.</value></data>
+  <data name="MarketScanner.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa quy tắc này không?</value></data>
+  <data name="PriceAlerts.List.Title" xml:space="preserve"><value>Cảnh báo giá</value></data>
+  <data name="PriceAlerts.Title" xml:space="preserve"><value>Cảnh báo giá</value></data>
+  <data name="PriceAlerts.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="PriceAlerts.AssetType" xml:space="preserve"><value>Loại tài sản</value></data>
+  <data name="PriceAlerts.Condition" xml:space="preserve"><value>Điều kiện</value></data>
+  <data name="PriceAlerts.TargetPrice" xml:space="preserve"><value>Giá mục tiêu</value></data>
+  <data name="PriceAlerts.Note" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="PriceAlerts.IsEnabled" xml:space="preserve"><value>Kích hoạt</value></data>
+  <data name="PriceAlerts.IsOneTime" xml:space="preserve"><value>Một lần</value></data>
+  <data name="PriceAlerts.TriggerCount" xml:space="preserve"><value>Số lần kích hoạt</value></data>
+  <data name="PriceAlerts.LastTriggeredAt" xml:space="preserve"><value>Lần kích hoạt cuối</value></data>
+  <data name="PriceAlerts.Create.Title" xml:space="preserve"><value>Tạo cảnh báo giá</value></data>
+  <data name="PriceAlerts.Edit.Title" xml:space="preserve"><value>Sửa cảnh báo giá</value></data>
+  <data name="PriceAlerts.Search.Placeholder" xml:space="preserve"><value>Tìm theo mã...</value></data>
+  <data name="PriceAlerts.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách cảnh báo giá.</value></data>
+  <data name="PriceAlerts.Create.Success" xml:space="preserve"><value>Tạo cảnh báo giá thành công.</value></data>
+  <data name="PriceAlerts.Create.Failed" xml:space="preserve"><value>Không thể tạo cảnh báo giá.</value></data>
+  <data name="PriceAlerts.Update.Success" xml:space="preserve"><value>Cập nhật cảnh báo giá thành công.</value></data>
+  <data name="PriceAlerts.Update.Failed" xml:space="preserve"><value>Không thể cập nhật cảnh báo giá.</value></data>
+  <data name="PriceAlerts.Delete.Success" xml:space="preserve"><value>Xóa cảnh báo giá thành công.</value></data>
+  <data name="PriceAlerts.Delete.Failed" xml:space="preserve"><value>Không thể xóa cảnh báo giá.</value></data>
+  <data name="PriceAlerts.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa cảnh báo giá này không?</value></data>
+  <data name="Menu.Portfolios" xml:space="preserve"><value>Danh mục đầu tư</value></data>
+  <data name="Portfolios.List.Title" xml:space="preserve"><value>Danh mục đầu tư</value></data>
+  <data name="Portfolios.Title" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="Portfolios.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="Portfolios.Description" xml:space="preserve"><value>Mô tả</value></data>
+  <data name="Portfolios.PortfolioType" xml:space="preserve"><value>Loại</value></data>
+  <data name="Portfolios.Type.Trading" xml:space="preserve"><value>Giao dịch</value></data>
+  <data name="Portfolios.Type.LongTerm" xml:space="preserve"><value>Dài hạn</value></data>
+  <data name="Portfolios.Type.Retirement" xml:space="preserve"><value>Hưu trí</value></data>
+  <data name="Portfolios.Type.Savings" xml:space="preserve"><value>Tiết kiệm</value></data>
+  <data name="Portfolios.Create.Title" xml:space="preserve"><value>Tạo danh mục</value></data>
+  <data name="Portfolios.Edit.Title" xml:space="preserve"><value>Chỉnh sửa danh mục</value></data>
+  <data name="Portfolios.Search.Placeholder" xml:space="preserve"><value>Tìm kiếm danh mục...</value></data>
+  <data name="Portfolios.LoadFailed" xml:space="preserve"><value>Không thể tải danh mục đầu tư.</value></data>
+  <data name="Portfolios.Create.Success" xml:space="preserve"><value>Tạo danh mục thành công.</value></data>
+  <data name="Portfolios.Update.Success" xml:space="preserve"><value>Cập nhật danh mục thành công.</value></data>
+  <data name="Portfolios.Delete.Success" xml:space="preserve"><value>Xóa danh mục thành công.</value></data>
+  <data name="Portfolios.Delete.Failed" xml:space="preserve"><value>Không thể xóa danh mục.</value></data>
+  <data name="Portfolios.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa danh mục này không?</value></data>
+  <data name="Portfolios.Export" xml:space="preserve"><value>Xuất dữ liệu</value></data>
+  <data name="Portfolios.Export.Success" xml:space="preserve"><value>Xuất danh mục thành công.</value></data>
+  <data name="Portfolios.Export.Failed" xml:space="preserve"><value>Không thể xuất danh mục.</value></data>
+  <data name="Portfolios.Import.Csv" xml:space="preserve"><value>Nhập CSV</value></data>
+  <data name="Portfolios.Import.DownloadTemplate" xml:space="preserve"><value>Tải mẫu nhập</value></data>
+  <data name="Portfolios.Import.TemplateNote" xml:space="preserve"><value>Tải tệp mẫu và điền dữ liệu danh mục trước khi nhập.</value></data>
+  <data name="Portfolios.Import.Success" xml:space="preserve"><value>Nhập danh mục thành công.</value></data>
+  <data name="Portfolios.Import.Failed" xml:space="preserve"><value>Không thể nhập danh mục.</value></data>
+  <data name="Portfolios.Import.Result" xml:space="preserve"><value>Thêm mới: {0}, Cập nhật: {1}, Bỏ qua: {2}</value></data>
+  <data name="Portfolios.Import.Button" xml:space="preserve"><value>Import</value></data>
+  <data name="AssetPositions.Crypto.Title" xml:space="preserve"><value>Vị thế Crypto</value></data>
+  <data name="AssetPositions.Stock.Title" xml:space="preserve"><value>Vị thế Cổ phiếu</value></data>
+  <data name="AssetPositions.Saving.Title" xml:space="preserve"><value>Tiết kiệm</value></data>
+  <data name="AssetPositions.Open" xml:space="preserve"><value>Đang mở</value></data>
+  <data name="AssetPositions.Closed" xml:space="preserve"><value>Đã đóng</value></data>
+  <data name="AssetPositions.Symbol" xml:space="preserve"><value>Mã</value></data>
+  <data name="AssetPositions.Quantity" xml:space="preserve"><value>Số lượng</value></data>
+  <data name="AssetPositions.AverageEntryPrice" xml:space="preserve"><value>Giá vào TB</value></data>
+  <data name="AssetPositions.TotalInvested" xml:space="preserve"><value>Tổng đầu tư</value></data>
+  <data name="AssetPositions.RealizedPnl" xml:space="preserve"><value>Lãi/Lỗ thực</value></data>
+  <data name="AssetPositions.TargetPrice" xml:space="preserve"><value>Giá mục tiêu</value></data>
+  <data name="AssetPositions.StopLoss" xml:space="preserve"><value>Cắt lỗ</value></data>
+  <data name="AssetPositions.EnablePriceAlerts" xml:space="preserve"><value>Bật cảnh báo giá</value></data>
+  <data name="AssetPositions.EnablePriceAlertsHint" xml:space="preserve"><value>Tự động thông báo khi giá đạt mục tiêu hoặc chạm ngưỡng cắt lỗ.</value></data>
+  <data name="AssetPositions.Note" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="AssetPositions.Exchange" xml:space="preserve"><value>Sàn</value></data>
+  <data name="AssetPositions.Exchange.Hose" xml:space="preserve"><value>HOSE</value></data>
+  <data name="AssetPositions.Exchange.Hnx" xml:space="preserve"><value>HNX</value></data>
+  <data name="AssetPositions.Exchange.Upcom" xml:space="preserve"><value>UPCOM</value></data>
+  <data name="AssetPositions.Exchange.Other" xml:space="preserve"><value>Khác</value></data>
+  <data name="AssetPositions.BankName" xml:space="preserve"><value>Ngân hàng</value></data>
+  <data name="Menu.ApiClients" xml:space="preserve"><value>API Clients</value></data>
+  <data name="Menu.Notes" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="ApiClients.Title" xml:space="preserve"><value>API Clients</value></data>
+  <data name="ApiClients.ListTitle" xml:space="preserve"><value>Quản lý API Clients</value></data>
+  <data name="ApiClients.Create.Title" xml:space="preserve"><value>Tạo API Client</value></data>
+  <data name="ApiClients.Edit.Title" xml:space="preserve"><value>Chỉnh sửa API Client</value></data>
+  <data name="ApiClients.Scopes.Title" xml:space="preserve"><value>Quản lý Phạm vi quyền</value></data>
+  <data name="ApiClients.Secret.Title" xml:space="preserve"><value>Client Secret</value></data>
+  <data name="ApiClients.ClientId" xml:space="preserve"><value>Client ID</value></data>
+  <data name="ApiClients.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="ApiClients.Description" xml:space="preserve"><value>Mô tả</value></data>
+  <data name="ApiClients.IsActive" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="ApiClients.Scopes" xml:space="preserve"><value>Phạm vi quyền</value></data>
+  <data name="ApiClients.Search.Placeholder" xml:space="preserve"><value>Tìm theo tên hoặc client ID...</value></data>
+  <data name="ApiClients.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách API client</value></data>
+  <data name="ApiClients.Create.Success" xml:space="preserve"><value>Tạo API client thành công</value></data>
+  <data name="ApiClients.Create.Failed" xml:space="preserve"><value>Tạo API client thất bại</value></data>
+  <data name="ApiClients.Update.Success" xml:space="preserve"><value>Cập nhật API client thành công</value></data>
+  <data name="ApiClients.Update.Failed" xml:space="preserve"><value>Cập nhật API client thất bại</value></data>
+  <data name="ApiClients.Delete.Success" xml:space="preserve"><value>Đã xóa API client</value></data>
+  <data name="ApiClients.Delete.Failed" xml:space="preserve"><value>Xóa API client thất bại</value></data>
+  <data name="ApiClients.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa API client này?</value></data>
+  <data name="ApiClients.Activate.Success" xml:space="preserve"><value>Đã kích hoạt API client</value></data>
+  <data name="ApiClients.Activate.Failed" xml:space="preserve"><value>Kích hoạt API client thất bại</value></data>
+  <data name="ApiClients.Deactivate.Success" xml:space="preserve"><value>Đã vô hiệu hóa API client</value></data>
+  <data name="ApiClients.Deactivate.Failed" xml:space="preserve"><value>Vô hiệu hóa API client thất bại</value></data>
+  <data name="ApiClients.RegenerateSecret.Success" xml:space="preserve"><value>Tạo lại secret thành công</value></data>
+  <data name="ApiClients.RegenerateSecret.Failed" xml:space="preserve"><value>Tạo lại secret thất bại</value></data>
+  <data name="ApiClients.ConfirmRegenerateSecret" xml:space="preserve"><value>Tạo lại secret sẽ vô hiệu hóa secret hiện tại. Tiếp tục?</value></data>
+  <data name="ApiClients.Secret.Note" xml:space="preserve"><value>Hãy sao chép secret ngay. Secret sẽ không được hiển thị lại.</value></data>
+  <data name="ApiClients.Copy.Success" xml:space="preserve"><value>Đã sao chép client secret thành công</value></data>
+  <data name="ApiClients.Copy.Failed" xml:space="preserve"><value>Không thể sao chép client secret</value></data>
+  <data name="ApiClients.Scopes.Updated.Success" xml:space="preserve"><value>Cập nhật phạm vi quyền thành công</value></data>
+  <data name="ApiClients.Scopes.Updated.Failed" xml:space="preserve"><value>Cập nhật phạm vi quyền thất bại</value></data>
+  <data name="ApiClients.Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="ApiClients.Inactive" xml:space="preserve"><value>Ngừng hoạt động</value></data>
+  <data name="ApiClients.Actions" xml:space="preserve"><value>Thao tác</value></data>
+  <data name="ApiClients.NoData" xml:space="preserve"><value>Không tìm thấy API client nào</value></data>
+  <data name="ApiClients.Action.Edit" xml:space="preserve"><value>Sửa</value></data>
+  <data name="ApiClients.Action.Activate" xml:space="preserve"><value>Kích hoạt</value></data>
+  <data name="ApiClients.Action.Deactivate" xml:space="preserve"><value>Vô hiệu hóa</value></data>
+  <data name="ApiClients.Action.RegenerateSecret" xml:space="preserve"><value>Tạo lại Secret</value></data>
+  <data name="ApiClients.Action.ManageScopes" xml:space="preserve"><value>Quản lý phạm vi quyền</value></data>
+  <data name="ApiClients.AvailableScopes" xml:space="preserve"><value>Phạm vi quyền có sẵn</value></data>
+  <data name="JsonBins.Title" xml:space="preserve"><value>JSON Bins</value></data>
+  <data name="JsonBins.ListTitle" xml:space="preserve"><value>Danh sách</value></data>
+  <data name="JsonBins.Create.Title" xml:space="preserve"><value>Tạo JSON Bin</value></data>
+  <data name="JsonBins.Edit.Title" xml:space="preserve"><value>Sửa JSON Bin</value></data>
+  <data name="JsonBins.Create" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="JsonBins.Edit" xml:space="preserve"><value>Sửa</value></data>
+  <data name="JsonBins.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa JSON bin này?</value></data>
+  <data name="JsonBins.Search.Placeholder" xml:space="preserve"><value>Tìm theo mã, tên hoặc thẻ</value></data>
+  <data name="JsonBins.Code" xml:space="preserve"><value>Mã</value></data>
+  <data name="JsonBins.Code.OptionalHint" xml:space="preserve"><value>Để trống Mã để tự động tạo (bao gồm danh mục).</value></data>
+  <data name="JsonBins.Code.AutoPlaceholder" xml:space="preserve"><value>Tùy chọn — tự động nếu để trống</value></data>
+  <data name="JsonBins.Code.WillAutoGenerate" xml:space="preserve"><value>Mã sẽ được tự động tạo từ danh mục</value></data>
+  <data name="JsonBins.Code.KeepExisting" xml:space="preserve"><value>Để trống mã sẽ giữ giá trị hiện tại</value></data>
+  <data name="JsonBins.Code.Exists" xml:space="preserve"><value>Mã này đã được sử dụng</value></data>
+  <data name="JsonBins.Code.Available" xml:space="preserve"><value>Mã có sẵn</value></data>
+  <data name="JsonBins.Share" xml:space="preserve"><value>Chia sẻ liên kết</value></data>
+  <data name="JsonBins.RevokeShare" xml:space="preserve"><value>Thu hồi chia sẻ</value></data>
+  <data name="JsonBins.ShareLink" xml:space="preserve"><value>URL chia sẻ công khai</value></data>
+  <data name="JsonBins.Shared.Title" xml:space="preserve"><value>JSON được chia sẻ</value></data>
+  <data name="JsonBins.Share.NotFound" xml:space="preserve"><value>Liên kết chia sẻ không hợp lệ hoặc đã hết hạn</value></data>
+  <data name="JsonBins.Share.Expires" xml:space="preserve"><value>Liên kết hết hạn</value></data>
+  <data name="JsonBins.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="JsonBins.Category" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="JsonBins.Size" xml:space="preserve"><value>Kích thước</value></data>
+  <data name="JsonBins.Expires" xml:space="preserve"><value>Hết hạn</value></data>
+  <data name="JsonBins.Actions" xml:space="preserve"><value>Thao tác</value></data>
+  <data name="JsonBins.Content" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="JsonBins.Compress" xml:space="preserve"><value>Nén nội dung</value></data>
+  <data name="JsonBins.Expire" xml:space="preserve"><value>Hết hạn ngay</value></data>
+  <data name="JsonBins.NotFound" xml:space="preserve"><value>Không tìm thấy JSON Bin</value></data>
+  <data name="JsonBins.Name.Required" xml:space="preserve"><value>Tên là bắt buộc</value></data>
+  <data name="JsonBins.Content.Required" xml:space="preserve"><value>Nội dung là bắt buộc</value></data>
+  <data name="JsonBins.LoadFailed" xml:space="preserve"><value>Không tải được JSON bins</value></data>
+  <data name="JsonBins.Create.Success" xml:space="preserve"><value>Đã tạo JSON bin</value></data>
+  <data name="JsonBins.Create.Failed" xml:space="preserve"><value>Không tạo được JSON bin</value></data>
+  <data name="JsonBins.Update.Success" xml:space="preserve"><value>Đã cập nhật JSON bin</value></data>
+  <data name="JsonBins.Update.Failed" xml:space="preserve"><value>Không cập nhật được JSON bin</value></data>
+  <data name="JsonBins.Delete.Success" xml:space="preserve"><value>Đã xóa JSON bin</value></data>
+  <data name="JsonBins.Delete.Failed" xml:space="preserve"><value>Không xóa được JSON bin</value></data>
+  <data name="JsonBins.Expire.Success" xml:space="preserve"><value>Đã hết hạn JSON bin</value></data>
+  <data name="JsonBins.Expire.Failed" xml:space="preserve"><value>Không hết hạn được JSON bin</value></data>
+  <data name="JsonBins.Share.Success" xml:space="preserve"><value>Đã tạo liên kết chia sẻ</value></data>
+  <data name="JsonBins.Share.Failed" xml:space="preserve"><value>Không tạo được liên kết chia sẻ</value></data>
+  <data name="JsonBins.RevokeShare.Success" xml:space="preserve"><value>Đã thu hồi liên kết chia sẻ</value></data>
+  <data name="JsonBins.RevokeShare.Failed" xml:space="preserve"><value>Không thu hồi được liên kết chia sẻ</value></data>
+  <data name="JsonBins.Copy.Success" xml:space="preserve"><value>Đã sao chép liên kết chia sẻ</value></data>
+  <data name="JsonBins.Copy.Failed" xml:space="preserve"><value>Không sao chép được liên kết chia sẻ</value></data>
+  <data name="JsonBins.ValidateCode.Failed" xml:space="preserve"><value>Không kiểm tra được mã</value></data>
+    <data name="AssetPositions.AccountNumber" xml:space="preserve"><value>Số tài khoản</value></data>
+  <data name="AssetPositions.PrincipalAmount" xml:space="preserve"><value>Số tiền gốc</value></data>
+  <data name="AssetPositions.InterestRate" xml:space="preserve"><value>Lãi suất (%)</value></data>
+  <data name="AssetPositions.InterestType" xml:space="preserve"><value>Loại lãi</value></data>
+  <data name="AssetPositions.InterestType.Simple" xml:space="preserve"><value>Lãi đơn</value></data>
+  <data name="AssetPositions.InterestType.Compound" xml:space="preserve"><value>Lãi kép</value></data>
+  <data name="AssetPositions.DepositDate" xml:space="preserve"><value>Ngày gửi</value></data>
+  <data name="AssetPositions.MaturityDate" xml:space="preserve"><value>Ngày đáo hạn</value></data>
+  <data name="AssetPositions.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="AssetPositions.LoadFailed" xml:space="preserve"><value>Không thể tải vị thế.</value></data>
+  <data name="AssetPositions.Create.Success" xml:space="preserve"><value>Tạo vị thế thành công.</value></data>
+  <data name="AssetPositions.Create.Failed" xml:space="preserve"><value>Không thể tạo vị thế.</value></data>
+  <data name="AssetPositions.Delete.Success" xml:space="preserve"><value>Xóa vị thế thành công.</value></data>
+  <data name="AssetPositions.Delete.Failed" xml:space="preserve"><value>Không thể xóa vị thế.</value></data>
+  <data name="AssetPositions.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa vị thế này không?</value></data>
+  <data name="AssetPositions.TransactionType" xml:space="preserve"><value>Loại giao dịch</value></data>
+  <data name="AssetPositions.TransactionType.Buy" xml:space="preserve"><value>Mua</value></data>
+  <data name="AssetPositions.TransactionType.Sell" xml:space="preserve"><value>Bán</value></data>
+  <data name="AssetPositions.Price" xml:space="preserve"><value>Giá</value></data>
+  <data name="AssetPositions.Fee" xml:space="preserve"><value>Phí</value></data>
+  <data name="AssetPositions.TransactedAt" xml:space="preserve"><value>Ngày giao dịch</value></data>
+  <data name="AssetPositions.AddTransaction" xml:space="preserve"><value>Thêm giao dịch</value></data>
+  <data name="AssetPositions.Withdraw" xml:space="preserve"><value>Rút tiền</value></data>
+  <data name="AssetPositions.Withdraw.Success" xml:space="preserve"><value>Rút tiết kiệm thành công.</value></data>
+  <data name="AssetPositions.Withdraw.Failed" xml:space="preserve"><value>Không thể rút tiết kiệm.</value></data>
+  <data name="AssetPositions.CurrentPrice" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="AssetPositions.UnrealizedPnl" xml:space="preserve"><value>Lãi/lỗ chưa thực hiện</value></data>
+  <data name="AssetPositions.RefreshPrices" xml:space="preserve"><value>Cập nhật giá</value></data>
+  <data name="Menu.NotificationSender" xml:space="preserve"><value>Gửi thông báo</value></data>
+  <data name="Notifications.Title" xml:space="preserve"><value>Gửi Thông Báo</value></data>
+  <data name="Notifications.Description" xml:space="preserve"><value>Gửi thông báo đến Slack, Telegram hoặc cả hai theo cấu hình.</value></data>
+  <data name="Notifications.EventType" xml:space="preserve"><value>Loại sự kiện</value></data>
+  <data name="Notifications.Target" xml:space="preserve"><value>Nơi nhận</value></data>
+  <data name="Notifications.Target.Slack" xml:space="preserve"><value>Chỉ Slack</value></data>
+  <data name="Notifications.Target.Telegram" xml:space="preserve"><value>Chỉ Telegram</value></data>
+  <data name="Notifications.Target.Both" xml:space="preserve"><value>Cả hai (Slack + Telegram)</value></data>
+  <data name="Notifications.SeverityOptional" xml:space="preserve"><value>Mức độ (tùy chọn)</value></data>
+  <data name="Notifications.TitleOptional" xml:space="preserve"><value>Tiêu đề (tùy chọn)</value></data>
+  <data name="Notifications.Message" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="Notifications.Max64" xml:space="preserve"><value>Tối đa 64 ký tự.</value></data>
+  <data name="Notifications.Max256" xml:space="preserve"><value>Tối đa 256 ký tự.</value></data>
+  <data name="Notifications.Max20000" xml:space="preserve"><value>Tối đa 20000 ký tự (tin nhắn dài sẽ được tự động tách).</value></data>
+  <data name="Notifications.SentSuccess" xml:space="preserve"><value>Đã gửi thông báo theo định tuyến.</value></data>
+  <data name="Notifications.SendFailed" xml:space="preserve"><value>Không thể gửi thông báo.</value></data>
+  <data name="Notifications.Event.MarketOverview" xml:space="preserve"><value>Tổng quan thị trường</value></data>
+  <data name="Notifications.Event.PriceUpdate" xml:space="preserve"><value>Cập nhật giá</value></data>
+  <data name="Notifications.Event.CryptoSpike" xml:space="preserve"><value>Biến động Crypto</value></data>
+  <data name="Notifications.Event.GoodEntryCrypto" xml:space="preserve"><value>Điểm vào Crypto tốt</value></data>
+  <data name="Notifications.Event.GoodEntryStocks" xml:space="preserve"><value>Điểm vào Cổ phiếu tốt</value></data>
+  <data name="Notifications.Event.SystemAlert" xml:space="preserve"><value>Cảnh báo hệ thống</value></data>
+  <data name="Notifications.Event.DataSync" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="Notifications.Event.MarketScanner" xml:space="preserve"><value>Quét thị trường</value></data>
+  <data name="Notifications.Event.PriceAlert" xml:space="preserve"><value>Cảnh báo giá</value></data>
+
+  <data name="Notes.Title" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="Notes.CreateNote" xml:space="preserve"><value>Tạo ghi chú</value></data>
+  <data name="Notes.EditNote" xml:space="preserve"><value>Chỉnh sửa ghi chú</value></data>
+  <data name="Notes.TitlePlaceholder" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="Notes.ContentPlaceholder" xml:space="preserve"><value>Nhập ghi chú...</value></data>
+  <data name="Notes.TakeNote" xml:space="preserve"><value>Nhập ghi chú...</value></data>
+  <data name="Notes.Pin" xml:space="preserve"><value>Ghim</value></data>
+  <data name="Notes.Unpin" xml:space="preserve"><value>Bỏ ghim</value></data>
+  <data name="Notes.Archive" xml:space="preserve"><value>Lưu trữ</value></data>
+  <data name="Notes.Unarchive" xml:space="preserve"><value>Bỏ lưu trữ</value></data>
+  <data name="Notes.Delete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Notes.Restore" xml:space="preserve"><value>Khôi phục</value></data>
+  <data name="Notes.FilterAll" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="Notes.FilterPinned" xml:space="preserve"><value>Đã ghim</value></data>
+  <data name="Notes.FilterArchived" xml:space="preserve"><value>Đã lưu trữ</value></data>
+  <data name="Notes.FilterTrash" xml:space="preserve"><value>Thùng rác</value></data>
+  <data name="Notes.NoNotes" xml:space="preserve"><value>Không có ghi chú nào</value></data>
+  <data name="Notes.ConfirmDelete" xml:space="preserve"><value>Bạn có chắc muốn xóa ghi chú này? Nó sẽ được chuyển vào Thùng rác.</value></data>
+  <data name="Notes.Create.Success" xml:space="preserve"><value>Đã tạo ghi chú thành công.</value></data>
+  <data name="Notes.Update.Success" xml:space="preserve"><value>Đã cập nhật ghi chú thành công.</value></data>
+  <data name="Notes.Delete.Success" xml:space="preserve"><value>Đã chuyển ghi chú vào Thùng rác.</value></data>
+  <data name="Notes.Pin.Success" xml:space="preserve"><value>Đã ghim ghi chú.</value></data>
+  <data name="Notes.Unpin.Success" xml:space="preserve"><value>Đã bỏ ghim ghi chú.</value></data>
+  <data name="Notes.Archive.Success" xml:space="preserve"><value>Đã lưu trữ ghi chú.</value></data>
+  <data name="Notes.Unarchive.Success" xml:space="preserve"><value>Đã bỏ lưu trữ ghi chú.</value></data>
+  <data name="Notes.Restore.Success" xml:space="preserve"><value>Đã khôi phục ghi chú.</value></data>
+  <data name="Menu.NotificationSchedules" xml:space="preserve"><value>Lịch thông báo</value></data>
+  <data name="Menu.CredentialAccounts" xml:space="preserve"><value>Tài khoản dùng chung</value></data>
+  <data name="Menu.Resume" xml:space="preserve"><value>Chỉnh sửa Resume</value></data>
+  <data name="Menu.JsonBins" xml:space="preserve"><value>JSON Bins</value></data>
+  <data name="Menu.PublicResume" xml:space="preserve"><value>Resume công khai</value></data>
+  <data name="Menu.Blog" xml:space="preserve"><value>Blog</value></data>
+  <data name="Menu.BlogPosts" xml:space="preserve"><value>Bài viết</value></data>
+  <data name="Menu.BlogCategories" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="Menu.BlogTags" xml:space="preserve"><value>Thẻ</value></data>
+
+  <data name="NotificationSchedules.Title" xml:space="preserve"><value>Lịch thông báo</value></data>
+  <data name="NotificationSchedules.NewSchedule" xml:space="preserve"><value>Lịch mới</value></data>
+  <data name="NotificationSchedules.Loading" xml:space="preserve"><value>Đang tải lịch...</value></data>
+  <data name="NotificationSchedules.LoadFailed" xml:space="preserve"><value>Không thể tải lịch:</value></data>
+  <data name="NotificationSchedules.Retry" xml:space="preserve"><value>Thử lại</value></data>
+  <data name="NotificationSchedules.Column.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="NotificationSchedules.Column.Type" xml:space="preserve"><value>Loại</value></data>
+  <data name="NotificationSchedules.Column.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="NotificationSchedules.Column.NextRun" xml:space="preserve"><value>Lần chạy tới</value></data>
+  <data name="NotificationSchedules.Column.Runs" xml:space="preserve"><value>Lần chạy</value></data>
+  <data name="NotificationSchedules.Column.Failures" xml:space="preserve"><value>Lỗi</value></data>
+  <data name="NotificationSchedules.Column.Actions" xml:space="preserve"><value>Thao tác</value></data>
+  <data name="NotificationSchedules.Status.All" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="NotificationSchedules.Status.Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="NotificationSchedules.Status.Paused" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="NotificationSchedules.Status.Disabled" xml:space="preserve"><value>Đã tắt</value></data>
+  <data name="NotificationSchedules.Status.Completed" xml:space="preserve"><value>Hoàn tất</value></data>
+  <data name="NotificationSchedules.Action.Create" xml:space="preserve"><value>Tạo</value></data>
+  <data name="NotificationSchedules.Action.Update" xml:space="preserve"><value>Cập nhật</value></data>
+  <data name="NotificationSchedules.Action.Edit" xml:space="preserve"><value>Chỉnh sửa</value></data>
+  <data name="NotificationSchedules.Action.RunNow" xml:space="preserve"><value>Chạy ngay</value></data>
+  <data name="NotificationSchedules.Action.Pause" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="NotificationSchedules.Action.Activate" xml:space="preserve"><value>Kích hoạt</value></data>
+  <data name="NotificationSchedules.Form.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="NotificationSchedules.Form.TemplateKey" xml:space="preserve"><value>Khóa mẫu</value></data>
+  <data name="NotificationSchedules.Form.Subject" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="NotificationSchedules.Form.Body" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="NotificationSchedules.Form.ScheduleType" xml:space="preserve"><value>Loại lịch</value></data>
+  <data name="NotificationSchedules.Form.ExecuteTimeLocal" xml:space="preserve"><value>Giờ thực thi (giờ địa phương)</value></data>
+  <data name="NotificationSchedules.Form.TimeZoneId" xml:space="preserve"><value>Múi giờ</value></data>
+  <data name="NotificationSchedules.Form.IntervalDays" xml:space="preserve"><value>Chu kỳ (ngày)</value></data>
+  <data name="NotificationSchedules.Form.DayOfWeek" xml:space="preserve"><value>Thứ trong tuần</value></data>
+  <data name="NotificationSchedules.Form.DayOfMonth" xml:space="preserve"><value>Ngày trong tháng</value></data>
+  <data name="NotificationSchedules.Form.MonthlyOverflowPolicy" xml:space="preserve"><value>Chính sách tràn tháng</value></data>
+  <data name="NotificationSchedules.Form.StartDateLocal" xml:space="preserve"><value>Ngày bắt đầu (giờ địa phương)</value></data>
+  <data name="NotificationSchedules.Form.OneTimeAtLocal" xml:space="preserve"><value>Thời điểm thực thi (ngày giờ địa phương)</value></data>
+  <data name="NotificationSchedules.Form.Option.OneTime" xml:space="preserve"><value>Một lần</value></data>
+  <data name="NotificationSchedules.Form.Option.EveryXDays" xml:space="preserve"><value>Mỗi X ngày</value></data>
+  <data name="NotificationSchedules.Form.Option.Weekly" xml:space="preserve"><value>Hàng tuần</value></data>
+  <data name="NotificationSchedules.Form.Option.Monthly" xml:space="preserve"><value>Hàng tháng</value></data>
+  <data name="NotificationSchedules.Form.Option.Monday" xml:space="preserve"><value>Thứ Hai</value></data>
+  <data name="NotificationSchedules.Form.Option.Tuesday" xml:space="preserve"><value>Thứ Ba</value></data>
+  <data name="NotificationSchedules.Form.Option.Wednesday" xml:space="preserve"><value>Thứ Tư</value></data>
+  <data name="NotificationSchedules.Form.Option.Thursday" xml:space="preserve"><value>Thứ Năm</value></data>
+  <data name="NotificationSchedules.Form.Option.Friday" xml:space="preserve"><value>Thứ Sáu</value></data>
+  <data name="NotificationSchedules.Form.Option.Saturday" xml:space="preserve"><value>Thứ Bảy</value></data>
+  <data name="NotificationSchedules.Form.Option.Sunday" xml:space="preserve"><value>Chủ Nhật</value></data>
+  <data name="NotificationSchedules.Form.Option.SkipMonth" xml:space="preserve"><value>Bỏ qua tháng</value></data>
+  <data name="NotificationSchedules.Form.Option.RunOnLastDay" xml:space="preserve"><value>Chạy vào ngày cuối tháng</value></data>
+  <data name="NotificationSchedules.RunNow.Success" xml:space="preserve"><value>Thành công</value></data>
+  <data name="NotificationSchedules.RunNow.Message" xml:space="preserve"><value>Đã thực thi lịch.</value></data>
+  <data name="NotificationSchedules.RunNow.Failed" xml:space="preserve"><value>Không thể chạy lịch.</value></data>
+  <data name="NotificationSchedules.ConfirmDelete" xml:space="preserve"><value>Xóa lịch này?</value></data>
+  <data name="NotificationSchedules.Delete.Success" xml:space="preserve"><value>Đã xóa lịch.</value></data>
+  <data name="NotificationSchedules.Create.Success" xml:space="preserve"><value>Đã tạo lịch.</value></data>
+  <data name="NotificationSchedules.Create.Failed" xml:space="preserve"><value>Không thể tạo lịch.</value></data>
+  <data name="NotificationSchedules.Update.Success" xml:space="preserve"><value>Đã cập nhật lịch.</value></data>
+  <data name="NotificationSchedules.Update.Failed" xml:space="preserve"><value>Không thể cập nhật lịch.</value></data>
+  <data name="NotificationSchedules.Validation.FixErrors" xml:space="preserve"><value>Vui lòng sửa các lỗi xác thực trước khi gửi.</value></data>
+  <data name="CredentialAccounts.Title" xml:space="preserve"><value>Quản lý tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.List.Title" xml:space="preserve"><value>Danh sách tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Create.Title" xml:space="preserve"><value>Tạo tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Edit.Title" xml:space="preserve"><value>Chỉnh sửa tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Search.Placeholder" xml:space="preserve"><value>Tìm theo username hoặc mô tả...</value></data>
+  <data name="CredentialAccounts.Filter.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="CredentialAccounts.Filter.All" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="CredentialAccounts.Filter.Used" xml:space="preserve"><value>Đã dùng</value></data>
+  <data name="CredentialAccounts.Filter.Unused" xml:space="preserve"><value>Chưa dùng</value></data>
+  <data name="CredentialAccounts.Username" xml:space="preserve"><value>Username</value></data>
+  <data name="CredentialAccounts.Password" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="CredentialAccounts.NewPassword" xml:space="preserve"><value>Mật khẩu mới</value></data>
+  <data name="CredentialAccounts.Description" xml:space="preserve"><value>Mô tả</value></data>
+  <data name="CredentialAccounts.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="CredentialAccounts.Used" xml:space="preserve"><value>Đã dùng</value></data>
+  <data name="CredentialAccounts.Unused" xml:space="preserve"><value>Chưa dùng</value></data>
+  <data name="CredentialAccounts.LastUsed" xml:space="preserve"><value>Lần dùng cuối</value></data>
+  <data name="CredentialAccounts.UsedBy" xml:space="preserve"><value>Người dùng</value></data>
+  <data name="CredentialAccounts.UsageCount" xml:space="preserve"><value>Số lần dùng</value></data>
+  <data name="CredentialAccounts.Actions" xml:space="preserve"><value>Thao tác</value></data>
+  <data name="CredentialAccounts.ViewPassword" xml:space="preserve"><value>Xem mật khẩu</value></data>
+  <data name="CredentialAccounts.CopyUsername" xml:space="preserve"><value>Sao chép username</value></data>
+  <data name="CredentialAccounts.CopyPassword" xml:space="preserve"><value>Sao chép mật khẩu</value></data>
+  <data name="CredentialAccounts.CopyAll" xml:space="preserve"><value>Sao chép tất cả</value></data>
+  <data name="CredentialAccounts.MarkUsed" xml:space="preserve"><value>Đánh dấu đã dùng</value></data>
+  <data name="CredentialAccounts.ResetUsed" xml:space="preserve"><value>Đặt lại trạng thái</value></data>
+  <data name="CredentialAccounts.ViewAuditLogs" xml:space="preserve"><value>Xem nhật ký</value></data>
+  <data name="CredentialAccounts.AuditLogs.Title" xml:space="preserve"><value>Nhật ký tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Audit.Action" xml:space="preserve"><value>Hành động</value></data>
+  <data name="CredentialAccounts.Audit.User" xml:space="preserve"><value>Người dùng</value></data>
+  <data name="CredentialAccounts.Audit.CreatedAt" xml:space="preserve"><value>Thời gian</value></data>
+  <data name="CredentialAccounts.PasswordDialog.Title" xml:space="preserve"><value>Mật khẩu tài khoản</value></data>
+  <data name="CredentialAccounts.Details" xml:space="preserve"><value>Thông tin</value></data>
+  <data name="CredentialAccounts.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Create.Success" xml:space="preserve"><value>Tạo tài khoản dùng chung thành công</value></data>
+  <data name="CredentialAccounts.Create.Failed" xml:space="preserve"><value>Không thể tạo tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Update.Success" xml:space="preserve"><value>Cập nhật tài khoản dùng chung thành công</value></data>
+  <data name="CredentialAccounts.Update.Failed" xml:space="preserve"><value>Không thể cập nhật tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Delete.Success" xml:space="preserve"><value>Đã xóa tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.Delete.Failed" xml:space="preserve"><value>Không thể xóa tài khoản dùng chung</value></data>
+  <data name="CredentialAccounts.ConfirmDelete" xml:space="preserve"><value>Xóa tài khoản dùng chung này?</value></data>
+  <data name="CredentialAccounts.MarkUsed.Success" xml:space="preserve"><value>Đã đánh dấu tài khoản là đã dùng</value></data>
+  <data name="CredentialAccounts.MarkUsed.Failed" xml:space="preserve"><value>Không thể đánh dấu tài khoản là đã dùng</value></data>
+  <data name="CredentialAccounts.ResetUsed.Success" xml:space="preserve"><value>Đã đặt lại trạng thái sử dụng</value></data>
+  <data name="CredentialAccounts.ResetUsed.Failed" xml:space="preserve"><value>Không thể đặt lại trạng thái sử dụng</value></data>
+  <data name="CredentialAccounts.PasswordChanged.Success" xml:space="preserve"><value>Đổi mật khẩu thành công</value></data>
+  <data name="CredentialAccounts.Copy.Success" xml:space="preserve"><value>Đã sao chép vào clipboard</value></data>
+  <data name="CredentialAccounts.Copy.Failed" xml:space="preserve"><value>Không thể sao chép vào clipboard</value></data>
+  <data name="CredentialAccounts.ViewPassword.Failed" xml:space="preserve"><value>Không thể tải mật khẩu</value></data>
+  <data name="CredentialAccounts.Audit.LoadFailed" xml:space="preserve"><value>Không thể tải nhật ký</value></data>
+  <data name="Resume.AdminTitle" xml:space="preserve"><value>Chỉnh sửa Resume</value></data>
+  <data name="Resume.BasicInfo" xml:space="preserve"><value>Thông tin cơ bản</value></data>
+  <data name="Resume.Slug" xml:space="preserve"><value>Slug URL công khai</value></data>
+  <data name="Resume.FullName" xml:space="preserve"><value>Họ tên</value></data>
+  <data name="Resume.Headline" xml:space="preserve"><value>Chức danh</value></data>
+  <data name="Resume.MetaDescription" xml:space="preserve"><value>Mô tả SEO</value></data>
+  <data name="Resume.Published" xml:space="preserve"><value>Công khai</value></data>
+  <data name="Resume.Summary" xml:space="preserve"><value>Giới thiệu</value></data>
+  <data name="Resume.Skills" xml:space="preserve"><value>Kỹ năng</value></data>
+  <data name="Resume.SkillsPlaceholder" xml:space="preserve"><value>Cách nhau bởi dấu phẩy, vd: C#, React, SQL</value></data>
+  <data name="Resume.Experience" xml:space="preserve"><value>Kinh nghiệm làm việc</value></data>
+  <data name="Resume.Projects" xml:space="preserve"><value>Dự án</value></data>
+  <data name="Resume.Education" xml:space="preserve"><value>Học vấn</value></data>
+  <data name="Resume.Links" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="Resume.AddRow" xml:space="preserve"><value>Thêm</value></data>
+  <data name="Resume.Remove" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Resume.Company" xml:space="preserve"><value>Công ty</value></data>
+  <data name="Resume.Position" xml:space="preserve"><value>Vị trí</value></data>
+  <data name="Resume.StartDate" xml:space="preserve"><value>Bắt đầu</value></data>
+  <data name="Resume.EndDate" xml:space="preserve"><value>Kết thúc (để trống = hiện tại)</value></data>
+  <data name="Resume.Description" xml:space="preserve"><value>Mô tả</value></data>
+  <data name="Resume.ProjectName" xml:space="preserve"><value>Tên dự án</value></data>
+  <data name="Resume.TechStack" xml:space="preserve"><value>Công nghệ</value></data>
+  <data name="Resume.LinkUrl" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="Resume.School" xml:space="preserve"><value>Trường</value></data>
+  <data name="Resume.Degree" xml:space="preserve"><value>Bằng cấp</value></data>
+  <data name="Resume.LinkLabel" xml:space="preserve"><value>Nhãn</value></data>
+  <data name="Resume.Save" xml:space="preserve"><value>Lưu</value></data>
+  <data name="Resume.SaveSuccess" xml:space="preserve"><value>Đã lưu resume.</value></data>
+  <data name="Resume.SaveFailed" xml:space="preserve"><value>Lưu resume thất bại.</value></data>
+  <data name="Resume.LoadFailed" xml:space="preserve"><value>Tải resume thất bại.</value></data>
+  <data name="Resume.ViewPublic" xml:space="preserve"><value>Xem trang công khai</value></data>
+  <data name="Resume.NotFoundTitle" xml:space="preserve"><value>Không tìm thấy resume</value></data>
+  <data name="Resume.NotFoundMessage" xml:space="preserve"><value>Resume này không tồn tại hoặc chưa được công khai.</value></data>
+  <data name="Resume.DownloadButton" xml:space="preserve"><value>Tải Resume</value></data>
+  <data name="Resume.Preview" xml:space="preserve"><value>Xem trước</value></data>
+  <data name="Resume.PreviewTitle" xml:space="preserve"><value>Xem trước Resume</value></data>
+  <data name="Resume.OptimizeForJob" xml:space="preserve"><value>Tối ưu theo JD</value></data>
+  <data name="Resume.CheckConsistency" xml:space="preserve"><value>Kiểm tra nhất quán</value></data>
+  <data name="Resume.ConsistencyReportTitle" xml:space="preserve"><value>Báo cáo kiểm tra</value></data>
+  <data name="Resume.Polish" xml:space="preserve"><value>Cải thiện bằng AI</value></data>
+  <data name="Resume.AutoGenerate" xml:space="preserve"><value>Tự động tạo</value></data>
+  <data name="Resume.AiRequestFailed" xml:space="preserve"><value>Yêu cầu AI thất bại.</value></data>
+  <data name="Resume.JobDescription" xml:space="preserve"><value>Mô tả công việc (JD)</value></data>
+  <data name="Resume.Analyze" xml:space="preserve"><value>Phân tích</value></data>
+  <data name="Blog.Editor.InsertImage" xml:space="preserve"><value>Chèn ảnh</value></data>
+  <data name="Blog.Editor.ImageTooLarge" xml:space="preserve"><value>Ảnh quá lớn (tối đa 5 MB).</value></data>
+  <data name="Blog.Editor.ImageUploadFailed" xml:space="preserve"><value>Tải ảnh lên thất bại. Vui lòng thử lại.</value></data>
+  <data name="Blog.Posts.Title" xml:space="preserve"><value>Bài viết Blog</value></data>
+  <data name="Blog.Posts.New" xml:space="preserve"><value>Bài viết mới</value></data>
+  <data name="Blog.Posts.ColumnTitle" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="Blog.Posts.ColumnStatus" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="Blog.Posts.ColumnCategory" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="Blog.Posts.ColumnPublishedAt" xml:space="preserve"><value>Ngày đăng</value></data>
+  <data name="Blog.Posts.ColumnReadTime" xml:space="preserve"><value>Thời gian đọc</value></data>
+  <data name="Blog.Posts.StatusDraft" xml:space="preserve"><value>Nháp</value></data>
+  <data name="Blog.Posts.StatusScheduled" xml:space="preserve"><value>Đã lên lịch</value></data>
+  <data name="Blog.Posts.StatusPublished" xml:space="preserve"><value>Đã đăng</value></data>
+  <data name="Blog.Posts.StatusArchived" xml:space="preserve"><value>Đã lưu trữ</value></data>
+  <data name="Blog.Posts.FilterAllStatuses" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="Blog.Posts.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tiêu đề...</value></data>
+  <data name="Blog.Posts.ActionDelete" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Blog.Posts.ActionPublish" xml:space="preserve"><value>Đăng bài</value></data>
+  <data name="Blog.Posts.ActionUnpublish" xml:space="preserve"><value>Gỡ đăng</value></data>
+  <data name="Blog.Posts.ActionArchive" xml:space="preserve"><value>Lưu trữ</value></data>
+  <data name="Blog.Posts.ConfirmDeleteMessage" xml:space="preserve"><value>Bạn có chắc muốn xóa bài viết này? Bạn có thể khôi phục lại sau.</value></data>
+  <data name="Blog.Posts.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách bài viết.</value></data>
+  <data name="Blog.Posts.SaveSuccess" xml:space="preserve"><value>Đã lưu bài viết.</value></data>
+  <data name="Blog.Posts.SaveFailed" xml:space="preserve"><value>Không thể lưu bài viết.</value></data>
+  <data name="Blog.Posts.ActionSuccess" xml:space="preserve"><value>Đã thực hiện thành công.</value></data>
+  <data name="Blog.Posts.ActionFailed" xml:space="preserve"><value>Thao tác thất bại.</value></data>
+  <data name="Blog.Posts.EditorTitleLabel" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="Blog.Posts.SlugLabel" xml:space="preserve"><value>Slug</value></data>
+  <data name="Blog.Posts.SummaryLabel" xml:space="preserve"><value>Tóm tắt</value></data>
+  <data name="Blog.Posts.ContentLabel" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="Blog.Posts.CategoryLabel" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="Blog.Posts.TagsLabel" xml:space="preserve"><value>Thẻ</value></data>
+  <data name="Blog.Posts.FeaturedImageLabel" xml:space="preserve"><value>Ảnh đại diện</value></data>
+  <data name="Blog.Posts.MetaTitleLabel" xml:space="preserve"><value>Meta Title</value></data>
+  <data name="Blog.Posts.MetaDescriptionLabel" xml:space="preserve"><value>Meta Description</value></data>
+  <data name="Blog.Posts.SchedulePublishAt" xml:space="preserve"><value>Thời điểm đăng</value></data>
+  <data name="Blog.Posts.ScheduleConfirm" xml:space="preserve"><value>Xác nhận lên lịch</value></data>
+  <data name="Blog.Posts.NewPostTitle" xml:space="preserve"><value>Bài viết mới</value></data>
+  <data name="Blog.Posts.EditPostTitle" xml:space="preserve"><value>Sửa bài viết</value></data>
+  <data name="Blog.Posts.SectionPublish" xml:space="preserve"><value>Xuất bản</value></data>
+  <data name="Blog.Posts.SectionOrganize" xml:space="preserve"><value>Danh mục &amp; Thẻ</value></data>
+  <data name="Blog.Posts.SectionSeo" xml:space="preserve"><value>SEO</value></data>
+  <data name="Blog.Ai.GenerateTitle" xml:space="preserve"><value>Tạo tiêu đề</value></data>
+  <data name="Blog.Ai.GenerateSummary" xml:space="preserve"><value>Tạo tóm tắt</value></data>
+  <data name="Blog.Ai.Rewrite" xml:space="preserve"><value>Viết lại</value></data>
+  <data name="Blog.Ai.ImproveGrammar" xml:space="preserve"><value>Sửa ngữ pháp</value></data>
+  <data name="Blog.Ai.GenerateTags" xml:space="preserve"><value>Tạo thẻ</value></data>
+  <data name="Blog.Ai.GenerateSeo" xml:space="preserve"><value>Tạo SEO</value></data>
+  <data name="Blog.Ai.Review" xml:space="preserve"><value>AI đánh giá</value></data>
+  <data name="Blog.Ai.ActionFailed" xml:space="preserve"><value>Yêu cầu AI thất bại.</value></data>
+  <data name="Blog.Categories.Title" xml:space="preserve"><value>Danh mục Blog</value></data>
+  <data name="Blog.Categories.New" xml:space="preserve"><value>Danh mục mới</value></data>
+  <data name="Blog.Categories.NameLabel" xml:space="preserve"><value>Tên</value></data>
+  <data name="Blog.Categories.SlugLabel" xml:space="preserve"><value>Slug</value></data>
+  <data name="Blog.Categories.DescriptionLabel" xml:space="preserve"><value>Mô tả</value></data>
+  <data name="Blog.Categories.IconLabel" xml:space="preserve"><value>Biểu tượng</value></data>
+  <data name="Blog.Categories.ColorLabel" xml:space="preserve"><value>Màu sắc</value></data>
+  <data name="Blog.Categories.DeleteConfirm" xml:space="preserve"><value>Bạn có chắc muốn xóa danh mục này?</value></data>
+  <data name="Blog.Categories.SaveSuccess" xml:space="preserve"><value>Đã lưu danh mục.</value></data>
+  <data name="Blog.Categories.SaveFailed" xml:space="preserve"><value>Không thể lưu danh mục.</value></data>
+  <data name="Blog.Categories.DeleteSuccess" xml:space="preserve"><value>Đã xóa danh mục.</value></data>
+  <data name="Blog.Categories.DeleteFailed" xml:space="preserve"><value>Không thể xóa danh mục.</value></data>
+  <data name="Blog.Categories.LoadFailed" xml:space="preserve"><value>Không thể tải danh mục.</value></data>
+  <data name="Blog.Categories.SearchPlaceholder" xml:space="preserve"><value>Tìm danh mục...</value></data>
+  <data name="Blog.Tags.Title" xml:space="preserve"><value>Thẻ Blog</value></data>
+  <data name="Blog.Tags.SearchPlaceholder" xml:space="preserve"><value>Tìm thẻ...</value></data>
+  <data name="Blog.Tags.New" xml:space="preserve"><value>Thẻ mới</value></data>
+  <data name="Blog.Tags.DeleteConfirm" xml:space="preserve"><value>Bạn có chắc muốn xóa thẻ này?</value></data>
+  <data name="Blog.Tags.SaveFailed" xml:space="preserve"><value>Không thể lưu thẻ.</value></data>
+  <data name="Blog.Tags.DeleteFailed" xml:space="preserve"><value>Không thể xóa thẻ.</value></data>
+  <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Đọc thêm</value></data>
+  <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>Không tìm thấy bài viết nào.</value></data>
+  <data name="Blog.Public.MinRead" xml:space="preserve"><value>phút đọc</value></data>
+  <data name="Blog.Public.LoadFailed" xml:space="preserve"><value>Không thể tải bài viết này.</value></data>
+  <data name="Blog.Public.NotFoundTitle" xml:space="preserve"><value>Không tìm thấy bài viết</value></data>
+  <data name="Blog.Public.NotFoundMessage" xml:space="preserve"><value>Bài viết này không tồn tại hoặc chưa được đăng.</value></data>
+
+  <data name="Power655.Title" xml:space="preserve"><value>Xổ số Power 6/55</value></data>
+  <data name="Power655.SyncButton" xml:space="preserve"><value>Đồng bộ ngay</value></data>
+  <data name="Power655.PredictButton" xml:space="preserve"><value>Tạo dự đoán</value></data>
+  <data name="Power655.SyncConfirmTitle" xml:space="preserve"><value>Đồng bộ dữ liệu Power 6/55</value></data>
+  <data name="Power655.SyncConfirmMessage" xml:space="preserve"><value>Tiến hành đồng bộ kết quả Power 6/55 từ ketquadientoan.com?</value></data>
+  <data name="Power655.SyncSuccess" xml:space="preserve"><value>Đã kích hoạt đồng bộ thành công.</value></data>
+  <data name="Power655.SyncFailed" xml:space="preserve"><value>Không thể kích hoạt đồng bộ.</value></data>
+  <data name="Power655.PredictSuccess" xml:space="preserve"><value>Đã kích hoạt job dự đoán thành công.</value></data>
+  <data name="Power655.PredictFailed" xml:space="preserve"><value>Không thể kích hoạt job dự đoán.</value></data>
+  <data name="Power655.LoadFailed" xml:space="preserve"><value>Không thể tải phân tích Power 6/55.</value></data>
+  <data name="Power655.MostFrequent" xml:space="preserve"><value>Số xuất hiện nhiều nhất</value></data>
+  <data name="Power655.LeastFrequent" xml:space="preserve"><value>Số xuất hiện ít nhất</value></data>
+  <data name="Power655.HotLabel" xml:space="preserve"><value>Nóng</value></data>
+  <data name="Power655.ColdLabel" xml:space="preserve"><value>Lạnh</value></data>
+  <data name="Power655.Times" xml:space="preserve"><value>lần</value></data>
+  <data name="Power655.Predictions" xml:space="preserve"><value>Dự đoán</value></data>
+  <data name="Power655.CopySuccess" xml:space="preserve"><value>Đã sao chép vào clipboard</value></data>
+  <data name="Power655.CopyFailed" xml:space="preserve"><value>Không thể sao chép dự đoán</value></data>
+  <data name="Power655.Type" xml:space="preserve"><value>Loại</value></data>
+  <data name="Power655.TupleFreq" xml:space="preserve"><value>Tần suất bộ</value></data>
+  <data name="Power655.Reasoning" xml:space="preserve"><value>Lý do</value></data>
+  <data name="Power655.MatchedNumbers" xml:space="preserve"><value>Số khớp</value></data>
+  <data name="Power655.DrawHistory" xml:space="preserve"><value>Lịch sử kết quả</value></data>
+  <data name="Power655.DrawDate" xml:space="preserve"><value>Ngày mở thưởng</value></data>
+  <data name="Power655.DayOfWeek" xml:space="preserve"><value>Thứ</value></data>
+  <data name="Power655.Numbers" xml:space="preserve"><value>Dãy số</value></data>
+  <data name="Power655.BonusNum" xml:space="preserve"><value>Số phụ</value></data>
+  <data name="Power655.Jackpot1" xml:space="preserve"><value>Jackpot 1</value></data>
+  <data name="Power655.Jackpot2" xml:space="preserve"><value>Jackpot 2</value></data>
+
+  <data name="DayOfWeek.Monday" xml:space="preserve"><value>Thứ Hai</value></data>
+  <data name="DayOfWeek.Tuesday" xml:space="preserve"><value>Thứ Ba</value></data>
+  <data name="DayOfWeek.Wednesday" xml:space="preserve"><value>Thứ Tư</value></data>
+  <data name="DayOfWeek.Thursday" xml:space="preserve"><value>Thứ Năm</value></data>
+  <data name="DayOfWeek.Friday" xml:space="preserve"><value>Thứ Sáu</value></data>
+  <data name="DayOfWeek.Saturday" xml:space="preserve"><value>Thứ Bảy</value></data>
+  <data name="DayOfWeek.Sunday" xml:space="preserve"><value>Chủ Nhật</value></data>
+
+  <data name="Common.Remove" xml:space="preserve"><value>Xóa</value></data>
+  <data name="Common.PoweredBy" xml:space="preserve"><value>Được hỗ trợ bởi</value></data>
+  <data name="Donate.Title" xml:space="preserve"><value>Mời tôi một ly cà phê</value></data>
+  <data name="Donate.ScanQr" xml:space="preserve"><value>Quét mã QR để gửi cà phê</value></data>
+  <data name="Donate.QrAlt" xml:space="preserve"><value>Mã QR quyên góp</value></data>
+  <data name="Donate.ThankYou" xml:space="preserve"><value>Cảm ơn sự ủng hộ của bạn!</value></data>
+  <data name="Contacts.AvatarFormatHint" xml:space="preserve"><value>JPEG, PNG, WebP; tối đa 2 MB</value></data>
+  <data name="Contacts.AvatarAlt" xml:space="preserve"><value>Ảnh đại diện</value></data>
+  <data name="VnDirect.TopStocks.ScoreBadge" xml:space="preserve"><value>Điểm: {0}</value></data>
+  <data name="VnDirect.TopStocks.LongSignalBadge" xml:space="preserve"><value>L: {0}</value></data>
+  <data name="VnDirect.TopStocks.ShortSignalBadge" xml:space="preserve"><value>S: {0}</value></data>
+  <data name="VnDirect.TopStocks.DragonCountBadge" xml:space="preserve"><value>Dragon x{0}</value></data>
+  <data name="VnDirect.TopStocks.TcbsAllTimeBadge" xml:space="preserve"><value>TCBS AllTime</value></data>
+  <data name="AssetPositions.StockSymbolPlaceholder" xml:space="preserve"><value>VNM, HPG, VIC...</value></data>
+  <data name="AssetPositions.CryptoSymbolPlaceholder" xml:space="preserve"><value>BTC, ETH, SOL...</value></data>
+  <data name="ApiClients.ClientIdPlaceholder" xml:space="preserve"><value>my-service-client</value></data>
+  <data name="Resume.Present" xml:space="preserve"><value>Hiện tại</value></data>
+  <data name="Resume.PageTitleFallback" xml:space="preserve"><value>Hồ sơ</value></data>
+  <data name="Resume.ProjectLinkPlaceholder" xml:space="preserve"><value>https://github.com/...</value></data>
+  <data name="Resume.ProfileLinkPlaceholder" xml:space="preserve"><value>https://linkedin.com/in/...</value></data>
+  <data name="Blog.PublicFallbackTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.PublicTitleFormat" xml:space="preserve"><value>{0} - Blog</value></data>
+  <data name="Menu.Tools" xml:space="preserve"><value>Công cụ</value></data>
+  <data name="Tools.Hub.Title" xml:space="preserve"><value>Công cụ</value></data>
+  <data name="Tools.Hub.Description" xml:space="preserve"><value>Tiện ích lập trình và máy tính giao dịch/rủi ro/crypto chạy trên trình duyệt. Bản nháp lưu cục bộ; một số công cụ có thể Lưu/Chia sẻ qua JSON Bin khi đăng nhập.</value></data>
+  <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Tìm công cụ…</value></data>
+  <data name="Tools.Save" xml:space="preserve"><value>Lưu</value></data>
+  <data name="Tools.Share" xml:space="preserve"><value>Chia sẻ</value></data>
+  <data name="Tools.ClearDraft" xml:space="preserve"><value>Xóa bản nháp</value></data>
+  <data name="Tools.ShareLink" xml:space="preserve"><value>URL chia sẻ (hết hạn sau 4 giờ)</value></data>
+  <data name="Tools.Input" xml:space="preserve"><value>Đầu vào</value></data>
+  <data name="Tools.Validation.Title" xml:space="preserve"><value>Không xử lý được</value></data>
+  <data name="Tools.Validation.Generic" xml:space="preserve"><value>Có lỗi khi xử lý. Kiểm tra đầu vào rồi thử lại.</value></data>
+  <data name="Tools.Output" xml:space="preserve"><value>Đầu ra</value></data>
+  <data name="Tools.QrDownload" xml:space="preserve"><value>Tải xuống QR</value></data>
+  <data name="Tools.NotFound" xml:space="preserve"><value>Không tìm thấy công cụ</value></data>
+  <data name="Tools.Draft.Restored" xml:space="preserve"><value>Đã khôi phục bản nháp</value></data>
+  <data name="Tools.Save.Success" xml:space="preserve"><value>Đã lưu vào JSON Bin</value></data>
+  <data name="Tools.Save.Failed" xml:space="preserve"><value>Không lưu được</value></data>
+  <data name="Tools.Share.Success" xml:space="preserve"><value>Đã tạo liên kết chia sẻ (4 giờ)</value></data>
+  <data name="Tools.Share.Failed" xml:space="preserve"><value>Không tạo được liên kết chia sẻ</value></data>
+  <data name="Tools.Clear.Success" xml:space="preserve"><value>Đã xóa bản nháp</value></data>
+  <data name="Tools.SignInRequired" xml:space="preserve"><value>Đăng nhập để lưu hoặc chia sẻ</value></data>
+  <data name="Tools.CloudBinNamePrefix" xml:space="preserve"><value>DevTools ·</value></data>
+  <data name="Tools.Privacy.LocalOnly" xml:space="preserve"><value>Bản nháp chỉ lưu trên trình duyệt này. Đăng nhập để đồng bộ giữa các thiết bị.</value></data>
+  <data name="Tools.Privacy.CloudSync" xml:space="preserve"><value>Bản nháp được đồng bộ với tài khoản của bạn và theo bạn khi đăng nhập ở nơi khác.</value></data>
+  <data name="Tools.Category.Data" xml:space="preserve"><value>Dữ liệu</value></data>
+  <data name="Tools.Category.CodeGen" xml:space="preserve"><value>Sinh mã</value></data>
+  <data name="Tools.Category.Format" xml:space="preserve"><value>Định dạng</value></data>
+  <data name="Tools.Category.Encode" xml:space="preserve"><value>Mã hóa</value></data>
+  <data name="Tools.Category.Security" xml:space="preserve"><value>Bảo mật</value></data>
+  <data name="Tools.Category.Generators" xml:space="preserve"><value>Bộ sinh</value></data>
+  <data name="Tools.Category.TextTime" xml:space="preserve"><value>Văn bản và thời gian</value></data>
+  <data name="Tools.JsonFormatter.Title" xml:space="preserve"><value>Định dạng JSON</value></data>
+  <data name="Tools.JsonFormatter.Description" xml:space="preserve"><value>Pretty-print, minify và kiểm tra JSON</value></data>
+  <data name="Tools.JsonCompare.Title" xml:space="preserve"><value>So sánh JSON</value></data>
+  <data name="Tools.JsonCompare.Description" xml:space="preserve"><value>So sánh hai tài liệu JSON</value></data>
+  <data name="Tools.YamlValidator.Title" xml:space="preserve"><value>Kiểm tra YAML</value></data>
+  <data name="Tools.YamlValidator.Description" xml:space="preserve"><value>Kiểm tra cú pháp YAML</value></data>
+  <data name="Tools.YamlJson.Title" xml:space="preserve"><value>YAML ⇄ JSON</value></data>
+  <data name="Tools.YamlJson.Description" xml:space="preserve"><value>Chuyển đổi YAML và JSON</value></data>
+  <data name="Tools.XmlFormatter.Title" xml:space="preserve"><value>Định dạng XML</value></data>
+  <data name="Tools.XmlFormatter.Description" xml:space="preserve"><value>Pretty-print XML</value></data>
+  <data name="Tools.CsvJson.Title" xml:space="preserve"><value>CSV ⇄ JSON</value></data>
+  <data name="Tools.CsvJson.Description" xml:space="preserve"><value>Chuyển đổi CSV và JSON</value></data>
+  <data name="Tools.JsonToCsharp.Title" xml:space="preserve"><value>JSON sang C#</value></data>
+  <data name="Tools.JsonToCsharp.Description" xml:space="preserve"><value>Sinh class C# từ JSON</value></data>
+  <data name="Tools.JsonToTypescript.Title" xml:space="preserve"><value>JSON sang TypeScript</value></data>
+  <data name="Tools.JsonToTypescript.Description" xml:space="preserve"><value>Sinh type TypeScript từ JSON</value></data>
+  <data name="Tools.SqlFormatter.Title" xml:space="preserve"><value>Định dạng SQL</value></data>
+  <data name="Tools.SqlFormatter.Description" xml:space="preserve"><value>Pretty-print SQL</value></data>
+  <data name="Tools.HtmlFormatter.Title" xml:space="preserve"><value>Định dạng HTML</value></data>
+  <data name="Tools.HtmlFormatter.Description" xml:space="preserve"><value>Pretty-print HTML</value></data>
+  <data name="Tools.CssFormatter.Title" xml:space="preserve"><value>Định dạng CSS</value></data>
+  <data name="Tools.CssFormatter.Description" xml:space="preserve"><value>Pretty-print CSS</value></data>
+  <data name="Tools.JsFormatter.Title" xml:space="preserve"><value>Định dạng JS</value></data>
+  <data name="Tools.JsFormatter.Description" xml:space="preserve"><value>Pretty-print JavaScript</value></data>
+  <data name="Tools.MarkdownPreview.Title" xml:space="preserve"><value>Xem trước Markdown</value></data>
+  <data name="Tools.MarkdownPreview.Description" xml:space="preserve"><value>Xem Markdown kèm sơ đồ Mermaid</value></data>
+  <data name="Tools.MarkdownPreview.Preview" xml:space="preserve"><value>Xem trước</value></data>
+  <data name="Tools.MarkdownPreview.ShowEditor" xml:space="preserve"><value>Sửa</value></data>
+  <data name="Tools.MarkdownPreview.Toolbar" xml:space="preserve"><value>Định dạng Markdown</value></data>
+  <data name="Tools.MarkdownPreview.Heading" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="Tools.MarkdownPreview.Bold" xml:space="preserve"><value>Đậm</value></data>
+  <data name="Tools.MarkdownPreview.Italic" xml:space="preserve"><value>Nghiêng</value></data>
+  <data name="Tools.MarkdownPreview.Strike" xml:space="preserve"><value>Gạch ngang</value></data>
+  <data name="Tools.MarkdownPreview.Quote" xml:space="preserve"><value>Trích dẫn</value></data>
+  <data name="Tools.MarkdownPreview.BulletList" xml:space="preserve"><value>Danh sách dấu đầu dòng</value></data>
+  <data name="Tools.MarkdownPreview.NumberedList" xml:space="preserve"><value>Danh sách đánh số</value></data>
+  <data name="Tools.MarkdownPreview.InlineCode" xml:space="preserve"><value>Mã nội dòng</value></data>
+  <data name="Tools.MarkdownPreview.CodeBlock" xml:space="preserve"><value>Khối mã</value></data>
+  <data name="Tools.MarkdownPreview.Link" xml:space="preserve"><value>Liên kết</value></data>
+  <data name="Tools.MarkdownPreview.HorizontalRule" xml:space="preserve"><value>Đường kẻ ngang</value></data>
+  <data name="Tools.MarkdownPreview.EditorPlaceholder" xml:space="preserve"><value>Viết Markdown tại đây…</value></data>
+  <data name="Tools.MarkdownPreview.CopyAll" xml:space="preserve"><value>Sao chép tất cả</value></data>
+  <data name="Tools.MarkdownPreview.CopyHtml" xml:space="preserve"><value>Sao chép HTML</value></data>
+  <data name="Tools.MarkdownPreview.CopyAllSuccess" xml:space="preserve"><value>Đã sao chép preview (dán được vào Word)</value></data>
+  <data name="Tools.MarkdownPreview.CopyHtmlSuccess" xml:space="preserve"><value>Đã sao chép preview dạng HTML</value></data>
+  <data name="Tools.MarkdownPreview.CopyFailed" xml:space="preserve"><value>Không sao chép được preview</value></data>
+  <data name="Tools.HtmlMarkdown.Title" xml:space="preserve"><value>HTML ⇄ Markdown</value></data>
+  <data name="Tools.HtmlMarkdown.Description" xml:space="preserve"><value>Chuyển đổi HTML và Markdown</value></data>
+  <data name="Tools.Base64.Title" xml:space="preserve"><value>Base64 Encode/Decode</value></data>
+  <data name="Tools.Base64.Description" xml:space="preserve"><value>Mã hóa hoặc giải mã Base64</value></data>
+  <data name="Tools.UrlCodec.Title" xml:space="preserve"><value>URL Encode/Decode</value></data>
+  <data name="Tools.UrlCodec.Description" xml:space="preserve"><value>Mã hóa hoặc giải mã URL</value></data>
+  <data name="Tools.Sha256.Title" xml:space="preserve"><value>SHA256 Generator</value></data>
+  <data name="Tools.Sha256.Description" xml:space="preserve"><value>Băm văn bản bằng SHA-256</value></data>
+  <data name="Tools.JwtDecoder.Title" xml:space="preserve"><value>JWT Decoder</value></data>
+  <data name="Tools.JwtDecoder.Description" xml:space="preserve"><value>Giải mã header và payload JWT cục bộ</value></data>
+  <data name="Tools.PasswordGenerator.Title" xml:space="preserve"><value>Tạo mật khẩu</value></data>
+  <data name="Tools.PasswordGenerator.Description" xml:space="preserve"><value>Sinh mật khẩu mạnh</value></data>
+  <data name="Tools.PasswordStrength.Title" xml:space="preserve"><value>Độ mạnh mật khẩu</value></data>
+  <data name="Tools.PasswordStrength.Description" xml:space="preserve"><value>Ước lượng độ mạnh mật khẩu</value></data>
+  <data name="Tools.Uuid.Title" xml:space="preserve"><value>UUID Generator</value></data>
+  <data name="Tools.Uuid.Description" xml:space="preserve"><value>Sinh UUID v4 hoặc v7</value></data>
+  <data name="Tools.Cron.Title" xml:space="preserve"><value>Cron Generator</value></data>
+  <data name="Tools.Cron.Description" xml:space="preserve"><value>Tạo biểu thức cron</value></data>
+  <data name="Tools.Qr.Title" xml:space="preserve"><value>QR Code Generator</value></data>
+  <data name="Tools.Qr.Description" xml:space="preserve"><value>Tạo mã QR từ văn bản</value></data>
+  <data name="Tools.Curl.Title" xml:space="preserve"><value>cURL Generator</value></data>
+  <data name="Tools.Curl.Description" xml:space="preserve"><value>Tạo lệnh cURL</value></data>
+  <data name="Tools.Gitignore.Title" xml:space="preserve"><value>Git Ignore Generator</value></data>
+  <data name="Tools.Gitignore.Description" xml:space="preserve"><value>Sinh .gitignore theo preset</value></data>
+  <data name="Tools.ConventionalCommit.Title" xml:space="preserve"><value>Conventional Commit</value></data>
+  <data name="Tools.ConventionalCommit.Description" xml:space="preserve"><value>Soạn conventional commit</value></data>
+  <data name="Tools.Regex.Title" xml:space="preserve"><value>Regex Tester</value></data>
+  <data name="Tools.Regex.Description" xml:space="preserve"><value>Kiểm thử biểu thức chính quy</value></data>
+  <data name="Tools.UnixTimestamp.Title" xml:space="preserve"><value>Unix Timestamp</value></data>
+  <data name="Tools.UnixTimestamp.Description" xml:space="preserve"><value>Chuyển đổi Unix timestamp</value></data>
+  <data name="Tools.Diff.Title" xml:space="preserve"><value>Diff Checker</value></data>
+  <data name="Tools.Diff.Description" xml:space="preserve"><value>So sánh hai khối văn bản</value></data>
+  <data name="Tools.Category.Developer" xml:space="preserve"><value>Lập trình</value></data>
+  <data name="Tools.Category.Trading" xml:space="preserve"><value>Giao dịch</value></data>
+  <data name="Tools.Category.Risk" xml:space="preserve"><value>Rủi ro</value></data>
+  <data name="Tools.Category.Crypto" xml:space="preserve"><value>Crypto</value></data>
+  <data name="Tools.PositionSize.Title" xml:space="preserve"><value>Khối lượng vị thế</value></data>
+  <data name="Tools.PositionSize.Description" xml:space="preserve"><value>Tính khối lượng theo rủi ro tài khoản và khoảng dừng lỗ</value></data>
+  <data name="Tools.RiskReward.Title" xml:space="preserve"><value>Rủi ro / Lợi nhuận</value></data>
+  <data name="Tools.RiskReward.Description" xml:space="preserve"><value>Tính R:R từ giá vào, dừng lỗ và chốt lời</value></data>
+  <data name="Tools.FuturesPnl.Title" xml:space="preserve"><value>PnL hợp đồng tương lai</value></data>
+  <data name="Tools.FuturesPnl.Description" xml:space="preserve"><value>Lãi/lỗ isolated kèm phí và ROE</value></data>
+  <data name="Tools.Liquidation.Title" xml:space="preserve"><value>Giá thanh lý</value></data>
+  <data name="Tools.Liquidation.Description" xml:space="preserve"><value>Ước lượng giá thanh lý isolated</value></data>
+  <data name="Tools.AverageEntry.Title" xml:space="preserve"><value>Giá vào trung bình</value></data>
+  <data name="Tools.AverageEntry.Description" xml:space="preserve"><value>Giá vào bình quân gia quyền từ nhiều lệnh</value></data>
+  <data name="Tools.Dca.Title" xml:space="preserve"><value>Máy tính DCA</value></data>
+  <data name="Tools.Dca.Description" xml:space="preserve"><value>Giá vốn trung bình khi mua định kỳ</value></data>
+  <data name="Tools.BreakEven.Title" xml:space="preserve"><value>Giá hòa vốn</value></data>
+  <data name="Tools.BreakEven.Description" xml:space="preserve"><value>Hòa vốn sau phí mở/đóng</value></data>
+  <data name="Tools.TradingFee.Title" xml:space="preserve"><value>Phí giao dịch</value></data>
+  <data name="Tools.TradingFee.Description" xml:space="preserve"><value>Phí theo notional và tỷ lệ phí</value></data>
+  <data name="Tools.Funding.Title" xml:space="preserve"><value>Funding</value></data>
+  <data name="Tools.Funding.Description" xml:space="preserve"><value>Funding trả/nhận theo số kỳ</value></data>
+  <data name="Tools.Leverage.Title" xml:space="preserve"><value>Đòn bẩy</value></data>
+  <data name="Tools.Leverage.Description" xml:space="preserve"><value>Đòn bẩy hiệu dụng từ notional và ký quỹ</value></data>
+  <data name="Tools.StopLoss.Title" xml:space="preserve"><value>Dừng lỗ</value></data>
+  <data name="Tools.StopLoss.Description" xml:space="preserve"><value>Giá dừng lỗ theo rủi ro và khối lượng</value></data>
+  <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Chốt lời</value></data>
+  <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Chốt lời theo % mục tiêu hoặc R:R</value></data>
+  <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Rủi ro phá sản</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Ước lượng RoR fixed-fractional đơn giản</value></data>
+  <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Drawdown tối đa</value></data>
+  <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>MDD từ đỉnh/đáy hoặc chuỗi vốn</value></data>
+  <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Phục hồi thua lỗ</value></data>
+  <data name="Tools.LossRecovery.Description" xml:space="preserve"><value>% lãi cần để lấy lại sau thua lỗ</value></data>
+  <data name="Tools.Expectancy.Title" xml:space="preserve"><value>Kỳ vọng</value></data>
+  <data name="Tools.Expectancy.Description" xml:space="preserve"><value>Giá trị kỳ vọng mỗi lệnh</value></data>
+  <data name="Tools.KellyCriterion.Title" xml:space="preserve"><value>Tiêu chuẩn Kelly</value></data>
+  <data name="Tools.KellyCriterion.Description" xml:space="preserve"><value>Kelly đầy đủ, 1/2 và 1/4</value></data>
+  <data name="Tools.ConsecutiveLoss.Title" xml:space="preserve"><value>Thua liên tiếp</value></data>
+  <data name="Tools.ConsecutiveLoss.Description" xml:space="preserve"><value>Vốn còn lại sau N lệnh thua với rủi ro cố định</value></data>
+  <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Vốn hóa</value></data>
+  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Vốn hóa từ giá và nguồn cung</value></data>
+  <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>So sánh vốn hóa</value></data>
+  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Giá ngụ ý theo vốn hóa mục tiêu</value></data>
+  <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>Drawdown từ ATH</value></data>
+  <data name="Tools.AthDrawdown.Description" xml:space="preserve"><value>Drawdown từ đỉnh lịch sử và % phục hồi</value></data>
+  <data name="Calc.Calculate" xml:space="preserve"><value>Tính</value></data>
+  <data name="Calc.Reset" xml:space="preserve"><value>Đặt lại</value></data>
+  <data name="Calc.Results" xml:space="preserve"><value>Kết quả</value></data>
+  <data name="Calc.Formula" xml:space="preserve"><value>Công thức</value></data>
+  <data name="Calc.Interpretation" xml:space="preserve"><value>Diễn giải</value></data>
+  <data name="Calc.RiskDisclaimer" xml:space="preserve"><value>Chỉ mang tính giáo dục — không phải tư vấn tài chính. Kết quả quá khứ không đảm bảo tương lai.</value></data>
+  <data name="Calc.Yes" xml:space="preserve"><value>Có</value></data>
+  <data name="Calc.No" xml:space="preserve"><value>Không</value></data>
+  <data name="Calc.Side.Long" xml:space="preserve"><value>Long</value></data>
+  <data name="Calc.Side.Short" xml:space="preserve"><value>Short</value></data>
+  <data name="Calc.Fee.Taker" xml:space="preserve"><value>Taker</value></data>
+  <data name="Calc.Fee.Maker" xml:space="preserve"><value>Maker</value></data>
+  <data name="Calc.Fee.Custom" xml:space="preserve"><value>Tùy chỉnh</value></data>
+  <data name="Calc.Currency.USDT" xml:space="preserve"><value>USDT</value></data>
+  <data name="Calc.Currency.USD" xml:space="preserve"><value>USD</value></data>
+  <data name="Calc.Currency.VND" xml:space="preserve"><value>VND</value></data>
+  <data name="Calc.Currency.BTC" xml:space="preserve"><value>BTC</value></data>
+  <data name="Calc.Margin.Isolated" xml:space="preserve"><value>Chế độ ký quỹ: Isolated</value></data>
+  <data name="Calc.Field.Currency" xml:space="preserve"><value>Tiền tệ</value></data>
+  <data name="Calc.Field.Side" xml:space="preserve"><value>Phía</value></data>
+  <data name="Calc.Field.FeeMode" xml:space="preserve"><value>Chế độ phí</value></data>
+  <data name="Calc.Field.Account" xml:space="preserve"><value>Vốn tài khoản</value></data>
+  <data name="Calc.Field.RiskPct" xml:space="preserve"><value>Rủi ro %</value></data>
+  <data name="Calc.Field.Entry" xml:space="preserve"><value>Giá vào</value></data>
+  <data name="Calc.Field.Exit" xml:space="preserve"><value>Giá thoát</value></data>
+  <data name="Calc.Field.StopLoss" xml:space="preserve"><value>Dừng lỗ</value></data>
+  <data name="Calc.Field.TakeProfit" xml:space="preserve"><value>Chốt lời</value></data>
+  <data name="Calc.Field.Size" xml:space="preserve"><value>Khối lượng (qty)</value></data>
+  <data name="Calc.Field.Leverage" xml:space="preserve"><value>Đòn bẩy</value></data>
+  <data name="Calc.Field.MakerPct" xml:space="preserve"><value>Phí maker %</value></data>
+  <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Phí taker %</value></data>
+  <data name="Calc.Field.OpenFeePct" xml:space="preserve"><value>Phí mở %</value></data>
+  <data name="Calc.Field.CloseFeePct" xml:space="preserve"><value>Phí đóng %</value></data>
+  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Phí %</value></data>
+  <data name="Calc.Field.MmrPct" xml:space="preserve"><value>Ký quỹ duy trì %</value></data>
+  <data name="Calc.Field.Notional" xml:space="preserve"><value>Notional</value></data>
+  <data name="Calc.Field.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
+  <data name="Calc.Field.FundingRatePct" xml:space="preserve"><value>Tỷ lệ funding %</value></data>
+  <data name="Calc.Field.Periods" xml:space="preserve"><value>Số kỳ</value></data>
+  <data name="Calc.Field.TargetPct" xml:space="preserve"><value>Mục tiêu % (tuỳ chọn)</value></data>
+  <data name="Calc.Field.TargetRr" xml:space="preserve"><value>Mục tiêu R:R (tuỳ chọn)</value></data>
+  <data name="Calc.Field.LegsPriceQty" xml:space="preserve"><value>Lệnh (giá,qty)</value></data>
+  <data name="Calc.Field.LegsPriceAmount" xml:space="preserve"><value>Mua (giá,số tiền)</value></data>
+  <data name="Calc.Field.WinRatePct" xml:space="preserve"><value>Tỷ lệ thắng %</value></data>
+  <data name="Calc.Field.RiskReward" xml:space="preserve"><value>Rủi ro:lợi nhuận</value></data>
+  <data name="Calc.Field.RiskPerTradePct" xml:space="preserve"><value>Rủi ro mỗi lệnh %</value></data>
+  <data name="Calc.Field.Peak" xml:space="preserve"><value>Vốn đỉnh</value></data>
+  <data name="Calc.Field.Trough" xml:space="preserve"><value>Vốn đáy</value></data>
+  <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Chuỗi vốn (tuỳ chọn)</value></data>
+  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Thua lỗ %</value></data>
+  <data name="Calc.Field.AvgWin" xml:space="preserve"><value>Lãi trung bình</value></data>
+  <data name="Calc.Field.AvgLoss" xml:space="preserve"><value>Lỗ trung bình</value></data>
+  <data name="Calc.Field.PayoffRatio" xml:space="preserve"><value>Tỷ lệ payoff (b)</value></data>
+  <data name="Calc.Field.Equity" xml:space="preserve"><value>Vốn</value></data>
+  <data name="Calc.Field.Losses" xml:space="preserve"><value>Số lệnh thua liên tiếp (N)</value></data>
+  <data name="Calc.Field.Price" xml:space="preserve"><value>Giá</value></data>
+  <data name="Calc.Field.Supply" xml:space="preserve"><value>Nguồn cung lưu hành</value></data>
+  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Vốn hóa mục tiêu</value></data>
+  <data name="Calc.Field.Ath" xml:space="preserve"><value>Đỉnh lịch sử (ATH)</value></data>
+  <data name="Calc.Field.Current" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>vd: 100,1;102,2</value></data>
+  <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>vd: 100,50;90,50</value></data>
+  <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>vd: 10000,9800,10200,9500</value></data>
+  <data name="Calc.Result.RiskAmount" xml:space="preserve"><value>Số tiền rủi ro</value></data>
+  <data name="Calc.Result.Quantity" xml:space="preserve"><value>Khối lượng</value></data>
+  <data name="Calc.Result.Notional" xml:space="preserve"><value>Notional</value></data>
+  <data name="Calc.Result.RiskDistance" xml:space="preserve"><value>Khoảng rủi ro</value></data>
+  <data name="Calc.Result.RewardDistance" xml:space="preserve"><value>Khoảng lợi nhuận</value></data>
+  <data name="Calc.Result.RiskReward" xml:space="preserve"><value>Rủi ro:lợi nhuận</value></data>
+  <data name="Calc.Result.LevelsAligned" xml:space="preserve"><value>Mức khớp với phía</value></data>
+  <data name="Calc.Result.GrossPnl" xml:space="preserve"><value>PnL gộp</value></data>
+  <data name="Calc.Result.Fees" xml:space="preserve"><value>Phí</value></data>
+  <data name="Calc.Result.NetPnl" xml:space="preserve"><value>PnL ròng</value></data>
+  <data name="Calc.Result.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
+  <data name="Calc.Result.RoePct" xml:space="preserve"><value>ROE %</value></data>
+  <data name="Calc.Result.LiquidationPrice" xml:space="preserve"><value>Giá thanh lý</value></data>
+  <data name="Calc.Result.AverageEntry" xml:space="preserve"><value>Giá vào TB</value></data>
+  <data name="Calc.Result.Cost" xml:space="preserve"><value>Tổng chi phí</value></data>
+  <data name="Calc.Result.Invested" xml:space="preserve"><value>Đã đầu tư</value></data>
+  <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Giá hòa vốn</value></data>
+  <data name="Calc.Result.FundingCashflow" xml:space="preserve"><value>Dòng tiền funding</value></data>
+  <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
+  <data name="Calc.Result.EffectiveLeverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng</value></data>
+  <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Ký quỹ cần thiết</value></data>
+  <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Giá dừng lỗ</value></data>
+  <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Giá chốt lời</value></data>
+  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lãi kỳ vọng</value></data>
+  <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Rủi ro phá sản %</value></data>
+  <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa</value></data>
+  <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Drawdown tối đa %</value></data>
+  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Phục hồi %</value></data>
+  <data name="Calc.Result.Expectancy" xml:space="preserve"><value>Kỳ vọng</value></data>
+  <data name="Calc.Result.KellyFull" xml:space="preserve"><value>Kelly đầy đủ %</value></data>
+  <data name="Calc.Result.KellyHalf" xml:space="preserve"><value>Nửa Kelly %</value></data>
+  <data name="Calc.Result.KellyQuarter" xml:space="preserve"><value>1/4 Kelly %</value></data>
+  <data name="Calc.Result.RemainingEquity" xml:space="preserve"><value>Vốn còn lại</value></data>
+  <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Vốn hóa</value></data>
+  <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Giá ngụ ý</value></data>
+  <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Rủi ro {0}% gợi ý qty {1} (notional {2}).</value></data>
+  <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Lợi nhuận gấp {0}× khoảng rủi ro.</value></data>
+  <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>PnL ròng {0}; ROE {1}%.</value></data>
+  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Ước thanh lý isolated quanh {0}.</value></data>
+  <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Giá vào TB {0} với tổng qty {1}.</value></data>
+  <data name="Calc.Interp.Dca" xml:space="preserve"><value>Giá vốn TB {0} sau khi đầu tư {1}.</value></data>
+  <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Phí cho thấy hòa vốn quanh {0}.</value></data>
+  <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Phí ước tính {0}.</value></data>
+  <data name="Calc.Interp.Funding" xml:space="preserve"><value>Dòng tiền funding {0} (dương = nhận).</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×.</value></data>
+  <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Dừng lỗ quanh {0} theo rủi ro đã chọn.</value></data>
+  <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Chốt lời {0}; lãi kỳ vọng {1}.</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>RoR ước lượng ≈ {0}% (mô hình giáo dục).</value></data>
+  <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa khoảng {0}%.</value></data>
+  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Cần khoảng {0}% lãi để phục hồi.</value></data>
+  <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Kỳ vọng mỗi lệnh ≈ {0}.</value></data>
+  <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Kelly đầy đủ ≈ {0}% vốn.</value></data>
+  <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>Sau chuỗi thua, vốn ≈ {0} (drawdown {1}%).</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Vốn hóa ≈ {0}.</value></data>
+  <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Giá ngụ ý ≈ {0}.</value></data>
+  <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Giảm {0}% từ ATH; cần {1}% để hồi.</value></data>
+  <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Theo dõi chi tiêu</value></data>
+  <data name="ExpenseTracker.Title" xml:space="preserve"><value>Theo dõi chi tiêu</value></data>
+  <data name="ExpenseTracker.Wallets" xml:space="preserve"><value>Vi</value></data>
+  <data name="ExpenseTracker.Categories" xml:space="preserve"><value>Danh mục</value></data>
+  <data name="ExpenseTracker.Transactions" xml:space="preserve"><value>Giao dịch</value></data>
+  <data name="ExpenseTracker.Transfers" xml:space="preserve"><value>Chuyển khoản</value></data>
+  <data name="ExpenseTracker.Budgets" xml:space="preserve"><value>Ngân sách</value></data>
+  <data name="ExpenseTracker.SavingGoals" xml:space="preserve"><value>Mục tiêu tiết kiệm</value></data>
+  <data name="ExpenseTracker.Tags" xml:space="preserve"><value>Nhãn</value></data>
+  <data name="ExpenseTracker.TransactionTags" xml:space="preserve"><value>Nhãn giao dịch</value></data>
+  <data name="ExpenseTracker.RecurringTransactions" xml:space="preserve"><value>Giao dịch định kỳ</value></data>
+  <data name="ExpenseTracker.TotalAsset" xml:space="preserve"><value>Tổng tài sản</value></data>
+  <data name="ExpenseTracker.IncomeToday" xml:space="preserve"><value>Thu nhập hôm nay</value></data>
+  <data name="ExpenseTracker.ExpenseToday" xml:space="preserve"><value>Chi tiêu hôm nay</value></data>
+  <data name="ExpenseTracker.CashFlow" xml:space="preserve"><value>Dòng tiền</value></data>
+  <data name="ExpenseTracker.Name" xml:space="preserve"><value>Tên</value></data>
+  <data name="ExpenseTracker.Type" xml:space="preserve"><value>Loại</value></data>
+  <data name="ExpenseTracker.Currency" xml:space="preserve"><value>Tiền tệ</value></data>
+  <data name="ExpenseTracker.Balance" xml:space="preserve"><value>Số dư</value></data>
+  <data name="ExpenseTracker.Amount" xml:space="preserve"><value>Số tiền</value></data>
+  <data name="ExpenseTracker.Note" xml:space="preserve"><value>Ghi chú</value></data>
+  <data name="ExpenseTracker.Period" xml:space="preserve"><value>Kỳ</value></data>
+  <data name="ExpenseTracker.StartDate" xml:space="preserve"><value>Ngày bắt đầu</value></data>
+  <data name="ExpenseTracker.EndDate" xml:space="preserve"><value>Ngày kết thúc</value></data>
+  <data name="ExpenseTracker.TargetAmount" xml:space="preserve"><value>Mục tiêu</value></data>
+  <data name="ExpenseTracker.CurrentAmount" xml:space="preserve"><value>Hiện tại</value></data>
+  <data name="ExpenseTracker.Color" xml:space="preserve"><value>Màu</value></data>
+  <data name="ExpenseTracker.Transaction" xml:space="preserve"><value>Giao dịch</value></data>
+  <data name="ExpenseTracker.Tag" xml:space="preserve"><value>Nhãn</value></data>
+  <data name="ExpenseTracker.Frequency" xml:space="preserve"><value>Tần suất</value></data>
+  <data name="ExpenseTracker.NextRun" xml:space="preserve"><value>Lần chạy tiếp theo</value></data>
+  <data name="ExpenseTracker.Create.Title" xml:space="preserve"><value>Tạo mới</value></data>
+  <data name="ExpenseTracker.Edit.Title" xml:space="preserve"><value>Chỉnh sửa</value></data>
+  <data name="ExpenseTracker.ConfirmDelete" xml:space="preserve"><value>Xóa mục này?</value></data>
+  <data name="ExpenseTracker.Save.Success" xml:space="preserve"><value>Đã lưu thành công.</value></data>
+  <data name="ExpenseTracker.Save.Failed" xml:space="preserve"><value>Lưu thất bại.</value></data>
+  <data name="ExpenseTracker.Delete.Success" xml:space="preserve"><value>Đã xóa thành công.</value></data>
+  <data name="ExpenseTracker.Delete.Failed" xml:space="preserve"><value>Xóa thất bại.</value></data>
+  <data name="ExpenseTracker.SourceWallet" xml:space="preserve"><value>Ví nguồn</value></data>
+  <data name="ExpenseTracker.TargetWallet" xml:space="preserve"><value>Ví đích</value></data>
+  <data name="ExpenseTracker.TargetDate" xml:space="preserve"><value>Ngày mục tiêu</value></data>
+  <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Số dư ban đầu</value></data>
+</root>

@@ -1,0 +1,105 @@
+@page "/blog/{Slug}"
+@layout PublicResumeLayout
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Blog
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@inject IBlogService BlogService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@_pageTitle</PageTitle>
+<HeadContent>
+    @if (_post is not null)
+    {
+        <meta name="description" content="@_metaDescription" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="@_post.Title" />
+        <meta property="og:description" content="@_metaDescription" />
+        <meta property="og:url" content="@Navigation.Uri" />
+        @if (!string.IsNullOrWhiteSpace(_post.FeaturedImageUrl))
+        {
+            <meta property="og:image" content="@_post.FeaturedImageUrl" />
+        }
+        <meta name="twitter:card" content="summary_large_image" />
+    }
+</HeadContent>
+
+<div class="container py-4 blog-post" style="max-width: 800px;">
+    <a class="blog-post__back" href="/blog">
+        <span aria-hidden="true">←</span>
+        @L[RK.Blog.Public.ListTitle]
+    </a>
+
+    @if (_isLoading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    }
+    else if (_post is null)
+    {
+        <RadzenStack Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.H4">@L[RK.Blog.Public.NotFoundTitle]</RadzenText>
+            <RadzenText class="text-muted">@L[RK.Blog.Public.NotFoundMessage]</RadzenText>
+        </RadzenStack>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            @if (!string.IsNullOrWhiteSpace(_post.FeaturedImageUrl))
+            {
+                <SafeImage Src="@_post.FeaturedImageUrl"
+                           Alt="@_post.Title"
+                           Style="width:100%; border-radius: 8px; max-height: 360px; object-fit: cover;"
+                           FallbackIcon="image"
+                           FallbackClass="safe-image-fallback" />
+            }
+            @if (!string.IsNullOrWhiteSpace(_post.CategoryName))
+            {
+                <RadzenBadge Text="@_post.CategoryName" BadgeStyle="BadgeStyle.Info" />
+            }
+            <RadzenText TextStyle="TextStyle.H3" TagName="TagName.H1">@_post.Title</RadzenText>
+            <RadzenText TextStyle="TextStyle.Caption" class="text-muted">
+                @_post.PublishedAt?.ToString("MMM d, yyyy") &middot; @_post.ReadTimeMinutes @L[RK.Blog.Public.MinRead]
+            </RadzenText>
+
+            @if (_post.TagNames.Count > 0)
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                    @foreach (var tag in _post.TagNames)
+                    {
+                        <RadzenBadge Text="@tag" BadgeStyle="BadgeStyle.Light" IsPill="true" />
+                    }
+                </RadzenStack>
+            }
+
+            <BlogContentView Content="@_post.ContentHtml" />
+        </RadzenStack>
+    }
+</div>
+
+@code {
+    [Parameter] public string Slug { get; set; } = string.Empty;
+
+    private PostDto? _post;
+    private bool _isLoading = true;
+    private string _pageTitle = string.Empty;
+    private string _metaDescription = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pageTitle = L[RK.Blog.PublicFallbackTitle];
+        try
+        {
+            _post = await BlogService.GetPostBySlugAsync(Slug);
+            if (_post is not null)
+            {
+                _pageTitle = string.Format(L[RK.Blog.PublicTitleFormat], _post.Title);
+                _metaDescription = string.IsNullOrWhiteSpace(_post.MetaDescription) ? _post.Summary : _post.MetaDescription;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

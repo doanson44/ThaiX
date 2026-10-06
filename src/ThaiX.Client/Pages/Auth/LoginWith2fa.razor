@@ -1,0 +1,158 @@
+@page "/auth/login-2fa"
+@layout AuthLayout
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.Account.LoginWith2faTitle] - ThaiX</PageTitle>
+
+<RadzenText TextStyle="TextStyle.H4">@L[RK.Account.LoginWith2faTitle]</RadzenText>
+<RadzenText TextStyle="TextStyle.Body1">@L[RK.Account.LoginWith2faDescription]</RadzenText>
+
+@if (string.IsNullOrEmpty(SessionToken))
+{
+    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+        @L[RK.Account.LoginWith2faNoSession]
+    </RadzenAlert>
+    <div class="mt-3">
+        <RadzenLink Path="/auth/login" Text="@L[RK.Auth.LoginLinkGoToLogin]" />
+    </div>
+}
+else if (!_useRecoveryCode)
+{
+    <RadzenTemplateForm Data="@_model" Submit="@((TwoFactorFormModel _) => OnSubmit2faAsync())">
+        <div class="mb-3">
+            <RadzenLabel Text="@L[RK.Account.LoginWith2faCode]" class="mb-1" />
+            <RadzenTextBox Name="code"
+                           @bind-Value="_model.Code"
+                           Placeholder="@L[RK.Account.LoginWith2faCodePlaceholder]"
+                           class="w-100" />
+            <RadzenRequiredValidator Component="code"
+                                     Text="@L[RK.Validation.Required]"
+                                     Popup="false" />
+        </div>
+
+        <div class="mb-3">
+            <RadzenButton Text="@L[RK.Account.LoginWith2faSubmit]"
+                          Icon="verified"
+                          ButtonType="ButtonType.Submit"
+                          Disabled="@_isSubmitting"
+                          IsBusy="@_isSubmitting"
+                          BusyText="@L[RK.Common.Loading]"
+                          ButtonStyle="ButtonStyle.Primary"
+                          class="w-100" />
+        </div>
+    </RadzenTemplateForm>
+
+    <div class="mt-3">
+        <RadzenLink Text="@L[RK.Account.LoginWith2faUseRecoveryCode]"
+                    class="clickable"
+                    @onclick="() => _useRecoveryCode = true" />
+    </div>
+}
+else
+{
+    <RadzenTemplateForm Data="@_recoveryModel" Submit="@((RecoveryFormModel _) => OnSubmitRecoveryAsync())">
+        <div class="mb-3">
+            <RadzenLabel Text="@L[RK.Account.LoginWith2faRecoveryCode]" class="mb-1" />
+            <RadzenTextBox Name="recoveryCode"
+                           @bind-Value="_recoveryModel.RecoveryCode"
+                           Placeholder="@L[RK.Account.LoginWith2faRecoveryCodePlaceholder]"
+                           class="w-100" />
+            <RadzenRequiredValidator Component="recoveryCode"
+                                     Text="@L[RK.Validation.Required]"
+                                     Popup="false" />
+        </div>
+
+        <div class="mb-3">
+            <RadzenButton Text="@L[RK.Account.LoginWith2faSubmitRecovery]"
+                          Icon="key"
+                          ButtonType="ButtonType.Submit"
+                          Disabled="@_isSubmitting"
+                          IsBusy="@_isSubmitting"
+                          BusyText="@L[RK.Common.Loading]"
+                          ButtonStyle="ButtonStyle.Warning"
+                          class="w-100" />
+        </div>
+    </RadzenTemplateForm>
+
+    <div class="mt-3">
+        <RadzenLink Text="@L[RK.Account.LoginWith2faUseAuthenticatorCode]"
+                    class="clickable"
+                    @onclick="() => _useRecoveryCode = false" />
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery] public string? SessionToken { get; set; }
+
+    private TwoFactorFormModel _model = new();
+    private RecoveryFormModel _recoveryModel = new();
+    private bool _isSubmitting;
+    private bool _useRecoveryCode;
+
+    private async Task OnSubmit2faAsync()
+    {
+        if (_isSubmitting || string.IsNullOrEmpty(SessionToken)) return;
+        _isSubmitting = true;
+
+        try
+        {
+            await AuthService.LoginWith2faAsync(new LoginWith2faRequest
+            {
+                TwoFactorSessionToken = SessionToken,
+                TwoFactorCode = _model.Code.Trim()
+            });
+
+            NotificationService.NotifySuccess(L[RK.Auth.LoginSuccess], L[RK.Auth.LoginSuccessDetail]);
+
+            Navigation.NavigateTo("/");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.LoginWith2faFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task OnSubmitRecoveryAsync()
+    {
+        if (_isSubmitting || string.IsNullOrEmpty(SessionToken)) return;
+        _isSubmitting = true;
+
+        try
+        {
+            await AuthService.LoginWithRecoveryCodeAsync(new LoginWithRecoveryCodeRequest
+            {
+                TwoFactorSessionToken = SessionToken,
+                RecoveryCode = _recoveryModel.RecoveryCode.Trim()
+            });
+
+            NotificationService.NotifySuccess(L[RK.Auth.LoginSuccess], L[RK.Auth.LoginSuccessDetail]);
+
+            Navigation.NavigateTo("/");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.LoginWith2faRecoveryFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private sealed class TwoFactorFormModel
+    {
+        public string Code { get; set; } = string.Empty;
+    }
+
+    private sealed class RecoveryFormModel
+    {
+        public string RecoveryCode { get; set; } = string.Empty;
+    }
+}

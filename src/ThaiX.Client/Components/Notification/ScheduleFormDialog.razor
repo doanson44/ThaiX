@@ -1,0 +1,364 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Extensions
+@using ThaiX.Client.Services.Notifications
+@inject INotificationScheduleService ScheduleService
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenTemplateForm TItem="ScheduleFormModel"
+                   Data="@Model"
+                   Submit="@OnSubmit"
+                   Invalid="@OnInvalid">
+    <RadzenCard Class="w-100">
+        <RadzenStack Gap="1rem">
+            <RadzenRow Gap="1rem" RowGap="1rem">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.Name]" Component="Name" />
+                        <RadzenTextBox @bind-Value="Model.Name" Name="Name" Class="w-100" />
+                        <RadzenRequiredValidator Component="Name" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </div>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12" SizeMD="6">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.TemplateKey]" Component="TemplateKey" />
+                        <RadzenTextBox @bind-Value="Model.TemplateKey" Name="TemplateKey" Class="w-100" />
+                        <RadzenRequiredValidator Component="TemplateKey" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </div>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.Subject]" Component="Subject" />
+                        <RadzenTextBox @bind-Value="Model.Subject" Name="Subject" Class="w-100" />
+                        <RadzenRequiredValidator Component="Subject" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </div>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.Body]" Component="Body" />
+                        <RadzenTextArea @bind-Value="Model.Body" Name="Body" Rows="4" Class="w-100" />
+                        <RadzenRequiredValidator Component="Body" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </div>
+                </RadzenColumn>
+
+                <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.ScheduleType]" />
+                        <RadzenDropDown @bind-Value="Model.ScheduleType"
+                                        Data="@_typeOptions"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        TValue="string"
+                                        Class="w-100" />
+                    </div>
+                </RadzenColumn>
+
+                @if (Model.ScheduleType != ScheduleTypeOneTime)
+                {
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.ExecuteTimeLocal]" />
+                            <RadzenDatePicker @bind-Value="Model.ExecuteTimeLocal"
+                                              TimeOnly="true"
+                                              DateFormat="HH:mm"
+                                              Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+
+                <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                    <div>
+                        <RadzenLabel Text="@L[RK.NotificationSchedules.Form.TimeZoneId]" Component="TimeZoneId" />
+                        <RadzenTextBox @bind-Value="Model.TimeZoneId" Name="TimeZoneId" Class="w-100" />
+                        <RadzenRequiredValidator Component="TimeZoneId" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </div>
+                </RadzenColumn>
+
+                @if (Model.ScheduleType == ScheduleTypeEveryXDays)
+                {
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.IntervalDays]" />
+                            <RadzenNumeric @bind-Value="Model.IntervalDays"
+                                           Min="1"
+                                           Max="365"
+                                           Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+                else if (Model.ScheduleType == ScheduleTypeWeekly)
+                {
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.DayOfWeek]" />
+                            <RadzenDropDown @bind-Value="Model.DayOfWeek"
+                                            Data="@_dayOfWeekOptions"
+                                            TextProperty="Text"
+                                            ValueProperty="Value"
+                                            TValue="string"
+                                            Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+                else if (Model.ScheduleType == ScheduleTypeMonthly)
+                {
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.DayOfMonth]" />
+                            <RadzenNumeric @bind-Value="Model.DayOfMonth"
+                                           Min="1"
+                                           Max="31"
+                                           Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.MonthlyOverflowPolicy]" />
+                            <RadzenDropDown @bind-Value="Model.MonthlyOverflowPolicy"
+                                            Data="@_overflowPolicyOptions"
+                                            TextProperty="Text"
+                                            ValueProperty="Value"
+                                            TValue="string"
+                                            Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+
+                @if (Model.ScheduleType != ScheduleTypeOneTime && _isEdit)
+                {
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.StartDateLocal]" />
+                            <RadzenDatePicker @bind-Value="Model.StartDateLocal" Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+
+                @if (Model.ScheduleType == ScheduleTypeOneTime)
+                {
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <div>
+                            <RadzenLabel Text="@L[RK.NotificationSchedules.Form.OneTimeAtLocal]" />
+                            <RadzenDatePicker @bind-Value="Model.OneTimeAtLocal" Class="w-100" />
+                        </div>
+                    </RadzenColumn>
+                }
+            </RadzenRow>
+
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         Gap="0.5rem"
+                         JustifyContent="JustifyContent.End"
+                         Wrap="FlexWrap.Wrap">
+                <RadzenButton Text="@L[RK.Common.Cancel]"
+                              ButtonStyle="ButtonStyle.Secondary"
+                              Click="@Cancel"
+                              Disabled="@_isSubmitting" />
+                <RadzenButton Text="@(_isEdit ? L[RK.NotificationSchedules.Action.Update] : L[RK.NotificationSchedules.Action.Create])"
+                              ButtonType="ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Disabled="@_isSubmitting" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public NotificationScheduleDto? Schedule { get; set; }
+
+    private ScheduleFormModel Model { get; set; } = new();
+    private bool _isEdit;
+    private bool _isSubmitting;
+    private IReadOnlyList<SelectOption> _typeOptions = [];
+    private IReadOnlyList<SelectOption> _dayOfWeekOptions = [];
+    private IReadOnlyList<SelectOption> _overflowPolicyOptions = [];
+
+    private const string ScheduleTypeOneTime = "OneTime";
+    private const string ScheduleTypeEveryXDays = "EveryXDays";
+    private const string ScheduleTypeWeekly = "Weekly";
+    private const string ScheduleTypeMonthly = "Monthly";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _typeOptions = BuildTypeOptions();
+        _dayOfWeekOptions = BuildDayOfWeekOptions();
+        _overflowPolicyOptions = BuildOverflowPolicyOptions();
+        _isEdit = Schedule is not null;
+        if (Schedule is not null)
+        {
+            Model = new ScheduleFormModel
+            {
+                Name = Schedule.Name,
+                TemplateKey = Schedule.TemplateKey,
+                Subject = Schedule.Subject,
+                Body = Schedule.Body,
+                ScheduleType = Schedule.Recurrence.Type.ToString(),
+                ExecuteTimeLocal = Schedule.ExecuteTimeLocal,
+                TimeZoneId = Schedule.TimeZoneId,
+                Description = Schedule.Description,
+                DataJson = Schedule.DataJson,
+                IntervalDays = Schedule.Recurrence.IntervalDays ?? 1,
+                DayOfWeek = Schedule.Recurrence.DayOfWeek?.ToString() ?? "Monday",
+                DayOfMonth = Schedule.Recurrence.DayOfMonth ?? 1,
+                MonthlyOverflowPolicy = Schedule.Recurrence.MonthlyOverflowPolicy.ToString(),
+                MisfirePolicy = Schedule.Recurrence.MisfirePolicy.ToString(),
+                CatchUpLimit = Schedule.Recurrence.CatchUpLimit,
+                StartDateLocal = Schedule.StartDateLocal,
+                OneTimeAtLocal = Schedule.OneTimeAtLocal,
+                EndAtUtc = Schedule.EndAtUtc,
+                MaxConsecutiveFailures = 3
+            };
+        }
+    }
+
+    private void OnInvalid()
+    {
+        NotificationService.NotifyWarning(L[RK.NotificationSchedules.ValidationFixErrors]);
+    }
+
+    private async Task OnSubmit()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            if (_isEdit)
+            {
+                await ScheduleService.UpdateScheduleAsync(Schedule!.Id, BuildUpdateRequest());
+                NotificationService.NotifySuccess(L[RK.NotificationSchedules.UpdateSuccess]);
+            }
+            else
+            {
+                await ScheduleService.CreateScheduleAsync(BuildCreateRequest());
+                NotificationService.NotifySuccess(L[RK.NotificationSchedules.CreateSuccess]);
+            }
+
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            var summary = _isEdit
+                ? L[RK.NotificationSchedules.UpdateFailed]
+                : L[RK.NotificationSchedules.CreateFailed];
+
+            NotificationService.NotifyError(summary, ex.Message);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private CreateNotificationScheduleRequest BuildCreateRequest() => new()
+    {
+        Name = Model.Name,
+        TemplateKey = Model.TemplateKey,
+        Subject = Model.Subject,
+        Body = Model.Body,
+        DataJson = EmptyToNull(Model.DataJson),
+        TimeZoneId = Model.TimeZoneId,
+        ExecuteTimeLocal = FormatTimeOnly(Model.ExecuteTimeLocal),
+        OneTimeAtLocal = Model.OneTimeAtLocal?.ToString("O"),
+        StartDateLocal = Model.StartDateLocal?.ToString("O"),
+        Type = Model.ScheduleType,
+        IntervalDays = Model.IntervalDays,
+        DayOfWeek = Model.DayOfWeek,
+        DayOfMonth = Model.DayOfMonth,
+        MonthlyOverflowPolicy = Model.MonthlyOverflowPolicy,
+        MisfirePolicy = Model.MisfirePolicy,
+        CatchUpLimit = Model.CatchUpLimit,
+        EndAtUtc = Model.EndAtUtc?.ToString("O"),
+        MaxConsecutiveFailures = Model.MaxConsecutiveFailures
+    };
+
+    private UpdateNotificationScheduleRequest BuildUpdateRequest() => new()
+    {
+        Id = Schedule!.Id,
+        Name = Model.Name,
+        Description = EmptyToNull(Model.Description),
+        TemplateKey = Model.TemplateKey,
+        Subject = Model.Subject,
+        Body = Model.Body,
+        DataJson = EmptyToNull(Model.DataJson),
+        ExecuteTimeLocal = FormatTimeOnly(Model.ExecuteTimeLocal),
+        OneTimeAtLocal = Model.OneTimeAtLocal?.ToString("O"),
+        StartDateLocal = Model.StartDateLocal?.ToString("O"),
+        EndAtUtc = Model.EndAtUtc?.ToString("O"),
+        Type = Model.ScheduleType,
+        IntervalDays = Model.IntervalDays,
+        DayOfWeek = Model.DayOfWeek,
+        DayOfMonth = Model.DayOfMonth,
+        MonthlyOverflowPolicy = Model.MonthlyOverflowPolicy,
+        MisfirePolicy = Model.MisfirePolicy,
+        CatchUpLimit = Model.CatchUpLimit,
+        MaxConsecutiveFailures = Model.MaxConsecutiveFailures
+    };
+
+    private void Cancel() => DialogService.Close(false);
+
+    private IReadOnlyList<SelectOption> BuildTypeOptions() =>
+    [
+        new(ScheduleTypeOneTime, L[RK.NotificationSchedules.Form.Option.OneTime]),
+        new(ScheduleTypeEveryXDays, L[RK.NotificationSchedules.Form.Option.EveryXDays]),
+        new(ScheduleTypeWeekly, L[RK.NotificationSchedules.Form.Option.Weekly]),
+        new(ScheduleTypeMonthly, L[RK.NotificationSchedules.Form.Option.Monthly])
+    ];
+
+    private IReadOnlyList<SelectOption> BuildDayOfWeekOptions() =>
+    [
+        new("Monday", L[RK.NotificationSchedules.Form.Option.Monday]),
+        new("Tuesday", L[RK.NotificationSchedules.Form.Option.Tuesday]),
+        new("Wednesday", L[RK.NotificationSchedules.Form.Option.Wednesday]),
+        new("Thursday", L[RK.NotificationSchedules.Form.Option.Thursday]),
+        new("Friday", L[RK.NotificationSchedules.Form.Option.Friday]),
+        new("Saturday", L[RK.NotificationSchedules.Form.Option.Saturday]),
+        new("Sunday", L[RK.NotificationSchedules.Form.Option.Sunday])
+    ];
+
+    private IReadOnlyList<SelectOption> BuildOverflowPolicyOptions() =>
+    [
+        new("SkipMonth", L[RK.NotificationSchedules.Form.Option.SkipMonth]),
+        new("RunOnLastDay", L[RK.NotificationSchedules.Form.Option.RunOnLastDay])
+    ];
+
+    private static string FormatTimeOnly(TimeOnly value) => value.ToString("HH:mm:ss");
+
+    private static string? EmptyToNull(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private sealed record SelectOption(string Value, string Text);
+
+    private sealed class ScheduleFormModel
+    {
+        public string Name { get; set; } = "";
+        public string? Description { get; set; }
+        public string TemplateKey { get; set; } = "price-alert";
+        public string Subject { get; set; } = "";
+        public string Body { get; set; } = "";
+        public string? DataJson { get; set; }
+        public string ScheduleType { get; set; } = "EveryXDays";
+        public TimeOnly ExecuteTimeLocal { get; set; } = new(8, 0);
+        public string TimeZoneId { get; set; } = "Asia/Ho_Chi_Minh";
+        public int IntervalDays { get; set; } = 1;
+        public string DayOfWeek { get; set; } = "Monday";
+        public int DayOfMonth { get; set; } = 1;
+        public string MonthlyOverflowPolicy { get; set; } = "SkipMonth";
+        public string MisfirePolicy { get; set; } = "Skip";
+        public int? CatchUpLimit { get; set; }
+        public DateTime? StartDateLocal { get; set; }
+        public DateTime? OneTimeAtLocal { get; set; }
+        public DateTime? EndAtUtc { get; set; }
+        public int MaxConsecutiveFailures { get; set; } = 3;
+    }
+}

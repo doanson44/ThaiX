@@ -1,0 +1,80 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTextBox @bind-Value="@_title"
+                   Placeholder="@L[RK.Notes.TitlePlaceholder]"
+                   class="w-100" />
+
+    <RadzenTextArea @bind-Value="@_content"
+                    Placeholder="@L[RK.Notes.ContentPlaceholder]"
+                    Rows="6"
+                    class="w-100" />
+
+    <RadzenDropDown Data="@_colorOptions"
+                    @bind-Value="@_color"
+                    class="w-100 tx-control-max-12"
+                    TItem="ColorOption"
+                    TextProperty="Label"
+                    ValueProperty="Value">
+        <Template Context="option">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @option.Hex;"></span>
+                <span>@option.Label</span>
+            </div>
+        </Template>
+    </RadzenDropDown>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" JustifyContent="JustifyContent.End">
+        <RadzenButton Text="@L[RK.Common.Cancel]"
+                      ButtonStyle="ButtonStyle.Light"
+                      Click="@Cancel" />
+        <RadzenButton Text="@L[RK.Common.Save]"
+                      ButtonStyle="ButtonStyle.Primary"
+                      Click="@Save" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Content { get; set; } = string.Empty;
+    [Parameter] public string Color { get; set; } = "Default";
+
+    [Inject] private DialogService DialogService { get; set; } = null!;
+
+    private string _title = string.Empty;
+    private string _content = string.Empty;
+    private string _color = "Default";
+
+    private readonly List<ColorOption> _colorOptions =
+    [
+        new("Default", "Default", "#e8eaed"),
+        new("Red", "Red", "#f28b82"),
+        new("Orange", "Orange", "#fbbc04"),
+        new("Yellow", "Yellow", "#fff475"),
+        new("Green", "Green", "#ccff90"),
+        new("Teal", "Teal", "#a7ffeb"),
+        new("Blue", "Blue", "#cbf0f8"),
+        new("Purple", "Purple", "#d7aefb"),
+        new("Gray", "Gray", "#e8eaed")
+    ];
+
+    protected override void OnInitialized()
+    {
+        _title = Title;
+        _content = Content;
+        _color = Color;
+    }
+
+    private void Save()
+    {
+        DialogService.Close(new NoteEditResult(true, _title.Trim(), _content.Trim(), _color));
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(new NoteEditResult(false, string.Empty, string.Empty, "Default"));
+    }
+
+    private sealed record ColorOption(string Label, string Value, string Hex);
+}

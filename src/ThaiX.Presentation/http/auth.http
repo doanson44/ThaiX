@@ -1,0 +1,73 @@
+# Authentication Endpoints
+# POST /api/auth/login
+# POST /api/auth/register
+# POST /api/auth/logout
+# GET  /api/auth/user
+# POST /api/auth/change-password
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# Run this first, then copy the token into @authToken below.
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+
+###
+
+# After running the request above, set @authToken from the response:
+# e.g.  @authToken = eyJhbGci...
+@authToken = {{login.response.body.$.data.token}}
+
+
+# ============================================================
+# Authentication Endpoints
+# ============================================================
+
+### Register a new user (anonymous)
+POST {{baseUrl}}/api/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "newuser@example.com",
+  "password": "NewUser@123456",
+  "confirmPassword": "NewUser@123456"
+}
+
+###
+
+### Logout current user (JWT - client removes token client-side)
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+### Get current authenticated user info
+GET {{baseUrl}}/api/auth/user
+Authorization: Bearer {{authToken}}
+
+###
+
+### Change password
+POST {{baseUrl}}/api/auth/change-password
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "currentPassword": "Admin@123456",
+  "newPassword": "Admin@NewPass1!",
+  "confirmPassword": "Admin@NewPass1!"
+}

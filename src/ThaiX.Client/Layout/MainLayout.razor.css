@@ -1,0 +1,23 @@
+/* .tx-main-layout / .tx-sidebar-overlay / .tx-sidebar-mask / .header-brand
+   overrides live in wwwroot/css/app.css instead of here — see the comment
+   there. Radzen's Layout/Sidebar/Header components don't propagate the
+   Blazor CSS-isolation scope attribute down to their internally-rendered
+   elements, so ::deep rules targeting them from this scoped stylesheet
+   never actually matched. */
+
+/* .tx-header-avatar lives in wwwroot/css/app.css — RadzenProfileMenu template
+   is outside this scoped stylesheet's reach. */
+
+::deep .tx-footer {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+::deep .tx-footer-link {
+    color: var(--tx-accent, #f59e0b);
+    text-decoration: none;
+}
+
+::deep .tx-footer-link:hover {
+    text-decoration: underline;
+}

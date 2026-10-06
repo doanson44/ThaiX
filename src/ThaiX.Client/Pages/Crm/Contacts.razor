@@ -1,0 +1,572 @@
+@page "/crm/contacts"
+@attribute [Authorize(Policy = PermissionNames.ContactRead)]
+@using ThaiX.Client.Components.Crm.Contacts
+@using static ThaiX.Client.Constants.DialogModes
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IContactService ContactService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IFileDownloadService FileDownloadService
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JsRuntime
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.Contacts.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <div>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">@L[RK.Contacts.Title]</RadzenText>
+                        <RadzenText class="text-muted">@L[RK.Contacts.ListTitle]</RadzenText>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <ResponsiveIconButton Text="@L[RK.Contacts.Export]"
+                                      Icon="download"
+                                      ButtonStyle="ButtonStyle.Secondary"
+                                      Click="@ExportAsync"
+                                      IsBusy="@_isExporting"
+                                      Disabled="@_isExporting" />
+                        @if (_canWrite)
+                        {
+                            <ResponsiveIconButton Text="@L[RK.Contacts.AddNew]"
+                                          Icon="add"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          Click="@OpenCreateDialogAsync" />
+                        }
+                    </div>
+                </RadzenStack>
+
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    <RadzenColumn Size="12">
+                        <RadzenLabel Text="@L[RK.Contacts.SearchLabel]" />
+                        <div class="ThaiX-input-group">
+                            <RadzenTextBox @bind-Value="_searchTerm"
+                                           Placeholder="@L[RK.Contacts.SearchPlaceholder]"
+                                           Change="@(_ => ApplyFiltersAsync())" />
+                            <InputGroupSearchButton Click="@ApplyFiltersAsync" />
+                            <RadzenButton Icon="close"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ResetFiltersAsync"
+                                          aria-label="@L[RK.Common.Cancel]" />
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenLabel Text="@L[RK.Contacts.FilterTag]" />
+                        <RadzenTextBox @bind-Value="_tagFilter"
+                                       Placeholder="@L[RK.Contacts.FilterTag]"
+                                       class="w-100"
+                                       Change="@(_ => ApplyFiltersAsync())" />
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenLabel Text="@L[RK.Contacts.FilterArchive]" />
+                        <RadzenDropDown TValue="string"
+                                        @bind-Value="_archiveFilter"
+                                        Data="@ArchiveFilterOptions"
+                                        TextProperty="Label"
+                                        ValueProperty="Value"
+                                        class="w-100"
+                                        Change="@(_ => ApplyFiltersAsync())" />
+                    </RadzenColumn>
+
+                    @if (_canWrite)
+                    {
+                        <RadzenColumn Size="12">
+                            <RadzenText class="text-muted small mb-1">@L[RK.Contacts.ImportTemplateNote]</RadzenText>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <ResponsiveIconButton Text="@L[RK.Contacts.ImportDownloadTemplate]"
+                                              Icon="download"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Size="ButtonSize.Small"
+                                              Click="@DownloadTemplateAsync"
+                                              IsBusy="@_downloadingTemplate"
+                                              Disabled="@_downloadingTemplate" />
+                            </div>
+                            <RadzenLabel Text="@L[RK.Contacts.ImportCsv]" />
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <InputFile OnChange="OnFileSelected" accept=".csv" class="form-control flex-grow-1" />
+                                <ResponsiveIconButton Text="@L[RK.Contacts.ImportButton]"
+                                              Icon="upload"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              Size="ButtonSize.Small"
+                                              Click="@ImportFileAsync"
+                                              IsBusy="@_isImporting"
+                                              Disabled="@(_selectedFile is null || _isImporting)" />
+                            </div>
+                        </RadzenColumn>
+                    }
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Body1 : TextStyle.H6)" class="mb-0">@L[RK.Contacts.ListTitle]</RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="ContactListItemDto"
+                                    Data="@_items"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadDataAsync"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="true"
+                                    FilterMode="FilterMode.Advanced"
+                                    PageSize="@DefaultPageSize"
+                                    PageSizeOptions="@PageSizeOptions"
+                                    ShowPagingSummary="true"
+                                    Density="Density.Compact"
+                                    IsLoading="@_isLoading">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.AvatarUrl]" Width="60px">
+                                <Template>
+                                    <RadzenIcon Icon="person" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Property="DisplayName" Title="@L[RK.Contacts.Name]" />
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.PrimaryEmail]">
+                                <Template Context="item">
+                                    @if (!string.IsNullOrWhiteSpace(item.PrimaryEmail))
+                                    {
+                                        <span class="d-inline-flex align-items-center gap-1">
+                                            <a href="mailto:@item.PrimaryEmail" class="text-decoration-none">@item.PrimaryEmail</a>
+                                            <RadzenButton Icon="content_copy"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Variant="Variant.Flat"
+                                                          Size="ButtonSize.ExtraSmall"
+                                                          Click="@(() => CopyToClipboardAsync(item.PrimaryEmail!))"
+                                                          aria-label="@L[RK.Common.Copy]" />
+                                        </span>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.PrimaryPhone]">
+                                <Template Context="item">
+                                    @if (!string.IsNullOrWhiteSpace(item.PrimaryPhone))
+                                    {
+                                        <span class="d-inline-flex align-items-center gap-1">
+                                            <a href="tel:@item.PrimaryPhone" class="text-decoration-none">@item.PrimaryPhone</a>
+                                            <RadzenButton Icon="content_copy"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Variant="Variant.Flat"
+                                                          Size="ButtonSize.ExtraSmall"
+                                                          Click="@(() => CopyToClipboardAsync(item.PrimaryPhone!))"
+                                                          aria-label="@L[RK.Common.Copy]" />
+                                        </span>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Property="Company" Title="@L[RK.Contacts.Company]" />
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Property="LastUpdated" Title="@L[RK.Contacts.LastUpdated]" FormatString="{0:g}" />
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.Status]">
+                                <Template Context="item">
+                                    <RadzenBadge Text="@(item.IsArchived ? L[RK.Contacts.FilterArchiveArchived] : L[RK.Contacts.FilterArchiveActive])"
+                                                 BadgeStyle="@(item.IsArchived ? BadgeStyle.Warning : BadgeStyle.Success)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.Actions]" Width="130px" Sortable="false" Filterable="false">
+                                <Template Context="item">
+                                    <RadzenButton Icon="@(_canWrite ? "edit" : "visibility")"
+                                                  ButtonStyle="@(_canWrite ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                                  Variant="Variant.Flat"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@(() => OpenContactDialogAsync(item, _canWrite ? Edit : View))" />
+                                    @if (_canDelete)
+                                    {
+                                        <RadzenButton Icon="delete"
+                                                      ButtonStyle="ButtonStyle.Danger"
+                                                      Variant="Variant.Flat"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@(() => DeleteContactAsync(item))" />
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+
+                @if (Viewport.IsMobile)
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_isLoading)
+                        {
+                            <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                        }
+                        else if (_items.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            @foreach (var item in _items)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.75rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <RadzenIcon Icon="person" />
+                                                <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@item.DisplayName</RadzenText>
+                                            </div>
+                                            <RadzenBadge Text="@(item.IsArchived ? L[RK.Contacts.FilterArchiveArchived] : L[RK.Contacts.FilterArchiveActive])"
+                                                         BadgeStyle="@(item.IsArchived ? BadgeStyle.Warning : BadgeStyle.Success)" />
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">@item.PrimaryEmail</RadzenText>
+                                        <RadzenText class="text-muted small mb-0">@item.PrimaryPhone</RadzenText>
+                                        @if (!string.IsNullOrWhiteSpace(item.Company))
+                                        {
+                                            <RadzenText class="text-muted small mb-0">@item.Company</RadzenText>
+                                        }
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <ResponsiveIconButton Text="@GetOpenActionText()"
+                                                          ButtonStyle="@(_canWrite ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                                          Icon="@(_canWrite ? "edit" : "visibility")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => OpenContactDialogAsync(item, _canWrite ? Edit : View))" />
+                                            @if (_canDelete)
+                                            {
+                                                <ResponsiveIconButton Text="@L[RK.Contacts.Delete]"
+                                                              ButtonStyle="ButtonStyle.Danger"
+                                                              Icon="delete"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => DeleteContactAsync(item))" />
+                                            }
+                                        </div>
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoading" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+
+    private static readonly IEnumerable<int> PageSizeOptions = new[] { 10, 25, 50, 100 };
+
+    private RadzenDataGrid<ContactListItemDto>? _grid;
+    private IReadOnlyList<ContactListItemDto> _items = [];
+    private int _totalCount;
+    private bool _isLoading;
+    private bool _isExporting;
+    private bool _downloadingTemplate;
+    private bool _isImporting;
+    private bool _canWrite;
+    private bool _canDelete;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private string? _searchTerm;
+    private string? _tagFilter;
+    private string _archiveFilter = "active";
+    private IBrowserFile? _selectedFile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.ContactWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.ContactDelete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        if (_grid is not null)
+        {
+            await _grid.Reload();
+        }
+        else
+        {
+            await LoadDataAsync(new LoadDataArgs { Skip = 0, Top = _pageSize });
+        }
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+
+        try
+        {
+            _pageSize = args.Top ?? DefaultPageSize;
+            _currentPage = _pageSize <= 0 ? 1 : ((args.Skip ?? 0) / _pageSize) + 1;
+            var sort = args.Sorts?.FirstOrDefault();
+
+            var result = await ContactService.GetContactsAsync(new ContactListRequest
+            {
+                PageNumber = _currentPage,
+                PageSize = _pageSize,
+                SortBy = MapSortProperty(sort?.Property),
+                SortDescending = sort?.SortOrder == SortOrder.Descending,
+                SearchTerm = TrimOrNull(_searchTerm),
+                Tag = TrimOrNull(_tagFilter),
+                IsArchived = ParseArchiveFilter(_archiveFilter)
+            });
+
+            _items = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.LoadFailed], ex.GetDisplayDetail());
+            _items = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplyFiltersAsync()
+    {
+        _currentPage = 1;
+        await ReloadAsync();
+    }
+
+    private async Task ResetFiltersAsync()
+    {
+        _searchTerm = null;
+        _tagFilter = null;
+        _archiveFilter = "active";
+        await ApplyFiltersAsync();
+    }
+
+    private async Task ReloadAsync()
+    {
+        if (_grid is not null)
+        {
+            await _grid.Reload();
+            return;
+        }
+
+        await LoadDataAsync(new LoadDataArgs
+        {
+            Skip = (_currentPage - 1) * _pageSize,
+            Top = _pageSize
+        });
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        _currentPage = page;
+        await ReloadAsync();
+    }
+
+    private async Task CopyToClipboardAsync(string text)
+    {
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        NotificationService.NotifyInfo(L[RK.Common.Copy], text);
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var shouldReload = await DialogService.OpenAsync<ContactEditorDialog>(
+            L[RK.Contacts.CreateTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(ContactEditorDialog.Mode)] = Create
+            },
+            BuildDialogOptions());
+
+        if (shouldReload is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task OpenContactDialogAsync(ContactListItemDto item, string mode)
+    {
+        var shouldReload = await DialogService.OpenAsync<ContactEditorDialog>(
+            mode == View ? L[RK.Contacts.View] : L[RK.Contacts.Edit],
+            new Dictionary<string, object?>
+            {
+                [nameof(ContactEditorDialog.Mode)] = mode,
+                [nameof(ContactEditorDialog.ContactId)] = item.Id
+            },
+            BuildDialogOptions());
+
+        if (shouldReload is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task DeleteContactAsync(ContactListItemDto item)
+    {
+        if (!_canDelete)
+        {
+            return;
+        }
+
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.Contacts.ConfirmDelete]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await ContactService.DeleteContactAsync(item.Id);
+            NotificationService.NotifySuccess(L[RK.Contacts.DeleteSuccess]);
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.DeleteFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task DownloadTemplateAsync()
+    {
+        if (_downloadingTemplate || !_canWrite) return;
+        _downloadingTemplate = true;
+        try
+        {
+            var file = await ContactService.GetImportTemplateAsync();
+            await FileDownloadService.DownloadAsync(file.FileName, file.ContentType, file.FileContent);
+            NotificationService.NotifySuccess(L[RK.Contacts.ImportDownloadTemplate], file.FileName);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.ImportFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _downloadingTemplate = false;
+        }
+    }
+
+    private void OnFileSelected(InputFileChangeEventArgs args)
+    {
+        _selectedFile = args.File;
+    }
+
+    private async Task ImportFileAsync()
+    {
+        if (_selectedFile is null || _isImporting || !_canWrite) return;
+
+        _isImporting = true;
+
+        try
+        {
+            await using var stream = _selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 5);
+            var result = await ContactService.ImportContactsAsync(stream, _selectedFile.Name);
+            var message = string.Format(L[RK.Contacts.ImportResult], result.InsertedCount, result.UpdatedCount, result.SkippedCount);
+            NotificationService.NotifySuccess(L[RK.Contacts.ImportSuccess], message);
+            _selectedFile = null;
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.ImportFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isImporting = false;
+        }
+    }
+
+    private async Task ExportAsync()
+    {
+        if (_isExporting)
+        {
+            return;
+        }
+
+        _isExporting = true;
+
+        try
+        {
+            var file = await ContactService.ExportContactsAsync(new ContactExportRequest
+            {
+                SearchTerm = TrimOrNull(_searchTerm),
+                Tag = TrimOrNull(_tagFilter),
+                IsArchived = ParseArchiveFilter(_archiveFilter)
+            });
+
+            await FileDownloadService.DownloadAsync(file.FileName, file.ContentType, file.FileContent);
+            NotificationService.NotifySuccess(L[RK.Contacts.ExportSuccess], file.FileName);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Contacts.ExportFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isExporting = false;
+        }
+    }
+
+    private DialogOptions BuildDialogOptions()
+    {
+        return new DialogOptions
+        {
+            Width = "min(1200px, 96vw)",
+            Height = "auto",
+            Style = "max-height: min(96vh, 920px);",
+            ContentCssClass = "tx-dialog-content-scroll",
+            Resizable = false,
+            Draggable = false,
+            CloseDialogOnEsc = true,
+            ShowClose = true,
+            CloseDialogOnOverlayClick = false
+        };
+    }
+
+    private IReadOnlyList<ArchiveFilterOption> ArchiveFilterOptions =>
+    [
+        new("all", L[RK.Contacts.FilterArchiveAll].Value),
+        new("active", L[RK.Contacts.FilterArchiveActive].Value),
+        new("archived", L[RK.Contacts.FilterArchiveArchived].Value)
+    ];
+
+    private static bool? ParseArchiveFilter(string value) => value switch
+    {
+        "active" => false,
+        "archived" => true,
+        _ => null
+    };
+
+    private static string MapSortProperty(string? property) => property switch
+    {
+        nameof(ContactListItemDto.DisplayName) => "lastname",
+        nameof(ContactListItemDto.FirstName) => "firstname",
+        nameof(ContactListItemDto.LastName) => "lastname",
+        nameof(ContactListItemDto.Company) => "company",
+        _ => "lastname"
+    };
+
+    private static string? TrimOrNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private string GetOpenActionText() => _canWrite ? L[RK.Contacts.Edit] : L[RK.Contacts.View];
+
+    private sealed record ArchiveFilterOption(string Value, string Label);
+}

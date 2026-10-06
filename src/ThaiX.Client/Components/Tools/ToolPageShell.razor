@@ -1,0 +1,164 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Services.Tools
+@inject IStringLocalizer<SharedResource> L
+@inject IToolStateStore ToolStateStore
+@inject NotificationService NotificationService
+@inject IJSRuntime JS
+@inherits ThaiXPageBase
+
+<div class="container-fluid py-2 ThaiX-tools">
+    <RadzenStack Gap="1rem" Class="ThaiX-tools__stack">
+        <RadzenStack Orientation="Orientation.Horizontal"
+                     JustifyContent="JustifyContent.SpaceBetween"
+                     AlignItems="@(Viewport.IsMobile ? AlignItems.Start : AlignItems.Center)"
+                     Wrap="FlexWrap.Wrap"
+                     Gap="0.5rem"
+                     Class="ThaiX-tools__header">
+            <RadzenStack Gap="0.25rem" Class="ThaiX-tools__title-block">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="ThaiX-tools__title-row">
+                    <RadzenButton Icon="arrow_back"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small"
+                                  Click="@(() => Navigation.NavigateTo("/tools"))"
+                                  aria-label="@L[RK.Tools.HubTitle]" />
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H1" Class="mb-0 ThaiX-tools__title">
+                        @Title
+                    </RadzenText>
+                </RadzenStack>
+                @if (!string.IsNullOrWhiteSpace(Description))
+                {
+                    <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0 ThaiX-tools__description">@Description</RadzenText>
+                }
+            </RadzenStack>
+
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         Gap="0.5rem"
+                         Wrap="FlexWrap.Wrap"
+                         Class="ThaiX-tools__actions">
+                @if (_canCloudWrite && Tool.AllowShare)
+                {
+                    <ResponsiveIconButton Text="@L[RK.Tools.Share]"
+                                          Icon="share"
+                                          ButtonStyle="ButtonStyle.Info"
+                                          IsBusy="@_busy"
+                                          Disabled="@_busy"
+                                          Click="ShareAsync" />
+                }
+                <ResponsiveIconButton Text="@L[RK.Tools.ClearDraft]"
+                                      Icon="delete_sweep"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Disabled="@_busy"
+                                      Click="ClearDraftAsync" />
+                @ActionButtons
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenAlert AlertStyle="AlertStyle.Info" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
+            @L[_privacyMessageKey]
+        </RadzenAlert>
+
+        @if (!string.IsNullOrWhiteSpace(_shareUrl))
+        {
+            <RadzenStack Gap="0.5rem" Class="ThaiX-tools__share">
+                <RadzenLabel Text="@L[RK.Tools.ShareLink]" />
+                <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)"
+                             Gap="0.5rem"
+                             AlignItems="@(Viewport.IsMobile ? AlignItems.Stretch : AlignItems.Start)"
+                             Class="w-100">
+                    <RadzenTextBox Value="@_shareUrl" ReadOnly="true" Class="w-100 font-monospace ThaiX-tools__share-url" />
+                    <RadzenButton Icon="content_copy"
+                                  Text="@(Viewport.IsMobile ? L[RK.Common.Copy].Value : null)"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@CopyShareUrlAsync"
+                                  title="@L[RK.Common.Copy]"
+                                  aria-label="@L[RK.Common.Copy]"
+                                  Class="@(Viewport.IsMobile ? "w-100" : null)" />
+                </RadzenStack>
+            </RadzenStack>
+        }
+
+        <div class="ThaiX-tools__body">
+            @ChildContent
+        </div>
+    </RadzenStack>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public ToolDefinition Tool { get; set; } = default!;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? ActionButtons { get; set; }
+    [Parameter] public Func<string>? GetStateJson { get; set; }
+    [Parameter] public EventCallback OnDraftCleared { get; set; }
+
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    private bool _busy;
+    private bool _canCloudWrite;
+    private string? _shareUrl;
+    private string _privacyMessageKey = RK.Tools.PrivacyLocalOnly;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _canCloudWrite = await ToolStateStore.CanCloudWriteAsync();
+        _privacyMessageKey = _canCloudWrite && Tool.AllowCloudSave
+            ? RK.Tools.PrivacyCloudSync
+            : RK.Tools.PrivacyLocalOnly;
+    }
+
+    private async Task ShareAsync()
+    {
+        if (GetStateJson is null) return;
+        _busy = true;
+        try
+        {
+            var name = $"{L[RK.Tools.CloudBinNamePrefix]} {Title}";
+            _shareUrl = await ToolStateStore.ShareAsync(Tool, GetStateJson(), name);
+            NotificationService.NotifySuccess(L[RK.Tools.ShareSuccess]);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Tools.ShareFailed], ex.Message);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ClearDraftAsync()
+    {
+        _busy = true;
+        try
+        {
+            await ToolStateStore.ClearLocalAsync(Tool);
+            _shareUrl = null;
+            await OnDraftCleared.InvokeAsync();
+            NotificationService.NotifySuccess(L[RK.Tools.ClearSuccess]);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyWarning(L[RK.Tools.ValidationTitle], ex.Message);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task CopyShareUrlAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_shareUrl)) return;
+        try
+        {
+            var copied = await JS.InvokeAsync<bool>("copyTextToClipboard", _shareUrl);
+            if (!copied) throw new InvalidOperationException("Clipboard copy command failed.");
+            NotificationService.NotifySuccess(L[RK.JsonBins.CopySuccess]);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.CopyFailed], ex.Message);
+        }
+    }
+}

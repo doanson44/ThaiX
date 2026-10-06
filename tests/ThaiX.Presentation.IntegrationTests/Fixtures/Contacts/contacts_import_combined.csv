@@ -1,0 +1,13 @@
+﻿Given Name,Family Name,Birthday,Notes,Group Membership,E-mail 1 - Value,E-mail 2 - Value,E-mail 3 - Value,Phone 1 - Value,Phone 2 - Value,Phone 3 - Value,Organization 1 - Name,Organization 1 - Title,Address 1 - Street,Address 1 - Country,Address 1 - City,Address 1 - Region,Address 1 - Postal Code,Address 1 - Extended Address,Website 1 - Type,Website 1 - Value,Website 2 - Type,Website 2 - Value,DocumentType,DocumentNumber,IssuedBy,IssuedPlace,IssuedDate,ExpiryDate,BankCode,BankAccountNumber,BankAccountName,BankCurrencyCode
+Dummy1,Tester1,1990-01-01,Office: Test | Code: T001 | Actual Start Date: 1/1/2020,TestGroup ::: * myContacts,dummy1@example.com,,,+84900000001,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy2,Tester2,1990-02-01,Office: Test | Code: T002 | Actual Start Date: 2/1/2020,TestGroup ::: * myContacts,dummy2@example.com,,,+84900000002,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy3,Tester3,1990-03-01,Office: Test | Code: T003 | Actual Start Date: 3/1/2020,TestGroup ::: * myContacts,dummy3@example.com,,,+84900000003,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy4,Tester4,1990-04-01,Office: Test | Code: T004 | Actual Start Date: 4/1/2020,TestGroup ::: * myContacts,dummy4@example.com,,,+84900000004,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy5,Tester5,1990-05-01,Office: Test | Code: T005 | Actual Start Date: 5/1/2020,TestGroup ::: * myContacts,dummy5@example.com,,,+84900000005,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy6,Tester6,1990-06-01,Office: Test | Code: T006 | Actual Start Date: 6/1/2020,TestGroup ::: * myContacts,dummy6@example.com,,,+84900000006,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy7,Tester7,1990-07-01,Office: Test | Code: T007 | Actual Start Date: 7/1/2020,TestGroup ::: * myContacts,dummy7@example.com,,,+84900000007,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy8,Tester8,1990-08-01,Office: Test | Code: T008 | Actual Start Date: 8/1/2020,TestGroup ::: * myContacts,dummy8@example.com,,,+84900000008,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy9,Tester9,1990-09-01,Office: Test | Code: T009 | Actual Start Date: 9/1/2020,TestGroup ::: * myContacts,dummy9@example.com,,,+84900000009,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy10,Tester10,1990-10-01,Office: Test | Code: T010 | Actual Start Date: 10/1/2020,TestGroup ::: * myContacts,dummy10@example.com,,,+84900000010,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy11,Tester11,1990-11-01,Office: Test | Code: T011 | Actual Start Date: 11/1/2020,TestGroup ::: * myContacts,dummy11@example.com,,,+84900000011,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,
+Dummy12,Tester12,1990-12-01,Office: Test | Code: T012 | Actual Start Date: 12/1/2020,TestGroup ::: * myContacts,dummy12@example.com,,,+84900000012,,,DummyCorp,Tester,,,,,,,,,,,,,,,,,,,,

@@ -1,0 +1,172 @@
+@page "/admin/json-bins/create"
+@attribute [Authorize(Policy = PermissionNames.JsonBinWrite)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.JsonBins
+@using ThaiX.Client.Services.Api
+@using ThaiX.Client.Services.JsonBins
+@inject IJsonBinService JsonBinService
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.JsonBins.CreateTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal"
+                     JustifyContent="JustifyContent.SpaceBetween"
+                     AlignItems="AlignItems.Center"
+                     Wrap="FlexWrap.Wrap"
+                     Gap="0.5rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenButton Icon="arrow_back"
+                              ButtonStyle="ButtonStyle.Light"
+                              Size="ButtonSize.Small"
+                              Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H1" Class="mb-0">
+                    @L[RK.JsonBins.CreateTitle]
+                </RadzenText>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                      Icon="save"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      IsBusy="@_busy"
+                                      Disabled="@(_busy || !_codeAvailable)"
+                                      Click="@OnSubmit" />
+                <ResponsiveIconButton Text="@L[RK.Common.Cancel]"
+                                      Icon="close"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Disabled="@_busy"
+                                      Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
+            </RadzenStack>
+        </RadzenStack>
+
+        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.JsonBins.CodeOptionalHint]</RadzenText>
+
+        <RadzenCard>
+            <RadzenTemplateForm TItem="CreateJsonBinModel" Data="@_model" Submit="OnSubmit">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow Gap="1rem" RowGap="1rem">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="@L[RK.JsonBins.Code]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_model.Code"
+                                               Name="Code"
+                                               Class="w-100"
+                                               Change="OnCodeChanged"
+                                               Placeholder="@L[RK.JsonBins.CodeAutoPlaceholder]" />
+                            </RadzenFormField>
+                            @if (!string.IsNullOrWhiteSpace(_codeHint))
+                            {
+                                <RadzenAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
+                                             Shade="Shade.Lighter"
+                                             AllowClose="false"
+                                             Class="rz-mt-2">
+                                    @_codeHint
+                                </RadzenAlert>
+                            }
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="@L[RK.JsonBins.Name]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_model.Name" Name="Name" Class="w-100" />
+                            </RadzenFormField>
+                            <RadzenRequiredValidator Component="Name" Text="@L[RK.JsonBins.NameRequired]" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="@L[RK.JsonBins.Category]" Class="w-100">
+                                <RadzenDropDown @bind-Value="_model.Category" Data="_categories" Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" Class="rz-mt-md-4">
+                                <RadzenCheckBox @bind-Value="_model.Compress" Name="Compress" />
+                                <RadzenLabel Text="@L[RK.JsonBins.Compress]" Component="Compress" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12">
+                            <RadzenFormField Text="@L[RK.JsonBins.Content]" Class="w-100">
+                                <RadzenTextArea @bind-Value="_model.ContentJson"
+                                                Name="ContentJson"
+                                                Rows="@(Viewport.IsMobile ? 10 : 14)"
+                                                Class="w-100"
+                                                Style="font-family: monospace;" />
+                            </RadzenFormField>
+                            <RadzenRequiredValidator Component="ContentJson" Text="@L[RK.JsonBins.ContentRequired]" />
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    @if (Viewport.IsMobile)
+                    {
+                        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                            <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                                  Icon="save"
+                                                  ButtonStyle="ButtonStyle.Primary"
+                                                  ButtonType="ButtonType.Submit"
+                                                  IsBusy="@_busy"
+                                                  Disabled="@(_busy || !_codeAvailable)" />
+                            <ResponsiveIconButton Text="@L[RK.Common.Cancel]"
+                                                  Icon="close"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Disabled="@_busy"
+                                                  Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
+                        </RadzenStack>
+                    }
+                </RadzenStack>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private readonly CreateJsonBinModel _model = new();
+    private readonly JsonBinCategories[] _categories = Enum.GetValues<JsonBinCategories>();
+    private bool _busy;
+    private bool _codeAvailable = true;
+    private string? _codeHint;
+
+    private async Task OnCodeChanged()
+    {
+        if (string.IsNullOrWhiteSpace(_model.Code))
+        {
+            _codeHint = L[RK.JsonBins.CodeWillAutoGenerate];
+            _codeAvailable = true;
+            return;
+        }
+
+        try
+        {
+            var result = await JsonBinService.ValidateCodeAsync(_model.Code);
+            _codeAvailable = result.IsAvailable;
+            _codeHint = result.Exists ? L[RK.JsonBins.CodeExists] : L[RK.JsonBins.CodeAvailable];
+        }
+        catch (ApiException ex)
+        {
+            _codeAvailable = false;
+            _codeHint = null;
+            NotificationService.NotifyError(L[RK.JsonBins.ValidateCodeFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        await OnCodeChanged();
+        if (!_codeAvailable) return;
+
+        _busy = true;
+        try
+        {
+            _ = await JsonBinService.CreateAsync(_model);
+            NotificationService.NotifySuccess(L[RK.JsonBins.CreateSuccess]);
+            Navigation.NavigateTo("/admin/json-bins");
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.JsonBins.CreateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

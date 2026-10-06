@@ -1,0 +1,13 @@
+---
+description: Use when editing Infrastructure Identity setup, ApplicationUser, token issuance, or permission claim persistence.
+globs: src/ThaiX.Infrastructure/**
+alwaysApply: false
+---
+
+# Security Identity Infrastructure Rules
+
+- Keep ASP.NET Core Identity in Infrastructure only.
+- `ApplicationUser : IdentityUser<Guid>` must not contain domain business fields.
+- Persist and read permission claims using canonical claim type constants.
+- Never log secrets, tokens, or PII in security flows.
+- Do not merge Identity entities with Domain entities.

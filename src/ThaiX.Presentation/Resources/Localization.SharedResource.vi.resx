@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="Error.ValidationFailed" xml:space="preserve"><value>Có một hoặc nhiều lỗi xác thực dữ liệu.</value></data>
+  <data name="Error.Forbidden" xml:space="preserve"><value>Bạn không có quyền thực hiện thao tác này.</value></data>
+  <data name="Error.InternalError" xml:space="preserve"><value>Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.</value></data>
+  <data name="Error.InvalidCredentials" xml:space="preserve"><value>Email hoặc mật khẩu không hợp lệ.</value></data>
+  <data name="Error.AccountLocked" xml:space="preserve"><value>Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.</value></data>
+  <data name="Error.AccountNotAllowed" xml:space="preserve"><value>Không thể đăng nhập. Vui lòng xác nhận email của bạn.</value></data>
+  <data name="Error.Unauthorized" xml:space="preserve"><value>Bạn chưa được xác thực để truy cập tài nguyên này.</value></data>
+  <data name="Error.InsufficientPermissions" xml:space="preserve"><value>Không đủ quyền để thực hiện thao tác này.</value></data>
+  <data name="Error.InvalidClientCredentials" xml:space="preserve"><value>Thông tin xác thực client không hợp lệ.</value></data>
+  <data name="Error.ClientInactive" xml:space="preserve"><value>API client đang ở trạng thái không hoạt động.</value></data>
+  <data name="Error.UnauthorizedScope" xml:space="preserve"><value>Scope yêu cầu không được cấp cho client này.</value></data>
+  <data name="Error.ResourceNotFound" xml:space="preserve"><value>Không tìm thấy tài nguyên được yêu cầu.</value></data>
+  <data name="Error.DuplicateEntry" xml:space="preserve"><value>Tài nguyên với định danh này đã tồn tại.</value></data>
+  <data name="Error.OperationNotAllowed" xml:space="preserve"><value>Thao tác này không được phép trong trạng thái hiện tại.</value></data>
+  <data name="Error.ConcurrencyConflict" xml:space="preserve"><value>Tài nguyên đã bị thay đổi bởi người khác. Vui lòng tải lại và thử lại.</value></data>
+  <data name="Error.DatabaseError" xml:space="preserve"><value>Đã xảy ra lỗi cơ sở dữ liệu. Vui lòng liên hệ hỗ trợ.</value></data>
+  <data name="Error.ExternalServiceError" xml:space="preserve"><value>Dịch vụ bên ngoài hiện không khả dụng.</value></data>
+  <data name="Error.RateLimitExceeded" xml:space="preserve"><value>Vượt quá giới hạn tốc độ. Vui lòng thử lại sau.</value></data>
+  <data name="Error.ContactImportInvalidCsvTemplate" xml:space="preserve"><value>File CSV phải đúng theo mau import chuan. Hay tai mau va chuyen doi file cua ban theo dung dinh dang yeu cau.</value></data>
+  <data name="Error.PasswordMismatch" xml:space="preserve"><value>Mật khẩu và xác nhận mật khẩu không khớp.</value></data>
+  <data name="Error.UserNotAuthenticated" xml:space="preserve"><value>Người dùng chưa đăng nhập.</value></data>
+  <data name="Error.UserNotFound" xml:space="preserve"><value>Không tìm thấy người dùng.</value></data>
+
+  <data name="Success.LoginSuccessful" xml:space="preserve"><value>Đăng nhập thành công.</value></data>
+  <data name="Success.RegistrationSuccessful" xml:space="preserve"><value>Đăng ký thành công.</value></data>
+  <data name="Success.LogoutSuccessful" xml:space="preserve"><value>Đăng xuất thành công.</value></data>
+  <data name="Success.PasswordChanged" xml:space="preserve"><value>Đổi mật khẩu thành công.</value></data>
+
+  <data name="Success.EmailConfirmed" xml:space="preserve"><value>Xác nhận email thành công.</value></data>
+  <data name="Success.ConfirmationEmailSent" xml:space="preserve"><value>Nếu email tồn tại, liên kết xác nhận đã được gửi.</value></data>
+  <data name="Success.PasswordResetEmailSent" xml:space="preserve"><value>Nếu email tồn tại, liên kết đặt lại mật khẩu đã được gửi.</value></data>
+  <data name="Success.PasswordResetCompleted" xml:space="preserve"><value>Đặt lại mật khẩu thành công.</value></data>
+  <data name="Success.TwoFactorDisabled" xml:space="preserve"><value>Xác thực hai yếu tố đã được tắt.</value></data>
+  <data name="Success.AuthenticatorReset" xml:space="preserve"><value>Khóa xác thực đã được đặt lại.</value></data>
+  <data name="Success.ExternalLoginRemoved" xml:space="preserve"><value>Đã xóa liên kết đăng nhập bên ngoài.</value></data>
+  <data name="Success.AccountDeleted" xml:space="preserve"><value>Tài khoản của bạn đã bị xóa.</value></data>
+
+  <data name="Error.EmailConfirmationFailed" xml:space="preserve"><value>Xác nhận email thất bại. Liên kết có thể không hợp lệ hoặc đã hết hạn.</value></data>
+  <data name="Error.PasswordResetFailed" xml:space="preserve"><value>Đặt lại mật khẩu thất bại. Liên kết có thể không hợp lệ hoặc đã hết hạn.</value></data>
+  <data name="Error.TwoFactorCodeInvalid" xml:space="preserve"><value>Mã xác thực không hợp lệ.</value></data>
+</root>
+

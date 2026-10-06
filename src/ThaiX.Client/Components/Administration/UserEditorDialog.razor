@@ -1,0 +1,654 @@
+@using static ThaiX.Client.Constants.DialogModes
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IUserService UserService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+@if (IsCreateMode)
+{
+    <RadzenTemplateForm Data="@_createModel" Submit="@(async (CreateUserModel _) => await CreateAsync())">
+        <RadzenStack Gap="1rem">
+            <RadzenRow Gap="0.75rem">
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="@L[RK.Users.Email]" Class="w-100">
+                        <RadzenTextBox Name="createEmail" @bind-Value="_createModel.Email" Class="w-100" />
+                        <RadzenRequiredValidator Component="createEmail" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="@L[RK.Users.Password]" Class="w-100">
+                        <RadzenPassword Name="createPassword" @bind-Value="_createModel.Password" Class="w-100" />
+                        <RadzenRequiredValidator Component="createPassword" Text="@L[RK.Validation.Required]" Popup="false" />
+                    </RadzenFormField>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="6">
+                    <RadzenFormField Text="@L[RK.Users.PhoneNumber]" Class="w-100">
+                        <RadzenTextBox @bind-Value="_createModel.PhoneNumber" Placeholder="@L[RK.Users.PhoneNumberPlaceholder]" Class="w-100" />
+                    </RadzenFormField>
+                </RadzenColumn>
+            </RadzenRow>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenCheckBox Name="requirePasswordChange" TValue="bool" @bind-Value="_createModel.RequirePasswordChange" />
+                    <RadzenLabel Text="@L[RK.Users.RequirePasswordChange]" Component="requirePasswordChange" />
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenCheckBox Name="sendActivationEmail" TValue="bool" @bind-Value="_createModel.SendActivationEmail" />
+                    <RadzenLabel Text="@L[RK.Users.SendActivationEmail]" Component="sendActivationEmail" />
+                </RadzenStack>
+            </RadzenStack>
+
+            @if (_canManagePermissions)
+            {
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" class="mb-0">@L[RK.Users.SetPermissions]</RadzenText>
+                    @if (_loadingPermissions)
+                    {
+                        <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenDropDown Data="@_permissionOptions"
+                                        TValue="IEnumerable<string>"
+                                        @bind-Value="_permissionModel.SelectedPermissions"
+                                        Multiple="true"
+                                        Chips="true"
+                                        AllowClear="true"
+                                        Class="w-100" />
+                    }
+                </RadzenStack>
+            }
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                <RadzenButton Text="@L[RK.Users.Create]"
+                              Icon="person_add"
+                              ButtonType="ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary"
+                              IsBusy="@_isCreating"
+                              Disabled="@_isCreating" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+}
+else
+{
+    <RadzenStack Gap="1rem">
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="@L[RK.Users.TabProfile]" Value="profile">
+                    <RadzenTemplateForm Data="@_updateModel" Submit="@(async (UpdateUserModel _) => await UpdateAsync())">
+                        <RadzenStack Gap="1rem" class="pt-3">
+                            <RadzenCard>
+                                <RadzenStack Gap="0.75rem">
+                                    <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.TabProfile]</RadzenText>
+                                    <RadzenRow Gap="0.75rem">
+                                        <RadzenColumn Size="12" SizeMD="6">
+                                            <RadzenFormField Text="@L[RK.Users.Email]" Class="w-100">
+                                                <RadzenTextBox @bind-Value="_updateModel.Email" Class="w-100" ReadOnly="@IsViewMode" />
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                        <RadzenColumn Size="12" SizeMD="6">
+                                            <RadzenFormField Text="@L[RK.Users.PhoneNumber]" Class="w-100">
+                                                <RadzenTextBox @bind-Value="_updateModel.PhoneNumber" Placeholder="@L[RK.Users.PhoneNumberPlaceholder]" Class="w-100" ReadOnly="@IsViewMode" />
+                                            </RadzenFormField>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenStack>
+                            </RadzenCard>
+
+                            <RadzenCard>
+                                <RadzenStack Gap="0.5rem">
+                                    <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.EmailConfirmed]</RadzenText>
+                                    @if (IsViewMode)
+                                    {
+                                        <RadzenBadge Text="@(_updateModel.EmailConfirmed ? L[RK.Common.Yes] : L[RK.Common.No])"
+                                                     BadgeStyle="@(_updateModel.EmailConfirmed ? BadgeStyle.Success : BadgeStyle.Warning)" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                            <RadzenCheckBox Name="emailConfirmed" TValue="bool" @bind-Value="_updateModel.EmailConfirmed" />
+                                            <RadzenLabel Text="@L[RK.Users.EmailConfirmed]" Component="emailConfirmed" />
+                                        </RadzenStack>
+                                    }
+                                </RadzenStack>
+                            </RadzenCard>
+
+                            @if (SelectedUser is not null)
+                            {
+                                <RadzenCard>
+                                    <RadzenStack Gap="0.5rem">
+                                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.LinkedContact]</RadzenText>
+                                        @if (_linkedContact is not null)
+                                        {
+                                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0.5rem">
+                                                <RadzenText class="mb-0">@_linkedContact.DisplayName</RadzenText>
+                                                @if (!IsViewMode)
+                                                {
+                                                    <RadzenButton Icon="link_off"
+                                                                  ButtonStyle="ButtonStyle.Light"
+                                                                  Size="ButtonSize.Small"
+                                                                  Text="@L[RK.Users.UnlinkContact]"
+                                                                  Click="@UnlinkContactAsync"
+                                                                  Disabled="_unlinkingContact" />
+                                                }
+                                            </RadzenStack>
+                                        }
+                                        else
+                                        {
+                                            <RadzenText class="text-muted">@L[RK.Users.NoLinkedContact]</RadzenText>
+                                        }
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+
+                            @if (!IsViewMode)
+                            {
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                                    <RadzenButton Text="@L[RK.Common.Save]"
+                                                  Icon="save"
+                                                  ButtonType="ButtonType.Submit"
+                                                  ButtonStyle="ButtonStyle.Primary"
+                                                  IsBusy="@_isUpdating"
+                                                  Disabled="@_isUpdating" />
+                                </RadzenStack>
+                            }
+                        </RadzenStack>
+                    </RadzenTemplateForm>
+                </RadzenTabsItem>
+
+                @if (_canManagePermissions || (SelectedUser is not null && _selectedUserPermissions.Count > 0))
+                {
+                    <RadzenTabsItem Text="@L[RK.Users.TabPermissions]" Value="permissions">
+                        <RadzenStack Gap="1rem" class="pt-3">
+                            @if (_loadingPermissions)
+                            {
+                                <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                            }
+                            else
+                            {
+                                <RadzenCard>
+                                    <RadzenStack Gap="0.5rem">
+                                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.CurrentPermissions]</RadzenText>
+                                        @if (_selectedUserPermissions.Count == 0)
+                                        {
+                                            <RadzenText class="text-muted">@L[RK.Users.NoPermissionsAssigned]</RadzenText>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var permission in _selectedUserPermissions)
+                                                {
+                                                    <RadzenBadge Text="@permission" BadgeStyle="BadgeStyle.Info" />
+                                                }
+                                            </div>
+                                        }
+                                    </RadzenStack>
+                                </RadzenCard>
+
+                                @if (_canManagePermissions)
+                                {
+                                    <RadzenCard>
+                                        <RadzenTemplateForm Data="@_permissionModel" Submit="@(async (PermissionModel _) => await SavePermissionsAsync())">
+                                            <RadzenStack Gap="0.75rem">
+                                                <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.SetPermissions]</RadzenText>
+                                                <RadzenDropDown Data="@_permissionOptions"
+                                                                TValue="IEnumerable<string>"
+                                                                @bind-Value="_permissionModel.SelectedPermissions"
+                                                                Multiple="true"
+                                                                Chips="true"
+                                                                AllowClear="true"
+                                                                Class="w-100" />
+                                                @if (!IsViewMode)
+                                                {
+                                                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                                                        <RadzenButton Text="@L[RK.Users.ApplyPermissions]"
+                                                                      Icon="admin_panel_settings"
+                                                                      ButtonType="ButtonType.Submit"
+                                                                      ButtonStyle="ButtonStyle.Primary"
+                                                                      IsBusy="@_isSavingPermissions"
+                                                                      Disabled="@_isSavingPermissions" />
+                                                    </RadzenStack>
+                                                }
+                                            </RadzenStack>
+                                        </RadzenTemplateForm>
+                                    </RadzenCard>
+                                }
+                            }
+                        </RadzenStack>
+                    </RadzenTabsItem>
+                }
+
+                @if (_canManageLockout)
+                {
+                    <RadzenTabsItem Text="@L[RK.Users.TabLockout]" Value="lockout">
+                        <RadzenTemplateForm Data="@_lockoutModel" Submit="@(async (LockoutModel _) => await SaveLockoutAsync())">
+                            <RadzenStack Gap="1rem" class="pt-3">
+                                <RadzenCard>
+                                    <RadzenStack Gap="0.75rem">
+                                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.TabLockout]</RadzenText>
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                            <RadzenCheckBox Name="lockUser" TValue="bool" @bind-Value="_lockoutModel.IsLocked" />
+                                            <RadzenLabel Text="@L[RK.Users.LockUser]" Component="lockUser" />
+                                        </RadzenStack>
+                                        <RadzenRow Gap="0.75rem">
+                                            <RadzenColumn Size="12" SizeMD="6">
+                                                <RadzenFormField Text="@L[RK.Users.LockReason]" Class="w-100">
+                                                    <RadzenTextArea @bind-Value="_lockoutModel.Reason" Class="w-100" Rows="3" />
+                                                </RadzenFormField>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="12" SizeMD="6">
+                                                <RadzenFormField Text="@L[RK.Users.LockDurationMinutes]" Class="w-100">
+                                                    <RadzenNumeric TValue="int?" @bind-Value="_lockoutModel.LockoutDurationMinutes" Class="w-100" />
+                                                </RadzenFormField>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    </RadzenStack>
+                                </RadzenCard>
+
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                                    <RadzenButton Text="@L[RK.Users.ApplyLockout]"
+                                                  Icon="lock"
+                                                  ButtonType="ButtonType.Submit"
+                                                  ButtonStyle="ButtonStyle.Warning"
+                                                  IsBusy="@_isSavingLockout"
+                                                  Disabled="@_isSavingLockout" />
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenTemplateForm>
+                    </RadzenTabsItem>
+                }
+
+                @if (_canResetPassword)
+                {
+                    <RadzenTabsItem Text="@L[RK.Users.TabPassword]" Value="password">
+                        <RadzenTemplateForm Data="@_resetPasswordModel" Submit="@(async (ResetPasswordModel _) => await ResetPasswordAsync())">
+                            <RadzenStack Gap="1rem" class="pt-3">
+                                <RadzenCard>
+                                    <RadzenStack Gap="0.75rem">
+                                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.ResetPassword]</RadzenText>
+                                        <RadzenRow Gap="0.75rem">
+                                            <RadzenColumn Size="12" SizeMD="8">
+                                                <RadzenFormField Text="@L[RK.Users.NewPasswordOptional]" Class="w-100">
+                                                    <RadzenPassword @bind-Value="_resetPasswordModel.NewPassword" Class="w-100" />
+                                                </RadzenFormField>
+                                            </RadzenColumn>
+                                            <RadzenColumn Size="12" SizeMD="4">
+                                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="mt-4">
+                                                    <RadzenCheckBox Name="passwordChange" TValue="bool" @bind-Value="_resetPasswordModel.RequirePasswordChange" />
+                                                    <RadzenLabel Text="@L[RK.Users.RequirePasswordChange]" Component="passwordChange" />
+                                                </RadzenStack>
+                                            </RadzenColumn>
+                                        </RadzenRow>
+                                    </RadzenStack>
+                                </RadzenCard>
+
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                                    <RadzenButton Text="@L[RK.Users.ResetPassword]"
+                                                  Icon="password"
+                                                  ButtonType="ButtonType.Submit"
+                                                  ButtonStyle="ButtonStyle.Danger"
+                                                  IsBusy="@_isResettingPassword"
+                                                  Disabled="@_isResettingPassword" />
+                                </RadzenStack>
+
+                                @if (!string.IsNullOrWhiteSpace(_temporaryPasswordResult))
+                                {
+                                    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                                        @L[RK.Users.TemporaryPassword] @_temporaryPasswordResult
+                                    </RadzenAlert>
+                                }
+                            </RadzenStack>
+                        </RadzenTemplateForm>
+                    </RadzenTabsItem>
+                }
+            </Tabs>
+        </RadzenTabs>
+    </RadzenStack>
+}
+
+@code {
+    [Parameter] public string Mode { get; set; } = View;
+    [Parameter] public UserListItemDto? SelectedUser { get; set; }
+    [Parameter] public bool CanWrite { get; set; }
+    [Parameter] public bool CanManageLockout { get; set; }
+    [Parameter] public bool CanManagePermissions { get; set; }
+    [Parameter] public bool CanResetPassword { get; set; }
+
+    private readonly CreateUserModel _createModel = new();
+    private readonly UpdateUserModel _updateModel = new();
+    private readonly LockoutModel _lockoutModel = new();
+    private readonly PermissionModel _permissionModel = new();
+    private readonly ResetPasswordModel _resetPasswordModel = new();
+
+    private IReadOnlyList<string> _permissionOptions = [];
+    private IReadOnlyList<string> _selectedUserPermissions = [];
+    private bool _loadingPermissions;
+    private bool _shouldReload;
+    private bool _isCreating;
+    private bool _isUpdating;
+    private bool _isSavingPermissions;
+    private bool _isSavingLockout;
+    private bool _isResettingPassword;
+    private string? _temporaryPasswordResult;
+    private LinkedContactDto? _linkedContact;
+    private bool _unlinkingContact;
+
+    private bool IsCreateMode => Mode == Create;
+    private bool IsViewMode => Mode == View;
+    private bool _canManageLockout => !IsViewMode && CanManageLockout;
+    private bool _canManagePermissions => !IsViewMode && CanManagePermissions;
+    private bool _canResetPassword => !IsViewMode && CanResetPassword;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPermissionsAsync();
+
+        if (SelectedUser is not null)
+        {
+            InitializeFromSelectedUser();
+            await LoadUserPermissionsAsync();
+            await LoadLinkedContactAsync();
+        }
+        else
+        {
+            _permissionModel.SelectedPermissions = [];
+        }
+    }
+
+    private void InitializeFromSelectedUser()
+    {
+        if (SelectedUser is null)
+        {
+            return;
+        }
+
+        _updateModel.Email = SelectedUser.Email;
+        _updateModel.EmailConfirmed = SelectedUser.EmailConfirmed;
+        _updateModel.PhoneNumber = string.Empty;
+        _lockoutModel.IsLocked = SelectedUser.LockoutEnd.HasValue && SelectedUser.LockoutEnd.Value > DateTimeOffset.UtcNow;
+        _lockoutModel.Reason = string.Empty;
+        _lockoutModel.LockoutDurationMinutes = null;
+        _resetPasswordModel.RequirePasswordChange = true;
+    }
+
+    private async Task LoadPermissionsAsync()
+    {
+        try
+        {
+            _permissionOptions = await UserService.GetPermissionsAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.LoadFailed], ex.GetDisplayDetail());
+            _permissionOptions = [];
+        }
+    }
+
+    private async Task LoadLinkedContactAsync()
+    {
+        if (SelectedUser is null) return;
+        try
+        {
+            _linkedContact = await UserService.GetLinkedContactAsync(SelectedUser.Id);
+        }
+        catch (ApiException)
+        {
+            _linkedContact = null;
+        }
+    }
+
+    private async Task UnlinkContactAsync()
+    {
+        if (SelectedUser is null || _unlinkingContact) return;
+        _unlinkingContact = true;
+        try
+        {
+            await UserService.UnlinkContactFromUserAsync(SelectedUser.Id);
+            _linkedContact = null;
+            _shouldReload = true;
+            NotificationService.NotifySuccess(L[RK.Users.UpdateSuccess]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _unlinkingContact = false;
+        }
+    }
+
+    private async Task LoadUserPermissionsAsync()
+    {
+        if (SelectedUser is null)
+        {
+            return;
+        }
+
+        _loadingPermissions = true;
+
+        try
+        {
+            var permissions = await UserService.GetUserPermissionsAsync(SelectedUser.Id);
+            _selectedUserPermissions = permissions ?? [];
+            _permissionModel.SelectedPermissions = _selectedUserPermissions.ToList();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.LoadFailed], ex.GetDisplayDetail());
+            _selectedUserPermissions = [];
+            _permissionModel.SelectedPermissions = [];
+        }
+        finally
+        {
+            _loadingPermissions = false;
+        }
+    }
+
+    private async Task CreateAsync()
+    {
+        if (_isCreating)
+        {
+            return;
+        }
+
+        _isCreating = true;
+
+        try
+        {
+            var permissions = (_permissionModel.SelectedPermissions ?? []).ToList();
+            var userId = await UserService.CreateUserAsync(new CreateUserRequest
+            {
+                Email = _createModel.Email.Trim(),
+                Password = _createModel.Password,
+                PhoneNumber = string.IsNullOrWhiteSpace(_createModel.PhoneNumber) ? null : _createModel.PhoneNumber.Trim(),
+                RequirePasswordChange = _createModel.RequirePasswordChange,
+                Permissions = permissions.Count == 0 ? null : permissions,
+                SendActivationEmail = _createModel.SendActivationEmail
+            });
+
+            NotificationService.NotifySuccess(L[RK.Users.CreateSuccess], $"{L[RK.Users.CreatedUserId]} {userId}");
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.CreateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isCreating = false;
+        }
+    }
+
+    private async Task UpdateAsync()
+    {
+        if (SelectedUser is null || _isUpdating)
+        {
+            return;
+        }
+
+        _isUpdating = true;
+
+        try
+        {
+            await UserService.UpdateUserAsync(SelectedUser.Id, new UpdateUserRequest
+            {
+                Email = string.IsNullOrWhiteSpace(_updateModel.Email) ? null : _updateModel.Email.Trim(),
+                PhoneNumber = string.IsNullOrWhiteSpace(_updateModel.PhoneNumber) ? null : _updateModel.PhoneNumber.Trim(),
+                EmailConfirmed = _updateModel.EmailConfirmed
+            });
+
+            _shouldReload = true;
+            NotificationService.NotifySuccess(L[RK.Users.UpdateSuccess], L[RK.Users.OperationCompleted]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.UpdateFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isUpdating = false;
+        }
+    }
+
+    private async Task SavePermissionsAsync()
+    {
+        if (SelectedUser is null || _isSavingPermissions)
+        {
+            return;
+        }
+
+        _isSavingPermissions = true;
+
+        try
+        {
+            var permissions = (_permissionModel.SelectedPermissions ?? []).ToList();
+            await UserService.SetPermissionsAsync(SelectedUser.Id, new SetUserPermissionsRequest
+            {
+                Permissions = permissions
+            });
+
+            _selectedUserPermissions = permissions;
+            _shouldReload = true;
+            NotificationService.NotifySuccess(L[RK.Users.PermissionSuccess], L[RK.Users.OperationCompleted]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.PermissionFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSavingPermissions = false;
+        }
+    }
+
+    private async Task SaveLockoutAsync()
+    {
+        if (SelectedUser is null || _isSavingLockout)
+        {
+            return;
+        }
+
+        _isSavingLockout = true;
+
+        try
+        {
+            await UserService.SetLockoutAsync(SelectedUser.Id, new SetUserLockoutRequest
+            {
+                IsLocked = _lockoutModel.IsLocked,
+                Reason = string.IsNullOrWhiteSpace(_lockoutModel.Reason) ? null : _lockoutModel.Reason.Trim(),
+                LockoutDurationMinutes = _lockoutModel.LockoutDurationMinutes
+            });
+
+            _shouldReload = true;
+            NotificationService.NotifySuccess(L[RK.Users.LockoutSuccess], L[RK.Users.OperationCompleted]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.LockoutFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSavingLockout = false;
+        }
+    }
+
+    private async Task ResetPasswordAsync()
+    {
+        if (SelectedUser is null || _isResettingPassword)
+        {
+            return;
+        }
+
+        _isResettingPassword = true;
+        _temporaryPasswordResult = null;
+
+        try
+        {
+            var result = await UserService.ResetPasswordAsync(SelectedUser.Id, new ResetPasswordRequest
+            {
+                NewPassword = string.IsNullOrWhiteSpace(_resetPasswordModel.NewPassword) ? null : _resetPasswordModel.NewPassword,
+                RequirePasswordChange = _resetPasswordModel.RequirePasswordChange
+            });
+
+            _temporaryPasswordResult = result.TemporaryPassword;
+            NotificationService.NotifySuccess(L[RK.Users.ResetPasswordSuccess], L[RK.Users.OperationCompleted]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.ResetPasswordFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isResettingPassword = false;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        await CloseDialogAfterDelayAsync(_shouldReload);
+    }
+
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+
+    private sealed class CreateUserModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set; }
+        public bool RequirePasswordChange { get; set; } = true;
+        public bool SendActivationEmail { get; set; }
+    }
+
+    private sealed class UpdateUserModel
+    {
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public bool EmailConfirmed { get; set; }
+    }
+
+    private sealed class LockoutModel
+    {
+        public bool IsLocked { get; set; }
+        public string? Reason { get; set; }
+        public int? LockoutDurationMinutes { get; set; }
+    }
+
+    private sealed class PermissionModel
+    {
+        public IEnumerable<string>? SelectedPermissions { get; set; }
+    }
+
+    private sealed class ResetPasswordModel
+    {
+        public string? NewPassword { get; set; }
+        public bool RequirePasswordChange { get; set; } = true;
+    }
+}

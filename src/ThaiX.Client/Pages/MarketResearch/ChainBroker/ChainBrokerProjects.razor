@@ -1,0 +1,530 @@
+@page "/market-research/chainbroker/projects"
+@attribute [Authorize(Policy = PermissionNames.ChainBrokerDataRead)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Components
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.ChainBrokerProjects.Title]
+        </RadzenText>
+        @if (_canSync)
+        {
+            <RadzenButton Text="@L[RK.ChainBrokerProjects.SyncButton]"
+                          Icon="sync"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          IsBusy="@_isSyncing"
+                          Disabled="@_isSyncing"
+                          Click="OnSyncClickAsync" />
+        }
+    </RadzenStack>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <div>
+            <label class="rz-label mb-1">@L[RK.ChainBrokerProjects.SearchPlaceholder]</label>
+            <RadzenTextBox @bind-Value="_search"
+                           Placeholder="@L[RK.ChainBrokerProjects.SearchPlaceholder]"
+                           @oninput="OnSearchInput"
+                           Class="w-100" />
+        </div>
+
+        <div>
+            <label class="rz-label mb-1">@L[RK.ChainBrokerProjects.FilterByFund]</label>
+            <AsyncSearchSelect TItem="ChainBrokerFundDto"
+                               Value="@_selectedFundId"
+                               ValueChanged="OnFundFilterChanged"
+                               LoadDataAsync="LoadFundsAsync"
+                               GetText="@(x => x.Name ?? x.Slug)"
+                               GetValue="@(x => x.Id.ToString())"
+                               Placeholder="@L[RK.ChainBrokerProjects.FilterByFund]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filtered.Any())
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.ChainBrokerProjects.NoDataFound]
+            </RadzenAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filtered.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="ChainBrokerProjectDto"
+                            Data="@_filtered"
+                            Count="@_filtered.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="Rank" Title="@L[RK.ChainBrokerProjects.ColRank]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="Name" Title="@L[RK.ChainBrokerProjects.ColName]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                @if (!string.IsNullOrEmpty(item.Logo))
+                                {
+                                    <SafeImage Src="@item.Logo"
+                                               Alt="@item.Name"
+                                               Style="width:24px;height:24px;border-radius:50%;object-fit:cover;"
+                                               FallbackIcon="business"
+                                               FallbackClass="safe-image-fallback"
+                                               Width="24"
+                                               Height="24" />
+                                }
+                                <span>@(item.Name ?? item.Slug)</span>
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="Ticker" Title="@L[RK.ChainBrokerProjects.ColTicker]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="CurrentPriceUsd" Title="@L[RK.ChainBrokerProjects.ColCurrentPrice]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.CurrentPriceUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PublicPriceUsd" Title="@L[RK.ChainBrokerProjects.ColPublicPrice]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.PublicPriceUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PrivatePriceUsd" Title="@L[RK.ChainBrokerProjects.ColPrivatePrice]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.PrivatePriceUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="AthPriceUsd" Title="@L[RK.ChainBrokerProjects.ColAthPrice]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.AthPriceUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PublicRoi" Title="@L[RK.ChainBrokerProjects.ColPublicRoi]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PublicRoi)">@FormatPercent(item.PublicRoi)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PrivateRoi" Title="@L[RK.ChainBrokerProjects.ColPrivateRoi]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PrivateRoi)">@FormatPercent(item.PrivateRoi)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PublicAthRoi" Title="@L[RK.ChainBrokerProjects.ColPublicAthRoi]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PublicAthRoi)">@FormatPercent(item.PublicAthRoi)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PrivateAthRoi" Title="@L[RK.ChainBrokerProjects.ColPrivateAthRoi]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PrivateAthRoi)">@FormatPercent(item.PrivateAthRoi)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="BrokerScore" Title="@L[RK.ChainBrokerProjects.ColBrokerScore]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatNumber(item.BrokerScore)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="SecurityScore" Title="@L[RK.ChainBrokerProjects.ColSecurityScore]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatNumber(item.SecurityScore)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="TwitterScore" Title="@L[RK.ChainBrokerProjects.ColTwitterScore]" MinWidth="12.5rem" />
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PublicRaiseUsd" Title="@L[RK.ChainBrokerProjects.ColPublicRaise]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.PublicRaiseUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PrivateRaiseUsd" Title="@L[RK.ChainBrokerProjects.ColPrivateRaise]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.PrivateRaiseUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="TotalRaiseUsd" Title="@L[RK.ChainBrokerProjects.ColTotalRaise]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.TotalRaiseUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PriceChange24h" Title="@L[RK.ChainBrokerProjects.ColPriceChange24h]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange24h)">@FormatPercent(item.PriceChange24h)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PriceChange7d" Title="@L[RK.ChainBrokerProjects.ColPriceChange7d]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange7d)">@FormatPercent(item.PriceChange7d)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PriceChange30d" Title="@L[RK.ChainBrokerProjects.ColPriceChange30d]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange30d)">@FormatPercent(item.PriceChange30d)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PriceChange1y" Title="@L[RK.ChainBrokerProjects.ColPriceChange1y]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            <span class="@GetChangeClass(item.PriceChange1y)">@FormatPercent(item.PriceChange1y)</span>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="MarketCapUsd" Title="@L[RK.ChainBrokerProjects.ColMarketCap]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.MarketCapUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="FdmcUsd" Title="@L[RK.ChainBrokerProjects.ColFdmc]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.FdmcUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="Volume24hUsd" Title="@L[RK.ChainBrokerProjects.ColVolume24h]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatUsd(item.Volume24hUsd)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="CurrentCirculation" Title="@L[RK.ChainBrokerProjects.ColCurrentCirculation]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatNumber(item.CurrentCirculation)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="TotalCirculation" Title="@L[RK.ChainBrokerProjects.ColTotalCirculation]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatNumber(item.TotalCirculation)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PercentCirculating" Title="@L[RK.ChainBrokerProjects.ColPercentCirculating]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatPercent(item.PercentCirculating)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="PrivateAnnounceDate" Title="@L[RK.ChainBrokerProjects.ColPrivateAnnounceDate]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatDate(item.PrivateAnnounceDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="ListingDate" Title="@L[RK.ChainBrokerProjects.ColListingDate]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatDate(item.ListingDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="IdoDate" Title="@L[RK.ChainBrokerProjects.ColIdoDate]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatDate(item.IdoDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="NextUnlockDate" Title="@L[RK.ChainBrokerProjects.ColNextUnlockDate]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @FormatDate(item.NextUnlockDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="FundCount" Title="@L[RK.ChainBrokerProjects.ColFundCount]" MinWidth="12.5rem">
+                        <Template Context="item">
+                            @item.FundCount
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="ChainBrokerProjectDto" Property="Blockchains" Title="@L[RK.ChainBrokerProjects.ColBlockchains]" MinWidth="12.5rem" Filterable="false" Sortable="false">
+                        <Template Context="item">
+                            @string.Join(", ", item.Blockchains)
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filtered.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="ChainBrokerProjectDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filtered" Context="item" OverscanCount="5">
+                <div class="mb-3">
+                    <RadzenCard Class="p-3 m-0">
+                        <RadzenStack Gap="0.5rem">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                @if (!string.IsNullOrEmpty(item.Logo))
+                                {
+                                    <SafeImage Src="@item.Logo"
+                                               Alt="@item.Name"
+                                               Style="width:28px;height:28px;border-radius:50%;object-fit:cover;"
+                                               FallbackIcon="business"
+                                               FallbackClass="safe-image-fallback"
+                                               Width="28"
+                                               Height="28" />
+                                }
+                                <RadzenText TextStyle="TextStyle.Subtitle1">
+                                    <strong>@(item.Name ?? item.Slug)</strong>
+                                    @if (!string.IsNullOrEmpty(item.Ticker))
+                                    {
+                                        <span class="text-muted ms-1 fs-6">(@item.Ticker)</span>
+                                    }
+                                </RadzenText>
+                                @if (item.Rank.HasValue)
+                                {
+                                    <RadzenBadge Text="@($"#{item.Rank}")" BadgeStyle="BadgeStyle.Light" />
+                                }
+                            </RadzenStack>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColCurrentPrice]: @FormatUsd(item.CurrentPriceUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPublicPrice]: @FormatUsd(item.PublicPriceUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPrivatePrice]: @FormatUsd(item.PrivatePriceUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColAthPrice]: @FormatUsd(item.AthPriceUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PublicRoi)">@L[RK.ChainBrokerProjects.ColPublicRoi]: @FormatPercent(item.PublicRoi)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PrivateRoi)">@L[RK.ChainBrokerProjects.ColPrivateRoi]: @FormatPercent(item.PrivateRoi)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PublicAthRoi)">@L[RK.ChainBrokerProjects.ColPublicAthRoi]: @FormatPercent(item.PublicAthRoi)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PrivateAthRoi)">@L[RK.ChainBrokerProjects.ColPrivateAthRoi]: @FormatPercent(item.PrivateAthRoi)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColBrokerScore]: @FormatNumber(item.BrokerScore)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColSecurityScore]: @FormatNumber(item.SecurityScore)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColTwitterScore]: @(item.TwitterScore?.ToString() ?? "-")</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPublicRaise]: @FormatUsd(item.PublicRaiseUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPrivateRaise]: @FormatUsd(item.PrivateRaiseUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColTotalRaise]: @FormatUsd(item.TotalRaiseUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange24h)">@L[RK.ChainBrokerProjects.ColPriceChange24h]: @FormatPercent(item.PriceChange24h)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange7d)">@L[RK.ChainBrokerProjects.ColPriceChange7d]: @FormatPercent(item.PriceChange7d)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange30d)">@L[RK.ChainBrokerProjects.ColPriceChange30d]: @FormatPercent(item.PriceChange30d)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2" Class="@GetChangeClass(item.PriceChange1y)">@L[RK.ChainBrokerProjects.ColPriceChange1y]: @FormatPercent(item.PriceChange1y)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColVolume24h]: @FormatUsd(item.Volume24hUsd)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColCurrentCirculation]: @FormatNumber(item.CurrentCirculation)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColTotalCirculation]: @FormatNumber(item.TotalCirculation)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPercentCirculating]: @FormatPercent(item.PercentCirculating)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColPrivateAnnounceDate]: @FormatDate(item.PrivateAnnounceDate)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColListingDate]: @FormatDate(item.ListingDate)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColIdoDate]: @FormatDate(item.IdoDate)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColNextUnlockDate]: @FormatDate(item.NextUnlockDate)</RadzenText>
+                            @if (item.FundCount > 0)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@L[RK.ChainBrokerProjects.ColFundCount]: @item.FundCount</RadzenText>
+                            }
+                        </RadzenStack>
+                    </RadzenCard>
+                </div>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private List<ChainBrokerProjectDto> _all = [];
+    private List<ChainBrokerProjectDto> _filtered = [];
+    private List<ChainBrokerFundDto> _allFunds = [];
+    private bool _isLoading;
+    private string? _search;
+    private string? _selectedFundId;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+    private bool _isSyncing;
+    private bool _canSync;
+
+    private IReadOnlyList<SortOption<ChainBrokerProjectDto>> SortOptions =>
+    [
+        new("rank",            L[RK.ChainBrokerProjects.ColRank],            x => x.Rank),
+        new("name",            L[RK.ChainBrokerProjects.ColName],            x => x.Name),
+        new("ticker",          L[RK.ChainBrokerProjects.ColTicker],          x => x.Ticker),
+        new("currentPrice",    L[RK.ChainBrokerProjects.ColCurrentPrice],    x => x.CurrentPriceUsd),
+        new("publicRoi",       L[RK.ChainBrokerProjects.ColPublicRoi],       x => x.PublicRoi),
+        new("privateRoi",      L[RK.ChainBrokerProjects.ColPrivateRoi],      x => x.PrivateRoi),
+        new("publicAthRoi",    L[RK.ChainBrokerProjects.ColPublicAthRoi],    x => x.PublicAthRoi),
+        new("privateAthRoi",   L[RK.ChainBrokerProjects.ColPrivateAthRoi],   x => x.PrivateAthRoi),
+        new("brokerScore",     L[RK.ChainBrokerProjects.ColBrokerScore],     x => x.BrokerScore),
+        new("securityScore",   L[RK.ChainBrokerProjects.ColSecurityScore],   x => x.SecurityScore),
+        new("marketCap",       L[RK.ChainBrokerProjects.ColMarketCap],       x => x.MarketCapUsd),
+        new("volume24h",       L[RK.ChainBrokerProjects.ColVolume24h],       x => x.Volume24hUsd),
+        new("priceChange24h",  L[RK.ChainBrokerProjects.ColPriceChange24h],  x => x.PriceChange24h),
+        new("priceChange7d",   L[RK.ChainBrokerProjects.ColPriceChange7d],   x => x.PriceChange7d),
+        new("priceChange30d",  L[RK.ChainBrokerProjects.ColPriceChange30d],  x => x.PriceChange30d),
+        new("totalRaise",      L[RK.ChainBrokerProjects.ColTotalRaise],      x => x.TotalRaiseUsd),
+        new("listingDate",     L[RK.ChainBrokerProjects.ColListingDate],     x => x.ListingDate),
+        new("nextUnlockDate",  L[RK.ChainBrokerProjects.ColNextUnlockDate],  x => x.NextUnlockDate),
+        new("fundCount",       L[RK.ChainBrokerProjects.ColFundCount],       x => x.FundCount),
+    ];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canSync = auth.User.HasClaim("scope", PermissionNames.ChainBrokerDataSync);
+
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetChainBrokerProjectsAsync();
+            var fundsResponse = await ExternalDataService.GetChainBrokerFundsAsync();
+            _all = response.Data ?? [];
+            _allFunds = (fundsResponse.Data ?? []).OrderBy(f => f.Name ?? f.Slug).ToList();
+            _filtered = _all;
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.ChainBrokerProjects.LoadFailed]);
+            _all = [];
+            _filtered = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        _search = e.Value?.ToString();
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<ChainBrokerProjectDto> result = _all;
+
+        if (!string.IsNullOrWhiteSpace(_search))
+        {
+            var term = _search.Trim();
+            result = result.Where(x =>
+                (x.Name != null && x.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                || x.Slug.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || (x.Ticker != null && x.Ticker.Contains(term, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!string.IsNullOrEmpty(_selectedFundId) && Guid.TryParse(_selectedFundId, out var fundId))
+        {
+            result = result.Where(x => x.Funds.Contains(fundId));
+        }
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var option = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+            if (option is not null)
+                result = _sortAscending
+                    ? result.OrderBy(option.KeySelector)
+                    : result.OrderByDescending(option.KeySelector);
+        }
+
+        _filtered = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key)
+    {
+        _sortKey = key;
+        ApplyFilter();
+    }
+
+    private void OnSortDirectionChanged(bool ascending)
+    {
+        _sortAscending = ascending;
+        ApplyFilter();
+    }
+
+    private void OnFundFilterChanged(string? value)
+    {
+        _selectedFundId = value;
+        ApplyFilter();
+    }
+
+    private Task<(IReadOnlyList<ChainBrokerFundDto>, int)> LoadFundsAsync(
+        int page, int pageSize, string? search, CancellationToken _)
+    {
+        var filtered = string.IsNullOrWhiteSpace(search)
+            ? _allFunds
+            : _allFunds
+                .Where(f => (f.Name ?? f.Slug).Contains(search.Trim(), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        IReadOnlyList<ChainBrokerFundDto> paged = filtered
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return Task.FromResult((paged, filtered.Count));
+    }
+
+    private static string GetChangeClass(decimal? value) =>
+        value switch
+        {
+            null => string.Empty,
+            > 0 => "text-success fw-semibold",
+            < 0 => "text-danger fw-semibold",
+            _ => string.Empty
+        };
+
+    private static string FormatPercent(decimal? value)
+    {
+        if (value is null) return "-";
+        var s = value.Value.ToString("0.##") + "%";
+        return value > 0 ? $"+{s}" : s;
+    }
+
+    private static string FormatUsd(decimal? value)
+    {
+        if (value is null) return "-";
+        if (value >= 1_000_000_000) return $"${value.Value / 1_000_000_000:0.##}B";
+        if (value >= 1_000_000) return $"${value.Value / 1_000_000:0.##}M";
+        if (value >= 1_000) return $"${value.Value / 1_000:0.##}K";
+        return $"${value.Value:0.######}";
+    }
+
+    private static string FormatNumber(decimal? value)
+    {
+        if (value is null) return "-";
+        return value.Value.ToString("N2");
+    }
+
+    private static string FormatDate(DateOnly? value)
+    {
+        return value?.ToString("yyyy-MM-dd") ?? "-";
+    }
+
+    private async Task OnSyncClickAsync()
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.ChainBrokerProjects.SyncConfirmMessage],
+            L[RK.ChainBrokerProjects.SyncConfirmTitle],
+            new ConfirmOptions { OkButtonText = L[RK.Common.Yes], CancelButtonText = L[RK.Common.Cancel] });
+
+        if (confirmed != true) return;
+
+        _isSyncing = true;
+        try
+        {
+            await ExternalDataService.TriggerChainBrokerProjectsSyncAsync();
+            NotificationService.NotifySuccess(L[RK.ChainBrokerProjects.SyncSuccess]);
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.ChainBrokerProjects.SyncFailed]);
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+
+}

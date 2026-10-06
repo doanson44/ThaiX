@@ -1,0 +1,9 @@
+# Health Endpoints
+# GET /health
+
+@baseUrl = http://localhost:5005
+
+###
+
+### Health check (anonymous)
+GET {{baseUrl}}/health

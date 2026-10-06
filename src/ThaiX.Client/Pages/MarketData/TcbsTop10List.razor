@@ -1,0 +1,302 @@
+@page "/market-data/tcbs-top10"
+@attribute [Authorize]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Services.Http.Demo
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ApiConnectivityState ApiConnectivity
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-3" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+            @L[RK.TcbsTop10.Title]
+        </RadzenText>
+        @if (_canSync)
+        {
+            <RadzenButton Text="@L[RK.TcbsTop10.SyncButton]"
+                          Icon="sync"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          IsBusy="@_isSyncing"
+                          Disabled="@_isSyncing"
+                          Click="OnSyncClickAsync" />
+        }
+    </RadzenStack>
+
+    @if (_isLoading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    }
+    else if (!_portfolios.Any())
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @L[RK.TcbsTop10.NoDataFound]
+        </RadzenAlert>
+    }
+    else
+    {
+        @if (_currentHoldings.Any())
+        {
+            <RadzenCard Class="mb-3 p-3" Variant="Variant.Outlined">
+                <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">
+                    @L[RK.TcbsTop10.CurrentHoldings]
+                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.4rem" Wrap="FlexWrap.Wrap">
+                    @foreach (var ticker in _currentHoldings)
+                    {
+                        <RadzenBadge BadgeStyle="BadgeStyle.Primary" Text="@ticker" />
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        }
+
+        @if (!Viewport.IsMobile)
+        {
+        <div class="table-responsive">
+            <RadzenDataGrid TItem="TcbsTop10PortfolioDto"
+                            Data="@_portfolios"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Property="PostedAt" Title="@L[RK.TcbsTop10.PostedAt]" MinWidth="8.125rem">
+                        <Template Context="item">
+                            @item.PostedAt.ToString("yyyy-MM-dd")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Property="EffectiveDate" Title="@L[RK.TcbsTop10.EffectiveDate]" MinWidth="8.75rem">
+                        <Template Context="item">
+                            @item.EffectiveDate.ToString("yyyy-MM-dd")
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Title="@L[RK.TcbsTop10.AddedTickers]" MinWidth="10rem" Sortable="false">
+                        <Template Context="item">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                @foreach (var ticker in item.AddedTickers)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Success" Variant="Variant.Outlined" Text="@ticker" />
+                                }
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Title="@L[RK.TcbsTop10.RemovedTickers]" MinWidth="10rem" Sortable="false">
+                        <Template Context="item">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                @foreach (var ticker in item.RemovedTickers)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Danger" Variant="Variant.Outlined" Text="@ticker" />
+                                }
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Title="@L[RK.TcbsTop10.Images]" MinWidth="15rem" Sortable="false">
+                        <Template Context="item">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                                @foreach (var image in GetVisibleImages(item))
+                                {
+                                    <button class="btn p-0 border-0 bg-transparent"
+                                            @onclick="@(() => OpenImagePreview(image.FileGuid))"
+                                            title="@GetImageLabel(image.ImageType)">
+                                        <SafeImage Src="@GetImageUrl(image.FileGuid)"
+                                                   Alt="@GetImageLabel(image.ImageType)"
+                                                   Class="img-thumbnail"
+                                                   Width="64"
+                                                   Height="48"
+                                                   FallbackIcon="image"
+                                                   FallbackClass="safe-image-fallback img-thumbnail" />
+                                    </button>
+                                }
+                            </RadzenStack>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            @foreach (var portfolio in _portfolios)
+            {
+                <RadzenCard Class="p-3">
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0">
+                            <strong>@L[RK.TcbsTop10.PostedAt]: @portfolio.PostedAt.ToString("yyyy-MM-dd")</strong>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">
+                            @L[RK.TcbsTop10.EffectiveDate]: @portfolio.EffectiveDate.ToString("yyyy-MM-dd")
+                        </RadzenText>
+                        @if (portfolio.AddedTickers.Any())
+                        {
+                            <div>
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-success mb-1">@L[RK.TcbsTop10.AddedTickers]</RadzenText>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                    @foreach (var ticker in portfolio.AddedTickers)
+                                    {
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Success" Variant="Variant.Outlined" Text="@ticker" />
+                                    }
+                                </RadzenStack>
+                            </div>
+                        }
+                        @if (portfolio.RemovedTickers.Any())
+                        {
+                            <div>
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-danger mb-1">@L[RK.TcbsTop10.RemovedTickers]</RadzenText>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
+                                    @foreach (var ticker in portfolio.RemovedTickers)
+                                    {
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Danger" Variant="Variant.Outlined" Text="@ticker" />
+                                    }
+                                </RadzenStack>
+                            </div>
+                        }
+                        @{ var visibleImages = GetVisibleImages(portfolio).ToList(); }
+                        @if (visibleImages.Any())
+                        {
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap" Class="mt-1">
+                                @foreach (var image in visibleImages)
+                                {
+                                    <button class="btn p-0 border-0 bg-transparent"
+                                            @onclick="@(() => OpenImagePreview(image.FileGuid))"
+                                            title="@GetImageLabel(image.ImageType)">
+                                        <SafeImage Src="@GetImageUrl(image.FileGuid)"
+                                                   Alt="@GetImageLabel(image.ImageType)"
+                                                   Class="img-thumbnail"
+                                                   Width="80"
+                                                   Height="60"
+                                                   FallbackIcon="image"
+                                                   FallbackClass="safe-image-fallback img-thumbnail" />
+                                    </button>
+                                }
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenCard>
+            }
+        </RadzenStack>
+    }
+}
+</RadzenCard>
+
+@if (_previewUrl is not null)
+{
+    <div class="modal d-block" tabindex="-1" @onclick="CloseImagePreview">
+        <div class="modal-dialog modal-dialog-centered modal-xl" @onclick:stopPropagation="true">
+            <div class="modal-content border-0 bg-transparent shadow-none">
+                <div class="modal-header border-0 pb-0">
+                    <button class="btn-close btn-close-white ms-auto"
+                            @onclick="CloseImagePreview"
+                            aria-label="@L[RK.Common.Close]" />
+                </div>
+                <div class="modal-body text-center pt-0">
+                    <SafeImage Src="@_previewUrl"
+                               Alt=""
+                               Class="img-fluid rounded shadow-lg"
+                               FallbackIcon="image"
+                               FallbackClass="safe-image-fallback img-fluid rounded shadow-lg"
+                               Style="min-width: 120px; min-height: 80px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private IReadOnlyList<TcbsTop10PortfolioDto> _portfolios = [];
+    private IReadOnlyList<string> _currentHoldings = [];
+    private string? _previewUrl;
+    private bool _isLoading;
+    private bool _isSyncing;
+    private bool _canSync;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canSync = auth.User.HasClaim("scope", PermissionNames.TcbsTop10DataSync);
+
+        _isLoading = true;
+        try
+        {
+            var result = await ExternalDataService.GetTcbsTop10PortfoliosAsync();
+            _portfolios = result.Portfolios;
+            _currentHoldings = result.CurrentHoldings;
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.TcbsTop10.LoadFailed]);
+            _portfolios = [];
+            _currentHoldings = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnSyncClickAsync()
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.TcbsTop10.SyncConfirmMessage],
+            L[RK.TcbsTop10.SyncConfirmTitle],
+            new ConfirmOptions { OkButtonText = L[RK.Common.Yes], CancelButtonText = L[RK.Common.Cancel] });
+
+        if (confirmed != true) return;
+
+        _isSyncing = true;
+        try
+        {
+            await ExternalDataService.TriggerTcbsTop10SyncAsync();
+            NotificationService.NotifySuccess(L[RK.TcbsTop10.SyncSuccess]);
+        }
+        catch
+        {
+            NotificationService.NotifyError(L[RK.TcbsTop10.SyncFailed]);
+        }
+        finally
+        {
+            _isSyncing = false;
+        }
+    }
+
+    private string GetImageUrl(Guid fileGuid) =>
+        ApiConnectivity.IsDemoMode
+            ? DemoImageUrls.Chart(fileGuid.ToString("N"))
+            : $"https://iwealthclub.com.vn/file/file/download?guid={fileGuid}";
+
+    private IEnumerable<TcbsTop10ImageDto> GetVisibleImages(TcbsTop10PortfolioDto portfolio) =>
+        portfolio.Images.OrderBy(i => i.ImageType);
+
+    private void OpenImagePreview(Guid fileGuid)
+    {
+        _previewUrl = GetImageUrl(fileGuid);
+    }
+
+    private void CloseImagePreview()
+    {
+        _previewUrl = null;
+    }
+
+    private string GetImageLabel(int imageType) => imageType switch
+    {
+        0 => L[RK.TcbsTop10.ImagePortfolioDetail],
+        1 => L[RK.TcbsTop10.ImagePeriodPerformance],
+        2 => L[RK.TcbsTop10.ImageYtdPerformance],
+        _ => string.Empty
+    };
+
+}

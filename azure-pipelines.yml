@@ -1,0 +1,208 @@
+# ============================================================================
+# ThaiX - Azure DevOps CI/CD Pipeline
+# ============================================================================
+# Triggers: master, main, develop branches + PRs
+# Pipeline: Build -> Unit Tests -> Integration Tests -> x86 ZIP package
+# ============================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - develop
+      - release/*
+  paths:
+    exclude:
+      - '**/*.md'
+      - '.github/**'
+      - 'docs/**'
+
+pr:
+  branches:
+    include:
+      - main
+      - master
+      - develop
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '10.0.x'
+  solutionPath: 'ThaiX.slnx'
+  presentationProject: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
+  unitTestProject: 'tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj'
+  integrationTestProject: 'tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj'
+  coverageThreshold: 10
+  publishRuntime: 'win-x86'
+  publishOutput: '$(Build.ArtifactStagingDirectory)/publish'
+  packageName: 'thaix-presentation-win-x86'
+
+stages:
+  # ========================================================================
+  # Stage 1: Build + Unit Tests + Integration Tests + Coverage Gate
+  # ========================================================================
+  - stage: BuildAndTest
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildAndTestJob
+        displayName: 'Build, Test & Coverage'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '$(dotnetVersion)'
+              includePreviewVersions: true
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet packages'
+            inputs:
+              command: 'restore'
+              projects: '$(solutionPath)'
+              feedsToUse: 'select'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build solution'
+            inputs:
+              command: 'build'
+              projects: '$(solutionPath)'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run unit tests'
+            inputs:
+              command: 'test'
+              projects: '$(unitTestProject)'
+              publishTestResults: false
+              arguments: >-
+                --configuration $(buildConfiguration)
+                --no-build
+                --collect:"XPlat Code Coverage"
+                --results-directory "$(Agent.TempDirectory)/coverage"
+                --logger "trx;LogFileName=unit-tests.trx"
+                -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+                   DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SkipAutoProps=true
+                   DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="[ThaiX.Application]*,[ThaiX.Domain]*"
+                   DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="[*.Tests]*,[*.IntegrationTests]*"
+            env:
+              DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run integration tests'
+            inputs:
+              command: 'test'
+              projects: '$(integrationTestProject)'
+              publishTestResults: false
+              arguments: >-
+                --configuration $(buildConfiguration)
+                --no-build
+                --results-directory "$(Agent.TempDirectory)/integration-tests"
+                --logger "trx;LogFileName=integration-tests.trx"
+            env:
+              DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+          - task: PublishTestResults@2
+            displayName: 'Publish test results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'VSTest'
+              testResultsFiles: |
+                $(Agent.TempDirectory)/coverage/**/*.trx
+                $(Agent.TempDirectory)/integration-tests/**/*.trx
+              testRunTitle: 'Automated Tests'
+              mergeTestResults: true
+
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish code coverage'
+            condition: succeededOrFailed()
+            inputs:
+              summaryFileLocation: '$(Agent.TempDirectory)/coverage/**/coverage.cobertura.xml'
+
+          - script: |
+              echo "Checking code coverage threshold ($(coverageThreshold)%)..."
+
+              COVERAGE_FILE=$(find $(Agent.TempDirectory)/coverage -name "coverage.cobertura.xml" | head -1)
+              if [ -z "$COVERAGE_FILE" ]; then
+                echo "##vso[task.logissue type=error]Coverage report not found"
+                exit 1
+              fi
+
+              LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$COVERAGE_FILE" | head -1)
+              COVERAGE=$(echo "$LINE_RATE * 100" | bc -l | xargs printf "%.1f")
+              echo "Line coverage: ${COVERAGE}%"
+
+              THRESHOLD=$(coverageThreshold)
+              if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+                echo "##vso[task.logissue type=error]Code coverage ${COVERAGE}% is below threshold ${THRESHOLD}%"
+                exit 1
+              fi
+
+              echo "##vso[task.logissue type=warning]Code coverage: ${COVERAGE}% (threshold: ${THRESHOLD}%)"
+              echo "Coverage gate passed"
+            displayName: 'Enforce coverage threshold (>= $(coverageThreshold)%)'
+            condition: succeeded()
+
+  # ========================================================================
+  # Stage 2: Publish x86 ZIP package
+  # ========================================================================
+  - stage: Package
+    displayName: 'Package x86 ZIP'
+    dependsOn: BuildAndTest
+    condition: succeeded()
+    jobs:
+      - job: PackageJob
+        displayName: 'Publish and archive Presentation'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '$(dotnetVersion)'
+              includePreviewVersions: true
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet packages'
+            inputs:
+              command: 'restore'
+              projects: '$(solutionPath)'
+              feedsToUse: 'select'
+
+          - script: |
+              dotnet tool restore
+              dotnet libman restore
+            displayName: 'Restore libman client libraries'
+            workingDirectory: 'src/ThaiX.Client'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Presentation ($(publishRuntime))'
+            inputs:
+              command: 'publish'
+              publishWebProjects: false
+              projects: '$(presentationProject)'
+              zipAfterPublish: false
+              modifyOutputPath: false
+              arguments: >-
+                --configuration $(buildConfiguration)
+                --runtime $(publishRuntime)
+                --self-contained true
+                --output "$(publishOutput)"
+
+          - task: ArchiveFiles@2
+            displayName: 'Create ZIP package'
+            inputs:
+              rootFolderOrFile: '$(publishOutput)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(packageName)-$(Build.BuildNumber).zip'
+              replaceExistingArchive: true
+
+          - task: PublishPipelineArtifact@1
+            displayName: 'Publish ZIP artifact'
+            inputs:
+              targetPath: '$(Build.ArtifactStagingDirectory)/$(packageName)-$(Build.BuildNumber).zip'
+              artifact: '$(packageName)'
+              publishLocation: 'pipeline'

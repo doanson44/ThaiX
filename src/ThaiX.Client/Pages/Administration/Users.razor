@@ -1,0 +1,374 @@
+@page "/admin/users"
+@attribute [Authorize(Policy = PermissionNames.UserRead)]
+@using ThaiX.Client.Components.Administration
+@using static ThaiX.Client.Constants.DialogModes
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IUserService UserService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.Users.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <div>
+                        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">@L[RK.Users.Title]</RadzenText>
+                        <RadzenText class="text-muted">@L[RK.Users.ListTitle]</RadzenText>
+                    </div>
+                    @if (_canWrite)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.Users.Create]"
+                                      Icon="add"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Click="@OpenCreateDialogAsync" />
+                    }
+                </RadzenStack>
+
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    <RadzenColumn Size="12">
+                        <RadzenLabel Text="@L[RK.Users.SearchPlaceholder]" />
+                        <div class="ThaiX-input-group">
+                            <RadzenTextBox @bind-Value="_searchTerm"
+                                           Placeholder="@L[RK.Users.SearchPlaceholder]"
+                                           Change="@(_ => ApplyFiltersAsync())" />
+                            <InputGroupSearchButton Click="@ApplyFiltersAsync" />
+                            <RadzenButton Icon="close"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ResetFiltersAsync"
+                                          aria-label="@L[RK.Common.Cancel]" />
+                        </div>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenLabel Text="@L[RK.Users.FilterAll]" />
+                        <RadzenDropDown Data="@_statusOptions"
+                                        TextProperty="Text"
+                                        ValueProperty="Value"
+                                        TValue="string"
+                                        @bind-Value="_selectedStatusFilter"
+                                        class="w-100"
+                                        Change="@(_ => ApplyFiltersAsync())" />
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Body1 : TextStyle.H6)" class="mb-0">@L[RK.Users.ListTitle]</RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="UserListItemDto"
+                                    Data="@_users"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadUsersAsync"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="true"
+                                    FilterMode="FilterMode.Advanced"
+                                    PageSize="@DefaultPageSize"
+                                    PageSizeOptions="@PageSizeOptions"
+                                    ShowPagingSummary="true"
+                                    Density="Density.Compact"
+                                    RowSelect="@OnRowSelectedAsync"
+                                    IsLoading="@_isLoadingUsers">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="UserListItemDto" Property="Email" Title="@L[RK.Users.Email]" />
+                            <RadzenDataGridColumn TItem="UserListItemDto" Property="EmailConfirmed" Title="@L[RK.Users.EmailConfirmed]">
+                                <Template Context="user">
+                                    <RadzenBadge Text="@(user.EmailConfirmed ? L[RK.Common.Yes] : L[RK.Common.No])"
+                                                 BadgeStyle="@(user.EmailConfirmed ? BadgeStyle.Success : BadgeStyle.Warning)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="UserListItemDto" Property="LockoutEnd" Title="@L[RK.Users.LockoutEnd]">
+                                <Template Context="user">
+                                    @if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                                    {
+                                        <RadzenBadge Text="@user.LockoutEnd.Value.LocalDateTime.ToString("yyyy-MM-dd HH:mm")"
+                                                     BadgeStyle="BadgeStyle.Danger" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenBadge Text="@L[RK.Users.Active]" BadgeStyle="BadgeStyle.Success" />
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                }
+
+                @if (Viewport.IsMobile)
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_isLoadingUsers)
+                        {
+                            <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                        }
+                        else if (_users.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            @foreach (var user in _users)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.75rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0 text-break">@user.Email</RadzenText>
+                                            <RadzenBadge Text="@GetStatusText(user)"
+                                                         BadgeStyle="@GetStatusStyle(user)" />
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">
+                                            @L[RK.Users.EmailConfirmed]: @(user.EmailConfirmed ? L[RK.Common.Yes] : L[RK.Common.No])
+                                        </RadzenText>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <ResponsiveIconButton Text="@GetOpenActionText()"
+                                                          ButtonStyle="@(_canWrite ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                                          Icon="@(_canWrite ? "edit" : "visibility")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => OpenUserDialogAsync(user))" />
+                                        </div>
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoadingUsers" />
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+
+    private static readonly IEnumerable<int> PageSizeOptions = new[] { 10, 25, 50, 100 };
+
+    private RadzenDataGrid<UserListItemDto>? _grid;
+    private IReadOnlyList<UserListItemDto> _users = [];
+    private int _totalCount;
+    private bool _isLoadingUsers;
+    private bool _canWrite;
+    private bool _canManageLockout;
+    private bool _canManagePermissions;
+    private bool _canResetPassword;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private string? _searchTerm;
+    private string _selectedStatusFilter = "all";
+    private IReadOnlyList<StatusOption> _statusOptions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.UserWrite);
+        _canManageLockout = user.HasClaim("scope", PermissionNames.UserManageLockout);
+        _canManagePermissions = user.HasClaim("scope", PermissionNames.UserManagePermissions);
+        _canResetPassword = user.HasClaim("scope", PermissionNames.UserResetPassword);
+
+        _statusOptions =
+        [
+            new("all", L[RK.Users.FilterAll]),
+            new("active", L[RK.Users.FilterActive]),
+            new("inactive", L[RK.Users.FilterInactive])
+        ];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        if (_grid is not null)
+        {
+            await _grid.Reload();
+        }
+        else
+        {
+            await LoadUsersAsync(new LoadDataArgs { Skip = 0, Top = _pageSize });
+        }
+    }
+
+    private async Task LoadUsersAsync(LoadDataArgs args)
+    {
+        _isLoadingUsers = true;
+
+        try
+        {
+            _pageSize = args.Top ?? DefaultPageSize;
+            _currentPage = _pageSize <= 0
+                ? 1
+                : ((args.Skip ?? 0) / _pageSize) + 1;
+
+            var sort = args.Sorts?.FirstOrDefault();
+            var result = await UserService.GetUsersAsync(new GetUsersRequest
+            {
+                PageNumber = _currentPage,
+                PageSize = _pageSize,
+                SortBy = MapSortProperty(sort?.Property),
+                SortDescending = sort?.SortOrder == SortOrder.Descending,
+                SearchTerm = _searchTerm,
+                IsActive = ParseActiveFilter()
+            });
+
+            _users = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Users.LoadFailed], ex.GetDisplayDetail());
+            _users = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoadingUsers = false;
+        }
+    }
+
+    private async Task ApplyFiltersAsync()
+    {
+        _currentPage = 1;
+        await ReloadUsersAsync();
+    }
+
+    private async Task ResetFiltersAsync()
+    {
+        _searchTerm = null;
+        _selectedStatusFilter = "all";
+        await ApplyFiltersAsync();
+    }
+
+    private async Task ReloadUsersAsync()
+    {
+        if (_grid is not null)
+        {
+            await _grid.Reload();
+            return;
+        }
+
+        await LoadUsersAsync(new LoadDataArgs
+        {
+            Skip = (_currentPage - 1) * _pageSize,
+            Top = _pageSize
+        });
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        _currentPage = page;
+        await ReloadUsersAsync();
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var shouldReload = await DialogService.OpenAsync<UserEditorDialog>(
+            L[RK.Users.CreateTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(UserEditorDialog.Mode)] = Create,
+                [nameof(UserEditorDialog.CanWrite)] = _canWrite,
+                [nameof(UserEditorDialog.CanManageLockout)] = _canManageLockout,
+                [nameof(UserEditorDialog.CanManagePermissions)] = _canManagePermissions,
+                [nameof(UserEditorDialog.CanResetPassword)] = _canResetPassword
+            },
+            BuildDialogOptions());
+
+        if (shouldReload is true)
+        {
+            await ReloadUsersAsync();
+        }
+    }
+
+    private Task OnRowSelectedAsync(UserListItemDto user) => OpenUserDialogAsync(user);
+
+    private async Task OpenUserDialogAsync(UserListItemDto user)
+    {
+        var shouldReload = await DialogService.OpenAsync<UserEditorDialog>(
+            _canWrite ? L[RK.Contacts.Edit] : L[RK.Contacts.View],
+            new Dictionary<string, object?>
+            {
+                [nameof(UserEditorDialog.Mode)] = _canWrite ? Edit : View,
+                [nameof(UserEditorDialog.SelectedUser)] = user,
+                [nameof(UserEditorDialog.CanWrite)] = _canWrite,
+                [nameof(UserEditorDialog.CanManageLockout)] = _canManageLockout,
+                [nameof(UserEditorDialog.CanManagePermissions)] = _canManagePermissions,
+                [nameof(UserEditorDialog.CanResetPassword)] = _canResetPassword
+            },
+            BuildDialogOptions());
+
+        if (shouldReload is true)
+        {
+            await ReloadUsersAsync();
+        }
+    }
+
+    private static DialogOptions BuildDialogOptions()
+    {
+        return new DialogOptions
+        {
+            Width = "min(680px, 96vw)",
+            Resizable = false,
+            Draggable = false,
+            CloseDialogOnEsc = true,
+            ShowClose = true,
+            CloseDialogOnOverlayClick = false
+        };
+    }
+
+    private bool? ParseActiveFilter() => _selectedStatusFilter switch
+    {
+        "active" => true,
+        "inactive" => false,
+        _ => null
+    };
+
+    private static string MapSortProperty(string? property) => property switch
+    {
+        nameof(UserListItemDto.Email) => "email",
+        nameof(UserListItemDto.EmailConfirmed) => "emailconfirmed",
+        nameof(UserListItemDto.LockoutEnd) => "lockoutend",
+        _ => "email"
+    };
+
+    private string GetStatusText(UserListItemDto user) =>
+        user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
+            ? L[RK.Users.FilterInactive]
+            : L[RK.Users.Active];
+
+    private BadgeStyle GetStatusStyle(UserListItemDto user) =>
+        user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
+            ? BadgeStyle.Danger
+            : BadgeStyle.Success;
+
+    private string GetOpenActionText() => _canWrite ? L[RK.Contacts.Edit] : L[RK.Contacts.View];
+
+    private sealed record StatusOption(string Value, string Text);
+}

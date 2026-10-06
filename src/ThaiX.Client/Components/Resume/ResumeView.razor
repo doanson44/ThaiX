@@ -1,0 +1,112 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Resumes
+@inject IStringLocalizer<SharedResource> L
+
+<div class="tx-resume-page resume-view">
+    <header class="resume-header">
+        <h1>@FullName</h1>
+        <p class="resume-headline">@Headline</p>
+        @if (Content.Links.Count > 0)
+        {
+            <div class="d-flex flex-wrap gap-3 resume-links">
+                @foreach (var link in Content.Links)
+                {
+                    <a href="@link.Url" target="_blank" rel="noopener noreferrer">@link.Label</a>
+                }
+            </div>
+        }
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Content.Summary))
+    {
+        <section class="resume-section">
+            <p class="resume-summary">@Content.Summary</p>
+        </section>
+    }
+
+    @if (Content.Skills.Count > 0)
+    {
+        <section class="resume-section">
+            <h2>@L[RK.Resume.Skills]</h2>
+            <div class="d-flex flex-wrap gap-2 resume-skills">
+                @foreach (var skill in Content.Skills)
+                {
+                    <span class="resume-skill-badge">@skill</span>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Content.Experience.Count > 0)
+    {
+        <section class="resume-section">
+            <h2>@L[RK.Resume.Experience]</h2>
+            @foreach (var exp in Content.Experience)
+            {
+                <article class="resume-entry">
+                    <div class="d-flex flex-wrap align-items-baseline gap-1 resume-entry-head">
+                        <strong>@exp.Position</strong> · @exp.Company
+                        <span class="resume-entry-dates">@exp.StartDate – @(string.IsNullOrWhiteSpace(exp.EndDate) ? L[RK.Resume.Present].Value : exp.EndDate)</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(exp.Description))
+                    {
+                        <p>@exp.Description</p>
+                    }
+                </article>
+            }
+        </section>
+    }
+
+    @if (Content.Projects.Count > 0)
+    {
+        <section class="resume-section">
+            <h2>@L[RK.Resume.Projects]</h2>
+            @foreach (var proj in Content.Projects)
+            {
+                <article class="resume-entry">
+                    <div class="d-flex flex-wrap align-items-baseline gap-1 resume-entry-head">
+                        <strong>@proj.Name</strong>
+                        @if (!string.IsNullOrWhiteSpace(proj.TechStack))
+                        {
+                            <span class="resume-entry-tech">@proj.TechStack</span>
+                        }
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(proj.Description))
+                    {
+                        <p>@proj.Description</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(proj.LinkUrl))
+                    {
+                        <a href="@proj.LinkUrl" target="_blank" rel="noopener noreferrer">@proj.LinkUrl</a>
+                    }
+                </article>
+            }
+        </section>
+    }
+
+    @if (Content.Education.Count > 0)
+    {
+        <section class="resume-section">
+            <h2>@L[RK.Resume.Education]</h2>
+            @foreach (var edu in Content.Education)
+            {
+                <article class="resume-entry">
+                    <div class="d-flex flex-wrap align-items-baseline gap-1 resume-entry-head">
+                        <strong>@edu.Degree</strong> · @edu.School
+                        <span class="resume-entry-dates">@edu.StartDate – @(string.IsNullOrWhiteSpace(edu.EndDate) ? L[RK.Resume.Present].Value : edu.EndDate)</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(edu.Description))
+                    {
+                        <p>@edu.Description</p>
+                    }
+                </article>
+            }
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter] public string FullName { get; set; } = string.Empty;
+    [Parameter] public string Headline { get; set; } = string.Empty;
+    [Parameter] public ResumeContentDto Content { get; set; } = new();
+}

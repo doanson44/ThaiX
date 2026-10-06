@@ -1,0 +1,307 @@
+@page "/portfolio/market-scanner-rules"
+@attribute [Authorize(Policy = PermissionNames.MarketScannerRuleRead)]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Portfolio
+@inject IMarketScannerService MarketScannerService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.MarketScanner.ListTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">@L[RK.MarketScanner.Title]</RadzenText>
+                    @if (_canWrite)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.MarketScanner.CreateTitle]" Icon="add" ButtonStyle="ButtonStyle.Primary" Click="@OpenCreateDialogAsync" />
+                    }
+                </RadzenStack>
+
+                <RadzenRow Gap="0.75rem">
+                    <RadzenColumn Size="12">
+                        <RadzenLabel Text="@L[RK.Common.Search]" />
+                        <div class="ThaiX-input-group">
+                            <RadzenTextBox @bind-Value="_searchTerm"
+                                           Placeholder="@L[RK.MarketScanner.SearchPlaceholder]"
+                                           Change="@(_ => ApplySearchAsync())" />
+                            <InputGroupSearchButton Click="@ApplySearchAsync" />
+                        </div>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.MarketScanner.ListTitle]</RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="MarketScannerRuleListItemDto"
+                                    Data="@_items"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadDataAsync"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    PageSize="@DefaultPageSize"
+                                    PageSizeOptions="@PageSizeOptions"
+                                    ShowPagingSummary="true"
+                                    Density="Density.Compact"
+                                    IsLoading="@_isLoading">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Property="Name" Title="@L[RK.MarketScanner.Name]" />
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Property="SignalType" Title="@L[RK.MarketScanner.SignalType]" />
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Property="Window" Title="@L[RK.MarketScanner.Window]" />
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Property="Threshold" Title="@L[RK.MarketScanner.Threshold]" />
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Property="IsEnabled" Title="@L[RK.MarketScanner.IsEnabled]">
+                                <Template Context="item">
+                                    <RadzenBadge Text="@(item.IsEnabled ? L[RK.Common.Enabled] : L[RK.Common.Disabled])"
+                                                 BadgeStyle="@(item.IsEnabled ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MarketScannerRuleListItemDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="120px">
+                                <Template Context="item">
+                                    <div class="d-flex gap-1">
+                                        @if (_canWrite)
+                                        {
+                                            <RadzenButton Icon="edit"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => OpenEditDialogAsync(item))" />
+                                        }
+                                        @if (_canDelete)
+                                        {
+                                            <RadzenButton Icon="delete"
+                                                          ButtonStyle="ButtonStyle.Danger"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => ConfirmDeleteAsync(item))" />
+                                        }
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                
+                }
+
+                @if (Viewport.IsMobile)
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_isLoading)
+                        {
+                            <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                        }
+                        else if (_items.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            @foreach (var rule in _items)
+                            {
+                                <RadzenCard class="p-3">
+                                    <RadzenStack Gap="0.5rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@rule.Name</RadzenText>
+                                            <RadzenBadge Text="@(rule.IsEnabled ? L[RK.Common.Enabled] : L[RK.Common.Disabled])"
+                                                         BadgeStyle="@(rule.IsEnabled ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">@rule.SignalType | @rule.Window | @(rule.Threshold?.ToString() ?? "--")</RadzenText>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @if (_canWrite)
+                                            {
+                                                <ResponsiveIconButton Text="@L[RK.MarketScanner.EditTitle]"
+                                                              Icon="edit"
+                                                              ButtonStyle="ButtonStyle.Primary"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => OpenEditDialogAsync(rule))" />
+                                            }
+                                            @if (_canDelete)
+                                            {
+                                                <ResponsiveIconButton Text="@L[RK.Common.Delete]"
+                                                              Icon="delete"
+                                                              ButtonStyle="ButtonStyle.Danger"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => ConfirmDeleteAsync(rule))" />
+                                            }
+                                        </div>
+                                    </RadzenStack>
+                                </RadzenCard>
+                            }
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoading" />
+                    </RadzenStack>
+                
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+    private static readonly IEnumerable<int> PageSizeOptions = [10, 20, 50, 100];
+
+    private RadzenDataGrid<MarketScannerRuleListItemDto>? _grid;
+    private IReadOnlyList<MarketScannerRuleListItemDto> _items = [];
+    private int _totalCount;
+    private bool _isLoading;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private string? _searchTerm;
+    private bool _canWrite;
+    private bool _canDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.MarketScannerRuleWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.MarketScannerRuleDelete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _grid is not null)
+        {
+            await _grid.Reload();
+        }
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+
+        try
+        {
+            _pageSize = args.Top ?? DefaultPageSize;
+            _currentPage = _pageSize <= 0 ? 1 : ((args.Skip ?? 0) / _pageSize) + 1;
+            var sort = args.Sorts?.FirstOrDefault();
+            var sortBy = sort?.Property?.ToLowerInvariant();
+
+            var result = await MarketScannerService.GetRulesAsync(new MarketScannerRulesListRequest
+            {
+                PageNumber = _currentPage,
+                PageSize = _pageSize,
+                SortBy = sortBy switch
+                {
+                    "signaltype" => "signaltype",
+                    "window" => "window",
+                    "threshold" => "threshold",
+                    _ => "name"
+                },
+                SortDescending = sort?.SortOrder == SortOrder.Descending,
+                SearchTerm = string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm.Trim()
+            });
+
+            _items = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MarketScanner.LoadFailed], ex.GetDisplayDetail());
+            _items = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplySearchAsync()
+    {
+        if (_grid is null) return;
+        await _grid.Reload();
+    }
+
+    private async Task ReloadAsync()
+    {
+        if (_grid is null) return;
+        await _grid.Reload();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (_grid is null) return;
+        await _grid.GoToPage(page - 1);
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var result = await DialogService.OpenAsync<MarketScannerRuleDialog>(
+            L[RK.MarketScanner.CreateTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(MarketScannerRuleDialog.IsEdit)] = false
+            },
+            new DialogOptions { Width = "480px", CloseDialogOnEsc = true });
+
+        if (result is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task OpenEditDialogAsync(MarketScannerRuleListItemDto item)
+    {
+        var result = await DialogService.OpenAsync<MarketScannerRuleDialog>(
+            L[RK.MarketScanner.EditTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(MarketScannerRuleDialog.IsEdit)] = true,
+                [nameof(MarketScannerRuleDialog.RuleId)] = item.Id,
+                [nameof(MarketScannerRuleDialog.Name)] = item.Name,
+                [nameof(MarketScannerRuleDialog.SignalType)] = item.SignalType,
+                [nameof(MarketScannerRuleDialog.Window)] = item.Window,
+                [nameof(MarketScannerRuleDialog.Threshold)] = item.Threshold,
+                [nameof(MarketScannerRuleDialog.IsEnabled)] = item.IsEnabled
+            },
+            new DialogOptions { Width = "480px", CloseDialogOnEsc = true });
+
+        if (result is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(MarketScannerRuleListItemDto item)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.MarketScanner.ConfirmDelete]);
+
+        if (confirmed is not true) return;
+
+        try
+        {
+            await MarketScannerService.DeleteAsync(item.Id);
+            NotificationService.NotifySuccess(L[RK.MarketScanner.DeleteSuccess]);
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MarketScanner.DeleteFailed], ex.GetDisplayDetail());
+        }
+    }
+}

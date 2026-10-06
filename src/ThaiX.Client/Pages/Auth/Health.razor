@@ -1,0 +1,126 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@page "/auth/health"
+@attribute [AllowAnonymous]
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+@layout AuthLayout
+
+<PageTitle>@L[RK.Health.PageTitle] - ThaiX</PageTitle>
+
+<RadzenText TextStyle="TextStyle.H4">@L[RK.Health.Title]</RadzenText>
+<RadzenText class="auth-subtitle">@L[RK.Health.Subtitle]</RadzenText>
+
+<RadzenStack Gap="0.75rem">
+    <RadzenCard>
+        <RadzenStack Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Health.Frontend]</RadzenText>
+            <RadzenBadge Text="@(_frontendOk ? L[RK.Health.StatusOk] : L[RK.Health.StatusUnknown])"
+                         BadgeStyle="@( _frontendOk ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+            <RadzenText class="small text-muted text-break">@Navigation.BaseUri</RadzenText>
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenCard>
+        <RadzenStack Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Health.ApiViaProxy]</RadzenText>
+            <RadzenBadge Text="@_proxyStatus.Label" BadgeStyle="@_proxyStatus.Style" />
+            <RadzenText class="small text-muted text-break">@_proxyHealthUrl</RadzenText>
+            @if (!string.IsNullOrWhiteSpace(_proxyStatus.Detail))
+            {
+                <RadzenText class="small text-break">@_proxyStatus.Detail</RadzenText>
+            }
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenCard>
+        <RadzenStack Gap="0.5rem">
+            <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Health.ApiDirect]</RadzenText>
+            <RadzenBadge Text="@_directStatus.Label" BadgeStyle="@_directStatus.Style" />
+            <RadzenText class="small text-muted text-break">@_directHealthUrl</RadzenText>
+            @if (!string.IsNullOrWhiteSpace(_directStatus.Detail))
+            {
+                <RadzenText class="small text-break">@_directStatus.Detail</RadzenText>
+            }
+        </RadzenStack>
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    private bool _frontendOk = true;
+
+    [SupplyParameterFromQuery] public string? ApiBaseUrl { get; set; }
+
+    private string _proxyHealthUrl => $"{Navigation.BaseUri.TrimEnd('/')}/api/health";
+    private string _directHealthUrl => string.IsNullOrWhiteSpace(ApiBaseUrl)
+        ? "http://localhost:5005/health"
+        : $"{ApiBaseUrl.TrimEnd('/')}/health";
+
+    private StatusEntry _proxyStatus = new();
+    private StatusEntry _directStatus = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _proxyStatus = StatusUnknown;
+        _directStatus = StatusUnknown;
+
+        var proxyTask = CheckHealthAsync(_proxyHealthUrl, true);
+        var directTask = CheckHealthDirectAsync(_directHealthUrl);
+
+        await Task.WhenAll(proxyTask, directTask);
+    }
+
+    private async Task CheckHealthAsync(string url, bool isProxy)
+    {
+        try
+        {
+            var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            var response = await http.GetAsync(url);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (isProxy)
+                _proxyStatus = new StatusEntry { Label = response.IsSuccessStatusCode ? L[RK.Health.StatusOk] : $"HTTP {(int)response.StatusCode}", Style = response.IsSuccessStatusCode ? BadgeStyle.Success : BadgeStyle.Danger, Detail = body[..Math.Min(body.Length, 200)] };
+            else
+                _directStatus = new StatusEntry { Label = response.IsSuccessStatusCode ? L[RK.Health.StatusOk] : $"HTTP {(int)response.StatusCode}", Style = response.IsSuccessStatusCode ? BadgeStyle.Success : BadgeStyle.Danger, Detail = body[..Math.Min(body.Length, 200)] };
+        }
+        catch (Exception ex)
+        {
+            var entry = new StatusEntry { Label = L[RK.Health.StatusError], Style = BadgeStyle.Danger, Detail = ex.Message };
+            if (isProxy) _proxyStatus = entry;
+            else _directStatus = entry;
+        }
+    }
+
+    private async Task CheckHealthDirectAsync(string url)
+    {
+        try
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, _, _, _) => true
+            };
+            var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(10) };
+            var response = await http.GetAsync(url);
+            var body = await response.Content.ReadAsStringAsync();
+
+            _directStatus = new StatusEntry
+            {
+                Label = response.IsSuccessStatusCode ? L[RK.Health.StatusOk] : $"HTTP {(int)response.StatusCode}",
+                Style = response.IsSuccessStatusCode ? BadgeStyle.Success : BadgeStyle.Danger,
+                Detail = body[..Math.Min(body.Length, 200)]
+            };
+        }
+        catch (Exception ex)
+        {
+            _directStatus = new StatusEntry { Label = L[RK.Health.StatusError], Style = BadgeStyle.Danger, Detail = ex.Message };
+        }
+    }
+
+    private StatusEntry StatusUnknown => new() { Label = L[RK.Health.StatusUnknown] };
+
+    private sealed class StatusEntry
+    {
+        public string Label { get; init; } = string.Empty;
+        public BadgeStyle Style { get; init; } = BadgeStyle.Secondary;
+        public string Detail { get; init; } = string.Empty;
+    }
+}

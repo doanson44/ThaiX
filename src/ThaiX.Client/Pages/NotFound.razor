@@ -1,0 +1,17 @@
+@page "/not-found"
+@layout MainLayout
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.NotFound.Title] - ThaiX</PageTitle>
+
+<RadzenCard>
+    <RadzenStack Gap="0.75rem">
+        <RadzenText TextStyle="TextStyle.H4">@L[RK.NotFound.Title]</RadzenText>
+        <RadzenText>@L[RK.NotFound.Description]</RadzenText>
+        <RadzenButton Text="@L[RK.Common.Home]"
+                      Icon="home"
+                      ButtonStyle="ButtonStyle.Primary"
+                      Click="@(() => Navigation.NavigateTo("/"))" />
+    </RadzenStack>
+</RadzenCard>

@@ -1,0 +1,71 @@
+@page "/tools"
+@attribute [AllowAnonymous]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Services.Tools
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.Tools.HubTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2 ThaiX-tools ThaiX-tools-hub">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Gap="0.25rem">
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H1" Class="mb-0">
+                @L[RK.Tools.HubTitle]
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.Tools.HubDescription]</RadzenText>
+        </RadzenStack>
+
+        <RadzenTextBox @bind-Value="_filter"
+                       Placeholder="@L[RK.Tools.SearchPlaceholder]"
+                       Class="w-100 ThaiX-tools-hub__search"
+                       aria-label="@L[RK.Tools.SearchPlaceholder]" />
+
+        @foreach (var group in FilteredGroups())
+        {
+            <RadzenStack Gap="0.75rem">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
+                    @L[ToolCatalog.CategoryKey(group.Key)]
+                </RadzenText>
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    @foreach (var tool in group)
+                    {
+                        <RadzenColumn Size="12" SizeSM="6" SizeLG="4">
+                            <RadzenCard Class="h-100 ThaiX-tools-hub__card"
+                                        Style="cursor: pointer;"
+                                        @onclick="@(() => Navigation.NavigateTo($"/tools/{tool.Slug}"))">
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" AlignItems="AlignItems.Start" Class="ThaiX-tools-hub__card-inner">
+                                    <RadzenIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
+                                    <RadzenStack Gap="0.25rem" Class="ThaiX-tools-hub__card-text">
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">@L[tool.TitleKey]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[tool.DescriptionKey]</RadzenText>
+                                    </RadzenStack>
+                                </RadzenStack>
+                            </RadzenCard>
+                        </RadzenColumn>
+                    }
+                </RadzenRow>
+            </RadzenStack>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private string? _filter;
+
+    private IEnumerable<IGrouping<ToolCategory, ToolDefinition>> FilteredGroups()
+    {
+        var q = _filter?.Trim();
+        IEnumerable<ToolDefinition> tools = ToolCatalog.All;
+        if (!string.IsNullOrEmpty(q))
+        {
+            tools = tools.Where(t =>
+                t.Slug.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.TitleKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.DescriptionKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return tools.GroupBy(t => t.Category).OrderBy(g => (int)g.Key);
+    }
+}

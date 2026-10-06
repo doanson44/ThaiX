@@ -1,0 +1,203 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.AssetPositions
+@using ThaiX.Client.Models.MasterData
+@using ThaiX.Client.Services.MasterData
+@inject IMasterDataService MasterDataService
+@inject IAssetPositionService AssetPositionService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenTemplateForm TItem="CreateStockPositionFormModel" Data="_model" Submit="SaveAsync">
+    <RadzenStack Gap="1rem">
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Symbol]" Class="w-100">
+                    <ChildContent>
+                        <AsyncSearchSelect TItem="SymbolSearchItemDto"
+                                           Value="@_model.Symbol"
+                                           ValueChanged="@(v => _model.Symbol = v ?? string.Empty)"
+                                           LoadDataAsync="@LoadStockSymbolsAsync"
+                                           GetValue="@(t => t.Symbol)"
+                                           GetText="@(t => t.DisplayText)"
+                                           Placeholder="@L[RK.AssetPositions.StockSymbolPlaceholder]"
+                                           AllowClear="true"
+                                           Class="w-100" />
+                    </ChildContent>
+                    <Helper>
+                        @if (_symbolError)
+                        {
+                            <span class="rz-messages-error">@L[RK.Validation.Required]</span>
+                        }
+                    </Helper>
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Exchange]" Class="w-100">
+                    <RadzenDropDown @bind-Value="_model.Exchange"
+                                    Data="_exchangeOptions"
+                                    TextProperty="Label"
+                                    ValueProperty="Value"
+                                    class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Quantity]" Class="w-100">
+                    <ChildContent>
+                        <RadzenNumeric Value="_model.InitialQuantity"
+                                       ValueChanged="@((decimal v) => { _model.InitialQuantity = v; _quantityError = false; })"
+                                       TValue="decimal" Min="0" Step="100" class="w-100" />
+                    </ChildContent>
+                    <Helper>
+                        @if (_quantityError)
+                        {
+                            <span class="rz-messages-error">@L[RK.Validation.MustBeGreaterThanZero]</span>
+                        }
+                    </Helper>
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Price]" Class="w-100">
+                    <ChildContent>
+                        <RadzenNumeric Value="_model.InitialPrice"
+                                       ValueChanged="@((decimal v) => { _model.InitialPrice = v; _priceError = false; })"
+                                       TValue="decimal" Min="0" Step="100" class="w-100" />
+                    </ChildContent>
+                    <Helper>
+                        @if (_priceError)
+                        {
+                            <span class="rz-messages-error">@L[RK.Validation.MustBeGreaterThanZero]</span>
+                        }
+                    </Helper>
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.Fee]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.InitialFee" TValue="decimal" Min="0" Step="1000" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.TransactedAt]" Class="w-100">
+                    <RadzenDatePicker @bind-Value="_model.TransactedAt" ShowTime="false" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenRow Gap="0.75rem">
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.TargetPrice]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.TargetPrice" TValue="decimal?" Min="0" Step="100" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+            <RadzenColumn Size="6">
+                <RadzenFormField Text="@L[RK.AssetPositions.StopLoss]" Class="w-100">
+                    <RadzenNumeric @bind-Value="_model.StopLoss" TValue="decimal?" Min="0" Step="100" class="w-100" />
+                </RadzenFormField>
+            </RadzenColumn>
+        </RadzenRow>
+
+        <RadzenFormField Text="@L[RK.AssetPositions.Note]" Class="w-100">
+            <RadzenTextArea @bind-Value="_model.Note" class="w-100" Rows="2" MaxLength="500" />
+        </RadzenFormField>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light"
+                          Click="@(_ => DialogService.Close(false))" />
+            <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary"
+                          ButtonType="ButtonType.Submit" Disabled="_isSaving" />
+        </RadzenStack>
+
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Guid PortfolioId { get; set; }
+
+    private CreateStockPositionFormModel _model = new();
+    private bool _isSaving;
+    private bool _symbolError;
+    private bool _quantityError;
+    private bool _priceError;
+
+    private sealed record TypeOption(string Label, string Value);
+    private List<TypeOption> _exchangeOptions = [];
+
+    protected override void OnInitialized()
+    {
+        _exchangeOptions =
+        [
+            new(L[RK.AssetPositions.ExchangeHose], "HOSE"),
+            new(L[RK.AssetPositions.ExchangeHnx], "HNX"),
+            new(L[RK.AssetPositions.ExchangeUpcom], "UPCOM"),
+            new(L[RK.AssetPositions.ExchangeOther], "Other")
+        ];
+    }
+
+    private sealed class CreateStockPositionFormModel
+    {
+        public string Symbol { get; set; } = string.Empty;
+        public string Exchange { get; set; } = "HOSE";
+        public decimal InitialQuantity { get; set; }
+        public decimal InitialPrice { get; set; }
+        public decimal InitialFee { get; set; }
+        public DateTime TransactedAt { get; set; } = DateTime.UtcNow;
+        public decimal? TargetPrice { get; set; }
+        public decimal? StopLoss { get; set; }
+        public string? Note { get; set; }
+    }
+
+    private async Task SaveAsync()
+    {
+        _symbolError = string.IsNullOrWhiteSpace(_model.Symbol);
+        _quantityError = _model.InitialQuantity <= 0;
+        _priceError = _model.InitialPrice <= 0;
+        if (_symbolError || _quantityError || _priceError || _isSaving) return;
+        _isSaving = true;
+        try
+        {
+            await AssetPositionService.CreateStockPositionAsync(new CreateStockPositionRequest
+            {
+                PortfolioId = PortfolioId,
+                Symbol = _model.Symbol.ToUpperInvariant(),
+                Exchange = _model.Exchange,
+                Quantity = _model.InitialQuantity,
+                Price = _model.InitialPrice,
+                Fee = _model.InitialFee,
+                TransactedAt = _model.TransactedAt,
+                TargetPrice = _model.TargetPrice,
+                StopLoss = _model.StopLoss,
+                Note = _model.Note
+            });
+            DialogService.Close(true);
+        }
+        catch (Exception)
+        {
+            DialogService.Close(false);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task<(IReadOnlyList<SymbolSearchItemDto> items, int totalCount)>
+        LoadStockSymbolsAsync(int page, int pageSize, string? search, CancellationToken ct)
+    {
+        try
+        {
+            var result = await MasterDataService.SearchSymbolsAsync(
+                "VnStock", search, page, pageSize, ct);
+            return (result.Items, result.TotalCount);
+        }
+        catch
+        {
+            return ([], 0);
+        }
+    }
+}

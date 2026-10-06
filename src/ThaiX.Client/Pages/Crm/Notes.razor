@@ -1,0 +1,550 @@
+@page "/crm/notes"
+@attribute [Authorize(Policy = PermissionNames.NoteRead)]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Notes
+@using ThaiX.Client.Components.Crm.Notes
+@using ThaiX.Client.Services.Notes
+@inject INoteService NoteService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+
+<PageTitle>@L[RK.Notes.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">
+                        @L[RK.Notes.Title]
+                    </RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (_canWrite)
+                {
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenTextBox @bind-Value="@_newTitle"
+                                       Placeholder="@L[RK.Notes.TitlePlaceholder]"
+                                       class="w-100"
+                                       Style="font-weight: 500;" />
+                        <RadzenTextArea @bind-Value="@_newContent"
+                                        Placeholder="@L[RK.Notes.TakeNote]"
+                                        Rows="@(_isCreatingNote ? 4 : 2)"
+                                        class="w-100"
+                                        @onfocus="@OnCreateFocus" />
+                        @if (_isCreatingNote)
+                        {
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center">
+                                <ResponsiveIconButton Text="@L[RK.Notes.CreateNote]"
+                                              Icon="add"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              Click="@CreateNoteAsync"
+                                              IsBusy="@_isSaving" />
+                                <RadzenDropDown Data="@_colorOptions"
+                                                @bind-Value="@_newColor"
+                                                Style="min-width: 8.75rem;"
+                                                TItem="ColorOption"
+                                                TextProperty="Label"
+                                                ValueProperty="Value">
+                                    <Template Context="option">
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @option.Hex;"></span>
+                                            <span>@option.Label</span>
+                                        </div>
+                                    </Template>
+                                </RadzenDropDown>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                }
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenStack Gap="0.75rem">
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         Gap="0.5rem"
+                         Wrap="FlexWrap.Wrap"
+                         AlignItems="AlignItems.Center">
+                <RadzenButton Text="@L[RK.Notes.FilterAll]"
+                              ButtonStyle="@(_currentFilter == NoteFilterType.All ? ButtonStyle.Primary : ButtonStyle.Light)"
+                              Size="ButtonSize.Small"
+                              Click="@(() => ChangeFilterAsync(NoteFilterType.All))" />
+                <RadzenButton Text="@L[RK.Notes.FilterPinned]"
+                              ButtonStyle="@(_currentFilter == NoteFilterType.Pinned ? ButtonStyle.Primary : ButtonStyle.Light)"
+                              Size="ButtonSize.Small"
+                              Click="@(() => ChangeFilterAsync(NoteFilterType.Pinned))" />
+                <RadzenButton Text="@L[RK.Notes.FilterArchived]"
+                              ButtonStyle="@(_currentFilter == NoteFilterType.Archived ? ButtonStyle.Primary : ButtonStyle.Light)"
+                              Size="ButtonSize.Small"
+                              Click="@(() => ChangeFilterAsync(NoteFilterType.Archived))" />
+                <RadzenButton Text="@L[RK.Notes.FilterTrash]"
+                              ButtonStyle="@(_currentFilter == NoteFilterType.Trash ? ButtonStyle.Primary : ButtonStyle.Light)"
+                              Size="ButtonSize.Small"
+                              Click="@(() => ChangeFilterAsync(NoteFilterType.Trash))" />
+            </RadzenStack>
+
+            <div class="ThaiX-input-group">
+                <RadzenTextBox @bind-Value="@_searchTerm"
+                               Placeholder="@L[RK.Common.Search]"
+                               Change="@(_ => ReloadAsync())" />
+                <InputGroupSearchButton Click="@ReloadAsync" />
+            </div>
+        </RadzenStack>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+        }
+        else if (!_notes.Any())
+        {
+            <RadzenCard>
+                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @L[RK.Notes.NoNotes]
+                </RadzenAlert>
+            </RadzenCard>
+        }
+        else
+        {
+            <RadzenRow Gap="1rem">
+                @foreach (var note in _notes)
+                {
+                    var color = GetNoteColorStyle(note.Color);
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                        <RadzenCard Style="@($"border-radius: 8px; border-left: 4px solid {color}; background-color: {GetNoteBgColor(note.Color)};")"
+                                    Class="note-card">
+                            <RadzenStack Gap="0.5rem">
+                                @if (!string.IsNullOrWhiteSpace(note.Title))
+                                {
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0" Style="font-weight: 600;">
+                                        @note.Title
+                                    </RadzenText>
+                                }
+
+                                <RadzenText TextStyle="TextStyle.Body2" Style="white-space: pre-wrap; word-break: break-word;">
+                                    @TruncateContent(note.Content)
+                                </RadzenText>
+
+                                <RadzenStack Orientation="Orientation.Horizontal"
+                                             JustifyContent="JustifyContent.SpaceBetween"
+                                             AlignItems="AlignItems.Center"
+                                             Gap="0.25rem"
+                                             class="note-actions">
+                                    <RadzenText TextStyle="TextStyle.Caption" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                        @note.CreatedAt.ToString("d MMM yyyy")
+                                    </RadzenText>
+
+                                    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem">
+                                        @if (_currentFilter != NoteFilterType.Trash)
+                                        {
+                                            if (_canWrite)
+                                            {
+                                                <RadzenButton Icon="@(note.IsPinned ? "keep_off" : "keep")"
+                                                              Size="ButtonSize.Small"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Title="@(note.IsPinned ? L[RK.Notes.Unpin] : L[RK.Notes.Pin])"
+                                                              Click="@(async () => await TogglePinAsync(note))" />
+
+                                                @if (_currentFilter != NoteFilterType.Archived)
+                                                {
+                                                    <RadzenButton Icon="archive"
+                                                                  Size="ButtonSize.Small"
+                                                                  ButtonStyle="ButtonStyle.Light"
+                                                                  Title="@L[RK.Notes.Archive]"
+                                                                  Click="@(async () => await ToggleArchiveAsync(note))" />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenButton Icon="unarchive"
+                                                                  Size="ButtonSize.Small"
+                                                                  ButtonStyle="ButtonStyle.Light"
+                                                                  Title="@L[RK.Notes.Unarchive]"
+                                                                  Click="@(async () => await ToggleArchiveAsync(note))" />
+                                                }
+
+                                                <RadzenButton Icon="edit"
+                                                              Size="ButtonSize.Small"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Title="@L[RK.Notes.EditNote]"
+                                                              Click="@(() => OpenEditDialogAsync(note))" />
+                                            }
+
+                                            if (_canDelete)
+                                            {
+                                                <RadzenButton Icon="delete"
+                                                              Size="ButtonSize.Small"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Title="@L[RK.Notes.Delete]"
+                                                              Click="@(async () => await DeleteNoteAsync(note))" />
+                                            }
+
+                                            <RadzenDropDown Data="@_colorOptions"
+                                                                TItem="ColorOption"
+                                                                TextProperty="Label"
+                                                                ValueProperty="Value"
+                                                                Value="@note.Color"
+                                                                ValueChanged="@(async (string v) => await ChangeColorAsync(note, v))">
+                                                    <Template Context="option">
+                                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                                            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @option.Hex;"></span>
+                                                            <span>@option.Label</span>
+                                                        </div>
+                                                    </Template>
+                                                </RadzenDropDown>
+                                        }
+                                        else
+                                        {
+                                            if (_canWrite)
+                                            {
+                                                <RadzenButton Icon="restore_from_trash"
+                                                              Size="ButtonSize.Small"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Title="@L[RK.Notes.Restore]"
+                                                              Click="@(async () => await RestoreNoteAsync(note))" />
+                                            }
+                                        }
+                                    </RadzenStack>
+                                </RadzenStack>
+                            </RadzenStack>
+                        </RadzenCard>
+                    </RadzenColumn>
+                }
+            </RadzenRow>
+
+            @if (_totalCount > _pageSize)
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0.5rem">
+                    <RadzenButton Icon="chevron_left"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Disabled="@(_currentPage <= 1)"
+                                  Click="@LoadPrevPageAsync" />
+                    <RadzenText TextStyle="TextStyle.Body2" class="align-self-center">
+                        @_currentPage / @_totalPages
+                    </RadzenText>
+                    <RadzenButton Icon="chevron_right"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Disabled="@(_currentPage >= _totalPages)"
+                                  Click="@LoadNextPageAsync" />
+                </RadzenStack>
+            }
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 50;
+
+    private enum NoteFilterType { All, Pinned, Archived, Trash }
+
+    private readonly List<ColorOption> _colorOptions =
+    [
+        new("Default", "Default", "#e8eaed"),
+        new("Red", "Red", "#f28b82"),
+        new("Orange", "Orange", "#fbbc04"),
+        new("Yellow", "Yellow", "#fff475"),
+        new("Green", "Green", "#ccff90"),
+        new("Teal", "Teal", "#a7ffeb"),
+        new("Blue", "Blue", "#cbf0f8"),
+        new("Purple", "Purple", "#d7aefb"),
+        new("Gray", "Gray", "#e8eaed")
+    ];
+
+    private IReadOnlyList<NoteDto> _notes = [];
+    private int _totalCount;
+    private int _totalPages;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private bool _isLoading;
+    private bool _isSaving;
+    private bool _isCreatingNote;
+    private bool _canWrite;
+    private bool _canDelete;
+    private string? _searchTerm;
+    private NoteFilterType _currentFilter = NoteFilterType.All;
+
+    private string _newTitle = string.Empty;
+    private string _newContent = string.Empty;
+    private string _newColor = "Default";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.NoteWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.NoteDelete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task ReloadAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var request = new NotesListRequest
+            {
+                PageNumber = _currentPage,
+                PageSize = _pageSize,
+                SearchTerm = _searchTerm,
+                IsPinned = _currentFilter == NoteFilterType.Pinned ? true : null,
+                IsArchived = _currentFilter == NoteFilterType.Archived ? true : _currentFilter == NoteFilterType.All ? false : null,
+                IsDeleted = _currentFilter == NoteFilterType.Trash ? true : null,
+                SortBy = _currentFilter == NoteFilterType.Pinned ? null : "updatedat",
+                SortDescending = true
+            };
+
+            var result = await NoteService.GetListAsync(request);
+            _notes = result.Data ?? [];
+            _totalCount = result.Metadata.TotalCount;
+            _totalPages = (int)Math.Ceiling((double)_totalCount / _pageSize);
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateNoteAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_newContent))
+            return;
+
+        _isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            await NoteService.CreateAsync(new CreateNoteRequest
+            {
+                Title = _newTitle.Trim(),
+                Content = _newContent.Trim(),
+                Color = _newColor
+            });
+
+            _newTitle = string.Empty;
+            _newContent = string.Empty;
+            _newColor = "Default";
+            _isCreatingNote = false;
+            NotificationService.NotifySuccess(L[RK.Notes.CreateSuccess]);
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnCreateFocus()
+    {
+        _isCreatingNote = true;
+        StateHasChanged();
+    }
+
+    private async Task TogglePinAsync(NoteDto note)
+    {
+        try
+        {
+            await NoteService.TogglePinAsync(note.Id);
+            NotificationService.NotifyInfo(note.IsPinned ? L[RK.Notes.UnpinSuccess] : L[RK.Notes.PinSuccess]);
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+    }
+
+    private async Task ToggleArchiveAsync(NoteDto note)
+    {
+        try
+        {
+            await NoteService.ToggleArchiveAsync(note.Id);
+            NotificationService.NotifyInfo(note.IsArchived ? L[RK.Notes.UnarchiveSuccess] : L[RK.Notes.ArchiveSuccess]);
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+    }
+
+    private async Task ChangeColorAsync(NoteDto note, string color)
+    {
+        try
+        {
+            await NoteService.UpdateAsync(note.Id, new UpdateNoteRequest
+            {
+                Title = note.Title,
+                Content = note.Content,
+                Color = color
+            });
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+    }
+
+    private async Task DeleteNoteAsync(NoteDto note)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.Notes.ConfirmDelete]);
+
+        if (!confirmed.GetValueOrDefault())
+            return;
+
+        try
+        {
+            await NoteService.DeleteAsync(note.Id);
+            NotificationService.NotifySuccess(L[RK.Notes.DeleteSuccess]);
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+    }
+
+    private async Task RestoreNoteAsync(NoteDto note)
+    {
+        try
+        {
+            await NoteService.UpdateAsync(note.Id, new UpdateNoteRequest
+            {
+                Title = note.Title,
+                Content = note.Content,
+                Color = note.Color
+            });
+            NotificationService.NotifySuccess(L[RK.Notes.RestoreSuccess]);
+            await ReloadAsync();
+        }
+        catch (Exception)
+        {
+            NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+        }
+    }
+
+    private async Task OpenEditDialogAsync(NoteDto note)
+    {
+        var editTitle = note.Title;
+        var editContent = note.Content;
+        var editColor = note.Color;
+
+        var result = await DialogService.OpenAsync<NoteEditDialog>(
+            L[RK.Notes.EditNote],
+            new Dictionary<string, object?>
+            {
+                ["Title"] = editTitle,
+                ["Content"] = editContent,
+                ["Color"] = editColor
+            },
+            new DialogOptions { Width = "500px", Height = "auto", ShowTitle = true });
+
+        if (result is NoteEditResult editResult && editResult.Confirmed)
+        {
+            try
+            {
+                await NoteService.UpdateAsync(note.Id, new UpdateNoteRequest
+                {
+                    Title = editResult.Title,
+                    Content = editResult.Content,
+                    Color = editResult.Color
+                });
+                NotificationService.NotifySuccess(L[RK.Notes.UpdateSuccess]);
+                await ReloadAsync();
+            }
+            catch (Exception)
+            {
+                NotificationService.NotifyError(L[RK.Common.UnhandledError]);
+            }
+        }
+    }
+
+    private async Task ChangeFilterAsync(NoteFilterType filter)
+    {
+        _currentFilter = filter;
+        _currentPage = 1;
+        await ReloadAsync();
+    }
+
+    private async Task LoadNextPageAsync()
+    {
+        if (_currentPage < _totalPages)
+        {
+            _currentPage++;
+            await ReloadAsync();
+        }
+    }
+
+    private async Task LoadPrevPageAsync()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            await ReloadAsync();
+        }
+    }
+
+    private static string TruncateContent(string content, int maxLength = 300)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return string.Empty;
+        if (content.Length <= maxLength)
+            return content;
+        return content[..maxLength] + "...";
+    }
+
+    private static string GetNoteColorStyle(string color) => color switch
+    {
+        "Red" => "#f28b82",
+        "Orange" => "#fbbc04",
+        "Yellow" => "#fff475",
+        "Green" => "#ccff90",
+        "Teal" => "#a7ffeb",
+        "Blue" => "#cbf0f8",
+        "Purple" => "#d7aefb",
+        "Gray" => "#e8eaed",
+        _ => "#ffffff"
+    };
+
+    private static string GetNoteBgColor(string color) => color switch
+    {
+        "Red" => "rgba(242, 139, 130, 0.15)",
+        "Orange" => "rgba(251, 188, 4, 0.15)",
+        "Yellow" => "rgba(255, 244, 117, 0.2)",
+        "Green" => "rgba(204, 255, 144, 0.15)",
+        "Teal" => "rgba(167, 255, 235, 0.15)",
+        "Blue" => "rgba(203, 240, 248, 0.2)",
+        "Purple" => "rgba(215, 174, 251, 0.15)",
+        "Gray" => "rgba(232, 234, 237, 0.15)",
+        _ => "transparent"
+    };
+
+    private sealed record ColorOption(string Label, string Value, string Hex);
+}

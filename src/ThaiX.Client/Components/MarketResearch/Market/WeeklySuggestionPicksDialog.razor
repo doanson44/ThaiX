@@ -1,0 +1,132 @@
+@using ThaiX.Client.Models.Trading
+@using ThaiX.Client.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inherits ThaiXPageBase
+
+<RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-3">
+    @L[RK.WeeklySuggestionHistory.PicksTitle] (@Report.RunAtUtc.ToLocalTime().ToString("g"))
+</RadzenText>
+
+@if (!Viewport.IsMobile)
+{
+    <div class="w-100 overflow-auto">
+        <RadzenDataGrid TItem="PickRow"
+                        Data="@_rows"
+                        AllowFiltering="true"
+                        FilterMode="FilterMode.Advanced"
+                        AllowSorting="true"
+                        Density="Density.Compact">
+            <EmptyTemplate>
+                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @L[RK.Common.NoDataFound]
+                </RadzenAlert>
+            </EmptyTemplate>
+            <Columns>
+                <RadzenDataGridColumn MinWidth="5rem" TItem="PickRow" Property="Rank" Title="@L[RK.WeeklySuggestionHistory.Rank]" />
+                <RadzenDataGridColumn MinWidth="7.5rem" TItem="PickRow" Property="Symbol" Title="@L[RK.WeeklySuggestionHistory.Symbol]" />
+                <RadzenDataGridColumn MinWidth="6.25rem" TItem="PickRow" Property="Timeframe" Title="@L[RK.WeeklySuggestionHistory.Timeframe]" />
+                <RadzenDataGridColumn MinWidth="6.25rem" TItem="PickRow" Property="EntryPrice" Title="@L[RK.WeeklySuggestionHistory.Entry]" />
+                <RadzenDataGridColumn MinWidth="8.75rem" TItem="PickRow" Property="Signal" Title="@L[RK.WeeklySuggestionHistory.Signal]" />
+                <RadzenDataGridColumn MinWidth="6.25rem" TItem="PickRow" Property="CurrentPrice" Title="@L[RK.WeeklySuggestionHistory.Current]">
+                    <Template Context="item">@Format(item.CurrentPrice)</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn MinWidth="7.5rem" TItem="PickRow" Property="ChangePercent" Title="@L[RK.WeeklySuggestionHistory.ChangePercent]">
+                    <Template Context="item">
+                        <span class="@(item.ChangePercent is null ? string.Empty : item.ChangePercent >= 0 ? "text-success fw-semibold" : "text-danger fw-semibold")">@FormatSignedPercent(item.ChangePercent)</span>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+}
+else
+{
+    <RadzenStack Gap="0.5rem">
+        @foreach (var item in _rows)
+        {
+            <RadzenCard Class="p-2 m-0">
+                <RadzenStack Gap="0.25rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle2"><strong>#@item.Rank</strong> @item.Symbol - @item.Timeframe</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.Entry]: @item.EntryPrice</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.Signal]: @item.Signal</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2">@L[RK.WeeklySuggestionHistory.Current]: @Format(item.CurrentPrice)</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2">
+                        @L[RK.WeeklySuggestionHistory.ChangePercent]:
+                        <strong class="@(item.ChangePercent is null ? string.Empty : item.ChangePercent >= 0 ? "text-success fw-semibold" : "text-danger fw-semibold")">@FormatSignedPercent(item.ChangePercent)</strong>
+                    </RadzenText>
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </RadzenStack>
+}
+
+<div class="d-flex justify-content-end mt-3">
+    <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+</div>
+
+@code {
+    [Parameter] public required WeeklySuggestionHistoryReportDto Report { get; set; }
+
+    /// <summary>Symbol → current price, sourced from data already loaded on the caller's main page.</summary>
+    [Parameter] public IReadOnlyDictionary<string, decimal>? CurrentPrices { get; set; }
+
+    private List<PickRow> _rows = [];
+
+    protected override void OnParametersSet()
+    {
+        _rows = Report.Picks
+            .Select(item => new PickRow
+            {
+                Rank = item.Rank,
+                Symbol = item.Symbol,
+                Timeframe = item.Timeframe,
+                EntryPrice = item.EntryPrice,
+                Signal = item.Signal,
+                CurrentPrice = GetCurrentPrice(item.Symbol),
+                ChangePercent = GetProfitLossPercent(item)
+            })
+            .ToList();
+    }
+
+    private decimal? GetCurrentPrice(string symbol) =>
+        CurrentPrices is not null && CurrentPrices.TryGetValue(symbol, out var price) ? price : null;
+
+    private decimal? GetProfitLossPercent(WeeklySuggestionHistoryItemDto item)
+    {
+        if (item.EntryPrice == 0 || GetCurrentPrice(item.Symbol) is not { } current)
+        {
+            return null;
+        }
+
+        var changePercent = (current - item.EntryPrice) / item.EntryPrice * 100m;
+        var isShort = item.Signal.Contains("SELL", StringComparison.OrdinalIgnoreCase);
+        return isShort ? -changePercent : changePercent;
+    }
+
+    private static string Format(decimal? value) => value?.ToString() ?? "-";
+
+    private static string FormatSignedPercent(decimal? value)
+    {
+        if (value is null)
+        {
+            return "-";
+        }
+
+        var raw = value.Value.ToString("0.##") + "%";
+        return value.Value > 0 ? $"+{raw}" : raw;
+    }
+
+    private sealed class PickRow
+    {
+        public int Rank { get; init; }
+        public string Symbol { get; init; } = string.Empty;
+        public string Timeframe { get; init; } = string.Empty;
+        public decimal EntryPrice { get; init; }
+        public string Signal { get; init; } = string.Empty;
+        public decimal? CurrentPrice { get; init; }
+        public decimal? ChangePercent { get; init; }
+    }
+}

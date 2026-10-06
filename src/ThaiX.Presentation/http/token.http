@@ -1,0 +1,49 @@
+# Token Endpoints
+# POST /api/token/login
+# POST /api/token/client-credentials
+# POST /api/token/introspect
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain access token
+# ============================================================
+
+### User Login (get JWT token)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+###
+
+
+@authToken = {{login.response.body.$.data.token}}
+
+
+### Client Credentials (M2M authentication)
+POST {{baseUrl}}/api/token/client-credentials
+Content-Type: {{contentType}}
+
+{
+  "clientId": "my-client-id",
+  "clientSecret": "my-client-secret",
+  "scope": "api"
+}
+
+###
+
+### Token Introspection (requires auth)
+POST {{baseUrl}}/api/token/introspect
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "token": "{{authToken}}"
+}

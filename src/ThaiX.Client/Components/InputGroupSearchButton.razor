@@ -1,0 +1,17 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inherits ThaiXPageBase
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenButton Text="@ButtonText"
+              Icon="search"
+              ButtonStyle="ButtonStyle.Light"
+              title="@L[RK.Common.Search]"
+              aria-label="@L[RK.Common.Search]"
+              Click="@Click" />
+
+@code {
+    [Parameter]
+    public EventCallback Click { get; set; }
+
+    private string? ButtonText => Viewport.IsMobile ? null : L[RK.Common.Search];
+}

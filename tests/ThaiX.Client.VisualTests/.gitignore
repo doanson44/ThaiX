@@ -1,0 +1,6 @@
+*.png
+Baselines/
+TestResults/
+Diffs/
+node_modules/
+obj/visual-tests-publish/

@@ -1,0 +1,226 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.AssetPositions
+@using ThaiX.Client.Components.Portfolio.Portfolios
+@inject IAssetPositionService AssetPositionService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenStack Gap="0.75rem">
+    <RadzenStack Orientation="Orientation.Horizontal"
+                 AlignItems="AlignItems.Center"
+                 JustifyContent="JustifyContent.SpaceBetween"
+                 Wrap="FlexWrap.Wrap"
+                 Gap="0.5rem">
+        <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+        @if (CanWrite)
+        {
+            <ResponsiveIconButton Text="@L[RK.AssetPositions.SavingTitle]" Icon="add" ButtonStyle="ButtonStyle.Primary"
+                          Size="ButtonSize.Small" Click="@OpenCreateDialogAsync" />
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile)
+    {
+        <RadzenDataGrid @ref="_grid"
+                        TItem="SavingPositionListItemDto"
+                        Data="@_items"
+                        Count="@_totalCount"
+                        LoadData="@LoadDataAsync"
+                        AllowPaging="true"
+                        AllowSorting="false"
+                        PageSize="10"
+                        ShowPagingSummary="true"
+                        Density="Density.Compact"
+                        IsLoading="@_isLoading">
+            <Columns>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="BankName" Title="@L[RK.AssetPositions.BankName]" />
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="PrincipalAmount" Title="@L[RK.AssetPositions.PrincipalAmount]">
+                    <Template Context="item">@item.PrincipalAmount.ToString("N0")</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="InterestRate" Title="@L[RK.AssetPositions.InterestRate]">
+                    <Template Context="item">@item.InterestRate.ToString("N2")%</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="DepositDate" Title="@L[RK.AssetPositions.DepositDate]">
+                    <Template Context="item">@item.DepositDate.ToString("yyyy-MM-dd")</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="MaturityDate" Title="@L[RK.AssetPositions.MaturityDate]">
+                    <Template Context="item">@(item.MaturityDate.HasValue ? item.MaturityDate.Value.ToString("yyyy-MM-dd") : "--")</Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Property="Status" Title="@L[RK.AssetPositions.Status]" Width="100px">
+                    <Template Context="item">
+                        <RadzenBadge Text="@item.Status"
+                                     BadgeStyle="@(item.Status == "Active" ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="SavingPositionListItemDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="110px">
+                    <Template Context="item">
+                        <div class="d-flex gap-1">
+                            @if (CanWrite && item.Status == "Active")
+                            {
+                                <RadzenButton Icon="money_off" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
+                                              Click="@(() => ConfirmWithdrawAsync(item))" />
+                            }
+                            @if (CanDelete)
+                            {
+                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                              Click="@(() => ConfirmDeleteAsync(item))" />
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    
+    }
+
+    @if (Viewport.IsMobile)
+    {
+        <RadzenStack Gap="0.5rem">
+            @if (_isLoading)
+            {
+                <RadzenText>@L[RK.Common.Loading]</RadzenText>
+            }
+            else if (_items.Count == 0)
+            {
+                <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+            }
+            else
+            {
+                <Virtualize Items="@_items" TItem="SavingPositionListItemDto" Context="pos" OverscanCount="5">
+                    <div class="mb-2">
+                    <RadzenCard class="p-3 m-0">
+                        <RadzenStack Gap="0.25rem">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@pos.BankName</RadzenText>
+                                <RadzenBadge Text="@pos.Status"
+                                             BadgeStyle="@(pos.Status == "Active" ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                            </div>
+                            <RadzenText class="text-muted small mb-0">
+                                @pos.PrincipalAmount.ToString("N0") | @pos.InterestRate.ToString("N2")% | @pos.DepositDate.ToString("yyyy-MM-dd")
+                            </RadzenText>
+                            <div class="d-flex gap-2 mt-1">
+                                @if (CanWrite && pos.Status == "Active")
+                                {
+                                    <ResponsiveIconButton Text="@L[RK.AssetPositions.Withdraw]" Icon="money_off" ButtonStyle="ButtonStyle.Warning"
+                                                  Size="ButtonSize.Small" Click="@(() => ConfirmWithdrawAsync(pos))" />
+                                }
+                                @if (CanDelete)
+                                {
+                                    <ResponsiveIconButton Text="@L[RK.Common.Delete]" Icon="delete" ButtonStyle="ButtonStyle.Danger"
+                                                  Size="ButtonSize.Small" Click="@(() => ConfirmDeleteAsync(pos))" />
+                                }
+                            </div>
+                        </RadzenStack>
+                    </RadzenCard>
+                    </div>
+                </Virtualize>
+            }
+        </RadzenStack>
+    
+    }
+</RadzenStack>
+
+@code {
+    [Parameter] public Guid PortfolioId { get; set; }
+    [Parameter] public bool CanWrite { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+
+    private RadzenDataGrid<SavingPositionListItemDto>? _grid;
+    private List<SavingPositionListItemDto> _items = [];
+    private int _totalCount;
+    private bool _isLoading;
+    private CancellationTokenSource _cts = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _grid is not null)
+            await _grid.Reload();
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+        try
+        {
+            int pageSize = args.Top ?? 10;
+            int pageNumber = pageSize <= 0 ? 1 : ((args.Skip ?? 0) / pageSize) + 1;
+
+            var result = await AssetPositionService.GetSavingPositionsAsync(new SavingPositionsListRequest
+            {
+                PortfolioId = PortfolioId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            }, _cts.Token);
+
+            _items = [.. result.Data ?? []];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (Exception)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.AssetPositions.LoadFailed]);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var result = await DialogService.OpenAsync<CreateSavingPositionDialog>(
+            L[RK.AssetPositions.SavingTitle],
+            parameters: new Dictionary<string, object?> { ["PortfolioId"] = PortfolioId },
+            options: new DialogOptions { Width = "520px", CloseDialogOnOverlayClick = false });
+
+        if (result is true)
+        {
+            NotificationService.Notify(NotificationSeverity.Success, L[RK.AssetPositions.CreateSuccess]);
+            if (_grid is not null) await _grid.Reload();
+        }
+    }
+
+    private async Task ConfirmWithdrawAsync(SavingPositionListItemDto item)
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.AssetPositions.Withdraw],
+            L[RK.Common.Confirm],
+            new ConfirmOptions { OkButtonText = L[RK.AssetPositions.Withdraw], CancelButtonText = L[RK.Common.Cancel] });
+
+        if (confirmed is true)
+        {
+            try
+            {
+                await AssetPositionService.WithdrawSavingPositionAsync(item.Id,
+                    new WithdrawSavingPositionRequest { WithdrawalDate = DateOnly.FromDateTime(DateTime.UtcNow) }, _cts.Token);
+                NotificationService.Notify(NotificationSeverity.Success, L[RK.AssetPositions.WithdrawSuccess]);
+                if (_grid is not null) await _grid.Reload();
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, L[RK.AssetPositions.WithdrawFailed]);
+            }
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(SavingPositionListItemDto item)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.AssetPositions.ConfirmDelete]);
+
+        if (confirmed is true)
+        {
+            try
+            {
+                await AssetPositionService.DeleteSavingPositionAsync(item.Id, _cts.Token);
+                NotificationService.Notify(NotificationSeverity.Success, L[RK.AssetPositions.DeleteSuccess]);
+                if (_grid is not null) await _grid.Reload();
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, L[RK.AssetPositions.DeleteFailed]);
+            }
+        }
+    }
+}

@@ -1,0 +1,350 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using Net.Codecrete.QrCodeGenerator
+@inject IAuthService AuthService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem" class="rz-pt-3">
+    @if (_showAuthenticatorSetup)
+    {
+        @if (_setupLoading)
+        {
+            <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" />
+        }
+        else if (_recoveryCodes is { Length: > 0 })
+        {
+            <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" ShowIcon="true">
+                @L[RK.Account.EnableAuthenticatorSuccess]
+            </RadzenAlert>
+
+            <RadzenCard Variant="Variant.Outlined">
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.TwoFactorRecoveryCodesNew]</RadzenText>
+                    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                        @L[RK.Account.TwoFactorRecoveryCodesWarning]
+                    </RadzenAlert>
+                    <div class="recovery-code-grid">
+                        @foreach (var code in _recoveryCodes)
+                        {
+                            <RadzenText>@(code)</RadzenText>
+                        }
+                    </div>
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenButton Text="@L[RK.Account.TwoFactorBackToStatus]"
+                          Icon="arrow_back"
+                          Click="BackToStatusAsync"
+                          ButtonStyle="ButtonStyle.Primary" />
+        }
+        else if (_setupData is not null)
+        {
+            <RadzenStack Gap="1rem">
+                <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.EnableAuthenticatorStep1]</RadzenText>
+                <RadzenText>@L[RK.Account.EnableAuthenticatorStep1Description]</RadzenText>
+
+                <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.EnableAuthenticatorStep2]</RadzenText>
+                <RadzenText>@L[RK.Account.EnableAuthenticatorQrCodeInstruction]</RadzenText>
+
+                <div class="qr-code-container d-flex justify-content-center py-3">
+                    @((MarkupString)GenerateQrCodeSvg(_setupData.AuthenticatorUri))
+                </div>
+
+                <RadzenCard Variant="Variant.Outlined">
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenText><strong>@L[RK.Account.EnableAuthenticatorManualKey]:</strong></RadzenText>
+                        <RadzenText class="font-monospace text-break">@FormatKey(_setupData.SharedKey)</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+
+                <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.EnableAuthenticatorStep3]</RadzenText>
+                <RadzenTemplateForm Data="@_verifyModel" Submit="@((VerifyFormModel _) => OnVerifyAsync())">
+                    <RadzenStack Gap="0.75rem">
+                        <RadzenLabel Text="@L[RK.Account.EnableAuthenticatorVerificationCode]" />
+                        <RadzenTextBox Name="code"
+                                       @bind-Value="_verifyModel.Code"
+                                       Placeholder="@L[RK.Account.EnableAuthenticatorVerificationCodePlaceholder]"
+                                       class="w-100" />
+                        <RadzenRequiredValidator Component="code"
+                                                 Text="@L[RK.Validation.Required]"
+                                                 Popup="false" />
+
+                        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                            <RadzenButton Text="@L[RK.Account.EnableAuthenticatorVerify]"
+                                          Icon="verified"
+                                          ButtonType="ButtonType.Submit"
+                                          Disabled="@_isSubmitting"
+                                          IsBusy="@_isSubmitting"
+                                          BusyText="@L[RK.Common.Loading]"
+                                          ButtonStyle="ButtonStyle.Success" />
+                            <RadzenButton Text="@L[RK.Common.Cancel]"
+                                          Icon="close"
+                                          Click="BackToStatusAsync"
+                                          ButtonStyle="ButtonStyle.Light" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenTemplateForm>
+            </RadzenStack>
+        }
+    }
+    else
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenButton Text="@L[RK.Common.Refresh]" Icon="refresh" Click="LoadStatusAsync" ButtonStyle="ButtonStyle.Light" />
+        </RadzenStack>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" />
+        }
+        else if (_status is not null)
+        {
+            <RadzenCard Variant="Variant.Outlined">
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText>
+                        <strong>@L[RK.Account.TwoFactorStatus]:</strong>
+                        @(_status.Is2faEnabled ? L[RK.Account.TwoFactorEnabled] : L[RK.Account.TwoFactorDisabled])
+                    </RadzenText>
+                    @if (_status.Is2faEnabled)
+                    {
+                        <RadzenText>
+                            <strong>@L[RK.Account.TwoFactorRecoveryCodes]:</strong> @_status.RecoveryCodesLeft
+                        </RadzenText>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                @if (!_status.Is2faEnabled)
+                {
+                    <RadzenButton Text="@L[RK.Account.TwoFactorSetup]"
+                                  Icon="phonelink_setup"
+                                  Click="StartAuthenticatorSetupAsync"
+                                  ButtonStyle="ButtonStyle.Success" />
+                }
+                else
+                {
+                    <RadzenButton Text="@L[RK.Account.TwoFactorDisable]"
+                                  Icon="security"
+                                  Click="DisableTwoFactorAsync"
+                                  ButtonStyle="ButtonStyle.Danger" />
+
+                    <RadzenButton Text="@L[RK.Account.TwoFactorResetKey]"
+                                  Icon="restart_alt"
+                                  Click="ResetAuthenticatorAsync"
+                                  ButtonStyle="ButtonStyle.Warning" />
+
+                    <RadzenButton Text="@L[RK.Account.TwoFactorGenerateCodes]"
+                                  Icon="vpn_key"
+                                  Click="GenerateRecoveryCodesAsync"
+                                  ButtonStyle="ButtonStyle.Info" />
+                }
+            </RadzenStack>
+
+            @if (_recoveryCodes is { Length: > 0 })
+            {
+                <RadzenCard Variant="Variant.Outlined">
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.TwoFactorRecoveryCodesNew]</RadzenText>
+                        <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                            @L[RK.Account.TwoFactorRecoveryCodesWarning]
+                        </RadzenAlert>
+                        <div class="recovery-code-grid">
+                            @foreach (var code in _recoveryCodes)
+                            {
+                                <RadzenText>@(code)</RadzenText>
+                            }
+                        </div>
+                    </RadzenStack>
+                </RadzenCard>
+            }
+        }
+    }
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public bool ShowSetupOnLoad { get; set; }
+
+    private TwoFactorStatusResponse? _status;
+    private EnableAuthenticatorResponse? _setupData;
+    private string[]? _recoveryCodes;
+    private VerifyFormModel _verifyModel = new();
+    private bool _isLoading = true;
+    private bool _setupLoading;
+    private bool _isSubmitting;
+    private bool _showAuthenticatorSetup;
+    private bool _statusLoaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ShowSetupOnLoad)
+        {
+            await StartAuthenticatorSetupAsync();
+            return;
+        }
+
+        await LoadStatusAsync();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (ShowSetupOnLoad && !_showAuthenticatorSetup && !_setupLoading)
+        {
+            await StartAuthenticatorSetupAsync();
+        }
+    }
+
+    private async Task LoadStatusAsync()
+    {
+        _isLoading = true;
+        _recoveryCodes = null;
+        try
+        {
+            _status = await AuthService.GetTwoFactorStatusAsync();
+            _statusLoaded = true;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Common.Loading], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task StartAuthenticatorSetupAsync()
+    {
+        _showAuthenticatorSetup = true;
+        _setupLoading = true;
+        _setupData = null;
+        _recoveryCodes = null;
+        _verifyModel = new VerifyFormModel();
+
+        try
+        {
+            _setupData = await AuthService.EnableAuthenticatorAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.EnableAuthenticatorFailed], ex.GetDisplayDetail());
+            _showAuthenticatorSetup = false;
+        }
+        finally
+        {
+            _setupLoading = false;
+        }
+    }
+
+    private async Task BackToStatusAsync()
+    {
+        _showAuthenticatorSetup = false;
+        _setupData = null;
+        _recoveryCodes = null;
+        _verifyModel = new VerifyFormModel();
+
+        if (!_statusLoaded)
+        {
+            await LoadStatusAsync();
+        }
+    }
+
+    private async Task OnVerifyAsync()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            var result = await AuthService.VerifyAuthenticatorAsync(new VerifyAuthenticatorRequest
+            {
+                Code = _verifyModel.Code.Trim()
+            });
+            _recoveryCodes = result.RecoveryCodes;
+            _statusLoaded = false;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.EnableAuthenticatorVerifyFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task DisableTwoFactorAsync()
+    {
+        try
+        {
+            await AuthService.DisableTwoFactorAsync();
+            NotificationService.NotifySuccess(L[RK.Account.TwoFactorDisabled]);
+            await LoadStatusAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.TwoFactorError], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task ResetAuthenticatorAsync()
+    {
+        try
+        {
+            await AuthService.ResetAuthenticatorAsync();
+            NotificationService.NotifySuccess(L[RK.Account.TwoFactorResetKeySuccess]);
+            await LoadStatusAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.TwoFactorError], ex.GetDisplayDetail());
+        }
+    }
+
+    private async Task GenerateRecoveryCodesAsync()
+    {
+        try
+        {
+            var result = await AuthService.GenerateRecoveryCodesAsync();
+            _recoveryCodes = result.RecoveryCodes;
+            NotificationService.NotifySuccess(L[RK.Account.TwoFactorGenerateCodesSuccess]);
+            await LoadStatusAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Account.TwoFactorError], ex.GetDisplayDetail());
+        }
+    }
+
+    private static string FormatKey(string key)
+    {
+        var result = new System.Text.StringBuilder();
+        for (var i = 0; i < key.Length; i++)
+        {
+            if (i > 0 && i % 4 == 0)
+            {
+                result.Append(' ');
+            }
+
+            result.Append(key[i]);
+        }
+
+        return result.ToString();
+    }
+
+    private static string GenerateQrCodeSvg(string authenticatorUri)
+    {
+        var qr = QrCode.EncodeText(authenticatorUri, QrCode.Ecc.Medium);
+        return qr.ToSvgString(4);
+    }
+
+    private sealed class VerifyFormModel
+    {
+        public string Code { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,45 @@
+---
+description: "Use when writing domain entities, aggregates, value objects, or domain events. Covers DDD patterns, factory methods, soft delete, and aggregate invariants."
+applyTo: "src/ThaiX.Domain/**"
+---
+
+# Domain Layer Rules
+
+## Zero External Dependencies
+
+Domain layer has NO outward dependencies. No Infrastructure, no Application, no Presentation references.
+
+## Entities
+
+- Inherit `BaseEntity` (Id, CreatedAt, UpdatedAt, RowVersion, DomainEvents) or `BaseAuditableEntity` (adds CreatedBy, UpdatedBy, IsDeleted, DeletedAt, DeletedBy).
+- NEVER manually set audit fields -- infrastructure interceptor handles them.
+- Use factory methods (`static Create(...)`) with private constructors.
+- Properties have `private set` or `protected set`. No public setters.
+- Collections: private backing `List<T>` exposed as `IReadOnlyCollection<T>`.
+- Optimistic concurrency via `RowVersion` (automatic EF Core timestamp).
+
+## Aggregates
+
+- Single root entity enforces all invariants.
+- External code cannot bypass aggregate root to modify children.
+- Reference other aggregates by ID only.
+
+## Domain Events
+
+- Raised via `AddDomainEvent()`. Past-tense naming (e.g., `ContactCreated`).
+- Persisted to Outbox table via `OutboxInterceptor` on `SaveChangesAsync`.
+- Dispatched by Hangfire recurring job.
+- Used ONLY for business logic, NOT caching.
+
+## Soft Delete
+
+- Use `IsDeleted` flag via `BaseAuditableEntity.Delete()`.
+- Global query filter auto-excludes deleted entities.
+- Never add manual `!IsDeleted` checks. Use `.IgnoreQueryFilters()` when needed.
+
+## Prohibited
+
+- No auth logic in Domain.
+- No public setters on entities.
+- No direct event publishing (bypass Outbox).
+- No localization dependencies.

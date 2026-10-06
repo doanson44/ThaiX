@@ -1,0 +1,118 @@
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@inject IExternalDataService ExternalDataService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    @if (_isLoading)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        <RadzenText Class="text-muted">@L[RK.Common.Loading]</RadzenText>
+    }
+    else if (_errorMessage is not null)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @_errorMessage
+        </RadzenAlert>
+    }
+    else if (_market is not null)
+    {
+        <RadzenStack Gap="0.75rem">
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.CoinGecko.CoinName]</span>
+                <strong class="text-break">@_market.Name (@_market.Symbol.ToUpperInvariant())</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.CoinGecko.CurrentPrice]</span>
+                <strong>@FormatCurrency(_market.CurrentPrice)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.Market.MarketCap]</span>
+                <strong class="text-break">@FormatNullableCurrency(_market.MarketCap)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.CoinGecko.MarketCapRank]</span>
+                <strong>@(_market.MarketCapRank?.ToString() ?? "-")</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.CoinGecko.High24H]</span>
+                <strong>@FormatNullableCurrency(_market.High24H)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1 border-bottom pb-2">
+                <span class="text-muted small">@L[RK.CoinGecko.Low24H]</span>
+                <strong>@FormatNullableCurrency(_market.Low24H)</strong>
+            </div>
+            <div class="d-flex flex-column flex-sm-row justify-content-between gap-1">
+                <span class="text-muted small">@L[RK.CoinGecko.PriceChange24H]</span>
+                <strong class="@GetChangeClass(_market.PriceChangePercentage24H)">
+                    @FormatNullablePercent(_market.PriceChangePercentage24H)
+                </strong>
+            </div>
+        </RadzenStack>
+    }
+
+    <RadzenButton Text="@L[RK.Common.Close]"
+                  ButtonStyle="ButtonStyle.Light"
+                  Class="w-100"
+                  Click="@Close" />
+</RadzenStack>
+
+@code {
+    [Parameter] public string CoinId { get; set; } = string.Empty;
+    [Parameter] public string? CoinName { get; set; }
+
+    private CoinGeckoCoinMarketDto? _market;
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            var response = await ExternalDataService.GetCoinGeckoCoinMarketByIdAsync(CoinId);
+            if (response is { Success: true, Data.Data: not null })
+            {
+                _market = response.Data.Data;
+            }
+            else
+            {
+                _errorMessage = L[RK.CoinGecko.LoadDetailFailed];
+            }
+        }
+        catch
+        {
+            _errorMessage = L[RK.CoinGecko.LoadDetailFailed];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Close() => DialogService.Close();
+
+    private static string FormatCurrency(decimal value) => $"${value:N2}";
+
+    private static string FormatNullableCurrency(decimal? value)
+        => value.HasValue ? $"${value.Value:N2}" : "-";
+
+    private static string FormatNullablePercent(decimal? value)
+        => value.HasValue ? $"{value.Value:N2}%" : "-";
+
+    private static string GetChangeClass(decimal? value)
+    {
+        if (value is null or 0) return string.Empty;
+        return value > 0 ? "text-success" : "text-danger";
+    }
+}

@@ -1,0 +1,334 @@
+@page "/portfolio/price-alerts"
+@attribute [Authorize(Policy = PermissionNames.PriceAlertRead)]
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Components.Portfolio
+@inject IPriceAlertService PriceAlertService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.PriceAlerts.ListTitle] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)">@L[RK.PriceAlerts.Title]</RadzenText>
+                    @if (_canWrite)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.PriceAlerts.CreateTitle]" Icon="add" ButtonStyle="ButtonStyle.Primary" Click="@OpenCreateDialogAsync" />
+                    }
+                </RadzenStack>
+
+                <RadzenRow Gap="0.75rem">
+                    <RadzenColumn Size="12">
+                        <RadzenLabel Text="@L[RK.Common.Search]" />
+                        <div class="ThaiX-input-group">
+                            <RadzenTextBox @bind-Value="_searchTerm"
+                                           Placeholder="@L[RK.PriceAlerts.SearchPlaceholder]"
+                                           Change="@(_ => ApplySearchAsync())" />
+                            <InputGroupSearchButton Click="@ApplySearchAsync" />
+                        </div>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenCard>
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap"
+                             Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.PriceAlerts.ListTitle]</RadzenText>
+                    <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
+                </RadzenStack>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <RadzenDataGrid @ref="_grid"
+                                    TItem="PriceAlertListItemDto"
+                                    Data="@_items"
+                                    Count="@_totalCount"
+                                    LoadData="@LoadDataAsync"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    PageSize="@DefaultPageSize"
+                                    PageSizeOptions="@PageSizeOptions"
+                                    ShowPagingSummary="true"
+                                    Density="Density.Compact"
+                                    IsLoading="@_isLoading">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="Symbol" Title="@L[RK.PriceAlerts.Symbol]" />
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="AssetType" Title="@L[RK.PriceAlerts.AssetType]" />
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="Condition" Title="@L[RK.PriceAlerts.Condition]" />
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="TargetPrice" Title="@L[RK.PriceAlerts.TargetPrice]" />
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="TriggerCount" Title="@L[RK.PriceAlerts.TriggerCount]" Width="80px" />
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="LastTriggeredAt" Title="@L[RK.PriceAlerts.LastTriggeredAt]">
+                                <Template Context="item">
+                                    @(item.LastTriggeredAt.HasValue ? item.LastTriggeredAt.Value.ToString("yyyy-MM-dd HH:mm") : "--")
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Property="IsEnabled" Title="@L[RK.PriceAlerts.IsEnabled]">
+                                <Template Context="item">
+                                    <RadzenBadge Text="@(item.IsEnabled ? L[RK.Common.Enabled] : L[RK.Common.Disabled])"
+                                                 BadgeStyle="@(item.IsEnabled ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="PriceAlertListItemDto" Title="@L[RK.Common.Actions]" Sortable="false" Width="120px">
+                                <Template Context="item">
+                                    <div class="d-flex gap-1">
+                                        @if (_canWrite)
+                                        {
+                                            <RadzenButton Icon="edit"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => OpenEditDialogAsync(item))" />
+                                        }
+                                        @if (_canDelete)
+                                        {
+                                            <RadzenButton Icon="delete"
+                                                          ButtonStyle="ButtonStyle.Danger"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@(() => ConfirmDeleteAsync(item))" />
+                                        }
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                
+                }
+
+                @if (Viewport.IsMobile)
+                {
+                    <RadzenStack Gap="0.75rem">
+                        @if (_isLoading)
+                        {
+                            <RadzenText>@L[RK.Common.Loading]</RadzenText>
+                        }
+                        else if (_items.Count == 0)
+                        {
+                            <RadzenText class="text-muted">@L[RK.Common.NoDataFound]</RadzenText>
+                        }
+                        else
+                        {
+                            <Virtualize Items="@_items" TItem="PriceAlertListItemDto" Context="alert" OverscanCount="5">
+                                <div class="mb-2">
+                                <RadzenCard class="p-3 m-0">
+                                    <RadzenStack Gap="0.5rem">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                            <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@alert.Symbol</RadzenText>
+                                            <RadzenBadge Text="@(alert.IsEnabled ? L[RK.Common.Enabled] : L[RK.Common.Disabled])"
+                                                         BadgeStyle="@(alert.IsEnabled ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                        </div>
+                                        <RadzenText class="text-muted small mb-0">
+                                            @alert.AssetType | @alert.Condition @alert.TargetPrice | @L[RK.PriceAlerts.TriggerCount]: @alert.TriggerCount
+                                        </RadzenText>
+                                        @if (!string.IsNullOrWhiteSpace(alert.Note))
+                                        {
+                                            <RadzenText class="text-muted small mb-0">@alert.Note</RadzenText>
+                                        }
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @if (_canWrite)
+                                            {
+                                                <ResponsiveIconButton Text="@L[RK.PriceAlerts.EditTitle]"
+                                                              Icon="edit"
+                                                              ButtonStyle="ButtonStyle.Primary"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => OpenEditDialogAsync(alert))" />
+                                            }
+                                            @if (_canDelete)
+                                            {
+                                                <ResponsiveIconButton Text="@L[RK.Common.Delete]"
+                                                              Icon="delete"
+                                                              ButtonStyle="ButtonStyle.Danger"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@(() => ConfirmDeleteAsync(alert))" />
+                                            }
+                                        </div>
+                                    </RadzenStack>
+                                </RadzenCard>
+                                </div>
+                            </Virtualize>
+                        }
+
+                        <AdminListPager TotalCount="@_totalCount"
+                                        PageSize="@_pageSize"
+                                        CurrentPage="@_currentPage"
+                                        CurrentPageChanged="@GoToPageAsync"
+                                        Disabled="@_isLoading" />
+                    </RadzenStack>
+                
+                }
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenStack>
+</div>
+
+@code {
+    private const int DefaultPageSize = 10;
+    private static readonly IEnumerable<int> PageSizeOptions = [10, 20, 50, 100];
+
+    private RadzenDataGrid<PriceAlertListItemDto>? _grid;
+    private List<PriceAlertListItemDto> _items = [];
+    private int _totalCount;
+    private bool _isLoading;
+    private int _currentPage = 1;
+    private int _pageSize = DefaultPageSize;
+    private string? _searchTerm;
+    private bool _canWrite;
+    private bool _canDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+        _canWrite = user.HasClaim("scope", PermissionNames.PriceAlertWrite);
+        _canDelete = user.HasClaim("scope", PermissionNames.PriceAlertDelete);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _grid is not null)
+        {
+            await _grid.Reload();
+        }
+    }
+
+    private async Task LoadDataAsync(LoadDataArgs args)
+    {
+        _isLoading = true;
+
+        try
+        {
+            _pageSize = args.Top ?? DefaultPageSize;
+            _currentPage = _pageSize <= 0 ? 1 : ((args.Skip ?? 0) / _pageSize) + 1;
+            var sort = args.Sorts?.FirstOrDefault();
+            var sortBy = sort?.Property?.ToLowerInvariant();
+
+            var result = await PriceAlertService.GetAlertsAsync(new PriceAlertsListRequest
+            {
+                PageNumber = _currentPage,
+                PageSize = _pageSize,
+                SortBy = sortBy switch
+                {
+                    "assettype" => "assettype",
+                    "condition" => "condition",
+                    "targetprice" => "targetprice",
+                    "triggercount" => "triggercount",
+                    _ => "symbol"
+                },
+                SortDescending = sort?.SortOrder == SortOrder.Descending,
+                SearchTerm = string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm.Trim()
+            });
+
+            _items = result.Data?.ToList() ?? [];
+            _totalCount = result.Metadata.TotalCount;
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.PriceAlerts.LoadFailed], ex.GetDisplayDetail());
+            _items = [];
+            _totalCount = 0;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplySearchAsync()
+    {
+        if (_grid is null) return;
+        await _grid.Reload();
+    }
+
+    private async Task ReloadAsync()
+    {
+        if (_grid is null) return;
+        await _grid.Reload();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        if (_grid is null) return;
+        await _grid.GoToPage(page - 1);
+    }
+
+    private static DialogOptions BuildDialogOptions() => new()
+    {
+        Width = "min(480px, 96vw)",
+        Height = "auto",
+        Resizable = false,
+        Draggable = false,
+        CloseDialogOnEsc = true,
+        ShowClose = true,
+        CloseDialogOnOverlayClick = false
+    };
+
+    private async Task OpenCreateDialogAsync()
+    {
+        var result = await DialogService.OpenAsync<PriceAlertDialog>(
+            L[RK.PriceAlerts.CreateTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(PriceAlertDialog.IsEdit)] = false
+            },
+            BuildDialogOptions());
+
+        if (result is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task OpenEditDialogAsync(PriceAlertListItemDto item)
+    {
+        var result = await DialogService.OpenAsync<PriceAlertDialog>(
+            L[RK.PriceAlerts.EditTitle],
+            new Dictionary<string, object?>
+            {
+                [nameof(PriceAlertDialog.IsEdit)] = true,
+                [nameof(PriceAlertDialog.AlertId)] = item.Id,
+                [nameof(PriceAlertDialog.Symbol)] = item.Symbol,
+                [nameof(PriceAlertDialog.AssetType)] = item.AssetType,
+                [nameof(PriceAlertDialog.Condition)] = item.Condition,
+                [nameof(PriceAlertDialog.TargetPrice)] = item.TargetPrice,
+                [nameof(PriceAlertDialog.Note)] = item.Note,
+                [nameof(PriceAlertDialog.IsOneTime)] = item.IsOneTime,
+                [nameof(PriceAlertDialog.IsEnabled)] = item.IsEnabled
+            },
+            BuildDialogOptions());
+
+        if (result is true)
+        {
+            await ReloadAsync();
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(PriceAlertListItemDto item)
+    {
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.PriceAlerts.ConfirmDelete]);
+
+        if (confirmed is not true) return;
+
+        try
+        {
+            await PriceAlertService.DeleteAsync(item.Id);
+            NotificationService.NotifySuccess(L[RK.PriceAlerts.DeleteSuccess]);
+            await ReloadAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.PriceAlerts.DeleteFailed], ex.GetDisplayDetail());
+        }
+    }
+}

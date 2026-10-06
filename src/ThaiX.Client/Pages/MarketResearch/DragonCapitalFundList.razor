@@ -1,0 +1,224 @@
+@page "/market-research/dragon-capital"
+@attribute [Authorize(Policy = PermissionNames.MasterDataRead)]
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using Microsoft.Extensions.Localization
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+@inherits ThaiXPageBase
+
+<RadzenStack Gap="1.5rem">
+    <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+        @L[RK.DragonCapitalFunds.Title]
+    </RadzenText>
+
+    @if (_mostFrequentAssets.Any())
+    {
+        <RadzenCard Class="p-3">
+            <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">
+                @L[RK.DragonCapitalFunds.MostFrequentAssets]
+            </RadzenText>
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                @foreach (var asset in _mostFrequentAssets)
+                {
+                    <RadzenBadge BadgeStyle="BadgeStyle.Info" Variant="Variant.Outlined" Text="@($"{asset.AssetId} ({asset.Count})")" />
+                }
+            </RadzenStack>
+        </RadzenCard>
+    }
+
+    @foreach (var fundCode in FundCodes)
+    {
+        var state = _fundStates[fundCode];
+        <RadzenCard>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem" Class="mb-3" Wrap="FlexWrap.Wrap">
+                <RadzenBadge BadgeStyle="BadgeStyle.Primary" Text="@fundCode" Class="fs-6" />
+                @if (state.Data is not null)
+                {
+                    <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">
+                        @L[RK.DragonCapitalFunds.TradingDate]: @state.Data.TradingDate?.ToString("yyyy-MM-dd")
+                    </RadzenText>
+                }
+            </RadzenStack>
+
+            @if (state.IsLoading)
+            {
+                <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+            }
+            else if (state.HasError)
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @L[RK.DragonCapitalFunds.LoadFailed]
+                </RadzenAlert>
+            }
+            else if (state.Data is null || !state.Data.Top10Holdings.Any())
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @L[RK.DragonCapitalFunds.NoDataFound]
+                </RadzenAlert>
+            }
+            else
+            {
+                <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">
+                    @L[RK.DragonCapitalFunds.Top10Holdings]
+                </RadzenText>
+
+                @if (!Viewport.IsMobile)
+                {
+                    <div class="table-responsive mb-3">
+                        <RadzenDataGrid TItem="DragonCapitalTopHoldingDto"
+                                        Data="@state.Data.Top10Holdings"
+                                        AllowSorting="true"
+                                        AllowPaging="false"
+                                        Class="responsive-grid">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="AssetId" Title="@L[RK.DragonCapitalFunds.ColAssetId]" MinWidth="12.5rem" />
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="Weight" Title="@L[RK.DragonCapitalFunds.ColWeight]" MinWidth="12.5rem">
+                                    <Template Context="h">
+                                        @h.Weight.ToString("N2")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="Exchange" Title="@L[RK.DragonCapitalFunds.ColExchange]" MinWidth="12.5rem" />
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="IndustryLevel" Title="@L[RK.DragonCapitalFunds.ColIndustry]" MinWidth="12.5rem" />
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="SectorLevel" Title="@L[RK.DragonCapitalFunds.ColSector]" MinWidth="12.5rem" />
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="HoldingVolume" Title="@L[RK.DragonCapitalFunds.ColHoldingVolume]" MinWidth="12.5rem">
+                                    <Template Context="h">
+                                        @h.HoldingVolume?.ToString("N0")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DragonCapitalTopHoldingDto" Property="MarketValue" Title="@L[RK.DragonCapitalFunds.ColMarketValueBillion]" MinWidth="12.5rem">
+                                    <Template Context="h">
+                                        @h.MarketValue?.ToString("N2")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                }
+                else
+                {
+                    <RadzenStack Gap="0.5rem" Class="mb-3">
+                        @foreach (var holding in state.Data.Top10Holdings)
+                        {
+                            <RadzenCard Class="p-2">
+                                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.25rem">
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Secondary" Text="@holding.AssetId" />
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="mb-0 fw-semibold">@holding.Weight.ToString("N2")</RadzenText>
+                                </RadzenStack>
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap" Class="mt-1">
+                                    @if (!string.IsNullOrEmpty(holding.Exchange))
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@holding.Exchange</RadzenText>
+                                    }
+                                    @if (!string.IsNullOrEmpty(holding.IndustryLevel))
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@holding.IndustryLevel</RadzenText>
+                                    }
+                                    @if (holding.HoldingVolume.HasValue)
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@holding.HoldingVolume.Value.ToString("N0")</RadzenText>
+                                    }
+                                    @if (holding.MarketValue.HasValue)
+                                    {
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@holding.MarketValue.Value.ToString("N2") B</RadzenText>
+                                    }
+                                </RadzenStack>
+                            </RadzenCard>
+                        }
+                    </RadzenStack>
+                }
+
+                <RadzenStack Orientation="@(Viewport.IsMobile ? Orientation.Vertical : Orientation.Horizontal)" Gap="1rem" Wrap="FlexWrap.Wrap">
+                    @if (state.Data.AllocationByAssetTypes.Any())
+                    {
+                        <div>
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.DragonCapitalFunds.AssetAllocation]</RadzenText>
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                @foreach (var asset in state.Data.AllocationByAssetTypes)
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Info" Variant="Variant.Outlined"
+                                                 Text="@($"{asset.SourceName}: {asset.ValueAssetType:P1}")" />
+                                }
+                            </RadzenStack>
+                        </div>
+                    }
+                    @if (state.Data.AllocationBySectors.Any())
+                    {
+                        <div>
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.DragonCapitalFunds.SectorAllocation]</RadzenText>
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                @foreach (var sector in state.Data.AllocationBySectors.OrderByDescending(s => s.FundWeight))
+                                {
+                                    <RadzenBadge BadgeStyle="BadgeStyle.Warning" Variant="Variant.Outlined"
+                                                 Text="@($"{sector.IndustryLevel2}: {sector.FundWeight:P1}")" />
+                                }
+                            </RadzenStack>
+                        </div>
+                    }
+                </RadzenStack>
+            }
+        </RadzenCard>
+    }
+</RadzenStack>
+
+@code {
+    private static readonly string[] FundCodes = ["VF1", "VF4", "VFMVN30", "VFMVND", "VFMMID"];
+
+    private sealed class FundState
+    {
+        public DragonCapitalFundPortfolioDto? Data { get; set; }
+        public bool IsLoading { get; set; } = true;
+        public bool HasError { get; set; }
+    }
+
+    private Dictionary<string, FundState> _fundStates = FundCodes.ToDictionary(c => c, _ => new FundState());
+    private IReadOnlyList<(string AssetId, int Count)> _mostFrequentAssets = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tasks = FundCodes.Select(code => LoadFundAsync(code));
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadFundAsync(string fundCode)
+    {
+        try
+        {
+            var data = await ExternalDataService.GetDragonCapitalFundPortfolioAsync(fundCode);
+            _fundStates[fundCode].Data = data;
+        }
+        catch
+        {
+            _fundStates[fundCode].HasError = true;
+        }
+        finally
+        {
+            _fundStates[fundCode].IsLoading = false;
+            UpdateMostFrequentAssets();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void UpdateMostFrequentAssets()
+    {
+        var counts = _fundStates.Values
+            .Where(state => state.Data is not null)
+            .SelectMany(state => state.Data!.Top10Holdings
+                .Select(h => h.AssetId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase))
+            .GroupBy(id => id, StringComparer.OrdinalIgnoreCase)
+            .Select(g => (AssetId: g.Key, Count: g.Count()))
+            .OrderByDescending(x => x.Count)
+            .ThenBy(x => x.AssetId, StringComparer.OrdinalIgnoreCase)
+            .Take(5)
+            .ToList();
+
+        _mostFrequentAssets = counts;
+    }
+
+}

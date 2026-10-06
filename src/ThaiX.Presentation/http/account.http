@@ -1,0 +1,212 @@
+# Account Endpoints
+# POST /api/account/confirm-email
+# POST /api/account/resend-confirmation
+# POST /api/account/forgot-password
+# POST /api/account/reset-password
+# POST /api/account/login-2fa
+# POST /api/account/login-recovery
+# GET  /api/account/2fa-status
+# POST /api/account/enable-authenticator
+# POST /api/account/verify-authenticator
+# POST /api/account/disable-2fa
+# POST /api/account/reset-authenticator
+# POST /api/account/generate-recovery-codes
+# GET  /api/account/external-login?provider=Google&returnUrl=...
+# GET  /api/account/external-login-callback?returnUrl=...
+# GET  /api/account/external-logins
+# DELETE /api/account/external-login
+# GET  /api/account/personal-data
+# DELETE /api/account/personal-data
+
+@baseUrl = http://localhost:5005
+@contentType = application/json
+
+# ============================================================
+# Step 1: Login as admin to obtain token
+# ============================================================
+
+### Login (admin)
+# @name login
+POST {{baseUrl}}/api/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "Admin@123456",
+  "rememberMe": false
+}
+
+###
+
+
+@authToken = {{login.response.body.$.data.token}}
+
+
+# ============================================================
+# Email Confirmation
+# ============================================================
+
+### Confirm email with token
+POST {{baseUrl}}/api/account/confirm-email
+Content-Type: {{contentType}}
+
+{
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "token": "EMAIL_CONFIRMATION_TOKEN_HERE"
+}
+
+###
+
+### Resend email confirmation
+POST {{baseUrl}}/api/account/resend-confirmation
+Content-Type: {{contentType}}
+
+{
+  "email": "user@example.com"
+}
+
+###
+
+# ============================================================
+# Password Reset
+# ============================================================
+
+### Request password reset email
+POST {{baseUrl}}/api/account/forgot-password
+Content-Type: {{contentType}}
+
+{
+  "email": "user@example.com"
+}
+
+###
+
+### Reset password with token
+POST {{baseUrl}}/api/account/reset-password
+Content-Type: {{contentType}}
+
+{
+  "userId": "00000000-0000-0000-0000-000000000000",
+  "token": "PASSWORD_RESET_TOKEN_HERE",
+  "password": "NewPassword@123456",
+  "confirmPassword": "NewPassword@123456"
+}
+
+###
+
+# ============================================================
+# Two-Factor Authentication
+# ============================================================
+
+### Complete login with 2FA code
+POST {{baseUrl}}/api/account/login-2fa
+Content-Type: {{contentType}}
+
+{
+  "twoFactorSessionToken": "2FA_SESSION_TOKEN_HERE",
+  "twoFactorCode": "123456"
+}
+
+###
+
+### Complete login with recovery code
+POST {{baseUrl}}/api/account/login-recovery
+Content-Type: {{contentType}}
+
+{
+  "twoFactorSessionToken": "2FA_SESSION_TOKEN_HERE",
+  "recoveryCode": "RECOVERY_CODE_HERE"
+}
+
+###
+
+### Get 2FA status for current user
+GET {{baseUrl}}/api/account/2fa-status
+Authorization: Bearer {{authToken}}
+
+###
+
+### Enable authenticator app 2FA (get shared key + URI)
+POST {{baseUrl}}/api/account/enable-authenticator
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+### Verify authenticator code and enable 2FA
+POST {{baseUrl}}/api/account/verify-authenticator
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "code": "123456"
+}
+
+###
+
+### Disable two-factor authentication
+POST {{baseUrl}}/api/account/disable-2fa
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+### Reset authenticator key
+POST {{baseUrl}}/api/account/reset-authenticator
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+### Generate new recovery codes
+POST {{baseUrl}}/api/account/generate-recovery-codes
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+###
+
+# ============================================================
+# External Login
+# ============================================================
+
+### Initiate external login (Google)
+GET {{baseUrl}}/api/account/external-login?provider=Google&returnUrl=https://localhost:5202
+
+###
+
+### Get linked external logins
+GET {{baseUrl}}/api/account/external-logins
+Authorization: Bearer {{authToken}}
+
+###
+
+### Remove an external login
+DELETE {{baseUrl}}/api/account/external-login
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "loginProvider": "Google",
+  "providerKey": "GOOGLE_PROVIDER_KEY_HERE"
+}
+
+###
+
+# ============================================================
+# Personal Data (GDPR)
+# ============================================================
+
+### Download personal data
+GET {{baseUrl}}/api/account/personal-data
+Authorization: Bearer {{authToken}}
+
+###
+
+### Delete account and personal data (GDPR)
+DELETE {{baseUrl}}/api/account/personal-data
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "password": "Admin@123456"
+}

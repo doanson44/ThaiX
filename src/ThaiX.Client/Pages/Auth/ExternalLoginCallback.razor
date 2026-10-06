@@ -1,0 +1,71 @@
+@page "/auth/external-login-callback"
+@layout AuthLayout
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+@inject NotificationService NotificationService
+@using RK = ThaiX.Client.Constants.ResourceKeys
+<PageTitle>@L[RK.Account.ExternalLoginTitle] - ThaiX</PageTitle>
+
+<div class="d-flex flex-column align-items-center">
+    @if (_isProcessing)
+    {
+        <RadzenProgressBarCircular Mode="ProgressBarMode.Indeterminate" class="mb-3" />
+        <RadzenText TextStyle="TextStyle.Body2" class="text-center">@L[RK.Account.ExternalLoginProcessing]</RadzenText>
+    }
+    else if (_success)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" class="w-100">
+            @L[RK.Auth.LoginSuccess]
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" class="w-100">
+            @L[RK.Account.ExternalLoginFailed]
+        </RadzenAlert>
+        <div class="mt-3">
+            <RadzenLink Path="/auth/login" Text="@L[RK.Auth.LoginLinkGoToLogin]" />
+        </div>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery] public string? Token { get; set; }
+    [SupplyParameterFromQuery] public string? TokenType { get; set; }
+    [SupplyParameterFromQuery] public string? ExpiresIn { get; set; }
+    [SupplyParameterFromQuery] public string? Error { get; set; }
+
+    private bool _isProcessing = true;
+    private bool _success;
+
+    [Inject] private Services.Auth.JwtAuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(Error))
+        {
+            _isProcessing = false;
+            NotificationService.NotifyError(L[RK.Account.ExternalLoginFailed], Error);
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(Token))
+        {
+            try
+            {
+                await AuthStateProvider.MarkUserAsAuthenticatedAsync(Token);
+                _success = true;
+
+                NotificationService.NotifySuccess(L[RK.Auth.LoginSuccess], L[RK.Auth.LoginSuccessDetail]);
+
+                Navigation.NavigateTo("/", forceLoad: false);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.NotifyError(L[RK.Account.ExternalLoginFailed], ex is ApiException apiEx ? apiEx.GetDisplayDetail() : ex.Message);
+            }
+        }
+
+        _isProcessing = false;
+    }
+}

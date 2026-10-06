@@ -1,0 +1,170 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Models.Blog
+@using ThaiX.Client.Services.Blog
+@using ThaiX.Client.Services.Api
+@inject IBlogService BlogService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@_model" Submit="@(async (CategoryFormModel _) => await SaveAsync())">
+        <RadzenRow Gap="1rem" RowGap="1rem">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.Blog.Categories.NameLabel]" />
+                <RadzenTextBox Name="categoryName" @bind-Value="_model.Name" class="w-100" MaxLength="100" />
+                <RadzenRequiredValidator Component="categoryName" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.Blog.Categories.SlugLabel]" />
+                <RadzenTextBox Name="categorySlug" @bind-Value="_model.Slug" class="w-100" MaxLength="100" />
+                <RadzenRequiredValidator Component="categorySlug" Text="@L[RK.Validation.Required]" Popup="false" />
+            </RadzenColumn>
+            <RadzenColumn Size="12">
+                <RadzenLabel Text="@L[RK.Blog.Categories.DescriptionLabel]" />
+                <RadzenTextArea @bind-Value="_model.Description" class="w-100" Rows="2" MaxLength="300" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.Blog.Categories.IconLabel]" />
+                <RadzenTextBox @bind-Value="_model.Icon" class="w-100" MaxLength="100" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenLabel Text="@L[RK.Blog.Categories.ColorLabel]" />
+                <RadzenTextBox @bind-Value="_model.Color" class="w-100" MaxLength="20" />
+            </RadzenColumn>
+            <RadzenColumn Size="12">
+                <div class="d-flex flex-wrap gap-2">
+                    <ResponsiveIconButton Text="@L[RK.Common.Save]"
+                                  Icon="save"
+                                  ButtonType="ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  IsBusy="@_isSaving"
+                                  Disabled="@_isSaving" />
+                    @if (!IsCreateMode && CanDelete)
+                    {
+                        <ResponsiveIconButton Text="@L[RK.Blog.Posts.ActionDelete]"
+                                      Icon="delete"
+                                      ButtonStyle="ButtonStyle.Danger"
+                                      Click="@DeleteAsync"
+                                      IsBusy="@_isDeleting"
+                                      Disabled="@_isDeleting" />
+                    }
+                    <ResponsiveIconButton Text="@L[RK.Common.Close]" Icon="close" ButtonStyle="ButtonStyle.Light" Click="@CloseAsync" />
+                </div>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public Guid? CategoryId { get; set; }
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public string? Slug { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Icon { get; set; }
+    [Parameter] public string? Color { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+
+    private readonly CategoryFormModel _model = new();
+    private bool _isSaving;
+    private bool _isDeleting;
+
+    private bool IsCreateMode => CategoryId is null;
+
+    protected override void OnInitialized()
+    {
+        _model.Name = Name ?? string.Empty;
+        _model.Slug = Slug ?? string.Empty;
+        _model.Description = Description;
+        _model.Icon = Icon;
+        _model.Color = Color;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (_isSaving) return;
+        _isSaving = true;
+
+        try
+        {
+            if (IsCreateMode)
+            {
+                await BlogService.CreateCategoryAsync(new CreateCategoryRequest
+                {
+                    Name = _model.Name.Trim(),
+                    Slug = _model.Slug.Trim(),
+                    Description = _model.Description,
+                    Icon = _model.Icon,
+                    Color = _model.Color
+                });
+            }
+            else
+            {
+                await BlogService.UpdateCategoryAsync(CategoryId!.Value, new UpdateCategoryRequest
+                {
+                    Name = _model.Name.Trim(),
+                    Slug = _model.Slug.Trim(),
+                    Description = _model.Description,
+                    Icon = _model.Icon,
+                    Color = _model.Color
+                });
+            }
+
+            NotificationService.NotifySuccess(L[RK.Blog.Categories.SaveSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Categories.SaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (CategoryId is null || _isDeleting) return;
+
+        var confirmed = await DialogService.ConfirmDeleteAsync(L, L[RK.Blog.Categories.DeleteConfirm]);
+
+        if (confirmed != true) return;
+
+        _isDeleting = true;
+        try
+        {
+            await BlogService.DeleteCategoryAsync(CategoryId.Value);
+            NotificationService.NotifySuccess(L[RK.Blog.Categories.DeleteSuccess]);
+            await CloseDialogAfterDelayAsync(true);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Blog.Categories.DeleteFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        await CloseDialogAfterDelayAsync(false);
+    }
+
+    private async Task CloseDialogAfterDelayAsync(object result)
+    {
+        await Task.Delay(100);
+        DialogService.Close(result);
+    }
+
+    private sealed class CategoryFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public string? Icon { get; set; }
+        public string? Color { get; set; }
+    }
+}
