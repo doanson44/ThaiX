@@ -59,7 +59,11 @@
             </a>
         </Template>
         <EmptyTemplate>
-            <p class="blog-index__empty text-muted">@L[RK.Blog.Public.NoPostsFound]</p>
+            <div class="blog-index__empty">
+                <RadzenIcon Icon="auto_stories" class="blog-index__empty-icon" aria-hidden="true" />
+                <h2 class="blog-index__empty-title">@L[RK.Blog.Public.EmptyTitle]</h2>
+                <p class="blog-index__empty-description">@L[RK.Blog.Public.EmptyDescription]</p>
+            </div>
         </EmptyTemplate>
     </RadzenDataList>
 </div>

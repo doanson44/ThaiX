@@ -1394,6 +1394,8 @@
   <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
   <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Read more</value></data>
   <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>No posts found.</value></data>
+  <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>No posts yet</value></data>
+  <data name="Blog.Public.EmptyDescription" xml:space="preserve"><value>New articles are being prepared. Check back soon for the latest stories and insights.</value></data>
   <data name="Blog.Public.MinRead" xml:space="preserve"><value>min read</value></data>
   <data name="Blog.Public.LoadFailed" xml:space="preserve"><value>Could not load this article.</value></data>
   <data name="Blog.Public.NotFoundTitle" xml:space="preserve"><value>Post Not Found</value></data>
