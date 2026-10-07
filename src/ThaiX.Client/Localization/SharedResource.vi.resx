@@ -1393,6 +1393,8 @@
   <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
   <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Đọc thêm</value></data>
   <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>Không tìm thấy bài viết nào.</value></data>
+  <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>Chưa có bài viết</value></data>
+  <data name="Blog.Public.EmptyDescription" xml:space="preserve"><value>Các bài viết mới đang được chuẩn bị. Hãy quay lại sau để khám phá những nội dung mới nhất.</value></data>
   <data name="Blog.Public.MinRead" xml:space="preserve"><value>phút đọc</value></data>
   <data name="Blog.Public.LoadFailed" xml:space="preserve"><value>Không thể tải bài viết này.</value></data>
   <data name="Blog.Public.NotFoundTitle" xml:space="preserve"><value>Không tìm thấy bài viết</value></data>
