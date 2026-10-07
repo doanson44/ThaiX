@@ -384,3 +384,4 @@ docs/
 # Production config (real secrets/URLs - never commit)
 appsettings.Production.json
 **/appsettings.Production.json
+.env.production

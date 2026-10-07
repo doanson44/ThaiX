@@ -38,3 +38,6 @@ logs/
 # Misc
 *.slnLaunch
 favicon-preview.html
+
+# Secrets: production settings must be mounted at runtime, never baked into the image
+**/appsettings.Production.json
