@@ -8,6 +8,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copy solution-level files required for restore (central package management)
+COPY ["Directory.Build.props", "./"]
 COPY ["Directory.Packages.props", "./"]
 COPY ["global.json", "./"]
 
@@ -26,6 +27,10 @@ COPY ["src/ThaiX.Application/", "src/ThaiX.Application/"]
 COPY ["src/ThaiX.Infrastructure/", "src/ThaiX.Infrastructure/"]
 COPY ["src/ThaiX.Client/", "src/ThaiX.Client/"]
 COPY ["src/ThaiX.Presentation/", "src/ThaiX.Presentation/"]
+
+# Client-side libs (bootstrap, bootstrap-icons) via LibMan - gitignored, required before build/publish
+WORKDIR /src/src/ThaiX.Client
+RUN dotnet tool restore && dotnet tool run libman restore
 
 WORKDIR "/src/src/ThaiX.Presentation"
 RUN dotnet build "ThaiX.Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/build

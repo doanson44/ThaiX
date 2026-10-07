@@ -16,7 +16,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -403,8 +403,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("char(36)");
 
-                    b.Property<DateOnly>("DepositDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DepositDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal>("InterestRate")
                         .HasPrecision(8, 4)
@@ -420,8 +420,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
-                    b.Property<DateOnly?>("MaturityDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("MaturityDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Note")
                         .HasMaxLength(500)
@@ -844,8 +844,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasPrecision(10, 4)
                         .HasColumnType("decimal(10,4)");
 
-                    b.Property<DateOnly?>("LastInvestmentDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("LastInvestmentDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Logo")
                         .HasMaxLength(2048)
@@ -926,8 +926,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasPrecision(28, 2)
                         .HasColumnType("decimal(28,2)");
 
-                    b.Property<DateOnly?>("IdoDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("IdoDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal?>("InitialCirculation")
                         .HasPrecision(28, 2)
@@ -941,8 +941,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasPrecision(28, 2)
                         .HasColumnType("decimal(28,2)");
 
-                    b.Property<DateOnly?>("ListingDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("ListingDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Logo")
                         .HasMaxLength(2048)
@@ -956,8 +956,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
-                    b.Property<DateOnly?>("NextUnlockDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("NextUnlockDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal?>("PercentCirculating")
                         .HasPrecision(10, 4)
@@ -979,8 +979,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasPrecision(10, 4)
                         .HasColumnType("decimal(10,4)");
 
-                    b.Property<DateOnly?>("PrivateAnnounceDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("PrivateAnnounceDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal?>("PrivateAthRoi")
                         .HasPrecision(18, 4)
@@ -1181,8 +1181,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
-                    b.Property<DateOnly?>("NextUnlockDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("NextUnlockDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<decimal?>("PriceChange1y")
                         .HasPrecision(10, 4)
@@ -1303,8 +1303,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("varchar(2048)");
 
-                    b.Property<DateOnly?>("Birthday")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("Birthday")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Company")
                         .HasMaxLength(256)
@@ -1511,16 +1511,16 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("varchar(512)");
 
-                    b.Property<DateOnly?>("ExpiryDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("IssuedBy")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<DateOnly>("IssuedDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("IssuedDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("IssuedPlace")
                         .IsRequired()
@@ -2432,8 +2432,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longblob");
 
-                    b.Property<DateOnly>("TargetDrawDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("TargetDrawDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("TupleFrequency")
                         .ValueGeneratedOnAdd()
@@ -2470,8 +2470,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(3)
                         .HasColumnType("varchar(3)");
 
-                    b.Property<DateOnly>("DrawDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DrawDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<long>("Jackpot1Value")
                         .HasColumnType("bigint");
@@ -2551,8 +2551,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.Property<long>("TotalVolume")
                         .HasColumnType("bigint");
 
-                    b.Property<DateOnly>("TradeDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("TradeDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("TradeTime")
                         .IsRequired()
@@ -3178,7 +3178,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("EndAtUtc")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<TimeOnly>("ExecuteTimeLocal")
+                    b.Property<TimeSpan>("ExecuteTimeLocal")
                         .HasColumnType("time");
 
                     b.Property<int>("ExecutionCount")
@@ -3386,11 +3386,11 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("varchar(32)");
 
-                    b.Property<TimeOnly?>("QuietHoursEnd")
-                        .HasColumnType("time");
+                    b.Property<TimeSpan?>("QuietHoursEnd")
+                        .HasColumnType("time(6)");
 
-                    b.Property<TimeOnly?>("QuietHoursStart")
-                        .HasColumnType("time");
+                    b.Property<TimeSpan?>("QuietHoursStart")
+                        .HasColumnType("time(6)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -3712,11 +3712,11 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("EffectiveDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("PostedAt")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("PostedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
