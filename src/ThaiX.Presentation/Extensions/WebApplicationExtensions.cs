@@ -277,7 +277,16 @@ public static class WebApplicationExtensions
             return app;
         }
 
-        RemoveStaleRecurringJobs(hangfireConfig);
+        try
+        {
+            RemoveStaleRecurringJobs(hangfireConfig);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(
+                ex,
+                "Hangfire: failed to remove stale recurring jobs during startup. Continuing without cleanup.");
+        }
 
         var timeZone = app.Services.GetRequiredService<IDateTimeProvider>().TimeZone;
         var recurringJobOptions = new RecurringJobOptions { TimeZone = timeZone };
@@ -296,10 +305,20 @@ public static class WebApplicationExtensions
                 continue;
             }
 
-            schedule(jobId, jobConfig.Queue, jobConfig.CronExpression, recurringJobOptions);
-            Log.Information(
-                "Hangfire recurring job '{JobId}' scheduled: {Cron}, Queue: {Queue}, TimeZone: {TimeZone}",
-                jobId, jobConfig.CronExpression, jobConfig.Queue, timeZone.Id);
+            try
+            {
+                schedule(jobId, jobConfig.Queue, jobConfig.CronExpression, recurringJobOptions);
+                Log.Information(
+                    "Hangfire recurring job '{JobId}' scheduled: {Cron}, Queue: {Queue}, TimeZone: {TimeZone}",
+                    jobId, jobConfig.CronExpression, jobConfig.Queue, timeZone.Id);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(
+                    ex,
+                    "Hangfire: failed to schedule recurring job '{JobId}'. Continuing startup.",
+                    jobId);
+            }
         }
 
         return app;
