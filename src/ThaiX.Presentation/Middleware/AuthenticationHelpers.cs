@@ -22,6 +22,7 @@ public static class AuthenticationHelpers
         public required string AuthPath { get; init; }
         public required string RedirectPath { get; init; }
         public required string CookieName { get; init; }
+        public string CookiePath { get; init; } = "/";
         public required string RequiredPermission { get; init; }
     }
 
@@ -120,6 +121,7 @@ public static class AuthenticationHelpers
         HttpContext context,
         string cookieName,
         Guid userId,
+        string cookiePath,
         IDataProtectionProvider dataProtectionProvider)
     {
         var encryptedUserId = EncryptCookie(userId.ToString(), dataProtectionProvider);
@@ -128,7 +130,7 @@ public static class AuthenticationHelpers
             HttpOnly = true,
             Secure = context.Request.IsHttps,
             SameSite = SameSiteMode.Strict,
-            Path = "/hangfire",
+            Path = cookiePath,
             Expires = DateTimeOffset.UtcNow.AddHours(8)
         });
     }
@@ -400,7 +402,12 @@ public static class AuthenticationHelpers
                 return;
             }
 
-            SetAuthenticationCookie(context, options.CookieName, user!.Id, dataProtectionProvider);
+            SetAuthenticationCookie(
+                context,
+                options.CookieName,
+                user!.Id,
+                options.CookiePath,
+                dataProtectionProvider);
 
             logger.LogInformation("User {Email} successfully authenticated for {ToolName} from {IPAddress}",
                 user.Email,
