@@ -78,6 +78,7 @@ public static class AuthenticationHelpers
         HttpContext context,
         string cookieName,
         string requiredPermission,
+        string cookiePath,
         UserManager<ApplicationUser> userManager,
         IDataProtectionProvider dataProtectionProvider)
     {
@@ -89,7 +90,7 @@ public static class AuthenticationHelpers
         var userId = DecryptCookie(cookieValue, dataProtectionProvider);
         if (string.IsNullOrEmpty(userId))
         {
-            context.Response.Cookies.Delete(cookieName);
+            context.Response.Cookies.Delete(cookieName, new CookieOptions { Path = cookiePath });
             return false;
         }
 
@@ -170,6 +171,7 @@ public static class AuthenticationHelpers
             context,
             options.CookieName,
             options.RequiredPermission,
+            options.CookiePath,
             userManager,
             dataProtectionProvider);
 
