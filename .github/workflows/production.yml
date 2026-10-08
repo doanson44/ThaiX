@@ -20,7 +20,6 @@ env:
   UNIT_TEST_PROJECT: "tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj"
   INTEGRATION_TEST_PROJECT: "tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj"
   IMAGE_NAME: "doanson44/thaix"
-  IMAGE_TAG: "latest"
   COVERAGE_THRESHOLD: 10
 
 jobs:
@@ -122,11 +121,16 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build             --file src/ThaiX.Presentation/Dockerfile             --tag "${IMAGE_NAME}:${IMAGE_TAG}"             .
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+
+          docker build             --file src/ThaiX.Presentation/Dockerfile             --tag "${IMAGE_NAME}:${IMAGE_TAG}"             --tag "${IMAGE_NAME}:latest"             .
 
       - name: Push Docker image
         run: |
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+
           docker push "${IMAGE_NAME}:${IMAGE_TAG}"
+          docker push "${IMAGE_NAME}:latest"
 
   deploy:
     name: Deploy to production server
@@ -143,6 +147,16 @@ jobs:
           username: ${{ secrets.SSH_SERVER_USER }}
           key: ${{ secrets.SSH_SERVER_KEY }}
           port: ${{ secrets.SSH_SERVER_PORT || 22 }}
+          command_timeout: 10m
           script: |
             set -e
-            /srv/thaix/run.sh
+
+            # Repair the existing server script from the previous typo and
+            # give application startup enough time for migrations and Hangfire.
+            sed -i 's/^et -e$/set -e/' /srv/thaix/run.sh
+            sed -i 's/^MAX_RETRIES=15$/MAX_RETRIES=30/' /srv/thaix/run.sh
+            sed -i 's/^RETRY_INTERVAL=2$/RETRY_INTERVAL=3/' /srv/thaix/run.sh
+            sed -i 's/^STARTUP_WAIT=15$/STARTUP_WAIT=5/' /srv/thaix/run.sh
+            sed -i 's|^IMAGE="doanson44/thaix:latest"$|IMAGE="doanson44/thaix:${IMAGE_TAG:-latest}"|' /srv/thaix/run.sh
+
+            IMAGE_TAG="sha-${{ github.sha }}" /srv/thaix/run.sh
