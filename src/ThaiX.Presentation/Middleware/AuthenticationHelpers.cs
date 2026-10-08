@@ -97,7 +97,7 @@ public static class AuthenticationHelpers
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)
         {
-            context.Response.Cookies.Delete(cookieName);
+            context.Response.Cookies.Delete(cookieName, new CookieOptions { Path = cookiePath });
             return false;
         }
 
