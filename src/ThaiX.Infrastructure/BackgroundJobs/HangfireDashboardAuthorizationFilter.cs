@@ -14,17 +14,14 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 public sealed class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
 {
     private readonly string _requiredPermission;
-    private readonly bool _isDevelopment;
     private readonly string _cookieName;
     private readonly IDataProtector _cookieProtector;
 
     public HangfireDashboardAuthorizationFilter(
         string requiredPermission,
-        IDataProtectionProvider dataProtectionProvider,
-        bool isDevelopment = false)
+        IDataProtectionProvider dataProtectionProvider)
     {
         _requiredPermission = requiredPermission ?? string.Empty;
-        _isDevelopment = isDevelopment;
         _cookieName = "ThaiX_DevAuth_Hangfire";
         _cookieProtector = dataProtectionProvider.CreateProtector("ThaiX.AdminToolAuthentication");
     }
