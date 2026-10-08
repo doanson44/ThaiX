@@ -57,6 +57,7 @@ public sealed class HangfireAuthorizationMiddleware
             AuthPath = AuthPath,
             RedirectPath = RedirectPath,
             CookieName = _cookieName,
+            CookiePath = "/hangfire",
             RequiredPermission = _requiredPermission
         };
 
