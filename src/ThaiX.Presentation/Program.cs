@@ -60,7 +60,7 @@ try
 
     // Schedule Hangfire recurring jobs after the application has started.
     // Scheduling is best-effort and must not block or fail application startup.
-    app.Lifetime.ApplicationStarted.Register(app.ScheduleHangfireJobs);
+    app.Lifetime.ApplicationStarted.Register(() => app.ScheduleHangfireJobs());
 
     app.Run();
 }
