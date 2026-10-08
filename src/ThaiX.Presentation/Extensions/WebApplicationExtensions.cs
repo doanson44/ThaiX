@@ -309,34 +309,44 @@ public static class WebApplicationExtensions
         var timeZone = app.Services.GetRequiredService<IDateTimeProvider>().TimeZone;
         var recurringJobOptions = new RecurringJobOptions { TimeZone = timeZone };
 
-        foreach (var (jobId, jobConfig) in hangfireConfig.RecurringJobs)
+        try
         {
-            if (!jobConfig.Enabled)
+                    foreach (var (jobId, jobConfig) in hangfireConfig.RecurringJobs)
             {
-                Log.Information("Hangfire recurring job '{JobId}' is disabled", jobId);
-                continue;
+                if (!jobConfig.Enabled)
+                {
+                    Log.Information("Hangfire recurring job '{JobId}' is disabled", jobId);
+                    continue;
+                }
+
+                if (!JobSchedulers.TryGetValue(jobId, out var schedule))
+                {
+                    Log.Warning("Unknown Hangfire recurring job: {JobId}", jobId);
+                    continue;
+                }
+
+                try
+                {
+                    schedule(jobId, jobConfig.Queue, jobConfig.CronExpression, recurringJobOptions);
+                    Log.Information(
+                        "Hangfire recurring job '{JobId}' scheduled: {Cron}, Queue: {Queue}, TimeZone: {TimeZone}",
+                        jobId, jobConfig.CronExpression, jobConfig.Queue, timeZone.Id);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(
+                        ex,
+                        "Hangfire: failed to schedule recurring job '{JobId}'. Continuing startup.",
+                        jobId);
+                }
             }
 
-            if (!JobSchedulers.TryGetValue(jobId, out var schedule))
-            {
-                Log.Warning("Unknown Hangfire recurring job: {JobId}", jobId);
-                continue;
-            }
-
-            try
-            {
-                schedule(jobId, jobConfig.Queue, jobConfig.CronExpression, recurringJobOptions);
-                Log.Information(
-                    "Hangfire recurring job '{JobId}' scheduled: {Cron}, Queue: {Queue}, TimeZone: {TimeZone}",
-                    jobId, jobConfig.CronExpression, jobConfig.Queue, timeZone.Id);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(
-                    ex,
-                    "Hangfire: failed to schedule recurring job '{JobId}'. Continuing startup.",
-                    jobId);
-            }
+        }
+        catch (Exception ex)
+        {
+            Log.Error(
+                ex,
+                "Hangfire: failed while scheduling recurring jobs. Continuing application startup.");
         }
     }
 
