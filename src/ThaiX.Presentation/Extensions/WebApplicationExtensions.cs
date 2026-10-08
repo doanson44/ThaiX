@@ -338,12 +338,6 @@ public static class WebApplicationExtensions
                     jobId);
             }
         }
-        catch (Exception ex)
-        {
-            Log.Error(
-                ex,
-                "Hangfire: failed while scheduling recurring jobs. Continuing application startup.");
-        }
     }
 
     #region Private Helpers
