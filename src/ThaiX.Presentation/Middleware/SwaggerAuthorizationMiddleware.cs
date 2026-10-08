@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Infrastructure.Identity;
@@ -41,7 +42,8 @@ public sealed class SwaggerAuthorizationMiddleware
         HttpContext context,
         IAuthorizationService authorizationService,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
@@ -78,7 +80,8 @@ public sealed class SwaggerAuthorizationMiddleware
                 options,
                 _logger,
                 userManager,
-                signInManager);
+                signInManager,
+                dataProtectionProvider);
 
             if (!isAuthenticated)
             {
