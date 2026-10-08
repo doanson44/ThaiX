@@ -148,7 +148,8 @@ public static class AuthenticationHelpers
         DevToolLoginOptions options,
         ILogger logger,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         if (context.Request.Path.Equals(options.AuthPath, StringComparison.OrdinalIgnoreCase) &&
             HttpMethods.IsPost(context.Request.Method))
@@ -158,7 +159,8 @@ public static class AuthenticationHelpers
                 options,
                 logger,
                 userManager,
-                signInManager);
+                signInManager,
+                dataProtectionProvider);
             return false;
         }
 
@@ -166,7 +168,8 @@ public static class AuthenticationHelpers
             context,
             options.CookieName,
             options.RequiredPermission,
-            userManager);
+            userManager,
+            dataProtectionProvider);
 
         if (isAuthenticated)
         {
