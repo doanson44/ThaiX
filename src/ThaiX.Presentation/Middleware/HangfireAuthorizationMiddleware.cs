@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using ThaiX.Infrastructure.Identity;
 
@@ -37,7 +38,8 @@ public sealed class HangfireAuthorizationMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
@@ -48,36 +50,29 @@ public sealed class HangfireAuthorizationMiddleware
             return;
         }
 
-        // Development mode: Use Identity-based authentication
-        if (_isDevelopment)
+        var options = new AuthenticationHelpers.DevToolLoginOptions
         {
-            var options = new AuthenticationHelpers.DevToolLoginOptions
-            {
-                ToolName = ToolName,
-                ToolIcon = ToolIcon,
-                AuthPath = AuthPath,
-                RedirectPath = RedirectPath,
-                CookieName = _cookieName,
-                RequiredPermission = _requiredPermission
-            };
+            ToolName = ToolName,
+            ToolIcon = ToolIcon,
+            AuthPath = AuthPath,
+            RedirectPath = RedirectPath,
+            CookieName = _cookieName,
+            RequiredPermission = _requiredPermission
+        };
 
-            var isAuthenticated = await AuthenticationHelpers.HandleDevelopmentToolRequestAsync(
-                context,
-                options,
-                _logger,
-                userManager,
-                signInManager);
+        var isAuthenticated = await AuthenticationHelpers.HandleDevelopmentToolRequestAsync(
+            context,
+            options,
+            _logger,
+            userManager,
+            signInManager,
+            dataProtectionProvider);
 
-            if (!isAuthenticated)
-            {
-                return;
-            }
-
-            await _next(context);
+        if (!isAuthenticated)
+        {
             return;
         }
 
-        // Production mode: Requires JWT authentication (handled by HangfireDashboardAuthorizationFilter)
         await _next(context);
     }
 }
