@@ -78,5 +78,10 @@
   <data name="Error.EmailConfirmationFailed" xml:space="preserve"><value>Email confirmation failed. The link may be invalid or expired.</value></data>
   <data name="Error.PasswordResetFailed" xml:space="preserve"><value>Password reset failed. The link may be invalid or expired.</value></data>
   <data name="Error.TwoFactorCodeInvalid" xml:space="preserve"><value>The verification code is invalid.</value></data>
+
+  <data name="Blog.Public.EmptyEyebrow" xml:space="preserve"><value>Coming soon</value></data>
+  <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>No stories yet</value></data>
+  <data name="Blog.Public.EmptyDescription" xml:space="preserve"><value>I am preparing the first articles. Check back soon for new ideas, notes, and things worth sharing.</value></data>
+  <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
 </root>
 
