@@ -6,8 +6,7 @@ namespace ThaiX.Presentation.Middleware;
 
 /// <summary>
 /// Middleware to protect Hangfire Dashboard access with permission-based authorization.
-/// Development mode: Identity-based login (username/email + password)
-/// Production mode: JWT-based authorization
+/// Identity-based session authentication (username/email + password)
 /// </summary>
 public sealed class HangfireAuthorizationMiddleware
 {
@@ -18,19 +17,16 @@ public sealed class HangfireAuthorizationMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ILogger<HangfireAuthorizationMiddleware> _logger;
-    private readonly bool _isDevelopment;
     private readonly string _requiredPermission;
     private readonly string _cookieName;
 
     public HangfireAuthorizationMiddleware(
         RequestDelegate next,
         ILogger<HangfireAuthorizationMiddleware> logger,
-        IWebHostEnvironment environment,
         IConfiguration configuration)
     {
         _next = next;
         _logger = logger;
-        _isDevelopment = environment.IsDevelopment();
         _requiredPermission = configuration["Hangfire:Dashboard:RequiredPermission"] ?? "System.Admin";
         _cookieName = AuthenticationHelpers.GetCookieName("Hangfire");
     }
