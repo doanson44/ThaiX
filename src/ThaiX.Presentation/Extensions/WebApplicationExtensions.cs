@@ -436,8 +436,7 @@ public static class WebApplicationExtensions
             {
                 new HangfireDashboardAuthorizationFilter(
                     hangfireConfig.Dashboard.RequiredPermission,
-                    app.Services.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>(),
-                    isDevelopment: app.Environment.IsDevelopment())
+                    app.Services.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>())
             },
             AppPath = hangfireConfig.Dashboard.AppPath,
             StatsPollingInterval = hangfireConfig.Dashboard.StatsPollingInterval,
