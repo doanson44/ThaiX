@@ -10,6 +10,7 @@ namespace ThaiX.Presentation.Middleware;
 public static class AuthenticationHelpers
 {
     private const string CookiePrefix = "ThaiX_DevAuth_";
+    private const string CookieProtectionPurpose = "ThaiX.AdminToolAuthentication";
 
     /// <summary>
     /// Shared configuration for development admin tool login pages (Swagger/Hangfire).
@@ -76,14 +77,15 @@ public static class AuthenticationHelpers
         HttpContext context,
         string cookieName,
         string requiredPermission,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         if (!context.Request.Cookies.TryGetValue(cookieName, out var cookieValue))
         {
             return false;
         }
 
-        var userId = DecryptCookie(cookieValue);
+        var userId = DecryptCookie(cookieValue, dataProtectionProvider);
         if (string.IsNullOrEmpty(userId))
         {
             context.Response.Cookies.Delete(cookieName);
@@ -117,14 +119,16 @@ public static class AuthenticationHelpers
     public static void SetAuthenticationCookie(
         HttpContext context,
         string cookieName,
-        Guid userId)
+        Guid userId,
+        IDataProtectionProvider dataProtectionProvider)
     {
-        var encryptedUserId = EncryptCookie(userId.ToString());
+        var encryptedUserId = EncryptCookie(userId.ToString(), dataProtectionProvider);
         context.Response.Cookies.Append(cookieName, encryptedUserId, new CookieOptions
         {
             HttpOnly = true,
             Secure = context.Request.IsHttps,
             SameSite = SameSiteMode.Strict,
+            Path = "/hangfire",
             Expires = DateTimeOffset.UtcNow.AddHours(8)
         });
     }
