@@ -377,6 +377,9 @@ storage/
 *.local.json
 appsettings.Local.json
 **/appsettings.Local.json
+
+# Local development configuration (keep local changes out of Git status)
+**/appsettings.Development.json
 tools/ThaiX.DataMigrator/appsettings.json
 *.publishSettings
 docs/
