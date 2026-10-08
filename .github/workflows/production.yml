@@ -123,7 +123,11 @@ jobs:
         run: |
           IMAGE_TAG="sha-${GITHUB_SHA}"
 
-          docker build             --file src/ThaiX.Presentation/Dockerfile             --tag "${IMAGE_NAME}:${IMAGE_TAG}"             --tag "${IMAGE_NAME}:latest"             .
+          docker build \
+            --file src/ThaiX.Presentation/Dockerfile \
+            --tag "${IMAGE_NAME}:${IMAGE_TAG}" \
+            --tag "${IMAGE_NAME}:latest" \
+            .
 
       - name: Push Docker image
         run: |
@@ -150,4 +154,4 @@ jobs:
           command_timeout: 10m
           script: |
             set -e
-            /srv/thaix/run.sh
+            IMAGE_TAG="sha-${{ github.sha }}" /srv/thaix/run.sh
