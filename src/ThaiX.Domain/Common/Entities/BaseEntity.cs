@@ -29,9 +29,10 @@ public abstract class BaseEntity
 
     /// <summary>
     /// Optimistic concurrency control token.
-    /// Managed automatically by EF Core.
+    /// Backed by a MySQL TIMESTAMP(6) column with ON UPDATE CURRENT_TIMESTAMP(6);
+    /// the database engine generates the value, EF Core never writes it.
     /// </summary>
-    public byte[]? RowVersion { get; protected set; }
+    public DateTime RowVersion { get; protected set; }
 
     /// <summary>
     /// Domain events raised by this entity.

@@ -61,7 +61,6 @@ public sealed class AuditableEntityInterceptor : SaveChangesInterceptor
             {
                 // Set update timestamp (all BaseEntity instances)
                 entry.Entity.SetUpdatedAt(utcNow);
-                entry.Property(nameof(BaseEntity.RowVersion)).CurrentValue = Guid.NewGuid().ToByteArray();
             }
 
             // Handle BaseAuditableEntity-specific fields
