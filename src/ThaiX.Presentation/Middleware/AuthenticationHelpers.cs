@@ -299,7 +299,7 @@ public static class AuthenticationHelpers
     <div class='login-card'>
         <div class='login-header position-relative'>
             <span class='env-badge'>
-                <i class='bi bi-code-slash me-1'></i>Development
+                <i class='bi bi-shield-lock me-1'></i>Secure Access
             </span>
             <div class='tool-icon'>
                 <i class='bi bi-{toolIcon}'></i>
@@ -317,7 +317,7 @@ public static class AuthenticationHelpers
                     <input type='text' class='form-control' id='username' name='username' 
                            placeholder='admin or admin@thaix.local' required autofocus>
                     <div class='form-text info-text'>
-                        <i class='bi bi-info-circle me-1'></i>Dev default: admin / Admin@123456 (or admin@thaix.local)
+                        <i class='bi bi-info-circle me-1'></i>Use your ThaiX account credentials.
                     </div>
                 </div>
                 <div class='mb-4'>
@@ -334,7 +334,7 @@ public static class AuthenticationHelpers
             <hr class='my-4'>
             <div class='text-center info-text'>
                 <i class='bi bi-shield-check me-1'></i>
-                Development mode: Use your ThaiX credentials
+                Use your ThaiX account credentials
             </div>
         </div>
     </div>
