@@ -33,7 +33,7 @@ public sealed class ThaiXWebApplicationFactory : WebApplicationFactory<Program>,
         .Build();
 
     /// <summary>
-    /// The connection string for the Testcontainers SQL Server instance.
+    /// The connection string for the Testcontainers MariaDB instance.
     /// Available after <see cref="InitializeAsync"/> completes.
     /// </summary>
     public string ConnectionString => _dbContainer.GetConnectionString();

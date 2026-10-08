@@ -234,15 +234,14 @@ public static class DependencyInjection
             .AddScoped<IIndicatorService, IndicatorService>()
             .AddScoped<IExternalMarketDataService, ExternalMarketDataService>();
 
-        AddHangfire(services, configuration, connectionString);
+        AddHangfire(services, configuration);
 
         return services;
     }
 
     private static void AddHangfire(
         IServiceCollection services,
-        IConfiguration configuration,
-        string connectionString)
+        IConfiguration configuration)
     {
         services.Configure<HangfireConfiguration>(configuration.GetSection(HangfireConfiguration.SectionName));
 
@@ -254,6 +253,10 @@ public static class DependencyInjection
             return;
         }
 
+        var hangfireConnectionString = configuration.GetConnectionString("HangfireConnection")
+            ?? configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'HangfireConnection' or 'DefaultConnection' not found.");
+
         // Register Hangfire services
         services.AddHangfire(config => config
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
@@ -264,7 +267,7 @@ public static class DependencyInjection
                 Attempts = hangfireConfig.RetryAttempts,
                 LogEvents = true
             })
-            .UseStorage(new MySqlStorage(connectionString, new MySqlStorageOptions
+            .UseStorage(new MySqlStorage(hangfireConnectionString, new MySqlStorageOptions
             {
                 QueuePollInterval = hangfireConfig.Storage.QueuePollInterval,
                 JobExpirationCheckInterval = hangfireConfig.Storage.JobExpirationCheckInterval,

@@ -10,7 +10,7 @@ You are working on the ThaiX solution.
 - .NET 10 / C# 14
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
-- EF Core 10 + SQL Server
+- EF Core 10 + MySQL/MariaDB
 - MediatR 12 (CQRS)
 - FluentValidation 11
 - Manual DTO projection (LINQ Select)
