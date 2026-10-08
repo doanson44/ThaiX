@@ -38,7 +38,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
-  <data name="App.Title" xml:space="preserve"><value>ThaiX Client</value></data>
+  <data name="App.Title" xml:space="preserve"><value>ThaiX</value></data>
 
   <data name="Language.English" xml:space="preserve"><value>Tiếng Anh</value></data>
   <data name="Language.Vietnamese" xml:space="preserve"><value>Tiếng Việt</value></data>

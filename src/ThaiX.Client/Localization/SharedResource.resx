@@ -38,7 +38,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
 
-  <data name="App.Title" xml:space="preserve"><value>ThaiX Client</value></data>
+  <data name="App.Title" xml:space="preserve"><value>ThaiX</value></data>
 
   <data name="Language.English" xml:space="preserve"><value>English</value></data>
   <data name="Language.Vietnamese" xml:space="preserve"><value>Vietnamese</value></data>
@@ -91,7 +91,7 @@
   <data name="Common.Disabled" xml:space="preserve"><value>Disabled</value></data>
   <data name="Common.Actions" xml:space="preserve"><value>Actions</value></data>
 
-  <data name="Home.Welcome" xml:space="preserve"><value>Welcome to ThaiX Client</value></data>
+  <data name="Home.Welcome" xml:space="preserve"><value>Welcome to ThaiX</value></data>
   <data name="Home.Description" xml:space="preserve"><value>Sign in to manage users, portfolios, and other ThaiX admin features.</value></data>
   <data name="Home.AuthenticatedAs" xml:space="preserve"><value>Authenticated as:</value></data>
   <data name="Home.NotAuthenticated" xml:space="preserve"><value>You are not signed in.</value></data>
