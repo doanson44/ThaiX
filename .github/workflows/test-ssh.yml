@@ -1,0 +1,40 @@
+name: Test Production SSH
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-ssh:
+    name: Test SSH connection
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+      - name: Test SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_SERVER_HOST }}
+          username: ${{ secrets.SSH_SERVER_USER }}
+          key: ${{ secrets.SSH_SERVER_KEY }}
+          port: ${{ secrets.SSH_SERVER_PORT || 22 }}
+          script: |
+            set -e
+
+            echo "SSH connection successful"
+            echo "User: $(whoami)"
+            echo "Host: $(hostname)"
+
+            echo "Checking deployment script..."
+            test -f /srv/thaix/run.sh
+            test -x /srv/thaix/run.sh
+            echo "run.sh exists and is executable"
+
+            echo "Checking Docker..."
+            docker --version
+
+            echo "SSH test completed successfully"
