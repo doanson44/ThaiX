@@ -1624,6 +1624,7 @@ public static class ResourceKeys
         public static class Public
         {
             public const string ListTitle = "Blog.Public.ListTitle";
+            public const string EmptyEyebrow = "Blog.Public.EmptyEyebrow";
             public const string ReadMore = "Blog.Public.ReadMore";
             public const string NoPostsFound = "Blog.Public.NoPostsFound";
             public const string EmptyTitle = "Blog.Public.EmptyTitle";
