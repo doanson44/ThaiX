@@ -1,0 +1,162 @@
+name: ThaiX Production CI/CD
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: "10.0.302"
+  BUILD_CONFIGURATION: "Release"
+  SOLUTION_PATH: "ThaiX.slnx"
+  UNIT_TEST_PROJECT: "tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj"
+  INTEGRATION_TEST_PROJECT: "tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj"
+  IMAGE_NAME: "doanson44/thaix"
+  COVERAGE_THRESHOLD: 10
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore NuGet packages
+        run: dotnet restore "${{ env.SOLUTION_PATH }}"
+
+      - name: Restore client libraries
+        working-directory: src/ThaiX.Client
+        run: |
+          dotnet tool restore
+          dotnet tool run libman restore
+
+      - name: Build solution
+        run: dotnet build "${{ env.SOLUTION_PATH }}" --configuration "${{ env.BUILD_CONFIGURATION }}" --no-restore
+
+      - name: Run unit tests
+        run: >
+          dotnet test "${{ env.UNIT_TEST_PROJECT }}"
+          --configuration "${{ env.BUILD_CONFIGURATION }}"
+          --no-build
+          --collect:"XPlat Code Coverage"
+          --results-directory "${{ runner.temp }}/coverage"
+          --logger "trx;LogFileName=unit-tests.trx"
+          --
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.SkipAutoProps=true
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="[ThaiX.Application]*,[ThaiX.Domain]*"
+          DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="[*.Tests]*,[*.IntegrationTests]*"
+
+      - name: Run integration tests
+        run: >
+          dotnet test "${{ env.INTEGRATION_TEST_PROJECT }}"
+          --configuration "${{ env.BUILD_CONFIGURATION }}"
+          --no-build
+          --results-directory "${{ runner.temp }}/integration-tests"
+          --logger "trx;LogFileName=integration-tests.trx"
+
+      - name: Publish test results
+        if: success() || failure()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Production Automated Tests
+          path: "${{ runner.temp }}/coverage/**/*.trx,${{ runner.temp }}/integration-tests/**/*.trx"
+          reporter: dotnet-trx
+
+      - name: Enforce coverage threshold
+        if: success() || failure()
+        run: |
+          echo "Checking code coverage threshold (${COVERAGE_THRESHOLD}%)..."
+
+          COVERAGE_FILE=$(find "${{ runner.temp }}/coverage" -name "coverage.cobertura.xml" | head -1)
+
+          if [ -z "$COVERAGE_FILE" ]; then
+            echo "::error::Coverage report not found"
+            exit 1
+          fi
+
+          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$COVERAGE_FILE" | head -1)
+          COVERAGE=$(echo "$LINE_RATE * 100" | bc -l | xargs printf "%.1f")
+
+          echo "Line coverage: ${COVERAGE}%"
+
+          if (( $(echo "$COVERAGE < $COVERAGE_THRESHOLD" | bc -l) )); then
+            echo "::error::Code coverage ${COVERAGE}% is below threshold ${COVERAGE_THRESHOLD}%"
+            exit 1
+          fi
+
+          echo "Coverage gate passed: ${COVERAGE}%"
+
+  docker:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    environment:
+      name: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+
+          docker build             --file src/ThaiX.Presentation/Dockerfile             --tag "${IMAGE_NAME}:${IMAGE_TAG}"             --tag "${IMAGE_NAME}:latest"             .
+
+      - name: Push Docker image
+        run: |
+          IMAGE_TAG="sha-${GITHUB_SHA::7}"
+
+          docker push "${IMAGE_NAME}:${IMAGE_TAG}"
+          docker push "${IMAGE_NAME}:latest"
+
+  deploy:
+    name: Deploy to production server
+    runs-on: ubuntu-latest
+    needs: docker
+    environment:
+      name: production
+
+    steps:
+      - name: Deploy through SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_SERVER_HOST }}
+          username: ${{ secrets.SSH_SERVER_USER }}
+          key: ${{ secrets.SSH_SERVER_KEY }}
+          port: ${{ secrets.SSH_SERVER_PORT || 22 }}
+          command_timeout: 10m
+          script: |
+            set -e
+
+            # Repair the existing server script from the previous typo and
+            # give application startup enough time for migrations and Hangfire.
+            sed -i 's/^et -e$/set -e/' /srv/thaix/run.sh
+            sed -i 's/^MAX_RETRIES=15$/MAX_RETRIES=30/' /srv/thaix/run.sh
+            sed -i 's/^RETRY_INTERVAL=2$/RETRY_INTERVAL=3/' /srv/thaix/run.sh
+            sed -i 's/^STARTUP_WAIT=15$/STARTUP_WAIT=5/' /srv/thaix/run.sh
+            sed -i 's|^IMAGE="doanson44/thaix:latest"$|IMAGE="doanson44/thaix:${IMAGE_TAG:-latest}"|' /srv/thaix/run.sh
+
+            IMAGE_TAG="sha-${{ github.sha }}" /srv/thaix/run.sh
