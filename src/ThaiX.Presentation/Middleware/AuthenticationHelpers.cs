@@ -337,18 +337,22 @@ public static class AuthenticationHelpers
 </html>";
     }
 
-    private static string EncryptCookie(string value)
+    private static string EncryptCookie(string value, IDataProtectionProvider dataProtectionProvider)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(value);
-        return Convert.ToBase64String(bytes);
+        return dataProtectionProvider
+            .CreateProtector(CookieProtectionPurpose)
+            .Protect(value);
     }
 
-    private static string? DecryptCookie(string encryptedValue)
+    private static string? DecryptCookie(
+        string encryptedValue,
+        IDataProtectionProvider dataProtectionProvider)
     {
         try
         {
-            var bytes = Convert.FromBase64String(encryptedValue);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return dataProtectionProvider
+                .CreateProtector(CookieProtectionPurpose)
+                .Unprotect(encryptedValue);
         }
         catch
         {
