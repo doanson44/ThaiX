@@ -368,7 +368,8 @@ public static class AuthenticationHelpers
         DevToolLoginOptions options,
         ILogger logger,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         try
         {
@@ -399,7 +400,7 @@ public static class AuthenticationHelpers
                 return;
             }
 
-            SetAuthenticationCookie(context, options.CookieName, user!.Id);
+            SetAuthenticationCookie(context, options.CookieName, user!.Id, dataProtectionProvider);
 
             logger.LogInformation("User {Email} successfully authenticated for {ToolName} from {IPAddress}",
                 user.Email,
