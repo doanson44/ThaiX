@@ -2,39 +2,59 @@
 set -e
 
 IMAGE_NAME="doanson44/thaix"
-TAG="latest"
+TAG="${IMAGE_TAG:-latest}"
 CONTAINER_NAME="thaix"
 
-# 1. Pull the latest image
-echo "Pulling latest image..."
-docker pull $IMAGE_NAME:$TAG
+MAX_RETRIES=30
+RETRY_INTERVAL=3
+STARTUP_WAIT=30
+PORT=8080
 
-# 2. Stop and remove the existing container if it exists
+echo "Pulling image ${IMAGE_NAME}:${TAG}..."
+docker pull "${IMAGE_NAME}:${TAG}"
+
 if [ "$(docker ps -aq -f name=^/${CONTAINER_NAME}$)" ]; then
     echo "Stopping and removing existing container..."
-    docker rm -f $CONTAINER_NAME
+    docker rm -f "${CONTAINER_NAME}"
 fi
 
-# 3. Ensure directories exist and have proper permissions for SELinux (if on Oracle Linux)
 echo "Ensuring host directories exist..."
 sudo mkdir -p /srv/thaix/{storage,logs,keys}
-# If you are not running as root, make sure your user owns the folders, or container can write to them
-# sudo chown -R 1000:1000 /srv/thaix
 
-# 4. Run the new container
 echo "Starting new container..."
-docker run -d --name $CONTAINER_NAME --restart unless-stopped \
+docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped \
   -p 8080:8080 \
   -e ASPNETCORE_ENVIRONMENT=Production \
   -v /srv/thaix/appsettings.Production.json:/app/appsettings.Production.json:ro,z \
   -v /srv/thaix/storage:/app/storage:z \
   -v /srv/thaix/logs:/app/Logs:z \
   -v /srv/thaix/keys:/root/.aspnet/DataProtection-Keys:z \
-  $IMAGE_NAME:$TAG
+  "${IMAGE_NAME}:${TAG}"
 
-# 5. Clean up dangling images (images with <none> tag) to free up space
+echo "Waiting ${STARTUP_WAIT}s before health checks..."
+sleep "${STARTUP_WAIT}"
+
+echo "Checking application health..."
+RETRY=0
+until curl -sS -o /dev/null --connect-timeout 2 --max-time 5 "http://127.0.0.1:${PORT}/"; do
+    RETRY=$((RETRY + 1))
+
+    if [ "${RETRY}" -ge "${MAX_RETRIES}" ]; then
+        echo "Application did not become ready after ${MAX_RETRIES} retries."
+        docker ps -a --filter "name=${CONTAINER_NAME}"
+        docker logs --tail 100 "${CONTAINER_NAME}" || true
+        exit 1
+    fi
+
+    echo "Health check failed. Retry ${RETRY}/${MAX_RETRIES} in ${RETRY_INTERVAL}s..."
+    sleep "${RETRY_INTERVAL}"
+done
+
+echo "Application is ready."
+
 echo "Cleaning up dangling images..."
 docker image prune -f
 
 echo "Deployment complete! Checking status:"
-docker ps --filter name=$CONTAINER_NAME
+docker ps --filter "name=${CONTAINER_NAME}"
+docker inspect "${CONTAINER_NAME}" --format '{{.Config.Image}}'
