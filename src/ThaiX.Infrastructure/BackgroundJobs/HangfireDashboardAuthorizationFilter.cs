@@ -1,5 +1,6 @@
 using Hangfire.Dashboard;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Infrastructure.Identity;
