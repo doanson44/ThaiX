@@ -58,8 +58,9 @@ try
     // SPA fallback for client-side routing
     app.MapFallbackToFile("index.html");
 
-    // Schedule Hangfire recurring jobs (if enabled)
-    app.ScheduleHangfireJobs();
+    // Schedule Hangfire recurring jobs after the application has started.
+    // Scheduling is best-effort and must not block or fail application startup.
+    app.Lifetime.ApplicationStarted.Register(app.ScheduleHangfireJobs);
 
     app.Run();
 }
