@@ -51,7 +51,7 @@ public static class AuthenticationHelpers
         }
 
         // Check password
-        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
         if (!result.Succeeded)
         {
             return (false, null, "Invalid username or password");
