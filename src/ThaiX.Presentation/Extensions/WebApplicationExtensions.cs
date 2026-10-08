@@ -270,13 +270,31 @@ public static class WebApplicationExtensions
     /// </summary>
     public static WebApplication ScheduleHangfireJobs(this WebApplication app)
     {
-        var hangfireConfig = BindHangfireConfiguration(app.Configuration);
-
-        if (!hangfireConfig.Enabled || !hangfireConfig.Server.Enabled)
+        try
         {
-            return app;
+            var hangfireConfig = BindHangfireConfiguration(app.Configuration);
+
+            if (!hangfireConfig.Enabled || !hangfireConfig.Server.Enabled)
+            {
+                return app;
+            }
+
+            ScheduleConfiguredHangfireJobs(app, hangfireConfig);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(
+                ex,
+                "Hangfire: failed to initialize recurring job scheduling. Continuing application startup.");
         }
 
+        return app;
+    }
+
+    private static void ScheduleConfiguredHangfireJobs(
+        WebApplication app,
+        HangfireConfiguration hangfireConfig)
+    {
         try
         {
             RemoveStaleRecurringJobs(hangfireConfig);
@@ -320,8 +338,12 @@ public static class WebApplicationExtensions
                     jobId);
             }
         }
-
-        return app;
+        catch (Exception ex)
+        {
+            Log.Error(
+                ex,
+                "Hangfire: failed while scheduling recurring jobs. Continuing application startup.");
+        }
     }
 
     #region Private Helpers
