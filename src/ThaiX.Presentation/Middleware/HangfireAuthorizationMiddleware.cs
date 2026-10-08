@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using ThaiX.Infrastructure.Identity;
 
@@ -5,8 +6,7 @@ namespace ThaiX.Presentation.Middleware;
 
 /// <summary>
 /// Middleware to protect Hangfire Dashboard access with permission-based authorization.
-/// Development mode: Identity-based login (username/email + password)
-/// Production mode: JWT-based authorization
+/// Identity-based session authentication (username/email + password)
 /// </summary>
 public sealed class HangfireAuthorizationMiddleware
 {
@@ -17,19 +17,16 @@ public sealed class HangfireAuthorizationMiddleware
 
     private readonly RequestDelegate _next;
     private readonly ILogger<HangfireAuthorizationMiddleware> _logger;
-    private readonly bool _isDevelopment;
     private readonly string _requiredPermission;
     private readonly string _cookieName;
 
     public HangfireAuthorizationMiddleware(
         RequestDelegate next,
         ILogger<HangfireAuthorizationMiddleware> logger,
-        IWebHostEnvironment environment,
         IConfiguration configuration)
     {
         _next = next;
         _logger = logger;
-        _isDevelopment = environment.IsDevelopment();
         _requiredPermission = configuration["Hangfire:Dashboard:RequiredPermission"] ?? "System.Admin";
         _cookieName = AuthenticationHelpers.GetCookieName("Hangfire");
     }
@@ -37,7 +34,8 @@ public sealed class HangfireAuthorizationMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         var path = context.Request.Path.Value ?? string.Empty;
 
@@ -48,36 +46,30 @@ public sealed class HangfireAuthorizationMiddleware
             return;
         }
 
-        // Development mode: Use Identity-based authentication
-        if (_isDevelopment)
+        var options = new AuthenticationHelpers.DevToolLoginOptions
         {
-            var options = new AuthenticationHelpers.DevToolLoginOptions
-            {
-                ToolName = ToolName,
-                ToolIcon = ToolIcon,
-                AuthPath = AuthPath,
-                RedirectPath = RedirectPath,
-                CookieName = _cookieName,
-                RequiredPermission = _requiredPermission
-            };
+            ToolName = ToolName,
+            ToolIcon = ToolIcon,
+            AuthPath = AuthPath,
+            RedirectPath = RedirectPath,
+            CookieName = _cookieName,
+            CookiePath = "/hangfire",
+            RequiredPermission = _requiredPermission
+        };
 
-            var isAuthenticated = await AuthenticationHelpers.HandleDevelopmentToolRequestAsync(
-                context,
-                options,
-                _logger,
-                userManager,
-                signInManager);
+        var isAuthenticated = await AuthenticationHelpers.HandleDevelopmentToolRequestAsync(
+            context,
+            options,
+            _logger,
+            userManager,
+            signInManager,
+            dataProtectionProvider);
 
-            if (!isAuthenticated)
-            {
-                return;
-            }
-
-            await _next(context);
+        if (!isAuthenticated)
+        {
             return;
         }
 
-        // Production mode: Requires JWT authentication (handled by HangfireDashboardAuthorizationFilter)
         await _next(context);
     }
 }

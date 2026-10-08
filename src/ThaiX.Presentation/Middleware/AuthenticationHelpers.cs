@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using ThaiX.Infrastructure.Identity;
 
@@ -9,6 +10,7 @@ namespace ThaiX.Presentation.Middleware;
 public static class AuthenticationHelpers
 {
     private const string CookiePrefix = "ThaiX_DevAuth_";
+    private const string CookieProtectionPurpose = "ThaiX.AdminToolAuthentication";
 
     /// <summary>
     /// Shared configuration for development admin tool login pages (Swagger/Hangfire).
@@ -20,6 +22,7 @@ public static class AuthenticationHelpers
         public required string AuthPath { get; init; }
         public required string RedirectPath { get; init; }
         public required string CookieName { get; init; }
+        public string CookiePath { get; init; } = "/";
         public required string RequiredPermission { get; init; }
     }
 
@@ -48,7 +51,7 @@ public static class AuthenticationHelpers
         }
 
         // Check password
-        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
         if (!result.Succeeded)
         {
             return (false, null, "Invalid username or password");
@@ -75,24 +78,26 @@ public static class AuthenticationHelpers
         HttpContext context,
         string cookieName,
         string requiredPermission,
-        UserManager<ApplicationUser> userManager)
+        string cookiePath,
+        UserManager<ApplicationUser> userManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         if (!context.Request.Cookies.TryGetValue(cookieName, out var cookieValue))
         {
             return false;
         }
 
-        var userId = DecryptCookie(cookieValue);
+        var userId = DecryptCookie(cookieValue, dataProtectionProvider);
         if (string.IsNullOrEmpty(userId))
         {
-            context.Response.Cookies.Delete(cookieName);
+            context.Response.Cookies.Delete(cookieName, new CookieOptions { Path = cookiePath });
             return false;
         }
 
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)
         {
-            context.Response.Cookies.Delete(cookieName);
+            context.Response.Cookies.Delete(cookieName, new CookieOptions { Path = cookiePath });
             return false;
         }
 
@@ -116,14 +121,17 @@ public static class AuthenticationHelpers
     public static void SetAuthenticationCookie(
         HttpContext context,
         string cookieName,
-        Guid userId)
+        Guid userId,
+        string cookiePath,
+        IDataProtectionProvider dataProtectionProvider)
     {
-        var encryptedUserId = EncryptCookie(userId.ToString());
+        var encryptedUserId = EncryptCookie(userId.ToString(), dataProtectionProvider);
         context.Response.Cookies.Append(cookieName, encryptedUserId, new CookieOptions
         {
             HttpOnly = true,
             Secure = context.Request.IsHttps,
             SameSite = SameSiteMode.Strict,
+            Path = cookiePath,
             Expires = DateTimeOffset.UtcNow.AddHours(8)
         });
     }
@@ -143,7 +151,8 @@ public static class AuthenticationHelpers
         DevToolLoginOptions options,
         ILogger logger,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         if (context.Request.Path.Equals(options.AuthPath, StringComparison.OrdinalIgnoreCase) &&
             HttpMethods.IsPost(context.Request.Method))
@@ -153,7 +162,8 @@ public static class AuthenticationHelpers
                 options,
                 logger,
                 userManager,
-                signInManager);
+                signInManager,
+                dataProtectionProvider);
             return false;
         }
 
@@ -161,7 +171,9 @@ public static class AuthenticationHelpers
             context,
             options.CookieName,
             options.RequiredPermission,
-            userManager);
+            options.CookiePath,
+            userManager,
+            dataProtectionProvider);
 
         if (isAuthenticated)
         {
@@ -289,7 +301,7 @@ public static class AuthenticationHelpers
     <div class='login-card'>
         <div class='login-header position-relative'>
             <span class='env-badge'>
-                <i class='bi bi-code-slash me-1'></i>Development
+                <i class='bi bi-shield-lock me-1'></i>Secure Access
             </span>
             <div class='tool-icon'>
                 <i class='bi bi-{toolIcon}'></i>
@@ -307,7 +319,7 @@ public static class AuthenticationHelpers
                     <input type='text' class='form-control' id='username' name='username' 
                            placeholder='admin or admin@thaix.local' required autofocus>
                     <div class='form-text info-text'>
-                        <i class='bi bi-info-circle me-1'></i>Dev default: admin / Admin@123456 (or admin@thaix.local)
+                        <i class='bi bi-info-circle me-1'></i>Use your ThaiX account credentials.
                     </div>
                 </div>
                 <div class='mb-4'>
@@ -324,7 +336,7 @@ public static class AuthenticationHelpers
             <hr class='my-4'>
             <div class='text-center info-text'>
                 <i class='bi bi-shield-check me-1'></i>
-                Development mode: Use your ThaiX credentials
+                Use your ThaiX account credentials
             </div>
         </div>
     </div>
@@ -332,18 +344,22 @@ public static class AuthenticationHelpers
 </html>";
     }
 
-    private static string EncryptCookie(string value)
+    private static string EncryptCookie(string value, IDataProtectionProvider dataProtectionProvider)
     {
-        var bytes = System.Text.Encoding.UTF8.GetBytes(value);
-        return Convert.ToBase64String(bytes);
+        return dataProtectionProvider
+            .CreateProtector(CookieProtectionPurpose)
+            .Protect(value);
     }
 
-    private static string? DecryptCookie(string encryptedValue)
+    private static string? DecryptCookie(
+        string encryptedValue,
+        IDataProtectionProvider dataProtectionProvider)
     {
         try
         {
-            var bytes = Convert.FromBase64String(encryptedValue);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return dataProtectionProvider
+                .CreateProtector(CookieProtectionPurpose)
+                .Unprotect(encryptedValue);
         }
         catch
         {
@@ -356,7 +372,8 @@ public static class AuthenticationHelpers
         DevToolLoginOptions options,
         ILogger logger,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        IDataProtectionProvider dataProtectionProvider)
     {
         try
         {
@@ -387,7 +404,12 @@ public static class AuthenticationHelpers
                 return;
             }
 
-            SetAuthenticationCookie(context, options.CookieName, user!.Id);
+            SetAuthenticationCookie(
+                context,
+                options.CookieName,
+                user!.Id,
+                options.CookiePath,
+                dataProtectionProvider);
 
             logger.LogInformation("User {Email} successfully authenticated for {ToolName} from {IPAddress}",
                 user.Email,
