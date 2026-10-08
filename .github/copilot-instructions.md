@@ -116,6 +116,96 @@ You are working on the ThaiX solution.
 - Full-page CRUD navigation | Browser `confirm()` | `eval()` | Hardcoded UI strings
 - Public setters on entities | Direct event publishing (bypass Outbox)
 
+
+## Git Commit Message Policy
+
+# Git Commit Message Rules
+
+Use **Conventional Commits 1.0.0** for all commits.
+
+## Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+## Allowed types
+
+- `feat`: add a user-visible capability.
+- `fix`: correct a bug or incorrect behavior.
+- `docs`: documentation-only changes.
+- `style`: formatting or whitespace only; no behavior change.
+- `refactor`: code restructuring without behavior change.
+- `perf`: performance improvement.
+- `test`: add or change tests without changing production behavior.
+- `build`: build system or dependency changes.
+- `ci`: CI/CD workflow or automation changes.
+- `chore`: maintenance that does not fit the types above.
+- `revert`: revert a previous commit.
+
+## Subject rules
+
+- Use imperative mood: `Add`, `Fix`, `Update`, not `Added` or `Fixed`.
+- Keep the subject concise; target **72 characters or fewer**.
+- Start the description with a lowercase letter unless a proper noun or technical identifier requires otherwise.
+- Do not end the subject with a period.
+- Describe the intent/result, not the implementation history.
+- Do not use vague subjects such as `update code`, `fix stuff`, or `changes`.
+- Do not include issue/PR numbers in the subject unless the repository workflow explicitly requires them.
+
+## Scope
+
+Use a short, meaningful scope when it improves clarity, for example:
+
+- `feat(auth): add refresh token rotation`
+- `fix(portfolio): handle stale price alerts`
+- `ci(deploy): pin production image tag`
+
+Do not force a scope when the change is cross-cutting or the scope adds no information.
+
+## Body
+
+- Add a body when the reason, trade-off, migration note, or non-obvious impact cannot be understood from the subject.
+- Wrap body lines at approximately 100 characters.
+- Explain **why**, not a line-by-line description of the diff.
+- Keep the body factual and concise.
+
+## Breaking changes
+
+Breaking changes MUST be explicit:
+
+- Add `!` before the colon: `feat(api)!: remove legacy endpoint`; and/or
+- Add a footer: `BREAKING CHANGE: <description>`.
+
+Explain migration impact when applicable.
+
+## Footers
+
+Use footers for machine-readable metadata such as:
+
+```
+BREAKING CHANGE: remove the v1 authentication contract
+Refs: #123
+Reviewed-by: ...
+```
+
+Do not add trailers that are unsupported by the repository workflow.
+
+## Agent behavior
+
+- Never create a commit automatically. Commit only when the user explicitly asks for a commit.
+- Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
+- Prefer one focused commit over a mixed commit containing unrelated changes.
+- Do not use `git commit --amend`, `--no-verify`, or history rewriting unless explicitly requested.
+- If a change is too broad for one coherent commit, split it into logical commits.
+- For merge commits, use the Git-generated merge message unless the user explicitly requests a custom message.
+- For reverts, use `revert: <original subject>` and preserve the standard revert metadata.
+- Commit messages MUST be English and ASCII-only, consistent with the repository encoding policy.
+
 ## Git Commit Policy (STRICT)
 
 - **NEVER automatically commit changes**.
