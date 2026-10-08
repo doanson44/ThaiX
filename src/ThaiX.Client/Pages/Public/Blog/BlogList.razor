@@ -22,51 +22,55 @@
         <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="rz-mb-3">@_error</RadzenAlert>
     }
 
-    <RadzenDataList TItem="PublishedPostListItemDto"
-                    AllowVirtualization="true"
-                    Class="blog-index__list"
-                    Style="height: calc(100vh - 11rem); overflow: auto;"
-                    LoadData="@LoadDataAsync"
-                    Data="@_items"
-                    Count="@_totalCount"
-                    PageSize="@PageSize"
-                    IsLoading="@_isLoading"
-                    Density="Density.Compact">
-        <Template Context="post">
-            <a class="blog-index__row" href="@($"/blog/{post.Slug}")">
-                <time class="blog-index__date" datetime="@post.PublishedAt?.ToString("yyyy-MM-dd")">
-                    @(post.PublishedAt?.ToString("MMM d") ?? "—")
-                    @if (post.PublishedAt.HasValue)
-                    {
-                        <span class="blog-index__year">@post.PublishedAt.Value.ToString("yyyy")</span>
-                    }
-                </time>
-                <div class="blog-index__body">
-                    <div class="blog-index__meta">
-                        @if (!string.IsNullOrWhiteSpace(post.CategoryName))
+    @if (_isLoading || !_hasLoaded || _totalCount > 0)
+    {
+        <RadzenDataList TItem="PublishedPostListItemDto"
+                        AllowVirtualization="true"
+                        Class="blog-index__list"
+                        Style="height: calc(100vh - 11rem); overflow: auto;"
+                        LoadData="@LoadDataAsync"
+                        Data="@_items"
+                        Count="@_totalCount"
+                        PageSize="@PageSize"
+                        IsLoading="@_isLoading"
+                        Density="Density.Compact">
+            <Template Context="post">
+                <a class="blog-index__row" href="@($"/blog/{post.Slug}")">
+                    <time class="blog-index__date" datetime="@post.PublishedAt?.ToString("yyyy-MM-dd")">
+                        @(post.PublishedAt?.ToString("MMM d") ?? "—")
+                        @if (post.PublishedAt.HasValue)
                         {
-                            <span class="blog-index__category">@post.CategoryName</span>
+                            <span class="blog-index__year">@post.PublishedAt.Value.ToString("yyyy")</span>
                         }
-                        <span class="blog-index__read">@post.ReadTimeMinutes @L[RK.Blog.Public.MinRead]</span>
+                    </time>
+                    <div class="blog-index__body">
+                        <div class="blog-index__meta">
+                            @if (!string.IsNullOrWhiteSpace(post.CategoryName))
+                            {
+                                <span class="blog-index__category">@post.CategoryName</span>
+                            }
+                            <span class="blog-index__read">@post.ReadTimeMinutes @L[RK.Blog.Public.MinRead]</span>
+                        </div>
+                        <h2 class="blog-index__post-title">@post.Title</h2>
+                        @if (!string.IsNullOrWhiteSpace(post.Summary))
+                        {
+                            <p class="blog-index__summary">@post.Summary</p>
+                        }
                     </div>
-                    <h2 class="blog-index__post-title">@post.Title</h2>
-                    @if (!string.IsNullOrWhiteSpace(post.Summary))
-                    {
-                        <p class="blog-index__summary">@post.Summary</p>
-                    }
-                </div>
-                <span class="blog-index__arrow" aria-hidden="true">→</span>
-            </a>
-        </Template>
-        <EmptyTemplate>
-            <section class="blog-index__empty" aria-labelledby="blog-empty-title">
-                <p class="blog-index__empty-eyebrow">@L[RK.Blog.Public.EmptyEyebrow]</p>
-                <h2 id="blog-empty-title" class="blog-index__empty-title">@L[RK.Blog.Public.EmptyTitle]</h2>
-                <p class="blog-index__empty-description">@L[RK.Blog.Public.EmptyDescription]</p>
-                <a class="blog-index__empty-link" href="/">@L[RK.Common.Home]</a>
-            </section>
-        </EmptyTemplate>
-    </RadzenDataList>
+                    <span class="blog-index__arrow" aria-hidden="true">→</span>
+                </a>
+            </Template>
+        </RadzenDataList>
+    }
+    else if (string.IsNullOrWhiteSpace(_error))
+    {
+        <section class="blog-index__empty" aria-labelledby="blog-empty-title">
+            <p class="blog-index__empty-eyebrow">@L[RK.Blog.Public.EmptyEyebrow]</p>
+            <h2 id="blog-empty-title" class="blog-index__empty-title">@L[RK.Blog.Public.EmptyTitle]</h2>
+            <p class="blog-index__empty-description">@L[RK.Blog.Public.EmptyDescription]</p>
+            <a class="blog-index__empty-link" href="/">@L[RK.Common.Home]</a>
+        </section>
+    }
 </div>
 
 @code {
@@ -76,6 +80,7 @@
     private IEnumerable<PublishedPostListItemDto>? _items;
     private int _totalCount;
     private bool _isLoading;
+    private bool _hasLoaded;
     private string? _error;
 
     private async Task LoadDataAsync(LoadDataArgs args)
@@ -106,6 +111,7 @@
         }
         finally
         {
+            _hasLoaded = true;
             _isLoading = false;
         }
     }
