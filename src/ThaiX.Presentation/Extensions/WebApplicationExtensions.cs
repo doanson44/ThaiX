@@ -311,7 +311,7 @@ public static class WebApplicationExtensions
 
         try
         {
-                    foreach (var (jobId, jobConfig) in hangfireConfig.RecurringJobs)
+            foreach (var (jobId, jobConfig) in hangfireConfig.RecurringJobs)
             {
                 if (!jobConfig.Enabled)
                 {
@@ -340,7 +340,6 @@ public static class WebApplicationExtensions
                         jobId);
                 }
             }
-
         }
         catch (Exception ex)
         {
