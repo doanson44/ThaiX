@@ -168,11 +168,12 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
             // Configure BaseEntity properties
             if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
             {
-                // RowVersion for optimistic concurrency
+                // RowVersion for optimistic concurrency: DB-generated timestamp, not app-managed.
                 builder.Entity(entityType.ClrType)
-                    .Property<byte[]>("RowVersion")
-                    .IsConcurrencyToken()
-                    .IsRequired();
+                    .Property<DateTime>("RowVersion")
+                    .HasColumnType("timestamp(6)")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
+                    .IsRowVersion();
 
                 // CreatedAt is required
                 builder.Entity(entityType.ClrType)
@@ -226,14 +227,11 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        EnsureRowVersion();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        EnsureRowVersion();
-
         try
         {
             return await base.SaveChangesAsync(cancellationToken);
@@ -285,21 +283,6 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
             }
 
             throw;
-        }
-    }
-
-    private void EnsureRowVersion()
-    {
-        foreach (var entry in ChangeTracker.Entries<BaseEntity>())
-        {
-            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-            {
-                var prop = entry.Property(nameof(BaseEntity.RowVersion));
-                if (prop.CurrentValue is null || entry.State == EntityState.Modified)
-                {
-                    prop.CurrentValue = Guid.NewGuid().ToByteArray();
-                }
-            }
         }
     }
 }
