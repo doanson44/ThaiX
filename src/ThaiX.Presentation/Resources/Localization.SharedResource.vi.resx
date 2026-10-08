@@ -78,5 +78,10 @@
   <data name="Error.EmailConfirmationFailed" xml:space="preserve"><value>Xác nhận email thất bại. Liên kết có thể không hợp lệ hoặc đã hết hạn.</value></data>
   <data name="Error.PasswordResetFailed" xml:space="preserve"><value>Đặt lại mật khẩu thất bại. Liên kết có thể không hợp lệ hoặc đã hết hạn.</value></data>
   <data name="Error.TwoFactorCodeInvalid" xml:space="preserve"><value>Mã xác thực không hợp lệ.</value></data>
+
+  <data name="Blog.Public.EmptyEyebrow" xml:space="preserve"><value>Sắp ra mắt</value></data>
+  <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>Chưa có bài viết</value></data>
+  <data name="Blog.Public.EmptyDescription" xml:space="preserve"><value>Tôi đang chuẩn bị những bài viết đầu tiên. Hãy quay lại sau để đọc những ý tưởng, ghi chú và nội dung mới.</value></data>
+  <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
 </root>
 
