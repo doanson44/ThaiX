@@ -41,7 +41,7 @@ src/
 
 ## Technology Stack
 
-.NET 10 / C# 14 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 10 + SQL Server | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
+.NET 10 / C# 14 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 10 + MySQL/MariaDB | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
 
 ## Mandatory Dependency Rules
 

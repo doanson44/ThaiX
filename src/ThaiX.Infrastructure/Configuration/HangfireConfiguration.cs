@@ -22,11 +22,7 @@ public sealed class HangfireServerConfiguration
 
 public sealed class HangfireStorageConfiguration
 {
-    public TimeSpan CommandTimeout { get; set; } = TimeSpan.FromMinutes(1);
     public TimeSpan QueuePollInterval { get; set; } = TimeSpan.FromSeconds(5);
-    public bool UseRecommendedIsolationLevel { get; set; } = true;
-    public bool DisableGlobalLocks { get; set; } = true;
-    public TimeSpan SlidingInvisibilityTimeout { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan JobExpirationCheckInterval { get; set; } = TimeSpan.FromMinutes(30);
     public TimeSpan CountersAggregateInterval { get; set; } = TimeSpan.FromMinutes(5);
     public bool PrepareSchemaIfNecessary { get; set; } = true;

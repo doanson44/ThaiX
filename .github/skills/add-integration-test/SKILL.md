@@ -10,7 +10,7 @@ Add complete integration test coverage for a Minimal API endpoint in `ThaiX.Pres
 
 ## Infrastructure Reference
 
-- Factory: `ThaiXWebApplicationFactory` -- spins up a real SQL Server container via Testcontainers
+- Factory: `ThaiXWebApplicationFactory` -- spins up a real MariaDB container via Testcontainers
 - Base class: `IntegrationTestBase` (must inherit, must annotate `[Collection(IntegrationTestCollection.Name)]`)
 - Test file location: `tests/ThaiX.Presentation.IntegrationTests/Endpoints/{Feature}EndpointsTests.cs`
 - Pattern: xUnit `[Fact]` methods, AAA with `// Arrange`, `// Act`, `// Assert` comments
