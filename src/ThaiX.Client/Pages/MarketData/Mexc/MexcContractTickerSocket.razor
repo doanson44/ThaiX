@@ -5,7 +5,9 @@
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.MarketData
 @using Microsoft.Extensions.Localization
+@using Microsoft.JSInterop
 @inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
 @inject NotificationService NotificationService
 @inject IMexcContractTickerSocketService ContractSocketService
 @inherits ThaiXPageBase
@@ -44,7 +46,7 @@
         <div class="w-100 overflow-auto">
             <RadzenDataGrid @ref="_dataGrid"
                             TItem="MexcContractTickerDto"
-                            Data="@_allTickers"
+                            Data="@DisplayTickers"
                             Count="@_allTickers.Count"
                             AllowFiltering="true"
                             FilterMode="FilterMode.Advanced"
@@ -56,6 +58,16 @@
                             PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                             Class="responsive-grid">
                 <Columns>
+                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="3.5rem">
+                        <Template Context="ticker">
+                            <RadzenButton Icon="push_pin"
+                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                          Variant="Variant.Text"
+                                          Size="ButtonSize.Small"
+                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]" />
@@ -131,7 +143,9 @@
 </RadzenCard>
 
 @code {
+    private const string PinnedStorageKey = "thaix:mexc:contract-ticker:pinned";
     private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private List<string> _pinnedSymbols = [];
     private List<MexcContractTickerDto> _allTickers = [];
     private List<MexcContractTickerDto> _mobileViewTickers = [];
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
@@ -140,6 +154,80 @@
     private string? _selectedSymbol;
     private string? _sortKey;
     private bool _sortAscending = true;
+
+    private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _allTickers
+        .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
+        .ToList();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            var savedSymbols = await JS.InvokeAsync<string?>("localStorage.getItem", PinnedStorageKey);
+            if (!string.IsNullOrWhiteSpace(savedSymbols))
+            {
+                _pinnedSymbols = System.Text.Json.JsonSerializer.Deserialize<List<string>>(savedSymbols)?
+                    .Where(symbol => !string.IsNullOrWhiteSpace(symbol))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList() ?? [];
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            _pinnedSymbols = [];
+        }
+        catch (JSException)
+        {
+            _pinnedSymbols = [];
+        }
+
+        ApplyMobileView();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsPinned(string symbol) =>
+        _pinnedSymbols.Contains(symbol, StringComparer.OrdinalIgnoreCase);
+
+    private int GetPinnedOrder(string symbol)
+    {
+        var index = _pinnedSymbols.FindIndex(pinned => pinned.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+        return index >= 0 ? index : int.MaxValue;
+    }
+
+    private async Task TogglePinnedAsync(string symbol)
+    {
+        var index = _pinnedSymbols.FindIndex(pinned => pinned.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+        if (index >= 0)
+        {
+            _pinnedSymbols.RemoveAt(index);
+        }
+        else
+        {
+            _pinnedSymbols.Add(symbol);
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", PinnedStorageKey,
+                System.Text.Json.JsonSerializer.Serialize(_pinnedSymbols));
+        }
+        catch (JSException)
+        {
+            NotificationService.NotifyError(L[RK.MexcContractTickers.LoadFailed]);
+        }
+
+        ApplyMobileView();
+        if (_dataGrid is not null)
+        {
+            await _dataGrid.Reload();
+        }
+    }
 
     private IReadOnlyList<SortOption<MexcContractTickerDto>> SortOptions =>
     [
@@ -271,9 +359,13 @@
             if (opt is not null)
             {
                 result = _sortAscending
-                    ? result.OrderBy(opt.KeySelector)
-                    : result.OrderByDescending(opt.KeySelector);
+                    ? result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol)).ThenBy(opt.KeySelector)
+                    : result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol)).ThenByDescending(opt.KeySelector);
             }
+        }
+        else
+        {
+            result = result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol));
         }
 
         _mobileViewTickers = result.ToList();
