@@ -123,7 +123,15 @@
             <Virtualize Items="@_mobileViewTickers" Context="ticker" OverscanCount="5">
                 <RadzenCard Class="p-3 mb-3">
                     <RadzenStack Gap="0.4rem">
-                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                            <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                            <RadzenButton Icon="push_pin"
+                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                          Variant="Variant.Text"
+                                          Size="ButtonSize.Small"
+                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                        </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @(ticker.Bid1?.ToString() ?? "-")</RadzenText>
