@@ -34,9 +34,41 @@
     </RadzenStack>
 
     <RadzenStack Gap="1rem" Class="mb-3">
-        <MexcSocketPriceMoveAlertBar @ref="_priceMoveAlertBar"
-                                     StorageKey="@MexcSocketPriceMoveAlertStore.ContractStorageKey"
-                                     MarketLabel="@L[RK.MexcContractTickers.SocketTitle]" />
+        <RadzenCard Class="mb-0">
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
+                    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.MexcDemoTrading.Title]</RadzenText>
+                    <RadzenButton Icon="settings" Text="@L[RK.MexcDemoTrading.Settings]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => _showSettings = !_showSettings)" />
+                </RadzenStack>
+                <RadzenRow Gap="0.75rem">
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.InitialCapital" Disabled="true" Format="N2" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.FeePercent" Disabled="true" Format="0.####" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.CapitalPerTradePercent" Disabled="true" Format="0.##" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.Leverage]" /><RadzenDropDown TValue="int" Data="@LeverageOptions" Value="@_portfolio.Leverage" ValueChanged="@OnLeverageChangedAsync" TextProperty="Text" ValueProperty="Value" Class="w-100" /></RadzenColumn>
+                </RadzenRow>
+                @if (_showSettings)
+                {
+                    <RadzenDivider />
+                    <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.MexcDemoTrading.Settings]</RadzenText>
+                    <RadzenRow Gap="0.75rem">
+                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftInitialCapital" Min="1m" Step="100m" Format="N2" Class="w-100" /></RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftFeePercent" Min="0m" Max="5m" Step="0.01m" Format="0.####" Class="w-100" /></RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftCapitalPerTradePercent" Min="1m" Max="100m" Step="1m" Format="0.##" Class="w-100" /></RadzenColumn>
+                    </RadzenRow>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                        <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light" Click="@CancelSettings" />
+                        <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@SaveSettingsAsync" />
+                    </RadzenStack>
+                }
+                <RadzenRow Gap="0.75rem">
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.CurrentCapital]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0">@CurrentEquity.ToString("N2") USDT</RadzenText></RadzenCard></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.AvailableCapital]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0">@AvailableCapital.ToString("N2") USDT</RadzenText></RadzenCard></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.UnrealizedPnl]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(UnrealizedPnl)">@UnrealizedPnl.ToString("+0.00;-0.00;0.00") USDT</RadzenText></RadzenCard></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.RealizedPnl]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(_portfolio.RealizedPnl)">@_portfolio.RealizedPnl.ToString("+0.00;-0.00;0.00") USDT</RadzenText></RadzenColumn>
+                </RadzenRow>
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.MexcDemoTrading.DemoDisclaimer]</RadzenText>
+            </RadzenStack>
+        </RadzenCard>
 
         @if (_isLoading)
         {
@@ -67,14 +99,13 @@
                             PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                             Class="responsive-grid">
                 <Columns>
-                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="3.5rem">
+                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="8.5rem">
                         <Template Context="ticker">
-                            <RadzenButton Icon="push_pin"
-                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
-                                          Variant="Variant.Text"
-                                          Size="ButtonSize.Small"
-                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
-                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.1rem" AlignItems="AlignItems.Center">
+                                <RadzenButton Icon="push_pin" ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)" Variant="Variant.Text" Size="ButtonSize.Small" title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]" Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                                <RadzenButton Text="Buy" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="Sell" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                            </RadzenStack>
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
@@ -97,6 +128,33 @@
             </RadzenDataGrid>
         </div>
     }
+
+    <RadzenCard Class="mt-3">
+        <RadzenStack Gap="0.75rem">
+            <RadzenText TextStyle="TextStyle.H6">@L[RK.MexcDemoTrading.OpenPositions]</RadzenText>
+            @if (_portfolio.Positions.Count == 0)
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter">@L[RK.MexcDemoTrading.NoOpenPositions]</RadzenAlert>
+            }
+            else
+            {
+                <div class="w-100 overflow-auto">
+                    <RadzenDataGrid TItem="DemoFuturesPosition" Data="@OpenPositionsWithPrices" AllowPaging="true" PageSize="5" Class="responsive-grid">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Side]"><Template Context="position">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EntryPrice]"><Template Context="position">@position.EntryPrice.ToString("0.########")</Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.MarkPrice]"><Template Context="position">@GetMarkPrice(position).ToString("0.########")</Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Quantity]"><Template Context="position">@position.Quantity.ToString("0.########")</Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Leverage]"><Template Context="position">@position.Leverage x</Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.UnrealizedPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            }
+        </RadzenStack>
+    </RadzenCard>
 
     @if (Viewport.IsMobile && !_isLoading && _allTickers.Any())
     {
@@ -174,8 +232,23 @@
     private List<MexcContractTickerDto> _allTickers = [];
     private List<MexcContractTickerDto> _mobileViewTickers = [];
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
-    private MexcSocketPriceMoveAlertBar? _priceMoveAlertBar;
     private bool _isLoading = true;
+    private const string DemoPortfolioStorageKey = "thaix:mexc:contract-futures-demo:v1";
+    private DemoFuturesPortfolio _portfolio = new();
+    private bool _portfolioLoaded;
+    private bool _showSettings;
+    private decimal _draftInitialCapital = 1000m;
+    private decimal _draftFeePercent = 0.05m;
+    private decimal _draftCapitalPerTradePercent = 10m;
+    private static readonly IReadOnlyList<LeverageOption> LeverageOptions =
+        Enumerable.Range(1, 20).Select(value => new LeverageOption($"{value}x", value))
+            .Concat(new[] { new LeverageOption("25x", 25), new LeverageOption("50x", 50), new LeverageOption("75x", 75), new LeverageOption("100x", 100) }).ToList();
+    private decimal UnrealizedPnl => _portfolio.Positions.Sum(GetPositionPnl);
+    private decimal CurrentEquity => _portfolio.InitialCapital + _portfolio.RealizedPnl + UnrealizedPnl;
+    private decimal UsedMargin => _portfolio.Positions.Sum(position => position.EntryPrice * position.Quantity / Math.Max(position.Leverage, 1));
+    private decimal AvailableCapital => Math.Max(0m, CurrentEquity - UsedMargin);
+    private IReadOnlyList<DemoFuturesPosition> OpenPositionsWithPrices => _portfolio.Positions.ToList();
+    private static string PnlStyle(decimal value) => value > 0m ? "color: var(--rz-success);" : value < 0m ? "color: var(--rz-danger);" : string.Empty;
     private string? _selectedSymbol;
     private string? _sortKey;
     private bool _sortAscending = true;
@@ -208,6 +281,7 @@
         }
 
         await LoadPinnedSymbolsFromLocalAsync();
+        await LoadDemoPortfolioAsync();
 
         if (_authenticatedUserId.HasValue && !ConnectivityState.IsDemoMode)
         {
@@ -479,10 +553,6 @@
                 {
                     UpdateTickerInPlace(existingTicker, ticker);
                     hasChanges = true;
-                    if (ticker.LastPrice is decimal price)
-                    {
-                        _priceMoveAlertBar?.Observe(ticker.Symbol, price);
-                    }
                 }
             }
             else
@@ -490,10 +560,6 @@
                 _tickerMap[ticker.Symbol] = ticker;
                 _allTickers.Add(ticker);
                 hasChanges = true;
-                if (ticker.LastPrice is decimal price)
-                {
-                    _priceMoveAlertBar?.Observe(ticker.Symbol, price);
-                }
             }
         }
 
@@ -532,6 +598,122 @@
     }
 
     private static bool HasValidPrice(decimal? price) => price.HasValue && price.Value > 0m;
+
+    private async Task LoadDemoPortfolioAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", DemoPortfolioStorageKey);
+            if (!string.IsNullOrWhiteSpace(json))
+            {
+                var saved = JsonSerializer.Deserialize<DemoFuturesPortfolio>(json, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                if (saved is not null && saved.InitialCapital > 0m && saved.Positions is not null)
+                    _portfolio = saved;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not load futures demo portfolio from local storage.");
+        }
+
+        _portfolioLoaded = true;
+        _draftInitialCapital = _portfolio.InitialCapital;
+        _draftFeePercent = _portfolio.FeePercent;
+        _draftCapitalPerTradePercent = _portfolio.CapitalPerTradePercent;
+    }
+
+    private async Task PersistDemoPortfolioAsync()
+    {
+        if (!_portfolioLoaded) return;
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", DemoPortfolioStorageKey, JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not save futures demo portfolio to local storage.");
+            NotificationService.NotifyError(L[RK.MexcContractTickers.LoadFailed]);
+        }
+    }
+
+    private async Task OnLeverageChangedAsync(int value)
+    {
+        _portfolio.Leverage = value;
+        await PersistDemoPortfolioAsync();
+    }
+
+    private void CancelSettings()
+    {
+        _draftInitialCapital = _portfolio.InitialCapital;
+        _draftFeePercent = _portfolio.FeePercent;
+        _draftCapitalPerTradePercent = _portfolio.CapitalPerTradePercent;
+        _showSettings = false;
+    }
+
+    private async Task SaveSettingsAsync()
+    {
+        if (_draftInitialCapital <= 0m || _draftFeePercent < 0m || _draftFeePercent > 5m || _draftCapitalPerTradePercent < 1m || _draftCapitalPerTradePercent > 100m)
+        {
+            NotificationService.NotifyError(L[RK.MexcDemoTrading.InvalidSettings]);
+            return;
+        }
+
+        _portfolio.InitialCapital = _draftInitialCapital;
+        _portfolio.FeePercent = _draftFeePercent;
+        _portfolio.CapitalPerTradePercent = _draftCapitalPerTradePercent;
+        _showSettings = false;
+        await PersistDemoPortfolioAsync();
+    }
+
+    private async Task OpenPositionAsync(MexcContractTickerDto ticker, DemoPositionSide side)
+    {
+        if (!HasValidPrice(ticker.LastPrice)) return;
+        var equity = CurrentEquity;
+        var margin = Math.Min(equity * _portfolio.CapitalPerTradePercent / 100m, AvailableCapital);
+        var notional = margin * _portfolio.Leverage;
+        if (margin <= 0m || notional <= 0m || ticker.LastPrice!.Value <= 0m)
+        {
+            NotificationService.NotifyError(L[RK.MexcDemoTrading.InsufficientCapital]);
+            return;
+        }
+
+        var quantity = notional / ticker.LastPrice.Value;
+        var entryFee = notional * _portfolio.FeePercent / 100m;
+        _portfolio.Positions.Add(new DemoFuturesPosition
+        {
+            Id = Guid.NewGuid(), Symbol = ticker.Symbol, Side = side, EntryPrice = ticker.LastPrice.Value,
+            Quantity = quantity, Leverage = _portfolio.Leverage, EntryFee = entryFee, OpenedAtUtc = DateTimeOffset.UtcNow
+        });
+        await PersistDemoPortfolioAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ClosePositionAsync(Guid positionId)
+    {
+        var position = _portfolio.Positions.FirstOrDefault(item => item.Id == positionId);
+        if (position is null) return;
+        var markPrice = GetMarkPrice(position);
+        if (markPrice <= 0m) return;
+        var direction = position.Side == DemoPositionSide.Long ? 1m : -1m;
+        var grossPnl = (markPrice - position.EntryPrice) * position.Quantity * direction;
+        var exitFee = markPrice * position.Quantity * _portfolio.FeePercent / 100m;
+        _portfolio.RealizedPnl += grossPnl - position.EntryFee - exitFee;
+        _portfolio.Positions.Remove(position);
+        await PersistDemoPortfolioAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private decimal GetMarkPrice(DemoFuturesPosition position) =>
+        _tickerMap.TryGetValue(position.Symbol, out var ticker) && HasValidPrice(ticker.LastPrice) ? ticker.LastPrice!.Value : position.EntryPrice;
+
+    private decimal GetPositionPnl(DemoFuturesPosition position)
+    {
+        var direction = position.Side == DemoPositionSide.Long ? 1m : -1m;
+        var markPrice = GetMarkPrice(position);
+        var grossPnl = (markPrice - position.EntryPrice) * position.Quantity * direction;
+        var estimatedExitFee = markPrice * position.Quantity * _portfolio.FeePercent / 100m;
+        return grossPnl - position.EntryFee - estimatedExitFee;
+    }
 
     private Task OnSelectedSymbolChanged(string? value)
     {
@@ -614,6 +796,31 @@
             _ = ContractSocketService.StopAsync();
         }
         base.Dispose(disposing);
+    }
+
+    private sealed record LeverageOption(string Text, int Value);
+    private enum DemoPositionSide { Long, Short }
+
+    private sealed class DemoFuturesPortfolio
+    {
+        public decimal InitialCapital { get; set; } = 1000m;
+        public decimal FeePercent { get; set; } = 0.05m;
+        public decimal CapitalPerTradePercent { get; set; } = 10m;
+        public int Leverage { get; set; } = 10;
+        public decimal RealizedPnl { get; set; }
+        public List<DemoFuturesPosition> Positions { get; set; } = [];
+    }
+
+    private sealed class DemoFuturesPosition
+    {
+        public Guid Id { get; set; }
+        public string Symbol { get; set; } = string.Empty;
+        public DemoPositionSide Side { get; set; }
+        public decimal EntryPrice { get; set; }
+        public decimal Quantity { get; set; }
+        public int Leverage { get; set; }
+        public decimal EntryFee { get; set; }
+        public DateTimeOffset OpenedAtUtc { get; set; }
     }
 
     private static void UpdateTickerInPlace(MexcContractTickerDto existing, MexcContractTickerDto updated)
