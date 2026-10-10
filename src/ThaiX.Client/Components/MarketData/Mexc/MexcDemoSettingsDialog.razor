@@ -1,0 +1,81 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using Microsoft.Extensions.Localization
+@inject DialogService DialogService
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationService NotificationService
+
+<RadzenStack Gap="1rem">
+    <RadzenRow Gap="0.75rem">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" />
+            <RadzenNumeric TValue="decimal" @bind-Value="_initialCapital" Min="1m" Step="100m" Format="N2" Class="w-100" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" />
+            <RadzenNumeric TValue="decimal" @bind-Value="_feePercent" Min="0m" Max="5m" Step="0.01m" Format="0.####'%'" Class="w-100" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" />
+            <RadzenNumeric TValue="decimal" @bind-Value="_capitalPerTradePercent" Min="1m" Max="100m" Step="1m" Format="0.##'%'" Class="w-100" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenLabel Text="@L[RK.MexcDemoTrading.Leverage]" />
+            <RadzenDropDown TValue="int" Data="@LeverageOptions" @bind-Value="_leverage" TextProperty="Text" ValueProperty="Value" Class="w-100" />
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+        <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light" Click="@Cancel" />
+        <RadzenButton Text="@L[RK.Common.Save]" ButtonStyle="ButtonStyle.Primary" Click="@Save" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public decimal InitialCapital { get; set; }
+    [Parameter] public decimal FeePercent { get; set; }
+    [Parameter] public decimal CapitalPerTradePercent { get; set; }
+    [Parameter] public int Leverage { get; set; }
+
+    private decimal _initialCapital;
+    private decimal _feePercent;
+    private decimal _capitalPerTradePercent;
+    private int _leverage;
+
+    private static readonly IReadOnlyList<LeverageOption> LeverageOptions =
+        Enumerable.Range(1, 20).Select(value => new LeverageOption($"{value}x", value))
+            .Concat(new[] { new LeverageOption("25x", 25), new LeverageOption("50x", 50), new LeverageOption("75x", 75), new LeverageOption("100x", 100) })
+            .ToList();
+
+    protected override void OnParametersSet()
+    {
+        _initialCapital = InitialCapital;
+        _feePercent = FeePercent;
+        _capitalPerTradePercent = CapitalPerTradePercent;
+        _leverage = Leverage;
+    }
+
+    private void Cancel() => DialogService.Close(null);
+
+    private void Save()
+    {
+        if (_initialCapital <= 0m
+            || _feePercent < 0m
+            || _feePercent > 5m
+            || _capitalPerTradePercent < 1m
+            || _capitalPerTradePercent > 100m
+            || _leverage <= 0)
+        {
+            NotificationService.NotifyError(L[RK.MexcDemoTrading.InvalidSettings]);
+            return;
+        }
+
+        DialogService.Close(new MexcDemoSettings(
+            _initialCapital,
+            _feePercent,
+            _capitalPerTradePercent,
+            _leverage));
+    }
+
+    private sealed record LeverageOption(string Text, int Value);
+}
