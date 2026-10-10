@@ -560,6 +560,30 @@
   <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} moved {1} in {4} min ({2} → {3})</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Enabled" xml:space="preserve"><value>Price move alerts enabled</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Price move alerts disabled</value></data>
+  <data name="Mexc.DemoTrading.Title" xml:space="preserve"><value>Futures Demo</value></data>
+  <data name="Mexc.DemoTrading.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Mexc.DemoTrading.InitialCapital" xml:space="preserve"><value>Initial capital (USDT)</value></data>
+  <data name="Mexc.DemoTrading.FeePercent" xml:space="preserve"><value>Trading fee (%)</value></data>
+  <data name="Mexc.DemoTrading.CapitalPerTradePercent" xml:space="preserve"><value>Capital per trade (%)</value></data>
+  <data name="Mexc.DemoTrading.Leverage" xml:space="preserve"><value>Leverage</value></data>
+  <data name="Mexc.DemoTrading.CurrentCapital" xml:space="preserve"><value>Current equity</value></data>
+  <data name="Mexc.DemoTrading.AvailableCapital" xml:space="preserve"><value>Available capital</value></data>
+  <data name="Mexc.DemoTrading.UnrealizedPnl" xml:space="preserve"><value>Unrealized P/L</value></data>
+  <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Realized P/L</value></data>
+  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Simulation only. No orders are sent to MEXC. Fees are estimated on entry and exit.</value></data>
+  <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Open demo positions</value></data>
+  <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>No open positions.</value></data>
+  <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Side</value></data>
+  <data name="Mexc.DemoTrading.Long" xml:space="preserve"><value>Long</value></data>
+  <data name="Mexc.DemoTrading.Short" xml:space="preserve"><value>Short</value></data>
+  <data name="Mexc.DemoTrading.EntryPrice" xml:space="preserve"><value>Entry price</value></data>
+  <data name="Mexc.DemoTrading.MarkPrice" xml:space="preserve"><value>Mark price</value></data>
+  <data name="Mexc.DemoTrading.Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Mexc.DemoTrading.ClosePosition" xml:space="preserve"><value>Close</value></data>
+  <data name="Mexc.DemoTrading.InvalidSettings" xml:space="preserve"><value>Please check the demo trading settings.</value></data>
+  <data name="Mexc.DemoTrading.InsufficientCapital" xml:space="preserve"><value>Insufficient available capital to open this position.</value></data>
+  <data name="Mexc.DemoTrading.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="Mexc.DemoTrading.Sell" xml:space="preserve"><value>Sell</value></data>
   <data name="Mexc.ContractTickers.SocketTitle" xml:space="preserve"><value>MEXC Contract Tickers (WebSocket)</value></data>
   <data name="Mexc.ContractTickers.LoadFailed" xml:space="preserve"><value>Failed to load MEXC contract tickers.</value></data>
   <data name="Mexc.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Search contract symbol...</value></data>
