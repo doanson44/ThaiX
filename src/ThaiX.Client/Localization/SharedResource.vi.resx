@@ -566,6 +566,28 @@
   <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} biến động {1} trong {4} phút ({2} → {3})</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Enabled" xml:space="preserve"><value>Đã bật cảnh báo biến động giá</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Đã tắt cảnh báo biến động giá</value></data>
+  <data name="Mexc.DemoTrading.Title" xml:space="preserve"><value>Futures Demo</value></data>
+  <data name="Mexc.DemoTrading.Settings" xml:space="preserve"><value>Cài đặt</value></data>
+  <data name="Mexc.DemoTrading.InitialCapital" xml:space="preserve"><value>Vốn ban đầu (USDT)</value></data>
+  <data name="Mexc.DemoTrading.FeePercent" xml:space="preserve"><value>Phí giao dịch (%)</value></data>
+  <data name="Mexc.DemoTrading.CapitalPerTradePercent" xml:space="preserve"><value>Vốn mỗi lệnh (%)</value></data>
+  <data name="Mexc.DemoTrading.Leverage" xml:space="preserve"><value>Đòn bẩy</value></data>
+  <data name="Mexc.DemoTrading.CurrentCapital" xml:space="preserve"><value>Tổng vốn hiện tại</value></data>
+  <data name="Mexc.DemoTrading.AvailableCapital" xml:space="preserve"><value>Vốn khả dụng</value></data>
+  <data name="Mexc.DemoTrading.UnrealizedPnl" xml:space="preserve"><value>Lãi/lỗ chưa chốt</value></data>
+  <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Lãi/lỗ đã chốt</value></data>
+  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Chỉ mô phỏng, không gửi lệnh lên MEXC. Phí vào và đóng lệnh được ước tính.</value></data>
+  <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Các lệnh demo đang mở</value></data>
+  <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>Chưa có lệnh nào đang mở.</value></data>
+  <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Chiều lệnh</value></data>
+  <data name="Mexc.DemoTrading.Long" xml:space="preserve"><value>Long</value></data>
+  <data name="Mexc.DemoTrading.Short" xml:space="preserve"><value>Short</value></data>
+  <data name="Mexc.DemoTrading.EntryPrice" xml:space="preserve"><value>Giá vào</value></data>
+  <data name="Mexc.DemoTrading.MarkPrice" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="Mexc.DemoTrading.Quantity" xml:space="preserve"><value>Khối lượng</value></data>
+  <data name="Mexc.DemoTrading.ClosePosition" xml:space="preserve"><value>Đóng lệnh</value></data>
+  <data name="Mexc.DemoTrading.InvalidSettings" xml:space="preserve"><value>Vui lòng kiểm tra lại cài đặt giao dịch demo.</value></data>
+  <data name="Mexc.DemoTrading.InsufficientCapital" xml:space="preserve"><value>Vốn khả dụng không đủ để mở vị thế này.</value></data>
   <data name="Mexc.ContractTickers.SocketTitle" xml:space="preserve"><value>Bảng hợp đồng MEXC (WebSocket)</value></data>
   <data name="Mexc.ContractTickers.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu hợp đồng MEXC.</value></data>
   <data name="Mexc.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Tìm mã hợp đồng...</value></data>
