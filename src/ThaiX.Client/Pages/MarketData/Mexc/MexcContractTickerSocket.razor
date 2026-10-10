@@ -156,20 +156,66 @@
             }
             else
             {
-                <div class="w-100 overflow-auto">
-                    <RadzenDataGrid TItem="DemoFuturesPosition" Data="@OpenPositionsWithPrices" AllowPaging="true" PageSize="5" Class="responsive-grid">
-                        <Columns>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Side]"><Template Context="position">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EntryPrice]"><Template Context="position">@position.EntryPrice.ToString("0.########")</Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.MarkPrice]"><Template Context="position">@GetMarkPrice(position).ToString("0.########")</Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Quantity]"><Template Context="position">@position.Quantity.ToString("0.########")</Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Leverage]"><Template Context="position">@position.Leverage x</Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.UnrealizedPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
-                        </Columns>
-                    </RadzenDataGrid>
-                </div>
+                @if (Viewport.IsMobile)
+                {
+                    <Virtualize Items="@OpenPositionsWithPrices" Context="position" OverscanCount="5">
+                        <RadzenCard Class="p-3 mb-3">
+                            <RadzenStack Gap="0.75rem">
+                                <RadzenStack Orientation="Orientation.Horizontal"
+                                             AlignItems="AlignItems.Center"
+                                             JustifyContent="JustifyContent.SpaceBetween"
+                                             Gap="0.5rem"
+                                             Wrap="FlexWrap.Wrap">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0"><strong>@position.Symbol</strong></RadzenText>
+                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                        <span class="badge @(position.Side == DemoPositionSide.Long ? "bg-success" : "bg-danger")">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</span>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.Leverage x</RadzenText>
+                                    </RadzenStack>
+                                </RadzenStack>
+                                <RadzenRow Gap="0.75rem">
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.EntryPrice]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.EntryPrice.ToString("0.########")</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.MarkPrice]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@GetMarkPrice(position).ToString("0.########")</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.Quantity]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.Quantity.ToString("0.########")</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.UnrealizedPnl]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0" Style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</RadzenText>
+                                    </RadzenColumn>
+                                </RadzenRow>
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]"
+                                              ButtonStyle="ButtonStyle.Danger"
+                                              Size="ButtonSize.Medium"
+                                              Class="w-100"
+                                              Click="@(() => ClosePositionAsync(position.Id))" />
+                            </RadzenStack>
+                        </RadzenCard>
+                    </Virtualize>
+                }
+                else
+                {
+                    <div class="w-100 overflow-auto">
+                        <RadzenDataGrid TItem="DemoFuturesPosition" Data="@OpenPositionsWithPrices" AllowPaging="true" PageSize="5" Class="responsive-grid">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Side]"><Template Context="position">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EntryPrice]"><Template Context="position">@position.EntryPrice.ToString("0.########")</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.MarkPrice]"><Template Context="position">@GetMarkPrice(position).ToString("0.########")</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Quantity]"><Template Context="position">@position.Quantity.ToString("0.########")</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Leverage]"><Template Context="position">@position.Leverage x</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.UnrealizedPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                }
             }
         </RadzenStack>
     </RadzenCard>
@@ -274,7 +320,7 @@
     private decimal CurrentEquity => _portfolio.InitialCapital + _portfolio.RealizedPnl + UnrealizedPnl;
     private decimal UsedMargin => _portfolio.Positions.Sum(position => position.EntryPrice * position.Quantity / Math.Max(position.Leverage, 1));
     private decimal AvailableCapital => Math.Max(0m, CurrentEquity - UsedMargin);
-    private IReadOnlyList<DemoFuturesPosition> OpenPositionsWithPrices => _portfolio.Positions.ToList();
+    private List<DemoFuturesPosition> OpenPositionsWithPrices => _portfolio.Positions.ToList();
     private static string PnlStyle(decimal value) => value > 0m ? "color: var(--rz-success);" : value < 0m ? "color: var(--rz-danger);" : string.Empty;
     private string? _selectedSymbol;
     private string? _sortKey;
