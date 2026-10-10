@@ -501,11 +501,13 @@ public static class ResourceKeys
     public static class BankInterestRates
     {
         public const string Title = "BankInterestRates";
+        public const string Subtitle = "BankInterestRates.Subtitle";
         public const string Month1 = "1Month";
         public const string Month3 = "3Months";
         public const string Month6 = "6Months";
         public const string Month9 = "9Months";
         public const string Month12 = "12Months";
+        public const string Month18 = "18Months";
         public const string Month24 = "24Months";
         public const string ShowBig4Only = "BankInterestRates.ShowBig4Only";
         public const string Toolkit = "BankInterestRates.Toolkit";
