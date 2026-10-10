@@ -720,6 +720,8 @@ public static class ResourceKeys
         public const string ClosePosition = "Mexc.DemoTrading.ClosePosition";
         public const string InvalidSettings = "Mexc.DemoTrading.InvalidSettings";
         public const string InsufficientCapital = "Mexc.DemoTrading.InsufficientCapital";
+        public const string Buy = "Mexc.DemoTrading.Buy";
+        public const string Sell = "Mexc.DemoTrading.Sell";
     }
 
     public static class MexcContractTickers
