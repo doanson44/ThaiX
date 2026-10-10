@@ -1778,4 +1778,6 @@
   <data name="ExpenseTracker.TargetWallet" xml:space="preserve"><value>Target Wallet</value></data>
   <data name="ExpenseTracker.TargetDate" xml:space="preserve"><value>Target Date</value></data>
   <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Initial Balance</value></data>
+  <data name="Mexc.ContractTickers.Pin" xml:space="preserve"><value>Pin ticker</value></data>
+  <data name="Mexc.ContractTickers.Unpin" xml:space="preserve"><value>Unpin ticker</value></data>
 </root>

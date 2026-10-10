@@ -1777,4 +1777,6 @@
   <data name="ExpenseTracker.TargetWallet" xml:space="preserve"><value>Ví đích</value></data>
   <data name="ExpenseTracker.TargetDate" xml:space="preserve"><value>Ngày mục tiêu</value></data>
   <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Số dư ban đầu</value></data>
+  <data name="Mexc.ContractTickers.Pin" xml:space="preserve"><value>Ghim ticker</value></data>
+  <data name="Mexc.ContractTickers.Unpin" xml:space="preserve"><value>Bỏ ghim ticker</value></data>
 </root>
