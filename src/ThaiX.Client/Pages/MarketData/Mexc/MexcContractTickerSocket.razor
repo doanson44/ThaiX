@@ -119,14 +119,24 @@
                             PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                             Class="responsive-grid">
                 <Columns>
-                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="3.5rem">
+                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="10rem">
                         <Template Context="ticker">
-                            <RadzenButton Icon="push_pin"
-                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
-                                          Variant="Variant.Text"
-                                          Size="ButtonSize.Small"
-                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
-                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.25rem">
+                                <RadzenButton Icon="push_pin"
+                                              ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                              Variant="Variant.Text"
+                                              Size="ButtonSize.Small"
+                                              title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                              Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]"
+                                              ButtonStyle="ButtonStyle.Success"
+                                              Size="ButtonSize.Small"
+                                              Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]"
+                                              ButtonStyle="ButtonStyle.Danger"
+                                              Size="ButtonSize.Small"
+                                              Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                            </RadzenStack>
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
@@ -211,14 +221,24 @@
             <Virtualize Items="@_mobileViewTickers" Context="ticker" OverscanCount="5">
                 <RadzenCard Class="p-3 mb-3">
                     <RadzenStack Gap="0.4rem">
-                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.5rem">
                             <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
-                            <RadzenButton Icon="push_pin"
-                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
-                                          Variant="Variant.Text"
-                                          Size="ButtonSize.Small"
-                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
-                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.25rem">
+                                <RadzenButton Icon="push_pin"
+                                              ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                              Variant="Variant.Text"
+                                              Size="ButtonSize.Small"
+                                              title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                              Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]"
+                                              ButtonStyle="ButtonStyle.Success"
+                                              Size="ButtonSize.Small"
+                                              Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]"
+                                              ButtonStyle="ButtonStyle.Danger"
+                                              Size="ButtonSize.Small"
+                                              Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                            </RadzenStack>
                         </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
