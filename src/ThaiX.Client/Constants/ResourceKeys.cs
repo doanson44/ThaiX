@@ -721,6 +721,8 @@ public static class ResourceKeys
         public const string RiseFallRate = "Mexc.ContractTickers.RiseFallRate";
         public const string RiseFallValue = "Mexc.ContractTickers.RiseFallValue";
         public const string Timestamp = "Mexc.ContractTickers.Timestamp";
+        public const string Pin = "Mexc.ContractTickers.Pin";
+        public const string Unpin = "Mexc.ContractTickers.Unpin";
         public const string CompositeScore = "Mexc.ContractTickers.CompositeScore";
     }
 

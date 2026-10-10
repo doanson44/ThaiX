@@ -5,7 +5,18 @@
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.MarketData
 @using Microsoft.Extensions.Localization
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Text.Json
+@using Microsoft.Extensions.Logging
+@using ThaiX.Client.Models.JsonBins
+@using ThaiX.Client.Services.JsonBins
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJsonBinService JsonBinService
+@inject ThaiX.Client.Services.Http.Demo.ApiConnectivityState ConnectivityState
+@inject ILogger<MexcContractTickerSocket> Logger
 @inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime JS
 @inject NotificationService NotificationService
 @inject IMexcContractTickerSocketService ContractSocketService
 @inherits ThaiXPageBase
@@ -44,7 +55,7 @@
         <div class="w-100 overflow-auto">
             <RadzenDataGrid @ref="_dataGrid"
                             TItem="MexcContractTickerDto"
-                            Data="@_allTickers"
+                            Data="@DisplayTickers"
                             Count="@_allTickers.Count"
                             AllowFiltering="true"
                             FilterMode="FilterMode.Advanced"
@@ -56,6 +67,16 @@
                             PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                             Class="responsive-grid">
                 <Columns>
+                    <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="3.5rem">
+                        <Template Context="ticker">
+                            <RadzenButton Icon="push_pin"
+                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                          Variant="Variant.Text"
+                                          Size="ButtonSize.Small"
+                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]" />
@@ -111,7 +132,15 @@
             <Virtualize Items="@_mobileViewTickers" Context="ticker" OverscanCount="5">
                 <RadzenCard Class="p-3 mb-3">
                     <RadzenStack Gap="0.4rem">
-                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                            <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                            <RadzenButton Icon="push_pin"
+                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                          Variant="Variant.Text"
+                                          Size="ButtonSize.Small"
+                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
+                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                        </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @(ticker.Bid1?.ToString() ?? "-")</RadzenText>
@@ -131,7 +160,17 @@
 </RadzenCard>
 
 @code {
+    private const string PinnedStorageKey = "thaix:mexc:contract-ticker:pinned";
+    private const string PinnedJsonBinName = "MEXC Contract Pinned Tickers";
+    private const string PinnedJsonBinCodeSuffix = "MEXC_CONTRACT_PINNED";
+    private string _activePinnedStorageKey = PinnedStorageKey;
+    private Guid? _authenticatedUserId;
+    private Guid? _pinnedJsonBinId;
+    private bool _canSyncPinnedSymbols;
+    private bool _cloudSyncRunning;
+    private bool _cloudSyncRequested;
     private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private List<string> _pinnedSymbols = [];
     private List<MexcContractTickerDto> _allTickers = [];
     private List<MexcContractTickerDto> _mobileViewTickers = [];
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
@@ -140,6 +179,262 @@
     private string? _selectedSymbol;
     private string? _sortKey;
     private bool _sortAscending = true;
+
+    private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _allTickers
+        .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
+        .ToList();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender)
+        {
+            return;
+        }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userIdClaim = user.FindFirst("sub")?.Value;
+
+        if (user.Identity?.IsAuthenticated == true
+            && Guid.TryParse(userIdClaim, out var userId))
+        {
+            _authenticatedUserId = userId;
+            _activePinnedStorageKey = $"{PinnedStorageKey}:{userId:N}";
+        }
+        else
+        {
+            _activePinnedStorageKey = $"{PinnedStorageKey}:anonymous";
+        }
+
+        await LoadPinnedSymbolsFromLocalAsync();
+
+        if (_authenticatedUserId.HasValue && !ConnectivityState.IsDemoMode)
+        {
+            await InitializePinnedSymbolsCloudSyncAsync();
+        }
+
+        ApplyMobileView();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsPinned(string symbol) =>
+        _pinnedSymbols.Contains(symbol, StringComparer.OrdinalIgnoreCase);
+
+    private int GetPinnedOrder(string symbol)
+    {
+        var index = _pinnedSymbols.FindIndex(pinned => pinned.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+        return index >= 0 ? index : int.MaxValue;
+    }
+
+    private async Task TogglePinnedAsync(string symbol)
+    {
+        var index = _pinnedSymbols.FindIndex(pinned => pinned.Equals(symbol, StringComparison.OrdinalIgnoreCase));
+        if (index >= 0)
+        {
+            _pinnedSymbols.RemoveAt(index);
+        }
+        else
+        {
+            _pinnedSymbols.Add(symbol);
+        }
+
+        await SavePinnedSymbolsToLocalAsync();
+        await SyncPinnedSymbolsToCloudAsync();
+
+        ApplyMobileView();
+        if (_dataGrid is not null)
+        {
+            await _dataGrid.Reload();
+        }
+    }
+
+    private async Task LoadPinnedSymbolsFromLocalAsync()
+    {
+        try
+        {
+            var savedSymbols = await JS.InvokeAsync<string?>("localStorage.getItem", _activePinnedStorageKey);
+            _pinnedSymbols = DeserializePinnedSymbols(savedSymbols) ?? [];
+        }
+        catch (JSException ex)
+        {
+            Logger.LogWarning(ex, "Could not read pinned tickers from local storage.");
+            _pinnedSymbols = [];
+        }
+    }
+
+    private async Task SavePinnedSymbolsToLocalAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", _activePinnedStorageKey,
+                JsonSerializer.Serialize(new PinnedTickerConfiguration(1, _pinnedSymbols)));
+        }
+        catch (JSException ex)
+        {
+            Logger.LogWarning(ex, "Could not save pinned tickers to local storage.");
+            NotificationService.NotifyError(L[RK.MexcContractTickers.LoadFailed]);
+        }
+    }
+
+    private async Task InitializePinnedSymbolsCloudSyncAsync()
+    {
+        if (!_authenticatedUserId.HasValue)
+        {
+            return;
+        }
+
+        var code = GetPinnedJsonBinCode(_authenticatedUserId.Value);
+
+        try
+        {
+            var bin = await JsonBinService.GetByCodeAsync(code);
+            if (bin is null)
+            {
+                var createModel = new CreateJsonBinModel
+                {
+                    Code = code,
+                    Name = PinnedJsonBinName,
+                    Category = JsonBinCategories.Config,
+                    ContentType = "application/json",
+                    ContentJson = JsonSerializer.Serialize(new PinnedTickerConfiguration(1, _pinnedSymbols)),
+                    Tags = "user-preference,mexc,contract,pinned"
+                };
+
+                try
+                {
+                    await JsonBinService.CreateAsync(createModel);
+                }
+                catch (Exception createException)
+                {
+                    bin = await JsonBinService.GetByCodeAsync(code);
+                    if (bin is null)
+                    {
+                        throw new InvalidOperationException("Could not create or load the pinned ticker JsonBin.", createException);
+                    }
+                }
+
+                bin ??= await JsonBinService.GetByCodeAsync(code);
+            }
+
+            if (bin is null)
+            {
+                return;
+            }
+
+            _pinnedJsonBinId = bin.Id;
+            var cloudSymbols = DeserializePinnedSymbols(bin.ContentJson);
+            if (cloudSymbols is not null)
+            {
+                _pinnedSymbols = cloudSymbols;
+                await SavePinnedSymbolsToLocalAsync();
+            }
+            else
+            {
+                Logger.LogWarning("Pinned ticker JsonBin {Code} has an unsupported payload; preserving local data.", code);
+            }
+
+            _canSyncPinnedSymbols = true;
+        }
+        catch (Exception ex)
+        {
+            _canSyncPinnedSymbols = false;
+            Logger.LogWarning(ex, "Could not initialize pinned ticker cloud sync.");
+        }
+    }
+
+    private async Task SyncPinnedSymbolsToCloudAsync()
+    {
+        if (!_authenticatedUserId.HasValue || ConnectivityState.IsDemoMode || !_canSyncPinnedSymbols || !_pinnedJsonBinId.HasValue)
+        {
+            return;
+        }
+
+        _cloudSyncRequested = true;
+        if (_cloudSyncRunning)
+        {
+            return;
+        }
+
+        _cloudSyncRunning = true;
+        try
+        {
+            while (_cloudSyncRequested)
+            {
+                _cloudSyncRequested = false;
+                var payload = JsonSerializer.Serialize(new PinnedTickerConfiguration(1, _pinnedSymbols.ToList()));
+                var update = new UpdateJsonBinModel
+                {
+                    Name = PinnedJsonBinName,
+                    Category = JsonBinCategories.Config,
+                    ContentType = "application/json",
+                    ContentJson = payload,
+                    Compress = false,
+                    Tags = "user-preference,mexc,contract,pinned"
+                };
+
+                try
+                {
+                    await JsonBinService.UpdateAsync(_pinnedJsonBinId.Value, update);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Could not sync pinned tickers to JsonBin; local data was retained.");
+                }
+            }
+        }
+        finally
+        {
+            _cloudSyncRunning = false;
+            if (_cloudSyncRequested)
+            {
+                _ = SyncPinnedSymbolsToCloudAsync();
+            }
+        }
+    }
+
+    private static string GetPinnedJsonBinCode(Guid userId) =>
+        $"USERPREF_{userId:N}_{PinnedJsonBinCodeSuffix}";
+
+    private static List<string>? DeserializePinnedSymbols(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            if (document.RootElement.ValueKind == JsonValueKind.Array)
+            {
+                return JsonSerializer.Deserialize<List<string>>(json)?
+                    .Where(symbol => !string.IsNullOrWhiteSpace(symbol))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+
+            var configuration = JsonSerializer.Deserialize<PinnedTickerConfiguration>(
+                json,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            if (configuration?.Version != 1 || configuration.PinnedSymbols is null)
+            {
+                return null;
+            }
+
+            return configuration.PinnedSymbols
+                .Where(symbol => !string.IsNullOrWhiteSpace(symbol))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private sealed record PinnedTickerConfiguration(int Version, List<string> PinnedSymbols);
 
     private IReadOnlyList<SortOption<MexcContractTickerDto>> SortOptions =>
     [
@@ -271,9 +566,13 @@
             if (opt is not null)
             {
                 result = _sortAscending
-                    ? result.OrderBy(opt.KeySelector)
-                    : result.OrderByDescending(opt.KeySelector);
+                    ? result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol)).ThenBy(opt.KeySelector)
+                    : result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol)).ThenByDescending(opt.KeySelector);
             }
+        }
+        else
+        {
+            result = result.OrderBy(ticker => GetPinnedOrder(ticker.Symbol));
         }
 
         _mobileViewTickers = result.ToList();

@@ -90,6 +90,11 @@ jobs:
           fi
 
           LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$COVERAGE_FILE" | head -1)
+          if ! [[ "$LINE_RATE" =~ ^[0-9]*\.?[0-9]+$ ]]; then
+            echo "::error::Unable to parse line coverage from $COVERAGE_FILE"
+            exit 1
+          fi
+
           COVERAGE=$(echo "$LINE_RATE * 100" | bc -l | xargs printf "%.1f")
           echo "Line coverage: ${COVERAGE}%"
 
@@ -111,7 +116,7 @@ jobs:
   package:
     name: Package x86 ZIP
     needs: build-and-test
-    if: success()
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
