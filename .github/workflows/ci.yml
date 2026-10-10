@@ -89,7 +89,7 @@ jobs:
             exit 1
           fi
 
-          LINE_RATE=$(grep -oP 'line-rate="\K[^"]+' "$COVERAGE_FILE" | head -1)
+          LINE_RATE=$(grep -oP 'line-rate="\\K[^"]+' "$COVERAGE_FILE" | head -1)
           COVERAGE=$(echo "$LINE_RATE * 100" | bc -l | xargs printf "%.1f")
           echo "Line coverage: ${COVERAGE}%"
 
@@ -111,7 +111,7 @@ jobs:
   package:
     name: Package x86 ZIP
     needs: build-and-test
-    if: success()
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
