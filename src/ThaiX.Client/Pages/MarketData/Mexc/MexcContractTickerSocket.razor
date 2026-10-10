@@ -239,14 +239,12 @@
             _pinnedSymbols.Add(symbol);
         }
 
-        await SavePinnedSymbolsToLocalAsync();
-        await SyncPinnedSymbolsToCloudAsync();
-
         ApplyMobileView();
-        if (_dataGrid is not null)
-        {
-            await _dataGrid.Reload();
-        }
+        StateHasChanged();
+        await Task.Yield();
+
+        await SavePinnedSymbolsToLocalAsync();
+        _ = SyncPinnedSymbolsToCloudAsync();
     }
 
     private async Task LoadPinnedSymbolsFromLocalAsync()
