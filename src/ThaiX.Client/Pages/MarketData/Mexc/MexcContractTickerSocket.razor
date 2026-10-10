@@ -42,8 +42,8 @@
                 </RadzenStack>
                 <RadzenRow Gap="0.75rem">
                     <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.InitialCapital" Disabled="true" Format="N2" Class="w-100" /></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.FeePercent" Disabled="true" Format="0.####" Class="w-100" /></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.CapitalPerTradePercent" Disabled="true" Format="0.##" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.FeePercent" Disabled="true" Format="0.####\'%\'" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.CapitalPerTradePercent" Disabled="true" Format="0.##\'%\'" Class="w-100" /></RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.Leverage]" /><RadzenDropDown TValue="int" Data="@LeverageOptions" Value="@_portfolio.Leverage" ValueChanged="@OnLeverageChangedAsync" TextProperty="Text" ValueProperty="Value" Class="w-100" /></RadzenColumn>
                 </RadzenRow>
                 @if (_showSettings)
@@ -52,8 +52,8 @@
                     <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.MexcDemoTrading.Settings]</RadzenText>
                     <RadzenRow Gap="0.75rem">
                         <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftInitialCapital" Min="1m" Step="100m" Format="N2" Class="w-100" /></RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftFeePercent" Min="0m" Max="5m" Step="0.01m" Format="0.####" Class="w-100" /></RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftCapitalPerTradePercent" Min="1m" Max="100m" Step="1m" Format="0.##" Class="w-100" /></RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftFeePercent" Min="0m" Max="5m" Step="0.01m" Format="0.####\'%\'" Class="w-100" /></RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftCapitalPerTradePercent" Min="1m" Max="100m" Step="1m" Format="0.##\'%\'" Class="w-100" /></RadzenColumn>
                     </RadzenRow>
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
                         <RadzenButton Text="@L[RK.Common.Cancel]" ButtonStyle="ButtonStyle.Light" Click="@CancelSettings" />
@@ -103,8 +103,8 @@
                         <Template Context="ticker">
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.1rem" AlignItems="AlignItems.Center">
                                 <RadzenButton Icon="push_pin" ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)" Variant="Variant.Text" Size="ButtonSize.Small" title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]" Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
-                                <RadzenButton Text="Buy" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
-                                <RadzenButton Text="Sell" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
                             </RadzenStack>
                         </Template>
                     </RadzenDataGridColumn>
@@ -194,8 +194,8 @@
                             <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" AlignItems="AlignItems.Center">
                                 <RadzenButton Icon="push_pin" ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)" Variant="Variant.Text" Size="ButtonSize.Small" title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]" Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
-                                <RadzenButton Text="Buy" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
-                                <RadzenButton Text="Sell" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
                             </RadzenStack>
                         </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
