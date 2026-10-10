@@ -192,12 +192,11 @@
                     <RadzenStack Gap="0.4rem">
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                             <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
-                            <RadzenButton Icon="push_pin"
-                                          ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
-                                          Variant="Variant.Text"
-                                          Size="ButtonSize.Small"
-                                          title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
-                                          Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" AlignItems="AlignItems.Center">
+                                <RadzenButton Icon="push_pin" ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)" Variant="Variant.Text" Size="ButtonSize.Small" title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]" Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
+                                <RadzenButton Text="Buy" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
+                                <RadzenButton Text="Sell" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Disabled="@(!HasValidPrice(ticker.LastPrice))" Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
+                            </RadzenStack>
                         </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
@@ -578,7 +577,11 @@
         }
         else
         {
-            await InvokeAsync(async () => await _dataGrid.Reload());
+            await InvokeAsync(async () =>
+            {
+                StateHasChanged();
+                await _dataGrid.Reload();
+            });
         }
     }
 
