@@ -48,7 +48,7 @@
                 </RadzenRow>
                 @if (_showSettings)
                 {
-                    <RadzenDivider />
+                    <hr class="my-2" />
                     <RadzenText TextStyle="TextStyle.Subtitle2">@L[RK.MexcDemoTrading.Settings]</RadzenText>
                     <RadzenRow Gap="0.75rem">
                         <RadzenColumn Size="12" SizeMD="4"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" @bind-Value="_draftInitialCapital" Min="1m" Step="100m" Format="N2" Class="w-100" /></RadzenColumn>
@@ -61,10 +61,30 @@
                     </RadzenStack>
                 }
                 <RadzenRow Gap="0.75rem">
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.CurrentCapital]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0">@CurrentEquity.ToString("N2") USDT</RadzenText></RadzenCard></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.AvailableCapital]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0">@AvailableCapital.ToString("N2") USDT</RadzenText></RadzenCard></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.UnrealizedPnl]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(UnrealizedPnl)">@UnrealizedPnl.ToString("+0.00;-0.00;0.00") USDT</RadzenText></RadzenCard></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenCard Class="p-2"><RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.RealizedPnl]</RadzenText><RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(_portfolio.RealizedPnl)">@_portfolio.RealizedPnl.ToString("+0.00;-0.00;0.00") USDT</RadzenText></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenCard Class="p-2">
+                            <RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.CurrentCapital]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@string.Format("{0:N2} USDT", CurrentEquity)</RadzenText>
+                        </RadzenCard>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenCard Class="p-2">
+                            <RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.AvailableCapital]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@string.Format("{0:N2} USDT", AvailableCapital)</RadzenText>
+                        </RadzenCard>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenCard Class="p-2">
+                            <RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.UnrealizedPnl]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(UnrealizedPnl)">@string.Format("{0:+0.00;-0.00;0.00} USDT", UnrealizedPnl)</RadzenText>
+                        </RadzenCard>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenCard Class="p-2">
+                            <RadzenText TextStyle="TextStyle.Caption">@L[RK.MexcDemoTrading.RealizedPnl]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.H6" Class="mb-0" Style="@PnlStyle(_portfolio.RealizedPnl)">@string.Format("{0:+0.00;-0.00;0.00} USDT", _portfolio.RealizedPnl)</RadzenText>
+                        </RadzenCard>
+                    </RadzenColumn>
                 </RadzenRow>
                 <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.MexcDemoTrading.DemoDisclaimer]</RadzenText>
             </RadzenStack>
