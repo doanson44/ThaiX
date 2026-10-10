@@ -696,6 +696,34 @@ public static class ResourceKeys
         public const string Disabled = "Mexc.SocketPriceMoveAlert.Disabled";
     }
 
+    public static class MexcDemoTrading
+    {
+        public const string Title = "Mexc.DemoTrading.Title";
+        public const string Settings = "Mexc.DemoTrading.Settings";
+        public const string InitialCapital = "Mexc.DemoTrading.InitialCapital";
+        public const string FeePercent = "Mexc.DemoTrading.FeePercent";
+        public const string CapitalPerTradePercent = "Mexc.DemoTrading.CapitalPerTradePercent";
+        public const string Leverage = "Mexc.DemoTrading.Leverage";
+        public const string CurrentCapital = "Mexc.DemoTrading.CurrentCapital";
+        public const string AvailableCapital = "Mexc.DemoTrading.AvailableCapital";
+        public const string UnrealizedPnl = "Mexc.DemoTrading.UnrealizedPnl";
+        public const string RealizedPnl = "Mexc.DemoTrading.RealizedPnl";
+        public const string DemoDisclaimer = "Mexc.DemoTrading.DemoDisclaimer";
+        public const string OpenPositions = "Mexc.DemoTrading.OpenPositions";
+        public const string NoOpenPositions = "Mexc.DemoTrading.NoOpenPositions";
+        public const string Side = "Mexc.DemoTrading.Side";
+        public const string Long = "Mexc.DemoTrading.Long";
+        public const string Short = "Mexc.DemoTrading.Short";
+        public const string EntryPrice = "Mexc.DemoTrading.EntryPrice";
+        public const string MarkPrice = "Mexc.DemoTrading.MarkPrice";
+        public const string Quantity = "Mexc.DemoTrading.Quantity";
+        public const string ClosePosition = "Mexc.DemoTrading.ClosePosition";
+        public const string InvalidSettings = "Mexc.DemoTrading.InvalidSettings";
+        public const string InsufficientCapital = "Mexc.DemoTrading.InsufficientCapital";
+        public const string Buy = "Mexc.DemoTrading.Buy";
+        public const string Sell = "Mexc.DemoTrading.Sell";
+    }
+
     public static class MexcContractTickers
     {
         public const string Title = "Mexc.ContractTickers.Title";
