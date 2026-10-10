@@ -582,6 +582,8 @@
   <data name="Mexc.DemoTrading.ClosePosition" xml:space="preserve"><value>Close</value></data>
   <data name="Mexc.DemoTrading.InvalidSettings" xml:space="preserve"><value>Please check the demo trading settings.</value></data>
   <data name="Mexc.DemoTrading.InsufficientCapital" xml:space="preserve"><value>Insufficient available capital to open this position.</value></data>
+  <data name="Mexc.DemoTrading.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="Mexc.DemoTrading.Sell" xml:space="preserve"><value>Sell</value></data>
   <data name="Mexc.ContractTickers.SocketTitle" xml:space="preserve"><value>MEXC Contract Tickers (WebSocket)</value></data>
   <data name="Mexc.ContractTickers.LoadFailed" xml:space="preserve"><value>Failed to load MEXC contract tickers.</value></data>
   <data name="Mexc.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Search contract symbol...</value></data>
