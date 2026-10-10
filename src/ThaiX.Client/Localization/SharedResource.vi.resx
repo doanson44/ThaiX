@@ -436,11 +436,13 @@
   <data name="Contacts.Export.Success" xml:space="preserve"><value>Xuất file thành công</value></data>
   <data name="Contacts.Export.Failed" xml:space="preserve"><value>Xuất file thất bại</value></data>
   <data name="BankInterestRates" xml:space="preserve"><value>Lãi Suất Ngân Hàng</value></data>
+  <data name="BankInterestRates.Subtitle" xml:space="preserve"><value>So sánh lãi suất tiết kiệm giữa các ngân hàng và ước tính lợi nhuận lãi kép.</value></data>
   <data name="1Month" xml:space="preserve"><value>1 Tháng</value></data>
   <data name="3Months" xml:space="preserve"><value>3 Tháng</value></data>
   <data name="6Months" xml:space="preserve"><value>6 Tháng</value></data>
   <data name="9Months" xml:space="preserve"><value>9 Tháng</value></data>
   <data name="12Months" xml:space="preserve"><value>12 Tháng</value></data>
+  <data name="18Months" xml:space="preserve"><value>18 Tháng</value></data>
   <data name="24Months" xml:space="preserve"><value>24 Tháng</value></data>
   <data name="PagingSummaryFormat" xml:space="preserve"><value>Trang {0} của {1} ({2} mục)</value></data>
   <data name="BankInterestRates.ShowBig4Only" xml:space="preserve"><value>Chỉ hiển thị Big4</value></data>
