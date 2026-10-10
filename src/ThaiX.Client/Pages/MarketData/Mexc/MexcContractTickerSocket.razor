@@ -826,6 +826,8 @@
 
     private sealed class DemoFuturesPortfolio
     {
+        public DemoFuturesPortfolio() { }
+
         public decimal InitialCapital { get; set; } = 1000m;
         public decimal FeePercent { get; set; } = 0.05m;
         public decimal CapitalPerTradePercent { get; set; } = 10m;
@@ -836,6 +838,8 @@
 
     private sealed class DemoFuturesPosition
     {
+        public DemoFuturesPosition() { }
+
         public Guid Id { get; set; }
         public string Symbol { get; set; } = string.Empty;
         public DemoPositionSide Side { get; set; }
