@@ -253,8 +253,14 @@
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
     private bool _isLoading = true;
     private const string DemoPortfolioStorageKey = "thaix:mexc:contract-futures-demo:v1";
+    private const string DemoPortfolioJsonBinName = "MEXC Contract Futures Demo Portfolio";
+    private const string DemoPortfolioJsonBinCodeSuffix = "MEXC_CONTRACT_FUTURES_DEMO";
     private DemoFuturesPortfolio _portfolio = new();
     private bool _portfolioLoaded;
+    private Guid? _demoPortfolioJsonBinId;
+    private bool _canSyncDemoPortfolio;
+    private bool _demoCloudSyncRunning;
+    private bool _demoCloudSyncRequested;
     private bool _showSettings;
     private decimal _draftInitialCapital = 1000m;
     private decimal _draftFeePercent = 0.05m;
@@ -305,6 +311,7 @@
         if (_authenticatedUserId.HasValue && !ConnectivityState.IsDemoMode)
         {
             await InitializePinnedSymbolsCloudSyncAsync();
+            await InitializeDemoPortfolioCloudSyncAsync();
         }
 
         ApplyMobileView();
@@ -647,15 +654,191 @@
 
     private async Task PersistDemoPortfolioAsync()
     {
-        if (!_portfolioLoaded) return;
+        if (!_portfolioLoaded)
+        {
+            return;
+        }
+
         try
         {
-            await JS.InvokeVoidAsync("localStorage.setItem", DemoPortfolioStorageKey, JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            var payload = JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            await JS.InvokeVoidAsync("localStorage.setItem", DemoPortfolioStorageKey, payload);
+            _ = SyncDemoPortfolioToCloudAsync();
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Could not save futures demo portfolio to local storage.");
             NotificationService.NotifyError(L[RK.MexcContractTickers.LoadFailed]);
+        }
+    }
+
+    private async Task InitializeDemoPortfolioCloudSyncAsync()
+    {
+        if (!_authenticatedUserId.HasValue)
+        {
+            return;
+        }
+
+        var code = GetDemoPortfolioJsonBinCode(_authenticatedUserId.Value);
+
+        try
+        {
+            var bin = await JsonBinService.GetByCodeAsync(code);
+            if (bin is null)
+            {
+                var createModel = new CreateJsonBinModel
+                {
+                    Code = code,
+                    Name = DemoPortfolioJsonBinName,
+                    Category = JsonBinCategories.Config,
+                    ContentType = "application/json",
+                    ContentJson = JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web)),
+                    Tags = "user-preference,mexc,contract,futures,demo"
+                };
+
+                try
+                {
+                    await JsonBinService.CreateAsync(createModel);
+                }
+                catch (Exception createException)
+                {
+                    bin = await JsonBinService.GetByCodeAsync(code);
+                    if (bin is null)
+                    {
+                        throw new InvalidOperationException("Could not create or load the futures demo portfolio JsonBin.", createException);
+                    }
+                }
+
+                bin ??= await JsonBinService.GetByCodeAsync(code);
+            }
+
+            if (bin is null)
+            {
+                return;
+            }
+
+            _demoPortfolioJsonBinId = bin.Id;
+            var cloudPortfolio = DeserializeDemoPortfolio(bin.ContentJson);
+            if (cloudPortfolio is not null)
+            {
+                _portfolio = cloudPortfolio;
+                await SaveDemoPortfolioToLocalAsync();
+            }
+            else
+            {
+                Logger.LogWarning("Futures demo portfolio JsonBin {Code} has an unsupported payload; preserving local data.", code);
+            }
+
+            _canSyncDemoPortfolio = true;
+        }
+        catch (Exception ex)
+        {
+            _canSyncDemoPortfolio = false;
+            Logger.LogWarning(ex, "Could not initialize futures demo portfolio cloud sync.");
+        }
+    }
+
+    private async Task SyncDemoPortfolioToCloudAsync()
+    {
+        if (!_authenticatedUserId.HasValue
+            || ConnectivityState.IsDemoMode
+            || !_canSyncDemoPortfolio
+            || !_demoPortfolioJsonBinId.HasValue)
+        {
+            return;
+        }
+
+        _demoCloudSyncRequested = true;
+        if (_demoCloudSyncRunning)
+        {
+            return;
+        }
+
+        _demoCloudSyncRunning = true;
+        try
+        {
+            while (_demoCloudSyncRequested)
+            {
+                _demoCloudSyncRequested = false;
+                var payload = JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+                var update = new UpdateJsonBinModel
+                {
+                    Name = DemoPortfolioJsonBinName,
+                    Category = JsonBinCategories.Config,
+                    ContentType = "application/json",
+                    ContentJson = payload,
+                    Compress = false,
+                    Tags = "user-preference,mexc,contract,futures,demo"
+                };
+
+                try
+                {
+                    await JsonBinService.UpdateAsync(_demoPortfolioJsonBinId.Value, update);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Could not sync futures demo portfolio to JsonBin; local data was retained.");
+                }
+            }
+        }
+        finally
+        {
+            _demoCloudSyncRunning = false;
+            if (_demoCloudSyncRequested)
+            {
+                _ = SyncDemoPortfolioToCloudAsync();
+            }
+        }
+    }
+
+    private async Task SaveDemoPortfolioToLocalAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                DemoPortfolioStorageKey,
+                JsonSerializer.Serialize(_portfolio, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not save futures demo portfolio loaded from JsonBin to local storage.");
+        }
+    }
+
+    private static string GetDemoPortfolioJsonBinCode(Guid userId) =>
+        $"USERPREF_{userId:N}_{DemoPortfolioJsonBinCodeSuffix}";
+
+    private static DemoFuturesPortfolio? DeserializeDemoPortfolio(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            var portfolio = JsonSerializer.Deserialize<DemoFuturesPortfolio>(
+                json,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web));
+
+            if (portfolio is null
+                || portfolio.InitialCapital <= 0m
+                || portfolio.FeePercent < 0m
+                || portfolio.FeePercent > 5m
+                || portfolio.CapitalPerTradePercent < 1m
+                || portfolio.CapitalPerTradePercent > 100m
+                || portfolio.Leverage <= 0
+                || portfolio.Positions is null)
+            {
+                return null;
+            }
+
+            return portfolio;
+        }
+        catch (JsonException)
+        {
+            return null;
         }
     }
 
