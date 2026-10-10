@@ -43,8 +43,8 @@
                 </RadzenStack>
                 <RadzenRow Gap="0.75rem">
                     <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.InitialCapital" Disabled="true" Format="N2" Class="w-100" /></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.FeePercent" Disabled="true" Format="0.####'%' " Class="w-100" /></RadzenColumn>
-                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.CapitalPerTradePercent" Disabled="true" Format="0.##'%' " Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.FeePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.FeePercent" Disabled="true" Format="0.####'%'" Class="w-100" /></RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.CapitalPerTradePercent]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.CapitalPerTradePercent" Disabled="true" Format="0.##'%'" Class="w-100" /></RadzenColumn>
                     <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.Leverage]" /><RadzenNumeric TValue="int" Value="@_portfolio.Leverage" Disabled="true" Format="0'x'" Class="w-100" /></RadzenColumn>
                 </RadzenRow>
                 <RadzenRow Gap="0.75rem">
@@ -854,7 +854,7 @@
             },
             new DialogOptions
             {
-                Width = "min(100vw - 2rem, 640px)",
+                Width = "min(640px, calc(100vw - 2rem))",
                 CloseDialogOnOverlayClick = false
             });
 
