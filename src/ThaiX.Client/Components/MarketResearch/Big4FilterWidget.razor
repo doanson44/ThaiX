@@ -5,12 +5,12 @@
 
 @inject IStringLocalizer<SharedResource> L
 
-<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0.75rem">
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0.75rem" Class="flex-wrap">
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
         <RadzenSwitch Value="_showBig4Only" ValueChanged="@((bool value) => OnFilterChangedAsync(value))" />
         <RadzenLabel Text="@L[RK.BankInterestRates.ShowBig4Only]" />
     </RadzenStack>
-    <RadzenText TextStyle="TextStyle.Subtitle1">
+    <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">
         @L[RK.BankInterestRates.AverageRates] (12M):
         <strong>
             @(_average12Month.HasValue
