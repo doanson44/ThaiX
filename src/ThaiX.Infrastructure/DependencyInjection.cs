@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.MySql;
+using Hangfire.Server;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -201,11 +202,15 @@ public static class DependencyInjection
             })
             .AddTransient<ExternalApiResilienceHandler>();
 
-        services.AddHttpClient<HttpTransport>()
+        // Per-request timeout is enforced by ExternalApiResilienceHandler; the default HttpClient.Timeout (100s)
+        // would otherwise cap it and cancel requests before the configured timeout elapses.
+        services.AddHttpClient<HttpTransport>(client => client.Timeout = Timeout.InfiniteTimeSpan)
             .AddHttpMessageHandler<ExternalApiResilienceHandler>();
 
         services.AddHttpClient<ProxyTransport>((sp, client) =>
         {
+            client.Timeout = Timeout.InfiniteTimeSpan;
+
             var options = sp.GetRequiredService<IOptions<ProxyOptions>>().Value;
 
             if (!string.IsNullOrWhiteSpace(options.BaseUrl))
@@ -244,6 +249,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.Configure<HangfireConfiguration>(configuration.GetSection(HangfireConfiguration.SectionName));
+        services.AddBackgroundJobs();
 
         var hangfireConfig = new HangfireConfiguration();
         configuration.GetSection(HangfireConfiguration.SectionName).Bind(hangfireConfig);
@@ -287,10 +293,33 @@ public static class DependencyInjection
                 options.Queues = hangfireConfig.Server.Queues;
                 options.ShutdownTimeout = hangfireConfig.Server.ShutdownTimeout;
             });
+
+            // Resolved from the service provider by Hangfire (IEnumerable<IBackgroundProcess>).
+            services.AddSingleton<IBackgroundProcess, StaleSchedulerLockCleanupProcess>();
         }
 
-        // Register background jobs
+        // Market scanner
+        services.Configure<MarketScannerOptions>(configuration.GetSection(MarketScannerOptions.SectionName));
+        services.AddSingleton<IMarketSnapshotCache, InMemoryMarketSnapshotCache>();
+        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>();
+        services.AddTransient<IMarketSignalDetector, PricePumpDetector>();
+        services.AddTransient<IMarketSignalDetector, FundingFlipDetector>();
+        services.AddTransient<IMarketSignalDetector, FundingMultipleDetector>();
+        services.AddTransient<IMarketSignalDetector, VolumeSpikeDetector>();
+
+        // Price alert checker
+        services.Configure<PriceAlertCheckerOptions>(configuration.GetSection(PriceAlertCheckerOptions.SectionName));
+        services.Configure<AffiliateOptions>(configuration.GetSection(AffiliateOptions.SectionName));
+    }
+
+    /// <summary>
+    /// Registers background job classes. Kept separate from the Hangfire storage/server setup so jobs stay
+    /// resolvable when the server is disabled by configuration or substituted in tests.
+    /// </summary>
+    public static IServiceCollection AddBackgroundJobs(this IServiceCollection services)
+    {
         services.AddSingleton<IHangfireJobState, HangfireJobState>();
+
         services.AddScoped<OutboxProcessorJob>();
         services.AddScoped<ContactImportJobProcessor>();
         services.AddScoped<IContactImportJobScheduler, ContactImportJobScheduler>();
@@ -303,28 +332,14 @@ public static class DependencyInjection
         services.AddScoped<Power655PredictJob>();
         services.AddScoped<TopStocksWeeklySuggestionJob>();
         services.AddScoped<MexcSpotWeeklySuggestionJob>();
-
-        // Market scanner
-        services.Configure<MarketScannerOptions>(configuration.GetSection(MarketScannerOptions.SectionName));
-        services.AddSingleton<IMarketSnapshotCache, InMemoryMarketSnapshotCache>();
-        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>();
-        services.AddTransient<IMarketSignalDetector, PricePumpDetector>();
-        services.AddTransient<IMarketSignalDetector, FundingFlipDetector>();
-        services.AddTransient<IMarketSignalDetector, FundingMultipleDetector>();
-        services.AddTransient<IMarketSignalDetector, VolumeSpikeDetector>();
+        services.AddScoped<PersistWeeklySuggestionReportJob>();
         services.AddScoped<MexcMarketScannerJob>();
-
-        // Price alert checker
-        services.Configure<PriceAlertCheckerOptions>(configuration.GetSection(PriceAlertCheckerOptions.SectionName));
-        services.Configure<AffiliateOptions>(configuration.GetSection(AffiliateOptions.SectionName));
         services.AddScoped<PriceAlertCheckerJob>();
         services.AddScoped<BotTradeSuggestionAsyncJob>();
-
-        // Blog
         services.AddScoped<ScheduledPostPublisherJob>();
-
-        // JsonBin
         services.AddScoped<JsonBinExpiredCleanupJob>();
+
+        return services;
     }
 }
 

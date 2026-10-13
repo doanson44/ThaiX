@@ -16,7 +16,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Hangfire recurring job that runs every Monday at 09:00 VNT.
 /// Retrieves VnDirect top stocks, selects top 5 by composite score, then computes trade suggestions and sends a notification.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
 {
     private const int TopCount = 5;
@@ -52,6 +51,8 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.TopStocksWeeklySuggestionJob)) return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.TopStocksWeeklySuggestionJob, cancellationToken);
 
         _logger.LogInformation("TopStocksWeeklySuggestionJob started");
         var started = DateTime.UtcNow;

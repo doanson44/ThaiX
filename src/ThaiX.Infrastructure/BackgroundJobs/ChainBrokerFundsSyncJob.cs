@@ -1,9 +1,7 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Caching;
-using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.ChainBroker;
@@ -18,7 +16,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Fetches all pages (following "next" until null) and performs an upsert
 /// using batches of 200 items, each with its own DbContext scope.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
 {
     private const int BatchSize = 200;
@@ -51,10 +48,10 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
     {
         if (!CanExecute(HangfireJobIds.ChainBrokerFundsWeeklySyncJob)) return;
 
+        using var _ = await AcquireJobLockAsync("sync:chainbroker", cancellationToken);
+
         _logger.LogInformation("ChainBrokerFundsSyncJob started");
         var started = DateTime.UtcNow;
-
-        using var _ = await AsyncLock.GetLockByKey("sync:chainbroker").LockAsync(cancellationToken);
 
         try
         {
@@ -102,10 +99,6 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             throw;
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Funds
-    // -------------------------------------------------------------------------
 
     private async Task<int> SyncFundsAsync(CancellationToken ct)
     {
@@ -216,10 +209,6 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
         return validItems.Length;
     }
 
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
     private static ChainBrokerFundSnapshot BuildSnapshot(InternalFundItem r) => new()
     {
         Slug = r.Slug!,
@@ -254,10 +243,6 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
 
     private static string? ExtractPercent(System.Text.Json.JsonElement[]? arr) =>
         arr is { Length: > 1 } ? arr[1].GetString() : null;
-
-    // =========================================================================
-    // Internal deserialization models — scoped to this job only
-    // =========================================================================
 
     // --- Shared envelope ---
 

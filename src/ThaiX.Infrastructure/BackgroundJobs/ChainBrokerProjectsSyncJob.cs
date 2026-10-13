@@ -1,9 +1,7 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Caching;
-using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.ChainBroker;
@@ -19,7 +17,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Fetches all pages for each fund (following "next" until null) and performs an upsert
 /// using batches of 200 items, each with its own DbContext scope.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
 {
     private const int BatchSize = 200;
@@ -52,10 +49,10 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
     {
         if (!CanExecute(HangfireJobIds.ChainBrokerProjectsWeeklySyncJob)) return;
 
+        using var _ = await AcquireJobLockAsync("sync:chainbroker", cancellationToken);
+
         _logger.LogInformation("ChainBrokerProjectsSyncJob started");
         var started = DateTime.UtcNow;
-
-        using var _ = await AsyncLock.GetLockByKey("sync:chainbroker").LockAsync(cancellationToken);
 
         try
         {
@@ -102,10 +99,6 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             throw;
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Projects
-    // -------------------------------------------------------------------------
 
     private async Task<int> SyncProjectsAsync(CancellationToken ct)
     {
@@ -173,6 +166,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         // --- Upsert in batches of BatchSize ---
         var allSlugs = apiItems.Keys.ToArray();
         int upserted = 0;
+        var skipped = 0;
 
         foreach (var batch in allSlugs.Chunk(BatchSize))
         {
@@ -205,9 +199,28 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
                 }
             }
 
-            await db.SaveChangesAsync(ct);
-            upserted += batch.Length;
+            try
+            {
+                await db.SaveChangesAsync(ct);
+                upserted += batch.Length;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // An overlapping sync run changed the same row; the next sync reconciles this batch,
+                // so skip it instead of failing the entire sync.
+                skipped += batch.Length;
+                _logger.LogWarning(
+                    ex,
+                    "ChainBroker projects: skipped batch of {Count} records after a concurrency conflict",
+                    batch.Length);
+            }
+
             _logger.LogDebug("ChainBroker projects: upserted batch ({Done}/{Total})", upserted, allSlugs.Length);
+        }
+
+        if (skipped > 0)
+        {
+            _logger.LogWarning("ChainBroker projects: {Skipped} records skipped due to concurrency conflicts", skipped);
         }
 
         // --- Remove stale projects ---
@@ -241,10 +254,6 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         _logger.LogInformation("ChainBroker projects upsert complete: {Total} unique from API", apiItems.Count);
         return apiItems.Count;
     }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
 
     private async Task<(string FundSlug, Dictionary<string, InternalProjectItem> Items)> FetchProjectsByFundAsync(
         string fundSlug,
@@ -377,10 +386,6 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             db.ChainBrokerProjectFundRefs.Add(ChainBrokerProjectFundRef.Create(projectId, fundId));
         }
     }
-
-    // =========================================================================
-    // Internal deserialization models — scoped to this job only
-    // =========================================================================
 
     private sealed record InternalPagedList<T>
     {

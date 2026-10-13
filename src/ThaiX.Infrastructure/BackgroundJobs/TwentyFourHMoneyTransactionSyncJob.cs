@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// TCBS Top10 portfolio (<see cref="Domain.Aggregates.TcbsTop10.TcbsTop10Ticker"/>).
 /// Also purges transaction rows older than 1 year at the end of each run.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
 {
     private const int PerPage = 1000;
@@ -51,6 +49,8 @@ public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.TwentyFourHMoneyTransactionDailySyncJob)) return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.TwentyFourHMoneyTransactionDailySyncJob, cancellationToken);
 
         _logger.LogInformation("TwentyFourHMoneyTransactionSyncJob started");
         var started = DateTime.UtcNow;
@@ -128,10 +128,6 @@ public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Tracked symbols
-    // -------------------------------------------------------------------------
-
     private async Task<List<string>> GetTrackedSymbolsAsync(CancellationToken ct)
     {
         await using var scope = _scopeFactory.CreateAsyncScope();
@@ -143,10 +139,6 @@ public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
             .OrderBy(t => t)
             .ToListAsync(ct);
     }
-
-    // -------------------------------------------------------------------------
-    // Sync
-    // -------------------------------------------------------------------------
 
     private async Task<int> SyncSymbolAsync(string symbol, DateOnly tradeDate, CancellationToken ct)
     {
@@ -210,10 +202,6 @@ public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
         return newItems.Count;
     }
 
-    // -------------------------------------------------------------------------
-    // Retention
-    // -------------------------------------------------------------------------
-
     private async Task<int> PurgeOldTransactionsAsync(DateOnly tradeDate, CancellationToken ct)
     {
         var cutoff = tradeDate.AddYears(-1);
@@ -232,10 +220,6 @@ public sealed class TwentyFourHMoneyTransactionSyncJob : HangfireJobBase
 
         return purged;
     }
-
-    // =========================================================================
-    // Internal deserialization models — scoped to this job only
-    // =========================================================================
 
     private sealed record InternalTransactionsResponse
     {

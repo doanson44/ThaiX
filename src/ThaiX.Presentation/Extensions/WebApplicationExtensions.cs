@@ -306,8 +306,7 @@ public static class WebApplicationExtensions
                 "Hangfire: failed to remove stale recurring jobs during startup. Continuing without cleanup.");
         }
 
-        var timeZone = app.Services.GetRequiredService<IDateTimeProvider>().TimeZone;
-        var recurringJobOptions = new RecurringJobOptions { TimeZone = timeZone };
+        var defaultTimeZone = app.Services.GetRequiredService<IDateTimeProvider>().TimeZone;
 
         try
         {
@@ -325,12 +324,15 @@ public static class WebApplicationExtensions
                     continue;
                 }
 
+                var jobTimeZone = ResolveJobTimeZone(jobConfig.TimeZone, defaultTimeZone);
+                var recurringJobOptions = new RecurringJobOptions { TimeZone = jobTimeZone };
+
                 try
                 {
                     schedule(jobId, jobConfig.Queue, jobConfig.CronExpression, recurringJobOptions);
                     Log.Information(
                         "Hangfire recurring job '{JobId}' scheduled: {Cron}, Queue: {Queue}, TimeZone: {TimeZone}",
-                        jobId, jobConfig.CronExpression, jobConfig.Queue, timeZone.Id);
+                        jobId, jobConfig.CronExpression, jobConfig.Queue, jobTimeZone.Id);
                 }
                 catch (Exception ex)
                 {
@@ -371,6 +373,29 @@ public static class WebApplicationExtensions
             FileProvider = new PhysicalFileProvider(storagePath),
             RequestPath = requestPath
         });
+    }
+
+    private static TimeZoneInfo ResolveJobTimeZone(string? timeZoneId, TimeZoneInfo fallback)
+    {
+        if (string.IsNullOrWhiteSpace(timeZoneId))
+        {
+            return fallback;
+        }
+
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        }
+        catch (Exception ex) when (ex is TimeZoneNotFoundException or InvalidTimeZoneException)
+        {
+            Log.Warning(
+                ex,
+                "Hangfire: time zone '{TimeZoneId}' is unavailable on this platform. Using {FallbackTimeZone} for recurring job scheduling.",
+                timeZoneId,
+                fallback.Id);
+
+            return fallback;
+        }
     }
 
     private static void RemoveStaleRecurringJobs(HangfireConfiguration hangfireConfig)

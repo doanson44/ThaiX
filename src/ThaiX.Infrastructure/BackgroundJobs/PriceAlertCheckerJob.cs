@@ -1,4 +1,3 @@
-using Hangfire;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,7 +20,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 ///   (Monday-Friday, 09:30-15:00 Vietnam Time).
 /// Sends a Slack notification and updates the alert trigger record when a condition is met.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class PriceAlertCheckerJob(
     IMediator mediator,
     IApplicationDbContext context,
@@ -32,16 +30,20 @@ public sealed class PriceAlertCheckerJob(
     IHangfireJobState hangfireJobState,
     ILogger<PriceAlertCheckerJob> logger) : HangfireJobBase(hangfireJobState, logger)
 {
+    private readonly ILogger<PriceAlertCheckerJob> _logger = logger;
+
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.PriceAlertCheckerJob)) return;
 
-        logger.LogInformation("PriceAlertCheckerJob started");
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.PriceAlertCheckerJob, cancellationToken);
+
+        _logger.LogInformation("PriceAlertCheckerJob started");
 
         var alerts = await mediator.Send(new GetAllPriceAlertsQuery(), cancellationToken);
         if (alerts.Count == 0)
         {
-            logger.LogDebug("PriceAlertCheckerJob: no active alerts, skipping");
+            _logger.LogDebug("PriceAlertCheckerJob: no active alerts, skipping");
             return;
         }
 
@@ -81,13 +83,13 @@ public sealed class PriceAlertCheckerJob(
             }
             else
             {
-                logger.LogDebug("PriceAlertCheckerJob: skipping VnStock alerts outside trading hours");
+                _logger.LogDebug("PriceAlertCheckerJob: skipping VnStock alerts outside trading hours");
             }
         }
 
         if (triggered.Count == 0)
         {
-            logger.LogDebug("PriceAlertCheckerJob: no alerts triggered");
+            _logger.LogDebug("PriceAlertCheckerJob: no alerts triggered");
             return;
         }
 
@@ -147,7 +149,7 @@ public sealed class PriceAlertCheckerJob(
             }, cancellationToken);
         }
 
-        logger.LogInformation("PriceAlertCheckerJob completed: {Count} alert(s) triggered", triggered.Count);
+        _logger.LogInformation("PriceAlertCheckerJob completed: {Count} alert(s) triggered", triggered.Count);
     }
 
     private static bool IsTriggered(AlertCondition condition, decimal actual, decimal target) =>
@@ -167,7 +169,7 @@ public sealed class PriceAlertCheckerJob(
         if (!TimeOnly.TryParse(cfg.VnStockTradingStart, out var start) ||
             !TimeOnly.TryParse(cfg.VnStockTradingEnd, out var end))
         {
-            logger.LogWarning(
+            _logger.LogWarning(
                 "PriceAlertCheckerJob: invalid VnStockTradingStart/End config ('{Start}'/'{End}'), defaulting to allow",
                 cfg.VnStockTradingStart, cfg.VnStockTradingEnd);
             return true;
