@@ -1,8 +1,7 @@
-using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Text;
 
 namespace ThaiX.Infrastructure.Persistence;
 

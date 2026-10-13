@@ -1,8 +1,8 @@
-using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
+using System.Security.Claims;
+using System.Text.Json;
 using ThaiX.Client.Constants;
 using ThaiX.Client.Models.JsonBins;
 using ThaiX.Client.Services.JsonBins;

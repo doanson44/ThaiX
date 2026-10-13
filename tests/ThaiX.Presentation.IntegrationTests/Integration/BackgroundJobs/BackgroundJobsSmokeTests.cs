@@ -4,8 +4,6 @@ using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Trading;
 using ThaiX.Domain.Aggregates.Blog;
-using ThaiX.Domain.Aggregates.TcbsTop10;
-using ThaiX.Domain.Aggregates.TradingSuggestions;
 using ThaiX.Infrastructure.BackgroundJobs;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 

@@ -70,6 +70,7 @@ public static class RouteCatalog
         "/master-data/districts",
         "/master-data/banks",
         "/market-data/bank-interest-rates",
+        "/market-data/bank-deposit-rates",
         "/market-data/sacombank-exchange-rates",
         "/market-data/tcbs-top10",
         "/market-data/mexc/spot-ticker-socket",

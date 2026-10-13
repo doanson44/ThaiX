@@ -112,6 +112,12 @@ public static class OverlayCatalog
             new OverlayStep(OverlayStepKind.ClickCss, ".rz-tabview-nav li >> nth=1"),
             new OverlayStep(OverlayStepKind.ClickCss, ".rz-data-grid button.rz-info:has(.rzi), .rz-data-grid button:has(.rzi:text-is('add')) >> nth=0")),
 
+        // --- Market data ---
+        Form("CompoundInterestCalculator", "bank-compound-interest-calculator", "/market-data/bank-interest-rates",
+            new OverlayStep(OverlayStepKind.ClickIcon, "calculate")),
+        Form("MexcDemoSettingsDialog", "mexc-demo-settings", "/market-data/mexc/contract-ticker-socket",
+            new OverlayStep(OverlayStepKind.ClickIcon, "settings")),
+
         // --- Market research / misc ---
         Form("TradeSuggestionDialog", "trade-suggestion", "/market-research/mexc/spot-ticker",
             new OverlayStep(OverlayStepKind.ClickIcon, "insights")),

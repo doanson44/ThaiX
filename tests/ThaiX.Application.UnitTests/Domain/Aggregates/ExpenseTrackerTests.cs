@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ThaiX.Domain.Aggregates.ExpenseTracker;
 
 namespace ThaiX.Application.UnitTests.Domain.Aggregates;

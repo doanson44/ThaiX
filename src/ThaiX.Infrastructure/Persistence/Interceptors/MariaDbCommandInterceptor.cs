@@ -1,6 +1,6 @@
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace ThaiX.Infrastructure.Persistence.Interceptors;
 

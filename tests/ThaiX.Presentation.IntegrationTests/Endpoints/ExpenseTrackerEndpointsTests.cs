@@ -1,8 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using ThaiX.Application.Features.ExpenseTracker;
-using ThaiX.Application.Features.ExpenseTracker.Models;
-using ThaiX.Client.Models.ExpenseTracker;
 using ThaiX.Domain.Aggregates.ExpenseTracker;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
