@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Options;
 using Testcontainers.MariaDb;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Interfaces.MarketScanner;

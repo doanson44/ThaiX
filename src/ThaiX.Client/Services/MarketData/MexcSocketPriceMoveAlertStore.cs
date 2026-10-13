@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Microsoft.JSInterop;
+using System.Text.Json;
 using ThaiX.Client.Models.MarketData;
 
 namespace ThaiX.Client.Services.MarketData;

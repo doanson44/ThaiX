@@ -1,6 +1,6 @@
+using Net.Codecrete.QrCodeGenerator;
 using System.Security.Cryptography;
 using System.Text;
-using Net.Codecrete.QrCodeGenerator;
 
 namespace ThaiX.Client.Services.Tools.Transforms;
 

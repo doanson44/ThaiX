@@ -16,7 +16,7 @@ public sealed class RouteCatalogCoverageTests
     [Fact]
     public void RouteCatalog_CoversEveryClientPageDirective_AndHasNoStaleEntries()
     {
-        var clientPagesDir = Path.Combine(ResolveRepoRoot(), "src", "ThaiX.Client");
+        var clientPagesDir = Path.Combine(RepoRoot.Resolve(), "src", "ThaiX.Client");
         Assert.True(Directory.Exists(clientPagesDir), $"Missing client project at {clientPagesDir}");
 
         var pageTemplates = Directory.EnumerateFiles(clientPagesDir, "*.razor", SearchOption.AllDirectories)
@@ -129,23 +129,5 @@ public sealed class RouteCatalogCoverageTests
         }
 
         return false;
-    }
-
-    private static string ResolveRepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "ThaiX.sln")) &&
-                File.Exists(Path.Combine(dir.FullName, "src", "ThaiX.Client", "ThaiX.Client.csproj")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException(
-            "Could not locate repo root (ThaiX.sln + src/ThaiX.Client) from the test output directory.");
     }
 }

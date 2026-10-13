@@ -1,5 +1,5 @@
-using System.Collections.Concurrent;
 using Microsoft.Playwright;
+using System.Collections.Concurrent;
 using Xunit;
 
 namespace ThaiX.Client.VisualTests;

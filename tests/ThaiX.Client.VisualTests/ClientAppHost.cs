@@ -1,7 +1,7 @@
-using System.Net.Sockets;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
+using System.Net.Sockets;
 
 namespace ThaiX.Client.VisualTests;
 
@@ -38,7 +38,7 @@ internal sealed class ClientAppHost : IAsyncDisposable
             return;
         }
 
-        var repoRoot = ResolveRepoRoot();
+        var repoRoot = RepoRoot.Resolve();
         // Testcontainers 4.0: Dockerfile directory = build context; Dockerfile path is relative to it.
         // Docker Engine expects forward slashes even on Windows.
         _image = new ImageFromDockerfileBuilder()
@@ -76,25 +76,6 @@ internal sealed class ClientAppHost : IAsyncDisposable
             throw new InvalidOperationException(
                 $"Docker client container started but {BaseUrl} is not reachable.\n{logs.Stdout}\n{logs.Stderr}");
         }
-    }
-
-    private static string ResolveRepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
-        {
-            if ((File.Exists(Path.Combine(dir.FullName, "ThaiX.sln")) ||
-                 File.Exists(Path.Combine(dir.FullName, "ThaiX.slnx"))) &&
-                File.Exists(Path.Combine(dir.FullName, "src", "ThaiX.Client", "ThaiX.Client.csproj")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException(
-            "Could not locate repo root (ThaiX.sln/ThaiX.slnx + src/ThaiX.Client) from the test output directory.");
     }
 
     private static async Task<bool> IsReachableAsync(string baseUrl, CancellationToken cancellationToken = default)

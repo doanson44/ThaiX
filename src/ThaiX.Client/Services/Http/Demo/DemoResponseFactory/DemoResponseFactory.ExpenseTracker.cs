@@ -1,30 +1,4 @@
-using System.Net;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using ThaiX.Client.Models.Ai;
-using ThaiX.Client.Models.ApiClients;
-using ThaiX.Client.Models.AssetPositions;
-using ThaiX.Client.Models.Auth;
-using ThaiX.Client.Models.Blog;
-using ThaiX.Client.Models.Contacts;
-using ThaiX.Client.Models.CredentialAccounts;
 using ThaiX.Client.Models.ExpenseTracker;
-using ThaiX.Client.Models.ExternalData;
-using ThaiX.Client.Models.JsonBins;
-using ThaiX.Client.Models.Lottery;
-using ThaiX.Client.Models.MasterData;
-using ThaiX.Client.Models.MarketScanner;
-using ThaiX.Client.Models.Notes;
-using ThaiX.Client.Models.Notifications;
-using ThaiX.Client.Models.Portfolios;
-using ThaiX.Client.Models.PriceAlerts;
-using ThaiX.Client.Models.Resumes;
-using ThaiX.Client.Models.Slack;
-using ThaiX.Client.Models.Trading;
-using ThaiX.Client.Models.Users;
-using ThaiX.Client.Services.Api;
-using ThaiX.Client.Services.Notifications;
 
 
 namespace ThaiX.Client.Services.Http.Demo;
@@ -92,149 +66,149 @@ public sealed partial class DemoResponseFactory
             switch (resource)
             {
                 case "wallets":
-                {
-                    var body = await ReadJsonAsync<ExpenseWalletWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Wallets.Add(new ExpenseWalletDto
+                        var body = await ReadJsonAsync<ExpenseWalletWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            Name = body.Name,
-                            WalletType = body.WalletType,
-                            Currency = body.Currency,
-                            CurrentBalance = body.InitialBalance
-                        });
+                            seed.Wallets.Add(new ExpenseWalletDto
+                            {
+                                Id = id,
+                                Name = body.Name,
+                                WalletType = body.WalletType,
+                                Currency = body.Currency,
+                                CurrentBalance = body.InitialBalance
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "categories":
-                {
-                    var body = await ReadJsonAsync<ExpenseCategoryWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Categories.Add(new ExpenseCategoryDto
+                        var body = await ReadJsonAsync<ExpenseCategoryWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            Name = body.Name,
-                            CategoryType = body.CategoryType,
-                            ParentCategoryId = body.ParentCategoryId
-                        });
+                            seed.Categories.Add(new ExpenseCategoryDto
+                            {
+                                Id = id,
+                                Name = body.Name,
+                                CategoryType = body.CategoryType,
+                                ParentCategoryId = body.ParentCategoryId
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "transactions":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransactionWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Transactions.Add(new ExpenseTransactionDto
+                        var body = await ReadJsonAsync<ExpenseTransactionWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            WalletId = body.WalletId,
-                            CategoryId = body.CategoryId,
-                            TransactionType = body.TransactionType,
-                            Amount = body.Amount,
-                            OccurredOn = body.OccurredOn,
-                            Note = body.Note
-                        });
+                            seed.Transactions.Add(new ExpenseTransactionDto
+                            {
+                                Id = id,
+                                WalletId = body.WalletId,
+                                CategoryId = body.CategoryId,
+                                TransactionType = body.TransactionType,
+                                Amount = body.Amount,
+                                OccurredOn = body.OccurredOn,
+                                Note = body.Note
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "transfers":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransferWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Transfers.Add(new ExpenseTransferDto
+                        var body = await ReadJsonAsync<ExpenseTransferWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            SourceWalletId = body.SourceWalletId,
-                            TargetWalletId = body.TargetWalletId,
-                            Amount = body.Amount,
-                            TransferredOn = body.TransferredOn,
-                            Note = body.Note
-                        });
+                            seed.Transfers.Add(new ExpenseTransferDto
+                            {
+                                Id = id,
+                                SourceWalletId = body.SourceWalletId,
+                                TargetWalletId = body.TargetWalletId,
+                                Amount = body.Amount,
+                                TransferredOn = body.TransferredOn,
+                                Note = body.Note
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "budgets":
-                {
-                    var body = await ReadJsonAsync<ExpenseBudgetWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Budgets.Add(new ExpenseBudgetDto
+                        var body = await ReadJsonAsync<ExpenseBudgetWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            CategoryId = body.CategoryId,
-                            Period = body.Period,
-                            Amount = body.Amount,
-                            StartDate = body.StartDate,
-                            EndDate = body.EndDate
-                        });
+                            seed.Budgets.Add(new ExpenseBudgetDto
+                            {
+                                Id = id,
+                                CategoryId = body.CategoryId,
+                                Period = body.Period,
+                                Amount = body.Amount,
+                                StartDate = body.StartDate,
+                                EndDate = body.EndDate
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "saving-goals":
-                {
-                    var body = await ReadJsonAsync<ExpenseSavingGoalWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.SavingGoals.Add(new ExpenseSavingGoalDto
+                        var body = await ReadJsonAsync<ExpenseSavingGoalWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            WalletId = body.WalletId,
-                            Name = body.Name,
-                            TargetAmount = body.TargetAmount,
-                            CurrentAmount = body.CurrentAmount,
-                            TargetDate = body.TargetDate
-                        });
+                            seed.SavingGoals.Add(new ExpenseSavingGoalDto
+                            {
+                                Id = id,
+                                WalletId = body.WalletId,
+                                Name = body.Name,
+                                TargetAmount = body.TargetAmount,
+                                CurrentAmount = body.CurrentAmount,
+                                TargetDate = body.TargetDate
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "tags":
-                {
-                    var body = await ReadJsonAsync<ExpenseTagWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.Tags.Add(new ExpenseTagDto { Id = id, Name = body.Name, ColorHex = body.ColorHex });
+                        var body = await ReadJsonAsync<ExpenseTagWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
+                        {
+                            seed.Tags.Add(new ExpenseTagDto { Id = id, Name = body.Name, ColorHex = body.ColorHex });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "transaction-tags":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransactionTagWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.TransactionTags.Add(new ExpenseTransactionTagDto
+                        var body = await ReadJsonAsync<ExpenseTransactionTagWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            TransactionId = body.TransactionId,
-                            TagId = body.TagId
-                        });
+                            seed.TransactionTags.Add(new ExpenseTransactionTagDto
+                            {
+                                Id = id,
+                                TransactionId = body.TransactionId,
+                                TagId = body.TagId
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 case "recurring-transactions":
-                {
-                    var body = await ReadJsonAsync<ExpenseRecurringWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        seed.RecurringTransactions.Add(new ExpenseRecurringTransactionDto
+                        var body = await ReadJsonAsync<ExpenseRecurringWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            Id = id,
-                            WalletId = body.WalletId,
-                            CategoryId = body.CategoryId,
-                            TransactionType = body.TransactionType,
-                            Amount = body.Amount,
-                            Frequency = body.Frequency,
-                            NextRun = body.NextRun,
-                            EndDate = body.EndDate,
-                            IsActive = true,
-                            Note = body.Note
-                        });
+                            seed.RecurringTransactions.Add(new ExpenseRecurringTransactionDto
+                            {
+                                Id = id,
+                                WalletId = body.WalletId,
+                                CategoryId = body.CategoryId,
+                                TransactionType = body.TransactionType,
+                                Amount = body.Amount,
+                                Frequency = body.Frequency,
+                                NextRun = body.NextRun,
+                                EndDate = body.EndDate,
+                                IsActive = true,
+                                Note = body.Note
+                            });
+                        }
+                        return DemoEnvelope.SuccessData(id);
                     }
-                    return DemoEnvelope.SuccessData(id);
-                }
                 default:
                     return DemoEnvelope.SuccessData(id);
             }
@@ -248,183 +222,183 @@ public sealed partial class DemoResponseFactory
             switch (resource)
             {
                 case "wallets":
-                {
-                    var body = await ReadJsonAsync<ExpenseWalletWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Wallets.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseWalletWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.Wallets[idx] = new ExpenseWalletDto
+                            var idx = seed.Wallets.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                Name = body.Name,
-                                WalletType = body.WalletType,
-                                Currency = body.Currency,
-                                CurrentBalance = seed.Wallets[idx].CurrentBalance
-                            };
+                                seed.Wallets[idx] = new ExpenseWalletDto
+                                {
+                                    Id = entityId,
+                                    Name = body.Name,
+                                    WalletType = body.WalletType,
+                                    Currency = body.Currency,
+                                    CurrentBalance = seed.Wallets[idx].CurrentBalance
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "categories":
-                {
-                    var body = await ReadJsonAsync<ExpenseCategoryWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Categories.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseCategoryWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.Categories[idx] = new ExpenseCategoryDto
+                            var idx = seed.Categories.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                Name = body.Name,
-                                CategoryType = body.CategoryType,
-                                ParentCategoryId = body.ParentCategoryId
-                            };
+                                seed.Categories[idx] = new ExpenseCategoryDto
+                                {
+                                    Id = entityId,
+                                    Name = body.Name,
+                                    CategoryType = body.CategoryType,
+                                    ParentCategoryId = body.ParentCategoryId
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "transactions":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransactionWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Transactions.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseTransactionWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.Transactions[idx] = new ExpenseTransactionDto
+                            var idx = seed.Transactions.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                WalletId = body.WalletId,
-                                CategoryId = body.CategoryId,
-                                TransactionType = body.TransactionType,
-                                Amount = body.Amount,
-                                OccurredOn = body.OccurredOn,
-                                Note = body.Note
-                            };
+                                seed.Transactions[idx] = new ExpenseTransactionDto
+                                {
+                                    Id = entityId,
+                                    WalletId = body.WalletId,
+                                    CategoryId = body.CategoryId,
+                                    TransactionType = body.TransactionType,
+                                    Amount = body.Amount,
+                                    OccurredOn = body.OccurredOn,
+                                    Note = body.Note
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "transfers":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransferWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Transfers.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseTransferWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.Transfers[idx] = new ExpenseTransferDto
+                            var idx = seed.Transfers.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                SourceWalletId = body.SourceWalletId,
-                                TargetWalletId = body.TargetWalletId,
-                                Amount = body.Amount,
-                                TransferredOn = body.TransferredOn,
-                                Note = body.Note
-                            };
+                                seed.Transfers[idx] = new ExpenseTransferDto
+                                {
+                                    Id = entityId,
+                                    SourceWalletId = body.SourceWalletId,
+                                    TargetWalletId = body.TargetWalletId,
+                                    Amount = body.Amount,
+                                    TransferredOn = body.TransferredOn,
+                                    Note = body.Note
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "budgets":
-                {
-                    var body = await ReadJsonAsync<ExpenseBudgetWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Budgets.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseBudgetWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.Budgets[idx] = new ExpenseBudgetDto
+                            var idx = seed.Budgets.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                CategoryId = body.CategoryId,
-                                Period = body.Period,
-                                Amount = body.Amount,
-                                StartDate = body.StartDate,
-                                EndDate = body.EndDate
-                            };
+                                seed.Budgets[idx] = new ExpenseBudgetDto
+                                {
+                                    Id = entityId,
+                                    CategoryId = body.CategoryId,
+                                    Period = body.Period,
+                                    Amount = body.Amount,
+                                    StartDate = body.StartDate,
+                                    EndDate = body.EndDate
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "saving-goals":
-                {
-                    var body = await ReadJsonAsync<ExpenseSavingGoalWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.SavingGoals.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseSavingGoalWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.SavingGoals[idx] = new ExpenseSavingGoalDto
+                            var idx = seed.SavingGoals.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                WalletId = body.WalletId,
-                                Name = body.Name,
-                                TargetAmount = body.TargetAmount,
-                                CurrentAmount = body.CurrentAmount,
-                                TargetDate = body.TargetDate
-                            };
+                                seed.SavingGoals[idx] = new ExpenseSavingGoalDto
+                                {
+                                    Id = entityId,
+                                    WalletId = body.WalletId,
+                                    Name = body.Name,
+                                    TargetAmount = body.TargetAmount,
+                                    CurrentAmount = body.CurrentAmount,
+                                    TargetDate = body.TargetDate
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "tags":
-                {
-                    var body = await ReadJsonAsync<ExpenseTagWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.Tags.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
-                            seed.Tags[idx] = new ExpenseTagDto { Id = entityId, Name = body.Name, ColorHex = body.ColorHex };
+                        var body = await ReadJsonAsync<ExpenseTagWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
+                        {
+                            var idx = seed.Tags.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
+                                seed.Tags[idx] = new ExpenseTagDto { Id = entityId, Name = body.Name, ColorHex = body.ColorHex };
+                        }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "transaction-tags":
-                {
-                    var body = await ReadJsonAsync<ExpenseTransactionTagWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.TransactionTags.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseTransactionTagWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.TransactionTags[idx] = new ExpenseTransactionTagDto
+                            var idx = seed.TransactionTags.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                TransactionId = body.TransactionId,
-                                TagId = body.TagId
-                            };
+                                seed.TransactionTags[idx] = new ExpenseTransactionTagDto
+                                {
+                                    Id = entityId,
+                                    TransactionId = body.TransactionId,
+                                    TagId = body.TagId
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 case "recurring-transactions":
-                {
-                    var body = await ReadJsonAsync<ExpenseRecurringWriteRequest>(request, cancellationToken) ?? new();
-                    lock (seed.Sync)
                     {
-                        var idx = seed.RecurringTransactions.FindIndex(x => x.Id == entityId);
-                        if (idx >= 0)
+                        var body = await ReadJsonAsync<ExpenseRecurringWriteRequest>(request, cancellationToken) ?? new();
+                        lock (seed.Sync)
                         {
-                            seed.RecurringTransactions[idx] = new ExpenseRecurringTransactionDto
+                            var idx = seed.RecurringTransactions.FindIndex(x => x.Id == entityId);
+                            if (idx >= 0)
                             {
-                                Id = entityId,
-                                WalletId = body.WalletId,
-                                CategoryId = body.CategoryId,
-                                TransactionType = body.TransactionType,
-                                Amount = body.Amount,
-                                Frequency = body.Frequency,
-                                NextRun = body.NextRun,
-                                EndDate = body.EndDate,
-                                IsActive = body.IsActive,
-                                Note = body.Note
-                            };
+                                seed.RecurringTransactions[idx] = new ExpenseRecurringTransactionDto
+                                {
+                                    Id = entityId,
+                                    WalletId = body.WalletId,
+                                    CategoryId = body.CategoryId,
+                                    TransactionType = body.TransactionType,
+                                    Amount = body.Amount,
+                                    Frequency = body.Frequency,
+                                    NextRun = body.NextRun,
+                                    EndDate = body.EndDate,
+                                    IsActive = body.IsActive,
+                                    Note = body.Note
+                                };
+                            }
                         }
+                        return DemoEnvelope.Success();
                     }
-                    return DemoEnvelope.Success();
-                }
                 default:
                     return DemoEnvelope.Success();
             }

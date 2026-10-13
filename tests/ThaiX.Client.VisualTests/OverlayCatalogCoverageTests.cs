@@ -15,7 +15,7 @@ public sealed class OverlayCatalogCoverageTests
     [Fact]
     public void OverlayCatalog_CoversEveryOpenAsyncDialogComponent()
     {
-        var clientRoot = Path.Combine(ResolveRepoRoot(), "src", "ThaiX.Client");
+        var clientRoot = Path.Combine(RepoRoot.Resolve(), "src", "ThaiX.Client");
         Assert.True(Directory.Exists(clientRoot), $"Missing client at {clientRoot}");
 
         var openedComponents = Directory.EnumerateFiles(clientRoot, "*.razor", SearchOption.AllDirectories)
@@ -43,23 +43,5 @@ public sealed class OverlayCatalogCoverageTests
                 ? $"{Environment.NewLine}Stale catalog form dialogs:{Environment.NewLine}  - " +
                   string.Join($"{Environment.NewLine}  - ", stale)
                 : string.Empty));
-    }
-
-    private static string ResolveRepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "ThaiX.sln")) &&
-                File.Exists(Path.Combine(dir.FullName, "src", "ThaiX.Client", "ThaiX.Client.csproj")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException(
-            "Could not locate repo root (ThaiX.sln + src/ThaiX.Client) from the test output directory.");
     }
 }

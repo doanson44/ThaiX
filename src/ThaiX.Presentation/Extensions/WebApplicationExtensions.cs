@@ -1,9 +1,9 @@
 using Hangfire;
 using Hangfire.Storage;
-using System.Linq.Expressions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Serilog;
+using System.Linq.Expressions;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.BackgroundJobs;
 using ThaiX.Infrastructure.Configuration;

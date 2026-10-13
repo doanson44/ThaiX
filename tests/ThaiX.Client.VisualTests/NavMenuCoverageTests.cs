@@ -16,7 +16,7 @@ public sealed class NavMenuCoverageTests
     [Fact]
     public void NavMenu_IncludesPublicBlogListPath()
     {
-        var navMenuPath = Path.Combine(ResolveRepoRoot(), "src", "ThaiX.Client", "Layout", "NavMenu.razor");
+        var navMenuPath = Path.Combine(RepoRoot.Resolve(), "src", "ThaiX.Client", "Layout", "NavMenu.razor");
         Assert.True(File.Exists(navMenuPath), $"Missing NavMenu at {navMenuPath}");
 
         var source = File.ReadAllText(navMenuPath);
@@ -25,23 +25,5 @@ public sealed class NavMenuCoverageTests
         Assert.True(
             matches.Count >= 1,
             "NavMenu.razor must include at least one Path=\"blog\" entry for the public Blog list.");
-    }
-
-    private static string ResolveRepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "ThaiX.sln")) &&
-                File.Exists(Path.Combine(dir.FullName, "src", "ThaiX.Client", "ThaiX.Client.csproj")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException(
-            "Could not locate repo root (ThaiX.sln + src/ThaiX.Client) from the test output directory.");
     }
 }
