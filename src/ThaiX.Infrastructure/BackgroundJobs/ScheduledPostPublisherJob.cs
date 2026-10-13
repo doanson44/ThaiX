@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Interfaces;
@@ -11,15 +10,18 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Structurally identical to PriceAlertCheckerJob's check-then-act shape, just without the
 /// market-data fetch — no notification dispatch for MVP (subscriber notifications are deferred).
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class ScheduledPostPublisherJob(
     IApplicationDbContext context,
     IHangfireJobState hangfireJobState,
     ILogger<ScheduledPostPublisherJob> logger) : HangfireJobBase(hangfireJobState, logger)
 {
+    private readonly ILogger<ScheduledPostPublisherJob> _logger = logger;
+
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.ScheduledPostPublisherJob)) return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.ScheduledPostPublisherJob, cancellationToken);
 
         var now = DateTime.UtcNow;
 
@@ -29,7 +31,7 @@ public sealed class ScheduledPostPublisherJob(
 
         if (duePosts.Count == 0)
         {
-            logger.LogDebug("ScheduledPostPublisherJob: no due posts, skipping");
+            _logger.LogDebug("ScheduledPostPublisherJob: no due posts, skipping");
             return;
         }
 
@@ -40,6 +42,6 @@ public sealed class ScheduledPostPublisherJob(
 
         await context.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("ScheduledPostPublisherJob: published {Count} post(s)", duePosts.Count);
+        _logger.LogInformation("ScheduledPostPublisherJob: published {Count} post(s)", duePosts.Count);
     }
 }

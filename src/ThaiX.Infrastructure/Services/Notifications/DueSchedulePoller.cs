@@ -3,10 +3,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThaiX.Application.Common.Configuration;
 using ThaiX.Application.Features.Notifications.Scheduling.Commands.ProcessDueSchedules;
+using ThaiX.Infrastructure.BackgroundJobs;
 
 namespace ThaiX.Infrastructure.Services.Notifications;
 
-public sealed class DueSchedulePoller
+public sealed class DueSchedulePoller : HangfireJobBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<DueSchedulePoller> _logger;
@@ -15,7 +16,8 @@ public sealed class DueSchedulePoller
     public DueSchedulePoller(
         IMediator mediator,
         ILogger<DueSchedulePoller> logger,
-        IOptions<NotificationSchedulingSettings> settings)
+        IOptions<NotificationSchedulingSettings> settings,
+        IHangfireJobState hangfireJobState) : base(hangfireJobState, logger)
     {
         _mediator = mediator;
         _logger = logger;
@@ -23,9 +25,12 @@ public sealed class DueSchedulePoller
     }
 
     [Hangfire.AutomaticRetry(Attempts = 0)]
-    [Hangfire.DisableConcurrentExecution(timeoutInSeconds: 300)]
     public async Task ExecuteAsync(CancellationToken ct)
     {
+        if (!CanExecute(HangfireJobIds.PollDueNotificationSchedules)) return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.PollDueNotificationSchedules, ct);
+
         try
         {
             var processed = await _mediator.Send(new ProcessDueSchedulesCommand(), ct);

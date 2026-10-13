@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Runs every Tuesday, Thursday, and Saturday at 8 PM Vietnam time (after the draw).
 /// On first run (empty DB), fetches all results starting from 01-08-2017.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class Power655SyncJob : HangfireJobBase
 {
     private static readonly DateOnly FirstDrawDate = new(2017, 8, 1);
@@ -58,6 +56,8 @@ public sealed class Power655SyncJob : HangfireJobBase
         {
             return;
         }
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.Power655SyncJob, cancellationToken);
 
         _logger.LogInformation("Power655SyncJob started");
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ThaiX.Application.Common.Helpers;
 
 namespace ThaiX.Infrastructure.BackgroundJobs;
 
@@ -26,4 +27,11 @@ public abstract class HangfireJobBase
 
         return false;
     }
+
+    /// <summary>
+    /// Serializes executions of the same job inside this process. Replaces Hangfire's
+    /// DisableConcurrentExecution filter, whose distributed lock does not release reliably with MySqlStorage.
+    /// </summary>
+    protected static Task<IDisposable> AcquireJobLockAsync(string lockKey, CancellationToken cancellationToken)
+        => AsyncLock.GetLockByKey(lockKey).LockAsync(cancellationToken);
 }
