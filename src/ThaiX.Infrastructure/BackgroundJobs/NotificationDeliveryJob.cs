@@ -21,11 +21,11 @@ public sealed class NotificationDeliveryJob
         INotificationDeliveryScheduler scheduler,
         ILogger<NotificationDeliveryJob> logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _renderers = renderers ?? throw new ArgumentNullException(nameof(renderers));
-        _providers = providers ?? throw new ArgumentNullException(nameof(providers));
-        _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dbContext = dbContext;
+        _renderers = renderers;
+        _providers = providers;
+        _scheduler = scheduler;
+        _logger = logger;
     }
 
     public async Task DispatchNotificationAsync(Guid notificationId, CancellationToken cancellationToken = default)

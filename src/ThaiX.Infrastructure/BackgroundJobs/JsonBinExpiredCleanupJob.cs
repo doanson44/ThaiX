@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Interfaces;
@@ -9,7 +8,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Hard-deletes JsonBins whose <c>ExpiredAtUtc</c> has passed (including soft-deleted rows).
 /// Recurring Hangfire job.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class JsonBinExpiredCleanupJob : HangfireJobBase
 {
     /// <summary>Max rows hard-deleted per loop iteration (large Content blobs).</summary>
@@ -32,6 +30,8 @@ public sealed class JsonBinExpiredCleanupJob : HangfireJobBase
     {
         if (!CanExecute(HangfireJobIds.JsonBinExpiredCleanupJob))
             return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.JsonBinExpiredCleanupJob, cancellationToken);
 
         var nowUtc = DateTime.UtcNow;
         var totalDeleted = 0;

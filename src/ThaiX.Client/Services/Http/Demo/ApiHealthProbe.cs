@@ -21,12 +21,20 @@ internal static class ApiHealthProbe
             };
 
             using var response = await client.GetAsync("health", cancellationToken);
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                return (true, null);
+                return (false, $"Health returned {(int)response.StatusCode}.");
             }
 
-            return (false, $"Health returned {(int)response.StatusCode}.");
+            // A static host (SPA fallback / DevServer) answers every path with the app shell,
+            // so an HTML 200 must not be mistaken for a live API.
+            var mediaType = response.Content.Headers.ContentType?.MediaType;
+            if (string.Equals(mediaType, "text/html", StringComparison.OrdinalIgnoreCase))
+            {
+                return (false, "Health endpoint returned HTML instead of an API response.");
+            }
+
+            return (true, null);
         }
         catch (Exception ex)
         {

@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Fetches all pages (following "next" until null) and performs an upsert
 /// using batches of 200 items, each with its own DbContext scope.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
 {
     private const int BatchSize = 200;
@@ -49,6 +47,8 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.ChainBrokerUnlocksWeeklySyncJob)) return;
+
+        using var _ = await AcquireJobLockAsync("sync:chainbroker", cancellationToken);
 
         _logger.LogInformation("ChainBrokerUnlocksSyncJob started");
         var started = DateTime.UtcNow;
@@ -109,10 +109,6 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Unlocks
-    // -------------------------------------------------------------------------
-
     private async Task<int> SyncUnlocksAsync(CancellationToken ct)
     {
         _logger.LogInformation("ChainBroker: fetching all unlocks pages from API");
@@ -165,6 +161,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             .ToArray();
 
         int upserted = 0;
+        var skipped = 0;
         foreach (var batch in validItems.Chunk(BatchSize))
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
@@ -208,9 +205,28 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
                     db.ChainBrokerUnlocks.Add(ChainBrokerUnlock.Create(snapshot));
             }
 
-            await db.SaveChangesAsync(ct);
-            upserted += batch.Length;
+            try
+            {
+                await db.SaveChangesAsync(ct);
+                upserted += batch.Length;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // An overlapping sync run changed the same row; the next sync reconciles this batch,
+                // so skip it instead of failing the entire sync.
+                skipped += batch.Length;
+                _logger.LogWarning(
+                    ex,
+                    "ChainBroker unlocks: skipped batch of {Count} records after a concurrency conflict",
+                    batch.Length);
+            }
+
             _logger.LogDebug("ChainBroker unlocks: upserted batch ({Done}/{Total})", upserted, validItems.Length);
+        }
+
+        if (skipped > 0)
+        {
+            _logger.LogWarning("ChainBroker unlocks: {Skipped} records skipped due to concurrency conflicts", skipped);
         }
 
         // --- Remove stale unlocks ---
@@ -248,10 +264,6 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         return validItems.Length;
     }
 
-    // =========================================================================
-    // Helpers
-    // =========================================================================
-
     private static DateOnly? ParseUnlockDate(string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw)) return null;
@@ -264,10 +276,6 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             return unlockFmt;
         return null;
     }
-
-    // =========================================================================
-    // Internal deserialization models — scoped to this job only
-    // =========================================================================
 
     private sealed record InternalPagedList<T>
     {

@@ -17,7 +17,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Retrieves MEXC spot tickers with composite scores, selects top USDT-pair candidates,
 /// then computes trade suggestions per timeframe and sends a notification.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
 {
     private const int TopCount = 5;
@@ -54,6 +53,10 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
+        if (!CanExecute(HangfireJobIds.MexcSpotWeeklySuggestionJob)) return;
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.MexcSpotWeeklySuggestionJob, cancellationToken);
+
         _logger.LogInformation("MexcSpotWeeklySuggestionJob started");
         var started = DateTime.UtcNow;
         NotificationMessage? notificationMessage = null;

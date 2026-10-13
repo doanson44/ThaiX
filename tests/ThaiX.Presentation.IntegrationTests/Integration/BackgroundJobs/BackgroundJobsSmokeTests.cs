@@ -33,7 +33,6 @@ public sealed class BackgroundJobsSmokeTests : IntegrationTestBase
             typeof(ChainBrokerProjectsSyncJob),
             typeof(ChainBrokerUnlocksSyncJob),
             typeof(ContactImportJobProcessor),
-            typeof(ContactImportJobScheduler),
             typeof(IWealthClubTop10SyncJob),
             typeof(MexcMarketScannerJob),
             typeof(MexcSpotWeeklySuggestionJob),

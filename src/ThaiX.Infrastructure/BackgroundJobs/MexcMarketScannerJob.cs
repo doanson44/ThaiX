@@ -1,4 +1,3 @@
-using Hangfire;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,7 +18,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// stores rolling in-memory data, detects anomalies via configured rules, and dispatches
 /// Slack notifications. This is a system-level anomaly detection engine.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class MexcMarketScannerJob(
     IMediator mediator,
     IMarketSnapshotCache snapshotCache,
@@ -32,18 +30,21 @@ public sealed class MexcMarketScannerJob(
     ILogger<MexcMarketScannerJob> logger) : HangfireJobBase(hangfireJobState, logger)
 {
     private readonly MarketScannerOptions _options = options.Value;
+    private readonly ILogger<MexcMarketScannerJob> _logger = logger;
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
     {
         if (!CanExecute(HangfireJobIds.MexcMarketScannerJob)) return;
 
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.MexcMarketScannerJob, cancellationToken);
+
         if (!_options.Enabled)
         {
-            logger.LogDebug("MexcMarketScannerJob is disabled via configuration");
+            _logger.LogDebug("MexcMarketScannerJob is disabled via configuration");
             return;
         }
 
-        logger.LogInformation("MexcMarketScannerJob started");
+        _logger.LogInformation("MexcMarketScannerJob started");
 
         // 1. Load active rules via MediatR (benefits from query cache)
         var rules = await mediator.Send(
@@ -52,7 +53,7 @@ public sealed class MexcMarketScannerJob(
 
         if (rules.Count == 0)
         {
-            logger.LogDebug("MexcMarketScannerJob: no active rules configured, skipping");
+            _logger.LogDebug("MexcMarketScannerJob: no active rules configured, skipping");
             return;
         }
 
@@ -64,13 +65,13 @@ public sealed class MexcMarketScannerJob(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "MexcMarketScannerJob failed to fetch contract tickers");
+            _logger.LogError(ex, "MexcMarketScannerJob failed to fetch contract tickers");
             return;
         }
 
         if (tickers.Count == 0)
         {
-            logger.LogWarning("MexcMarketScannerJob: empty or failed ticker response");
+            _logger.LogWarning("MexcMarketScannerJob: empty or failed ticker response");
             return;
         }
 
@@ -124,12 +125,12 @@ public sealed class MexcMarketScannerJob(
             }
         }
 
-        logger.LogInformation("MexcMarketScannerJob completed");
+        _logger.LogInformation("MexcMarketScannerJob completed");
     }
 
     private async Task DispatchSignalAsync(MarketSignalResult signal, CancellationToken cancellationToken)
     {
-        logger.LogInformation(
+        _logger.LogInformation(
             "MarketScanner signal detected: {Symbol} {Type} Value={Value}",
             signal.Symbol, signal.Type, signal.Value);
 

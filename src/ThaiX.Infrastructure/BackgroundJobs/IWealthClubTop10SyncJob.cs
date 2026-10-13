@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Parses each HTML output to extract postedAt, effectiveDate, added/removed tickers, and image GUIDs.
 /// Insert-only: existing records are never modified.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class IWealthClubTop10SyncJob : HangfireJobBase
 {
     // Matches: +) Thêm mới: **[CTG](...)**  or  +) Thêm mới: **[CTG](...)**, **[NLG](...)**
@@ -76,6 +74,8 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
     {
         if (!CanExecute(HangfireJobIds.IWealthClubTop10DailySyncJob)) return;
 
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.IWealthClubTop10DailySyncJob, cancellationToken);
+
         _logger.LogInformation("IWealthClubTop10SyncJob started");
         var started = DateTime.UtcNow;
 
@@ -130,10 +130,6 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
             throw;
         }
     }
-
-    // -------------------------------------------------------------------------
-    // Core sync logic
-    // -------------------------------------------------------------------------
 
     private async Task<SyncResult> SyncAsync(CancellationToken ct)
     {
@@ -272,10 +268,6 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
 
     private sealed record SyncResult(int InsertedCount, IReadOnlyCollection<string> AddedTickers, IReadOnlyCollection<string> RemovedTickers);
 
-    // -------------------------------------------------------------------------
-    // HTML parser
-    // -------------------------------------------------------------------------
-
     private ParsedPortfolio? TryParse(long contentId, string html)
     {
         // PostedAt: first datetime attribute in the HTML
@@ -333,10 +325,6 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
             .Distinct()
             .ToList();
     }
-
-    // -------------------------------------------------------------------------
-    // Internal DTOs
-    // -------------------------------------------------------------------------
 
     private sealed record StreamResponse
     {

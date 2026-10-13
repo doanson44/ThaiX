@@ -15,6 +15,7 @@
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.Core" />
     <PackageReference Include="Hangfire.MySqlStorage" />
+    <PackageReference Include="MySqlConnector" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="MySql.EntityFrameworkCore" />
     <PackageReference Include="Newtonsoft.Json" />
