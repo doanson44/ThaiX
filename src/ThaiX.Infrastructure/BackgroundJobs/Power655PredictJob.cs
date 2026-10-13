@@ -1,4 +1,3 @@
-using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,6 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 /// Uses N-tuple frequency analysis (same method as GetPower655AnalysisQueryHandler)
 /// to feed AI with top candidate N-tuples, then AI selects and fills remaining numbers.
 /// </summary>
-[DisableConcurrentExecution(timeoutInSeconds: 0)]
 public sealed class Power655PredictJob : HangfireJobBase
 {
     private static readonly PredictionType[] PredictionTypes =
@@ -56,6 +54,8 @@ public sealed class Power655PredictJob : HangfireJobBase
         {
             return;
         }
+
+        using var _ = await AcquireJobLockAsync(HangfireJobIds.Power655PredictJob, cancellationToken);
 
         var started = DateTime.UtcNow;
         var targetDrawDate = GetNextDrawDate(_dateTimeProvider.LocalNow);

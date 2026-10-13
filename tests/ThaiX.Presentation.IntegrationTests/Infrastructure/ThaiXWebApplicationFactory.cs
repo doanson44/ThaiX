@@ -105,27 +105,6 @@ public sealed class ThaiXWebApplicationFactory : WebApplicationFactory<Program>,
             services.RemoveAll<IHangfireJobState>();
             services.AddSingleton<IHangfireJobState, AlwaysEnabledHangfireJobState>();
 
-            // Ensure background jobs and related services are resolvable in testing.
-            services.AddScoped<OutboxProcessorJob>();
-            services.AddScoped<NotificationDeliveryJob>();
-            services.AddScoped<ContactImportJobProcessor>();
-            services.AddScoped<ContactImportJobScheduler>();
-            services.AddScoped<IContactImportJobScheduler, ContactImportJobScheduler>();
-            services.AddScoped<ChainBrokerFundsSyncJob>();
-            services.AddScoped<ChainBrokerProjectsSyncJob>();
-            services.AddScoped<ChainBrokerUnlocksSyncJob>();
-            services.AddScoped<IWealthClubTop10SyncJob>();
-            services.AddScoped<TopStocksWeeklySuggestionJob>();
-            services.AddScoped<MexcSpotWeeklySuggestionJob>();
-            services.AddScoped<MexcMarketScannerJob>();
-            services.AddScoped<PriceAlertCheckerJob>();
-            services.AddScoped<BotTradeSuggestionAsyncJob>();
-            services.AddScoped<PersistWeeklySuggestionReportJob>();
-            services.AddScoped<ScheduledPostPublisherJob>();
-            services.AddScoped<TwentyFourHMoneyTransactionSyncJob>();
-            services.AddScoped<Power655SyncJob>();
-            services.AddScoped<Power655PredictJob>();
-
             services.Configure<MarketScannerOptions>(
                 context.Configuration.GetSection(MarketScannerOptions.SectionName));
             services.AddSingleton<IMarketSnapshotCache, FakeMarketSnapshotCache>();

@@ -7,21 +7,51 @@
 @using ThaiX.Client.Components
 @inject IExternalDataService ExternalDataService
 @inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
 @inherits ThaiXPageBase
 
 <style>
+    .bank-rates-page .bank-rates-rate {
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+    }
+
+    .bank-rates-page .bank-rates-subtitle {
+        max-width: 48rem;
+    }
+
     .responsive-grid .rz-cell-data {
         white-space: normal !important;
         word-wrap: break-word;
     }
 </style>
 
-<RadzenCard>
-    <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-2">
-        @L[RK.BankInterestRates.Title]
-    </RadzenText>
+<RadzenCard Class="bank-rates-page">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Orientation="Orientation.Horizontal"
+                     AlignItems="AlignItems.Center"
+                     JustifyContent="JustifyContent.SpaceBetween"
+                     Gap="1rem"
+                     Class="flex-wrap">
+            <RadzenStack Gap="0.25rem" Class="min-w-0">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : TextStyle.H3)" TagName="TagName.H1" Class="mb-0">
+                    @L[RK.BankInterestRates.Title]
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0 bank-rates-subtitle">
+                    @L[RK.BankInterestRates.Subtitle]
+                </RadzenText>
+            </RadzenStack>
+            <RadzenButton Icon="calculate"
+                          Text="@L[RK.BankInterestRates.CompoundInterestCalculator]"
+                          ButtonStyle="ButtonStyle.Primary"
+                          Size="ButtonSize.Medium"
+                          Click="OpenCalculatorAsync"
+                          Class="flex-shrink-0" />
+        </RadzenStack>
 
-    <Big4FilterWidget Banks="@_allBanks" OnFilterChanged="OnBanksFiltered" />
+        <RadzenCard Variant="Variant.Outlined" Class="p-3">
+            <Big4FilterWidget Banks="@_allBanks" OnFilterChanged="OnBanksFiltered" />
+        </RadzenCard>
 
     <RadzenStack Gap="1rem" Class="mt-3">
         @if (Viewport.IsMobile)
@@ -124,11 +154,27 @@
                             <RadzenRow Class="mt-2">
                                 <RadzenColumn Size="6">
                                     <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month6]</RadzenText>
-                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month6)</strong></RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="bank-rates-rate">@FormatRate(bank.Month6)</RadzenText>
                                 </RadzenColumn>
                                 <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month9]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="bank-rates-rate">@FormatRate(bank.Month9)</RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow Class="mt-2">
+                                <RadzenColumn Size="6">
                                     <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month12]</RadzenText>
-                                    <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatRate(bank.Month12)</strong></RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="bank-rates-rate">@FormatRate(bank.Month12)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month18]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="bank-rates-rate">@FormatRate(bank.Month18)</RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                            <RadzenRow Class="mt-2">
+                                <RadzenColumn Size="6">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="mb-0 text-muted">@L[RK.BankInterestRates.Month24]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2" Class="bank-rates-rate">@FormatRate(bank.Month24)</RadzenText>
                                 </RadzenColumn>
                             </RadzenRow>
                         </RadzenCard>
@@ -138,7 +184,7 @@
         }
         else
         {
-            <div style="width: 100%; overflow-x: auto;">
+            <div class="w-100 overflow-auto">
                 <RadzenDataGrid @ref="_grid"
                                 Class="@(Viewport.IsTablet ? "responsive-grid" : "")"
                                 IsLoading="@_isLoading"
@@ -184,42 +230,50 @@
                                 <span class="text-nowrap">@(string.IsNullOrWhiteSpace(bank.Symbol) ? "-" : bank.Symbol)</span>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month1" Title="@L[RK.BankInterestRates.Month1]">
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month1" Title="@L[RK.BankInterestRates.Month1]" TextAlign="TextAlign.End">
                             <Template Context="data">
                                 @FormatRate(data.Month1)
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month3" Title="@L[RK.BankInterestRates.Month3]">
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month3" Title="@L[RK.BankInterestRates.Month3]" TextAlign="TextAlign.End">
                             <Template Context="data">
                                 @FormatRate(data.Month3)
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month6" Title="@L[RK.BankInterestRates.Month6]">
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month6" Title="@L[RK.BankInterestRates.Month6]" TextAlign="TextAlign.End">
                             <Template Context="data">
-                                @FormatRate(data.Month6)
+                                <span class="bank-rates-rate">@FormatRate(data.Month6)</span>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month12" Title="@L[RK.BankInterestRates.Month12]">
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month9" Title="@L[RK.BankInterestRates.Month9]" TextAlign="TextAlign.End" Visible="@(!Viewport.IsTablet)">
+                            <Template Context="data">
+                                <span class="bank-rates-rate">@FormatRate(data.Month9)</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month12" Title="@L[RK.BankInterestRates.Month12]" TextAlign="TextAlign.End">
                             <Template Context="data">
                                 @FormatRate(data.Month12)
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month24" Title="@L[RK.BankInterestRates.Month24]" Visible="@(!Viewport.IsTablet)">
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month18" Title="@L[RK.BankInterestRates.Month18]" TextAlign="TextAlign.End" Visible="@(!Viewport.IsTablet)">
                             <Template Context="data">
-                                @FormatRate(data.Month24)
+                                <span class="bank-rates-rate">@FormatRate(data.Month18)</span>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="BankInterestRateGridItemDto" Property="Month24" Title="@L[RK.BankInterestRates.Month24]" TextAlign="TextAlign.End" Visible="@(!Viewport.IsTablet)">
+                            <Template Context="data">
+                                <span class="bank-rates-rate">@FormatRate(data.Month24)</span>
                             </Template>
                         </RadzenDataGridColumn>
                     </Columns>
                 </RadzenDataGrid>
             </div>
         }
+        </RadzenStack>
     </RadzenStack>
 </RadzenCard>
 
-<RadzenStack Gap="1rem" Class="mt-4">
-    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.BankInterestRates.Toolkit]</RadzenText>
-    <CompoundInterestCalculator Bank="@CalculatorBank" ShowTitle="false" />
-</RadzenStack>
+
 
 @code {
     private const int MobilePageSize = 6;
@@ -252,7 +306,9 @@
         new("month1", L[RK.BankInterestRates.Month1], x => x.Month1),
         new("month3", L[RK.BankInterestRates.Month3], x => x.Month3),
         new("month6", L[RK.BankInterestRates.Month6], x => x.Month6),
+        new("month9", L[RK.BankInterestRates.Month9], x => x.Month9),
         new("month12", L[RK.BankInterestRates.Month12], x => x.Month12),
+        new("month18", L[RK.BankInterestRates.Month18], x => x.Month18),
         new("month24", L[RK.BankInterestRates.Month24], x => x.Month24),
     ];
 
@@ -288,6 +344,30 @@
 
     private IEnumerable<BankInterestRateGridItemDto> VisibleBanks =>
         SortedBanks.Skip(_pageIndex * MobilePageSize).Take(MobilePageSize);
+
+    private async Task OpenCalculatorAsync()
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            [nameof(CompoundInterestCalculator.ShowTitle)] = false
+        };
+
+        if (CalculatorBank is { } bank)
+        {
+            parameters[nameof(CompoundInterestCalculator.Bank)] = bank;
+        }
+
+        await DialogService.OpenAsync<CompoundInterestCalculator>(
+            L[RK.BankInterestRates.CompoundInterestCalculator],
+            parameters,
+            new DialogOptions
+            {
+                Width = "min(760px, 96vw)",
+                Resizable = false,
+                Draggable = false,
+                CloseDialogOnOverlayClick = true
+            });
+    }
 
     private void OnSortKeyChanged(string? key)
     {

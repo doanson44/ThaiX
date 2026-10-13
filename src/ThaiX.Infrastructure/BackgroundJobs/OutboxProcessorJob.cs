@@ -39,9 +39,9 @@ public sealed class OutboxProcessorJob : HangfireJobBase
         IHangfireJobState hangfireJobState,
         ILogger<OutboxProcessorJob> logger) : base(hangfireJobState, logger)
     {
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _publisher = publisher ?? throw new ArgumentNullException(nameof(publisher));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dbContext = dbContext;
+        _publisher = publisher;
+        _logger = logger;
     }
 
     /// <summary>
@@ -157,22 +157,19 @@ public sealed class OutboxProcessorJob : HangfireJobBase
             // Delete messages older than 30 days that have been processed
             var cutoffDate = DateTime.UtcNow.AddDays(-30);
 
-            var oldMessages = await _dbContext.OutboxMessages
+            var deletedCount = await _dbContext.OutboxMessages
                 .Where(m => m.ProcessedOnUtc != null && m.ProcessedOnUtc < cutoffDate)
-                .ToListAsync(cancellationToken);
+                .ExecuteDeleteAsync(cancellationToken);
 
-            if (oldMessages.Count == 0)
+            if (deletedCount == 0)
             {
                 _logger.LogDebug("No old outbox messages to clean up");
                 return;
             }
 
-            _dbContext.OutboxMessages.RemoveRange(oldMessages);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
             _logger.LogInformation(
                 "OutboxProcessor cleanup completed. Deleted {DeletedCount} old messages",
-                oldMessages.Count);
+                deletedCount);
         }
         catch (Exception ex)
         {
