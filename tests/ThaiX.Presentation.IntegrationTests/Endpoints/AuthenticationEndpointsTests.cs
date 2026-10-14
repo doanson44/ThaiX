@@ -1,5 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using ThaiX.Infrastructure.Configuration;
+using ThaiX.Infrastructure.Identity;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;
@@ -170,6 +175,34 @@ public sealed class AuthenticationEndpointsTests : IntegrationTestBase
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SeededAdmin_FromSeedConfiguration_ShouldAuthenticate()
+    {
+        // Arrange
+        using var scope = Factory.Services.CreateScope();
+        var settings = scope.ServiceProvider.GetRequiredService<IOptions<SeedSettings>>().Value;
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        var admin = await userManager.FindByEmailAsync(settings.AdminEmail);
+        admin.Should().NotBeNull();
+        admin!.UserName.Should().Be(settings.AdminUsername);
+        (await userManager.IsInRoleAsync(admin, "Admin")).Should().BeTrue();
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/login", new
+        {
+            Username = settings.AdminUsername,
+            Password = settings.AdminPassword,
+            RememberMe = false
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
+        envelope.Data!.Token.Should().NotBeNullOrEmpty();
     }
 
     #endregion
