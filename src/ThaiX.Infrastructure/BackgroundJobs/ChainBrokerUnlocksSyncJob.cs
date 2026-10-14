@@ -55,9 +55,13 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
 
         try
         {
-            var count = await SyncUnlocksAsync(cancellationToken);
+            var (count, isComplete) = await SyncUnlocksAsync(cancellationToken);
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
-            _logger.LogInformation("ChainBrokerUnlocksSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+            _logger.LogInformation(
+                "ChainBrokerUnlocksSyncJob completed in {Elapsed}s: {Count} records. Complete={Complete}",
+                elapsed,
+                count,
+                isComplete);
 
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
@@ -70,7 +74,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
                     Severity = NotificationSeverity.Info,
                     Metrics =
                     [
-                        new() { Label = "Status", Value = "Success" },
+                        new() { Label = "Status", Value = isComplete ? "Success" : "Partial" },
                         new() { Label = "Duration", Value = $"{elapsed}s" },
                         new() { Label = "Records", Value = count.ToString("N0") }
                     ]
@@ -109,10 +113,11 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         }
     }
 
-    private async Task<int> SyncUnlocksAsync(CancellationToken ct)
+    private async Task<(int Count, bool IsComplete)> SyncUnlocksAsync(CancellationToken ct)
     {
         _logger.LogInformation("ChainBroker: fetching all unlocks pages from API");
         var apiItems = new List<InternalUnlockItem>();
+        var isComplete = true;
         int page = 1;
         string? nextUrl;
         do
@@ -131,14 +136,23 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ChainBroker unlocks: request failed on page {Page}. Url={Url} — aborting fetch", page, requestUrl);
+                _logger.LogError(
+                    ex,
+                    "ChainBroker unlocks: request failed on page {Page}. Url={Url}; syncing fetched records only",
+                    page,
+                    requestUrl);
+                isComplete = false;
                 break;
             }
 
             var list = response?.Data?.List;
             if (list?.Results is null or { Count: 0 })
             {
-                _logger.LogWarning("ChainBroker unlocks: empty or null results on page {Page}. Url={Url}", page, requestUrl);
+                _logger.LogWarning(
+                    "ChainBroker unlocks: empty or null results on page {Page}. Url={Url}; treating fetch as incomplete",
+                    page,
+                    requestUrl);
+                isComplete = false;
                 break;
             }
             nextUrl = list.Next;
@@ -150,7 +164,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         if (apiItems.Count == 0)
         {
             _logger.LogWarning("ChainBroker unlocks: API returned no data — preserving existing data");
-            return 0;
+            return (0, false);
         }
 
         // --- Upsert in batches of BatchSize ---
@@ -229,6 +243,17 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             _logger.LogWarning("ChainBroker unlocks: {Skipped} records skipped due to concurrency conflicts", skipped);
         }
 
+        // Only a complete API snapshot is safe for stale-record deletion.
+        if (!isComplete)
+        {
+            _logger.LogWarning(
+                "ChainBroker unlocks: skipping stale-record deletion because the API fetch was incomplete");
+            _logger.LogInformation(
+                "ChainBroker unlocks upsert complete: {Total} from API; partial snapshot",
+                validItems.Length);
+            return (validItems.Length, false);
+        }
+
         // --- Remove stale unlocks ---
         var apiKeySet = validItems
             .Select(r => (r.Slug!.Trim().ToLowerInvariant(), ParseUnlockDate(r.NextUnlock)))
@@ -261,7 +286,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         }
 
         _logger.LogInformation("ChainBroker unlocks upsert complete: {Total} from API", validItems.Length);
-        return validItems.Length;
+        return (validItems.Length, true);
     }
 
     private static DateOnly? ParseUnlockDate(string? raw)
