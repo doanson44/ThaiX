@@ -1418,6 +1418,7 @@
   <data name="Blog.Tags.SaveFailed" xml:space="preserve"><value>Could not save the tag.</value></data>
   <data name="Blog.Tags.DeleteFailed" xml:space="preserve"><value>Could not delete the tag.</value></data>
   <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.Public.EmptyEyebrow" xml:space="preserve"><value>A fresh perspective</value></data>
   <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Read more</value></data>
   <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>No posts found.</value></data>
   <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>No posts yet</value></data>
