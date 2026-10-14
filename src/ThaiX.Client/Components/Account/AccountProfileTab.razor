@@ -42,11 +42,11 @@ else
                     @_profile.Permissions.Count @L[RK.Profile.PermissionsGranted]
                 </RadzenText>
             </RadzenStack>
-            @if (_permissionGroups.Count == 0)
+            @if (_profile.Permissions.Count == 0)
             {
                 <RadzenText class="text-muted">@L[RK.Profile.NoPermissions]</RadzenText>
             }
-            else
+            @if (_permissionGroups.Count > 0)
             {
                 <RadzenRow Gap="1rem">
                     @foreach (var group in _permissionGroups)
