@@ -244,6 +244,8 @@ public static class DependencyInjection
             .AddScoped<IIndicatorService, IndicatorService>()
             .AddScoped<IExternalMarketDataService, ExternalMarketDataService>();
 
+        services.AddSingleton<HangfireStorageIndexInitializer>();
+
         AddHangfire(services, configuration);
 
         return services;
