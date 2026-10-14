@@ -137,6 +137,7 @@
   <data name="Profile.Email" xml:space="preserve"><value>Email</value></data>
   <data name="Profile.EmailConfirmed" xml:space="preserve"><value>Email confirmed</value></data>
   <data name="Profile.Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Profile.Permissions.Granted" xml:space="preserve"><value>permissions granted</value></data>
   <data name="Profile.NoPermissions" xml:space="preserve"><value>No permissions assigned.</value></data>
   <data name="Profile.LoadFailed" xml:space="preserve"><value>Failed to load profile</value></data>
 
