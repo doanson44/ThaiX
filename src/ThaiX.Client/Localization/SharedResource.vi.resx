@@ -136,6 +136,7 @@
   <data name="Profile.Email" xml:space="preserve"><value>Email</value></data>
   <data name="Profile.EmailConfirmed" xml:space="preserve"><value>Email đã xác nhận</value></data>
   <data name="Profile.Permissions" xml:space="preserve"><value>Quyền</value></data>
+  <data name="Profile.Permissions.Granted" xml:space="preserve"><value>quyền được cấp</value></data>
   <data name="Profile.NoPermissions" xml:space="preserve"><value>Không có quyền nào.</value></data>
   <data name="Profile.LoadFailed" xml:space="preserve"><value>Không tải được thông tin</value></data>
 
