@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using ThaiX.Application.Common.Constants;
+using ThaiX.Infrastructure.Configuration;
 using ThaiX.Infrastructure.Identity;
 
 namespace ThaiX.Infrastructure.Persistence;
@@ -21,6 +23,7 @@ public static class DbInitializer
             var context = services.GetRequiredService<ApplicationDbContext>();
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
+            var seedSettings = services.GetRequiredService<IOptions<SeedSettings>>().Value;
 
             // Apply pending migrations
             logger.LogInformation("Applying database migrations...");
@@ -31,7 +34,7 @@ public static class DbInitializer
             await SeedRolesAsync(roleManager, logger);
 
             // Seed admin user with permissions
-            await SeedAdminUserAsync(userManager, logger);
+            await SeedAdminUserAsync(userManager, seedSettings, logger);
         }
         catch (Exception ex)
         {
@@ -69,11 +72,14 @@ public static class DbInitializer
         }
     }
 
-    private static async Task SeedAdminUserAsync(UserManager<ApplicationUser> userManager, ILogger logger)
+    private static async Task SeedAdminUserAsync(
+        UserManager<ApplicationUser> userManager,
+        SeedSettings settings,
+        ILogger logger)
     {
-        const string adminEmail = "admin@app.example.invalid";
-        const string username = "admin";
-        const string adminPassword = "P@ssw0rd"; // Change in production
+        var adminEmail = settings.AdminEmail;
+        var username = settings.AdminUsername;
+        var adminPassword = settings.AdminPassword;
 
         var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
