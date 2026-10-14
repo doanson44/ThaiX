@@ -266,6 +266,7 @@ public static class ResourceKeys
         public const string Email = "Profile.Email";
         public const string EmailConfirmed = "Profile.EmailConfirmed";
         public const string Permissions = "Profile.Permissions";
+        public const string PermissionsGranted = "Profile.Permissions.Granted";
         public const string NoPermissions = "Profile.NoPermissions";
     }
 
