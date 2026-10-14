@@ -194,7 +194,7 @@
 
     private sealed record PermissionItem(string Name, string Feature, string Action)
     {
-        public string DisplayAction { get; init; } = Action;
+        public string DisplayAction { get; init; } = string.Empty;
     }
 
     private sealed record PermissionGroup(
