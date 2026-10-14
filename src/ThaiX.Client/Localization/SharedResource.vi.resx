@@ -1417,6 +1417,7 @@
   <data name="Blog.Tags.SaveFailed" xml:space="preserve"><value>Không thể lưu thẻ.</value></data>
   <data name="Blog.Tags.DeleteFailed" xml:space="preserve"><value>Không thể xóa thẻ.</value></data>
   <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.Public.EmptyEyebrow" xml:space="preserve"><value>Góc nhìn mới</value></data>
   <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Đọc thêm</value></data>
   <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>Không tìm thấy bài viết nào.</value></data>
   <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>Chưa có bài viết</value></data>
