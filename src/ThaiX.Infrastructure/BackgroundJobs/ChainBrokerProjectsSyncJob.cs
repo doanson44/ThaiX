@@ -230,21 +230,29 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         {
             var db = deleteScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-            var dbSlugs = await db.ChainBrokerProjects
-                .Select(p => p.Slug)
+            var staleProjects = await db.ChainBrokerProjects
+                .AsNoTracking()
+                .Where(p => !apiSlugSet.Contains(p.Slug))
+                .Select(p => new { p.Id, p.Slug })
                 .ToListAsync(ct);
 
-            var staleSlugs = dbSlugs
-                .Where(s => !apiSlugSet.Contains(s))
-                .ToList();
-
-            if (staleSlugs.Count > 0)
+            if (staleProjects.Count > 0)
             {
-                foreach (var staleBatch in staleSlugs.Chunk(BatchSize))
+                foreach (var staleBatch in staleProjects.Chunk(BatchSize))
                 {
-                    await db.ChainBrokerProjects
-                        .Where(p => staleBatch.Contains(p.Slug))
+                    var staleProjectIds = staleBatch.Select(p => p.Id).ToArray();
+
+                    await using var transaction = await db.Database.BeginTransactionAsync(ct);
+
+                    await db.ChainBrokerProjectFundRefs
+                        .Where(x => staleProjectIds.Contains(x.ProjectId))
                         .ExecuteDeleteAsync(ct);
+
+                    await db.ChainBrokerProjects
+                        .Where(p => staleProjectIds.Contains(p.Id))
+                        .ExecuteDeleteAsync(ct);
+
+                    await transaction.CommitAsync(ct);
 
                     _logger.LogDebug("ChainBroker projects: removed {Count} stale records", staleBatch.Length);
                 }
@@ -278,8 +286,10 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ChainBroker projects[{Fund}]: request failed on page {Page}. Url={Url} — skipping fund", fundSlug, page, requestUrl);
-                return (fundSlug, result);
+                _logger.LogError(ex, "ChainBroker projects[{Fund}]: request failed on page {Page}. Url={Url} — aborting sync to preserve existing data", fundSlug, page, requestUrl);
+                throw new InvalidOperationException(
+                    $"Failed to fetch ChainBroker projects for fund '{fundSlug}' on page {page}; sync was aborted to preserve existing data.",
+                    ex);
             }
 
             var list = response?.Data?.List;
