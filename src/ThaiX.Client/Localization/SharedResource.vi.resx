@@ -136,6 +136,7 @@
   <data name="Profile.Email" xml:space="preserve"><value>Email</value></data>
   <data name="Profile.EmailConfirmed" xml:space="preserve"><value>Email đã xác nhận</value></data>
   <data name="Profile.Permissions" xml:space="preserve"><value>Quyền</value></data>
+  <data name="Profile.Permissions.Granted" xml:space="preserve"><value>quyền được cấp</value></data>
   <data name="Profile.NoPermissions" xml:space="preserve"><value>Không có quyền nào.</value></data>
   <data name="Profile.LoadFailed" xml:space="preserve"><value>Không tải được thông tin</value></data>
 
@@ -1417,6 +1418,7 @@
   <data name="Blog.Tags.SaveFailed" xml:space="preserve"><value>Không thể lưu thẻ.</value></data>
   <data name="Blog.Tags.DeleteFailed" xml:space="preserve"><value>Không thể xóa thẻ.</value></data>
   <data name="Blog.Public.ListTitle" xml:space="preserve"><value>Blog</value></data>
+  <data name="Blog.Public.EmptyEyebrow" xml:space="preserve"><value>Góc nhìn mới</value></data>
   <data name="Blog.Public.ReadMore" xml:space="preserve"><value>Đọc thêm</value></data>
   <data name="Blog.Public.NoPostsFound" xml:space="preserve"><value>Không tìm thấy bài viết nào.</value></data>
   <data name="Blog.Public.EmptyTitle" xml:space="preserve"><value>Chưa có bài viết</value></data>
