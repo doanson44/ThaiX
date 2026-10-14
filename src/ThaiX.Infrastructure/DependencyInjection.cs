@@ -89,6 +89,11 @@ public static class DependencyInjection
             .BindConfiguration(BotCommandSettings.SectionName)
             .ValidateOnStart();
 
+        services.AddOptions<SeedSettings>()
+            .BindConfiguration(SeedSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddOptions<AiSettings>()
             .BindConfiguration(AiSettings.SectionName)
             .ValidateDataAnnotations()
