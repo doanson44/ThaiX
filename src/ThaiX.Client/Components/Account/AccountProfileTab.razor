@@ -1,5 +1,7 @@
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @using ThaiX.Client.Models.Auth
+@using ThaiX.Client.Constants
+@using System.Text.RegularExpressions
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 @inject NotificationService NotificationService
@@ -33,20 +35,51 @@ else
     </RadzenRow>
 
     <RadzenCard Variant="Variant.Outlined" class="rz-mt-3">
-        <RadzenStack Gap="0.5rem">
-            <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Profile.Permissions]</RadzenText>
-            @if (_profile.Permissions.Count == 0)
+        <RadzenStack Gap="1rem">
+            <RadzenStack Gap="0.25rem">
+                <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Profile.Permissions]</RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption" class="text-muted">
+                    @_profile.Permissions.Count @L[RK.Profile.PermissionsGranted]
+                </RadzenText>
+            </RadzenStack>
+            @if (_permissionGroups.Count == 0)
             {
                 <RadzenText class="text-muted">@L[RK.Profile.NoPermissions]</RadzenText>
             }
             else
             {
-                <div class="d-flex flex-wrap gap-1">
-                    @foreach (var permission in _profile.Permissions)
+                <RadzenRow Gap="1rem">
+                    @foreach (var group in _permissionGroups)
                     {
-                        <RadzenBadge Text="@permission" BadgeStyle="BadgeStyle.Info" />
+                        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                            <RadzenCard Variant="Variant.Outlined" class="h-100">
+                                <RadzenStack Gap="0.75rem">
+                                    <RadzenStack Orientation="Orientation.Horizontal"
+                                                 AlignItems="AlignItems.Center"
+                                                 JustifyContent="JustifyContent.SpaceBetween"
+                                                 Gap="0.5rem">
+                                        <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">
+                                            @group.DisplayName
+                                        </RadzenText>
+                                        <RadzenBadge Text="@($"{group.GrantedCount}/{group.Actions.Count}")"
+                                                     BadgeStyle="@(group.GrantedCount == group.Actions.Count ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                    </RadzenStack>
+                                    <RadzenStack Gap="0.5rem">
+                                        @foreach (var action in group.Actions)
+                                        {
+                                            <RadzenStack Orientation="Orientation.Horizontal"
+                                                         AlignItems="AlignItems.Center"
+                                                         Gap="0.5rem">
+                                                <RadzenCheckBox TValue="bool" Value="@action.IsGranted" Disabled="true" />
+                                                <RadzenText TextStyle="TextStyle.Body2">@action.DisplayName</RadzenText>
+                                            </RadzenStack>
+                                        }
+                                    </RadzenStack>
+                                </RadzenStack>
+                            </RadzenCard>
+                        </RadzenColumn>
                     }
-                </div>
+                </RadzenRow>
             }
         </RadzenStack>
     </RadzenCard>
@@ -94,6 +127,7 @@ else
     private bool _isLoading = true;
     private string? _removingLoginProvider;
     private bool _loaded;
+    private IReadOnlyList<PermissionGroupViewModel> _permissionGroups = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -111,6 +145,7 @@ else
         try
         {
             _profile = await AuthService.GetCurrentUserAsync();
+            _permissionGroups = BuildPermissionGroups(_profile.Permissions);
             _externalLogins = await AuthService.GetExternalLoginsAsync();
             _loaded = true;
         }
@@ -127,6 +162,58 @@ else
             _isLoading = false;
         }
     }
+
+    private static IReadOnlyList<PermissionGroupViewModel> BuildPermissionGroups(IEnumerable<string> grantedPermissions)
+    {
+        var granted = grantedPermissions.ToHashSet(StringComparer.Ordinal);
+        var allPermissions = PermissionNames.GetAll()
+            .Concat(granted)
+            .Distinct(StringComparer.Ordinal);
+
+        return allPermissions
+            .Select(permission =>
+            {
+                var separatorIndex = permission.IndexOf('.');
+                return separatorIndex > 0 && separatorIndex < permission.Length - 1
+                    ? new PermissionEntry(
+                        permission[..separatorIndex],
+                        permission[(separatorIndex + 1)..],
+                        granted.Contains(permission))
+                    : new PermissionEntry(permission, string.Empty, granted.Contains(permission));
+            })
+            .GroupBy(permission => permission.Feature, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group =>
+            {
+                var actions = group
+                    .OrderBy(permission => permission.Action, StringComparer.Ordinal)
+                    .Select(permission => new PermissionActionViewModel(
+                        FormatPermissionName(permission.Action),
+                        permission.IsGranted))
+                    .ToArray();
+
+                return new PermissionGroupViewModel(
+                    FormatPermissionName(group.Key),
+                    actions,
+                    actions.Count(action => action.IsGranted));
+            })
+            .ToArray();
+    }
+
+    private static string FormatPermissionName(string value)
+    {
+        var withWordBoundaries = Regex.Replace(value, "([a-z0-9])([A-Z])", "$1 $2");
+        return Regex.Replace(withWordBoundaries, "([A-Z])([A-Z][a-z])", "$1 $2");
+    }
+
+    private sealed record PermissionEntry(string Feature, string Action, bool IsGranted);
+
+    private sealed record PermissionActionViewModel(string DisplayName, bool IsGranted);
+
+    private sealed record PermissionGroupViewModel(
+        string DisplayName,
+        IReadOnlyList<PermissionActionViewModel> Actions,
+        int GrantedCount);
 
     private async Task RemoveExternalLoginAsync(ExternalLoginDto login)
     {
