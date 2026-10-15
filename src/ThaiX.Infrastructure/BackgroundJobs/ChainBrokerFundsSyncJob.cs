@@ -55,9 +55,16 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
 
         try
         {
-            var count = await SyncFundsAsync(cancellationToken);
+            var (count, isComplete) = await SyncFundsAsync(cancellationToken);
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
-            _logger.LogInformation("ChainBrokerFundsSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+            if (isComplete)
+            {
+                _logger.LogInformation("ChainBrokerFundsSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+            }
+            else
+            {
+                _logger.LogWarning("ChainBrokerFundsSyncJob partially completed in {Elapsed}s: {Count} records; failed pages were skipped", elapsed, count);
+            }
 
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
@@ -67,10 +74,10 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
                     Category = "Data Sync",
                     Title = "ChainBroker Funds Sync",
                     Type = NotificationCardType.Summary,
-                    Severity = NotificationSeverity.Info,
+                    Severity = isComplete ? NotificationSeverity.Info : NotificationSeverity.Warning,
                     Metrics =
                     [
-                        new() { Label = "Status", Value = "Success" },
+                        new() { Label = "Status", Value = isComplete ? "Success" : "Partial" },
                         new() { Label = "Duration", Value = $"{elapsed}s" },
                         new() { Label = "Records", Value = count.ToString("N0") }
                     ]
@@ -91,20 +98,31 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
                 Kind = NotificationKind.DataSync,
-                Title = "ChainBroker Funds Sync Failed",
-                Text = $"❌ ChainBroker funds sync failed: {ex.Message}",
-                Severity = NotificationSeverity.Error
+                Card = new NotificationCard
+                {
+                    Category = "Data Sync",
+                    Title = "ChainBroker Funds Sync",
+                    Type = NotificationCardType.Error,
+                    Severity = NotificationSeverity.Error,
+                    Metrics =
+                    [
+                        new() { Label = "Code", Value = "CHAINBROKER_FUNDS_SYNC_FAILED" },
+                        new() { Label = "Message", Value = ex.Message }
+                    ]
+                }
             }, CancellationToken.None);
 
             throw;
         }
     }
 
-    private async Task<int> SyncFundsAsync(CancellationToken ct)
+    private async Task<(int Count, bool IsComplete)> SyncFundsAsync(CancellationToken ct)
     {
         _logger.LogInformation("ChainBroker: fetching all funds pages from API");
         var apiItems = new List<InternalFundItem>();
+        var isComplete = true;
         int page = 1;
+        int? totalPages = null;
         string? nextUrl;
         do
         {
@@ -122,26 +140,61 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ChainBroker funds: request failed on page {Page}. Url={Url} — aborting fetch", page, requestUrl);
-                break;
+                isComplete = false;
+                _logger.LogWarning(ex, "ChainBroker funds: request failed on page {Page}. Url={Url}; skipping failed page", page, requestUrl);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                {
+                    _logger.LogWarning(
+                        "ChainBroker funds: cannot determine remaining pages after page {Page} failed because total_pages was not available; stopping fetch",
+                        page);
+                    break;
+                }
+
+                page++;
+                continue;
             }
 
             var list = response?.Data?.List;
-            if (list?.Results is null or { Count: 0 })
+            if (list is null || list.Results is null)
             {
-                _logger.LogWarning("ChainBroker funds: empty or null results on page {Page}. Url={Url}", page, requestUrl);
-                break;
+                isComplete = false;
+                _logger.LogWarning("ChainBroker funds: missing page data or results on page {Page}. Url={Url}; skipping page", page, requestUrl);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
             }
+
+            totalPages = list.TotalPages ?? totalPages;
             nextUrl = list.Next;
+
+            if (list.Results.Count == 0)
+            {
+                isComplete = false;
+                _logger.LogWarning("ChainBroker funds: empty results on page {Page}. Url={Url}; skipping page", page, requestUrl);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
+            }
+
             apiItems.AddRange(list.Results);
             _logger.LogDebug("ChainBroker funds: fetched page {Page} ({Count} records)", page, list.Results.Count);
             page++;
-        } while (!string.IsNullOrEmpty(nextUrl));
+        } while (!string.IsNullOrEmpty(nextUrl) || (totalPages.HasValue && page <= totalPages.Value));
 
         if (apiItems.Count == 0)
         {
             _logger.LogWarning("ChainBroker funds: API returned no data — preserving existing data");
-            return 0;
+            return (0, false);
         }
 
         // --- Upsert in batches of BatchSize ---
@@ -152,6 +205,7 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             .ToArray();
 
         int upserted = 0;
+        var skipped = 0;
         foreach (var batch in validItems.Chunk(BatchSize))
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
@@ -172,9 +226,37 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
                     db.ChainBrokerFunds.Add(ChainBrokerFund.Create(snapshot));
             }
 
-            await db.SaveChangesAsync(ct);
-            upserted += batch.Length;
+            try
+            {
+                await db.SaveChangesAsync(ct);
+                upserted += batch.Length;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // An overlapping sync run changed the same row; the next sync reconciles this batch,
+                // so skip it instead of failing the entire sync.
+                isComplete = false;
+                skipped += batch.Length;
+                _logger.LogWarning(
+                    ex,
+                    "ChainBroker funds: skipped batch of {Count} records after a concurrency conflict",
+                    batch.Length);
+            }
+
             _logger.LogDebug("ChainBroker funds: upserted batch ({Done}/{Total})", upserted, validItems.Length);
+        }
+
+        if (skipped > 0)
+        {
+            _logger.LogWarning("ChainBroker funds: {Skipped} records skipped due to concurrency conflicts", skipped);
+        }
+
+        // Never delete stale records from a partial API snapshot.
+        if (!isComplete)
+        {
+            _logger.LogWarning("ChainBroker funds: skipped stale fund deletion because the API snapshot is incomplete");
+            _logger.LogInformation("ChainBroker funds upsert complete: {Total} from API; partial snapshot", validItems.Length);
+            return (validItems.Length, false);
         }
 
         // --- Remove stale funds ---
@@ -206,7 +288,7 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
         }
 
         _logger.LogInformation("ChainBroker funds upsert complete: {Total} from API", validItems.Length);
-        return validItems.Length;
+        return (validItems.Length, true);
     }
 
     private static ChainBrokerFundSnapshot BuildSnapshot(InternalFundItem r) => new()
