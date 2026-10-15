@@ -252,38 +252,37 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             var apiSlugSet = new HashSet<string>(apiItems.Keys, StringComparer.OrdinalIgnoreCase);
 
             await using (var deleteScope = _scopeFactory.CreateAsyncScope())
-        {
-            var db = deleteScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-            var staleProjects = await db.ChainBrokerProjects
-                .AsNoTracking()
-                .Where(p => !apiSlugSet.Contains(p.Slug))
-                .Select(p => new { p.Id, p.Slug })
-                .ToListAsync(ct);
-
-            if (staleProjects.Count > 0)
             {
-                foreach (var staleBatch in staleProjects.Chunk(BatchSize))
+                var db = deleteScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                var staleProjects = await db.ChainBrokerProjects
+                    .AsNoTracking()
+                    .Where(p => !apiSlugSet.Contains(p.Slug))
+                    .Select(p => new { p.Id, p.Slug })
+                    .ToListAsync(ct);
+
+                if (staleProjects.Count > 0)
                 {
-                    var staleProjectIds = staleBatch.Select(p => p.Id).ToArray();
+                    foreach (var staleBatch in staleProjects.Chunk(BatchSize))
+                    {
+                        var staleProjectIds = staleBatch.Select(p => p.Id).ToArray();
 
-                    await using var transaction = await db.Database.BeginTransactionAsync(ct);
+                        await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
-                    await db.ChainBrokerProjectFundRefs
-                        .Where(x => staleProjectIds.Contains(x.ProjectId))
-                        .ExecuteDeleteAsync(ct);
+                        await db.ChainBrokerProjectFundRefs
+                            .Where(x => staleProjectIds.Contains(x.ProjectId))
+                            .ExecuteDeleteAsync(ct);
 
-                    await db.ChainBrokerProjects
-                        .Where(p => staleProjectIds.Contains(p.Id))
-                        .ExecuteDeleteAsync(ct);
+                        await db.ChainBrokerProjects
+                            .Where(p => staleProjectIds.Contains(p.Id))
+                            .ExecuteDeleteAsync(ct);
 
-                    await transaction.CommitAsync(ct);
+                        await transaction.CommitAsync(ct);
 
-                    _logger.LogDebug("ChainBroker projects: removed {Count} stale records", staleBatch.Length);
+                        _logger.LogDebug("ChainBroker projects: removed {Count} stale records", staleBatch.Length);
+                    }
                 }
             }
-        }
-
         }
         else
         {
@@ -357,13 +356,28 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             totalPages = list.TotalPages ?? totalPages;
             nextUrl = list.Next;
 
-            foreach (var item in list.Results ?? [])
+            if (list.Results is null)
+            {
+                isComplete = false;
+                _logger.LogWarning(
+                    "ChainBroker projects[{Fund}]: missing results on page {Page}; skipping page",
+                    fundSlug, page);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
+            }
+
+            foreach (var item in list.Results)
             {
                 if (!string.IsNullOrWhiteSpace(item.Slug))
                     result.TryAdd(item.Slug, item);
             }
 
-            _logger.LogDebug("ChainBroker projects: fund {Fund} page {Page} ({Count} records)", fundSlug, page, list.Results?.Count ?? 0);
+            _logger.LogDebug("ChainBroker projects: fund {Fund} page {Page} ({Count} records)", fundSlug, page, list.Results.Count);
             page++;
         } while (!string.IsNullOrEmpty(nextUrl) || (totalPages.HasValue && page <= totalPages.Value));
 
