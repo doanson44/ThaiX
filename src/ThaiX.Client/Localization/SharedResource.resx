@@ -1808,4 +1808,10 @@
   <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Initial Balance</value></data>
   <data name="Mexc.ContractTickers.Pin" xml:space="preserve"><value>Pin ticker</value></data>
   <data name="Mexc.ContractTickers.Unpin" xml:space="preserve"><value>Unpin ticker</value></data>
+  <data name="PermissionExplorer.Search.Placeholder" xml:space="preserve"><value>Search permissions...</value></data>
+  <data name="PermissionExplorer.All" xml:space="preserve"><value>All</value></data>
+  <data name="PermissionExplorer.Granted" xml:space="preserve"><value>Granted</value></data>
+  <data name="PermissionExplorer.Missing" xml:space="preserve"><value>Not granted</value></data>
+  <data name="PermissionExplorer.Summary" xml:space="preserve"><value>{0} of {1} permissions granted</value></data>
+  <data name="PermissionExplorer.NoResults" xml:space="preserve"><value>No permissions match the current filters.</value></data>
 </root>
