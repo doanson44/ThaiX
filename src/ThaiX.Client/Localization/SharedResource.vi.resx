@@ -1807,4 +1807,10 @@
   <data name="ExpenseTracker.InitialBalance" xml:space="preserve"><value>Số dư ban đầu</value></data>
   <data name="Mexc.ContractTickers.Pin" xml:space="preserve"><value>Ghim ticker</value></data>
   <data name="Mexc.ContractTickers.Unpin" xml:space="preserve"><value>Bỏ ghim ticker</value></data>
+  <data name="PermissionExplorer.Search.Placeholder" xml:space="preserve"><value>Tìm kiếm quyền...</value></data>
+  <data name="PermissionExplorer.All" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="PermissionExplorer.Granted" xml:space="preserve"><value>Đã cấp</value></data>
+  <data name="PermissionExplorer.Missing" xml:space="preserve"><value>Chưa cấp</value></data>
+  <data name="PermissionExplorer.Summary" xml:space="preserve"><value>Đã cấp {0}/{1} quyền</value></data>
+  <data name="PermissionExplorer.NoResults" xml:space="preserve"><value>Không có quyền phù hợp với bộ lọc hiện tại.</value></data>
 </root>

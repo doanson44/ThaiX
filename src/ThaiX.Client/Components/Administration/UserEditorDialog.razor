@@ -50,13 +50,10 @@
                     }
                     else
                     {
-                        <RadzenDropDown Data="@_permissionOptions"
-                                        TValue="IEnumerable<string>"
-                                        @bind-Value="_permissionModel.SelectedPermissions"
-                                        Multiple="true"
-                                        Chips="true"
-                                        AllowClear="true"
-                                        Class="w-100" />
+                        <PermissionExplorer Permissions="@_permissionOptions"
+                                            SelectedPermissions="@_permissionModel.SelectedPermissions"
+                                            SelectedPermissionsChanged="@OnSelectedPermissionsChanged"
+                                            Editable="true" />
                     }
                 </RadzenStack>
             }
@@ -169,53 +166,25 @@ else
                             }
                             else
                             {
-                                <RadzenCard>
-                                    <RadzenStack Gap="0.5rem">
-                                        <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.CurrentPermissions]</RadzenText>
-                                        @if (_selectedUserPermissions.Count == 0)
+                                <RadzenTemplateForm Data="@_permissionModel" Submit="@(async (PermissionModel _) => await SavePermissionsAsync())">
+                                    <RadzenStack Gap="0.75rem">
+                                        <PermissionExplorer Permissions="@AllPermissionOptions"
+                                                            SelectedPermissions="@_permissionModel.SelectedPermissions"
+                                                            SelectedPermissionsChanged="@OnSelectedPermissionsChanged"
+                                                            Editable="@_canManagePermissions" />
+                                        @if (_canManagePermissions)
                                         {
-                                            <RadzenText class="text-muted">@L[RK.Users.NoPermissionsAssigned]</RadzenText>
-                                        }
-                                        else
-                                        {
-                                            <div class="d-flex flex-wrap gap-1">
-                                                @foreach (var permission in _selectedUserPermissions)
-                                                {
-                                                    <RadzenBadge Text="@permission" BadgeStyle="BadgeStyle.Info" />
-                                                }
-                                            </div>
+                                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+                                                <RadzenButton Text="@L[RK.Users.ApplyPermissions]"
+                                                              Icon="admin_panel_settings"
+                                                              ButtonType="ButtonType.Submit"
+                                                              ButtonStyle="ButtonStyle.Primary"
+                                                              IsBusy="@_isSavingPermissions"
+                                                              Disabled="@_isSavingPermissions" />
+                                            </RadzenStack>
                                         }
                                     </RadzenStack>
-                                </RadzenCard>
-
-                                @if (_canManagePermissions)
-                                {
-                                    <RadzenCard>
-                                        <RadzenTemplateForm Data="@_permissionModel" Submit="@(async (PermissionModel _) => await SavePermissionsAsync())">
-                                            <RadzenStack Gap="0.75rem">
-                                                <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Users.SetPermissions]</RadzenText>
-                                                <RadzenDropDown Data="@_permissionOptions"
-                                                                TValue="IEnumerable<string>"
-                                                                @bind-Value="_permissionModel.SelectedPermissions"
-                                                                Multiple="true"
-                                                                Chips="true"
-                                                                AllowClear="true"
-                                                                Class="w-100" />
-                                                @if (!IsViewMode)
-                                                {
-                                                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                                                        <RadzenButton Text="@L[RK.Users.ApplyPermissions]"
-                                                                      Icon="admin_panel_settings"
-                                                                      ButtonType="ButtonType.Submit"
-                                                                      ButtonStyle="ButtonStyle.Primary"
-                                                                      IsBusy="@_isSavingPermissions"
-                                                                      Disabled="@_isSavingPermissions" />
-                                                    </RadzenStack>
-                                                }
-                                            </RadzenStack>
-                                        </RadzenTemplateForm>
-                                    </RadzenCard>
-                                }
+                                </RadzenTemplateForm>
                             }
                         </RadzenStack>
                     </RadzenTabsItem>
@@ -336,6 +305,12 @@ else
     private LinkedContactDto? _linkedContact;
     private bool _unlinkingContact;
 
+    private IReadOnlyList<string> AllPermissionOptions => _permissionOptions
+        .Concat(_selectedUserPermissions)
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(permission => permission, StringComparer.Ordinal)
+        .ToArray();
+
     private bool IsCreateMode => Mode == Create;
     private bool IsViewMode => Mode == View;
     private bool _canManageLockout => !IsViewMode && CanManageLockout;
@@ -446,6 +421,12 @@ else
         {
             _loadingPermissions = false;
         }
+    }
+
+    private Task OnSelectedPermissionsChanged(IEnumerable<string> permissions)
+    {
+        _permissionModel.SelectedPermissions = permissions.ToArray();
+        return Task.CompletedTask;
     }
 
     private async Task CreateAsync()

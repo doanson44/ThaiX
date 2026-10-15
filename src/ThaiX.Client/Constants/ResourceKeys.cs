@@ -316,6 +316,16 @@ public static class ResourceKeys
         public const string MustBeGreaterThanZero = "Validation.MustBeGreaterThanZero";
     }
 
+    public static class PermissionExplorer
+    {
+        public const string SearchPlaceholder = "PermissionExplorer.Search.Placeholder";
+        public const string All = "PermissionExplorer.All";
+        public const string Granted = "PermissionExplorer.Granted";
+        public const string Missing = "PermissionExplorer.Missing";
+        public const string Summary = "PermissionExplorer.Summary";
+        public const string NoResults = "PermissionExplorer.NoResults";
+    }
+
     public static class Users
     {
         public const string Title = "Users.Title";
