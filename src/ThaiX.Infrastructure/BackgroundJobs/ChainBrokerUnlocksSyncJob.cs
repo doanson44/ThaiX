@@ -268,6 +268,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             {
                 // An overlapping sync run changed the same row; the next sync reconciles this batch,
                 // so skip it instead of failing the entire sync.
+                isComplete = false;
                 skipped += batch.Length;
                 _logger.LogWarning(
                     ex,
