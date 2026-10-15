@@ -189,7 +189,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         if (apiItems.Count == 0)
         {
             _logger.LogWarning("ChainBroker projects: API returned no data — preserving existing data");
-            return (0, isComplete);
+            return (0, false);
         }
 
         // --- Upsert in batches of BatchSize ---
