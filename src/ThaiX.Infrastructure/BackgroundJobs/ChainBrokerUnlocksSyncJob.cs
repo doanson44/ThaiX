@@ -57,11 +57,14 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         {
             var (count, isComplete) = await SyncUnlocksAsync(cancellationToken);
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
-            _logger.LogInformation(
-                "ChainBrokerUnlocksSyncJob completed in {Elapsed}s: {Count} records. Complete={Complete}",
-                elapsed,
-                count,
-                isComplete);
+            if (isComplete)
+            {
+                _logger.LogInformation("ChainBrokerUnlocksSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+            }
+            else
+            {
+                _logger.LogWarning("ChainBrokerUnlocksSyncJob partially completed in {Elapsed}s: {Count} records; failed pages were skipped", elapsed, count);
+            }
 
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
@@ -71,7 +74,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
                     Category = "Data Sync",
                     Title = "ChainBroker Unlocks Sync",
                     Type = NotificationCardType.Summary,
-                    Severity = NotificationSeverity.Info,
+                    Severity = isComplete ? NotificationSeverity.Info : NotificationSeverity.Warning,
                     Metrics =
                     [
                         new() { Label = "Status", Value = isComplete ? "Success" : "Partial" },
