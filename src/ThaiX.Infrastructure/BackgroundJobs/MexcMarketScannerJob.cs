@@ -100,23 +100,37 @@ public sealed class MexcMarketScannerJob(
         var detectorMap = detectors.ToDictionary(d => d.SignalType);
 
         // 6. Run detectors for each rule against every relevant symbol
+        var referenceTolerance = TimeSpan.FromSeconds(30);
         foreach (var rule in rules)
         {
             if (!detectorMap.TryGetValue(rule.SignalType, out var detector))
                 continue;
 
             var window = TimeSpan.FromMinutes((int)rule.Window);
+            var targetReferenceTime = now - window;
 
             foreach (var ticker in tickers)
             {
                 if (cooldownService.IsOnCooldown(ticker.Symbol, rule.SignalType))
                     continue;
 
-                var snapshots = snapshotCache.GetSnapshots(ticker.Symbol, window);
+                // Include the tolerance in the query so a slightly older reference is not filtered out.
+                var snapshots = snapshotCache.GetSnapshots(ticker.Symbol, window + referenceTolerance);
                 if (snapshots.Count < 2)
                     continue;
 
-                var signals = detector.Detect(rule, snapshots);
+                var referenceSnapshot = snapshots
+                    .Where(snapshot =>
+                        snapshot.CapturedAtUtc >= targetReferenceTime - referenceTolerance &&
+                        snapshot.CapturedAtUtc <= targetReferenceTime + referenceTolerance)
+                    .MinBy(snapshot => (snapshot.CapturedAtUtc - targetReferenceTime).Duration());
+
+                if (referenceSnapshot is null)
+                    continue;
+
+                var latestSnapshot = snapshots[^1];
+                IReadOnlyList<MarketTickerSnapshot> comparisonSnapshots = [referenceSnapshot, latestSnapshot];
+                var signals = detector.Detect(rule, comparisonSnapshots);
                 foreach (var signal in signals)
                 {
                     cooldownService.MarkTriggered(signal.Symbol, signal.Type);
