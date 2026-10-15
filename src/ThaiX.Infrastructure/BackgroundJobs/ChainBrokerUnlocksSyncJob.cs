@@ -119,6 +119,7 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
         var apiItems = new List<InternalUnlockItem>();
         var isComplete = true;
         int page = 1;
+        int? totalPages = null;
         string? nextUrl;
         do
         {
@@ -136,30 +137,66 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(
+                _logger.LogWarning(
                     ex,
-                    "ChainBroker unlocks: request failed on page {Page}. Url={Url}; syncing fetched records only",
+                    "ChainBroker unlocks: request failed on page {Page}. Url={Url}; skipping failed page",
                     page,
                     requestUrl);
                 isComplete = false;
-                break;
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                {
+                    _logger.LogWarning(
+                        "ChainBroker unlocks: cannot determine remaining pages after page {Page} failed because total_pages was not available; stopping fetch",
+                        page);
+                    break;
+                }
+
+                page++;
+                continue;
             }
 
             var list = response?.Data?.List;
-            if (list?.Results is null or { Count: 0 })
+            if (list is null || list.Results is null)
             {
+                isComplete = false;
                 _logger.LogWarning(
-                    "ChainBroker unlocks: empty or null results on page {Page}. Url={Url}; treating fetch as incomplete",
+                    "ChainBroker unlocks: missing page data or results on page {Page}. Url={Url}; skipping page",
                     page,
                     requestUrl);
-                isComplete = false;
-                break;
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
             }
+
+            totalPages = list.TotalPages ?? totalPages;
             nextUrl = list.Next;
+
+            if (list.Results.Count == 0)
+            {
+                isComplete = false;
+                _logger.LogWarning(
+                    "ChainBroker unlocks: empty results on page {Page}. Url={Url}; skipping page",
+                    page,
+                    requestUrl);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
+            }
+
             apiItems.AddRange(list.Results);
             _logger.LogDebug("ChainBroker unlocks: fetched page {Page} ({Count} records)", page, list.Results.Count);
             page++;
-        } while (!string.IsNullOrEmpty(nextUrl));
+        } while (!string.IsNullOrEmpty(nextUrl) || (totalPages.HasValue && page <= totalPages.Value));
 
         if (apiItems.Count == 0)
         {
