@@ -1089,3 +1089,36 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     }
 }
 
+/* Keep account tabs inside the viewport on narrow screens. */
+.tx-account-profile,
+.tx-account-profile .rz-tabview,
+.tx-account-profile .rz-tabview-nav,
+.tx-account-profile .rz-tabview-panels,
+.tx-account-profile .rz-tabview-panel {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-account-profile .rz-tabview-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tx-account-profile .rz-tabview-nav > li {
+    flex: 0 0 auto;
+}
+
+/* Identity values such as UUIDs and email addresses must not widen the page. */
+.tx-account-personal-data,
+.tx-account-personal-data .rz-card {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-account-personal-data .rz-text {
+    overflow-wrap: anywhere;
+}
