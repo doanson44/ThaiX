@@ -56,16 +56,28 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
 
         try
         {
-            var count = await SyncProjectsAsync(cancellationToken);
+            var (count, isComplete) = await SyncProjectsAsync(cancellationToken);
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
-            _logger.LogInformation("ChainBrokerProjectsSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+
+            if (isComplete)
+            {
+                _logger.LogInformation("ChainBrokerProjectsSyncJob completed in {Elapsed}s: {Count} records", elapsed, count);
+            }
+            else
+            {
+                _logger.LogWarning("ChainBrokerProjectsSyncJob partially completed in {Elapsed}s: {Count} records; failed pages were skipped", elapsed, count);
+            }
 
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
                 Kind = NotificationKind.DataSync,
-                Title = "ChainBroker Projects Sync Completed",
-                Text = $"✅ ChainBroker projects sync finished in {elapsed}s.\nProjects: {count}",
-                Severity = NotificationSeverity.Info
+                Title = isComplete
+                    ? "ChainBroker Projects Sync Completed"
+                    : "ChainBroker Projects Sync Partially Completed",
+                Text = isComplete
+                    ? $"ChainBroker projects sync finished in {elapsed}s.\nProjects: {count}"
+                    : $"ChainBroker projects partial sync finished in {elapsed}s.\nProjects: {count}\nSome pages failed; stale project deletion was skipped.",
+                Severity = isComplete ? NotificationSeverity.Info : NotificationSeverity.Warning
             }, cancellationToken);
 
             await _cache.InvalidateGroupAsync(CacheGroups.ChainBrokerData, cancellationToken);
@@ -100,7 +112,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         }
     }
 
-    private async Task<int> SyncProjectsAsync(CancellationToken ct)
+    private async Task<(int Count, bool IsComplete)> SyncProjectsAsync(CancellationToken ct)
     {
         _logger.LogInformation("ChainBroker: fetching projects by fund from API");
 
@@ -118,7 +130,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         if (fundInfos.Count == 0)
         {
             _logger.LogWarning("ChainBroker projects: no funds in DB — skipping project sync");
-            return 0;
+            return (0, true);
         }
 
         var fundTasks = fundInfos
@@ -131,6 +143,17 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             StringComparer.OrdinalIgnoreCase);
 
         var fundResults = await Task.WhenAll(fundTasks).ConfigureAwait(false);
+        var isComplete = fundResults.All(result => result.IsComplete);
+        var failedFundIds = fundResults
+            .Where(result => !result.IsComplete && fundLookup.ContainsKey(result.FundSlug))
+            .Select(result => fundLookup[result.FundSlug])
+            .ToHashSet();
+
+        if (!isComplete)
+        {
+            _logger.LogWarning(
+                "ChainBroker projects: one or more funds had failed pages; successful page data will be synced and stale deletion disabled");
+        }
 
         var apiItems = new Dictionary<string, InternalProjectItem>(StringComparer.OrdinalIgnoreCase);
 
@@ -138,7 +161,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         // A project can appear in multiple funds across parallel queries; merge here.
         var allFundsPerProject = new Dictionary<string, HashSet<Guid>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var (fundSlug, items) in fundResults)
+        foreach (var (fundSlug, items, _) in fundResults)
         {
             if (!fundLookup.TryGetValue(fundSlug, out var fundId))
                 continue;
@@ -160,7 +183,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         if (apiItems.Count == 0)
         {
             _logger.LogWarning("ChainBroker projects: API returned no data — preserving existing data");
-            return 0;
+            return (0, isComplete);
         }
 
         // --- Upsert in batches of BatchSize ---
@@ -191,7 +214,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
                 if (existing.TryGetValue(slug, out var project))
                 {
                     project.UpdateWithoutFunds(snapshot);
-                    await UpdateProjectFundsAsync(db, project.Id, snapshot.Funds, ct);
+                    await UpdateProjectFundsAsync(db, project.Id, snapshot.Funds, failedFundIds, ct);
                 }
                 else
                 {
@@ -223,10 +246,12 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             _logger.LogWarning("ChainBroker projects: {Skipped} records skipped due to concurrency conflicts", skipped);
         }
 
-        // --- Remove stale projects ---
-        var apiSlugSet = new HashSet<string>(apiItems.Keys, StringComparer.OrdinalIgnoreCase);
+        // Never delete stale records from a partial API snapshot.
+        if (isComplete)
+        {
+            var apiSlugSet = new HashSet<string>(apiItems.Keys, StringComparer.OrdinalIgnoreCase);
 
-        await using (var deleteScope = _scopeFactory.CreateAsyncScope())
+            await using (var deleteScope = _scopeFactory.CreateAsyncScope())
         {
             var db = deleteScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
@@ -259,17 +284,26 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             }
         }
 
-        _logger.LogInformation("ChainBroker projects upsert complete: {Total} unique from API", apiItems.Count);
-        return apiItems.Count;
+        }
+        else
+        {
+            _logger.LogWarning("ChainBroker projects: skipped stale project deletion because the API snapshot is incomplete");
+        }
+
+        _logger.LogInformation("ChainBroker projects upsert complete: {Total} unique from API; complete={IsComplete}", apiItems.Count, isComplete);
+        return (apiItems.Count, isComplete);
     }
 
-    private async Task<(string FundSlug, Dictionary<string, InternalProjectItem> Items)> FetchProjectsByFundAsync(
+    private async Task<(string FundSlug, Dictionary<string, InternalProjectItem> Items, bool IsComplete)> FetchProjectsByFundAsync(
         string fundSlug,
         CancellationToken ct)
     {
         var result = new Dictionary<string, InternalProjectItem>(StringComparer.OrdinalIgnoreCase);
         int page = 1;
-        string? nextUrl;
+        int? totalPages = null;
+        string? nextUrl = null;
+        var isComplete = true;
+
         do
         {
             var requestUrl = _provider.GetProjectsByFundSyncUrl(page, fundSlug);
@@ -286,31 +320,61 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ChainBroker projects[{Fund}]: request failed on page {Page}. Url={Url} — aborting sync to preserve existing data", fundSlug, page, requestUrl);
-                throw new InvalidOperationException(
-                    $"Failed to fetch ChainBroker projects for fund '{fundSlug}' on page {page}; sync was aborted to preserve existing data.",
-                    ex);
+                isComplete = false;
+                _logger.LogWarning(ex,
+                    "ChainBroker projects[{Fund}]: request failed on page {Page}. Url={Url}; skipping failed page",
+                    fundSlug, page, requestUrl);
+
+                nextUrl = null;
+                if (!totalPages.HasValue)
+                {
+                    _logger.LogWarning(
+                        "ChainBroker projects[{Fund}]: cannot determine remaining pages after page {Page} failed because total_pages was not available; stopping this fund",
+                        fundSlug, page);
+                    break;
+                }
+
+                page++;
+                continue;
             }
 
             var list = response?.Data?.List;
-            if (list?.Results is null or { Count: 0 })
+            if (list is null)
             {
-                _logger.LogDebug("ChainBroker projects: no results for fund {Fund} page {Page}", fundSlug, page);
-                break;
+                isComplete = false;
+                _logger.LogWarning(
+                    "ChainBroker projects[{Fund}]: missing page data on page {Page}; skipping page",
+                    fundSlug, page);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
             }
 
+            totalPages = list.TotalPages ?? totalPages;
             nextUrl = list.Next;
-            foreach (var item in list.Results)
+
+            foreach (var item in list.Results ?? [])
             {
                 if (!string.IsNullOrWhiteSpace(item.Slug))
                     result.TryAdd(item.Slug, item);
             }
 
-            _logger.LogDebug("ChainBroker projects: fund {Fund} page {Page} ({Count} records)", fundSlug, page, list.Results.Count);
+            _logger.LogDebug("ChainBroker projects: fund {Fund} page {Page} ({Count} records)", fundSlug, page, list.Results?.Count ?? 0);
             page++;
-        } while (!string.IsNullOrEmpty(nextUrl));
+        } while (!string.IsNullOrEmpty(nextUrl) || (totalPages.HasValue && page <= totalPages.Value));
 
-        return (fundSlug, result);
+        if (!isComplete)
+        {
+            _logger.LogWarning(
+                "ChainBroker projects[{Fund}]: fetched {Count} projects from available pages; result is partial",
+                fundSlug, result.Count);
+        }
+
+        return (fundSlug, result, isComplete);
     }
 
     private static ChainBrokerProjectSnapshot BuildSnapshot(
@@ -374,6 +438,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         ApplicationDbContext db,
         Guid projectId,
         IReadOnlyList<Guid> incomingFundIds,
+        IReadOnlySet<Guid> preservedFundIds,
         CancellationToken ct)
     {
         var incomingSet = new HashSet<Guid>(incomingFundIds);
@@ -385,7 +450,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
         var existingFundIds = new HashSet<Guid>(existingFundRefs.Select(x => x.FundId));
 
         var removed = existingFundRefs
-            .Where(x => !incomingSet.Contains(x.FundId))
+            .Where(x => !incomingSet.Contains(x.FundId) && !preservedFundIds.Contains(x.FundId))
             .ToList();
 
         if (removed.Count > 0)
