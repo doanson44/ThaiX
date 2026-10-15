@@ -21,7 +21,7 @@
                  Gap="0.75rem"
                  Wrap="FlexWrap.Wrap"
                  Class="mb-3">
-        <RadzenText TextStyle="TextStyle.H4" TagName="TagName.H1" Class="mb-0">
+        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
             @L[RK.MexcSpotTicker24Hr.SocketTitle]
         </RadzenText>
     </RadzenStack>
