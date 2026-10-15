@@ -1151,3 +1151,19 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     max-width: 100%;
     flex-wrap: wrap;
 }
+
+
+/* Keep every Radzen tab strip usable when labels exceed the available width. */
+.tx-main-content .rz-tabview-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tx-main-content .rz-tabview-nav > li {
+    flex: 0 0 auto;
+}
