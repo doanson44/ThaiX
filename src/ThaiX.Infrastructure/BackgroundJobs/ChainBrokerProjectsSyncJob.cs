@@ -71,13 +71,19 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
                 Kind = NotificationKind.DataSync,
-                Title = isComplete
-                    ? "ChainBroker Projects Sync Completed"
-                    : "ChainBroker Projects Sync Partially Completed",
-                Text = isComplete
-                    ? $"ChainBroker projects sync finished in {elapsed}s.\nProjects: {count}"
-                    : $"ChainBroker projects partial sync finished in {elapsed}s.\nProjects: {count}\nSome pages failed; stale project deletion was skipped.",
-                Severity = isComplete ? NotificationSeverity.Info : NotificationSeverity.Warning
+                Card = new NotificationCard
+                {
+                    Category = "Data Sync",
+                    Title = "ChainBroker Projects Sync",
+                    Type = NotificationCardType.Summary,
+                    Severity = isComplete ? NotificationSeverity.Info : NotificationSeverity.Warning,
+                    Metrics =
+                    [
+                        new() { Label = "Status", Value = isComplete ? "Success" : "Partial" },
+                        new() { Label = "Duration", Value = $"{elapsed}s" },
+                        new() { Label = "Records", Value = count.ToString("N0") }
+                    ]
+                }
             }, cancellationToken);
 
             await _cache.InvalidateGroupAsync(CacheGroups.ChainBrokerData, cancellationToken);
@@ -129,8 +135,8 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
 
         if (fundInfos.Count == 0)
         {
-            _logger.LogWarning("ChainBroker projects: no funds in DB — skipping project sync");
-            return (0, true);
+            _logger.LogWarning("ChainBroker projects: no funds in DB — preserving existing project data");
+            return (0, false);
         }
 
         var fundTasks = fundInfos
@@ -231,6 +237,7 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
             {
                 // An overlapping sync run changed the same row; the next sync reconciles this batch,
                 // so skip it instead of failing the entire sync.
+                isComplete = false;
                 skipped += batch.Length;
                 _logger.LogWarning(
                     ex,
@@ -361,6 +368,21 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
                 isComplete = false;
                 _logger.LogWarning(
                     "ChainBroker projects[{Fund}]: missing results on page {Page}; skipping page",
+                    fundSlug, page);
+                nextUrl = null;
+
+                if (!totalPages.HasValue)
+                    break;
+
+                page++;
+                continue;
+            }
+
+            if (list.Results.Count == 0)
+            {
+                isComplete = false;
+                _logger.LogWarning(
+                    "ChainBroker projects[{Fund}]: empty results on page {Page}; skipping page",
                     fundSlug, page);
                 nextUrl = null;
 
