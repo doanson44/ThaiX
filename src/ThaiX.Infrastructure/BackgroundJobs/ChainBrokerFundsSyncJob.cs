@@ -98,9 +98,18 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             await _notificationRouter.DispatchAsync(new NotificationMessage
             {
                 Kind = NotificationKind.DataSync,
-                Title = "ChainBroker Funds Sync Failed",
-                Text = $"❌ ChainBroker funds sync failed: {ex.Message}",
-                Severity = NotificationSeverity.Error
+                Card = new NotificationCard
+                {
+                    Category = "Data Sync",
+                    Title = "ChainBroker Funds Sync",
+                    Type = NotificationCardType.Error,
+                    Severity = NotificationSeverity.Error,
+                    Metrics =
+                    [
+                        new() { Label = "Code", Value = "CHAINBROKER_FUNDS_SYNC_FAILED" },
+                        new() { Label = "Message", Value = ex.Message }
+                    ]
+                }
             }, CancellationToken.None);
 
             throw;
@@ -196,6 +205,7 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
             .ToArray();
 
         int upserted = 0;
+        var skipped = 0;
         foreach (var batch in validItems.Chunk(BatchSize))
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
@@ -216,9 +226,29 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
                     db.ChainBrokerFunds.Add(ChainBrokerFund.Create(snapshot));
             }
 
-            await db.SaveChangesAsync(ct);
-            upserted += batch.Length;
+            try
+            {
+                await db.SaveChangesAsync(ct);
+                upserted += batch.Length;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                // An overlapping sync run changed the same row; the next sync reconciles this batch,
+                // so skip it instead of failing the entire sync.
+                isComplete = false;
+                skipped += batch.Length;
+                _logger.LogWarning(
+                    ex,
+                    "ChainBroker funds: skipped batch of {Count} records after a concurrency conflict",
+                    batch.Length);
+            }
+
             _logger.LogDebug("ChainBroker funds: upserted batch ({Done}/{Total})", upserted, validItems.Length);
+        }
+
+        if (skipped > 0)
+        {
+            _logger.LogWarning("ChainBroker funds: {Skipped} records skipped due to concurrency conflicts", skipped);
         }
 
         // Never delete stale records from a partial API snapshot.
