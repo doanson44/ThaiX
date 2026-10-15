@@ -1122,3 +1122,32 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
 .tx-account-personal-data .rz-text {
     overflow-wrap: anywhere;
 }
+
+
+/* Prevent intrinsic-width children from expanding the application viewport. */
+.tx-main-layout,
+.tx-main-layout .rz-body,
+.tx-main-layout .rz-body > .tx-main-content,
+.tx-main-content > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-main-content {
+    box-sizing: border-box;
+    width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.tx-main-content .rz-card,
+.tx-main-content .rz-tabview,
+.tx-main-content .rz-tabview-panels,
+.tx-main-content .rz-tabview-panel {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-main-content .rz-breadcrumb {
+    max-width: 100%;
+    flex-wrap: wrap;
+}
