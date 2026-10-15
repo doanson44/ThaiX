@@ -1089,3 +1089,81 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     }
 }
 
+/* Keep account tabs inside the viewport on narrow screens. */
+.tx-account-profile,
+.tx-account-profile .rz-tabview,
+.tx-account-profile .rz-tabview-nav,
+.tx-account-profile .rz-tabview-panels,
+.tx-account-profile .rz-tabview-panel {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-account-profile .rz-tabview-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tx-account-profile .rz-tabview-nav > li {
+    flex: 0 0 auto;
+}
+
+/* Identity values such as UUIDs and email addresses must not widen the page. */
+.tx-account-personal-data,
+.tx-account-personal-data .rz-card {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-account-personal-data .rz-text {
+    overflow-wrap: anywhere;
+}
+
+
+/* Prevent intrinsic-width children from expanding the application viewport. */
+.tx-main-layout,
+.tx-main-layout .rz-body,
+.tx-main-layout .rz-body > .tx-main-content,
+.tx-main-content > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-main-content {
+    box-sizing: border-box;
+    width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.tx-main-content .rz-card,
+.tx-main-content .rz-tabview,
+.tx-main-content .rz-tabview-panels,
+.tx-main-content .rz-tabview-panel {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.tx-main-content .rz-breadcrumb {
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+
+/* Keep every Radzen tab strip usable when labels exceed the available width. */
+.tx-main-content .rz-tabview-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tx-main-content .rz-tabview-nav > li {
+    flex: 0 0 auto;
+}
