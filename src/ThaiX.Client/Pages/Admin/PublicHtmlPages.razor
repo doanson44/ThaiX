@@ -26,10 +26,10 @@
             </div>
             @if (_canWrite)
             {
-                <RadzenButton Text="@(_showUploadPanel ? L[RK.Common.Close].Value : L[RK.PublicHtmlPages.Upload].Value)"
-                              Icon="@(_showUploadPanel ? "close" : "upload_file")"
+                <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]"
+                              Icon="upload_file"
                               ButtonStyle="ButtonStyle.Primary"
-                              Click="@ToggleUploadPanel" />
+                              Click="@OpenUploadDialogAsync" />
             }
         </div>
 
@@ -76,42 +76,6 @@
                     </RadzenCard>
                 </RadzenColumn>
             </RadzenRow>
-        }
-
-        @if (_showUploadPanel && _canWrite)
-        {
-            <RadzenCard>
-                <RadzenStack Gap="1rem">
-                    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.PublicHtmlPages.Upload]</RadzenText>
-                    <RadzenRow Gap="0.75rem">
-                        <RadzenColumn Size="12" SizeMD="6">
-                            <RadzenFormField Text="@L[RK.PublicHtmlPages.PageTitle]" Class="w-100">
-                                <RadzenTextBox @bind-Value="_title" Class="w-100" MaxLength="200" />
-                            </RadzenFormField>
-                        </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="6">
-                            <RadzenFormField Text="@L[RK.PublicHtmlPages.Slug]" Class="w-100">
-                                <RadzenTextBox @bind-Value="_slug" Class="w-100" MaxLength="80" />
-                            </RadzenFormField>
-                        </RadzenColumn>
-                    </RadzenRow>
-                    <div>
-                        <label class="rz-label mb-1" for="public-html-file">@L[RK.PublicHtmlPages.File]</label>
-                        <InputFile id="public-html-file" OnChange="OnFileSelected" accept=".html,.htm" />
-                        <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.SelectFile]</div>
-                        @if (_selectedFile is not null)
-                        {
-                            <div class="small mt-1">@_selectedFile.Name (@_selectedFile.Size.ToString("N0") @L[RK.PublicHtmlPages.Bytes])</div>
-                        }
-                    </div>
-                    <div class="d-flex flex-wrap gap-2">
-                        <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
-                                      Disabled="@(_isSubmitting || _selectedFile is null)" Click="UploadAsync" />
-                        <RadzenButton Text="@L[RK.Common.Cancel]" Icon="close" ButtonStyle="ButtonStyle.Light"
-                                      Disabled="@_isSubmitting" Click="@CloseUploadPanel" />
-                    </div>
-                </RadzenStack>
-            </RadzenCard>
         }
 
         @if (_isLoading)
@@ -305,19 +269,13 @@
 </div>
 
 @code {
-    private const long MaxFileSize = 5 * 1024 * 1024;
     private static readonly int[] _pageSizeOptions = [10, 20, 50];
 
     private List<PublicHtmlPageModel> _pages = [];
-    private IBrowserFile? _selectedFile;
-    private string _title = string.Empty;
-    private string _slug = string.Empty;
     private string _searchTerm = string.Empty;
     private string _statusFilter = "all";
     private Guid? _editingSlugId;
-    private bool _showUploadPanel;
     private bool _isLoading = true;
-    private bool _isSubmitting;
     private bool _canWrite;
     private bool _canDelete;
     private readonly HashSet<Guid> _busyPageIds = [];
@@ -349,16 +307,6 @@
         await LoadAsync();
     }
 
-    private void ToggleUploadPanel() => _showUploadPanel = !_showUploadPanel;
-
-    private void CloseUploadPanel()
-    {
-        _showUploadPanel = false;
-        _selectedFile = null;
-        _title = string.Empty;
-        _slug = string.Empty;
-    }
-
     private void BeginRename(PublicHtmlPageModel page)
     {
         _editingSlugId = page.Id;
@@ -369,29 +317,6 @@
     {
         page.EditSlug = page.Slug;
         _editingSlugId = null;
-    }
-
-    private void OnFileSelected(InputFileChangeEventArgs args)
-    {
-        _selectedFile = args.File;
-        if (_selectedFile is null)
-            return;
-
-        var extension = Path.GetExtension(_selectedFile.Name);
-        if (_selectedFile.Size <= 0 || _selectedFile.Size > MaxFileSize
-            || (!extension.Equals(".html", StringComparison.OrdinalIgnoreCase)
-                && !extension.Equals(".htm", StringComparison.OrdinalIgnoreCase)))
-        {
-            NotificationService.Notify(NotificationSeverity.Warning, L[RK.PublicHtmlPages.InvalidFile]);
-            _selectedFile = null;
-        }
-        else if (string.IsNullOrWhiteSpace(_title))
-        {
-            _title = Path.GetFileNameWithoutExtension(_selectedFile.Name);
-        }
-
-        if (string.IsNullOrWhiteSpace(_slug) && _selectedFile is not null)
-            _slug = Slugify(Path.GetFileNameWithoutExtension(_selectedFile.Name));
     }
 
     private async Task LoadAsync()
@@ -414,31 +339,18 @@
         }
     }
 
-    private async Task UploadAsync()
+    private async Task OpenUploadDialogAsync()
     {
-        if (_selectedFile is null || string.IsNullOrWhiteSpace(_title) || string.IsNullOrWhiteSpace(_slug))
-        {
-            NotificationService.Notify(NotificationSeverity.Warning,
-                string.IsNullOrWhiteSpace(_title) ? L[RK.PublicHtmlPages.TitleRequired] : L[RK.PublicHtmlPages.SlugRequired]);
-            return;
-        }
+        var result = await DialogService.OpenAsync<ThaiX.Client.Components.Administration.PublicHtmlUploadDialog>(
+            L[RK.PublicHtmlPages.Upload].Value,
+            options: new DialogOptions
+            {
+                Width = "min(600px, 95vw)",
+                CloseDialogOnOverlayClick = false
+            });
 
-        _isSubmitting = true;
-        try
-        {
-            await PublicHtmlService.UploadAsync(_selectedFile, _title.Trim(), _slug.Trim());
-            NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.UploadSuccess]);
-            CloseUploadPanel();
+        if (result is true)
             await LoadAsync();
-        }
-        catch
-        {
-            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.UploadFailed]);
-        }
-        finally
-        {
-            _isSubmitting = false;
-        }
     }
 
     private async Task RenameAsync(PublicHtmlPageModel page)
