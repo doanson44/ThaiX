@@ -83,54 +83,54 @@
                 <Columns>
                     <RadzenDataGridColumn TItem="PublicHtmlPageModel" Property="Title" Title="@L[RK.PublicHtmlPages.PageTitle]" />
                     <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Slug]">
-                        <Template Context="page">
+                        <Template Context="item">
                             @if (_canWrite)
                             {
                                 <RadzenStack Gap="0.35rem">
-                                    <RadzenTextBox @bind-Value="page.EditSlug" Class="w-100" />
+                                    <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" />
                                     <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]"
                                                   Icon="edit"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Light"
-                                                  Disabled="@(_busyPageIds.Contains(page.Id) || string.IsNullOrWhiteSpace(page.EditSlug) || page.EditSlug == page.Slug)"
-                                                  Click="@(() => RenameAsync(page))" />
+                                                  Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
+                                                  Click="@(() => RenameAsync(item))" />
                                 </RadzenStack>
-                                @if (page.PreviousSlugs.Count > 0)
+                                @if (item.PreviousSlugs.Count > 0)
                                 {
-                                    <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.PreviousSlugs]: @string.Join(", ", page.PreviousSlugs)</div>
+                                    <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.PreviousSlugs]: @string.Join(", ", item.PreviousSlugs)</div>
                                 }
                             }
                             else
                             {
-                                <span>@page.Slug</span>
+                                <span>@item.Slug</span>
                             }
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Size]" Width="100px">
-                        <Template Context="page">@page.SizeBytes.ToString("N0") B</Template>
+                        <Template Context="item">@item.SizeBytes.ToString("N0") B</Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Created]" Width="160px">
-                        <Template Context="page">@page.CreatedAtUtc.ToLocalTime().ToString("g")</Template>
+                        <Template Context="item">@item.CreatedAtUtc.ToLocalTime().ToString("g")</Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Actions]" Width="240px">
-                        <Template Context="page">
+                        <Template Context="item">
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
-                                @if (page.IsPublished)
+                                @if (item.IsPublished)
                                 {
-                                    <RadzenLink Path="@($"/html/{Uri.EscapeDataString(page.Slug)}")"
+                                    <RadzenLink Path="@($"/html/{Uri.EscapeDataString(item.Slug)}")"
                                                 Target="_blank"
                                                 Text="@L[RK.PublicHtmlPages.View]" />
                                 }
-                                <RadzenBadge Text="@(page.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)"
-                                             BadgeStyle="@(page.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)"
+                                             BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
                                 @if (_canWrite)
                                 {
-                                    <RadzenButton Icon="@(page.IsPublished ? "visibility_off" : "publish")"
-                                                  Text="@(page.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
+                                    <RadzenButton Icon="@(item.IsPublished ? "visibility_off" : "publish")"
+                                                  Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Light"
-                                                  Disabled="@_busyPageIds.Contains(page.Id)"
-                                                  Click="@(() => TogglePublishedAsync(page))" />
+                                                  Disabled="@_busyPageIds.Contains(item.Id)"
+                                                  Click="@(() => TogglePublishedAsync(item))" />
                                 }
                                 @if (_canDelete)
                                 {
@@ -138,8 +138,8 @@
                                                   Text="@L[RK.PublicHtmlPages.Delete]"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Danger"
-                                                  Disabled="@_busyPageIds.Contains(page.Id)"
-                                                  Click="@(() => DeleteAsync(page))" />
+                                                  Disabled="@_busyPageIds.Contains(item.Id)"
+                                                  Click="@(() => DeleteAsync(item))" />
                                 }
                             </RadzenStack>
                         </Template>
