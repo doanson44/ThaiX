@@ -1,5 +1,12 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using ThaiX.Application.Common.Interfaces;
+using ThaiX.Application.Features.PublicHtml.Commands.DeletePublicHtmlPage;
+using ThaiX.Application.Features.PublicHtml.Commands.RenamePublicHtmlPage;
+using ThaiX.Application.Features.PublicHtml.Commands.SetPublicHtmlPagePublished;
+using ThaiX.Application.Features.PublicHtml.Commands.UploadPublicHtmlPage;
+using ThaiX.Application.Features.PublicHtml.Queries.GetPublicHtmlPages;
+using ThaiX.Application.Features.PublicHtml.Queries.GetPublishedPublicHtmlPage;
+using ThaiX.Application.Features.PublicHtml.Queries.OpenPublishedPublicHtmlContent;
 using ThaiX.Domain.Common.Constants;
 
 namespace ThaiX.Presentation.Endpoints;
@@ -10,53 +17,72 @@ public static class PublicHtmlEndpoints
     {
         var group = endpoints.MapGroup("/api/public-html").WithTags("Public HTML Pages");
 
-        group.MapGet("/", async (IPublicHtmlPageService service, CancellationToken ct) =>
-            Results.Ok(await service.GetAllAsync(ct)))
+        group.MapGet("/", async (ISender sender, CancellationToken ct) =>
+            Results.Ok(await sender.Send(new GetPublicHtmlPagesQuery(), ct)))
             .RequireAuthorization(Permissions.FileRead);
 
-        group.MapPost("/", async ([FromForm] IFormFile file, [FromForm] string slug, [FromForm] string? title, IPublicHtmlPageService service, CancellationToken ct) =>
+        group.MapPost("/", async (
+            [FromForm] IFormFile file,
+            [FromForm] string slug,
+            [FromForm] string? title,
+            ISender sender,
+            CancellationToken ct) =>
         {
             if (file.Length <= 0 || file.Length > 5 * 1024 * 1024)
                 return Results.BadRequest(new { code = "PUBLIC_HTML_INVALID_SIZE", message = "HTML file must be between 1 byte and 5 MB." });
+
             try
             {
                 await using var stream = file.OpenReadStream();
-                var page = await service.UploadAsync(title ?? string.Empty, slug, file.FileName, stream, file.Length, ct);
-                return Results.Created($"/api/public-html/{page.Id}", page);
+                var id = await sender.Send(new UploadPublicHtmlPageCommand(
+                    title ?? string.Empty,
+                    slug,
+                    file.FileName,
+                    stream,
+                    file.Length), ct);
+                return Results.Created($"/api/public-html/{id}", new { id });
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { code = "PUBLIC_HTML_INVALID_INPUT", message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.Conflict(new { code = "PUBLIC_HTML_SLUG_EXISTS", message = ex.Message }); }
         }).RequireAuthorization(Permissions.FileWrite);
 
-        group.MapPatch("/{id:guid}/slug", async (Guid id, [FromBody] RenameRequest request, IPublicHtmlPageService service, CancellationToken ct) =>
+        group.MapPatch("/{id:guid}/slug", async (Guid id, [FromBody] RenameRequest request, ISender sender, CancellationToken ct) =>
         {
-            try { return Results.Ok(await service.RenameAsync(id, request.Slug, ct)); }
+            try
+            {
+                var pageId = await sender.Send(new RenamePublicHtmlPageCommand(id, request.Slug), ct);
+                return Results.Ok(new { id = pageId });
+            }
             catch (KeyNotFoundException) { return Results.NotFound(); }
             catch (ArgumentException ex) { return Results.BadRequest(new { code = "PUBLIC_HTML_INVALID_SLUG", message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.Conflict(new { code = "PUBLIC_HTML_SLUG_EXISTS", message = ex.Message }); }
         }).RequireAuthorization(Permissions.FileWrite);
 
-        group.MapPut("/{id:guid}/publish", async (Guid id, [FromBody] PublishRequest request, IPublicHtmlPageService service, CancellationToken ct) =>
+        group.MapPut("/{id:guid}/publish", async (Guid id, [FromBody] PublishRequest request, ISender sender, CancellationToken ct) =>
         {
-            try { return Results.Ok(await service.SetPublishedAsync(id, request.IsPublished, ct)); }
+            try
+            {
+                var pageId = await sender.Send(new SetPublicHtmlPagePublishedCommand(id, request.IsPublished), ct);
+                return Results.Ok(new { id = pageId, isPublished = request.IsPublished });
+            }
             catch (KeyNotFoundException) { return Results.NotFound(); }
         }).RequireAuthorization(Permissions.FileWrite);
 
-        group.MapDelete("/{id:guid}", async (Guid id, IPublicHtmlPageService service, CancellationToken ct) =>
+        group.MapDelete("/{id:guid}", async (Guid id, ISender sender, CancellationToken ct) =>
         {
-            await service.DeleteAsync(id, ct);
+            await sender.Send(new DeletePublicHtmlPageCommand(id), ct);
             return Results.NoContent();
         }).RequireAuthorization(Permissions.FileDelete);
 
-        endpoints.MapGet("/api/public-html/{slug}/content", async (string slug, IPublicHtmlPageService service, CancellationToken ct) =>
+        endpoints.MapGet("/api/public-html/{slug}/content", async (string slug, ISender sender, CancellationToken ct) =>
         {
-            var stream = await service.OpenPublishedContentAsync(slug, ct);
+            var stream = await sender.Send(new OpenPublishedPublicHtmlContentQuery(slug), ct);
             return stream is null ? Results.NotFound() : Results.Stream(stream, "text/html; charset=utf-8");
         }).AllowAnonymous().WithTags("Public HTML Pages");
 
-        endpoints.MapGet("/html/{slug}", async (string slug, IPublicHtmlPageService service, CancellationToken ct) =>
+        endpoints.MapGet("/html/{slug}", async (string slug, ISender sender, CancellationToken ct) =>
         {
-            var page = await service.GetPublishedBySlugAsync(slug, ct);
+            var page = await sender.Send(new GetPublishedPublicHtmlPageQuery(slug), ct);
             if (page is null) return Results.NotFound();
             var contentUrl = $"/api/public-html/{Uri.EscapeDataString(slug)}/content";
             var title = System.Net.WebUtility.HtmlEncode(page.Title);
