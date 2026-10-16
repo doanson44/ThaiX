@@ -119,13 +119,33 @@
         }
     </RadzenStack>
 
+    @if (!_isLoading && _allTickers.Any())
+    {
+        <div class="mb-3">
+            <label class="rz-label mb-1">@L[RK.MexcContractTickers.SearchPlaceholder]</label>
+            <AsyncSearchSelect TItem="MexcContractTickerDto"
+                               Value="@_selectedSymbol"
+                               ValueChanged="OnSelectedSymbolChanged"
+                               LoadDataAsync="LoadSymbolsAsync"
+                               GetText="@(x => x.Symbol)"
+                               GetValue="@(x => x.Symbol)"
+                               Placeholder="@L[RK.MexcContractTickers.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+    }
+
     @if (!Viewport.IsMobile && !_isLoading && _allTickers.Any())
     {
         <div class="w-100 overflow-auto">
             <RadzenDataGrid @ref="_dataGrid"
                             TItem="MexcContractTickerDto"
                             Data="@DisplayTickers"
-                            Count="@_allTickers.Count"
+                            Count="@DisplayTickers.Count"
                             AllowFiltering="true"
                             FilterMode="FilterMode.Advanced"
                             AllowSorting="true"
@@ -181,23 +201,6 @@
     @if (Viewport.IsMobile && !_isLoading && _allTickers.Any())
     {
         <RadzenStack Gap="1rem">
-            <div>
-                <label class="rz-label mb-1">@L[RK.MexcContractTickers.SearchPlaceholder]</label>
-                <AsyncSearchSelect TItem="MexcContractTickerDto"
-                                   Value="@_selectedSymbol"
-                                   ValueChanged="OnSelectedSymbolChanged"
-                                   LoadDataAsync="LoadSymbolsAsync"
-                                   GetText="@(x => x.Symbol)"
-                                   GetValue="@(x => x.Symbol)"
-                                   Placeholder="@L[RK.MexcContractTickers.SearchPlaceholder]"
-                                   SearchPlaceholder="@L[RK.Common.Search]"
-                                   LoadingText="@L[RK.Common.Loading]"
-                                   EmptyText="@L[RK.Common.NoDataFound]"
-                                   MoreHint="@L[RK.MasterData.SelectScrollMore]"
-                                   AllowClear="true"
-                                   Class="w-100" />
-            </div>
-
             <ClientSortBar TItem="MexcContractTickerDto"
                            Options="@SortOptions"
                            SortKey="@_sortKey"
@@ -285,6 +288,8 @@
     private bool _sortAscending = true;
 
     private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _allTickers
+        .Where(ticker => string.IsNullOrWhiteSpace(_selectedSymbol)
+            || ticker.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase))
         .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
         .ToList();
 

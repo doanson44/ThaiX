@@ -43,13 +43,33 @@
         }
     </RadzenStack>
 
+    @if (!_isLoading && _allTickers.Any())
+    {
+        <div class="mb-3">
+            <label class="rz-label mb-1">@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]</label>
+            <AsyncSearchSelect TItem="MexcSpotTicker24HrDto"
+                               Value="@_selectedSymbol"
+                               ValueChanged="OnSelectedSymbolChanged"
+                               LoadDataAsync="LoadSymbolsAsync"
+                               GetText="@(x => x.Symbol)"
+                               GetValue="@(x => x.Symbol)"
+                               Placeholder="@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+    }
+
     @if (!Viewport.IsMobile && !_isLoading && _allTickers.Any())
     {
         <div class="w-100 overflow-auto">
             <RadzenDataGrid @ref="_dataGrid"
                             TItem="MexcSpotTicker24HrDto"
-                            Data="@_allTickers"
-                            Count="@_allTickers.Count"
+                            Data="@DisplayTickers"
+                            Count="@DisplayTickers.Count"
                             AllowFiltering="true"
                             FilterMode="FilterMode.Advanced"
                             AllowSorting="true"
@@ -94,23 +114,6 @@
     @if (Viewport.IsMobile && !_isLoading && _allTickers.Any())
     {
         <RadzenStack Gap="1rem">
-            <div>
-                <label class="rz-label mb-1">@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]</label>
-                <AsyncSearchSelect TItem="MexcSpotTicker24HrDto"
-                                   Value="@_selectedSymbol"
-                                   ValueChanged="OnSelectedSymbolChanged"
-                                   LoadDataAsync="LoadSymbolsAsync"
-                                   GetText="@(x => x.Symbol)"
-                                   GetValue="@(x => x.Symbol)"
-                                   Placeholder="@L[RK.MexcSpotTicker24Hr.SearchPlaceholder]"
-                                   SearchPlaceholder="@L[RK.Common.Search]"
-                                   LoadingText="@L[RK.Common.Loading]"
-                                   EmptyText="@L[RK.Common.NoDataFound]"
-                                   MoreHint="@L[RK.MasterData.SelectScrollMore]"
-                                   AllowClear="true"
-                                   Class="w-100" />
-            </div>
-
             <ClientSortBar TItem="MexcSpotTicker24HrDto"
                            Options="@SortOptions"
                            SortKey="@_sortKey"
@@ -158,6 +161,11 @@
     private MexcSocketPriceMoveAlertBar? _priceMoveAlertBar;
     private bool _isLoading = true;
     private string? _selectedSymbol;
+
+    private IReadOnlyList<MexcSpotTicker24HrDto> DisplayTickers => _allTickers
+        .Where(ticker => string.IsNullOrWhiteSpace(_selectedSymbol)
+            || ticker.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase))
+        .ToList();
     private string? _sortKey;
     private bool _sortAscending = true;
 
