@@ -3,7 +3,7 @@ using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.SetPublicHtmlPagePublished;
 
-public sealed class SetPublicHtmlPagePublishedCommandHandler(IPublicHtmlPageService pages)
+public sealed class SetPublicHtmlPagePublishedCommandHandler(IPublicHtmlPageStore pages)
     : IRequestHandler<SetPublicHtmlPagePublishedCommand, Guid>
 {
     public async Task<Guid> Handle(SetPublicHtmlPagePublishedCommand request, CancellationToken cancellationToken)
