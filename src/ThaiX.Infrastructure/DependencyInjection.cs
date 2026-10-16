@@ -191,7 +191,7 @@ public static class DependencyInjection
             .AddSingleton<IFileStorage, LocalFileStorage>()
             .AddSingleton<IFileUrlProvider, StorageFileUrlProvider>();
 
-        services.AddScoped<IPublicHtmlPageService, PublicHtmlPageService>();
+        services.AddScoped<IPublicHtmlPageStore, PublicHtmlPageStore>();
 
         // Cache
         services
