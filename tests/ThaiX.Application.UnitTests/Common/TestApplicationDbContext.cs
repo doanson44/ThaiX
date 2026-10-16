@@ -19,6 +19,7 @@ using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Domain.Aggregates.Notifications.ValueObjects;
 using ThaiX.Domain.Aggregates.Outbox;
 using ThaiX.Domain.Aggregates.Portfolios;
+using ThaiX.Domain.Aggregates.PublicHtml;
 using ThaiX.Domain.Aggregates.PriceAlerts;
 using ThaiX.Domain.Aggregates.Resumes;
 using ThaiX.Domain.Aggregates.TcbsTop10;
@@ -79,6 +80,8 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     DbSet<SavingPosition> IApplicationDbContext.SavingPositions => Set<SavingPosition>();
     DbSet<PositionTransaction> IApplicationDbContext.PositionTransactions => Set<PositionTransaction>();
     DbSet<Note> IApplicationDbContext.Notes => Set<Note>();
+    DbSet<PublicHtmlPage> IApplicationDbContext.PublicHtmlPages => Set<PublicHtmlPage>();
+    DbSet<PublicHtmlPageSlug> IApplicationDbContext.PublicHtmlPageSlugs => Set<PublicHtmlPageSlug>();
     DbSet<ResumeProfile> IApplicationDbContext.ResumeProfiles => Set<ResumeProfile>();
     DbSet<Post> IApplicationDbContext.Posts => Set<Post>();
     DbSet<ThaiX.Domain.Aggregates.Blog.Category> IApplicationDbContext.Categories => Set<ThaiX.Domain.Aggregates.Blog.Category>();
