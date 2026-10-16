@@ -3,7 +3,7 @@ using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.PublicHtml.Queries.GetPublishedPublicHtmlPage;
 
-public sealed class GetPublishedPublicHtmlPageQueryHandler(IPublicHtmlPageService pages)
+public sealed class GetPublishedPublicHtmlPageQueryHandler(IPublicHtmlPageStore pages)
     : IRequestHandler<GetPublishedPublicHtmlPageQuery, PublicHtmlPageDto?>
 {
     public Task<PublicHtmlPageDto?> Handle(
