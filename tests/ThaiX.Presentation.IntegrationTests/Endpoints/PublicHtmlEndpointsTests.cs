@@ -95,7 +95,7 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
         contentResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         (await contentResponse.Content.ReadAsStringAsync()).Should().Contain("published page content");
 
-        Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await AuthenticateTokenForAdminAsync());
+        await AuthenticateTokenForAdminAsync();
         await Client.DeleteAsync($"/api/public-html/{id}");
     }
 
@@ -107,6 +107,7 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
         var slug = $"unpublished-{Guid.NewGuid():N}";
         var response = await UploadAsync(slug);
         response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var id = await ReadCreatedIdAsync(response);
 
         // Act
         Client.DefaultRequestHeaders.Authorization = null;
@@ -114,6 +115,8 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
 
         // Assert
         publicResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        await AuthenticateTokenForAdminAsync();
+        await Client.DeleteAsync($"/api/public-html/{id}");
     }
 
     [Fact]
@@ -130,11 +133,13 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
 
         // Assert
         renameResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        Client.DefaultRequestHeaders.Authorization = null;
         var oldSlugResponse = await Client.GetAsync($"/html/{oldSlug}");
         var newSlugResponse = await Client.GetAsync($"/html/{newSlug}");
         oldSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         newSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
+        await AuthenticateTokenForAdminAsync();
         await Client.DeleteAsync($"/api/public-html/{id}");
     }
 
