@@ -22,16 +22,7 @@ public sealed class IWealthClubApiProvider
     }
 
     private EndpointOptions GetStreamEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(StreamEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{StreamEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, StreamEndpoint); }
 
     /// <summary>
     /// Gets iWealth Club stream content by optional cursor (lastContentId).

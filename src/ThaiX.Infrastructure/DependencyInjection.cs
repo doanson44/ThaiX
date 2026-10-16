@@ -1,5 +1,5 @@
 using Hangfire;
-using Hangfire.MySql;
+using Hangfire.SqlServer;
 using Hangfire.Server;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -244,8 +244,6 @@ public static class DependencyInjection
             .AddScoped<IIndicatorService, IndicatorService>()
             .AddScoped<IExternalMarketDataService, ExternalMarketDataService>();
 
-        services.AddSingleton<HangfireStorageIndexInitializer>();
-
         AddHangfire(services, configuration);
 
         return services;
@@ -267,8 +265,7 @@ public static class DependencyInjection
         }
 
         var hangfireConnectionString = configuration.GetConnectionString("HangfireConnection")
-            ?? configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'HangfireConnection' or 'DefaultConnection' not found.");
+            ?? throw new InvalidOperationException("Connection string 'HangfireConnection' not found.");
 
         // Register Hangfire services
         services.AddHangfire(config => config
@@ -280,7 +277,7 @@ public static class DependencyInjection
                 Attempts = hangfireConfig.RetryAttempts,
                 LogEvents = true
             })
-            .UseStorage(new MySqlStorage(hangfireConnectionString, new MySqlStorageOptions
+            .UseSqlServerStorage(hangfireConnectionString, new SqlServerStorageOptions
             {
                 QueuePollInterval = hangfireConfig.Storage.QueuePollInterval,
                 JobExpirationCheckInterval = hangfireConfig.Storage.JobExpirationCheckInterval,
@@ -288,8 +285,8 @@ public static class DependencyInjection
                 PrepareSchemaIfNecessary = hangfireConfig.Storage.PrepareSchemaIfNecessary,
                 DashboardJobListLimit = hangfireConfig.Storage.DashboardJobListLimit,
                 TransactionTimeout = hangfireConfig.Storage.TransactionTimeout,
-                TablesPrefix = "Hangfire_"
-            })));
+                SchemaName = hangfireConfig.SchemaName
+            }));
 
         // Register Hangfire server (if enabled)
         if (hangfireConfig.Server.Enabled)

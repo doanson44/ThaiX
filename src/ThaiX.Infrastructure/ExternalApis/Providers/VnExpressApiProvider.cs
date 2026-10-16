@@ -42,12 +42,7 @@ public sealed class VnExpressApiProvider
 
     private Task<T?> ExecuteAsync<T>(string endpointName, CancellationToken cancellationToken)
     {
-        if (!_options.Providers.TryGetValue(ProviderName, out var endpoints) ||
-            !endpoints.TryGetValue(endpointName, out var endpoint))
-        {
-            throw new InvalidOperationException(
-                $"External API endpoint '{ProviderName}:{endpointName}' is not configured.");
-        }
+        var endpoint = _options.GetEndpoint(ProviderName, endpointName);
 
         var request = new ApiRequest
         {

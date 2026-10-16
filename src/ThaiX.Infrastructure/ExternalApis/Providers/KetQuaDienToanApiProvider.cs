@@ -35,16 +35,7 @@ public sealed partial class KetQuaDienToanApiProvider
     /// Gets the Power655 endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetPower655Endpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(Power655Endpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{Power655Endpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, Power655Endpoint); }
 
     /// <summary>
     /// Fetches Power 6/55 lottery results for the given date range.

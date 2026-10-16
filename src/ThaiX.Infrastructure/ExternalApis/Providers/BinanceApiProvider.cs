@@ -28,88 +28,25 @@ public sealed class BinanceApiProvider
     }
 
     private EndpointOptions GetFundingRatesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(FundingRatesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{FundingRatesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, FundingRatesEndpoint); }
 
     private EndpointOptions GetFuturesTicker24HrEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(FuturesTicker24HrEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{FuturesTicker24HrEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, FuturesTicker24HrEndpoint); }
 
     private EndpointOptions GetFuturesTicker24HrBySymbolEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(FuturesTicker24HrBySymbolEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{FuturesTicker24HrBySymbolEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, FuturesTicker24HrBySymbolEndpoint); }
 
     private EndpointOptions GetSpotDepthEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotDepthEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotDepthEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotDepthEndpoint); }
 
     private EndpointOptions GetFuturesDepthEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(FuturesDepthEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{FuturesDepthEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, FuturesDepthEndpoint); }
 
     private EndpointOptions GetSpotTicker24HrEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotTicker24HrEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotTicker24HrEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotTicker24HrEndpoint); }
 
     private EndpointOptions GetSpotTicker24HrBySymbolEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotTicker24HrBySymbolEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotTicker24HrBySymbolEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotTicker24HrBySymbolEndpoint); }
 
     /// <summary>
     /// Calls Binance funding rate history endpoint. Policy (cache, proxy, timeout) from config.

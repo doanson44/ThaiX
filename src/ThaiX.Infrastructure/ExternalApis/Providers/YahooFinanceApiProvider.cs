@@ -25,16 +25,7 @@ public sealed class YahooFinanceApiProvider
     /// Gets the VixChart endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetVixChartEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(VixChartEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{VixChartEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, VixChartEndpoint); }
 
     /// <summary>
     /// Calls Yahoo Finance VIX chart endpoint. Period2 is automatically set to UTC now.

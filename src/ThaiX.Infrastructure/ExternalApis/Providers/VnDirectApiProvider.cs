@@ -30,28 +30,10 @@ public sealed class VnDirectApiProvider
     }
 
     private EndpointOptions GetTopStocksEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(TopStocksEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{TopStocksEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, TopStocksEndpoint); }
 
     private EndpointOptions GetRatiosLatestEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(RatiosLatestEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{RatiosLatestEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, RatiosLatestEndpoint); }
 
     /// <summary>
     /// Gets VnDirect top stocks list.
@@ -107,28 +89,10 @@ public sealed class VnDirectApiProvider
     }
 
     private EndpointOptions GetEventsEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(EventsEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{EventsEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, EventsEndpoint); }
 
     private EndpointOptions GetRatiosLatestByItemCodeEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(RatiosLatestByItemCodeEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{RatiosLatestByItemCodeEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, RatiosLatestByItemCodeEndpoint); }
 
     /// <summary>
     /// Gets VnDirect stock events list (nomargin, alert, halt, control, suspend, noticed).
@@ -154,52 +118,16 @@ public sealed class VnDirectApiProvider
     }
 
     private EndpointOptions GetStockPricesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(StockPricesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{StockPricesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, StockPricesEndpoint); }
 
     private EndpointOptions GetStockPricesAllEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(StockPricesAllEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{StockPricesAllEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, StockPricesAllEndpoint); }
 
     private EndpointOptions GetRecommendationsEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(RecommendationsEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{RecommendationsEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, RecommendationsEndpoint); }
 
     private EndpointOptions GetTechnicalSignalsEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(TechnicalSignalsEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{TechnicalSignalsEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, TechnicalSignalsEndpoint); }
 
     /// <summary>
     /// Gets VnDirect stock price history by stock code.
@@ -302,16 +230,7 @@ public sealed class VnDirectApiProvider
     }
 
     private EndpointOptions GetChangePricesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ChangePricesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ChangePricesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ChangePricesEndpoint); }
 
     /// <summary>
     /// Gets VnDirect change prices for market indices (VNINDEX, HNX, UPCOM, VN30, VN30F1M) for period 1D.
