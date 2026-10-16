@@ -55,14 +55,5 @@ public sealed class TwentyFourHMoneyApiProvider
     }
 
     private EndpointOptions GetTransactionListSsiEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(TransactionListSsiEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{TransactionListSsiEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, TransactionListSsiEndpoint); }
 }
