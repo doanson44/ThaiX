@@ -62,8 +62,18 @@ public sealed class PublicHtmlPageService(IFileStorage storage) : IPublicHtmlPag
 
     public async Task<Stream?> OpenPublishedContentAsync(string slug, CancellationToken ct = default)
     {
-        var item = await GetPublishedBySlugAsync(slug, ct);
-        return item is null ? null : await storage.GetAsync(item.StorageKey, ct);
+        try { slug = NormalizeSlug(slug); }
+        catch (ArgumentException) { return null; }
+
+        string? storageKey;
+        using (await IndexLock.LockAsync(ct))
+        {
+            var item = (await ReadIndexAsync(ct)).FirstOrDefault(x => x.IsPublished &&
+                (x.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase) || x.PreviousSlugs.Contains(slug, StringComparer.OrdinalIgnoreCase)));
+            storageKey = item?.StorageKey;
+        }
+
+        return storageKey is null ? null : await storage.GetAsync(storageKey, ct);
     }
 
     public async Task<PublicHtmlPageDto> RenameAsync(Guid id, string slug, CancellationToken ct = default)
