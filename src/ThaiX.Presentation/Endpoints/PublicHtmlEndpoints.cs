@@ -44,7 +44,7 @@ public static class PublicHtmlEndpoints
             }
             catch (ArgumentException ex) { return Results.BadRequest(new { code = "PUBLIC_HTML_INVALID_INPUT", message = ex.Message }); }
             catch (InvalidOperationException ex) { return Results.Conflict(new { code = "PUBLIC_HTML_SLUG_EXISTS", message = ex.Message }); }
-        }).RequireAuthorization(Permissions.FileWrite);
+        }).RequireAuthorization(Permissions.FileWrite).DisableAntiforgery();
 
         group.MapPatch("/{id:guid}/slug", async (Guid id, [FromBody] RenameRequest request, ISender sender, CancellationToken ct) =>
         {
