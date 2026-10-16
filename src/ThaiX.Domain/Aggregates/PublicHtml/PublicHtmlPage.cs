@@ -79,5 +79,6 @@ public sealed class PublicHtmlPage : BaseAuditableEntity
         Delete();
         IsPublished = false;
         PublishedAtUtc = null;
+        Slug = $"deleted-{Id:N}";
     }
 }
