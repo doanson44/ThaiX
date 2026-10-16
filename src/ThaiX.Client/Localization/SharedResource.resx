@@ -1853,6 +1853,9 @@
   <data name="PublicHtmlPages.Size" xml:space="preserve">
     <value>Size</value>
   </data>
+  <data name="PublicHtmlPages.Bytes" xml:space="preserve">
+    <value>B</value>
+  </data>
   <data name="PublicHtmlPages.PreviousSlugs" xml:space="preserve">
     <value>Previous slugs</value>
   </data>

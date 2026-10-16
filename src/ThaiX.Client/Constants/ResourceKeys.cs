@@ -89,6 +89,7 @@ public static class ResourceKeys
         public const string Unpublished = "PublicHtmlPages.Unpublished";
         public const string Created = "PublicHtmlPages.Created";
         public const string Size = "PublicHtmlPages.Size";
+        public const string Bytes = "PublicHtmlPages.Bytes";
         public const string PreviousSlugs = "PublicHtmlPages.PreviousSlugs";
         public const string Actions = "PublicHtmlPages.Actions";
         public const string Rename = "PublicHtmlPages.Rename";

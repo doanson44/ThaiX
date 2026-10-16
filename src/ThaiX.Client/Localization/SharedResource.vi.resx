@@ -1852,6 +1852,9 @@
   <data name="PublicHtmlPages.Size" xml:space="preserve">
     <value>Kích thước</value>
   </data>
+  <data name="PublicHtmlPages.Bytes" xml:space="preserve">
+    <value>byte</value>
+  </data>
   <data name="PublicHtmlPages.PreviousSlugs" xml:space="preserve">
     <value>Slug trước đây</value>
   </data>
