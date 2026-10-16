@@ -153,9 +153,7 @@
     private string _searchTerm = string.Empty;
     private string _statusFilter = "all";
     private Guid? _editingSlugId;
-    private bool _showUploadPanel;
     private bool _isLoading = true;
-    private bool _isSubmitting;
     private bool _canWrite;
     private bool _canDelete;
     private readonly HashSet<Guid> _busyPageIds = [];
@@ -301,11 +299,5 @@
         }
     }
 
-    private static string Slugify(string value)
-    {
-        var chars = value.Trim().ToLowerInvariant()
-            .Select(c => char.IsAsciiLetterOrDigit(c) ? c : '-')
-            .ToArray();
-        return string.Join('-', new string(chars).Split('-', StringSplitOptions.RemoveEmptyEntries));
-    }
+
 }
