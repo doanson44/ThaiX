@@ -54,7 +54,6 @@
                         <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]"
                                       Icon="upload_file"
                                       ButtonStyle="ButtonStyle.Primary"
-                                      IsBusy="@_isSubmitting"
                                       Disabled="@(_isSubmitting || _selectedFile is null)"
                                       Click="UploadAsync" />
                     </div>
@@ -93,7 +92,6 @@
                                                   Icon="edit"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Light"
-                                                  IsBusy="@_busyPageIds.Contains(page.Id)"
                                                   Disabled="@(_busyPageIds.Contains(page.Id) || string.IsNullOrWhiteSpace(page.EditSlug) || page.EditSlug == page.Slug)"
                                                   Click="@(() => RenameAsync(page))" />
                                 </RadzenStack>
@@ -131,7 +129,6 @@
                                                   Text="@(page.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Light"
-                                                  IsBusy="@_busyPageIds.Contains(page.Id)"
                                                   Disabled="@_busyPageIds.Contains(page.Id)"
                                                   Click="@(() => TogglePublishedAsync(page))" />
                                 }
@@ -141,7 +138,6 @@
                                                   Text="@L[RK.PublicHtmlPages.Delete]"
                                                   Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Danger"
-                                                  IsBusy="@_busyPageIds.Contains(page.Id)"
                                                   Disabled="@_busyPageIds.Contains(page.Id)"
                                                   Click="@(() => DeleteAsync(page))" />
                                 }
@@ -323,7 +319,7 @@
     private static string Slugify(string value)
     {
         var chars = value.Trim().ToLowerInvariant()
-            .Select(c => char.IsLetterOrDigit(c) ? c : '-')
+            .Select(c => char.IsAsciiLetterOrDigit(c) ? c : '-')
             .ToArray();
         return string.Join('-', new string(chars).Split('-', StringSplitOptions.RemoveEmptyEntries));
     }
