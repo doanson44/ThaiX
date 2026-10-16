@@ -46,5 +46,5 @@ public sealed class RecurringJobConfiguration
     public bool Enabled { get; set; } = true;
     public string CronExpression { get; set; } = string.Empty;
     public string Queue { get; set; } = "default";
-    public string TimeZone { get; set; } = "UTC";
+    public string? TimeZone { get; set; }
 }
