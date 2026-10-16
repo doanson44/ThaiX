@@ -12,7 +12,6 @@ public sealed class DeletePublicHtmlPageCommandHandler(
     public async Task<Guid> Handle(DeletePublicHtmlPageCommand request, CancellationToken cancellationToken)
     {
         var page = await dbContext.PublicHtmlPages
-            .Include(x => x.Slugs)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         if (page is null)
