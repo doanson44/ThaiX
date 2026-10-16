@@ -143,6 +143,10 @@
                     {
                         <RadzenPanelMenuItem Text="@L[RK.Menu.JsonBins]" Icon="data_object" Path="admin/json-bins" />
                     }
+                    @if (auth.User.HasClaim("scope", PermissionNames.FileRead))
+                    {
+                        <RadzenPanelMenuItem Text="@L[RK.Menu.PublicHtmlPages]" Icon="html" Path="admin/public-html" />
+                    }
                     @if (auth.User.HasClaim("scope", PermissionNames.ResumeWrite))
                     {
                         <RadzenPanelMenuItem Text="@L[RK.Menu.Resume]" Icon="badge" Path="admin/resume" />
