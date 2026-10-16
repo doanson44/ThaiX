@@ -3,7 +3,7 @@ using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.RenamePublicHtmlPage;
 
-public sealed class RenamePublicHtmlPageCommandHandler(IPublicHtmlPageService pages)
+public sealed class RenamePublicHtmlPageCommandHandler(IPublicHtmlPageStore pages)
     : IRequestHandler<RenamePublicHtmlPageCommand, Guid>
 {
     public async Task<Guid> Handle(RenamePublicHtmlPageCommand request, CancellationToken cancellationToken)
