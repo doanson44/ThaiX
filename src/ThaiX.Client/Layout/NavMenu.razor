@@ -127,7 +127,8 @@
             @if (auth.User.HasClaim("scope", PermissionNames.UserRead)
                 || auth.User.HasClaim("scope", PermissionNames.SystemAdmin)
                 || auth.User.HasClaim("scope", PermissionNames.ResumeWrite)
-                || auth.User.HasClaim("scope", PermissionNames.JsonBinRead))
+                || auth.User.HasClaim("scope", PermissionNames.JsonBinRead)
+                || auth.User.HasClaim("scope", PermissionNames.FileRead))
             {
                 <RadzenPanelMenuItem Text="@L[RK.Menu.Administration]" Icon="admin_panel_settings" Expanded="false">
                     @if (auth.User.HasClaim("scope", PermissionNames.UserRead))
@@ -142,6 +143,10 @@
                     @if (auth.User.HasClaim("scope", PermissionNames.JsonBinRead))
                     {
                         <RadzenPanelMenuItem Text="@L[RK.Menu.JsonBins]" Icon="data_object" Path="admin/json-bins" />
+                    }
+                    @if (auth.User.HasClaim("scope", PermissionNames.FileRead))
+                    {
+                        <RadzenPanelMenuItem Text="@L[RK.Menu.PublicHtmlPages]" Icon="html" Path="admin/public-html" />
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.ResumeWrite))
                     {

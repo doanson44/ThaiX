@@ -260,6 +260,7 @@ public static class WebApplicationExtensions
         app.MapLotteryEndpoints();
         app.MapJsonBinEndpoints();
         app.MapJsonBinPublicEndpoints();
+        app.MapPublicHtmlEndpoints();
         app.MapExpenseTrackerEndpoints();
 
         return app;

@@ -11,6 +11,10 @@ public static class PermissionNames
     public const string UserManageLockout = "User.ManageLockout";
     public const string UserResetPassword = "User.ResetPassword";
 
+    public const string FileRead = "File.Read";
+    public const string FileWrite = "File.Write";
+    public const string FileDelete = "File.Delete";
+
     public const string MasterDataRead = "MasterData.Read";
     public const string MasterDataWrite = "MasterData.Write";
     public const string MasterDataDelete = "MasterData.Delete";
@@ -113,6 +117,9 @@ public static class PermissionNames
             UserManagePermissions,
             UserManageLockout,
             UserResetPassword,
+            FileRead,
+            FileWrite,
+            FileDelete,
             MasterDataRead,
             MasterDataWrite,
             MasterDataDelete,

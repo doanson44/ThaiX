@@ -79,6 +79,7 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     DbSet<SavingPosition> IApplicationDbContext.SavingPositions => Set<SavingPosition>();
     DbSet<PositionTransaction> IApplicationDbContext.PositionTransactions => Set<PositionTransaction>();
     DbSet<Note> IApplicationDbContext.Notes => Set<Note>();
+    DbSet<ThaiX.Domain.Aggregates.PublicHtml.PublicHtmlPage> IApplicationDbContext.PublicHtmlPages => Set<ThaiX.Domain.Aggregates.PublicHtml.PublicHtmlPage>();
     DbSet<ResumeProfile> IApplicationDbContext.ResumeProfiles => Set<ResumeProfile>();
     DbSet<Post> IApplicationDbContext.Posts => Set<Post>();
     DbSet<ThaiX.Domain.Aggregates.Blog.Category> IApplicationDbContext.Categories => Set<ThaiX.Domain.Aggregates.Blog.Category>();
