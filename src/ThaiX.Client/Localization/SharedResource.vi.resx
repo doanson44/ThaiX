@@ -1819,6 +1819,13 @@
   <data name="Menu.PublicHtmlPages" xml:space="preserve">
     <value>Trang HTML công khai</value>
   </data>
+  <data name="PublicHtmlPages.TotalPages" xml:space="preserve"><value>Tổng số trang</value></data>
+  <data name="PublicHtmlPages.PublishedCount" xml:space="preserve"><value>Đã xuất bản</value></data>
+  <data name="PublicHtmlPages.UnpublishedCount" xml:space="preserve"><value>Chưa xuất bản</value></data>
+  <data name="PublicHtmlPages.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tiêu đề hoặc slug</value></data>
+  <data name="PublicHtmlPages.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="PublicHtmlPages.AllStatuses" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="PublicHtmlPages.NoFilteredPages" xml:space="preserve"><value>Không có trang nào khớp với tìm kiếm hoặc bộ lọc.</value></data>
   <data name="PublicHtmlPages.Title" xml:space="preserve">
     <value>Trang HTML công khai</value>
   </data>

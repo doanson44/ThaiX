@@ -15,20 +15,74 @@
 
 <PageTitle>@L[RK.PublicHtmlPages.Title] - ThaiX</PageTitle>
 
-<div class="container-fluid py-2">
-    <RadzenStack Gap="1rem">
-        <RadzenStack Gap="0.25rem">
-            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
-                @L[RK.PublicHtmlPages.Title]
-            </RadzenText>
-            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Description]</RadzenText>
-        </RadzenStack>
+<div class="container-fluid py-3">
+    <RadzenStack Gap="1.25rem">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : TextStyle.H3)" TagName="TagName.H1" Class="mb-1">
+                    @L[RK.PublicHtmlPages.Title]
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Description]</RadzenText>
+            </div>
+            @if (_canWrite)
+            {
+                <RadzenButton Text="@(_showUploadPanel ? L[RK.Common.Close].Value : L[RK.PublicHtmlPages.Upload].Value)"
+                              Icon="@(_showUploadPanel ? "close" : "upload_file")"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@ToggleUploadPanel" />
+            }
+        </div>
 
-        @if (_canWrite)
+        @if (!_isLoading || _pages.Count > 0)
+        {
+            <RadzenRow Gap="0.75rem">
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenCard Class="h-100">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                            <div class="rounded p-2 bg-secondary bg-opacity-10">
+                                <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" Style="font-size: 1.5rem;" />
+                            </div>
+                            <div>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-1">@L[RK.PublicHtmlPages.TotalPages]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@_pages.Count</RadzenText>
+                            </div>
+                        </RadzenStack>
+                    </RadzenCard>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenCard Class="h-100">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                            <div class="rounded p-2 bg-success bg-opacity-10">
+                                <RadzenIcon Icon="public" IconStyle="IconStyle.Success" Style="font-size: 1.5rem;" />
+                            </div>
+                            <div>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-1">@L[RK.PublicHtmlPages.PublishedCount]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@_pages.Count(page => page.IsPublished)</RadzenText>
+                            </div>
+                        </RadzenStack>
+                    </RadzenCard>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="4">
+                    <RadzenCard Class="h-100">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.75rem">
+                            <div class="rounded p-2 bg-warning bg-opacity-10">
+                                <RadzenIcon Icon="visibility_off" IconStyle="IconStyle.Warning" Style="font-size: 1.5rem;" />
+                            </div>
+                            <div>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-1">@L[RK.PublicHtmlPages.UnpublishedCount]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@_pages.Count(page => !page.IsPublished)</RadzenText>
+                            </div>
+                        </RadzenStack>
+                    </RadzenCard>
+                </RadzenColumn>
+            </RadzenRow>
+        }
+
+        @if (_showUploadPanel && _canWrite)
         {
             <RadzenCard>
-                <RadzenStack Gap="0.75rem">
-                    <RadzenText TextStyle="TextStyle.H6">@L[RK.PublicHtmlPages.Upload]</RadzenText>
+                <RadzenStack Gap="1rem">
+                    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.PublicHtmlPages.Upload]</RadzenText>
                     <RadzenRow Gap="0.75rem">
                         <RadzenColumn Size="12" SizeMD="6">
                             <RadzenFormField Text="@L[RK.PublicHtmlPages.PageTitle]" Class="w-100">
@@ -50,12 +104,11 @@
                             <div class="small mt-1">@_selectedFile.Name (@_selectedFile.Size.ToString("N0") @L[RK.PublicHtmlPages.Bytes])</div>
                         }
                     </div>
-                    <div>
-                        <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]"
-                                      Icon="upload_file"
-                                      ButtonStyle="ButtonStyle.Primary"
-                                      Disabled="@(_isSubmitting || _selectedFile is null)"
-                                      Click="UploadAsync" />
+                    <div class="d-flex flex-wrap gap-2">
+                        <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
+                                      Disabled="@(_isSubmitting || _selectedFile is null)" Click="UploadAsync" />
+                        <RadzenButton Text="@L[RK.Common.Cancel]" Icon="close" ButtonStyle="ButtonStyle.Light"
+                                      Disabled="@_isSubmitting" Click="@CloseUploadPanel" />
                     </div>
                 </RadzenStack>
             </RadzenCard>
@@ -65,126 +118,188 @@
         {
             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
         }
-        else if (_pages.Count == 0)
-        {
-            <RadzenCard>
-                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.PublicHtmlPages.NoPages]</RadzenText>
-            </RadzenCard>
-        }
         else
         {
-            @if (!Viewport.IsDesktop)
-            {
-                <RadzenStack Gap="0.75rem">
-                    <Virtualize Items="@_pages" Context="item" OverscanCount="5">
-                        <RadzenCard Class="p-3">
-                            <RadzenStack Gap="0.75rem">
-                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
-                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0 text-break">@item.Title</RadzenText>
-                                    <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)" BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
-                                </div>
-                                <div>
-                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.PublicHtmlPages.Slug]</RadzenText>
-                                    @if (_canWrite)
-                                    {
-                                        <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
-                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Class="mt-2"
-                                                      Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
-                                                      Click="@(() => RenameAsync(item))" />
-                                    }
-                                    else
-                                    {
-                                        <div class="text-break">@item.Slug</div>
-                                    }
-                                </div>
-                                <div class="d-flex flex-wrap gap-3">
-                                    <div>
-                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Size]</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</RadzenText>
-                                    </div>
-                                    <div>
-                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Created]</RadzenText>
-                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.CreatedAtUtc.ToLocalTime().ToString("g")</RadzenText>
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-wrap align-items-center gap-2">
-                                    @if (item.IsPublished)
-                                    {
-                                        <RadzenButton Text="@L[RK.PublicHtmlPages.View]" Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
-                                                      Click="@(() => Navigation.NavigateTo($"/html/{Uri.EscapeDataString(item.Slug)}", true))" />
-                                    }
-                                    @if (_canWrite)
-                                    {
-                                        <RadzenButton Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
-                                                      Icon="@(item.IsPublished ? "visibility_off" : "publish")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
-                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => TogglePublishedAsync(item))" />
-                                    }
-                                    @if (_canDelete)
-                                    {
-                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Delete]" Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
-                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
-                                    }
-                                </div>
-                            </RadzenStack>
-                        </RadzenCard>
-                    </Virtualize>
-                </RadzenStack>
-            }
-            else
-            {
-                <RadzenDataGrid TItem="PublicHtmlPageModel" Data="@_pages" AllowPaging="true" PageSize="10"
-                                PageSizeOptions="@_pageSizeOptions" ShowPagingSummary="true" Responsive="true">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Property="Title" Title="@L[RK.PublicHtmlPages.PageTitle]" />
-                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Slug]">
-                            <Template Context="item">
-                                @if (_canWrite)
-                                {
-                                    <RadzenStack Gap="0.35rem">
-                                        <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
-                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
-                                                      Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
-                                                      Click="@(() => RenameAsync(item))" />
+            <RadzenCard>
+                <RadzenStack Gap="1rem">
+                    <RadzenRow Gap="0.75rem" AlignItems="AlignItems.End">
+                        <RadzenColumn Size="12" SizeMD="8">
+                            <RadzenFormField Text="@L[RK.Common.Search]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_searchTerm" Placeholder="@L[RK.PublicHtmlPages.SearchPlaceholder]" Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="@L[RK.PublicHtmlPages.Status]" Class="w-100">
+                                <RadzenDropDown TValue="string" Data="@StatusFilterOptions" TextProperty="Text" ValueProperty="Value"
+                                                @bind-Value="_statusFilter" Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    @if (_pages.Count == 0)
+                    {
+                        <div class="py-4 text-center">
+                            <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                            <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoPages]</RadzenText>
+                        </div>
+                    }
+                    else if (!FilteredPages.Any())
+                    {
+                        <div class="py-4 text-center">
+                            <RadzenIcon Icon="search_off" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                            <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoFilteredPages]</RadzenText>
+                        </div>
+                    }
+                    else if (!Viewport.IsDesktop)
+                    {
+                        <RadzenStack Gap="0.75rem">
+                            <Virtualize Items="@FilteredPages" Context="item" OverscanCount="5">
+                                <RadzenCard Class="p-3">
+                                    <RadzenStack Gap="0.75rem">
+                                        <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" />
+                                                <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0 text-break">@item.Title</RadzenText>
+                                            </div>
+                                            <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)"
+                                                         BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                        </div>
+                                        <div>
+                                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.PublicHtmlPages.Slug]</RadzenText>
+                                            @if (_editingSlugId == item.Id && _canWrite)
+                                            {
+                                                <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
+                                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                                    <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="check" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary"
+                                                                  Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
+                                                                  Click="@(() => RenameAsync(item))" />
+                                                    <RadzenButton Text="@L[RK.Common.Cancel]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                                  Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => CancelRename(item))" />
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                                    <span class="text-break">@item.Slug</span>
+                                                    @if (_canWrite)
+                                                    {
+                                                        <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
+                                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => BeginRename(item))" />
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <div>
+                                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Size]</RadzenText>
+                                                <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</RadzenText>
+                                            </div>
+                                            <div>
+                                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Created]</RadzenText>
+                                                <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.CreatedAtUtc.ToLocalTime().ToString("g")</RadzenText>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2">
+                                            @if (item.IsPublished)
+                                            {
+                                                <RadzenButton Text="@L[RK.PublicHtmlPages.View]" Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                              Click="@(() => Navigation.NavigateTo($"/html/{Uri.EscapeDataString(item.Slug)}", true))" />
+                                            }
+                                            @if (_canWrite)
+                                            {
+                                                <RadzenButton Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
+                                                              Icon="@(item.IsPublished ? "visibility_off" : "publish")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                              Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => TogglePublishedAsync(item))" />
+                                            }
+                                            @if (_canDelete)
+                                            {
+                                                <RadzenButton Text="@L[RK.PublicHtmlPages.Delete]" Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
+                                                              Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
+                                            }
+                                        </div>
                                     </RadzenStack>
-                                }
-                                else
-                                {
-                                    <span class="text-break">@item.Slug</span>
-                                }
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Size]" Width="100px">
-                            <Template Context="item">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Created]" Width="160px">
-                            <Template Context="item">@item.CreatedAtUtc.ToLocalTime().ToString("g")</Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Actions]" Width="240px">
-                            <Template Context="item">
-                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
-                                    @if (item.IsPublished)
-                                    {
-                                        <RadzenLink Path="@($"/html/{Uri.EscapeDataString(item.Slug)}")" Target="_blank" Text="@L[RK.PublicHtmlPages.View]" />
-                                    }
-                                    <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)" BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
-                                    @if (_canWrite)
-                                    {
-                                        <RadzenButton Icon="@(item.IsPublished ? "visibility_off" : "publish")"
-                                                      Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
-                                                      Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Disabled="@_busyPageIds.Contains(item.Id)"
-                                                      Click="@(() => TogglePublishedAsync(item))" />
-                                    }
-                                    @if (_canDelete)
-                                    {
-                                        <RadzenButton Icon="delete" Text="@L[RK.PublicHtmlPages.Delete]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
-                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
-                                    }
-                                </RadzenStack>
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </Columns>
-                </RadzenDataGrid>
-            }
+                                </RadzenCard>
+                            </Virtualize>
+                        </RadzenStack>
+                    }
+                    else
+                    {
+                        <RadzenDataGrid TItem="PublicHtmlPageModel" Data="@FilteredPages" AllowPaging="true" PageSize="10"
+                                        PageSizeOptions="@_pageSizeOptions" ShowPagingSummary="true" Responsive="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="PublicHtmlPageModel" Property="Title" Title="@L[RK.PublicHtmlPages.PageTitle]">
+                                    <Template Context="item">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" />
+                                            <div>
+                                                <div class="fw-semibold text-break">@item.Title</div>
+                                                <div class="small text-muted">/html/@item.Slug</div>
+                                            </div>
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Slug]">
+                                    <Template Context="item">
+                                        @if (_editingSlugId == item.Id && _canWrite)
+                                        {
+                                            <RadzenStack Gap="0.35rem">
+                                                <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
+                                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                                    <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="check" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Primary"
+                                                                  Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
+                                                                  Click="@(() => RenameAsync(item))" />
+                                                    <RadzenButton Text="@L[RK.Common.Cancel]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                                  Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => CancelRename(item))" />
+                                                </RadzenStack>
+                                            </RadzenStack>
+                                        }
+                                        else
+                                        {
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="text-break">@item.Slug</span>
+                                                @if (_canWrite)
+                                                {
+                                                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
+                                                                  Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => BeginRename(item))" />
+                                                }
+                                            </div>
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Size]" Width="110px">
+                                    <Template Context="item">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Created]" Width="165px">
+                                    <Template Context="item">@item.CreatedAtUtc.ToLocalTime().ToString("g")</Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Actions]" Width="250px">
+                                    <Template Context="item">
+                                        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                            @if (item.IsPublished)
+                                            {
+                                                <RadzenButton Icon="open_in_new" Text="@L[RK.PublicHtmlPages.View]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                              Click="@(() => Navigation.NavigateTo($"/html/{Uri.EscapeDataString(item.Slug)}", true))" />
+                                            }
+                                            @if (_canWrite)
+                                            {
+                                                <RadzenButton Icon="@(item.IsPublished ? "visibility_off" : "publish")"
+                                                              Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
+                                                              Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Disabled="@_busyPageIds.Contains(item.Id)"
+                                                              Click="@(() => TogglePublishedAsync(item))" />
+                                            }
+                                            @if (_canDelete)
+                                            {
+                                                <RadzenButton Icon="delete" Text="@L[RK.PublicHtmlPages.Delete]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
+                                                              Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
+                                            }
+                                        </RadzenStack>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                </RadzenStack>
+            </RadzenCard>
         }
     </RadzenStack>
 </div>
@@ -197,11 +312,33 @@
     private IBrowserFile? _selectedFile;
     private string _title = string.Empty;
     private string _slug = string.Empty;
+    private string _searchTerm = string.Empty;
+    private string _statusFilter = "all";
+    private Guid? _editingSlugId;
+    private bool _showUploadPanel;
     private bool _isLoading = true;
     private bool _isSubmitting;
     private bool _canWrite;
     private bool _canDelete;
     private readonly HashSet<Guid> _busyPageIds = [];
+
+    private IEnumerable<PublicHtmlPageModel> FilteredPages =>
+        _pages.Where(page =>
+            (string.IsNullOrWhiteSpace(_searchTerm)
+                || page.Title.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase)
+                || page.Slug.Contains(_searchTerm.Trim(), StringComparison.OrdinalIgnoreCase))
+            && (_statusFilter == "all"
+                || (_statusFilter == "published" && page.IsPublished)
+                || (_statusFilter == "unpublished" && !page.IsPublished)));
+
+    private IEnumerable<StatusFilterOption> StatusFilterOptions =>
+    [
+        new("all", L[RK.PublicHtmlPages.AllStatuses].Value),
+        new("published", L[RK.PublicHtmlPages.Published].Value),
+        new("unpublished", L[RK.PublicHtmlPages.Unpublished].Value)
+    ];
+
+    private sealed record StatusFilterOption(string Value, string Text);
 
     protected override async Task OnInitializedAsync()
     {
@@ -210,6 +347,28 @@
         _canWrite = authState.User.HasClaim("scope", PermissionNames.FileWrite);
         _canDelete = authState.User.HasClaim("scope", PermissionNames.FileDelete);
         await LoadAsync();
+    }
+
+    private void ToggleUploadPanel() => _showUploadPanel = !_showUploadPanel;
+
+    private void CloseUploadPanel()
+    {
+        _showUploadPanel = false;
+        _selectedFile = null;
+        _title = string.Empty;
+        _slug = string.Empty;
+    }
+
+    private void BeginRename(PublicHtmlPageModel page)
+    {
+        _editingSlugId = page.Id;
+        page.EditSlug = page.Slug;
+    }
+
+    private void CancelRename(PublicHtmlPageModel page)
+    {
+        page.EditSlug = page.Slug;
+        _editingSlugId = null;
     }
 
     private void OnFileSelected(InputFileChangeEventArgs args)
@@ -229,10 +388,6 @@
         else if (string.IsNullOrWhiteSpace(_title))
         {
             _title = Path.GetFileNameWithoutExtension(_selectedFile.Name);
-        }
-        else if (string.IsNullOrWhiteSpace(_slug))
-        {
-            _slug = Slugify(Path.GetFileNameWithoutExtension(_selectedFile.Name));
         }
 
         if (string.IsNullOrWhiteSpace(_slug) && _selectedFile is not null)
@@ -273,9 +428,7 @@
         {
             await PublicHtmlService.UploadAsync(_selectedFile, _title.Trim(), _slug.Trim());
             NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.UploadSuccess]);
-            _selectedFile = null;
-            _title = string.Empty;
-            _slug = string.Empty;
+            CloseUploadPanel();
             await LoadAsync();
         }
         catch
@@ -294,6 +447,7 @@
         try
         {
             await PublicHtmlService.RenameAsync(page.Id, page.EditSlug.Trim());
+            _editingSlugId = null;
             NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.RenameSuccess]);
             await LoadAsync();
         }

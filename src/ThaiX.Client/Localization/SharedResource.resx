@@ -1820,6 +1820,13 @@
   <data name="Menu.PublicHtmlPages" xml:space="preserve">
     <value>Public HTML Pages</value>
   </data>
+  <data name="PublicHtmlPages.TotalPages" xml:space="preserve"><value>Total pages</value></data>
+  <data name="PublicHtmlPages.PublishedCount" xml:space="preserve"><value>Published</value></data>
+  <data name="PublicHtmlPages.UnpublishedCount" xml:space="preserve"><value>Unpublished</value></data>
+  <data name="PublicHtmlPages.SearchPlaceholder" xml:space="preserve"><value>Search by title or slug</value></data>
+  <data name="PublicHtmlPages.Status" xml:space="preserve"><value>Status</value></data>
+  <data name="PublicHtmlPages.AllStatuses" xml:space="preserve"><value>All statuses</value></data>
+  <data name="PublicHtmlPages.NoFilteredPages" xml:space="preserve"><value>No pages match your search or filters.</value></data>
   <data name="PublicHtmlPages.Title" xml:space="preserve">
     <value>Public HTML Pages</value>
   </data>
