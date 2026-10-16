@@ -30,91 +30,37 @@ public sealed class CafeFApiProvider
     /// Gets the BankInterestRates endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetBankInterestRatesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(BankInterestRatesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{BankInterestRatesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, BankInterestRatesEndpoint); }
 
     /// <summary>
     /// Gets the Commodities endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetCommoditiesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(CommoditiesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{CommoditiesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, CommoditiesEndpoint); }
 
     /// <summary>
     /// Gets the Currencies endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetCurrenciesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(CurrenciesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{CurrenciesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, CurrenciesEndpoint); }
 
     /// <summary>
     /// Gets the Cryptocurrencies endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetCryptocurrenciesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(CryptocurrenciesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{CryptocurrenciesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, CryptocurrenciesEndpoint); }
 
     /// <summary>
     /// Gets the StockPriceHistory endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetStockPriceHistoryEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(StockPriceHistoryEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{StockPriceHistoryEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, StockPriceHistoryEndpoint); }
 
     /// <summary>
     /// Gets the StockWatchlistPrice endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetStockWatchlistPriceEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(StockWatchlistPriceEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{StockWatchlistPriceEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, StockWatchlistPriceEndpoint); }
 
     /// <summary>
     /// Calls CafeF bank interest rates endpoint. Policy (cache, proxy, timeout) from config.
