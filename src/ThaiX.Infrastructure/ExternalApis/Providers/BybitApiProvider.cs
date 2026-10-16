@@ -26,31 +26,13 @@ public sealed class BybitApiProvider
     /// Gets the LinearTickers endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetLinearTickersEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(LinearTickersEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{LinearTickersEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, LinearTickersEndpoint); }
 
     /// <summary>
     /// Gets the SpotTickers endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetSpotTickersEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotTickersEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotTickersEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotTickersEndpoint); }
 
     /// <summary>
     /// Calls Bybit linear/perpetual tickers endpoint. Policy (cache, proxy, timeout) from config.
