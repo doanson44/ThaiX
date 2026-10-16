@@ -47,7 +47,7 @@
                         <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.SelectFile]</div>
                         @if (_selectedFile is not null)
                         {
-                            <div class="small mt-1">@_selectedFile.Name (@_selectedFile.Size.ToString("N0") B)</div>
+                            <div class="small mt-1">@_selectedFile.Name (@_selectedFile.Size.ToString("N0") @L[RK.PublicHtmlPages.Bytes])</div>
                         }
                     </div>
                     <div>
@@ -147,7 +147,10 @@
                                                       Click="@(() => RenameAsync(item))" />
                                     </RadzenStack>
                                 }
-                                else { <span class="text-break">@item.Slug</span> }
+                                else
+                                {
+                                    <span class="text-break">@item.Slug</span>
+                                }
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Size]" Width="100px">
@@ -190,7 +193,7 @@
     private const long MaxFileSize = 5 * 1024 * 1024;
     private static readonly int[] _pageSizeOptions = [10, 20, 50];
 
-    private IReadOnlyList<PublicHtmlPageModel> _pages = [];
+    private List<PublicHtmlPageModel> _pages = [];
     private IBrowserFile? _selectedFile;
     private string _title = string.Empty;
     private string _slug = string.Empty;
@@ -244,7 +247,7 @@
             var pages = await PublicHtmlService.GetAllAsync();
             foreach (var page in pages)
                 page.EditSlug = page.Slug;
-            _pages = pages;
+            _pages = pages.ToList();
         }
         catch
         {
