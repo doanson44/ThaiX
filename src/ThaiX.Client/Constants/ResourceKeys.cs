@@ -71,7 +71,43 @@ public static class ResourceKeys
         public const string BlogCategories = "Menu.BlogCategories";
         public const string BlogTags = "Menu.BlogTags";
         public const string JsonBins = "Menu.JsonBins";
+        public const string PublicHtmlPages = "Menu.PublicHtmlPages";
         public const string Tools = "Menu.Tools";
+    }
+
+    public static class PublicHtmlPages
+    {
+        public const string Title = "PublicHtmlPages.Title";
+        public const string Description = "PublicHtmlPages.Description";
+        public const string Upload = "PublicHtmlPages.Upload";
+        public const string File = "PublicHtmlPages.File";
+        public const string PageTitle = "PublicHtmlPages.PageTitle";
+        public const string Slug = "PublicHtmlPages.Slug";
+        public const string Publish = "PublicHtmlPages.Publish";
+        public const string Unpublish = "PublicHtmlPages.Unpublish";
+        public const string Published = "PublicHtmlPages.Published";
+        public const string Unpublished = "PublicHtmlPages.Unpublished";
+        public const string Created = "PublicHtmlPages.Created";
+        public const string Size = "PublicHtmlPages.Size";
+        public const string PreviousSlugs = "PublicHtmlPages.PreviousSlugs";
+        public const string Actions = "PublicHtmlPages.Actions";
+        public const string Rename = "PublicHtmlPages.Rename";
+        public const string Delete = "PublicHtmlPages.Delete";
+        public const string View = "PublicHtmlPages.View";
+        public const string LoadFailed = "PublicHtmlPages.LoadFailed";
+        public const string UploadSuccess = "PublicHtmlPages.UploadSuccess";
+        public const string UploadFailed = "PublicHtmlPages.UploadFailed";
+        public const string RenameSuccess = "PublicHtmlPages.RenameSuccess";
+        public const string RenameFailed = "PublicHtmlPages.RenameFailed";
+        public const string PublishFailed = "PublicHtmlPages.PublishFailed";
+        public const string DeleteSuccess = "PublicHtmlPages.DeleteSuccess";
+        public const string DeleteFailed = "PublicHtmlPages.DeleteFailed";
+        public const string DeleteConfirm = "PublicHtmlPages.DeleteConfirm";
+        public const string SelectFile = "PublicHtmlPages.SelectFile";
+        public const string InvalidFile = "PublicHtmlPages.InvalidFile";
+        public const string SlugRequired = "PublicHtmlPages.SlugRequired";
+        public const string TitleRequired = "PublicHtmlPages.TitleRequired";
+        public const string NoPages = "PublicHtmlPages.NoPages";
     }
 
     public static class HomePage
