@@ -57,7 +57,7 @@
                             </div>
                             <div>
                                 <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-1">@L[RK.PublicHtmlPages.PublishedCount]</RadzenText>
-                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@_pages.Count(page => page.IsPublished)</RadzenText>
+                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@(_pages.Count(page => page.IsPublished))</RadzenText>
                             </div>
                         </RadzenStack>
                     </RadzenCard>
@@ -70,7 +70,7 @@
                             </div>
                             <div>
                                 <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-1">@L[RK.PublicHtmlPages.UnpublishedCount]</RadzenText>
-                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@_pages.Count(page => !page.IsPublished)</RadzenText>
+                                <RadzenText TextStyle="TextStyle.H4" Class="mb-0">@(_pages.Count(page => !page.IsPublished))</RadzenText>
                             </div>
                         </RadzenStack>
                     </RadzenCard>
