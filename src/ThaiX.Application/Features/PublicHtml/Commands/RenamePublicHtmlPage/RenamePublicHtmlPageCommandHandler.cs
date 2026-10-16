@@ -12,7 +12,7 @@ public sealed class RenamePublicHtmlPageCommandHandler(IFileStorage storage)
             storage,
             (pages, _) =>
             {
-                var slug = NormalizeSlug(request.Slug);
+                var slug = request.Slug.Trim().ToLowerInvariant();
                 var index = pages.FindIndex(x => x.Id == request.Id);
                 if (index < 0)
                     throw new KeyNotFoundException("HTML page was not found.");
@@ -34,15 +34,4 @@ public sealed class RenamePublicHtmlPageCommandHandler(IFileStorage storage)
                 return Task.FromResult((request.Id, true));
             },
             cancellationToken);
-
-    private static string NormalizeSlug(string slug)
-    {
-        slug = (slug ?? string.Empty).Trim().ToLowerInvariant();
-        if (slug.Length is < 1 or > 80 ||
-            slug.Any(c => !(char.IsAsciiLetterOrDigit(c) || c == '-')) ||
-            slug.StartsWith('-') || slug.EndsWith('-') ||
-            slug.Contains("--", StringComparison.Ordinal))
-            throw new ArgumentException("Slug must contain 1-80 lowercase letters, numbers, or single hyphens.", nameof(slug));
-        return slug;
-    }
 }
