@@ -26,16 +26,7 @@ public sealed class DragonCapitalApiProvider
     /// Gets the FundPortfolio endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetFundPortfolioEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(FundPortfolioEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{FundPortfolioEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, FundPortfolioEndpoint); }
 
     /// <summary>
     /// Calls Dragon Capital fund portfolio endpoint with specified fund code.
