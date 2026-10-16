@@ -1,27 +1,26 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using ThaiX.Application.Common.Interfaces;
-using ThaiX.Application.Features.PublicHtml.Common;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.SetPublicHtmlPagePublished;
 
-public sealed class SetPublicHtmlPagePublishedCommandHandler(IFileStorage storage)
+public sealed class SetPublicHtmlPagePublishedCommandHandler(IApplicationDbContext dbContext)
     : IRequestHandler<SetPublicHtmlPagePublishedCommand, Guid>
 {
-    public Task<Guid> Handle(SetPublicHtmlPagePublishedCommand request, CancellationToken cancellationToken) =>
-        PublicHtmlPageIndex.ExecuteAsync(
-            storage,
-            (pages, _) =>
-            {
-                var index = pages.FindIndex(x => x.Id == request.Id);
-                if (index < 0)
-                    throw new KeyNotFoundException("HTML page was not found.");
+    public async Task<Guid> Handle(SetPublicHtmlPagePublishedCommand request, CancellationToken cancellationToken)
+    {
+        var page = await dbContext.PublicHtmlPages
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-                pages[index] = pages[index] with
-                {
-                    IsPublished = request.IsPublished,
-                    PublishedAtUtc = request.IsPublished ? DateTime.UtcNow : null
-                };
-                return Task.FromResult((request.Id, true));
-            },
-            cancellationToken);
+        if (page is null)
+            throw new KeyNotFoundException("HTML page was not found.");
+
+        if (request.IsPublished)
+            page.Publish(DateTime.UtcNow);
+        else
+            page.Unpublish();
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return request.Id;
+    }
 }

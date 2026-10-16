@@ -18,6 +18,7 @@ using ThaiX.Domain.Aggregates.Notes;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Domain.Aggregates.Outbox;
 using ThaiX.Domain.Aggregates.Portfolios;
+using ThaiX.Domain.Aggregates.PublicHtml;
 using ThaiX.Domain.Aggregates.PriceAlerts;
 using ThaiX.Domain.Aggregates.Resumes;
 using ThaiX.Domain.Aggregates.TcbsTop10;
@@ -188,6 +189,9 @@ public interface IApplicationDbContext
 
     /// <summary>Notes for the note-taking feature.</summary>
     DbSet<Note> Notes { get; }
+
+    DbSet<PublicHtmlPage> PublicHtmlPages { get; }
+    DbSet<PublicHtmlPageSlug> PublicHtmlPageSlugs { get; }
 
     /// <summary>Notifications created by domain/application events.</summary>
     DbSet<Notification> Notifications { get; }

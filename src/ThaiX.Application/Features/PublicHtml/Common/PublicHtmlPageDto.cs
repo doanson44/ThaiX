@@ -8,4 +8,5 @@ public sealed record PublicHtmlPageDto(
     long SizeBytes,
     bool IsPublished,
     DateTime CreatedAtUtc,
-    DateTime? PublishedAtUtc);
+    DateTime? PublishedAtUtc,
+    DateTime? LastViewedAtUtc);

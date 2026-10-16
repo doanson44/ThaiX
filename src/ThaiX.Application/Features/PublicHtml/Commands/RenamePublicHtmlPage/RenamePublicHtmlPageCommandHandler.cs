@@ -1,37 +1,30 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using ThaiX.Application.Common.Interfaces;
-using ThaiX.Application.Features.PublicHtml.Common;
+using ThaiX.Domain.Aggregates.PublicHtml;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.RenamePublicHtmlPage;
 
-public sealed class RenamePublicHtmlPageCommandHandler(IFileStorage storage)
+public sealed class RenamePublicHtmlPageCommandHandler(IApplicationDbContext dbContext)
     : IRequestHandler<RenamePublicHtmlPageCommand, Guid>
 {
-    public Task<Guid> Handle(RenamePublicHtmlPageCommand request, CancellationToken cancellationToken) =>
-        PublicHtmlPageIndex.ExecuteAsync(
-            storage,
-            (pages, _) =>
-            {
-                var slug = request.Slug.Trim().ToLowerInvariant();
-                var index = pages.FindIndex(x => x.Id == request.Id);
-                if (index < 0)
-                    throw new KeyNotFoundException("HTML page was not found.");
+    public async Task<Guid> Handle(RenamePublicHtmlPageCommand request, CancellationToken cancellationToken)
+    {
+        var slug = PublicHtmlPage.NormalizeSlug(request.Slug);
+        var page = await dbContext.PublicHtmlPages
+            .Include(x => x.Slugs)
+            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
-                if (pages.Any(x => x.Id != request.Id &&
-                    (x.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase) ||
-                     x.PreviousSlugs.Contains(slug, StringComparer.OrdinalIgnoreCase))))
-                    throw new InvalidOperationException("The slug is already in use.");
+        if (page is null)
+            throw new KeyNotFoundException("HTML page was not found.");
 
-                var page = pages[index];
-                if (!page.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase))
-                    page = page with
-                    {
-                        PreviousSlugs = page.PreviousSlugs.Append(page.Slug).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
-                        Slug = slug
-                    };
+        if (await dbContext.PublicHtmlPageSlugs.AnyAsync(
+            x => x.PublicHtmlPageId != request.Id && x.Slug == slug,
+            cancellationToken))
+            throw new InvalidOperationException("The slug is already in use.");
 
-                pages[index] = page;
-                return Task.FromResult((request.Id, true));
-            },
-            cancellationToken);
+        page.RenameSlug(slug);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return request.Id;
+    }
 }

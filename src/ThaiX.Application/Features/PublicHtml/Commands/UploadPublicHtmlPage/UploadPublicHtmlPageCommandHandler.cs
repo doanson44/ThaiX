@@ -1,42 +1,38 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using ThaiX.Application.Common.Interfaces;
-using ThaiX.Application.Features.PublicHtml.Common;
+using ThaiX.Domain.Aggregates.PublicHtml;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.UploadPublicHtmlPage;
 
-public sealed class UploadPublicHtmlPageCommandHandler(IFileStorage storage)
+public sealed class UploadPublicHtmlPageCommandHandler(
+    IApplicationDbContext dbContext,
+    IFileStorage storage)
     : IRequestHandler<UploadPublicHtmlPageCommand, Guid>
 {
     private const string ContentPrefix = "public-html/content";
 
     public async Task<Guid> Handle(UploadPublicHtmlPageCommand request, CancellationToken cancellationToken)
     {
-        var id = Guid.NewGuid();
-        var storageKey = $"{ContentPrefix}/{id:N}.html";
+        var slug = PublicHtmlPage.NormalizeSlug(request.Slug);
+        if (await dbContext.PublicHtmlPageSlugs.AnyAsync(x => x.Slug == slug, cancellationToken))
+            throw new InvalidOperationException("The slug is already in use.");
+
+        var title = string.IsNullOrWhiteSpace(request.Title)
+            ? Path.GetFileNameWithoutExtension(request.FileName)
+            : request.Title.Trim();
+        var storageKey = $"{ContentPrefix}/{Guid.NewGuid():N}.html";
         var contentSaved = false;
 
         try
         {
-            return await PublicHtmlPageIndex.ExecuteAsync(
-                storage,
-                async (pages, ct) =>
-                {
-                    var slug = request.Slug.Trim().ToLowerInvariant();
-                    if (pages.Any(x => x.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase) ||
-                        x.PreviousSlugs.Contains(slug, StringComparer.OrdinalIgnoreCase)))
-                        throw new InvalidOperationException("The slug is already in use.");
+            storageKey = await storage.SaveAsync(request.Content, storageKey, "text/html", cancellationToken);
+            contentSaved = true;
 
-                    var title = string.IsNullOrWhiteSpace(request.Title)
-                        ? Path.GetFileNameWithoutExtension(request.FileName)
-                        : request.Title.Trim();
-
-                    await storage.SaveAsync(request.Content, storageKey, "text/html", ct);
-                    contentSaved = true;
-                    pages.Add(new StoredPublicHtmlPage(
-                        id, title, slug, [], storageKey, request.SizeBytes, false, DateTime.UtcNow, null));
-                    return (id, true);
-                },
-                cancellationToken);
+            var page = PublicHtmlPage.Create(title, slug, storageKey, request.SizeBytes);
+            dbContext.PublicHtmlPages.Add(page);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            return page.Id;
         }
         catch
         {
