@@ -23,17 +23,7 @@ public sealed class ChainBrokerApiProvider
         _options = options.Value;
     }
 
-    private EndpointOptions GetEndpoint(string endpointName)
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(endpointName, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{endpointName}' is not configured.");
-    }
+    private EndpointOptions GetEndpoint(string endpointName) => _options.GetEndpoint(ProviderName, endpointName);
 
     private ApiRequest BuildRequest(EndpointOptions endpoint, int? page)
     {
