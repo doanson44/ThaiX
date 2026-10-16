@@ -56,6 +56,7 @@ public static class RouteCatalog
         "/admin/ai-tester",
         "/admin/resume",
         "/admin/json-bins",
+        "/admin/public-html",
         "/admin/json-bins/create",
         $"/admin/json-bins/{SmokeEntityId}",
         "/admin/blog/posts",
