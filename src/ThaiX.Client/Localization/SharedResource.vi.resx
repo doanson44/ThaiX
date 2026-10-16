@@ -1813,4 +1813,100 @@
   <data name="PermissionExplorer.Missing" xml:space="preserve"><value>Chưa cấp</value></data>
   <data name="PermissionExplorer.Summary" xml:space="preserve"><value>Đã cấp {0}/{1} quyền</value></data>
   <data name="PermissionExplorer.NoResults" xml:space="preserve"><value>Không có quyền phù hợp với bộ lọc hiện tại.</value></data>
+  <data name="Menu.PublicHtmlPages" xml:space="preserve">
+    <value>Trang HTML công khai</value>
+  </data>
+  <data name="PublicHtmlPages.Title" xml:space="preserve">
+    <value>Trang HTML công khai</value>
+  </data>
+  <data name="PublicHtmlPages.Description" xml:space="preserve">
+    <value>Tải lên và quản lý các trang HTML độc lập được xuất bản trên trang này.</value>
+  </data>
+  <data name="PublicHtmlPages.Upload" xml:space="preserve">
+    <value>Tải trang HTML lên</value>
+  </data>
+  <data name="PublicHtmlPages.File" xml:space="preserve">
+    <value>Tệp HTML</value>
+  </data>
+  <data name="PublicHtmlPages.PageTitle" xml:space="preserve">
+    <value>Tiêu đề trang</value>
+  </data>
+  <data name="PublicHtmlPages.Slug" xml:space="preserve">
+    <value>Đường dẫn slug</value>
+  </data>
+  <data name="PublicHtmlPages.Publish" xml:space="preserve">
+    <value>Xuất bản</value>
+  </data>
+  <data name="PublicHtmlPages.Unpublish" xml:space="preserve">
+    <value>Gỡ xuất bản</value>
+  </data>
+  <data name="PublicHtmlPages.Published" xml:space="preserve">
+    <value>Đã xuất bản</value>
+  </data>
+  <data name="PublicHtmlPages.Unpublished" xml:space="preserve">
+    <value>Chưa xuất bản</value>
+  </data>
+  <data name="PublicHtmlPages.Created" xml:space="preserve">
+    <value>Ngày tạo</value>
+  </data>
+  <data name="PublicHtmlPages.Size" xml:space="preserve">
+    <value>Kích thước</value>
+  </data>
+  <data name="PublicHtmlPages.PreviousSlugs" xml:space="preserve">
+    <value>Slug trước đây</value>
+  </data>
+  <data name="PublicHtmlPages.Actions" xml:space="preserve">
+    <value>Thao tác</value>
+  </data>
+  <data name="PublicHtmlPages.Rename" xml:space="preserve">
+    <value>Đổi slug</value>
+  </data>
+  <data name="PublicHtmlPages.Delete" xml:space="preserve">
+    <value>Xóa</value>
+  </data>
+  <data name="PublicHtmlPages.View" xml:space="preserve">
+    <value>Xem trang</value>
+  </data>
+  <data name="PublicHtmlPages.LoadFailed" xml:space="preserve">
+    <value>Không tải được danh sách trang HTML.</value>
+  </data>
+  <data name="PublicHtmlPages.UploadSuccess" xml:space="preserve">
+    <value>Đã tải trang HTML lên.</value>
+  </data>
+  <data name="PublicHtmlPages.UploadFailed" xml:space="preserve">
+    <value>Không tải được trang HTML lên.</value>
+  </data>
+  <data name="PublicHtmlPages.RenameSuccess" xml:space="preserve">
+    <value>Đã cập nhật slug. Các URL cũ vẫn hoạt động.</value>
+  </data>
+  <data name="PublicHtmlPages.RenameFailed" xml:space="preserve">
+    <value>Không đổi được slug của trang HTML.</value>
+  </data>
+  <data name="PublicHtmlPages.PublishFailed" xml:space="preserve">
+    <value>Không cập nhật được trạng thái xuất bản.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteSuccess" xml:space="preserve">
+    <value>Đã xóa trang HTML.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteFailed" xml:space="preserve">
+    <value>Không xóa được trang HTML.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteConfirm" xml:space="preserve">
+    <value>Bạn có chắc muốn xóa trang HTML này? Các URL đã xuất bản sẽ ngừng hoạt động.</value>
+  </data>
+  <data name="PublicHtmlPages.SelectFile" xml:space="preserve">
+    <value>Chọn tệp .html hoặc .htm (tối đa 5 MB).</value>
+  </data>
+  <data name="PublicHtmlPages.InvalidFile" xml:space="preserve">
+    <value>Hãy chọn tệp .html hoặc .htm có dung lượng không quá 5 MB.</value>
+  </data>
+  <data name="PublicHtmlPages.SlugRequired" xml:space="preserve">
+    <value>Slug là bắt buộc.</value>
+  </data>
+  <data name="PublicHtmlPages.TitleRequired" xml:space="preserve">
+    <value>Tiêu đề trang là bắt buộc.</value>
+  </data>
+  <data name="PublicHtmlPages.NoPages" xml:space="preserve">
+    <value>Chưa có trang HTML nào được tải lên.</value>
+  </data>
 </root>
