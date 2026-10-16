@@ -1,0 +1,365 @@
+@page "/admin/public-html"
+@attribute [Authorize(Policy = PermissionNames.FileRead)]
+@using Microsoft.AspNetCore.Components.Forms
+@using ThaiX.Client.Constants
+@using ThaiX.Client.Models.PublicHtml
+@using ThaiX.Client.Services.PublicHtml
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inherits ThaiXPageBase
+@inject IPublicHtmlPageService PublicHtmlService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject NavigationManager Navigation
+@inject IStringLocalizer<SharedResource> L
+
+<PageTitle>@L[RK.PublicHtmlPages.Title] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Gap="0.25rem">
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
+                @L[RK.PublicHtmlPages.Title]
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Description]</RadzenText>
+        </RadzenStack>
+
+        @if (_canWrite)
+        {
+            <RadzenCard>
+                <RadzenStack Gap="0.75rem">
+                    <RadzenText TextStyle="TextStyle.H6">@L[RK.PublicHtmlPages.Upload]</RadzenText>
+                    <RadzenRow Gap="0.75rem">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="@L[RK.PublicHtmlPages.PageTitle]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_title" Class="w-100" MaxLength="200" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="@L[RK.PublicHtmlPages.Slug]" Class="w-100">
+                                <RadzenTextBox @bind-Value="_slug" Class="w-100" MaxLength="80" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <div>
+                        <label class="rz-label mb-1" for="public-html-file">@L[RK.PublicHtmlPages.File]</label>
+                        <InputFile id="public-html-file" OnChange="OnFileSelected" accept=".html,.htm" />
+                        <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.SelectFile]</div>
+                        @if (_selectedFile is not null)
+                        {
+                            <div class="small mt-1">@_selectedFile.Name (@_selectedFile.Size.ToString("N0") @L[RK.PublicHtmlPages.Bytes])</div>
+                        }
+                    </div>
+                    <div>
+                        <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]"
+                                      Icon="upload_file"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Disabled="@(_isSubmitting || _selectedFile is null)"
+                                      Click="UploadAsync" />
+                    </div>
+                </RadzenStack>
+            </RadzenCard>
+        }
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (_pages.Count == 0)
+        {
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[RK.PublicHtmlPages.NoPages]</RadzenText>
+            </RadzenCard>
+        }
+        else
+        {
+            @if (!Viewport.IsDesktop)
+            {
+                <RadzenStack Gap="0.75rem">
+                    <Virtualize Items="@_pages" Context="item" OverscanCount="5">
+                        <RadzenCard Class="p-3">
+                            <RadzenStack Gap="0.75rem">
+                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+                                    <RadzenText TextStyle="TextStyle.Subtitle1" Class="mb-0 text-break">@item.Title</RadzenText>
+                                    <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)" BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                </div>
+                                <div>
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.PublicHtmlPages.Slug]</RadzenText>
+                                    @if (_canWrite)
+                                    {
+                                        <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
+                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Class="mt-2"
+                                                      Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
+                                                      Click="@(() => RenameAsync(item))" />
+                                    }
+                                    else
+                                    {
+                                        <div class="text-break">@item.Slug</div>
+                                    }
+                                </div>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div>
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Size]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</RadzenText>
+                                    </div>
+                                    <div>
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.PublicHtmlPages.Created]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@item.CreatedAtUtc.ToLocalTime().ToString("g")</RadzenText>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    @if (item.IsPublished)
+                                    {
+                                        <RadzenButton Text="@L[RK.PublicHtmlPages.View]" Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                      Click="@(() => Navigation.NavigateTo($"/html/{Uri.EscapeDataString(item.Slug)}", true))" />
+                                    }
+                                    @if (_canWrite)
+                                    {
+                                        <RadzenButton Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
+                                                      Icon="@(item.IsPublished ? "visibility_off" : "publish")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => TogglePublishedAsync(item))" />
+                                    }
+                                    @if (_canDelete)
+                                    {
+                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Delete]" Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
+                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
+                                    }
+                                </div>
+                            </RadzenStack>
+                        </RadzenCard>
+                    </Virtualize>
+                </RadzenStack>
+            }
+            else
+            {
+                <RadzenDataGrid TItem="PublicHtmlPageModel" Data="@_pages" AllowPaging="true" PageSize="10"
+                                PageSizeOptions="@_pageSizeOptions" ShowPagingSummary="true" Responsive="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Property="Title" Title="@L[RK.PublicHtmlPages.PageTitle]" />
+                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Slug]">
+                            <Template Context="item">
+                                @if (_canWrite)
+                                {
+                                    <RadzenStack Gap="0.35rem">
+                                        <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100" MaxLength="80" />
+                                        <RadzenButton Text="@L[RK.PublicHtmlPages.Rename]" Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light"
+                                                      Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
+                                                      Click="@(() => RenameAsync(item))" />
+                                    </RadzenStack>
+                                }
+                                else
+                                {
+                                    <span class="text-break">@item.Slug</span>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Size]" Width="100px">
+                            <Template Context="item">@item.SizeBytes.ToString("N0") @L[RK.PublicHtmlPages.Bytes]</Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Created]" Width="160px">
+                            <Template Context="item">@item.CreatedAtUtc.ToLocalTime().ToString("g")</Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="PublicHtmlPageModel" Title="@L[RK.PublicHtmlPages.Actions]" Width="240px">
+                            <Template Context="item">
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
+                                    @if (item.IsPublished)
+                                    {
+                                        <RadzenLink Path="@($"/html/{Uri.EscapeDataString(item.Slug)}")" Target="_blank" Text="@L[RK.PublicHtmlPages.View]" />
+                                    }
+                                    <RadzenBadge Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)" BadgeStyle="@(item.IsPublished ? BadgeStyle.Success : BadgeStyle.Secondary)" />
+                                    @if (_canWrite)
+                                    {
+                                        <RadzenButton Icon="@(item.IsPublished ? "visibility_off" : "publish")"
+                                                      Text="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
+                                                      Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Disabled="@_busyPageIds.Contains(item.Id)"
+                                                      Click="@(() => TogglePublishedAsync(item))" />
+                                    }
+                                    @if (_canDelete)
+                                    {
+                                        <RadzenButton Icon="delete" Text="@L[RK.PublicHtmlPages.Delete]" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger"
+                                                      Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
+                                    }
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            }
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private const long MaxFileSize = 5 * 1024 * 1024;
+    private static readonly int[] _pageSizeOptions = [10, 20, 50];
+
+    private List<PublicHtmlPageModel> _pages = [];
+    private IBrowserFile? _selectedFile;
+    private string _title = string.Empty;
+    private string _slug = string.Empty;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+    private bool _canWrite;
+    private bool _canDelete;
+    private readonly HashSet<Guid> _busyPageIds = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canWrite = authState.User.HasClaim("scope", PermissionNames.FileWrite);
+        _canDelete = authState.User.HasClaim("scope", PermissionNames.FileDelete);
+        await LoadAsync();
+    }
+
+    private void OnFileSelected(InputFileChangeEventArgs args)
+    {
+        _selectedFile = args.File;
+        if (_selectedFile is null)
+            return;
+
+        var extension = Path.GetExtension(_selectedFile.Name);
+        if (_selectedFile.Size <= 0 || _selectedFile.Size > MaxFileSize
+            || (!extension.Equals(".html", StringComparison.OrdinalIgnoreCase)
+                && !extension.Equals(".htm", StringComparison.OrdinalIgnoreCase)))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, L[RK.PublicHtmlPages.InvalidFile]);
+            _selectedFile = null;
+        }
+        else if (string.IsNullOrWhiteSpace(_title))
+        {
+            _title = Path.GetFileNameWithoutExtension(_selectedFile.Name);
+        }
+        else if (string.IsNullOrWhiteSpace(_slug))
+        {
+            _slug = Slugify(Path.GetFileNameWithoutExtension(_selectedFile.Name));
+        }
+
+        if (string.IsNullOrWhiteSpace(_slug) && _selectedFile is not null)
+            _slug = Slugify(Path.GetFileNameWithoutExtension(_selectedFile.Name));
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var pages = await PublicHtmlService.GetAllAsync();
+            foreach (var page in pages)
+                page.EditSlug = page.Slug;
+            _pages = pages.ToList();
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.LoadFailed]);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UploadAsync()
+    {
+        if (_selectedFile is null || string.IsNullOrWhiteSpace(_title) || string.IsNullOrWhiteSpace(_slug))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning,
+                string.IsNullOrWhiteSpace(_title) ? L[RK.PublicHtmlPages.TitleRequired] : L[RK.PublicHtmlPages.SlugRequired]);
+            return;
+        }
+
+        _isSubmitting = true;
+        try
+        {
+            await PublicHtmlService.UploadAsync(_selectedFile, _title.Trim(), _slug.Trim());
+            NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.UploadSuccess]);
+            _selectedFile = null;
+            _title = string.Empty;
+            _slug = string.Empty;
+            await LoadAsync();
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.UploadFailed]);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task RenameAsync(PublicHtmlPageModel page)
+    {
+        _busyPageIds.Add(page.Id);
+        try
+        {
+            await PublicHtmlService.RenameAsync(page.Id, page.EditSlug.Trim());
+            NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.RenameSuccess]);
+            await LoadAsync();
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.RenameFailed]);
+        }
+        finally
+        {
+            _busyPageIds.Remove(page.Id);
+        }
+    }
+
+    private async Task TogglePublishedAsync(PublicHtmlPageModel page)
+    {
+        _busyPageIds.Add(page.Id);
+        try
+        {
+            await PublicHtmlService.SetPublishedAsync(page.Id, !page.IsPublished);
+            await LoadAsync();
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.PublishFailed]);
+        }
+        finally
+        {
+            _busyPageIds.Remove(page.Id);
+        }
+    }
+
+    private async Task DeleteAsync(PublicHtmlPageModel page)
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.PublicHtmlPages.DeleteConfirm],
+            L[RK.PublicHtmlPages.Delete],
+            new ConfirmOptions
+            {
+                OkButtonText = L[RK.PublicHtmlPages.Delete],
+                CancelButtonText = L[RK.Common.Cancel]
+            });
+        if (confirmed != true)
+            return;
+
+        _busyPageIds.Add(page.Id);
+        try
+        {
+            await PublicHtmlService.DeleteAsync(page.Id);
+            NotificationService.Notify(NotificationSeverity.Success, L[RK.PublicHtmlPages.DeleteSuccess]);
+            await LoadAsync();
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Error, L[RK.PublicHtmlPages.DeleteFailed]);
+        }
+        finally
+        {
+            _busyPageIds.Remove(page.Id);
+        }
+    }
+
+    private static string Slugify(string value)
+    {
+        var chars = value.Trim().ToLowerInvariant()
+            .Select(c => char.IsAsciiLetterOrDigit(c) ? c : '-')
+            .ToArray();
+        return string.Join('-', new string(chars).Split('-', StringSplitOptions.RemoveEmptyEntries));
+    }
+}

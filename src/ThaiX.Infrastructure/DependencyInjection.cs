@@ -191,6 +191,7 @@ public static class DependencyInjection
             .AddSingleton<IFileStorage, LocalFileStorage>()
             .AddSingleton<IFileUrlProvider, StorageFileUrlProvider>();
 
+
         // Cache
         services
             .AddMemoryCache()

@@ -1814,4 +1814,103 @@
   <data name="PermissionExplorer.Missing" xml:space="preserve"><value>Not granted</value></data>
   <data name="PermissionExplorer.Summary" xml:space="preserve"><value>{0} of {1} permissions granted</value></data>
   <data name="PermissionExplorer.NoResults" xml:space="preserve"><value>No permissions match the current filters.</value></data>
+  <data name="Menu.PublicHtmlPages" xml:space="preserve">
+    <value>Public HTML Pages</value>
+  </data>
+  <data name="PublicHtmlPages.Title" xml:space="preserve">
+    <value>Public HTML Pages</value>
+  </data>
+  <data name="PublicHtmlPages.Description" xml:space="preserve">
+    <value>Upload and manage standalone HTML pages published on this site.</value>
+  </data>
+  <data name="PublicHtmlPages.Upload" xml:space="preserve">
+    <value>Upload HTML page</value>
+  </data>
+  <data name="PublicHtmlPages.File" xml:space="preserve">
+    <value>HTML file</value>
+  </data>
+  <data name="PublicHtmlPages.PageTitle" xml:space="preserve">
+    <value>Page title</value>
+  </data>
+  <data name="PublicHtmlPages.Slug" xml:space="preserve">
+    <value>Slug</value>
+  </data>
+  <data name="PublicHtmlPages.Publish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="PublicHtmlPages.Unpublish" xml:space="preserve">
+    <value>Unpublish</value>
+  </data>
+  <data name="PublicHtmlPages.Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+  <data name="PublicHtmlPages.Unpublished" xml:space="preserve">
+    <value>Unpublished</value>
+  </data>
+  <data name="PublicHtmlPages.Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="PublicHtmlPages.Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="PublicHtmlPages.Bytes" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="PublicHtmlPages.PreviousSlugs" xml:space="preserve">
+    <value>Previous slugs</value>
+  </data>
+  <data name="PublicHtmlPages.Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="PublicHtmlPages.Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="PublicHtmlPages.Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="PublicHtmlPages.View" xml:space="preserve">
+    <value>View page</value>
+  </data>
+  <data name="PublicHtmlPages.LoadFailed" xml:space="preserve">
+    <value>Failed to load HTML pages.</value>
+  </data>
+  <data name="PublicHtmlPages.UploadSuccess" xml:space="preserve">
+    <value>HTML page uploaded.</value>
+  </data>
+  <data name="PublicHtmlPages.UploadFailed" xml:space="preserve">
+    <value>Failed to upload HTML page.</value>
+  </data>
+  <data name="PublicHtmlPages.RenameSuccess" xml:space="preserve">
+    <value>Slug updated. Previous URLs remain available.</value>
+  </data>
+  <data name="PublicHtmlPages.RenameFailed" xml:space="preserve">
+    <value>Failed to rename HTML page.</value>
+  </data>
+  <data name="PublicHtmlPages.PublishFailed" xml:space="preserve">
+    <value>Failed to update publish status.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteSuccess" xml:space="preserve">
+    <value>HTML page deleted.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteFailed" xml:space="preserve">
+    <value>Failed to delete HTML page.</value>
+  </data>
+  <data name="PublicHtmlPages.DeleteConfirm" xml:space="preserve">
+    <value>Delete this HTML page? Published URLs will stop working.</value>
+  </data>
+  <data name="PublicHtmlPages.SelectFile" xml:space="preserve">
+    <value>Select an .html or .htm file (maximum 5 MB).</value>
+  </data>
+  <data name="PublicHtmlPages.InvalidFile" xml:space="preserve">
+    <value>Choose an .html or .htm file no larger than 5 MB.</value>
+  </data>
+  <data name="PublicHtmlPages.SlugRequired" xml:space="preserve">
+    <value>Slug is required.</value>
+  </data>
+  <data name="PublicHtmlPages.TitleRequired" xml:space="preserve">
+    <value>Page title is required.</value>
+  </data>
+  <data name="PublicHtmlPages.NoPages" xml:space="preserve">
+    <value>No HTML pages have been uploaded yet.</value>
+  </data>
 </root>

@@ -18,6 +18,7 @@ using ThaiX.Domain.Aggregates.MasterData;
 using ThaiX.Domain.Aggregates.Notes;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Domain.Aggregates.Portfolios;
+using ThaiX.Domain.Aggregates.PublicHtml;
 using ThaiX.Domain.Aggregates.PriceAlerts;
 using ThaiX.Domain.Aggregates.Resumes;
 using ThaiX.Domain.Aggregates.TcbsTop10;
@@ -115,6 +116,9 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
 
     // Notes
     public DbSet<Note> Notes => Set<Note>();
+
+    // Public HTML pages
+    public DbSet<PublicHtmlPage> PublicHtmlPages => Set<PublicHtmlPage>();
 
     // Resumes
     public DbSet<ResumeProfile> ResumeProfiles => Set<ResumeProfile>();
