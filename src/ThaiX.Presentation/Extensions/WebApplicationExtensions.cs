@@ -279,6 +279,8 @@ public static class WebApplicationExtensions
                 return app;
             }
 
+            app.Services.GetRequiredService<HangfireStorageIndexInitializer>().EnsureExpireAtIndexes();
+
             ScheduleConfiguredHangfireJobs(app, hangfireConfig);
         }
         catch (Exception ex)
