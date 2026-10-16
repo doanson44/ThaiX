@@ -86,7 +86,7 @@ public static class PublicHtmlEndpoints
             if (page is null) return Results.NotFound();
             var contentUrl = $"/api/public-html/{Uri.EscapeDataString(slug)}/content";
             var title = System.Net.WebUtility.HtmlEncode(page.Title);
-            var html = $"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{{title}}</title><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:0}</style></head><body><iframe title="{{title}}" src="{{contentUrl}}" sandbox="allow-scripts allow-forms allow-popups allow-modals" referrerpolicy="no-referrer"></iframe></body></html>""";
+            var html = $"<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>{title}</title><style>html,body{{margin:0;width:100%;height:100%;overflow:hidden}}iframe{{width:100%;height:100%;border:0}}</style></head><body><iframe title=\"{title}\" src=\"{contentUrl}\" sandbox=\"allow-scripts allow-forms allow-popups allow-modals\" referrerpolicy=\"no-referrer\"></iframe></body></html>";
             return Results.Content(html, "text/html; charset=utf-8");
         }).AllowAnonymous().WithTags("Public HTML Pages");
     }
