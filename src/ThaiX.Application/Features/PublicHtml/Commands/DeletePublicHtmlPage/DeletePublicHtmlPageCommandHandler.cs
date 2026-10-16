@@ -5,9 +5,9 @@ using ThaiX.Application.Features.PublicHtml.Common;
 namespace ThaiX.Application.Features.PublicHtml.Commands.DeletePublicHtmlPage;
 
 public sealed class DeletePublicHtmlPageCommandHandler(IFileStorage storage)
-    : IRequestHandler<DeletePublicHtmlPageCommand>
+    : IRequestHandler<DeletePublicHtmlPageCommand, Guid>
 {
-    public async Task Handle(DeletePublicHtmlPageCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(DeletePublicHtmlPageCommand request, CancellationToken cancellationToken)
     {
         var storageKey = await PublicHtmlPageIndex.ExecuteAsync(
             storage,
@@ -24,5 +24,7 @@ public sealed class DeletePublicHtmlPageCommandHandler(IFileStorage storage)
 
         if (storageKey is not null)
             await storage.DeleteAsync(storageKey, cancellationToken);
+
+        return request.Id;
     }
 }
