@@ -3,7 +3,7 @@ using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.PublicHtml.Commands.UploadPublicHtmlPage;
 
-public sealed class UploadPublicHtmlPageCommandHandler(IPublicHtmlPageService pages)
+public sealed class UploadPublicHtmlPageCommandHandler(IPublicHtmlPageStore pages)
     : IRequestHandler<UploadPublicHtmlPageCommand, Guid>
 {
     public async Task<Guid> Handle(UploadPublicHtmlPageCommand request, CancellationToken cancellationToken)
