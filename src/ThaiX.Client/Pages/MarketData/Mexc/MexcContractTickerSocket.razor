@@ -265,6 +265,7 @@
     private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
     private List<string> _pinnedSymbols = [];
     private List<MexcContractTickerDto> _allTickers = [];
+    private readonly List<MexcContractTickerDto> _displayTickers = [];
     private List<MexcContractTickerDto> _mobileViewTickers = [];
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
     private bool _isLoading = true;
@@ -287,11 +288,19 @@
     private string? _sortKey;
     private bool _sortAscending = true;
 
-    private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _allTickers
-        .Where(ticker => string.IsNullOrWhiteSpace(_selectedSymbol)
-            || ticker.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase))
-        .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
-        .ToList();
+    private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _displayTickers;
+
+    private void RefreshDisplayTickers()
+    {
+        var tickers = _allTickers
+            .Where(ticker => string.IsNullOrWhiteSpace(_selectedSymbol)
+                || ticker.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
+            .ToList();
+
+        _displayTickers.Clear();
+        _displayTickers.AddRange(tickers);
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -325,6 +334,7 @@
             await InitializeDemoPortfolioCloudSyncAsync();
         }
 
+        RefreshDisplayTickers();
         ApplyMobileView();
         await InvokeAsync(StateHasChanged);
     }
@@ -353,6 +363,7 @@
         await SavePinnedSymbolsToLocalAsync();
         await SyncPinnedSymbolsToCloudAsync();
 
+        RefreshDisplayTickers();
         ApplyMobileView();
         if (_dataGrid is not null)
         {
@@ -576,6 +587,7 @@
         }
 
         var hasChanges = false;
+        var hasNewTickers = false;
 
         foreach (var ticker in tickers)
         {
@@ -599,12 +611,18 @@
                 _tickerMap[ticker.Symbol] = ticker;
                 _allTickers.Add(ticker);
                 hasChanges = true;
+                hasNewTickers = true;
             }
         }
 
         if (!hasChanges && !_isLoading)
         {
             return;
+        }
+
+        if (hasNewTickers)
+        {
+            RefreshDisplayTickers();
         }
 
         _isLoading = false;
@@ -950,6 +968,7 @@
     private Task OnSelectedSymbolChanged(string? value)
     {
         _selectedSymbol = value;
+        RefreshDisplayTickers();
         ApplyMobileView();
         return Task.CompletedTask;
     }
