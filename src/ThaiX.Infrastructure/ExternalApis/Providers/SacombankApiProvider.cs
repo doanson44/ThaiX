@@ -25,16 +25,7 @@ public sealed class SacombankApiProvider
     /// Gets the ExchangeRate endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetExchangeRateEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ExchangeRateEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ExchangeRateEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ExchangeRateEndpoint); }
 
     /// <summary>
     /// Calls Sacombank exchange rate endpoint. Returns latest exchange rates for currencies and gold.
