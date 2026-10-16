@@ -15,7 +15,7 @@ public sealed class UploadPublicHtmlPageCommandHandler(
     public async Task<Guid> Handle(UploadPublicHtmlPageCommand request, CancellationToken cancellationToken)
     {
         var slug = PublicHtmlPage.NormalizeSlug(request.Slug);
-        if (await dbContext.PublicHtmlPageSlugs.AnyAsync(x => x.Slug == slug, cancellationToken))
+        if (await dbContext.PublicHtmlPages.AnyAsync(x => x.Slug == slug, cancellationToken))
             throw new InvalidOperationException("The slug is already in use.");
 
         var title = string.IsNullOrWhiteSpace(request.Title)

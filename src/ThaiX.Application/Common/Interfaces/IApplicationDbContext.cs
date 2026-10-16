@@ -189,9 +189,8 @@ public interface IApplicationDbContext
 
     /// <summary>Notes for the note-taking feature.</summary>
     DbSet<Note> Notes { get; }
-
     DbSet<PublicHtmlPage> PublicHtmlPages { get; }
-    DbSet<PublicHtmlPageSlug> PublicHtmlPageSlugs { get; }
+
 
     /// <summary>Notifications created by domain/application events.</summary>
     DbSet<Notification> Notifications { get; }

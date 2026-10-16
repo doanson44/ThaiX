@@ -17,8 +17,7 @@ public sealed class GetPublicHtmlPagesQueryHandler(IApplicationDbContext dbConte
             .Select(x => new PublicHtmlPageDto(
                 x.Id,
                 x.Title,
-                x.Slugs.Where(s => s.IsCanonical).Select(s => s.Slug).FirstOrDefault() ?? string.Empty,
-                x.Slugs.Where(s => !s.IsCanonical).Select(s => s.Slug).ToArray(),
+                x.Slug,
                 x.SizeBytes,
                 x.IsPublished,
                 x.CreatedAt,

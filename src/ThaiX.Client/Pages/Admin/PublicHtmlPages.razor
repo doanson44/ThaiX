@@ -95,10 +95,6 @@
                                                   Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
                                                   Click="@(() => RenameAsync(item))" />
                                 </RadzenStack>
-                                @if (item.PreviousSlugs.Count > 0)
-                                {
-                                    <div class="text-muted small mt-1">@L[RK.PublicHtmlPages.PreviousSlugs]: @string.Join(", ", item.PreviousSlugs)</div>
-                                }
                             }
                             else
                             {

@@ -19,12 +19,11 @@ public sealed class GetPublishedPublicHtmlPageQueryHandler(IApplicationDbContext
 
         return await dbContext.PublicHtmlPages
             .AsNoTracking()
-            .Where(x => x.IsPublished && x.Slugs.Any(s => s.Slug == slug))
+            .Where(x => x.IsPublished && x.Slug == slug)
             .Select(x => new PublicHtmlPageDto(
                 x.Id,
                 x.Title,
-                x.Slugs.Where(s => s.IsCanonical).Select(s => s.Slug).FirstOrDefault() ?? string.Empty,
-                x.Slugs.Where(s => !s.IsCanonical).Select(s => s.Slug).ToArray(),
+                x.Slug,
                 x.SizeBytes,
                 x.IsPublished,
                 x.CreatedAt,

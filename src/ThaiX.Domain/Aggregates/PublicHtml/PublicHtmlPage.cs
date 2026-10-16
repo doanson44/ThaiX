@@ -4,8 +4,6 @@ namespace ThaiX.Domain.Aggregates.PublicHtml;
 
 public sealed class PublicHtmlPage : BaseAuditableEntity
 {
-    private readonly List<PublicHtmlPageSlug> _slugs = [];
-
     private PublicHtmlPage()
     {
     }
@@ -16,7 +14,7 @@ public sealed class PublicHtmlPage : BaseAuditableEntity
     public bool IsPublished { get; private set; }
     public DateTime? PublishedAtUtc { get; private set; }
     public DateTime? LastViewedAtUtc { get; private set; }
-    public IReadOnlyCollection<PublicHtmlPageSlug> Slugs => _slugs.AsReadOnly();
+    public string Slug { get; private set; } = null!;
 
     public static PublicHtmlPage Create(string title, string slug, string storageKey, long sizeBytes)
     {
@@ -31,7 +29,7 @@ public sealed class PublicHtmlPage : BaseAuditableEntity
             StorageKey = storageKey,
             SizeBytes = sizeBytes
         };
-        page._slugs.Add(PublicHtmlPageSlug.Create(page.Id, NormalizeSlug(slug), true));
+        page.Slug = NormalizeSlug(slug);
         return page;
     }
 
@@ -50,16 +48,7 @@ public sealed class PublicHtmlPage : BaseAuditableEntity
     public void RenameSlug(string slug)
     {
         slug = NormalizeSlug(slug);
-        var current = _slugs.FirstOrDefault(x => x.IsCanonical);
-        if (current is not null && current.Slug == slug)
-            return;
-
-        current?.SetCanonical(false);
-        var existing = _slugs.FirstOrDefault(x => x.Slug == slug);
-        if (existing is not null)
-            existing.SetCanonical(true);
-        else
-            _slugs.Add(PublicHtmlPageSlug.Create(Id, slug, true));
+        Slug = slug;
     }
 
     public void Publish(DateTime publishedAtUtc)
@@ -90,6 +79,5 @@ public sealed class PublicHtmlPage : BaseAuditableEntity
         Delete();
         IsPublished = false;
         PublishedAtUtc = null;
-        _slugs.Clear();
     }
 }

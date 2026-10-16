@@ -5,7 +5,6 @@ public sealed class PublicHtmlPageModel
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
-    public List<string> PreviousSlugs { get; set; } = [];
     public long SizeBytes { get; set; }
     public bool IsPublished { get; set; }
     public DateTime CreatedAtUtc { get; set; }

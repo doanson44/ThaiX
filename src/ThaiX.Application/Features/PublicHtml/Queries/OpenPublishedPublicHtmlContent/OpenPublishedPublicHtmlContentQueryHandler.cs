@@ -21,7 +21,7 @@ public sealed class OpenPublishedPublicHtmlContentQueryHandler(
 
         var storageKey = await dbContext.PublicHtmlPages
             .AsNoTracking()
-            .Where(x => x.IsPublished && x.Slugs.Any(s => s.Slug == slug))
+            .Where(x => x.IsPublished && x.Slug == slug)
             .Select(x => x.StorageKey)
             .FirstOrDefaultAsync(cancellationToken);
 

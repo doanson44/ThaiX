@@ -12,14 +12,13 @@ public sealed class RenamePublicHtmlPageCommandHandler(IApplicationDbContext dbC
     {
         var slug = PublicHtmlPage.NormalizeSlug(request.Slug);
         var page = await dbContext.PublicHtmlPages
-            .Include(x => x.Slugs)
             .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
         if (page is null)
             throw new KeyNotFoundException("HTML page was not found.");
 
-        if (await dbContext.PublicHtmlPageSlugs.AnyAsync(
-            x => x.PublicHtmlPageId != request.Id && x.Slug == slug,
+        if (await dbContext.PublicHtmlPages.AnyAsync(
+            x => x.Id != request.Id && x.Slug == slug,
             cancellationToken))
             throw new InvalidOperationException("The slug is already in use.");
 

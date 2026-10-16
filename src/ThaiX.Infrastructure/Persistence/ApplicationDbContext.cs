@@ -119,7 +119,6 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
 
     // Public HTML pages
     public DbSet<PublicHtmlPage> PublicHtmlPages => Set<PublicHtmlPage>();
-    public DbSet<PublicHtmlPageSlug> PublicHtmlPageSlugs => Set<PublicHtmlPageSlug>();
 
     // Resumes
     public DbSet<ResumeProfile> ResumeProfiles => Set<ResumeProfile>();

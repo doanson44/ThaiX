@@ -120,7 +120,7 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task RenamePublishedPage_ShouldKeepPreviousSlugAsAlias()
+    public async Task RenamePublishedPage_ShouldReplaceCurrentSlug()
     {
         // Arrange
         await CreateAndAuthenticateAdminAsync();
@@ -136,7 +136,7 @@ public sealed class PublicHtmlEndpointsTests(ThaiXWebApplicationFactory factory)
         Client.DefaultRequestHeaders.Authorization = null;
         var oldSlugResponse = await Client.GetAsync($"/html/{oldSlug}");
         var newSlugResponse = await Client.GetAsync($"/html/{newSlug}");
-        oldSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        oldSlugResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         newSlugResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         await AuthenticateTokenForAdminAsync();

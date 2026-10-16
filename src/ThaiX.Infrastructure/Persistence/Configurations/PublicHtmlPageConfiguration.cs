@@ -19,8 +19,15 @@ public sealed class PublicHtmlPageConfiguration : IEntityTypeConfiguration<Publi
             .IsRequired()
             .HasMaxLength(1024);
 
+        builder.Property(x => x.Slug)
+            .IsRequired()
+            .HasMaxLength(80);
+
         builder.Property(x => x.SizeBytes)
             .IsRequired();
+
+        builder.HasIndex(x => x.Slug)
+            .IsUnique();
 
         builder.Property(x => x.IsPublished)
             .IsRequired()
@@ -29,12 +36,5 @@ public sealed class PublicHtmlPageConfiguration : IEntityTypeConfiguration<Publi
         builder.HasIndex(x => x.IsPublished);
         builder.HasIndex(x => x.LastViewedAtUtc);
 
-        builder.HasMany(x => x.Slugs)
-            .WithOne()
-            .HasForeignKey(x => x.PublicHtmlPageId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(x => x.Slugs)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
