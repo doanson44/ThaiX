@@ -69,7 +69,10 @@
             <RadzenStack Gap="0.75rem">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
                     <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.MexcDemoTrading.Title]</RadzenText>
-                    <RadzenButton Icon="settings" Text="@L[RK.MexcDemoTrading.Settings]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@OpenSettingsAsync" />
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                        <RadzenButton Icon="restart_alt" Text="@L[RK.MexcDemoTrading.Reset]" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Size="ButtonSize.Small" Disabled="@(!_portfolioLoaded)" Click="@ResetDemoPortfolioAsync" />
+                        <RadzenButton Icon="settings" Text="@L[RK.MexcDemoTrading.Settings]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@OpenSettingsAsync" />
+                    </RadzenStack>
                 </RadzenStack>
                 <RadzenRow Gap="0.75rem">
                     <RadzenColumn Size="6" SizeMD="3"><RadzenLabel Text="@L[RK.MexcDemoTrading.InitialCapital]" /><RadzenNumeric TValue="decimal" Value="@_portfolio.InitialCapital" Disabled="true" Format="N2" Class="w-100" /></RadzenColumn>
@@ -877,6 +880,24 @@
         {
             return null;
         }
+    }
+
+    private async Task ResetDemoPortfolioAsync()
+    {
+        var confirmed = await DialogService.Confirm(
+            L[RK.MexcDemoTrading.ResetConfirm],
+            L[RK.MexcDemoTrading.Title]);
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        _portfolio = new DemoFuturesPortfolio();
+        await PersistDemoPortfolioAsync();
+        await SyncDemoPortfolioToCloudAsync();
+        NotificationService.NotifySuccess(L[RK.MexcDemoTrading.ResetSuccess]);
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task OpenSettingsAsync()

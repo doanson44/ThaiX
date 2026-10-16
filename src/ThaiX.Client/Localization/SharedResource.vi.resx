@@ -571,6 +571,9 @@
   <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Đã tắt cảnh báo biến động giá</value></data>
   <data name="Mexc.DemoTrading.Title" xml:space="preserve"><value>Futures Demo</value></data>
   <data name="Mexc.DemoTrading.Settings" xml:space="preserve"><value>Cài đặt</value></data>
+  <data name="Mexc.DemoTrading.Reset" xml:space="preserve"><value>Đặt lại</value></data>
+  <data name="Mexc.DemoTrading.ResetConfirm" xml:space="preserve"><value>Bạn muốn đặt lại tài khoản demo về mặc định? Các vị thế đang mở và lãi/lỗ đã chốt sẽ bị xóa.</value></data>
+  <data name="Mexc.DemoTrading.ResetSuccess" xml:space="preserve"><value>Đã đặt lại tài khoản demo.</value></data>
   <data name="Mexc.DemoTrading.InitialCapital" xml:space="preserve"><value>Vốn ban đầu (USDT)</value></data>
   <data name="Mexc.DemoTrading.FeePercent" xml:space="preserve"><value>Phí giao dịch (%)</value></data>
   <data name="Mexc.DemoTrading.CapitalPerTradePercent" xml:space="preserve"><value>Vốn mỗi lệnh (%)</value></data>
@@ -1816,6 +1819,13 @@
   <data name="Menu.PublicHtmlPages" xml:space="preserve">
     <value>Trang HTML công khai</value>
   </data>
+  <data name="PublicHtmlPages.TotalPages" xml:space="preserve"><value>Tổng số trang</value></data>
+  <data name="PublicHtmlPages.PublishedCount" xml:space="preserve"><value>Đã xuất bản</value></data>
+  <data name="PublicHtmlPages.UnpublishedCount" xml:space="preserve"><value>Chưa xuất bản</value></data>
+  <data name="PublicHtmlPages.SearchPlaceholder" xml:space="preserve"><value>Tìm theo tiêu đề hoặc slug</value></data>
+  <data name="PublicHtmlPages.Status" xml:space="preserve"><value>Trạng thái</value></data>
+  <data name="PublicHtmlPages.AllStatuses" xml:space="preserve"><value>Tất cả trạng thái</value></data>
+  <data name="PublicHtmlPages.NoFilteredPages" xml:space="preserve"><value>Không có trang nào khớp với tìm kiếm hoặc bộ lọc.</value></data>
   <data name="PublicHtmlPages.Title" xml:space="preserve">
     <value>Trang HTML công khai</value>
   </data>

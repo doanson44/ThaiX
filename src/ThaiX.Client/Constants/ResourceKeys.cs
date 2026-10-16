@@ -108,6 +108,13 @@ public static class ResourceKeys
         public const string InvalidFile = "PublicHtmlPages.InvalidFile";
         public const string SlugRequired = "PublicHtmlPages.SlugRequired";
         public const string TitleRequired = "PublicHtmlPages.TitleRequired";
+        public const string TotalPages = "PublicHtmlPages.TotalPages";
+        public const string PublishedCount = "PublicHtmlPages.PublishedCount";
+        public const string UnpublishedCount = "PublicHtmlPages.UnpublishedCount";
+        public const string SearchPlaceholder = "PublicHtmlPages.SearchPlaceholder";
+        public const string Status = "PublicHtmlPages.Status";
+        public const string AllStatuses = "PublicHtmlPages.AllStatuses";
+        public const string NoFilteredPages = "PublicHtmlPages.NoFilteredPages";
         public const string NoPages = "PublicHtmlPages.NoPages";
     }
 
@@ -750,6 +757,9 @@ public static class ResourceKeys
     {
         public const string Title = "Mexc.DemoTrading.Title";
         public const string Settings = "Mexc.DemoTrading.Settings";
+        public const string Reset = "Mexc.DemoTrading.Reset";
+        public const string ResetConfirm = "Mexc.DemoTrading.ResetConfirm";
+        public const string ResetSuccess = "Mexc.DemoTrading.ResetSuccess";
         public const string InitialCapital = "Mexc.DemoTrading.InitialCapital";
         public const string FeePercent = "Mexc.DemoTrading.FeePercent";
         public const string CapitalPerTradePercent = "Mexc.DemoTrading.CapitalPerTradePercent";
