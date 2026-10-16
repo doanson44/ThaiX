@@ -750,6 +750,9 @@ public static class ResourceKeys
     {
         public const string Title = "Mexc.DemoTrading.Title";
         public const string Settings = "Mexc.DemoTrading.Settings";
+        public const string Reset = "Mexc.DemoTrading.Reset";
+        public const string ResetConfirm = "Mexc.DemoTrading.ResetConfirm";
+        public const string ResetSuccess = "Mexc.DemoTrading.ResetSuccess";
         public const string InitialCapital = "Mexc.DemoTrading.InitialCapital";
         public const string FeePercent = "Mexc.DemoTrading.FeePercent";
         public const string CapitalPerTradePercent = "Mexc.DemoTrading.CapitalPerTradePercent";

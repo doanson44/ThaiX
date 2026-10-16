@@ -565,6 +565,9 @@
   <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Price move alerts disabled</value></data>
   <data name="Mexc.DemoTrading.Title" xml:space="preserve"><value>Futures Demo</value></data>
   <data name="Mexc.DemoTrading.Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="Mexc.DemoTrading.Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Mexc.DemoTrading.ResetConfirm" xml:space="preserve"><value>Reset the demo account to defaults? Open positions and realized P/L will be cleared.</value></data>
+  <data name="Mexc.DemoTrading.ResetSuccess" xml:space="preserve"><value>Demo account has been reset.</value></data>
   <data name="Mexc.DemoTrading.InitialCapital" xml:space="preserve"><value>Initial capital (USDT)</value></data>
   <data name="Mexc.DemoTrading.FeePercent" xml:space="preserve"><value>Trading fee (%)</value></data>
   <data name="Mexc.DemoTrading.CapitalPerTradePercent" xml:space="preserve"><value>Capital per trade (%)</value></data>
