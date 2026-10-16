@@ -30,112 +30,31 @@ public sealed class MexcApiProvider
     }
 
     private EndpointOptions GetContractTickerEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ContractTickerEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ContractTickerEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ContractTickerEndpoint); }
 
     private EndpointOptions GetContractTickerBySymbolEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ContractTickerBySymbolEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ContractTickerBySymbolEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ContractTickerBySymbolEndpoint); }
 
     private EndpointOptions GetContractKlineEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ContractKlineEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ContractKlineEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ContractKlineEndpoint); }
 
     private EndpointOptions GetContractFundingRateEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ContractFundingRateEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ContractFundingRateEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ContractFundingRateEndpoint); }
 
     private EndpointOptions GetContractDepthEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(ContractDepthEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{ContractDepthEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, ContractDepthEndpoint); }
 
     private EndpointOptions GetSpotTicker24HrEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotTicker24HrEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotTicker24HrEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotTicker24HrEndpoint); }
 
     private EndpointOptions GetSpotTicker24HrBySymbolEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotTicker24HrBySymbolEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotTicker24HrBySymbolEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotTicker24HrBySymbolEndpoint); }
 
     private EndpointOptions GetSpotKlinesEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotKlinesEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotKlinesEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotKlinesEndpoint); }
 
     private EndpointOptions GetSpotDepthEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(SpotDepthEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{SpotDepthEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, SpotDepthEndpoint); }
 
     /// <summary>
     /// Gets MEXC contract ticker for all market symbols.
