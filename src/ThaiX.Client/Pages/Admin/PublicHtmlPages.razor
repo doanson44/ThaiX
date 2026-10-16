@@ -153,7 +153,7 @@
                     else if (!Viewport.IsDesktop)
                     {
                         <RadzenStack Gap="0.75rem">
-                            <Virtualize Items="@FilteredPages" Context="item" OverscanCount="5">
+                            <Virtualize Items="@FilteredPages.ToList()" Context="item" OverscanCount="5">
                                 <RadzenCard Class="p-3">
                                     <RadzenStack Gap="0.75rem">
                                         <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
