@@ -26,31 +26,13 @@ public sealed class CoinGeckoApiProvider
     /// Gets the CoinsList endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetCoinsListEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(CoinsListEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{CoinsListEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, CoinsListEndpoint); }
 
     /// <summary>
     /// Gets the CoinMarketById endpoint config. Throws if not configured.
     /// </summary>
     private EndpointOptions GetCoinMarketByIdEndpoint()
-    {
-        if (_options.Providers.TryGetValue(ProviderName, out var endpoints) &&
-            endpoints.TryGetValue(CoinMarketByIdEndpoint, out var endpoint))
-        {
-            return endpoint;
-        }
-
-        throw new InvalidOperationException(
-            $"External API endpoint '{ProviderName}:{CoinMarketByIdEndpoint}' is not configured.");
-    }
+    { return _options.GetEndpoint(ProviderName, CoinMarketByIdEndpoint); }
 
     /// <summary>
     /// Calls CoinGecko coins list endpoint. Policy (cache, proxy, timeout) from config.
