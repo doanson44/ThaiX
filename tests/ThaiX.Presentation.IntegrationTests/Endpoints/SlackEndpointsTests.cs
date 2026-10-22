@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
@@ -99,4 +100,58 @@ public sealed class SlackEndpointsTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task Execute_ConversationMentionWithPriorMessage_ShouldPassContextAndReply()
+    {
+        // Arrange
+        var email = $"slack-context-{Guid.NewGuid():N}@thaix.test";
+        await CreateUserWithPermissionsAsync(email, "Test@Pass123", new[] { Permissions.BotCommandExecute });
+        await AuthenticateAsync(email, "Test@Pass123");
+
+        var channelId = $"channel-{Guid.NewGuid():N}";
+        var threadTs = "1710000000.000001";
+        var slackNotifications = Factory.Services.GetRequiredService<FakeSlackNotificationService>();
+        var responder = Factory.Services.GetRequiredService<FakeBotConversationalResponder>();
+        slackNotifications.Reset();
+        responder.Reset();
+
+        // Act
+        var incomingResponse = await Client.PostAsJsonAsync("/api/slack/commands/execute", new
+        {
+            Text = "The deployment is failing",
+            ExternalUserId = "slack-context-user",
+            ExternalChannelId = channelId,
+            IsConversationEvent = true,
+            IsMention = false,
+            MessageTs = "1710000000.000002",
+            ConversationThreadTs = threadTs,
+            SenderName = "Alice"
+        });
+
+        incomingResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        slackNotifications.ChannelMessages.Should().BeEmpty();
+
+        var mentionResponse = await Client.PostAsJsonAsync("/api/slack/commands/execute", new
+        {
+            Text = "Can you summarize the issue?",
+            ExternalUserId = "slack-context-user",
+            ExternalChannelId = channelId,
+            ThreadTs = threadTs,
+            IsConversationEvent = true,
+            IsMention = true,
+            MessageTs = "1710000000.000003",
+            ConversationThreadTs = threadTs,
+            SenderName = "Bob"
+        });
+
+        // Assert
+        incomingResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        mentionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        responder.CallCount.Should().Be(1);
+        responder.LastMessage.Should().Contain("The deployment is failing");
+        responder.LastMessage.Should().Contain("Can you summarize the issue?");
+        slackNotifications.ChannelMessages.Should().Contain("Integration test response");
+    }
+
 }

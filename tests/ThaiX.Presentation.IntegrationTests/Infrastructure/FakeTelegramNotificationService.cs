@@ -8,6 +8,8 @@ public sealed class FakeTelegramNotificationService : ITelegramNotificationServi
     private readonly List<NotificationMessage> _messages = [];
 
     public IReadOnlyList<NotificationMessage> Messages => _messages.AsReadOnly();
+    public List<string> ChatMessages { get; } = [];
+    public List<string> RenderedChatMessages { get; } = [];
 
     public Task SendAsync(NotificationMessage message, CancellationToken ct)
     {
@@ -17,11 +19,20 @@ public sealed class FakeTelegramNotificationService : ITelegramNotificationServi
 
     public Task SendToChatAsync(string chatId, string text, CancellationToken ct)
     {
+        ChatMessages.Add(text);
         return Task.CompletedTask;
     }
 
     public Task SendRenderedToChatAsync(string chatId, string htmlText, CancellationToken ct)
     {
+        RenderedChatMessages.Add(htmlText);
         return Task.CompletedTask;
+    }
+
+    public void Reset()
+    {
+        _messages.Clear();
+        ChatMessages.Clear();
+        RenderedChatMessages.Clear();
     }
 }

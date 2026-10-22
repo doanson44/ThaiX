@@ -269,12 +269,17 @@ Use a long random value for `TELEGRAM_WEBHOOK_SECRET`. Example format:
 thaix-telegram-2026-change-this-to-a-long-random-value
 ```
 
-For group-message filtering, set `TELEGRAM_BOT_USERNAME` to the bot username without the leading `@`.
-In groups and supergroups, the Worker forwards slash commands, messages that mention this exact bot,
-and replies to this bot's messages. Other plain-text group messages are ignored. Private-chat text
-continues to be forwarded as before.
+Set `TELEGRAM_BOT_USERNAME` to the bot username without the leading `@`.
+In groups and supergroups, the Worker forwards every text message to the backend so recent context
+can be stored. ThaiX only processes slash commands, messages that mention this exact bot, and replies
+to this bot's messages; other group messages are stored without triggering a response. Private-chat
+text continues to be processed as before.
 
-After saving variables, deploy the Worker again if Cloudflare asks for deployment.
+To store ordinary group messages, Telegram must deliver them to the bot. In BotFather, open
+`/setprivacy` and disable Privacy Mode, or make the bot an administrator in the group. If you
+change Privacy Mode, remove the bot from the group and add it again so Telegram applies the setting.
+
+After saving variables, deploy the Worker again.
 
 ## 3. Verify Worker Health
 
