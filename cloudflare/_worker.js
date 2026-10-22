@@ -538,6 +538,32 @@ async function handleTelegramRequest(request, env, ctx) {
   return new Response("", { status: 200 });
 }
 
+function findTelegramBotMention(text, entities, botUsername) {
+  if (!Array.isArray(entities)) {
+    return null;
+  }
+
+  const expectedMention = "@" + botUsername.toLowerCase();
+  return entities.find(entity => {
+    if (!Number.isInteger(entity.offset) || !Number.isInteger(entity.length)) {
+      return false;
+    }
+
+    if (entity.type === "mention") {
+      return text.slice(entity.offset, entity.offset + entity.length).toLowerCase() === expectedMention;
+    }
+
+    return entity.type === "text_mention"
+      && String(entity.user?.username || "").toLowerCase() === botUsername.toLowerCase();
+  }) || null;
+}
+
+function removeTelegramEntity(text, entity) {
+  return (text.slice(0, entity.offset) + " " + text.slice(entity.offset + entity.length))
+    .replace(/\\s+/g, " ")
+    .trim();
+}
+
 async function executeTelegramCommand(payload, env) {
   const backendBaseUrl = String(env.BACKEND_URL).replace(/\/+$/, "");
   const headers = { "Content-Type": "application/json" };
