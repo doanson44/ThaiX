@@ -223,3 +223,170 @@ test("ignores Slack bot messages", async () => {
   });
   assert.equal(calls.length, 0);
 });
+
+
+async function invokeWorker(request, env = {}, upstreamResponse = new Response("{}", {
+  status: 200,
+  headers: { "Content-Type": "application/json" }
+})) {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+
+  globalThis.fetch = async (input, init = {}) => {
+    calls.push({
+      url: String(input),
+      method: init.method || "GET",
+      headers: new Headers(init.headers || {}),
+      body: init.body ?? null
+    });
+    return upstreamResponse;
+  };
+
+  try {
+    const response = await worker.fetch(request, env, {
+      waitUntil(promise) {
+        // These tests cover synchronous request handling only.
+      }
+    });
+    return { response, calls };
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+test("returns worker health status without making upstream requests", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/")
+  );
+
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).status, "ok");
+  assert.equal(calls.length, 0);
+});
+
+test("returns 404 for unknown routes", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/not-found")
+  );
+
+  assert.equal(response.status, 404);
+  assert.deepEqual(await response.json(), { error: "Not found" });
+  assert.equal(calls.length, 0);
+});
+
+test("returns 400 for malformed Telegram JSON", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/telegram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{"
+    }),
+    { TELEGRAM_BOT_TOKEN: "test-token" }
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "Invalid Telegram JSON payload" });
+  assert.equal(calls.length, 0);
+});
+
+test("rejects Telegram webhook requests with an invalid secret", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/telegram", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Telegram-Bot-Api-Secret-Token": "wrong-secret"
+      },
+      body: JSON.stringify({ update_id: 1 })
+    }),
+    {
+      TELEGRAM_BOT_TOKEN: "test-token",
+      TELEGRAM_WEBHOOK_SECRET: "expected-secret"
+    }
+  );
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "Unauthorized" });
+  assert.equal(calls.length, 0);
+});
+
+test("returns 500 when Telegram bot token is not configured", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/telegram", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ update_id: 1 })
+    })
+  );
+
+  assert.equal(response.status, 500);
+  assert.deepEqual(await response.json(), { error: "TELEGRAM_BOT_TOKEN not configured" });
+  assert.equal(calls.length, 0);
+});
+
+test("rejects Slack requests without signature headers", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/slack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "event_callback", event: {} })
+    }),
+    {
+      BACKEND_URL: "https://backend.example",
+      SLACK_SIGNING_SECRET: "test-signing-secret"
+    }
+  );
+
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), { error: "Missing Slack signature headers." });
+  assert.equal(calls.length, 0);
+});
+
+test("returns 400 when generic proxy target URL is missing", async () => {
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/api/proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ method: "GET" })
+    })
+  );
+
+  assert.equal(response.status, 400);
+  assert.deepEqual(await response.json(), { error: "Target URL is required" });
+  assert.equal(calls.length, 0);
+});
+
+test("forwards generic proxy method, query parameters, headers, and JSON body", async () => {
+  const upstreamResponse = new Response("upstream response", {
+    status: 202,
+    headers: { "Content-Type": "text/plain", "X-Upstream": "test" }
+  });
+  const { response, calls } = await invokeWorker(
+    new Request("https://worker.example/api/proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        targetUrl: "https://api.example/resource?existing=1",
+        method: "POST",
+        headers: { "X-Test": "test-value" },
+        queryParameters: { search: "BTC USDT", skip: 0 },
+        body: { symbol: "BTCUSDT" }
+      })
+    }),
+    {},
+    upstreamResponse
+  );
+
+  assert.equal(response.status, 202);
+  assert.equal(await response.text(), "upstream response");
+  assert.equal(response.headers.get("X-Upstream"), "test");
+  assert.equal(calls.length, 1);
+  assert.equal(
+    calls[0].url,
+    "https://api.example/resource?existing=1&search=BTC+USDT&skip=0"
+  );
+  assert.equal(calls[0].method, "POST");
+  assert.equal(calls[0].headers.get("X-Test"), "test-value");
+  assert.equal(calls[0].headers.get("Content-Type"), "application/json");
+  assert.deepEqual(JSON.parse(calls[0].body), { symbol: "BTCUSDT" });
+});
