@@ -2,6 +2,7 @@ using Serilog;
 using ThaiX.Application;
 using ThaiX.Infrastructure;
 using ThaiX.Presentation.Extensions;
+using ThaiX.Presentation.Endpoints;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
@@ -54,6 +55,7 @@ try
 
     // Map all API endpoints
     app.MapApiEndpoints();
+    app.MapPublicConfigurationEndpoints();
 
     // SPA fallback for client-side routing
     app.MapFallbackToFile("index.html");

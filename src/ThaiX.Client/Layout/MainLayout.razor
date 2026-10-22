@@ -1,4 +1,5 @@
 @using System.Globalization
+@using System.Net.Http.Json
 @using Microsoft.AspNetCore.Components
 @using ThaiX.Client.Services.Breadcrumb
 @using ThaiX.Client.Services.Tools
@@ -12,6 +13,7 @@
 @inject IAuthService AuthService
 @inject ThaiX.Client.Services.Users.IUserService UserService
 @inject IConfiguration Configuration
+@inject HttpClient Http
 @inject IBreadcrumbService BreadcrumbService
 @inject NotificationService NotificationService
 @inject ThaiX.Client.Services.Ui.IViewportService ViewportService
@@ -187,7 +189,31 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadDonateConfigurationAsync();
         await LoadCurrentUserProfileAsync();
+    }
+
+    private async Task LoadDonateConfigurationAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ThaiX.Client.Models.PublicDonateConfigurationResponse>(
+                "/api/public/donate-config");
+
+            if (response?.Success == true && response.Data is not null)
+            {
+                _donateEnabled = response.Data.Enabled || ApiConnectivity.IsDemoMode;
+            }
+        }
+        catch (HttpRequestException)
+        {
+        }
+        catch (System.Text.Json.JsonException)
+        {
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
