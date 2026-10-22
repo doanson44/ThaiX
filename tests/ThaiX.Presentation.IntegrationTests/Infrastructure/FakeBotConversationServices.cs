@@ -9,7 +9,7 @@ public sealed class FakeBotCommandIntentResolver : IBotCommandIntentResolver
         var resolvedText = string.Equals(mentionText.Trim(), "help", StringComparison.OrdinalIgnoreCase)
             ? "help"
             : null;
-        return Task.FromResult(resolvedText);
+        return Task.FromResult<string?>(resolvedText);
     }
 }
 
