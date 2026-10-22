@@ -112,4 +112,38 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
         telegramNotifications.ChatMessages.Should().Contain("Integration test response");
     }
 
+
+    [Fact]
+    public async Task Webhook_GroupMentionWithCommandLikeText_ShouldPreferConversationalResponder()
+    {
+        // Arrange
+        var email = $"telegram-mention-chat-{Guid.NewGuid():N}@thaix.test";
+        await CreateUserWithPermissionsAsync(email, "Test@Pass123", new[] { Permissions.BotCommandExecute });
+        await AuthenticateAsync(email, "Test@Pass123");
+
+        var chatId = $"-100{Guid.NewGuid():N}";
+        var telegramNotifications = Factory.Services.GetRequiredService<FakeTelegramNotificationService>();
+        var responder = Factory.Services.GetRequiredService<FakeBotConversationalResponder>();
+        telegramNotifications.Reset();
+        responder.Reset();
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/telegram/webhook", new
+        {
+            Text = "help",
+            ExternalUserId = "telegram-mention-user",
+            ExternalChatId = chatId,
+            ChatType = "supergroup",
+            MessageId = 2001L,
+            SenderName = "Alice",
+            IsBotMentioned = true
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        responder.CallCount.Should().Be(1);
+        responder.LastMessage.Should().Contain("help");
+        telegramNotifications.ChatMessages.Should().Contain("Integration test response");
+    }
+
 }
