@@ -89,6 +89,9 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
             SenderName = "Alice"
         });
 
+        incomingResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        telegramNotifications.ChatMessages.Should().BeEmpty();
+
         var mentionResponse = await Client.PostAsJsonAsync("/api/telegram/webhook", new
         {
             Text = "Can you summarize the issue?",
