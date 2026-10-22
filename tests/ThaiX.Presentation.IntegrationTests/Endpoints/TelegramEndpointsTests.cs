@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
@@ -62,4 +63,50 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task Webhook_GroupMentionWithPriorMessage_ShouldPassContextAndReply()
+    {
+        // Arrange
+        var email = $"telegram-context-{Guid.NewGuid():N}@thaix.test";
+        await CreateUserWithPermissionsAsync(email, "Test@Pass123", new[] { Permissions.BotCommandExecute });
+        await AuthenticateAsync(email, "Test@Pass123");
+
+        var chatId = $"-100{Guid.NewGuid():N}";
+        var telegramNotifications = Factory.Services.GetRequiredService<FakeTelegramNotificationService>();
+        var responder = Factory.Services.GetRequiredService<FakeBotConversationalResponder>();
+        telegramNotifications.Reset();
+        responder.Reset();
+
+        // Act
+        var incomingResponse = await Client.PostAsJsonAsync("/api/telegram/webhook", new
+        {
+            Text = "The deployment is failing",
+            ExternalUserId = "telegram-context-user",
+            ExternalChatId = chatId,
+            ChatType = "group",
+            MessageId = 1001L,
+            SenderName = "Alice"
+        });
+
+        var mentionResponse = await Client.PostAsJsonAsync("/api/telegram/webhook", new
+        {
+            Text = "Can you summarize the issue?",
+            ExternalUserId = "telegram-context-user",
+            ExternalChatId = chatId,
+            ChatType = "group",
+            MessageId = 1002L,
+            SenderName = "Bob",
+            IsBotMentioned = true
+        });
+
+        // Assert
+        incomingResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        mentionResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        responder.CallCount.Should().Be(1);
+        responder.LastMessage.Should().Contain("The deployment is failing");
+        responder.LastMessage.Should().Contain("Can you summarize the issue?");
+        telegramNotifications.ChatMessages.Should().Contain("Integration test response");
+    }
+
 }
