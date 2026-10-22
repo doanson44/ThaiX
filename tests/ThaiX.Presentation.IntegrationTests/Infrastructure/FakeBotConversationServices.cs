@@ -5,7 +5,12 @@ namespace ThaiX.Presentation.IntegrationTests.Infrastructure;
 public sealed class FakeBotCommandIntentResolver : IBotCommandIntentResolver
 {
     public Task<string?> ResolveCommandTextAsync(string mentionText, CancellationToken cancellationToken)
-        => Task.FromResult<string?>(null);
+    {
+        var resolvedText = string.Equals(mentionText.Trim(), "help", StringComparison.OrdinalIgnoreCase)
+            ? "help"
+            : null;
+        return Task.FromResult(resolvedText);
+    }
 }
 
 public sealed class FakeBotConversationalResponder : IBotConversationalResponder
