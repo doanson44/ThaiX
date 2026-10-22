@@ -478,28 +478,50 @@ async function handleTelegramRequest(request, env, ctx) {
 
   const chatId = String(message.chat?.id || "").trim();
   const userId = String(message.from?.id || "").trim();
+  const chatType = String(message.chat?.type || "");
   const text = String(message.text || message.caption || "").trim();
+  const botUsername = String(env.TELEGRAM_BOT_USERNAME || "").trim().replace(/^@/, "");
 
-  if (!chatId || !userId) {
+  if (!chatId || !userId || !text) {
     return new Response("", { status: 200 });
   }
 
-  const commandMatch = /^\/\w+(@\w+)?\s*(.*)/s.exec(text);
-  const mentionMatch = /^@\w+\s*(.*)/s.exec(text);
+  const commandMatch = /^\\/([A-Za-z0-9_]+)(?:@([A-Za-z0-9_]+))?(?:\\s+([\\s\\S]*))?$/.exec(text);
   let commandText;
+
   if (commandMatch) {
-    // Slash command: "/pc btc" or "/pc@thaixbot btc" → "/pc btc"
-    const cmd = commandMatch[1]
-      ? text.slice(1, text.indexOf("@"))
-      : text.slice(1, text.indexOf(" ") > -1 ? text.indexOf(" ") : undefined);
-    commandText = "/" + cmd + (commandMatch[2] ? " " + commandMatch[2].trim() : "");
-  } else if (mentionMatch) {
-    // Mention without slash: "@telebot lấy giá btc" → "lấy giá btc"
-    // Backend intent resolver will map natural language to command
-    commandText = mentionMatch[1].trim();
+    const targetUsername = commandMatch[2];
+    if (targetUsername && (!botUsername || targetUsername.toLowerCase() !== botUsername.toLowerCase())) {
+      return new Response("", { status: 200 });
+    }
+
+    commandText = "/" + commandMatch[1] + (commandMatch[3] ? " " + commandMatch[3].trim() : "");
+  } else if (chatType === "private") {
+    const mentionMatch = /^@\\w+\\s*([\\s\\S]*)$/.exec(text);
+    commandText = mentionMatch ? mentionMatch[1].trim() : text;
+  } else if (chatType === "group" || chatType === "supergroup") {
+    if (!botUsername) {
+      return new Response("", { status: 200 });
+    }
+
+    const isReplyToThisBot = message.reply_to_message?.from?.is_bot === true
+      && String(message.reply_to_message.from.username || "").toLowerCase() === botUsername.toLowerCase();
+    const entities = typeof message.text === "string" ? message.entities : message.caption_entities;
+    const botMention = findTelegramBotMention(text, entities, botUsername);
+
+    if (!isReplyToThisBot && !botMention) {
+      return new Response("", { status: 200 });
+    }
+
+    commandText = botMention
+      ? removeTelegramEntity(text, botMention)
+      : text;
   } else {
-    // Plain text → pass as-is for backend parser
-    commandText = text;
+    return new Response("", { status: 200 });
+  }
+
+  if (!commandText) {
+    return new Response("", { status: 200 });
   }
 
   // Fire-and-forget: backend sends response directly to the chat via Telegram Bot API.
@@ -509,6 +531,32 @@ async function handleTelegramRequest(request, env, ctx) {
   ));
 
   return new Response("", { status: 200 });
+}
+
+function findTelegramBotMention(text, entities, botUsername) {
+  if (!Array.isArray(entities)) {
+    return null;
+  }
+
+  const expectedMention = "@" + botUsername.toLowerCase();
+  return entities.find(entity => {
+    if (!Number.isInteger(entity.offset) || !Number.isInteger(entity.length)) {
+      return false;
+    }
+
+    if (entity.type === "mention") {
+      return text.slice(entity.offset, entity.offset + entity.length).toLowerCase() === expectedMention;
+    }
+
+    return entity.type === "text_mention"
+      && String(entity.user?.username || "").toLowerCase() === botUsername.toLowerCase();
+  }) || null;
+}
+
+function removeTelegramEntity(text, entity) {
+  return (text.slice(0, entity.offset) + " " + text.slice(entity.offset + entity.length))
+    .replace(/\\s+/g, " ")
+    .trim();
 }
 
 async function executeTelegramCommand(payload, env) {
