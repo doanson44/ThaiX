@@ -486,7 +486,7 @@ async function handleTelegramRequest(request, env, ctx) {
     return new Response("", { status: 200 });
   }
 
-  const commandMatch = /^\\/([A-Za-z0-9_]+)(?:@([A-Za-z0-9_]+))?(?:\\s+([\\s\\S]*))?$/.exec(text);
+  const commandMatch = /^\/([A-Za-z0-9_]+)(?:@([A-Za-z0-9_]+))?(?:\s+([\s\S]*))?$/.exec(text);
   let commandText;
 
   if (commandMatch) {
@@ -497,7 +497,7 @@ async function handleTelegramRequest(request, env, ctx) {
 
     commandText = "/" + commandMatch[1] + (commandMatch[3] ? " " + commandMatch[3].trim() : "");
   } else if (chatType === "private") {
-    const mentionMatch = /^@\\w+\\s*([\\s\\S]*)$/.exec(text);
+    const mentionMatch = /^@\w+\s*([\s\S]*)$/.exec(text);
     commandText = mentionMatch ? mentionMatch[1].trim() : text;
   } else if (chatType === "group" || chatType === "supergroup") {
     if (!botUsername) {
@@ -555,7 +555,7 @@ function findTelegramBotMention(text, entities, botUsername) {
 
 function removeTelegramEntity(text, entity) {
   return (text.slice(0, entity.offset) + " " + text.slice(entity.offset + entity.length))
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
