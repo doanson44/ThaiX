@@ -59,7 +59,7 @@ public sealed class BotConversationalResponderTests
         result.Should().Be("XRP is volatile; manage downside risk.");
         mediator.Verify(x => x.Send(
             It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query =>
-                query is GetMexcSpotTicker24HrBySymbolQuery tickerQuery && tickerQuery.Symbol == "XRPUSDT"),
+                ((GetMexcSpotTicker24HrBySymbolQuery)query).Symbol == "XRPUSDT"),
             It.IsAny<CancellationToken>()), Times.Once);
         aiService.Verify(x => x.GenerateAsync(
             It.Is<string>(prompt => prompt.Contains("Last price: 0.5200", StringComparison.Ordinal)
