@@ -479,7 +479,8 @@ async function handleTelegramRequest(request, env, ctx) {
   const chatId = String(message.chat?.id || "").trim();
   const userId = String(message.from?.id || "").trim();
   const chatType = String(message.chat?.type || "");
-  const text = String(message.text || message.caption || "").trim();
+  const rawText = String(message.text || message.caption || "");
+  const text = rawText.trim();
   const botUsername = String(env.TELEGRAM_BOT_USERNAME || "").trim().replace(/^@/, "");
 
   if (!chatId || !userId || !text) {
@@ -507,7 +508,7 @@ async function handleTelegramRequest(request, env, ctx) {
     const isReplyToThisBot = message.reply_to_message?.from?.is_bot === true
       && String(message.reply_to_message.from.username || "").toLowerCase() === botUsername.toLowerCase();
     const entities = typeof message.text === "string" ? message.entities : message.caption_entities;
-    const botMention = findTelegramBotMention(text, entities, botUsername);
+    const botMention = findTelegramBotMention(rawText, entities, botUsername);
 
     if (!isReplyToThisBot && !botMention) {
       return new Response("", { status: 200 });
