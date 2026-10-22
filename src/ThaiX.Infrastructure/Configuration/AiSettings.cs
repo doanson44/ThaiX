@@ -10,7 +10,7 @@ public sealed class AiSettings
     public string PreferredProvider { get; set; } = "Gemini";
 
     [Range(5, 180)]
-    public int RequestTimeoutSeconds { get; set; } = 45;
+    public int RequestTimeoutSeconds { get; set; } = 120;
 
     public List<string> ProviderOrder { get; set; } = [];
 
