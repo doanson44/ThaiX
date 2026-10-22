@@ -99,6 +99,49 @@ public static class TelegramEndpoints
                 return Results.Ok();
             }
 
+            // Explicit group mentions and replies are conversational by default.
+            // Slash commands remain executable even when sent as a reply to the bot.
+            var isExplicitConversation = isGroup
+                && (request.IsBotMentioned || request.IsReplyToBot)
+                && !rawText.StartsWith('/');
+
+            if (isExplicitConversation)
+            {
+                using var chatCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                chatCts.CancelAfter(TimeSpan.FromSeconds(30));
+
+                try
+                {
+                    var chatReply = await botConversationalResponder.RespondAsync(
+                        BuildConversationPrompt(conversation.RecentMessages, rawText),
+                        botCommandOptions.Value.ConversationalFallbackSystemPrompt,
+                        chatCts.Token);
+
+                    if (!string.IsNullOrWhiteSpace(chatReply))
+                    {
+                        await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
+                        await RecordAssistantMessageBestEffortAsync(
+                            conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    await telegramNotificationService.SendToChatAsync(
+                        chatId,
+                        "I could not complete that response in time. Please try again.",
+                        CancellationToken.None);
+                }
+                catch (Exception)
+                {
+                    await telegramNotificationService.SendToChatAsync(
+                        chatId,
+                        "I could not generate a response right now. Please try again.",
+                        CancellationToken.None);
+                }
+
+                return Results.Ok();
+            }
+
             // If not a slash command, use AI intent resolution
             var isNaturalLanguage = !rawText.StartsWith('/');
             if (isNaturalLanguage)

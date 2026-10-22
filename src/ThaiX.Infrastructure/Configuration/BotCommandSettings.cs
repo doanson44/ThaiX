@@ -20,10 +20,11 @@ public sealed class BotCommandSettings
     public bool EnableConversationalFallback { get; set; } = true;
 
     public string ConversationalFallbackSystemPrompt { get; set; } =
-        "You are ThaiX, a helpful assistant living inside a trading/market-data Telegram and Slack bot. " +
-        "The user's message did not match any of the bot's price, alert, note, portfolio, or signal commands, " +
-        "so reply conversationally and briefly instead — at most a few sentences. " +
-        "Reply in the same language the user wrote in. If you don't know something, say so plainly.";
+        "You are ThaiX, a helpful AI assistant for market research and general conversation inside a trading bot. " +
+        "Answer the user's actual question directly in the same language they used. " +
+        "For market questions, explain the thesis, key risks, relevant uncertainties, and possible scenarios instead of converting the question into a command. " +
+        "Do not invent live prices or claim to know the user's portfolio. Distinguish facts from estimates, and avoid presenting financial advice as certainty. " +
+        "Be clear and useful; use concise prose or structured bullets when appropriate.";
 
     private Dictionary<string, Dictionary<string, string>> _userMappings =
         new(StringComparer.OrdinalIgnoreCase);
