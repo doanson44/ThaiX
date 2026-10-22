@@ -246,6 +246,7 @@ Add or update these variables:
 ```text
 BACKEND_URL=http://app.example.invalid
 TELEGRAM_BOT_TOKEN=<telegram-bot-token-from-botfather>
+TELEGRAM_BOT_USERNAME=<telegram-bot-username-without-at-sign>
 TELEGRAM_WEBHOOK_SECRET=<random-secret-string>
 BACKEND_CLIENT_ID=<thaix-m2m-client-id>
 BACKEND_CLIENT_SECRET=<thaix-m2m-client-secret>
@@ -256,6 +257,7 @@ Recommended variable types:
 ```text
 BACKEND_URL: Variable
 TELEGRAM_BOT_TOKEN: Secret
+TELEGRAM_BOT_USERNAME: Variable
 TELEGRAM_WEBHOOK_SECRET: Secret
 BACKEND_CLIENT_ID: Secret
 BACKEND_CLIENT_SECRET: Secret
@@ -266,6 +268,11 @@ Use a long random value for `TELEGRAM_WEBHOOK_SECRET`. Example format:
 ```text
 thaix-telegram-2026-change-this-to-a-long-random-value
 ```
+
+For group-message filtering, set `TELEGRAM_BOT_USERNAME` to the bot username without the leading `@`.
+In groups and supergroups, the Worker forwards slash commands, messages that mention this exact bot,
+and replies to this bot's messages. Other plain-text group messages are ignored. Private-chat text
+continues to be forwarded as before.
 
 After saving variables, deploy the Worker again if Cloudflare asks for deployment.
 
