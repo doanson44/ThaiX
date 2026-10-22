@@ -8,13 +8,15 @@ public static class PublicConfigurationEndpoints
     public static IEndpointRouteBuilder MapPublicConfigurationEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/api/public/donate-config", (IConfiguration configuration) =>
-            Results.Ok(ApiResponse<DonateConfigurationDto>.SuccessResult(
-                new DonateConfigurationDto(
-                    configuration.GetValue("Donate:Enabled", true),
-                    GetPublicValue(configuration["Donate:QrImage"], "images/qr-donate.png"),
-                    GetPublicValue(configuration["Donate:AccountName"]),
-                    GetPublicValue(configuration["Donate:AccountNumber"]))))
-        )
+        {
+            var donateConfiguration = new DonateConfigurationDto(
+                configuration.GetValue("Donate:Enabled", true),
+                GetPublicValue(configuration["Donate:QrImage"], "images/qr-donate.png"),
+                GetPublicValue(configuration["Donate:AccountName"]),
+                GetPublicValue(configuration["Donate:AccountNumber"]));
+
+            return Results.Ok(ApiResponse<DonateConfigurationDto>.SuccessResult(donateConfiguration));
+        })
         .AllowAnonymous()
         .WithName("GetPublicDonateConfiguration");
 
