@@ -69,19 +69,15 @@ public sealed class BotConversationalResponderTests
     }
 
     [Fact]
-    public async Task RespondAsync_WhenNoCryptoMarketIntentIsDetected_ShouldUseNormalConversationalResponse()
+    public async Task RespondAsync_WhenNoCryptoMarketMentionExists_ShouldUseSingleConversationalAiCall()
     {
         // Arrange
         var aiService = new Mock<IAiTextGenerationService>();
         aiService
-            .SetupSequence(x => x.GenerateAsync(
-                It.IsAny<string>(),
-                It.IsAny<string?>(),
+            .Setup(x => x.GenerateAsync(
+                "Can you summarize the issue?",
+                "Answer conversationally.",
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new AiTextGenerationResult(
-                "test",
-                "test",
-                "{\"needsMarketData\":false,\"assetType\":\"none\",\"symbol\":null}"))
             .ReturnsAsync(new AiTextGenerationResult("test", "test", "Here is the summary."));
 
         var mediator = new Mock<IMediator>();
