@@ -20,8 +20,11 @@ public sealed class BotConversationalResponder : IBotConversationalResponder
 
     private static readonly Regex ValidSymbolPattern = new("^[A-Z0-9]{2,15}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private static readonly Regex CryptoMentionPattern = new(
-        @"\b(coin|crypto|cryptocurrency|token|bitcoin|btc|ethereum|eth|xrp|ripple|solana|sol|bnb|binance coin|dogecoin|doge|ada|cardano|avax|avalanche|link|chainlink|dot|polkadot|ltc|litecoin|trx|tron|ton|shib|shiba|sui|pepe|bch|xlm|uni|hbar|near|apt|arb|op|usdt|usdc)\b",
+        @"\b(coin|crypto|cryptocurrency|token|bitcoin|btc|ethereum|eth|xrp|ripple|solana|bnb|binance coin|dogecoin|doge|ada|cardano|avax|avalanche|chainlink|polkadot|ltc|litecoin|trx|tron|shib|shiba|sui|pepe|bch|xlm|uni|hbar|apt|arb|usdt|usdc)\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex AmbiguousCryptoTickerPattern = new(
+        @"\b(SOL|LINK|DOT|TON|NEAR|OP)\b",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private readonly IAiTextGenerationService _aiTextGenerationService;
     private readonly IMediator _mediator;
@@ -45,7 +48,7 @@ public sealed class BotConversationalResponder : IBotConversationalResponder
 
         try
         {
-            if (!CryptoMentionPattern.IsMatch(userMessage))
+            if (!CryptoMentionPattern.IsMatch(userMessage) && !AmbiguousCryptoTickerPattern.IsMatch(userMessage))
             {
                 return await GenerateConversationalResponseAsync(userMessage, systemPrompt, cancellationToken);
             }
