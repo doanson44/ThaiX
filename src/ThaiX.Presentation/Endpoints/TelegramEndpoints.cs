@@ -45,6 +45,7 @@ public static class TelegramEndpoints
             IBotCommandIntentResolver botCommandIntentResolver,
             IBotCommandResponseNarrator botCommandResponseNarrator,
             IBotConversationalResponder botConversationalResponder,
+            ITelegramConversationHistoryService conversationHistoryService,
             IOptions<BotCommandSettings> botCommandOptions,
             ITelegramNotificationService telegramNotificationService,
             TelegramNotificationFormatter telegramFormatter,
@@ -54,7 +55,46 @@ public static class TelegramEndpoints
             var rawText = request.Text?.Trim();
             var chatId = request.ExternalChatId?.Trim();
 
-            if (string.IsNullOrWhiteSpace(rawText) || string.IsNullOrWhiteSpace(chatId))
+            if (string.IsNullOrWhiteSpace(chatId))
+            {
+                return Results.Ok();
+            }
+
+            var isGroup = string.Equals(request.ChatType, "group", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(request.ChatType, "supergroup", StringComparison.OrdinalIgnoreCase);
+            var isSlashCommand = !string.IsNullOrWhiteSpace(rawText) && rawText.StartsWith('/');
+            var isAddressedToBot = isSlashCommand || request.IsBotMentioned || request.IsReplyToBot;
+            var originalMessage = request.OriginalText?.Trim();
+            var conversation = new TelegramConversationHistorySnapshot(false, []);
+
+            if (isGroup && !string.IsNullOrWhiteSpace(originalMessage ?? rawText))
+            {
+                try
+                {
+                    conversation = await conversationHistoryService.RecordIncomingMessageAsync(
+                        chatId,
+                        request.MessageId,
+                        request.SenderName ?? request.ExternalUserId,
+                        originalMessage ?? rawText!,
+                        cancellationToken);
+
+                    if (conversation.IsDuplicate)
+                    {
+                        return Results.Ok();
+                    }
+                }
+                catch
+                {
+                    // Conversation history is best-effort and must not block bot commands.
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(rawText))
+            {
+                return Results.Ok();
+            }
+
+            if (isGroup && !isAddressedToBot)
             {
                 return Results.Ok();
             }
@@ -79,10 +119,14 @@ public static class TelegramEndpoints
                         // AI confidently found no matching command — chat instead of
                         // letting the parser report "Unknown command".
                         var chatReply = await botConversationalResponder.RespondAsync(
-                            rawText, botCommandOptions.Value.ConversationalFallbackSystemPrompt, cancellationToken);
+                            BuildConversationPrompt(conversation.RecentMessages, rawText),
+                            botCommandOptions.Value.ConversationalFallbackSystemPrompt,
+                            cancellationToken);
                         if (!string.IsNullOrWhiteSpace(chatReply))
                         {
                             await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
+                            await RecordAssistantMessageBestEffortAsync(
+                                conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
                         }
 
                         return Results.Ok();
@@ -140,6 +184,8 @@ public static class TelegramEndpoints
 
                 var responseText = FormatResponseText(telegramFormatter, result);
                 await telegramNotificationService.SendRenderedToChatAsync(chatId, responseText, cancellationToken);
+                await RecordAssistantMessageBestEffortAsync(
+                    conversationHistoryService, isGroup, chatId, responseText, cancellationToken);
             }
             catch (Exception)
             {
@@ -158,6 +204,44 @@ public static class TelegramEndpoints
         .RequireAuthorization(Domain.Common.Constants.Permissions.BotCommandExecute)
         .WithName("ExecuteTelegramWebhook")
         .WithDescription("Execute a Telegram bot command through the unified command engine.");
+    }
+
+    private static async Task RecordAssistantMessageBestEffortAsync(
+        ITelegramConversationHistoryService historyService,
+        bool isGroup,
+        string chatId,
+        string content,
+        CancellationToken cancellationToken)
+    {
+        if (!isGroup)
+        {
+            return;
+        }
+
+        try
+        {
+            await historyService.RecordAssistantMessageAsync(chatId, content, cancellationToken);
+        }
+        catch
+        {
+            // Conversation history is best-effort and must not block bot responses.
+        }
+    }
+
+    private static string BuildConversationPrompt(
+        IReadOnlyList<TelegramConversationMessage> recentMessages,
+        string currentMessage)
+    {
+        if (recentMessages.Count == 0)
+        {
+            return currentMessage;
+        }
+
+        var context = string.Join(
+            "\n",
+            recentMessages.Select(x => $"{x.SenderName}: {x.Content}"));
+
+        return $"Recent group conversation (oldest first):\n{context}\n\nCurrent message:\n{currentMessage}";
     }
 
     private static string FormatResponseText(TelegramNotificationFormatter formatter, BotCommandExecutionDto result)
@@ -181,6 +265,12 @@ public static class TelegramEndpoints
 public sealed record ExecuteTelegramWebhookRequest
 {
     public string? Text { get; init; }
+    public string? OriginalText { get; init; }
+    public string? ChatType { get; init; }
+    public long? MessageId { get; init; }
+    public string? SenderName { get; init; }
+    public bool IsBotMentioned { get; init; }
+    public bool IsReplyToBot { get; init; }
     public required string ExternalUserId { get; init; }
     public required string ExternalChatId { get; init; }
 }

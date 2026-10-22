@@ -468,17 +468,13 @@ async function handleTelegramRequest(request, env, ctx) {
   }
 
   const message = update?.message;
-  if (!message || typeof message !== "object") {
-    return new Response("", { status: 200 });
-  }
-
-  if (message.from?.is_bot) {
+  if (!message || typeof message !== "object" || message.from?.is_bot) {
     return new Response("", { status: 200 });
   }
 
   const chatId = String(message.chat?.id || "").trim();
   const userId = String(message.from?.id || "").trim();
-  const chatType = String(message.chat?.type || "");
+  const chatType = String(message.chat?.type || "").trim().toLowerCase();
   const rawText = String(message.text || message.caption || "");
   const text = rawText.trim();
   const botUsername = String(env.TELEGRAM_BOT_USERNAME || "").trim().replace(/^@/, "");
@@ -487,8 +483,11 @@ async function handleTelegramRequest(request, env, ctx) {
     return new Response("", { status: 200 });
   }
 
+  const isGroup = chatType === "group" || chatType === "supergroup";
   const commandMatch = /^\/([A-Za-z0-9_]+)(?:@([A-Za-z0-9_]+))?(?:\s+([\s\S]*))?$/.exec(text);
   let commandText;
+  let isBotMentioned = false;
+  let isReplyToBot = false;
 
   if (commandMatch) {
     const targetUsername = commandMatch[2];
@@ -500,64 +499,43 @@ async function handleTelegramRequest(request, env, ctx) {
   } else if (chatType === "private") {
     const mentionMatch = /^@\w+\s*([\s\S]*)$/.exec(text);
     commandText = mentionMatch ? mentionMatch[1].trim() : text;
-  } else if (chatType === "group" || chatType === "supergroup") {
-    if (!botUsername) {
-      return new Response("", { status: 200 });
-    }
-
-    const isReplyToThisBot = message.reply_to_message?.from?.is_bot === true
-      && String(message.reply_to_message.from.username || "").toLowerCase() === botUsername.toLowerCase();
+  } else if (isGroup) {
+    const isReplyToThisBot = Boolean(
+      botUsername
+      && message.reply_to_message?.from?.is_bot === true
+      && String(message.reply_to_message.from.username || "").toLowerCase() === botUsername.toLowerCase()
+    );
     const entities = typeof message.text === "string" ? message.entities : message.caption_entities;
-    const botMention = findTelegramBotMention(rawText, entities, botUsername);
+    const botMention = botUsername
+      ? findTelegramBotMention(rawText, entities, botUsername)
+      : null;
 
-    if (!isReplyToThisBot && !botMention) {
-      return new Response("", { status: 200 });
-    }
-
-    commandText = botMention
-      ? removeTelegramEntity(rawText, botMention).trim()
-      : text;
+    isBotMentioned = Boolean(botMention);
+    isReplyToBot = isReplyToThisBot;
+    commandText = botMention ? removeTelegramEntity(rawText, botMention).trim() : text;
   } else {
     return new Response("", { status: 200 });
   }
 
-  if (!commandText) {
+  if (!commandText && chatType === "private") {
     return new Response("", { status: 200 });
   }
 
-  // Fire-and-forget: backend sends response directly to the chat via Telegram Bot API.
-  ctx.waitUntil(executeTelegramCommand(
-    { text: commandText, externalUserId: userId, externalChatId: chatId },
-    env
-  ));
+  // Forward all group messages so the backend can retain context; it decides whether to answer.
+  ctx.waitUntil(executeTelegramCommand({
+    text: commandText,
+    originalText: text,
+    chatType,
+    messageId: Number.isSafeInteger(message.message_id) ? message.message_id : null,
+    senderName: [message.from?.first_name, message.from?.last_name].filter(Boolean).join(" ")
+      || String(message.from?.username || userId),
+    isBotMentioned,
+    isReplyToBot,
+    externalUserId: userId,
+    externalChatId: chatId
+  }, env));
 
   return new Response("", { status: 200 });
-}
-
-function findTelegramBotMention(text, entities, botUsername) {
-  if (!Array.isArray(entities)) {
-    return null;
-  }
-
-  const expectedMention = "@" + botUsername.toLowerCase();
-  return entities.find(entity => {
-    if (!Number.isInteger(entity.offset) || !Number.isInteger(entity.length)) {
-      return false;
-    }
-
-    if (entity.type === "mention") {
-      return text.slice(entity.offset, entity.offset + entity.length).toLowerCase() === expectedMention;
-    }
-
-    return entity.type === "text_mention"
-      && String(entity.user?.username || "").toLowerCase() === botUsername.toLowerCase();
-  }) || null;
-}
-
-function removeTelegramEntity(text, entity) {
-  return (text.slice(0, entity.offset) + " " + text.slice(entity.offset + entity.length))
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 async function executeTelegramCommand(payload, env) {

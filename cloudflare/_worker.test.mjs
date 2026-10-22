@@ -63,13 +63,16 @@ function groupMessage(text, extra = {}) {
   };
 }
 
-test("ignores unaddressed plain text in a group", async () => {
+test("forwards unaddressed plain text in a group for conversation history", async () => {
   const { response, calls } = await invokeTelegram(
     telegramUpdate(groupMessage("hello everyone"))
   );
 
   assert.equal(response.status, 200);
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.text, "hello everyone");
+  assert.equal(calls[0].body.chatType, "supergroup");
+  assert.equal(calls[0].body.isBotMentioned, false);
 });
 
 test("forwards group slash commands", async () => {
@@ -100,6 +103,7 @@ test("forwards group messages that mention this bot", async () => {
 
   assert.equal(calls.length, 1);
   assert.equal(calls[0].body.text, "get btc price");
+  assert.equal(calls[0].body.isBotMentioned, true);
 });
 
 test("forwards group replies to this bot", async () => {
@@ -116,6 +120,7 @@ test("forwards group replies to this bot", async () => {
 
   assert.equal(calls.length, 1);
   assert.equal(calls[0].body.text, "get btc price");
+  assert.equal(calls[0].body.isReplyToBot, true);
 });
 
 test("preserves free text in private chats", async () => {
@@ -132,7 +137,7 @@ test("preserves free text in private chats", async () => {
   assert.equal(calls[0].body.text, "hello ThaiX");
 });
 
-test("ignores group text that mentions another bot", async () => {
+test("forwards group text that mentions another bot for history only", async () => {
   const text = "@other_bot hello";
   const { calls } = await invokeTelegram(
     telegramUpdate(groupMessage(text, {
@@ -140,5 +145,7 @@ test("ignores group text that mentions another bot", async () => {
     }))
   );
 
-  assert.equal(calls.length, 0);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.text, text);
+  assert.equal(calls[0].body.isBotMentioned, false);
 });
