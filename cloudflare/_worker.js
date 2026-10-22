@@ -515,7 +515,7 @@ async function handleTelegramRequest(request, env, ctx) {
     }
 
     commandText = botMention
-      ? removeTelegramEntity(text, botMention)
+      ? removeTelegramEntity(rawText, botMention).trim()
       : text;
   } else {
     return new Response("", { status: 200 });
