@@ -314,7 +314,7 @@ public sealed class Power655PredictJob : HangfireJobBase
         CancellationToken cancellationToken)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        cts.CancelAfter(TimeSpan.FromSeconds(25));
+        cts.CancelAfter(TimeSpan.FromMinutes(2));
 
         var prompt = BuildAiPrompt(predictionType, officialDraws, fixedNumbers, hotNumbers, coldNumbers, tupleFrequency);
         var systemPrompt = BuildAiSystemPrompt(predictionType);
