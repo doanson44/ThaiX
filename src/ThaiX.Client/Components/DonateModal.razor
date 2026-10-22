@@ -1,5 +1,6 @@
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @inject IStringLocalizer<SharedResource> L
+@inject HttpClient Http
 <div class="text-center rz-p-3">
     <p class="text-muted small mb-2">@L[RK.Donate.ScanQr]</p>
     <SafeImage Src="@_qrImage"
@@ -21,15 +22,38 @@
 
 @code {
     [Inject] private IConfiguration Configuration { get; set; } = default!;
+    [Inject] private HttpClient Http { get; set; } = default!;
 
     private string _qrImage = "images/qr-donate.png";
     private string _accountName = string.Empty;
     private string _accountNumber = string.Empty;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _qrImage = Configuration["Donate:QrImage"] ?? _qrImage;
-        _accountName = Configuration["Donate:AccountName"] ?? string.Empty;
-        _accountNumber = Configuration["Donate:AccountNumber"] ?? string.Empty;
+
+        try
+        {
+            var response = await Http.GetFromJsonAsync<ThaiX.Client.Models.PublicDonateConfigurationResponse>(
+                "/api/public/donate-config");
+
+            if (response?.Success != true || response.Data is null)
+            {
+                return;
+            }
+
+            _qrImage = string.IsNullOrWhiteSpace(response.Data.QrImage) ? _qrImage : response.Data.QrImage;
+            _accountName = response.Data.AccountName;
+            _accountNumber = response.Data.AccountNumber;
+        }
+        catch (HttpRequestException)
+        {
+        }
+        catch (System.Text.Json.JsonException)
+        {
+        }
+        catch (TaskCanceledException)
+        {
+        }
     }
 }
