@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Testcontainers.MariaDb;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Interfaces.MarketScanner;
+using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Infrastructure.BackgroundJobs;
 using ThaiX.Infrastructure.Configuration;
 using ThaiX.Infrastructure.Persistence;
@@ -92,11 +93,20 @@ public sealed class ThaiXWebApplicationFactory : WebApplicationFactory<Program>,
 
             // Replace Slack notification with a no-op for deterministic tests.
             services.RemoveAll<ISlackNotificationService>();
-            services.AddScoped<ISlackNotificationService, FakeSlackNotificationService>();
+            services.AddSingleton<FakeSlackNotificationService>();
+            services.AddSingleton<ISlackNotificationService>(provider => provider.GetRequiredService<FakeSlackNotificationService>());
 
             // Replace Telegram notification with a no-op for deterministic tests.
             services.RemoveAll<ITelegramNotificationService>();
-            services.AddScoped<ITelegramNotificationService, FakeTelegramNotificationService>();
+            services.AddSingleton<FakeTelegramNotificationService>();
+            services.AddSingleton<ITelegramNotificationService>(provider => provider.GetRequiredService<FakeTelegramNotificationService>());
+
+            services.RemoveAll<IBotCommandIntentResolver>();
+            services.AddSingleton<IBotCommandIntentResolver, FakeBotCommandIntentResolver>();
+            services.RemoveAll<IBotConversationalResponder>();
+            services.AddSingleton<FakeBotConversationalResponder>();
+            services.AddSingleton<IBotConversationalResponder>(provider => provider.GetRequiredService<FakeBotConversationalResponder>());
+            services.Configure<BotCommandSettings>(options => options.EnableConversationalFallback = true);
 
             // Hangfire is disabled in test config, but many endpoints/jobs still depend on IBackgroundJobClient.
             services.RemoveAll<IBackgroundJobClient>();
