@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<IBotCommandResponseNarrator, BotCommandResponseNarrator>();
         services.AddScoped<IBotConversationalResponder, BotConversationalResponder>();
         services.AddScoped<ITelegramConversationHistoryService, TelegramConversationHistoryService>();
+        services.AddScoped<ISlackConversationHistoryService, SlackConversationHistoryService>();
         services.AddScoped<IBotCommandModule, HelpBotCommandModule>();
         services.AddScoped<IBotCommandModule, PriceCryptoBotCommandModule>();
         services.AddScoped<IBotCommandModule, PriceBotCommandModule>();

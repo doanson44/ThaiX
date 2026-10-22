@@ -236,9 +236,7 @@ async function handleSlackEventRequest(rawBody, env, ctx) {
   if (payload && payload.type === "url_verification" && typeof payload.challenge === "string") {
     return new Response(payload.challenge, {
       status: 200,
-      headers: {
-        "Content-Type": "text/plain"
-      }
+      headers: { "Content-Type": "text/plain" }
     });
   }
 
@@ -247,52 +245,54 @@ async function handleSlackEventRequest(rawBody, env, ctx) {
   }
 
   const event = payload.event && typeof payload.event === "object" ? payload.event : null;
-  if (!event || event.type !== "app_mention") {
+  if (!event || !["app_mention", "message"].includes(event.type)) {
     return new Response("", { status: 200 });
   }
 
-  if (event.bot_id || event.subtype === "bot_message") {
+  if (event.bot_id || event.subtype || event.hidden) {
     return new Response("", { status: 200 });
   }
 
+  const isMention = event.type === "app_mention";
   const userId = String(event.user || "").trim();
   const channelId = String(event.channel || "").trim();
-  const text = String(event.text || "").trim();
-  const threadTs = String(event.thread_ts || event.ts || "").trim();
+  const originalText = String(event.text || "").trim();
+  const messageTs = String(event.ts || "").trim();
+  const conversationThreadTs = String(event.thread_ts || (isMention ? messageTs : "")).trim();
 
-  if (!userId || !channelId) {
+  if (!userId || !channelId || !messageTs || !originalText) {
     return new Response("", { status: 200 });
   }
 
-  const cleanedText = normalizeMentionText(text);
-  if (!cleanedText) {
-    ctx.waitUntil(postSlackThreadMessage(
-      {
-        channel: channelId,
-        threadTs,
-        text: `<@${userId}> Please provide a command after mentioning me.`
-      },
-      env
-    ));
+  const text = isMention ? normalizeMentionText(originalText) : originalText;
+  const threadTs = String(event.thread_ts || messageTs).trim();
+
+  if (isMention && !text) {
+    ctx.waitUntil(postSlackThreadMessage({
+      channel: channelId,
+      threadTs,
+      text: `<@${userId}> Please provide a command after mentioning me.`
+    }, env));
     return new Response("", { status: 200 });
   }
 
   const backendRequest = {
     command: "",
-    text: cleanedText,
+    text,
     externalUserId: userId,
-    externalChannelId: channelId
+    externalChannelId: channelId,
+    threadTs,
+    isConversationEvent: true,
+    isMention,
+    messageTs,
+    conversationThreadTs,
+    senderName: String(event.user_profile?.display_name || event.user_profile?.real_name || event.username || userId)
   };
 
-  // Pass threadTs so backend can reply in the thread.
-  backendRequest.threadTs = threadTs;
-
-  // Fire-and-forget: backend sends response directly via Slack API.
+  // All human messages are forwarded for history; only app_mention triggers a response.
   ctx.waitUntil(executeBackendCommand(backendRequest, env));
-
   return new Response("", { status: 200 });
 }
-
 function normalizeMentionText(text) {
   if (typeof text !== "string") {
     return "";

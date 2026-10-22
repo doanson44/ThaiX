@@ -149,3 +149,77 @@ test("forwards group text that mentions another bot for history only", async () 
   assert.equal(calls[0].body.text, text);
   assert.equal(calls[0].body.isBotMentioned, false);
 });
+
+
+async function invokeSlackEvent(event, overrides = {}) {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const pending = [];
+  const rawBody = JSON.stringify({ type: "event_callback", event_id: "Ev123", event });
+  const timestamp = String(Math.floor(Date.now() / 1000));
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode("test-signing-secret"),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const signatureBytes = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`v0:${timestamp}:${rawBody}`));
+  const signature = "v0=" + Array.from(new Uint8Array(signatureBytes))
+    .map(value => value.toString(16).padStart(2, "0")).join("");
+
+  globalThis.fetch = async (input, init = {}) => {
+    calls.push({ url: String(input), body: init.body ? JSON.parse(init.body) : null });
+    return new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
+  };
+
+  try {
+    const response = await worker.fetch(
+      new Request("https://worker.example/slack", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Slack-Request-Timestamp": timestamp, "X-Slack-Signature": signature },
+        body: rawBody
+      }),
+      { SLACK_SIGNING_SECRET: "test-signing-secret", BACKEND_URL: "https://backend.example", ...overrides },
+      { waitUntil(promise) { pending.push(promise); } }
+    );
+    await Promise.all(pending);
+    return { response, calls };
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+}
+
+test("forwards regular Slack messages for conversation history without triggering a reply", async () => {
+  const { response, calls } = await invokeSlackEvent({
+    type: "message", user: "U123", channel: "C123", ts: "1720000000.000001",
+    text: "hello team", user_profile: { display_name: "Alice" }
+  });
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://backend.example/api/slack/commands/execute");
+  assert.equal(calls[0].body.text, "hello team");
+  assert.equal(calls[0].body.isConversationEvent, true);
+  assert.equal(calls[0].body.isMention, false);
+  assert.equal(calls[0].body.messageTs, "1720000000.000001");
+  assert.equal(calls[0].body.senderName, "Alice");
+});
+
+test("forwards Slack app mentions with cleaned text and thread metadata", async () => {
+  const { response, calls } = await invokeSlackEvent({
+    type: "app_mention", user: "U123", channel: "C123", ts: "1720000000.000002",
+    thread_ts: "1720000000.000000", text: "<@U999> hello ThaiX"
+  });
+  assert.equal(response.status, 200);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.text, "hello ThaiX");
+  assert.equal(calls[0].body.isConversationEvent, true);
+  assert.equal(calls[0].body.isMention, true);
+  assert.equal(calls[0].body.threadTs, "1720000000.000000");
+  assert.equal(calls[0].body.conversationThreadTs, "1720000000.000000");
+});
+
+test("ignores Slack bot messages", async () => {
+  const { calls } = await invokeSlackEvent({
+    type: "message", bot_id: "B999", user: "U999", channel: "C123",
+    ts: "1720000000.000003", text: "bot output"
+  });
+  assert.equal(calls.length, 0);
+});

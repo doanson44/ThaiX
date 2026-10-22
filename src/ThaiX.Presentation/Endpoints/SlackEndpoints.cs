@@ -50,6 +50,7 @@ public static class SlackEndpoints
             IBotCommandIntentResolver botCommandIntentResolver,
             IBotCommandResponseNarrator botCommandResponseNarrator,
             IBotConversationalResponder botConversationalResponder,
+            ISlackConversationHistoryService conversationHistoryService,
             IOptions<BotCommandSettings> botCommandOptions,
             ISlackNotificationService slackNotificationService,
             SlackNotificationFormatter slackFormatter,
@@ -59,9 +60,32 @@ public static class SlackEndpoints
             var rawText = BuildRawCommandText(request);
             var isMention = IsMentionTextRequest(request);
             var originalUser = httpContext.User;
+            var conversation = new SlackConversationHistorySnapshot(false, []);
 
             try
             {
+                if (request.IsConversationEvent)
+                {
+                    try
+                    {
+                        conversation = await conversationHistoryService.RecordIncomingMessageAsync(
+                            request.ExternalChannelId,
+                            request.ConversationThreadTs,
+                            request.MessageTs,
+                            request.SenderName ?? request.ExternalUserId,
+                            request.Text ?? string.Empty,
+                            cancellationToken);
+                    }
+                    catch
+                    {
+                        // Conversation history is best-effort and must not block Slack responses.
+                    }
+
+                    if (!request.IsMention)
+                    {
+                        return Results.Ok();
+                    }
+                }
                 // AI intent resolution for natural language (mention text without slash command)
                 if (isMention)
                 {
@@ -83,7 +107,7 @@ public static class SlackEndpoints
                             // AI confidently found no matching command — chat instead of
                             // letting the parser report "Unknown command".
                             var chatReply = await botConversationalResponder.RespondAsync(
-                                request.Text ?? string.Empty,
+                                BuildConversationPrompt(conversation.RecentMessages, request.Text ?? string.Empty),
                                 botCommandOptions.Value.ConversationalFallbackSystemPrompt,
                                 cancellationToken);
 
@@ -99,6 +123,14 @@ public static class SlackEndpoints
                                     await slackNotificationService.SendToChannelAsync(
                                         request.ExternalChannelId, chatReply, request.ThreadTs, cancellationToken);
                                 }
+
+                                await RecordAssistantMessageBestEffortAsync(
+                                    conversationHistoryService,
+                                    request.IsConversationEvent,
+                                    request.ExternalChannelId,
+                                    request.ConversationThreadTs,
+                                    chatReply,
+                                    cancellationToken);
                             }
 
                             return Results.Ok();
@@ -169,6 +201,14 @@ public static class SlackEndpoints
                         request.ThreadTs,
                         cancellationToken);
                 }
+
+                await RecordAssistantMessageBestEffortAsync(
+                    conversationHistoryService,
+                    request.IsConversationEvent,
+                    request.ExternalChannelId,
+                    request.ConversationThreadTs,
+                    responseText,
+                    cancellationToken);
             }
             catch (Exception)
             {
@@ -214,6 +254,46 @@ public static class SlackEndpoints
         .WithDescription("Get async execution status for a queued bot command.");
     }
 
+
+    private static async Task RecordAssistantMessageBestEffortAsync(
+        ISlackConversationHistoryService historyService,
+        bool isConversationEvent,
+        string channelId,
+        string? threadTs,
+        string content,
+        CancellationToken cancellationToken)
+    {
+        if (!isConversationEvent)
+        {
+            return;
+        }
+
+        try
+        {
+            await historyService.RecordAssistantMessageAsync(channelId, threadTs, content, cancellationToken);
+        }
+        catch
+        {
+            // Conversation history is best-effort and must not block Slack responses.
+        }
+    }
+
+    private static string BuildConversationPrompt(
+        IReadOnlyList<SlackConversationMessage> recentMessages,
+        string currentMessage)
+    {
+        if (recentMessages.Count == 0)
+        {
+            return currentMessage;
+        }
+
+        var context = string.Join(
+            "\n",
+            recentMessages.Select(x => $"{x.SenderName}: {x.Content}"));
+
+        return $"Recent Slack conversation (oldest first):\n{context}\n\nCurrent message:\n{currentMessage}";
+    }
+
     private static string BuildRawCommandText(ExecuteSlackBotCommandRequest request)
     {
         if (!string.IsNullOrWhiteSpace(request.RawText))
@@ -232,9 +312,11 @@ public static class SlackEndpoints
 
     private static bool IsMentionTextRequest(ExecuteSlackBotCommandRequest request)
     {
-        return string.IsNullOrWhiteSpace(request.RawText)
-               && string.IsNullOrWhiteSpace(request.Command)
-               && !string.IsNullOrWhiteSpace(request.Text);
+        return request.IsMention
+               || (!request.IsConversationEvent
+                   && string.IsNullOrWhiteSpace(request.RawText)
+                   && string.IsNullOrWhiteSpace(request.Command)
+                   && !string.IsNullOrWhiteSpace(request.Text));
     }
 
     private static string FormatResponseText(SlackNotificationFormatter formatter, BotCommandExecutionDto result)
@@ -281,4 +363,9 @@ public sealed record ExecuteSlackBotCommandRequest
     public required string ExternalChannelId { get; init; }
     public string? ThreadTs { get; init; }
     public string? ResponseUrl { get; init; }
+    public bool IsConversationEvent { get; init; }
+    public bool IsMention { get; init; }
+    public string? MessageTs { get; init; }
+    public string? ConversationThreadTs { get; init; }
+    public string? SenderName { get; init; }
 }
