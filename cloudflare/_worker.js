@@ -560,7 +560,7 @@ function findTelegramBotMention(text, entities, botUsername) {
 
 function removeTelegramEntity(text, entity) {
   return (text.slice(0, entity.offset) + " " + text.slice(entity.offset + entity.length))
-    .replace(/\\s+/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
