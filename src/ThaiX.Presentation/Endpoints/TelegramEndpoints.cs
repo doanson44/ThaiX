@@ -108,7 +108,7 @@ public static class TelegramEndpoints
             if (isExplicitConversation)
             {
                 using var chatCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                chatCts.CancelAfter(TimeSpan.FromSeconds(10));
+                chatCts.CancelAfter(TimeSpan.FromSeconds(30));
 
                 try
                 {
