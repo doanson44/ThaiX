@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using MediatR;
@@ -87,7 +88,7 @@ public sealed class BotConversationalResponder : IBotConversationalResponder
                 $"24-hour quote volume: {ticker.QuoteVolume ?? "unavailable"}\n" +
                 $"Best bid: {ticker.BidPrice ?? "unavailable"} (quantity: {ticker.BidQty ?? "unavailable"})\n" +
                 $"Best ask: {ticker.AskPrice ?? "unavailable"} (quantity: {ticker.AskQty ?? "unavailable"})\n" +
-                $"Trade count: {ticker.Count?.ToString() ?? "unavailable"}\n" +
+                $"Trade count: {ticker.Count?.ToString(CultureInfo.InvariantCulture) ?? "unavailable"}\n" +
                 $"Ticker close time (UTC): {FormatTimestamp(ticker.CloseTime)}\n\n" +
                 "Analyze this data in the context of the user's actual question. Separate observed facts from interpretation. " +
                 "Discuss plausible scenarios, key risks, and what would invalidate each scenario when relevant. " +
@@ -196,7 +197,7 @@ public sealed class BotConversationalResponder : IBotConversationalResponder
 
         try
         {
-            return DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds).UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'");
+            return DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds).UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss 'UTC'", CultureInfo.InvariantCulture);
         }
         catch (ArgumentOutOfRangeException)
         {
