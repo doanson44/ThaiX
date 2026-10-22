@@ -129,6 +129,9 @@ public sealed class SlackEndpointsTests : IntegrationTestBase
             SenderName = "Alice"
         });
 
+        incomingResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        slackNotifications.ChannelMessages.Should().BeEmpty();
+
         var mentionResponse = await Client.PostAsJsonAsync("/api/slack/commands/execute", new
         {
             Text = "Can you summarize the issue?",
