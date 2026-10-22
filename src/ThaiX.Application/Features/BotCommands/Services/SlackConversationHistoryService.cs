@@ -5,6 +5,7 @@ using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.JsonBins.Commands.CreateJsonBin;
 using ThaiX.Application.Features.JsonBins.Commands.UpdateJsonBin;
 using ThaiX.Application.Features.JsonBins.Queries.GetJsonBinByCode;
+using ThaiX.Application.Features.JsonBins.Queries.GetJsonBinById;
 using ThaiX.Domain.Aggregates.JsonBin;
 
 namespace ThaiX.Application.Features.BotCommands.Services;
