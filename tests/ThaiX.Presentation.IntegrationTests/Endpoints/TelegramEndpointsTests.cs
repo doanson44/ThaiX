@@ -114,7 +114,7 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
 
 
     [Fact]
-    public async Task Webhook_GroupMentionWithCommandLikeText_ShouldPreferConversationalResponder()
+    public async Task Webhook_GroupMentionWithCommandLikeText_ShouldResolveCommandBeforeConversationalResponder()
     {
         // Arrange
         var email = $"telegram-mention-chat-{Guid.NewGuid():N}@thaix.test";
@@ -141,9 +141,9 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        responder.CallCount.Should().Be(1);
-        responder.LastMessage.Should().Contain("help");
-        telegramNotifications.ChatMessages.Should().Contain("Integration test response");
+        responder.CallCount.Should().Be(0);
+        telegramNotifications.ChatMessages.Should().NotBeEmpty();
+        telegramNotifications.ChatMessages.Should().NotContain("Integration test response");
     }
 
 }
