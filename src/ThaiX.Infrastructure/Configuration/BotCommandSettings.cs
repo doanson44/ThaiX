@@ -11,6 +11,7 @@ public sealed class BotCommandSettings
     private static string GetRequiredPrompt(string name) =>
         PromptResources.GetString(name)
         ?? throw new InvalidOperationException($"Missing bot command prompt resource '{name}'.");
+
     public const string SectionName = "BotCommands";
 
     public bool AllowGuidPassthroughUserMapping { get; set; }
