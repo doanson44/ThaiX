@@ -142,8 +142,8 @@ public sealed class TelegramEndpointsTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         responder.CallCount.Should().Be(0);
-        telegramNotifications.ChatMessages.Should().NotBeEmpty();
-        telegramNotifications.ChatMessages.Should().NotContain("Integration test response");
+        telegramNotifications.RenderedChatMessages.Should().NotBeEmpty();
+        telegramNotifications.RenderedChatMessages.Should().NotContain("Integration test response");
     }
 
 }
