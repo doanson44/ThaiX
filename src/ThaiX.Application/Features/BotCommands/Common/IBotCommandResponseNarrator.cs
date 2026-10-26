@@ -13,4 +13,5 @@ public sealed record BotCommandNarrationOptions
     public bool Enabled { get; init; }
     public int MaxSourceChars { get; init; } = 4000;
     public string SystemPrompt { get; init; } = string.Empty;
+    public string UserMessage { get; init; } = string.Empty;
 }

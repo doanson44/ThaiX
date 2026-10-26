@@ -1,7 +1,17 @@
+using System.Resources;
+
 namespace ThaiX.Infrastructure.Configuration;
 
 public sealed class BotCommandSettings
 {
+    private static readonly ResourceManager PromptResources = new(
+        "ThaiX.Infrastructure.Resources.BotCommandPrompts",
+        typeof(BotCommandSettings).Assembly);
+
+    private static string GetRequiredPrompt(string name) =>
+        PromptResources.GetString(name)
+        ?? throw new InvalidOperationException($"Missing bot command prompt resource '{name}'.");
+
     public const string SectionName = "BotCommands";
 
     public bool AllowGuidPassthroughUserMapping { get; set; }
@@ -10,8 +20,7 @@ public sealed class BotCommandSettings
 
     public int AiNarrationMaxSourceChars { get; set; } = 4000;
 
-    public string AiNarrationSystemPrompt { get; set; } =
-        "You are ThaiX Slack response rewriter. Keep all factual values exact, keep symbols and numbers exact, keep risk wording accurate, and return concise plain text only.";
+    public string AiNarrationSystemPrompt { get; set; } = GetRequiredPrompt(nameof(AiNarrationSystemPrompt));
 
     /// <summary>
     /// When a mention's text doesn't confidently map to any known command, reply with a
@@ -19,12 +28,7 @@ public sealed class BotCommandSettings
     /// </summary>
     public bool EnableConversationalFallback { get; set; } = true;
 
-    public string ConversationalFallbackSystemPrompt { get; set; } =
-        "You are ThaiX, a helpful AI assistant for market research and general conversation inside a trading bot. " +
-        "Answer the user's actual question directly in the same language they used. " +
-        "For market questions, explain the thesis, key risks, relevant uncertainties, and possible scenarios instead of converting the question into a command. " +
-        "Do not invent live prices or claim to know the user's portfolio. Distinguish facts from estimates, and avoid presenting financial advice as certainty. " +
-        "Be clear and useful; use concise prose or structured bullets when appropriate.";
+    public string ConversationalFallbackSystemPrompt { get; set; } = GetRequiredPrompt(nameof(ConversationalFallbackSystemPrompt));
 
     private Dictionary<string, Dictionary<string, string>> _userMappings =
         new(StringComparer.OrdinalIgnoreCase);
