@@ -30,16 +30,14 @@ public sealed class BotCommandIntentResolver : IBotCommandIntentResolver
         var catalog = BuildCommandCatalog();
         var systemPrompt =
             "You are a command intent resolver for ThaiX bot. " +
-            "Map user message to exactly one command from the catalog. " +
+            "Choose at most one command from the supplied catalog that best fulfills the user's current request. " +
             "Return ONLY one line with command text, starting with '/' and arguments if needed. " +
-            "If no confident mapping, return exactly: NONE.\n\n" +
-            "RULES for price queries (giá/lấy giá/price/get price):\n" +
-            "- If user says 'coin', 'crypto' before symbol → use /pc (crypto price).\n" +
-            "- If user says 'chứng', 'stock', 'cổ phiếu', 'chứng khoán' before symbol → use /ps (stock price).\n" +
-            "- If NO market prefix, use /p (auto-detects Vietnam stock or crypto).\n" +
-            "- Examples: 'lấy giá coin btc' → /pc btc; 'giá chứng VNM' → /ps VNM; 'lấy giá btc' → /p btc; 'giá vnm' → /p VNM; 'giá eth' → /p eth.";
+            "If the request is not supported or required arguments cannot be resolved confidently, return exactly: NONE.\n\n" +
+            "The input may include recent conversation history and a Current message section. Treat the Current message as the request; use history only to resolve references or omitted arguments, and never repeat an earlier action unless the current message asks for it. " +
+            "Use command syntax and descriptions as the source of truth. Do not rely on hardcoded ticker lists or assume an asset class from a symbol alone. Prefer a command with automatic asset detection when the asset type is unclear. " +
+            "For market analysis requests, choose the relevant data-retrieval command available in the catalog; the response will be analyzed separately using the command's actual result.";
 
-        var prompt = $"Command catalog:\n{catalog}\n\nUser message:\n{mentionText.Trim()}\n\nReturn command:";
+        var prompt = $"Command catalog:\n{catalog}\n\nUser message and available context:\n{mentionText.Trim()}\n\nReturn command:";
 
         var aiResult = await _aiTextGenerationService.GenerateAsync(prompt, systemPrompt, cancellationToken);
         var candidate = NormalizeCandidate(aiResult.Text);

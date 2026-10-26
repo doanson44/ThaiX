@@ -53,6 +53,8 @@ public static class TelegramEndpoints
             CancellationToken cancellationToken) =>
         {
             var rawText = request.Text?.Trim();
+            var originalUserMessage = rawText;
+            var wasNaturalLanguageInput = !string.IsNullOrWhiteSpace(rawText) && !rawText.StartsWith('/');
             var chatId = request.ExternalChatId?.Trim();
 
             if (string.IsNullOrWhiteSpace(chatId))
@@ -99,49 +101,76 @@ public static class TelegramEndpoints
                 return Results.Ok();
             }
 
-            // Explicit group mentions and replies are conversational by default.
-            // Slash commands remain executable even when sent as a reply to the bot.
+            // For explicit mentions and replies, resolve supported actions before falling back to open chat.
+            // The resolver uses conversation history only to resolve references in the current message.
             var isExplicitConversation = isGroup
                 && (request.IsBotMentioned || request.IsReplyToBot)
                 && !rawText.StartsWith('/');
 
             if (isExplicitConversation)
             {
-                using var chatCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                chatCts.CancelAfter(TimeSpan.FromSeconds(30));
-
-                try
+                string? resolvedCommand = null;
+                using (var intentCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
-                    var chatReply = await botConversationalResponder.RespondAsync(
-                        BuildConversationPrompt(conversation.RecentMessages, rawText),
-                        botCommandOptions.Value.ConversationalFallbackSystemPrompt,
-                        chatCts.Token);
+                    intentCts.CancelAfter(TimeSpan.FromSeconds(10));
 
-                    if (!string.IsNullOrWhiteSpace(chatReply))
+                    try
                     {
-                        await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
-                        await RecordAssistantMessageBestEffortAsync(
-                            conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
+                        resolvedCommand = await botCommandIntentResolver.ResolveCommandTextAsync(
+                            BuildConversationPrompt(conversation.RecentMessages, rawText),
+                            intentCts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Fall back to conversation when intent resolution times out.
+                    }
+                    catch (Exception)
+                    {
+                        // Intent resolution is best-effort; open conversation remains available.
                     }
                 }
-                catch (OperationCanceledException)
-                {
-                    await telegramNotificationService.SendToChatAsync(
-                        chatId,
-                        "I could not complete that response in time. Please try again.",
-                        CancellationToken.None);
-                }
-                catch (Exception)
-                {
-                    await telegramNotificationService.SendToChatAsync(
-                        chatId,
-                        "I could not generate a response right now. Please try again.",
-                        CancellationToken.None);
-                }
 
-                return Results.Ok();
+                if (!string.IsNullOrWhiteSpace(resolvedCommand))
+                {
+                    rawText = resolvedCommand;
+                }
+                else
+                {
+                    using var chatCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    chatCts.CancelAfter(TimeSpan.FromSeconds(30));
+
+                    try
+                    {
+                        var chatReply = await botConversationalResponder.RespondAsync(
+                            BuildConversationPrompt(conversation.RecentMessages, originalUserMessage ?? rawText),
+                            botCommandOptions.Value.ConversationalFallbackSystemPrompt,
+                            chatCts.Token);
+
+                        if (!string.IsNullOrWhiteSpace(chatReply))
+                        {
+                            await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
+                            await RecordAssistantMessageBestEffortAsync(
+                                conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        await telegramNotificationService.SendToChatAsync(
+                            chatId,
+                            "I could not complete that response in time. Please try again.",
+                            CancellationToken.None);
+                    }
+                    catch (Exception)
+                    {
+                        await telegramNotificationService.SendToChatAsync(
+                            chatId,
+                            "I could not generate a response right now. Please try again.",
+                            CancellationToken.None);
+                    }
+
+                    return Results.Ok();
+                }
             }
-
             // If not a slash command, use AI intent resolution
             var isNaturalLanguage = !rawText.StartsWith('/');
             if (isNaturalLanguage)
@@ -212,7 +241,7 @@ public static class TelegramEndpoints
                 }
 
                 // AI narration is only performed for natural language messages, not direct slash commands.
-                if (isNaturalLanguage)
+                if (wasNaturalLanguageInput)
                 {
                     result = await botCommandResponseNarrator.NarrateAsync(
                         result,
@@ -220,12 +249,18 @@ public static class TelegramEndpoints
                         {
                             Enabled = botCommandOptions.Value.EnableAiNarration,
                             MaxSourceChars = botCommandOptions.Value.AiNarrationMaxSourceChars,
-                            SystemPrompt = botCommandOptions.Value.AiNarrationSystemPrompt
+                            SystemPrompt = botCommandOptions.Value.AiNarrationSystemPrompt,
+                            UserMessage = originalUserMessage ?? string.Empty
                         },
                         cancellationToken);
                 }
 
-                var responseText = FormatResponseText(telegramFormatter, result);
+                var responseText = wasNaturalLanguageInput
+                    && botCommandOptions.Value.EnableAiNarration
+                    && result.Status == BotCommandExecutionStatus.Completed
+                    && !string.IsNullOrWhiteSpace(result.PlainText)
+                        ? result.PlainText
+                        : FormatResponseText(telegramFormatter, result);
                 await telegramNotificationService.SendRenderedToChatAsync(chatId, responseText, cancellationToken);
                 await RecordAssistantMessageBestEffortAsync(
                     conversationHistoryService, isGroup, chatId, responseText, cancellationToken);

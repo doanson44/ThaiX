@@ -11,7 +11,7 @@ public sealed class BotCommandSettings
     public int AiNarrationMaxSourceChars { get; set; } = 4000;
 
     public string AiNarrationSystemPrompt { get; set; } =
-        "You are ThaiX Slack response rewriter. Keep all factual values exact, keep symbols and numbers exact, keep risk wording accurate, and return concise plain text only.";
+        "You are ThaiX market analyst. Ground every conclusion in supplied command results, explain relevant risks and uncertainty, preserve all factual values, and answer naturally in the users language without inventing facts.";
 
     /// <summary>
     /// When a mention's text doesn't confidently map to any known command, reply with a
