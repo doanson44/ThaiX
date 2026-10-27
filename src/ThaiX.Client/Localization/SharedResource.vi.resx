@@ -613,7 +613,7 @@
   <data name="Mexc.ContractTickers.RiseFallValue" xml:space="preserve"><value>Giá trị thay đổi</value></data>
   <data name="Mexc.ContractTickers.ContractId" xml:space="preserve"><value>Mã hợp đồng</value></data>
   <data name="Mexc.ContractTickers.HoldVol" xml:space="preserve"><value>Khối lượng giữ</value></data>
-  <data name="Mexc.ContractTickers.FundingRate" xml:space="preserve"><value>Funding rate</value></data>
+  <data name="Mexc.ContractTickers.FundingRate" xml:space="preserve"><value>Tỷ lệ funding</value></data>
   <data name="Mexc.ContractTickers.IndexPrice" xml:space="preserve"><value>Giá chỉ số</value></data>
   <data name="Mexc.ContractTickers.FairPrice" xml:space="preserve"><value>Giá hợp lý</value></data>
   <data name="Mexc.ContractTickers.MaxBidPrice" xml:space="preserve"><value>Giá mua tối đa</value></data>
