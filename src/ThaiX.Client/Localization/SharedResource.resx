@@ -576,7 +576,8 @@
   <data name="Mexc.DemoTrading.AvailableCapital" xml:space="preserve"><value>Available capital</value></data>
   <data name="Mexc.DemoTrading.UnrealizedPnl" xml:space="preserve"><value>Unrealized P/L</value></data>
   <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Realized P/L</value></data>
-  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Simulation only. No orders are sent to MEXC. Fees are estimated on entry and exit.</value></data>
+  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Simulation only. No orders are sent to MEXC. Fees are estimated on entry and exit. Estimated cross-margin liquidation prices use a flat 0.5% maintenance margin rate and exclude liquidation fees; actual MEXC risk tiers may differ.</value></data>
+  <data name="Mexc.DemoTrading.EstimatedLiquidationPrice" xml:space="preserve"><value>Est. liquidation price</value></data>
   <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Open demo positions</value></data>
   <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>No open positions.</value></data>
   <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Side</value></data>
