@@ -584,6 +584,16 @@
   <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Lãi/lỗ đã chốt</value></data>
   <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Chỉ mô phỏng, không gửi lệnh lên MEXC. Phí vào và đóng lệnh được ước tính. Giá thanh lý cross margin chỉ là ước tính, dùng tỷ lệ maintenance margin cố định 0,5% và chưa tính phí thanh lý; bậc rủi ro thực tế của MEXC có thể khác.</value></data>
   <data name="Mexc.DemoTrading.EstimatedLiquidationPrice" xml:space="preserve"><value>Giá thanh lý ước tính</value></data>
+  <data name="Mexc.DemoTrading.OpenedAt" xml:space="preserve"><value>Thời điểm mở</value></data>
+  <data name="Mexc.DemoTrading.HoldingDuration" xml:space="preserve"><value>Thời gian giữ lệnh</value></data>
+  <data name="Mexc.DemoTrading.FundingPnl" xml:space="preserve"><value>Lãi/lỗ funding ước tính</value></data>
+  <data name="Mexc.DemoTrading.FundingSettlements" xml:space="preserve"><value>Số kỳ funding</value></data>
+  <data name="Mexc.DemoTrading.LiquidationStatus" xml:space="preserve"><value>Ngưỡng thanh lý trong lịch sử</value></data>
+  <data name="Mexc.DemoTrading.PositionAnalysisLoading" xml:space="preserve"><value>Đang tải funding và lịch sử giá...</value></data>
+  <data name="Mexc.DemoTrading.LiquidationTouched" xml:space="preserve"><value>Đã chạm ngưỡng ước tính</value></data>
+  <data name="Mexc.DemoTrading.LiquidationNotTouched" xml:space="preserve"><value>Chưa phát hiện chạm ngưỡng</value></data>
+  <data name="Mexc.DemoTrading.AnalysisUnavailable" xml:space="preserve"><value>Không có dữ liệu lịch sử</value></data>
+  <data name="Mexc.DemoTrading.FundingEstimateDisclaimer" xml:space="preserve"><value>Lãi/lỗ funding được ước tính từ tỷ lệ settlement công khai và giá nến lịch sử. Nến chạm giá thanh lý ước tính chỉ là cảnh báo, không xác nhận sàn đã thanh lý vị thế.</value></data>
   <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Các lệnh demo đang mở</value></data>
   <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>Chưa có lệnh nào đang mở.</value></data>
   <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Chiều lệnh</value></data>

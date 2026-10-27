@@ -26,6 +26,17 @@ public interface IExternalDataService
     Task<ApiResponse<OrderBookDepthResponseDto>> GetMexcContractDepthAsync(string symbol, CancellationToken cancellationToken = default);
     Task<ApiResponse<KlineSeriesResponseDto>> GetMexcContractKlineAsync(string symbol, string? interval = null, CancellationToken cancellationToken = default);
     Task<ApiResponse<FundingRatesResponseDto>> GetMexcFundingRatesAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<MexcContractFundingRateHistoryResponseDto>> GetMexcContractFundingRateHistoryAsync(
+        string symbol,
+        long startTimeMilliseconds,
+        long endTimeMilliseconds,
+        CancellationToken cancellationToken = default);
+    Task<ApiResponse<MexcContractKlineResponseDto>> GetMexcContractKlineRangeAsync(
+        string symbol,
+        string interval,
+        long startTimeSeconds,
+        long endTimeSeconds,
+        CancellationToken cancellationToken = default);
     Task<ApiResponse<OrderBookDepthResponseDto>> GetMexcSpotDepthAsync(string symbol, CancellationToken cancellationToken = default);
     Task<ApiResponse<KlineSeriesResponseDto>> GetMexcSpotKlinesAsync(string symbol, string? interval = null, CancellationToken cancellationToken = default);
 

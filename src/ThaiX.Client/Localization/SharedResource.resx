@@ -578,6 +578,16 @@
   <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Realized P/L</value></data>
   <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Simulation only. No orders are sent to MEXC. Fees are estimated on entry and exit. Estimated cross-margin liquidation prices use a flat 0.5% maintenance margin rate and exclude liquidation fees; actual MEXC risk tiers may differ.</value></data>
   <data name="Mexc.DemoTrading.EstimatedLiquidationPrice" xml:space="preserve"><value>Est. liquidation price</value></data>
+  <data name="Mexc.DemoTrading.OpenedAt" xml:space="preserve"><value>Opened at</value></data>
+  <data name="Mexc.DemoTrading.HoldingDuration" xml:space="preserve"><value>Holding time</value></data>
+  <data name="Mexc.DemoTrading.FundingPnl" xml:space="preserve"><value>Est. funding P/L</value></data>
+  <data name="Mexc.DemoTrading.FundingSettlements" xml:space="preserve"><value>Funding settlements</value></data>
+  <data name="Mexc.DemoTrading.LiquidationStatus" xml:space="preserve"><value>Historical liquidation threshold</value></data>
+  <data name="Mexc.DemoTrading.PositionAnalysisLoading" xml:space="preserve"><value>Loading funding and price history...</value></data>
+  <data name="Mexc.DemoTrading.LiquidationTouched" xml:space="preserve"><value>Estimated threshold touched</value></data>
+  <data name="Mexc.DemoTrading.LiquidationNotTouched" xml:space="preserve"><value>No threshold touch found</value></data>
+  <data name="Mexc.DemoTrading.AnalysisUnavailable" xml:space="preserve"><value>History unavailable</value></data>
+  <data name="Mexc.DemoTrading.FundingEstimateDisclaimer" xml:space="preserve"><value>Funding P/L is an estimate from public settlement rates and historical candle prices. A candle touching the estimated liquidation price is only a warning signal, not confirmation of an exchange liquidation.</value></data>
   <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Open demo positions</value></data>
   <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>No open positions.</value></data>
   <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Side</value></data>
