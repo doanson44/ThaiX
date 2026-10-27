@@ -582,7 +582,8 @@
   <data name="Mexc.DemoTrading.AvailableCapital" xml:space="preserve"><value>Vốn khả dụng</value></data>
   <data name="Mexc.DemoTrading.UnrealizedPnl" xml:space="preserve"><value>Lãi/lỗ chưa chốt</value></data>
   <data name="Mexc.DemoTrading.RealizedPnl" xml:space="preserve"><value>Lãi/lỗ đã chốt</value></data>
-  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Chỉ mô phỏng, không gửi lệnh lên MEXC. Phí vào và đóng lệnh được ước tính.</value></data>
+  <data name="Mexc.DemoTrading.DemoDisclaimer" xml:space="preserve"><value>Chỉ mô phỏng, không gửi lệnh lên MEXC. Phí vào và đóng lệnh được ước tính. Giá thanh lý cross margin chỉ là ước tính, dùng tỷ lệ maintenance margin cố định 0,5% và chưa tính phí thanh lý; bậc rủi ro thực tế của MEXC có thể khác.</value></data>
+  <data name="Mexc.DemoTrading.EstimatedLiquidationPrice" xml:space="preserve"><value>Giá thanh lý ước tính</value></data>
   <data name="Mexc.DemoTrading.OpenPositions" xml:space="preserve"><value>Các lệnh demo đang mở</value></data>
   <data name="Mexc.DemoTrading.NoOpenPositions" xml:space="preserve"><value>Chưa có lệnh nào đang mở.</value></data>
   <data name="Mexc.DemoTrading.Side" xml:space="preserve"><value>Chiều lệnh</value></data>
