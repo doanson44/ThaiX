@@ -74,6 +74,10 @@
                                         <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@GetMarkPrice(position).ToString("0.########")</RadzenText>
                                     </RadzenColumn>
                                     <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.EstimatedLiquidationPrice]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@(GetEstimatedLiquidationPrice(position)?.ToString("0.########") ?? "-")</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
                                         <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.Quantity]</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.Quantity.ToString("0.########")</RadzenText>
                                     </RadzenColumn>
@@ -118,6 +122,7 @@
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Side]"><Template Context="position">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EntryPrice]"><Template Context="position">@position.EntryPrice.ToString("0.########")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.MarkPrice]"><Template Context="position">@GetMarkPrice(position).ToString("0.########")</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EstimatedLiquidationPrice]"><Template Context="position">@(GetEstimatedLiquidationPrice(position)?.ToString("0.########") ?? "-")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Quantity]"><Template Context="position">@position.Quantity.ToString("0.########")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.Calc.Field.Margin]"><Template Context="position">@GetPositionMargin(position).ToString("N2") USDT</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.Calc.Field.Notional]"><Template Context="position">@GetPositionNotional(position).ToString("N2") USDT</Template></RadzenDataGridColumn>
@@ -1034,6 +1039,38 @@
         _portfolio.Positions.Remove(position);
         await PersistDemoPortfolioAsync();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private const decimal EstimatedMaintenanceMarginRate = 0.005m;
+
+    private decimal? GetEstimatedLiquidationPrice(DemoFuturesPosition position)
+    {
+        var sameSymbolPositions = _portfolio.Positions
+            .Where(item => item.Symbol.Equals(position.Symbol, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var sameSymbolNetExposure = sameSymbolPositions.Sum(item =>
+            item.Quantity * (item.Side == DemoPositionSide.Long ? 1m : -1m));
+        var sameSymbolMaintenanceQuantity = sameSymbolPositions.Sum(item => item.Quantity);
+        var otherSymbolsNotional = _portfolio.Positions
+            .Where(item => !item.Symbol.Equals(position.Symbol, StringComparison.OrdinalIgnoreCase))
+            .Sum(item => GetMarkPrice(item) * item.Quantity);
+        var sameSymbolCurrentExposureValue = sameSymbolPositions.Sum(item =>
+            item.Quantity
+            * (item.Side == DemoPositionSide.Long ? 1m : -1m)
+            * GetMarkPrice(item));
+        var denominator = sameSymbolNetExposure - (EstimatedMaintenanceMarginRate * sameSymbolMaintenanceQuantity);
+
+        if (sameSymbolMaintenanceQuantity <= 0m || denominator == 0m)
+        {
+            return null;
+        }
+
+        var numerator = (EstimatedMaintenanceMarginRate * otherSymbolsNotional)
+            - CurrentEquity
+            + sameSymbolCurrentExposureValue;
+        var liquidationPrice = numerator / denominator;
+
+        return liquidationPrice > 0m ? liquidationPrice : null;
     }
 
     private decimal GetMarkPrice(DemoFuturesPosition position) =>
