@@ -776,6 +776,7 @@ public static class ResourceKeys
         public const string Short = "Mexc.DemoTrading.Short";
         public const string EntryPrice = "Mexc.DemoTrading.EntryPrice";
         public const string MarkPrice = "Mexc.DemoTrading.MarkPrice";
+        public const string EstimatedLiquidationPrice = "Mexc.DemoTrading.EstimatedLiquidationPrice";
         public const string Quantity = "Mexc.DemoTrading.Quantity";
         public const string ClosePosition = "Mexc.DemoTrading.ClosePosition";
         public const string InvalidSettings = "Mexc.DemoTrading.InvalidSettings";
