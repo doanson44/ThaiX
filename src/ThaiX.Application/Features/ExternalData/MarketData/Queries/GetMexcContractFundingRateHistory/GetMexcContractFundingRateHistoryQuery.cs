@@ -10,6 +10,8 @@ public sealed record GetMexcContractFundingRateHistoryQuery : IAppQuery<MexcCont
     public string Symbol { get; init; } = string.Empty;
     public int PageNum { get; init; } = 1;
     public int PageSize { get; init; } = 20;
+    public long? StartTime { get; init; }
+    public long? EndTime { get; init; }
 }
 
 /// <summary>

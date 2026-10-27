@@ -63,4 +63,49 @@ public sealed class GetMexcContractFundingRateHistoryQueryHandlerTests
         result.Data.Should().BeEmpty();
         result.Message.Should().Contain("Failed to retrieve");
     }
+
+    [Fact]
+    public async Task Handle_WithOnlyStartTime_ShouldReturnFailedResponseWithoutCallingService()
+    {
+        // Arrange
+        var query = new GetMexcContractFundingRateHistoryQuery
+        {
+            Symbol = "BTC_USDT",
+            StartTime = 1_700_000_000_000
+        };
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.Message.Should().Contain("Invalid time range");
+        _externalDataServiceMock.Verify(
+            x => x.GetMexcContractFundingRateHistoryAsync<object>(
+                It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_WithStartTimeAfterEndTime_ShouldReturnFailedResponseWithoutCallingService()
+    {
+        // Arrange
+        var query = new GetMexcContractFundingRateHistoryQuery
+        {
+            Symbol = "BTC_USDT",
+            StartTime = 1_800_000_000_000,
+            EndTime = 1_700_000_000_000
+        };
+
+        // Act
+        var result = await _sut.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.Message.Should().Contain("Invalid time range");
+        _externalDataServiceMock.Verify(
+            x => x.GetMexcContractFundingRateHistoryAsync<object>(
+                It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

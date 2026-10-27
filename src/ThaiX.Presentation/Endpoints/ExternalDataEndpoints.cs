@@ -850,20 +850,26 @@ public static class ExternalDataEndpoints
         .WithName("GetMexcContractFundingRates")
         .WithDescription("Get MEXC contract funding rates for all symbols.");
 
+        // GET /api/external-data/mexc/funding-rate/history/{symbol}?startTime=...&endTime=...
         // GET /api/external-data/mexc/funding-rate/history/{symbol}?pageNum=1&pageSize=20
         group.MapGet("/funding-rate/history/{symbol}", async (
             string symbol,
             int? pageNum,
             int? pageSize,
+            long? startTime,
+            long? endTime,
             IMediator mediator,
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
+            var hasTimeRange = startTime.HasValue || endTime.HasValue;
             var result = await mediator.Send(new GetMexcContractFundingRateHistoryQuery
             {
                 Symbol = symbol,
-                PageNum = pageNum ?? 1,
-                PageSize = pageSize ?? 20
+                PageNum = hasTimeRange ? 1 : pageNum ?? 1,
+                PageSize = hasTimeRange ? 1000 : pageSize ?? 20,
+                StartTime = startTime,
+                EndTime = endTime
             }, cancellationToken);
 
             if (!result.Success)
@@ -881,7 +887,7 @@ public static class ExternalDataEndpoints
         })
         .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
         .WithName("GetMexcContractFundingRateHistory")
-        .WithDescription("Get MEXC contract funding rate settlement history by symbol. Supports pageNum (default 1) and pageSize (default 20, maximum 1000).");
+        .WithDescription("Get MEXC contract funding rate settlement history by symbol. Supports pageNum/pageSize pagination, or startTime/endTime as inclusive Unix timestamps in milliseconds to retrieve all settlements in a time range (maximum 1000 records per upstream page).");
 
         // GET /api/external-data/mexc/contract-depth/{symbol}
         group.MapGet("/contract-depth/{symbol}", async (
