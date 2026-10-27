@@ -776,6 +776,17 @@ public static class ResourceKeys
         public const string Short = "Mexc.DemoTrading.Short";
         public const string EntryPrice = "Mexc.DemoTrading.EntryPrice";
         public const string MarkPrice = "Mexc.DemoTrading.MarkPrice";
+        public const string EstimatedLiquidationPrice = "Mexc.DemoTrading.EstimatedLiquidationPrice";
+        public const string OpenedAt = "Mexc.DemoTrading.OpenedAt";
+        public const string HoldingDuration = "Mexc.DemoTrading.HoldingDuration";
+        public const string FundingPnl = "Mexc.DemoTrading.FundingPnl";
+        public const string FundingSettlements = "Mexc.DemoTrading.FundingSettlements";
+        public const string LiquidationStatus = "Mexc.DemoTrading.LiquidationStatus";
+        public const string PositionAnalysisLoading = "Mexc.DemoTrading.PositionAnalysisLoading";
+        public const string LiquidationTouched = "Mexc.DemoTrading.LiquidationTouched";
+        public const string LiquidationNotTouched = "Mexc.DemoTrading.LiquidationNotTouched";
+        public const string AnalysisUnavailable = "Mexc.DemoTrading.AnalysisUnavailable";
+        public const string FundingEstimateDisclaimer = "Mexc.DemoTrading.FundingEstimateDisclaimer";
         public const string Quantity = "Mexc.DemoTrading.Quantity";
         public const string ClosePosition = "Mexc.DemoTrading.ClosePosition";
         public const string InvalidSettings = "Mexc.DemoTrading.InvalidSettings";

@@ -245,8 +245,6 @@ public static class DependencyInjection
             .AddScoped<IIndicatorService, IndicatorService>()
             .AddScoped<IExternalMarketDataService, ExternalMarketDataService>();
 
-        services.AddSingleton<HangfireStorageIndexInitializer>();
-
         AddHangfire(services, configuration);
 
         return services;
@@ -300,9 +298,6 @@ public static class DependencyInjection
                 options.Queues = hangfireConfig.Server.Queues;
                 options.ShutdownTimeout = hangfireConfig.Server.ShutdownTimeout;
             });
-
-            // Resolved from the service provider by Hangfire (IEnumerable<IBackgroundProcess>).
-            services.AddSingleton<IBackgroundProcess, StaleSchedulerLockCleanupProcess>();
         }
 
         // Market scanner

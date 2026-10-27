@@ -159,13 +159,18 @@ public interface IExternalDataService
     /// Interval defaults to Min1 when omitted.
     /// Returns null if the external API call fails or returns no data.
     /// </summary>
-    Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default);
+    Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default, long? start = null, long? end = null);
 
     /// <summary>
     /// Gets MEXC contract funding rates for all symbols.
     /// Returns null if the external API call fails or returns no data.
     /// </summary>
     Task<T?> GetMexcContractFundingRatesAsync<T>(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets MEXC contract funding rate settlement history for a symbol.
+    /// </summary>
+    Task<T?> GetMexcContractFundingRateHistoryAsync<T>(string symbol, int pageNum, int pageSize, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets MEXC contract depth by symbol (example: BTC_USDT).

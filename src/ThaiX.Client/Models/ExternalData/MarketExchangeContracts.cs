@@ -212,3 +212,49 @@ public sealed record Power655ResultDrawDto
     public long Jackpot1Value { get; init; }
     public long Jackpot2Value { get; init; }
 }
+
+
+public sealed record MexcContractFundingRateHistoryResponseDto
+{
+    public string Symbol { get; init; } = string.Empty;
+    public int PageNum { get; init; }
+    public int PageSize { get; init; }
+    public int TotalCount { get; init; }
+    public int TotalPage { get; init; }
+    public int CurrentPage { get; init; }
+    public List<MexcContractFundingRateHistoryItemDto> Data { get; init; } = [];
+    public string? Message { get; init; }
+    public bool Success { get; init; }
+}
+
+public sealed record MexcContractFundingRateHistoryItemDto
+{
+    public string Symbol { get; init; } = string.Empty;
+    public decimal FundingRate { get; init; }
+    public long SettleTime { get; init; }
+    public int CollectCycle { get; init; }
+}
+
+public sealed record MexcContractKlineResponseDto
+{
+    public string Symbol { get; init; } = string.Empty;
+    public string Interval { get; init; } = string.Empty;
+    public MexcContractKlineDataDto? Data { get; init; }
+    public string? Message { get; init; }
+    public bool Success { get; init; }
+}
+
+public sealed record MexcContractKlineDataDto
+{
+    public List<long> Time { get; init; } = [];
+    public List<decimal> Open { get; init; } = [];
+    public List<decimal> Close { get; init; } = [];
+    public List<decimal> High { get; init; } = [];
+    public List<decimal> Low { get; init; } = [];
+    public List<decimal> Vol { get; init; } = [];
+    public List<decimal> Amount { get; init; } = [];
+    public List<decimal> RealOpen { get; init; } = [];
+    public List<decimal> RealClose { get; init; } = [];
+    public List<decimal> RealHigh { get; init; } = [];
+    public List<decimal> RealLow { get; init; } = [];
+}

@@ -1,10 +1,12 @@
 @page "/market-data/mexc/contract-ticker-socket"
+@attribute [Authorize]
 @using ThaiX.Client.Components
 @using ThaiX.Client.Components.MarketData.Mexc
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @using ThaiX.Client.Localization
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.MarketData
+@using ThaiX.Client.Services.ExternalData
 @using Microsoft.Extensions.Localization
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Authorization
@@ -21,6 +23,7 @@
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 @inject IMexcContractTickerSocketService ContractSocketService
+@inject IExternalDataService ExternalDataService
 @inherits ThaiXPageBase
 
 <RadzenCard>
@@ -73,6 +76,10 @@
                                         <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@GetMarkPrice(position).ToString("0.########")</RadzenText>
                                     </RadzenColumn>
                                     <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.EstimatedLiquidationPrice]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@(GetEstimatedLiquidationPrice(position)?.ToString("0.########") ?? "-")</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
                                         <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.Quantity]</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.Quantity.ToString("0.########")</RadzenText>
                                     </RadzenColumn>
@@ -88,7 +95,31 @@
                                         <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.Leverage]</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@position.Leverage x</RadzenText>
                                     </RadzenColumn>
+                                    <RadzenColumn Size="12">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.OpenedAt]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@FormatOpenedAt(position)</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.HoldingDuration]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@GetHoldingDuration(position)</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.FundingPnl]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0" Style="@PnlStyle(GetPositionFundingPnl(position))">@GetPositionFundingPnl(position).ToString("+0.00;-0.00;0.00") USDT</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.FundingSettlements]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0">@GetFundingSettlementCount(position)</RadzenText>
+                                    </RadzenColumn>
+                                    <RadzenColumn Size="6">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.LiquidationStatus]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="mb-0" Style="@GetLiquidationStatusStyle(position)">@GetLiquidationStatusText(position)</RadzenText>
+                                    </RadzenColumn>
                                 </RadzenRow>
+                                @if (!string.IsNullOrWhiteSpace(GetPositionAnalysisStatus(position)))
+                                {
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@GetPositionAnalysisStatus(position)</RadzenText>
+                                }
                                 <RadzenStack Orientation="Orientation.Horizontal"
                                              AlignItems="AlignItems.Center"
                                              JustifyContent="JustifyContent.SpaceBetween"
@@ -117,10 +148,16 @@
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Side]"><Template Context="position">@L[position.Side == DemoPositionSide.Long ? RK.MexcDemoTrading.Long : RK.MexcDemoTrading.Short]</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EntryPrice]"><Template Context="position">@position.EntryPrice.ToString("0.########")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.MarkPrice]"><Template Context="position">@GetMarkPrice(position).ToString("0.########")</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.EstimatedLiquidationPrice]"><Template Context="position">@(GetEstimatedLiquidationPrice(position)?.ToString("0.########") ?? "-")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Quantity]"><Template Context="position">@position.Quantity.ToString("0.########")</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.Calc.Field.Margin]"><Template Context="position">@GetPositionMargin(position).ToString("N2") USDT</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.Calc.Field.Notional]"><Template Context="position">@GetPositionNotional(position).ToString("N2") USDT</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.Leverage]"><Template Context="position">@position.Leverage x</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.OpenedAt]"><Template Context="position">@FormatOpenedAt(position)</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.HoldingDuration]"><Template Context="position">@GetHoldingDuration(position)</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.FundingPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionFundingPnl(position))">@GetPositionFundingPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.FundingSettlements]"><Template Context="position">@GetFundingSettlementCount(position)</Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.LiquidationStatus]"><Template Context="position"><span style="@GetLiquidationStatusStyle(position)">@GetLiquidationStatusText(position)</span></Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.UnrealizedPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
                             </Columns>
@@ -129,6 +166,7 @@
                 }
             }
         </RadzenStack>
+        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.MexcDemoTrading.FundingEstimateDisclaimer]</RadzenText>
     </RadzenCard>
 
     <RadzenStack Gap="1rem" Class="mb-3">
@@ -249,6 +287,7 @@
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Title="@L[RK.MexcContractTickers.FundingRate]" Sortable="false" Filterable="false"><Template Context="ticker">@GetFundingRateText(ticker.Symbol)</Template></RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Bid1" Title="@L[RK.MexcContractTickers.Bid1]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Ask1" Title="@L[RK.MexcContractTickers.Ask1]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Volume24" Title="@L[RK.MexcContractTickers.Volume24]" />
@@ -306,6 +345,7 @@
                         </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.FundingRate]: @GetFundingRateText(ticker.Symbol)</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @(ticker.Bid1?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Ask1]: @(ticker.Ask1?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Volume24]: @(ticker.Volume24?.ToString() ?? "-")</RadzenText>
@@ -333,6 +373,7 @@
     private bool _cloudSyncRunning;
     private bool _cloudSyncRequested;
     private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FundingRateDto> _fundingRateMap = new(StringComparer.OrdinalIgnoreCase);
     private List<string> _pinnedSymbols = [];
     private List<MexcContractTickerDto> _allTickers = [];
     private readonly List<MexcContractTickerDto> _displayTickers = [];
@@ -348,6 +389,8 @@
     private bool _canSyncDemoPortfolio;
     private bool _demoCloudSyncRunning;
     private bool _demoCloudSyncRequested;
+    private bool _positionAnalyticsLoading;
+    private readonly Dictionary<Guid, DemoPositionAnalytics> _positionAnalytics = [];
     private decimal UnrealizedPnl => _portfolio.Positions.Sum(GetPositionPnl);
     private decimal CurrentEquity => _portfolio.InitialCapital + _portfolio.RealizedPnl + UnrealizedPnl;
     private decimal UsedMargin => _portfolio.Positions.Sum(GetPositionMargin);
@@ -404,6 +447,7 @@
             await InitializeDemoPortfolioCloudSyncAsync();
         }
 
+        await LoadOpenPositionAnalyticsAsync();
         RefreshDisplayTickers();
         ApplyMobileView();
         await InvokeAsync(StateHasChanged);
@@ -645,6 +689,7 @@
         base.OnInitialized();
         ContractSocketService.TickersUpdated += OnTickersUpdated;
         ContractSocketService.StreamError += OnStreamError;
+        _ = LoadFundingRatesAsync();
         _ = ContractSocketService.StartAsync();
     }
 
@@ -726,6 +771,52 @@
             || existing.IndexPrice != incoming.IndexPrice
             || existing.FairPrice != incoming.FairPrice
             || existing.Timestamp != incoming.Timestamp;
+    }
+
+    private async Task LoadFundingRatesAsync()
+    {
+        try
+        {
+            var response = await ExternalDataService.GetMexcFundingRatesAsync();
+            if (!response.Success || response.Data?.Data is null)
+            {
+                return;
+            }
+
+            _fundingRateMap.Clear();
+            foreach (var item in response.Data.Data)
+            {
+                var symbol = NormalizeFundingSymbol(item.Symbol);
+                if (!string.IsNullOrWhiteSpace(symbol))
+                {
+                    _fundingRateMap[symbol] = item;
+                }
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not load MEXC contract funding rates.");
+        }
+    }
+
+    private string GetFundingRateText(string symbol) =>
+        _fundingRateMap.TryGetValue(NormalizeFundingSymbol(symbol), out var fundingRate)
+            ? fundingRate.FundingRate.ToString("P4")
+            : "-";
+
+    private static string NormalizeFundingSymbol(string? symbol)
+    {
+        var normalized = symbol?.Trim().ToUpperInvariant() ?? string.Empty;
+        if (normalized.EndsWith("_USDT", StringComparison.Ordinal))
+        {
+            return normalized;
+        }
+
+        return normalized.EndsWith("USDT", StringComparison.Ordinal) && normalized.Length > 4
+            ? $"{normalized[..^4]}_USDT"
+            : normalized;
     }
 
     private static bool HasValidPrice(decimal? price) => price.HasValue && price.Value > 0m;
@@ -949,6 +1040,236 @@
         }
     }
 
+    private async Task LoadOpenPositionAnalyticsAsync()
+    {
+        _positionAnalytics.Clear();
+        if (_portfolio.Positions.Count == 0)
+        {
+            _positionAnalyticsLoading = false;
+            return;
+        }
+
+        _positionAnalyticsLoading = true;
+        try
+        {
+            var now = DateTimeOffset.UtcNow;
+            var nowMilliseconds = now.ToUnixTimeMilliseconds();
+            var nowSeconds = now.ToUnixTimeSeconds();
+
+            foreach (var group in _portfolio.Positions
+                         .Where(position => !string.IsNullOrWhiteSpace(position.Symbol))
+                         .GroupBy(position => position.Symbol, StringComparer.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    var earliestOpen = group.Min(position => position.OpenedAtUtc);
+                    var startMilliseconds = earliestOpen.ToUnixTimeMilliseconds();
+                    var startSeconds = earliestOpen.ToUnixTimeSeconds();
+                    var interval = SelectKlineInterval(now - earliestOpen);
+
+                    var fundingTask = ExternalDataService.GetMexcContractFundingRateHistoryAsync(
+                        group.Key, startMilliseconds, nowMilliseconds);
+                    var klineTask = ExternalDataService.GetMexcContractKlineRangeAsync(
+                        group.Key, interval, startSeconds, nowSeconds);
+                    await Task.WhenAll(fundingTask, klineTask);
+
+                    var fundingResponse = await fundingTask;
+                    var klineResponse = await klineTask;
+                    var fundingLoaded = fundingResponse.Success && fundingResponse.Data?.Success == true;
+                    List<MexcContractFundingRateHistoryItemDto> fundingItems = fundingLoaded
+                        ? fundingResponse.Data!.Data.OrderBy(item => item.SettleTime).ToList()
+                        : [];
+                    var klineData = klineResponse.Success && klineResponse.Data?.Success == true
+                        ? klineResponse.Data.Data
+                        : null;
+                    var klineCount = klineData is null
+                        ? 0
+                        : new[] { klineData.Time.Count, klineData.High.Count, klineData.Low.Count, klineData.Close.Count }.Min();
+
+                    foreach (var position in group)
+                    {
+                        var openedAtMilliseconds = position.OpenedAtUtc.ToUnixTimeMilliseconds();
+                        var openedAtSeconds = position.OpenedAtUtc.ToUnixTimeSeconds();
+                        var settlements = fundingItems
+                            .Where(item => item.SettleTime >= openedAtMilliseconds && item.SettleTime <= nowMilliseconds)
+                            .ToList();
+                        decimal fundingPnl = 0m;
+
+                        if (fundingLoaded)
+                        {
+                            foreach (var settlement in settlements)
+                            {
+                                var settlementSeconds = settlement.SettleTime / 1000;
+                                var settlementPrice = position.EntryPrice;
+                                for (var i = 0; i < klineCount; i++)
+                                {
+                                    if (klineData!.Time[i] > settlementSeconds)
+                                    {
+                                        break;
+                                    }
+
+                                    if (klineData.Time[i] >= openedAtSeconds && klineData.Close[i] > 0m)
+                                    {
+                                        settlementPrice = klineData.Close[i];
+                                    }
+                                }
+
+                                var direction = position.Side == DemoPositionSide.Long ? -1m : 1m;
+                                fundingPnl += direction * settlement.FundingRate * settlementPrice * position.Quantity;
+                            }
+                        }
+
+                        decimal? lowestPrice = null;
+                        decimal? highestPrice = null;
+                        for (var i = 0; i < klineCount; i++)
+                        {
+                            if (klineData!.Time[i] < openedAtSeconds)
+                            {
+                                continue;
+                            }
+
+                            lowestPrice = !lowestPrice.HasValue || klineData.Low[i] < lowestPrice.Value
+                                ? klineData.Low[i]
+                                : lowestPrice;
+                            highestPrice = !highestPrice.HasValue || klineData.High[i] > highestPrice.Value
+                                ? klineData.High[i]
+                                : highestPrice;
+                        }
+
+                        _positionAnalytics[position.Id] = new DemoPositionAnalytics(
+                            fundingLoaded,
+                            klineCount > 0,
+                            settlements.Count,
+                            fundingPnl,
+                            lowestPrice,
+                            highestPrice);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Could not load MEXC demo analytics for symbol {Symbol}.", group.Key);
+                    foreach (var position in group)
+                    {
+                        _positionAnalytics[position.Id] = new DemoPositionAnalytics(false, false, 0, 0m, null, null);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _positionAnalyticsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static string SelectKlineInterval(TimeSpan holdingDuration)
+    {
+        var minutes = Math.Max(1d, holdingDuration.TotalMinutes);
+        return minutes <= 2000d ? "Min1"
+            : minutes <= 10000d ? "Min5"
+            : minutes <= 30000d ? "Min15"
+            : minutes <= 60000d ? "Min30"
+            : minutes <= 120000d ? "Min60"
+            : minutes <= 480000d ? "Hour4"
+            : "Day1";
+    }
+
+    private decimal GetPositionFundingPnl(DemoFuturesPosition position) =>
+        _positionAnalytics.TryGetValue(position.Id, out var analytics) && analytics.FundingLoaded
+            ? analytics.EstimatedFundingPnl
+            : 0m;
+
+    private int GetFundingSettlementCount(DemoFuturesPosition position) =>
+        _positionAnalytics.TryGetValue(position.Id, out var analytics) && analytics.FundingLoaded
+            ? analytics.FundingSettlementCount
+            : 0;
+
+    private string FormatOpenedAt(DemoFuturesPosition position) =>
+        position.OpenedAtUtc.ToLocalTime().ToString("g");
+
+    private static string GetHoldingDuration(DemoFuturesPosition position)
+    {
+        var duration = DateTimeOffset.UtcNow - position.OpenedAtUtc;
+        if (duration.TotalDays >= 1d)
+        {
+            return $"{(int)duration.TotalDays}d {duration.Hours}h";
+        }
+
+        return duration.TotalHours >= 1d
+            ? $"{(int)duration.TotalHours}h {duration.Minutes}m"
+            : $"{Math.Max(0, duration.Minutes)}m";
+    }
+
+    private string GetPositionAnalysisStatus(DemoFuturesPosition position)
+    {
+        if (_positionAnalyticsLoading)
+        {
+            return L[RK.MexcDemoTrading.PositionAnalysisLoading];
+        }
+
+        if (!_positionAnalytics.TryGetValue(position.Id, out var analytics)
+            || !analytics.FundingLoaded
+            || !analytics.PriceHistoryLoaded
+            || !analytics.LowestPrice.HasValue
+            || !analytics.HighestPrice.HasValue)
+        {
+            return L[RK.MexcDemoTrading.AnalysisUnavailable];
+        }
+
+        return string.Empty;
+    }
+
+    private string GetLiquidationStatusText(DemoFuturesPosition position)
+    {
+        if (_positionAnalyticsLoading)
+        {
+            return L[RK.MexcDemoTrading.PositionAnalysisLoading];
+        }
+
+        if (!_positionAnalytics.TryGetValue(position.Id, out var analytics)
+            || !analytics.PriceHistoryLoaded
+            || !analytics.LowestPrice.HasValue
+            || !analytics.HighestPrice.HasValue)
+        {
+            return L[RK.MexcDemoTrading.AnalysisUnavailable];
+        }
+
+        var liquidationPrice = GetEstimatedLiquidationPrice(position);
+        if (!liquidationPrice.HasValue)
+        {
+            return L[RK.MexcDemoTrading.AnalysisUnavailable];
+        }
+
+        var touched = position.Side == DemoPositionSide.Long
+            ? analytics.LowestPrice.Value <= liquidationPrice.Value
+            : analytics.HighestPrice.Value >= liquidationPrice.Value;
+        return L[touched ? RK.MexcDemoTrading.LiquidationTouched : RK.MexcDemoTrading.LiquidationNotTouched];
+    }
+
+    private string GetLiquidationStatusStyle(DemoFuturesPosition position)
+    {
+        var status = GetLiquidationStatusText(position);
+        if (status == L[RK.MexcDemoTrading.LiquidationTouched].Value)
+        {
+            return "color: var(--rz-warning);";
+        }
+
+        if (status == L[RK.MexcDemoTrading.LiquidationNotTouched].Value)
+        {
+            return "color: var(--rz-success);";
+        }
+
+        return "color: var(--rz-text-secondary-color);";
+    }
+
+    private sealed record DemoPositionAnalytics(
+        bool FundingLoaded,
+        bool PriceHistoryLoaded,
+        int FundingSettlementCount,
+        decimal EstimatedFundingPnl,
+        decimal? LowestPrice,
+        decimal? HighestPrice);
+
     private async Task ResetDemoPortfolioAsync()
     {
         var confirmed = await DialogService.Confirm(
@@ -961,6 +1282,7 @@
         }
 
         _portfolio = new DemoFuturesPortfolio();
+        _positionAnalytics.Clear();
         await PersistDemoPortfolioAsync();
         await SyncDemoPortfolioToCloudAsync();
         NotificationService.NotifySuccess(L[RK.MexcDemoTrading.ResetSuccess]);
@@ -1011,12 +1333,14 @@
 
         var quantity = notional / ticker.LastPrice.Value;
         var entryFee = notional * _portfolio.FeePercent / 100m;
-        _portfolio.Positions.Add(new DemoFuturesPosition
+        var position = new DemoFuturesPosition
         {
             Id = Guid.NewGuid(), Symbol = ticker.Symbol, Side = side, EntryPrice = ticker.LastPrice.Value,
             Quantity = quantity, Leverage = _portfolio.Leverage, EntryFee = entryFee, OpenedAtUtc = DateTimeOffset.UtcNow
-        });
+        };
+        _portfolio.Positions.Add(position);
         await PersistDemoPortfolioAsync();
+        await LoadOpenPositionAnalyticsAsync();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -1029,10 +1353,43 @@
         var direction = position.Side == DemoPositionSide.Long ? 1m : -1m;
         var grossPnl = (markPrice - position.EntryPrice) * position.Quantity * direction;
         var exitFee = markPrice * position.Quantity * _portfolio.FeePercent / 100m;
-        _portfolio.RealizedPnl += grossPnl - position.EntryFee - exitFee;
+        _portfolio.RealizedPnl += grossPnl - position.EntryFee - exitFee + GetPositionFundingPnl(position);
         _portfolio.Positions.Remove(position);
+        _positionAnalytics.Remove(position.Id);
         await PersistDemoPortfolioAsync();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private const decimal EstimatedMaintenanceMarginRate = 0.005m;
+
+    private decimal? GetEstimatedLiquidationPrice(DemoFuturesPosition position)
+    {
+        var sameSymbolPositions = _portfolio.Positions
+            .Where(item => item.Symbol.Equals(position.Symbol, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        var sameSymbolNetExposure = sameSymbolPositions.Sum(item =>
+            item.Quantity * (item.Side == DemoPositionSide.Long ? 1m : -1m));
+        var sameSymbolMaintenanceQuantity = sameSymbolPositions.Sum(item => item.Quantity);
+        var otherSymbolsNotional = _portfolio.Positions
+            .Where(item => !item.Symbol.Equals(position.Symbol, StringComparison.OrdinalIgnoreCase))
+            .Sum(item => GetMarkPrice(item) * item.Quantity);
+        var sameSymbolCurrentExposureValue = sameSymbolPositions.Sum(item =>
+            item.Quantity
+            * (item.Side == DemoPositionSide.Long ? 1m : -1m)
+            * GetMarkPrice(item));
+        var denominator = sameSymbolNetExposure - (EstimatedMaintenanceMarginRate * sameSymbolMaintenanceQuantity);
+
+        if (sameSymbolMaintenanceQuantity <= 0m || denominator == 0m)
+        {
+            return null;
+        }
+
+        var numerator = (EstimatedMaintenanceMarginRate * otherSymbolsNotional)
+            - CurrentEquity
+            + sameSymbolCurrentExposureValue;
+        var liquidationPrice = numerator / denominator;
+
+        return liquidationPrice > 0m ? liquidationPrice : null;
     }
 
     private decimal GetMarkPrice(DemoFuturesPosition position) =>
@@ -1050,7 +1407,7 @@
         var markPrice = GetMarkPrice(position);
         var grossPnl = (markPrice - position.EntryPrice) * position.Quantity * direction;
         var estimatedExitFee = markPrice * position.Quantity * _portfolio.FeePercent / 100m;
-        return grossPnl - position.EntryFee - estimatedExitFee;
+        return grossPnl - position.EntryFee - estimatedExitFee + GetPositionFundingPnl(position);
     }
 
     private Task OnSelectedSymbolChanged(string? value)

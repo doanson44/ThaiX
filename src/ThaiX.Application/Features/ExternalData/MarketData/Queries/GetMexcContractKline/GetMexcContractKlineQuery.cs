@@ -10,6 +10,8 @@ public sealed record GetMexcContractKlineQuery : IAppQuery<MexcContractKlineResp
 {
     public string Symbol { get; init; } = string.Empty;
     public string? Interval { get; init; }
+    public long? Start { get; init; }
+    public long? End { get; init; }
 }
 
 /// <summary>

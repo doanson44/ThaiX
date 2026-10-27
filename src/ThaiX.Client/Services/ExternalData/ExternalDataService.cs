@@ -177,6 +177,29 @@ public sealed class ExternalDataService : IExternalDataService
             ClientCacheTtl.Funding,
             cancellationToken);
 
+    public Task<ApiResponse<MexcContractFundingRateHistoryResponseDto>> GetMexcContractFundingRateHistoryAsync(
+        string symbol,
+        long startTimeMilliseconds,
+        long endTimeMilliseconds,
+        CancellationToken cancellationToken = default) =>
+        GetEnvelopeCachedAsync<MexcContractFundingRateHistoryResponseDto>(
+            CacheGroups.ExternalExchangeMexc,
+            $"mexc/funding-rate/history/{Uri.EscapeDataString(symbol)}?startTime={startTimeMilliseconds}&endTime={endTimeMilliseconds}",
+            ClientCacheTtl.Funding,
+            cancellationToken);
+
+    public Task<ApiResponse<MexcContractKlineResponseDto>> GetMexcContractKlineRangeAsync(
+        string symbol,
+        string interval,
+        long startTimeSeconds,
+        long endTimeSeconds,
+        CancellationToken cancellationToken = default) =>
+        GetEnvelopeCachedAsync<MexcContractKlineResponseDto>(
+            CacheGroups.ExternalExchangeMexc,
+            $"mexc/contract-kline/{Uri.EscapeDataString(symbol)}?interval={Uri.EscapeDataString(interval)}&start={startTimeSeconds}&end={endTimeSeconds}",
+            ClientCacheTtl.Ticker,
+            cancellationToken);
+
     public Task<ApiResponse<OrderBookDepthResponseDto>> GetMexcSpotDepthAsync(
         string symbol,
         CancellationToken cancellationToken = default) =>

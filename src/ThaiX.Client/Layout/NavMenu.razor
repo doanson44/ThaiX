@@ -10,11 +10,11 @@
         <RadzenPanelMenuItem Text="@L[RK.BankInterestRates.Title]" Path="market-data/bank-interest-rates" Icon="account_balance" />
         <RadzenPanelMenuItem Text="@L[RK.BankDepositRates.Title]" Path="market-data/bank-deposit-rates" Icon="savings" />
         <RadzenPanelMenuItem Text="@L[RK.SacombankExchangeRates.Title]" Path="market-data/sacombank-exchange-rates" Icon="currency_exchange" />
-        <RadzenPanelMenuItem Text="@L[RK.MexcContractTickers.SocketTitle]" Path="market-data/mexc/contract-ticker-socket" Icon="sensors" />
         <RadzenPanelMenuItem Text="@L[RK.MexcSpotTicker24Hr.SocketTitle]" Path="market-data/mexc/spot-ticker-socket" Icon="sensors" />
         @* Pages with [Authorize] — only list when signed in *@
         <AuthorizeView>
             <Authorized>
+                <RadzenPanelMenuItem Text="@L[RK.MexcContractTickers.SocketTitle]" Path="market-data/mexc/contract-ticker-socket" Icon="sensors" />
                 <RadzenPanelMenuItem Text="@L[RK.TcbsTop10.Title]" Path="market-data/tcbs-top10" Icon="bar_chart" />
                 <RadzenPanelMenuItem Text="@L[RK.Power655.Title]" Path="market-data/power-655-analysis" Icon="casino" />
             </Authorized>

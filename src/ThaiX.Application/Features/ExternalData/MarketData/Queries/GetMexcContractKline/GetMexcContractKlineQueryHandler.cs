@@ -48,6 +48,20 @@ public sealed class GetMexcContractKlineQueryHandler
             };
         }
 
+        if ((request.Start.HasValue && request.Start.Value <= 0) ||
+            (request.End.HasValue && request.End.Value <= 0) ||
+            (request.Start.HasValue && request.End.HasValue && request.Start.Value > request.End.Value))
+        {
+            return new MexcContractKlineResponse
+            {
+                Symbol = symbol,
+                Interval = string.IsNullOrWhiteSpace(request.Interval) ? "Min1" : request.Interval.Trim(),
+                Data = null,
+                Success = false,
+                Message = "Invalid time range. Start and end must be positive Unix timestamps in seconds, and start must not exceed end."
+            };
+        }
+
         var hasInterval = !string.IsNullOrWhiteSpace(request.Interval);
         var intervalInput = hasInterval ? request.Interval!.Trim() : "Min1";
 
@@ -66,7 +80,9 @@ public sealed class GetMexcContractKlineQueryHandler
         var apiResponse = await _externalDataService.GetMexcContractKlineAsync<InternalMexcKlineApiResponse>(
             symbol,
             hasInterval ? normalizedInterval : null,
-            cancellationToken);
+            cancellationToken,
+            request.Start,
+            request.End);
 
         if (apiResponse is null || !apiResponse.Success || apiResponse.Code != 0 || apiResponse.Data is null)
         {

@@ -173,14 +173,19 @@ public sealed class ExternalDataService : IExternalDataService
         return _mexcApiProvider.GetContractTickerBySymbolAsync<T>(symbol, cancellationToken);
     }
 
-    public Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default)
+    public Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default, long? start = null, long? end = null)
     {
-        return _mexcApiProvider.GetContractKlineAsync<T>(symbol, interval, cancellationToken);
+        return _mexcApiProvider.GetContractKlineAsync<T>(symbol, interval, cancellationToken, start, end);
     }
 
     public Task<T?> GetMexcContractFundingRatesAsync<T>(CancellationToken cancellationToken = default)
     {
         return _mexcApiProvider.GetContractFundingRatesAsync<T>(cancellationToken);
+    }
+
+    public Task<T?> GetMexcContractFundingRateHistoryAsync<T>(string symbol, int pageNum, int pageSize, CancellationToken cancellationToken = default)
+    {
+        return _mexcApiProvider.GetContractFundingRateHistoryAsync<T>(symbol, pageNum, pageSize, cancellationToken);
     }
 
     public Task<T?> GetMexcContractDepthAsync<T>(string symbol, CancellationToken cancellationToken = default)

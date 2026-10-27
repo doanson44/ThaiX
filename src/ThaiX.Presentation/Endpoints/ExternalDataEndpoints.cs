@@ -27,6 +27,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetCryptocurren
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetCurrencies;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractDepth;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractFundingRates;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractFundingRateHistory;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractKline;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractTickerBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractTickers;
@@ -794,10 +795,12 @@ public static class ExternalDataEndpoints
         .WithDescription("Get MEXC contract ticker data. Without symbol returns all market tickers; with symbol query (example: BTC_USDT) returns one ticker.");
 
         // GET /api/external-data/mexc/contract-kline/{symbol}
-        // GET /api/external-data/mexc/contract-kline/{symbol}?interval=Min15
+        // GET /api/external-data/mexc/contract-kline/{symbol}?interval=Min15&start=...&end=...
         group.MapGet("/contract-kline/{symbol}", async (
             string symbol,
             string? interval,
+            long? start,
+            long? end,
             IMediator mediator,
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
@@ -805,7 +808,9 @@ public static class ExternalDataEndpoints
             var query = new GetMexcContractKlineQuery
             {
                 Symbol = symbol,
-                Interval = interval
+                Interval = interval,
+                Start = start,
+                End = end
             };
 
             var result = await mediator.Send(query, cancellationToken);
@@ -826,7 +831,7 @@ public static class ExternalDataEndpoints
         })
         .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
         .WithName("GetMexcContractKline")
-        .WithDescription("Get MEXC contract kline data by symbol with optional interval. Supported interval: Min1, Min5, Min15, Min30, Min60, Hour4, Hour8, Day1, Week1, Month1. Defaults to Min1 when omitted.");
+        .WithDescription("Get MEXC contract kline data by symbol with optional interval and Unix-second start/end timestamps. Supported interval: Min1, Min5, Min15, Min30, Min60, Hour4, Hour8, Day1, Week1, Month1. Defaults to Min1 when omitted; MEXC returns at most 2000 data points per request.");
 
         // GET /api/external-data/mexc/funding-rate
         group.MapGet("/funding-rate", async (
@@ -844,6 +849,45 @@ public static class ExternalDataEndpoints
         .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
         .WithName("GetMexcContractFundingRates")
         .WithDescription("Get MEXC contract funding rates for all symbols.");
+
+        // GET /api/external-data/mexc/funding-rate/history/{symbol}?startTime=...&endTime=...
+        // GET /api/external-data/mexc/funding-rate/history/{symbol}?pageNum=1&pageSize=20
+        group.MapGet("/funding-rate/history/{symbol}", async (
+            string symbol,
+            int? pageNum,
+            int? pageSize,
+            long? startTime,
+            long? endTime,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var hasTimeRange = startTime.HasValue || endTime.HasValue;
+            var result = await mediator.Send(new GetMexcContractFundingRateHistoryQuery
+            {
+                Symbol = symbol,
+                PageNum = hasTimeRange ? 1 : pageNum ?? 1,
+                PageSize = hasTimeRange ? 1000 : pageSize ?? 20,
+                StartTime = startTime,
+                EndTime = endTime
+            }, cancellationToken);
+
+            if (!result.Success)
+            {
+                var errorResponse = ApiResponse<MexcContractFundingRateHistoryResponse>.ErrorResult(
+                    "INVALID_FUNDING_RATE_HISTORY_REQUEST",
+                    result.Message ?? "Invalid funding rate history request");
+                errorResponse.Metadata.CorrelationId = httpContext.GetCorrelationId();
+                return Results.BadRequest(errorResponse);
+            }
+
+            var response = ApiResponse<MexcContractFundingRateHistoryResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .WithName("GetMexcContractFundingRateHistory")
+        .WithDescription("Get MEXC contract funding rate settlement history by symbol. Supports pageNum/pageSize pagination, or startTime/endTime as inclusive Unix timestamps in milliseconds to retrieve all settlements in a time range (maximum 1000 records per upstream page).");
 
         // GET /api/external-data/mexc/contract-depth/{symbol}
         group.MapGet("/contract-depth/{symbol}", async (

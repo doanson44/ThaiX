@@ -14,6 +14,7 @@ public sealed class MexcApiProvider
     private const string ContractTickerBySymbolEndpoint = "ContractTickerBySymbol";
     private const string ContractKlineEndpoint = "ContractKline";
     private const string ContractFundingRateEndpoint = "ContractFundingRate";
+    private const string ContractFundingRateHistoryEndpoint = "ContractFundingRateHistory";
     private const string ContractDepthEndpoint = "ContractDepth";
     private const string SpotTicker24HrEndpoint = "SpotTicker24Hr";
     private const string SpotTicker24HrBySymbolEndpoint = "SpotTicker24HrBySymbol";
@@ -40,6 +41,9 @@ public sealed class MexcApiProvider
 
     private EndpointOptions GetContractFundingRateEndpoint()
     { return _options.GetEndpoint(ProviderName, ContractFundingRateEndpoint); }
+
+    private EndpointOptions GetContractFundingRateHistoryEndpoint()
+    { return _options.GetEndpoint(ProviderName, ContractFundingRateHistoryEndpoint); }
 
     private EndpointOptions GetContractDepthEndpoint()
     { return _options.GetEndpoint(ProviderName, ContractDepthEndpoint); }
@@ -116,7 +120,7 @@ public sealed class MexcApiProvider
     /// <summary>
     /// Gets MEXC contract kline data by symbol with optional interval.
     /// </summary>
-    public Task<T?> GetContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default)
+    public Task<T?> GetContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default, long? start = null, long? end = null)
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
@@ -126,6 +130,20 @@ public sealed class MexcApiProvider
         var endpoint = GetContractKlineEndpoint();
         var normalizedSymbol = symbol.Trim().ToUpperInvariant();
         var url = endpoint.Url.Replace("{symbol}", Uri.EscapeDataString(normalizedSymbol));
+
+        var queryParameters = new Dictionary<string, string>();
+        if (!string.IsNullOrWhiteSpace(interval))
+        {
+            queryParameters["interval"] = interval.Trim();
+        }
+        if (start.HasValue)
+        {
+            queryParameters["start"] = start.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+        if (end.HasValue)
+        {
+            queryParameters["end"] = end.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
 
         var request = new ApiRequest
         {
@@ -137,12 +155,7 @@ public sealed class MexcApiProvider
                 : null,
             UseProxy = endpoint.UseProxy,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30,
-            QueryParameters = string.IsNullOrWhiteSpace(interval)
-                ? null
-                : new Dictionary<string, string>
-                {
-                    ["interval"] = interval.Trim()
-                }
+            QueryParameters = queryParameters.Count == 0 ? null : queryParameters
         };
 
         return _apiService.ExecuteAsync<T>(request, cancellationToken);
@@ -165,6 +178,38 @@ public sealed class MexcApiProvider
                 : null,
             UseProxy = endpoint.UseProxy,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
+        };
+
+        return _apiService.ExecuteAsync<T>(request, cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets MEXC contract funding rate settlement history for a symbol.
+    /// </summary>
+    public Task<T?> GetContractFundingRateHistoryAsync<T>(string symbol, int pageNum, int pageSize, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(symbol))
+        {
+            throw new ArgumentException("Symbol cannot be null or empty.", nameof(symbol));
+        }
+
+        var endpoint = GetContractFundingRateHistoryEndpoint();
+        var request = new ApiRequest
+        {
+            Url = endpoint.Url,
+            Method = HttpMethod.Get,
+            UseCache = endpoint.UseCache,
+            CacheDuration = endpoint.CacheDurationSeconds > 0
+                ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
+                : null,
+            UseProxy = endpoint.UseProxy,
+            TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30,
+            QueryParameters = new Dictionary<string, string>
+            {
+                ["symbol"] = symbol.Trim().ToUpperInvariant(),
+                ["page_num"] = pageNum.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                ["page_size"] = pageSize.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            }
         };
 
         return _apiService.ExecuteAsync<T>(request, cancellationToken);

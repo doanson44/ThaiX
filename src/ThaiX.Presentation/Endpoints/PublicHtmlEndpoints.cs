@@ -23,7 +23,7 @@ public static class PublicHtmlEndpoints
             .RequireAuthorization(Permissions.FileRead);
 
         group.MapPost("/", async (
-            [FromForm] IFormFile file,
+            IFormFile file,
             [FromForm] string slug,
             [FromForm] string? title,
             ISender sender,
