@@ -43,8 +43,9 @@ internal class StubExternalDataService : IExternalDataService
     }
 
     public virtual Task<T?> GetMexcContractTickerBySymbolAsync<T>(string symbol, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
-    public virtual Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
+    public virtual Task<T?> GetMexcContractKlineAsync<T>(string symbol, string? interval = null, CancellationToken cancellationToken = default, long? start = null, long? end = null) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetMexcContractFundingRatesAsync<T>(CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
+    public virtual Task<T?> GetMexcContractFundingRateHistoryAsync<T>(string symbol, int pageNum, int pageSize, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetMexcContractDepthAsync<T>(string symbol, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetMexcSpotTicker24HrAsync<T>(CancellationToken cancellationToken = default)
     {
