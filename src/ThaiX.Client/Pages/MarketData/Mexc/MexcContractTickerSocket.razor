@@ -6,6 +6,7 @@
 @using ThaiX.Client.Localization
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.MarketData
+@using ThaiX.Client.Services.ExternalData
 @using Microsoft.Extensions.Localization
 @using Microsoft.JSInterop
 @using Microsoft.AspNetCore.Components.Authorization
@@ -22,6 +23,7 @@
 @inject NotificationService NotificationService
 @inject DialogService DialogService
 @inject IMexcContractTickerSocketService ContractSocketService
+@inject IExternalDataService ExternalDataService
 @inherits ThaiXPageBase
 
 <RadzenCard>
@@ -255,6 +257,7 @@
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Symbol" Title="@L[RK.MexcContractTickers.Symbol]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="LastPrice" Title="@L[RK.MexcContractTickers.LastPrice]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="RiseFallRate" Title="@L[RK.MexcContractTickers.RiseFallRate]" />
+                    <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Title="@L[RK.MexcContractTickers.FundingRate]" Sortable="false" Filterable="false"><Template Context="ticker">@GetFundingRateText(ticker.Symbol)</Template></RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Bid1" Title="@L[RK.MexcContractTickers.Bid1]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Ask1" Title="@L[RK.MexcContractTickers.Ask1]" />
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcContractTickerDto" Property="Volume24" Title="@L[RK.MexcContractTickers.Volume24]" />
@@ -312,6 +315,7 @@
                         </RadzenStack>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.LastPrice]: @(ticker.LastPrice?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.RiseFallRate]: @(ticker.RiseFallRate?.ToString() ?? "-")</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.FundingRate]: @GetFundingRateText(ticker.Symbol)</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Bid1]: @(ticker.Bid1?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Ask1]: @(ticker.Ask1?.ToString() ?? "-")</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Volume24]: @(ticker.Volume24?.ToString() ?? "-")</RadzenText>
@@ -339,6 +343,7 @@
     private bool _cloudSyncRunning;
     private bool _cloudSyncRequested;
     private readonly Dictionary<string, MexcContractTickerDto> _tickerMap = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FundingRateDto> _fundingRateMap = new(StringComparer.OrdinalIgnoreCase);
     private List<string> _pinnedSymbols = [];
     private List<MexcContractTickerDto> _allTickers = [];
     private readonly List<MexcContractTickerDto> _displayTickers = [];
@@ -651,6 +656,7 @@
         base.OnInitialized();
         ContractSocketService.TickersUpdated += OnTickersUpdated;
         ContractSocketService.StreamError += OnStreamError;
+        _ = LoadFundingRatesAsync();
         _ = ContractSocketService.StartAsync();
     }
 
@@ -732,6 +738,52 @@
             || existing.IndexPrice != incoming.IndexPrice
             || existing.FairPrice != incoming.FairPrice
             || existing.Timestamp != incoming.Timestamp;
+    }
+
+    private async Task LoadFundingRatesAsync()
+    {
+        try
+        {
+            var response = await ExternalDataService.GetMexcFundingRatesAsync();
+            if (!response.Success || response.Data?.Data is null)
+            {
+                return;
+            }
+
+            _fundingRateMap.Clear();
+            foreach (var item in response.Data.Data)
+            {
+                var symbol = NormalizeFundingSymbol(item.Symbol);
+                if (!string.IsNullOrWhiteSpace(symbol))
+                {
+                    _fundingRateMap[symbol] = item;
+                }
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not load MEXC contract funding rates.");
+        }
+    }
+
+    private string GetFundingRateText(string symbol) =>
+        _fundingRateMap.TryGetValue(NormalizeFundingSymbol(symbol), out var fundingRate)
+            ? fundingRate.FundingRate.ToString("P4")
+            : "-";
+
+    private static string NormalizeFundingSymbol(string? symbol)
+    {
+        var normalized = symbol?.Trim().ToUpperInvariant() ?? string.Empty;
+        if (normalized.EndsWith("_USDT", StringComparison.Ordinal))
+        {
+            return normalized;
+        }
+
+        return normalized.EndsWith("USDT", StringComparison.Ordinal) && normalized.Length > 4
+            ? $"{normalized[..^4]}_USDT"
+            : normalized;
     }
 
     private static bool HasValidPrice(decimal? price) => price.HasValue && price.Value > 0m;
