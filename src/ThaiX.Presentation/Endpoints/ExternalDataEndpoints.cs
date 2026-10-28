@@ -1126,7 +1126,7 @@ public static class ExternalDataEndpoints
                 request.Momentum,
                 request.Setup,
                 request.Signal,
-                request.Confidence.ToString("P0"),
+                request.Confidence,
                 request.HistoryCount);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
@@ -1181,7 +1181,7 @@ public static class ExternalDataEndpoints
                 request.VnIndex.Momentum,
                 request.VnIndex.Setup,
                 request.VnIndex.Signal,
-                request.VnIndex.Confidence.ToString("P0"),
+                request.VnIndex.Confidence,
                 request.VnIndex.HistoryCount);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
