@@ -133,6 +133,15 @@ public sealed class ExternalDataService : IExternalDataService
         return await ApiResponseReader.ReadSuccessDataAsync<VnIndexVerdictResponseDto>(response, cancellationToken);
     }
 
+    public async Task<CombinedMarketAssessmentResponseDto> GetCombinedMarketAssessmentAsync(
+        CombinedMarketAssessmentRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        var path = $"{ExternalDataBase}/market/assessment";
+        using var response = await _httpClient.PostAsJsonAsync(path, request, cancellationToken);
+        return await ApiResponseReader.ReadSuccessDataAsync<CombinedMarketAssessmentResponseDto>(response, cancellationToken);
+    }
+
     public Task<ApiResponse<VnDirectChangePricesResponseDto>> GetVnDirectChangePricesAsync(CancellationToken cancellationToken = default) =>
         GetEnvelopeCachedAsync<VnDirectChangePricesResponseDto>(
             CacheGroups.ExternalVnDirect,
