@@ -1,4 +1,5 @@
 using System.Globalization;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Extensions;
 
@@ -16,9 +17,8 @@ public static class AiPromptCultureExtensions
         var isVietnamese = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName
             .Equals("vi", StringComparison.OrdinalIgnoreCase);
 
-        var languageInstruction = isVietnamese
-            ? "Respond in Vietnamese (Tiếng Việt), regardless of what language the input data is in."
-            : "Respond in English, regardless of what language the input data is in.";
+        var languageInstruction = AiPromptResources.Get(
+            isVietnamese ? "ResponseLanguage.Vietnamese" : "ResponseLanguage.English");
 
         return $"{systemPrompt}\n\n{languageInstruction}";
     }
