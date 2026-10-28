@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThaiX.Application.Features.BotCommands.Commands.ExecuteBotCommand;
 using ThaiX.Application.Features.BotCommands.Common;
@@ -126,8 +127,13 @@ public static class TelegramEndpoints
                             BuildConversationPrompt(conversation.RecentMessages, rawText),
                             intentCts.Token);
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
+                        logger.LogWarning(
+                            ex,
+                            "Telegram conversation intent resolution timed out; falling back to conversation response. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                            httpContext.GetCorrelationId(),
+                            request.MessageId);
                         // Fall back to conversation when intent resolution times out.
                     }
                     catch (Exception ex)
