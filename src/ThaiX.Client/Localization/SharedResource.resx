@@ -1934,4 +1934,39 @@
   <data name="PublicHtmlPages.NoPages" xml:space="preserve">
     <value>No HTML pages have been uploaded yet.</value>
   </data>
+  <data name="VnIndexAnalysis.Title" xml:space="preserve"><value>VNINDEX technical assessment</value></data>
+  <data name="VnIndexAnalysis.LoadFailed" xml:space="preserve"><value>Unable to load VNINDEX analysis.</value></data>
+  <data name="VnIndexAnalysis.Trend" xml:space="preserve"><value>Trend</value></data>
+  <data name="VnIndexAnalysis.TrendUp" xml:space="preserve"><value>Uptrend</value></data>
+  <data name="VnIndexAnalysis.TrendDown" xml:space="preserve"><value>Downtrend</value></data>
+  <data name="VnIndexAnalysis.TrendSideways" xml:space="preserve"><value>Sideways</value></data>
+  <data name="VnIndexAnalysis.Momentum" xml:space="preserve"><value>Momentum</value></data>
+  <data name="VnIndexAnalysis.MomentumWeak" xml:space="preserve"><value>Weak</value></data>
+  <data name="VnIndexAnalysis.MomentumNeutral" xml:space="preserve"><value>Neutral</value></data>
+  <data name="VnIndexAnalysis.MomentumStrong" xml:space="preserve"><value>Strong</value></data>
+  <data name="VnIndexAnalysis.Setup" xml:space="preserve"><value>Setup</value></data>
+  <data name="VnIndexAnalysis.SetupNone" xml:space="preserve"><value>None</value></data>
+  <data name="VnIndexAnalysis.SetupPullback" xml:space="preserve"><value>Pullback</value></data>
+  <data name="VnIndexAnalysis.SetupBreakout" xml:space="preserve"><value>Breakout</value></data>
+  <data name="VnIndexAnalysis.Signal" xml:space="preserve"><value>Signal</value></data>
+  <data name="VnIndexAnalysis.SignalNone" xml:space="preserve"><value>No directional signal</value></data>
+  <data name="VnIndexAnalysis.SignalLong" xml:space="preserve"><value>Long</value></data>
+  <data name="VnIndexAnalysis.SignalShort" xml:space="preserve"><value>Short</value></data>
+  <data name="VnIndexAnalysis.Confidence" xml:space="preserve"><value>Confidence</value></data>
+  <data name="VnIndexAnalysis.HistoryCount" xml:space="preserve"><value>Candles analyzed</value></data>
+  <data name="VnIndexAnalysis.LatestTime" xml:space="preserve"><value>Latest candle</value></data>
+  <data name="VnIndexAnalysis.Ema9" xml:space="preserve"><value>EMA 9</value></data>
+  <data name="VnIndexAnalysis.Ema21" xml:space="preserve"><value>EMA 21</value></data>
+  <data name="VnIndexAnalysis.Ema50" xml:space="preserve"><value>EMA 50</value></data>
+  <data name="VnIndexAnalysis.Rsi14" xml:space="preserve"><value>RSI 14</value></data>
+  <data name="VnIndexAnalysis.Atr14" xml:space="preserve"><value>ATR 14</value></data>
+  <data name="VnIndexAnalysis.AverageVolume20" xml:space="preserve"><value>Average volume (20D)</value></data>
+  <data name="VnIndexAnalysis.HighestHigh20" xml:space="preserve"><value>20D resistance</value></data>
+  <data name="VnIndexAnalysis.LowestLow20" xml:space="preserve"><value>20D support</value></data>
+  <data name="VnIndexAnalysis.TradePlan" xml:space="preserve"><value>Trade plan</value></data>
+  <data name="VnIndexAnalysis.Entry" xml:space="preserve"><value>Entry</value></data>
+  <data name="VnIndexAnalysis.StopLoss" xml:space="preserve"><value>Stop loss</value></data>
+  <data name="VnIndexAnalysis.TakeProfit1" xml:space="preserve"><value>Take profit 1</value></data>
+  <data name="VnIndexAnalysis.TakeProfit2" xml:space="preserve"><value>Take profit 2</value></data>
+  <data name="VnIndexAnalysis.NeutralNote" xml:space="preserve"><value>The engine is showing no directional signal because a market-regime assessment has not been supplied.</value></data>
 </root>

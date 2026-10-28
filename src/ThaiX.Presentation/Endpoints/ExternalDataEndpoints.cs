@@ -1093,7 +1093,7 @@ public static class ExternalDataEndpoints
             response.Metadata.CorrelationId = httpContext.GetCorrelationId();
             return Results.Ok(response);
         })
-        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .AllowAnonymous()
         .WithName("GetInvestingVnIndexAnalysis")
         .WithDescription("Analyze daily VNINDEX candles using ThaiX's existing indicator and kline execution engines.");
     }

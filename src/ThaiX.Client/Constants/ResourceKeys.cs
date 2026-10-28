@@ -684,6 +684,45 @@ public static class ResourceKeys
         public const string PageOf = "VnDirect.ChangePrices.PageOf";
     }
 
+    public static class VnIndexAnalysis
+    {
+        public const string Title = "VnIndexAnalysis.Title";
+        public const string LoadFailed = "VnIndexAnalysis.LoadFailed";
+        public const string Trend = "VnIndexAnalysis.Trend";
+        public const string TrendUp = "VnIndexAnalysis.TrendUp";
+        public const string TrendDown = "VnIndexAnalysis.TrendDown";
+        public const string TrendSideways = "VnIndexAnalysis.TrendSideways";
+        public const string Momentum = "VnIndexAnalysis.Momentum";
+        public const string MomentumWeak = "VnIndexAnalysis.MomentumWeak";
+        public const string MomentumNeutral = "VnIndexAnalysis.MomentumNeutral";
+        public const string MomentumStrong = "VnIndexAnalysis.MomentumStrong";
+        public const string Setup = "VnIndexAnalysis.Setup";
+        public const string SetupNone = "VnIndexAnalysis.SetupNone";
+        public const string SetupPullback = "VnIndexAnalysis.SetupPullback";
+        public const string SetupBreakout = "VnIndexAnalysis.SetupBreakout";
+        public const string Signal = "VnIndexAnalysis.Signal";
+        public const string SignalNone = "VnIndexAnalysis.SignalNone";
+        public const string SignalLong = "VnIndexAnalysis.SignalLong";
+        public const string SignalShort = "VnIndexAnalysis.SignalShort";
+        public const string Confidence = "VnIndexAnalysis.Confidence";
+        public const string HistoryCount = "VnIndexAnalysis.HistoryCount";
+        public const string LatestTime = "VnIndexAnalysis.LatestTime";
+        public const string Ema9 = "VnIndexAnalysis.Ema9";
+        public const string Ema21 = "VnIndexAnalysis.Ema21";
+        public const string Ema50 = "VnIndexAnalysis.Ema50";
+        public const string Rsi14 = "VnIndexAnalysis.Rsi14";
+        public const string Atr14 = "VnIndexAnalysis.Atr14";
+        public const string AverageVolume20 = "VnIndexAnalysis.AverageVolume20";
+        public const string HighestHigh20 = "VnIndexAnalysis.HighestHigh20";
+        public const string LowestLow20 = "VnIndexAnalysis.LowestLow20";
+        public const string TradePlan = "VnIndexAnalysis.TradePlan";
+        public const string Entry = "VnIndexAnalysis.Entry";
+        public const string StopLoss = "VnIndexAnalysis.StopLoss";
+        public const string TakeProfit1 = "VnIndexAnalysis.TakeProfit1";
+        public const string TakeProfit2 = "VnIndexAnalysis.TakeProfit2";
+        public const string NeutralNote = "VnIndexAnalysis.NeutralNote";
+    }
+
     public static class VnDirectTopStocks
     {
         public const string Title = "VnDirect.TopStocks.Title";
