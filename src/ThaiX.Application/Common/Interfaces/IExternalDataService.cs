@@ -124,6 +124,12 @@ public interface IExternalDataService
     Task<T?> GetYahooFinanceVixChartAsync<T>(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Gets daily VNINDEX candles from Investing.com.
+    /// Returns null if the external API call fails or returns no data.
+    /// </summary>
+    Task<T?> GetInvestingVnIndexCandlesAsync<T>(CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets CoinGecko coins list (id, symbol, name).
     /// Returns null if the external API call fails or returns no data.
     /// </summary>

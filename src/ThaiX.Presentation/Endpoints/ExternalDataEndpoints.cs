@@ -48,6 +48,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectStoc
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectTechnicalSignals;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectTopStocks;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
 using ThaiX.Application.Features.TcbsTop10.Queries.GetTcbsTop10Portfolios;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
@@ -71,6 +72,7 @@ public static class ExternalDataEndpoints
         MapDragonCapitalEndpoints(endpoints);
         MapSacombankEndpoints(endpoints);
         MapYahooFinanceEndpoints(endpoints);
+        MapInvestingEndpoints(endpoints);
         MapChainBrokerEndpoints(endpoints);
         MapKetQuaDienToanEndpoints(endpoints);
         MapTcbsTop10Endpoints(endpoints);
@@ -1073,6 +1075,27 @@ public static class ExternalDataEndpoints
         .AllowAnonymous()
         .WithName("GetSacombankExchangeRates")
         .WithDescription("Get Sacombank exchange rates for currencies and gold (SJC, SBJ). Data is cached for 5 minutes.");
+    }
+
+    private static void MapInvestingEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/external-data/investing")
+            .WithTags("External Data - Investing.com");
+
+        // GET /api/external-data/investing/vnindex/analysis
+        group.MapGet("/vnindex/analysis", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetInvestingVnIndexAnalysisQuery(), cancellationToken);
+            var response = ApiResponse<InvestingVnIndexAnalysisResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .WithName("GetInvestingVnIndexAnalysis")
+        .WithDescription("Analyze daily VNINDEX candles using ThaiX's existing indicator and kline execution engines.");
     }
 
     private static void MapYahooFinanceEndpoints(IEndpointRouteBuilder endpoints)
