@@ -68,6 +68,10 @@ public sealed class FallbackAiTextGenerationService : IAiTextGenerationService
 
                 return new AiTextGenerationResult(providerName, provider.Model, text);
             }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested)
+            {
+                throw;
+            }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or InvalidOperationException)
             {
                 var reason = ExtractFailureReason(ex);
@@ -260,6 +264,10 @@ public sealed class FallbackAiTextGenerationService : IAiTextGenerationService
         try
         {
             await _notificationRouter.DispatchAsync(message, ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            _logger.LogDebug("Skipped AI provider exhaustion notification because the operation was canceled.");
         }
         catch (Exception ex)
         {
