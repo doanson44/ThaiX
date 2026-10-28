@@ -50,6 +50,7 @@ public static class TelegramEndpoints
             ITelegramNotificationService telegramNotificationService,
             TelegramNotificationFormatter telegramFormatter,
             HttpContext httpContext,
+            ILogger<TelegramEndpoints> logger,
             CancellationToken cancellationToken) =>
         {
             var rawText = request.Text?.Trim();
@@ -85,8 +86,13 @@ public static class TelegramEndpoints
                         return Results.Ok();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    logger.LogWarning(
+                        ex,
+                        "Failed to record incoming Telegram conversation message. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                        httpContext.GetCorrelationId(),
+                        request.MessageId);
                     // Conversation history is best-effort and must not block bot commands.
                 }
             }
@@ -124,8 +130,13 @@ public static class TelegramEndpoints
                     {
                         // Fall back to conversation when intent resolution times out.
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        logger.LogWarning(
+                            ex,
+                            "Telegram bot intent resolution failed; falling back to conversation response. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                            httpContext.GetCorrelationId(),
+                            request.MessageId);
                         // Intent resolution is best-effort; open conversation remains available.
                     }
                 }
@@ -153,15 +164,25 @@ public static class TelegramEndpoints
                                 conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
                         }
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException ex)
                     {
+                        logger.LogWarning(
+                            ex,
+                            "Telegram conversational response timed out or was canceled. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                            httpContext.GetCorrelationId(),
+                            request.MessageId);
                         await telegramNotificationService.SendToChatAsync(
                             chatId,
                             "I could not complete that response in time. Please try again.",
                             CancellationToken.None);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        logger.LogError(
+                            ex,
+                            "Failed to generate Telegram conversational response. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                            httpContext.GetCorrelationId(),
+                            request.MessageId);
                         await telegramNotificationService.SendToChatAsync(
                             chatId,
                             "I could not generate a response right now. Please try again.",
@@ -204,8 +225,13 @@ public static class TelegramEndpoints
                         return Results.Ok();
                     }
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex)
                 {
+                    logger.LogWarning(
+                        ex,
+                        "Telegram bot intent resolution timed out; parser will handle raw text. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                        httpContext.GetCorrelationId(),
+                        request.MessageId);
                     // AI timed out — parser handles raw text
                 }
             }
@@ -265,8 +291,16 @@ public static class TelegramEndpoints
                 await RecordAssistantMessageBestEffortAsync(
                     conversationHistoryService, isGroup, chatId, responseText, cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.LogError(
+                    ex,
+                    "Telegram command processing failed. CorrelationId={CorrelationId}, MessageId={MessageId}, ChatType={ChatType}, IsNaturalLanguageInput={IsNaturalLanguageInput}, IsSlashCommand={IsSlashCommand}",
+                    httpContext.GetCorrelationId(),
+                    request.MessageId,
+                    request.ChatType,
+                    wasNaturalLanguageInput,
+                    isSlashCommand);
                 await telegramNotificationService.SendToChatAsync(
                     chatId,
                     "Command processing failed. Please try again.",
