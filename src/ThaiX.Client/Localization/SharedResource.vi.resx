@@ -1968,4 +1968,7 @@
   <data name="VnIndexAnalysis.TakeProfit1" xml:space="preserve"><value>Chốt lời 1</value></data>
   <data name="VnIndexAnalysis.TakeProfit2" xml:space="preserve"><value>Chốt lời 2</value></data>
   <data name="VnIndexAnalysis.NeutralNote" xml:space="preserve"><value>Engine chưa đưa ra tín hiệu theo hướng mua/bán vì chưa có đánh giá chế độ thị trường.</value></data>
+  <data name="VnIndexAnalysis.AiAssessmentTitle" xml:space="preserve"><value>Nhận định AI</value></data>
+  <data name="VnIndexAnalysis.GetAiAssessment" xml:space="preserve"><value>Nhận định bằng AI</value></data>
+  <data name="VnIndexAnalysis.AiAssessmentLoadFailed" xml:space="preserve"><value>Không thể tạo nhận định AI.</value></data>
 </root>

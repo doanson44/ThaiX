@@ -236,6 +236,31 @@ public sealed record VixVerdictDto
     public string Commentary { get; init; } = string.Empty;
 }
 
+public sealed record GetVnIndexVerdictRequestDto
+{
+    public string Symbol { get; init; } = "VNINDEX";
+    public decimal? Close { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+}
+
+public sealed record VnIndexVerdictResponseDto
+{
+    public string Commentary { get; init; } = string.Empty;
+}
+
 /// <summary>
 /// VNINDEX technical analysis response DTO for client consumption.
 /// </summary>

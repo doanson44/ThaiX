@@ -219,6 +219,38 @@
                             @L[RK.VnIndexAnalysis.NeutralNote]
                         </RadzenAlert>
                     }
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <RadzenStack Gap="0.5rem">
+                                @if (_aiVerdict is null && !_isLoadingAiVerdict)
+                                {
+                                    <RadzenButton Text="@L[RK.VnIndexAnalysis.GetAiAssessment]"
+                                                  Click="FetchAiVerdictAsync"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Icon="auto_awesome"
+                                                  Size="ButtonSize.Small" />
+                                }
+                                else if (_isLoadingAiVerdict)
+                                {
+                                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                                }
+                                else if (!string.IsNullOrWhiteSpace(_aiVerdictError))
+                                {
+                                    <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                        @_aiVerdictError
+                                    </RadzenAlert>
+                                }
+                                else if (_aiVerdict is not null)
+                                {
+                                    <RadzenCard Class="p-2" Style="border: 1px solid var(--rz-border-color);">
+                                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.VnIndexAnalysis.AiAssessmentTitle]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2">@_aiVerdict.Commentary</RadzenText>
+                                    </RadzenCard>
+                                }
+                            </RadzenStack>
+                        </Authorized>
+                    </AuthorizeView>
                 }
             </RadzenStack>
         </RadzenStack>
@@ -230,8 +262,11 @@
 
     private VnDirectChangePricesResponseDto? _data;
     private VnIndexAnalysisResponseDto? _analysis;
+    private VnIndexVerdictResponseDto? _aiVerdict;
     private bool _isLoading;
     private bool _isLoadingAnalysis;
+    private bool _isLoadingAiVerdict;
+    private string? _aiVerdictError;
     private int _pageIndex;
 
     private IReadOnlyList<VnDirectChangePriceItemDto> Items =>
@@ -327,6 +362,45 @@
         finally
         {
             _isLoadingAnalysis = false;
+        }
+    }
+
+    private async Task FetchAiVerdictAsync()
+    {
+        if (_analysis is null || !_analysis.Success)
+            return;
+
+        _isLoadingAiVerdict = true;
+        _aiVerdictError = null;
+        try
+        {
+            _aiVerdict = await ExternalDataService.GetInvestingVnIndexVerdictAsync(new GetVnIndexVerdictRequestDto
+            {
+                Symbol = _analysis.Symbol,
+                Close = _analysis.Close,
+                Ema9 = _analysis.Ema9,
+                Ema21 = _analysis.Ema21,
+                Ema50 = _analysis.Ema50,
+                Rsi14 = _analysis.Rsi14,
+                Atr14 = _analysis.Atr14,
+                AverageVolume20 = _analysis.AverageVolume20,
+                HighestHigh20 = _analysis.HighestHigh20,
+                LowestLow20 = _analysis.LowestLow20,
+                Trend = _analysis.Trend,
+                Momentum = _analysis.Momentum,
+                Setup = _analysis.Setup,
+                Signal = _analysis.Signal,
+                Confidence = _analysis.Confidence,
+                HistoryCount = _analysis.HistoryCount
+            });
+        }
+        catch
+        {
+            _aiVerdictError = L[RK.VnIndexAnalysis.AiAssessmentLoadFailed];
+        }
+        finally
+        {
+            _isLoadingAiVerdict = false;
         }
     }
 

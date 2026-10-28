@@ -1969,4 +1969,7 @@
   <data name="VnIndexAnalysis.TakeProfit1" xml:space="preserve"><value>Take profit 1</value></data>
   <data name="VnIndexAnalysis.TakeProfit2" xml:space="preserve"><value>Take profit 2</value></data>
   <data name="VnIndexAnalysis.NeutralNote" xml:space="preserve"><value>The engine is showing no directional signal because a market-regime assessment has not been supplied.</value></data>
+  <data name="VnIndexAnalysis.AiAssessmentTitle" xml:space="preserve"><value>AI assessment</value></data>
+  <data name="VnIndexAnalysis.GetAiAssessment" xml:space="preserve"><value>Get AI assessment</value></data>
+  <data name="VnIndexAnalysis.AiAssessmentLoadFailed" xml:space="preserve"><value>Unable to generate the AI assessment.</value></data>
 </root>

@@ -1096,6 +1096,47 @@ public static class ExternalDataEndpoints
         .AllowAnonymous()
         .WithName("GetInvestingVnIndexAnalysis")
         .WithDescription("Analyze daily VNINDEX candles using ThaiX's existing indicator and kline execution engines.");
+
+        group.MapPost("/vnindex/analysis/verdict", async (
+            GetInvestingVnIndexVerdictRequest request,
+            IAiTextGenerationService ai,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(25));
+
+            var systemPrompt = (
+                "You are a Vietnamese equity-market analyst commenting on VNINDEX daily technical conditions. " +
+                "Use only the supplied candle history, trend, momentum, setup, signal, indicators, and support/resistance levels. " +
+                "Explain what the setup suggests and what risks matter; do not invent macro events or guarantee outcomes. " +
+                "Return 2-4 concise sentences in the user's current language, no preamble.")
+                .WithCurrentCultureInstruction();
+
+            var prompt =
+                $"Symbol: {request.Symbol}\\n" +
+                $"Latest close: {Fmt(request.Close)}\\n" +
+                $"EMA9/EMA21/EMA50: {Fmt(request.Ema9)} / {Fmt(request.Ema21)} / {Fmt(request.Ema50)}\\n" +
+                $"RSI14: {Fmt(request.Rsi14)}\\n" +
+                $"ATR14: {Fmt(request.Atr14)}\\n" +
+                $"Average volume (20D): {Fmt(request.AverageVolume20)}\\n" +
+                $"20D resistance/support: {Fmt(request.HighestHigh20)} / {Fmt(request.LowestLow20)}\\n" +
+                $"Trend: {request.Trend}\\n" +
+                $"Momentum: {request.Momentum}\\n" +
+                $"Setup: {request.Setup}\\n" +
+                $"Signal: {request.Signal}\\n" +
+                $"Confidence: {request.Confidence:P0}\\n" +
+                $"Candles analyzed: {request.HistoryCount}";
+
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
+            var response = ApiResponse<InvestingVnIndexVerdictResponse>.SuccessResult(
+                new InvestingVnIndexVerdictResponse { Commentary = result.Text.Trim() });
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .WithName("GetInvestingVnIndexVerdict")
+        .WithDescription("AI commentary on the current VNINDEX technical analysis snapshot.");
     }
 
     private static void MapYahooFinanceEndpoints(IEndpointRouteBuilder endpoints)
@@ -1429,6 +1470,31 @@ public static class ExternalDataEndpoints
         .WithName("TriggerTcbsTop10Sync")
         .WithDescription("Manually trigger the TCBS Top 10 sync job. Returns the Hangfire job ID. Requires TcbsTop10Data.Sync permission.");
     }
+}
+
+public sealed record GetInvestingVnIndexVerdictRequest
+{
+    public string Symbol { get; init; } = "VNINDEX";
+    public decimal? Close { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+}
+
+public sealed record InvestingVnIndexVerdictResponse
+{
+    public string Commentary { get; init; } = string.Empty;
 }
 
 public sealed record GetVixVerdictRequest

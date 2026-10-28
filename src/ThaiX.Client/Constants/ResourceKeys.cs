@@ -721,6 +721,9 @@ public static class ResourceKeys
         public const string TakeProfit1 = "VnIndexAnalysis.TakeProfit1";
         public const string TakeProfit2 = "VnIndexAnalysis.TakeProfit2";
         public const string NeutralNote = "VnIndexAnalysis.NeutralNote";
+        public const string AiAssessmentTitle = "VnIndexAnalysis.AiAssessmentTitle";
+        public const string GetAiAssessment = "VnIndexAnalysis.GetAiAssessment";
+        public const string AiAssessmentLoadFailed = "VnIndexAnalysis.AiAssessmentLoadFailed";
     }
 
     public static class VnDirectTopStocks
