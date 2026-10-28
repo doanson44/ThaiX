@@ -1114,18 +1114,18 @@ public static class ExternalDataEndpoints
                 .WithCurrentCultureInstruction();
 
             var prompt =
-                $"Symbol: {request.Symbol}\\n" +
-                $"Latest close: {Fmt(request.Close)}\\n" +
-                $"EMA9/EMA21/EMA50: {Fmt(request.Ema9)} / {Fmt(request.Ema21)} / {Fmt(request.Ema50)}\\n" +
-                $"RSI14: {Fmt(request.Rsi14)}\\n" +
-                $"ATR14: {Fmt(request.Atr14)}\\n" +
-                $"Average volume (20D): {Fmt(request.AverageVolume20)}\\n" +
-                $"20D resistance/support: {Fmt(request.HighestHigh20)} / {Fmt(request.LowestLow20)}\\n" +
-                $"Trend: {request.Trend}\\n" +
-                $"Momentum: {request.Momentum}\\n" +
-                $"Setup: {request.Setup}\\n" +
-                $"Signal: {request.Signal}\\n" +
-                $"Confidence: {request.Confidence:P0}\\n" +
+                $"Symbol: {request.Symbol}\n" +
+                $"Latest close: {Fmt(request.Close)}\n" +
+                $"EMA9/EMA21/EMA50: {Fmt(request.Ema9)} / {Fmt(request.Ema21)} / {Fmt(request.Ema50)}\n" +
+                $"RSI14: {Fmt(request.Rsi14)}\n" +
+                $"ATR14: {Fmt(request.Atr14)}\n" +
+                $"Average volume (20D): {Fmt(request.AverageVolume20)}\n" +
+                $"20D resistance/support: {Fmt(request.HighestHigh20)} / {Fmt(request.LowestLow20)}\n" +
+                $"Trend: {request.Trend}\n" +
+                $"Momentum: {request.Momentum}\n" +
+                $"Setup: {request.Setup}\n" +
+                $"Signal: {request.Signal}\n" +
+                $"Confidence: {request.Confidence:P0}\n" +
                 $"Candles analyzed: {request.HistoryCount}";
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
