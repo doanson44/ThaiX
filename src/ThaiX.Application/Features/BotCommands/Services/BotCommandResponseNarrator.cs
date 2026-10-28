@@ -1,6 +1,7 @@
 using System.Text;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.BotCommands.Common;
+using ThaiX.Application.Resources;
 
 namespace ThaiX.Application.Features.BotCommands.Services;
 
@@ -26,19 +27,7 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
         }
 
         var sourceText = BuildAiSourceText(result, options.MaxSourceChars, options.UserMessage);
-        var prompt =
-            "Answer the user's actual request as a knowledgeable market analyst in a natural, conversational style. " +
-            "Use only facts supported by the command result. Explain what the data suggests, its limitations, and relevant risks or scenarios when supported. " +
-            "Keep prices, numbers, symbols, percentages, timestamps, and source facts exact. Do not invent indicators, news, historical data, or certainty. " +
-            "Clearly distinguish observed facts from interpretation, and respond in the same language as the user's request. " +
-            "Do not merely reformat the command output; interpret it where the supplied evidence allows. " +
-            "If the result contains both VNINDEX and VIX data, organize the answer as: (1) a concise market overview based on the observed VNINDEX trend, momentum, setup, and signal; " +
-            "(2) the available technical evidence, such as EMA, RSI, ATR, volume, support, and resistance; " +
-            "(3) VIX risk context, explicitly noting that VIX reflects expected US equity volatility and is not a direct measure or standalone predictor of Vietnam market direction; " +
-            "(4) plausible bullish, bearish, and neutral scenarios, each grounded in supplied data and including what could confirm or invalidate it; " +
-            "(5) a concise conclusion and the next signals to monitor. " +
-            "If one source is unavailable, state that limitation and analyze only what is available. Do not call daily data real-time unless the source says so. Do not give guaranteed-return claims or unsupported buy/sell instructions.\n\n" +
-            sourceText;
+        var prompt = BotCommandAiPromptResources.Format("Narrator.Prompt", sourceText);
 
         try
         {
@@ -69,23 +58,21 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
         var builder = new StringBuilder();
         if (!string.IsNullOrWhiteSpace(userMessage))
         {
-            builder.Append("User request:\n");
-            builder.Append(userMessage.Trim());
-            builder.Append("\n\n");
+            builder.Append(BotCommandAiPromptResources.Format("Narrator.UserRequest", userMessage.Trim()));
         }
 
-        builder.Append($"Status: {result.Status}\n");
-        builder.Append("Command result:\n");
+        builder.Append(BotCommandAiPromptResources.Format("Narrator.Status", result.Status));
+        builder.Append(BotCommandAiPromptResources.Get("Narrator.CommandResult"));
         builder.Append(result.PlainText);
 
         if (result.Card is not null)
         {
-            builder.Append("\n\nStructured result:\n");
-            builder.Append($"Category: {result.Card.Category}\n");
-            builder.Append($"Title: {result.Card.Title}\n");
+            builder.Append(BotCommandAiPromptResources.Get("Narrator.StructuredResult"));
+            builder.Append(BotCommandAiPromptResources.Format("Narrator.Category", result.Card.Category));
+            builder.Append(BotCommandAiPromptResources.Format("Narrator.Title", result.Card.Title));
             foreach (var metric in result.Card.Metrics)
             {
-                builder.Append($"{metric.Label}: {metric.Value}\n");
+                builder.Append(BotCommandAiPromptResources.Format("Narrator.Metric", metric.Label, metric.Value));
             }
         }
 

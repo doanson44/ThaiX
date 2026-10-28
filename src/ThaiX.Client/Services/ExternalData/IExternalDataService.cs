@@ -22,6 +22,7 @@ public interface IExternalDataService
     Task<ApiResponse<VnDirectChangePricesResponseDto>> GetVnDirectChangePricesAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<VnIndexAnalysisResponseDto>> GetInvestingVnIndexAnalysisAsync(CancellationToken cancellationToken = default);
     Task<VnIndexVerdictResponseDto> GetInvestingVnIndexVerdictAsync(GetVnIndexVerdictRequestDto request, CancellationToken cancellationToken = default);
+    Task<CombinedMarketAssessmentResponseDto> GetCombinedMarketAssessmentAsync(CombinedMarketAssessmentRequestDto request, CancellationToken cancellationToken = default);
     Task<ApiResponse<VnDirectTopStocksResponseDto>> GetVnDirectTopStocksAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<MexcContractTickersResponseDto>> GetMexcContractTickersAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<MexcSpotTicker24HrResponseDto>> GetMexcSpotTicker24HrAsync(CancellationToken cancellationToken = default);

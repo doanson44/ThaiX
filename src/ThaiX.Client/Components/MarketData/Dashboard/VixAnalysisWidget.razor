@@ -114,34 +114,183 @@
                 @L[RK.Vix.Percentile]: @((_data.Percentile * 100).ToString("N1"))% | @L[RK.Vix.Spike]: @(_data.IsSpike ? L[RK.Vix.SpikeYes] : L[RK.Vix.SpikeNo])
             </RadzenText>
 
-            @* G. AI Assessment (requires login; the underlying VIX data above is public, but the
-               AI call has a real cost per request so it's gated and opt-in via a manual button) *@
+            @* G. VNINDEX technical assessment *@
+            <hr class="my-0" />
+
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Gap="0.5rem"
+                             Wrap="FlexWrap.Wrap">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H3" Class="mb-0">@L[RK.VnIndexAnalysis.Title]</RadzenText>
+                    @if (_analysis?.LatestTime is not null)
+                    {
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@_analysis.LatestTime.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</RadzenText>
+                    }
+                </RadzenStack>
+
+                @if (_isLoadingAnalysis)
+                {
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                }
+                else if (_analysis is null || !_analysis.Success)
+                {
+                    <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        @(_analysis?.Message ?? L[RK.VnIndexAnalysis.LoadFailed])
+                    </RadzenAlert>
+                }
+                else
+                {
+                    <div class="rounded p-3 text-center @SignalBackgroundClass">
+                        <RadzenStack Gap="0.5rem" AlignItems="AlignItems.Center">
+                            <RadzenBadge BadgeStyle="@SignalBadgeStyle" Text="@SignalLabel" IsPill="true" />
+                            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0"><strong>@VnIndexTrendLabel</strong></RadzenText>
+                            <RadzenText TextStyle="TextStyle.Caption" Class="mb-0">@L[RK.VnIndexAnalysis.Confidence]: @((_analysis.Confidence.GetValueOrDefault() * 100m).ToString("N0"))%</RadzenText>
+                        </RadzenStack>
+                    </div>
+
+                    <RadzenRow>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Momentum]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2" Class="@MomentumClass"><strong>@MomentumLabel</strong></RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Setup]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2"><strong>@SetupLabel</strong></RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.HistoryCount]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2"><strong>@_analysis.HistoryCount</strong></RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.LatestTime]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2"><strong>@_analysis.LatestTime?.ToLocalTime().ToString("dd/MM/yyyy")</strong></RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    <RadzenRow>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Ema9]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Ema9)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Ema21]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Ema21)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Ema50]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Ema50)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Rsi14]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Rsi14)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.Atr14]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Atr14)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.AverageVolume20]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.AverageVolume20)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.HighestHigh20]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.HighestHigh20)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="4">
+                            <RadzenStack Gap="0">
+                                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.VnIndexAnalysis.LowestLow20]</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.LowestLow20)</RadzenText>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                    @if (_analysis.Signal is "Long" or "Short")
+                    {
+                        <RadzenCard Class="p-3" Style="border: 1px solid var(--rz-border-color);">
+                            <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">@L[RK.VnIndexAnalysis.TradePlan]</RadzenText>
+                            <RadzenRow>
+                                <RadzenColumn Size="6" SizeMD="3">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.VnIndexAnalysis.Entry]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.Entry)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6" SizeMD="3">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.VnIndexAnalysis.StopLoss]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.StopLoss)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6" SizeMD="3">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.VnIndexAnalysis.TakeProfit1]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.TakeProfit1)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="6" SizeMD="3">
+                                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.VnIndexAnalysis.TakeProfit2]</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.TakeProfit2)</RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenCard>
+                    }
+                    else
+                    {
+                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            @L[RK.VnIndexAnalysis.NeutralNote]
+                        </RadzenAlert>
+                    }
+
+                }
+            </RadzenStack>
+
+
+            @* H. One AI request assesses VIX, VNINDEX, and the combined market regime. *@
             <AuthorizeView>
                 <Authorized>
                     <RadzenStack Gap="0.5rem">
                         @if (_aiVerdict is null && !_isLoadingAiVerdict)
                         {
+                            @if (!string.IsNullOrWhiteSpace(_aiVerdictError))
+                            {
+                                <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                    @_aiVerdictError
+                                </RadzenAlert>
+                            }
                             <RadzenButton Text="@L[RK.Vix.GetAiAssessment]"
                                           Click="FetchAiVerdictAsync"
                                           ButtonStyle="ButtonStyle.Light"
                                           Icon="auto_awesome"
-                                          Size="ButtonSize.Small" />
+                                          Size="ButtonSize.Small"
+                                          Disabled="@(_data is null || _analysis is null || !_analysis.Success)" />
                         }
                         else if (_isLoadingAiVerdict)
                         {
                             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
                         }
-                        else if (!string.IsNullOrWhiteSpace(_aiVerdictError))
-                        {
-                            <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
-                                @_aiVerdictError
-                            </RadzenAlert>
-                        }
                         else if (_aiVerdict is not null)
                         {
-                            <RadzenCard class="p-2" Style="border: 1px solid var(--rz-border-color);">
+                            <RadzenCard Class="p-2" Style="border: 1px solid var(--rz-border-color);">
                                 <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.Vix.AiAssessmentTitle]</RadzenText>
-                                <RadzenText TextStyle="TextStyle.Body2">@_aiVerdict.Commentary</RadzenText>
+                                <RadzenText TextStyle="TextStyle.Body2" Style="white-space: pre-line">@_aiVerdict.Commentary</RadzenText>
                             </RadzenCard>
                         }
                     </RadzenStack>
@@ -157,7 +306,9 @@
     private bool _isLoading;
     private bool _isLoadingAiVerdict;
     private string? _aiVerdictError;
-    private VixVerdictDto? _aiVerdict;
+    private CombinedMarketAssessmentResponseDto? _aiVerdict;
+    private VnIndexAnalysisResponseDto? _analysis;
+    private bool _isLoadingAnalysis;
 
     protected override async Task OnInitializedAsync()
     {
@@ -170,33 +321,73 @@
         }
         catch
         {
-            // _data stays null; widget shows error state
+            // _data stays null; widget shows error state.
         }
         finally
         {
             _isLoading = false;
         }
+
+        _isLoadingAnalysis = true;
+        try
+        {
+            var response = await ExternalDataService.GetInvestingVnIndexAnalysisAsync();
+            if (response is { Data: not null })
+                _analysis = response.Data;
+        }
+        catch
+        {
+            // _analysis stays null; the technical assessment shows its load-failure state.
+        }
+        finally
+        {
+            _isLoadingAnalysis = false;
+        }
     }
 
     private async Task FetchAiVerdictAsync()
     {
-        if (_data is null) return;
+        if (_data is null || _analysis is null || !_analysis.Success || _isLoadingAiVerdict)
+            return;
 
         _isLoadingAiVerdict = true;
         _aiVerdictError = null;
+        _aiVerdict = null;
         try
         {
-            _aiVerdict = await ExternalDataService.GetVixVerdictAsync(new GetVixVerdictRequest
+            _aiVerdict = await ExternalDataService.GetCombinedMarketAssessmentAsync(new CombinedMarketAssessmentRequestDto
             {
-                Symbol = _data.Symbol,
-                CurrentValue = _data.CurrentValue,
-                Ema10 = _data.Ema10,
-                Ema20 = _data.Ema20,
-                Momentum3D = _data.Momentum3D,
-                Momentum5D = _data.Momentum5D,
-                Percentile = _data.Percentile,
-                IsSpike = _data.IsSpike,
-                Regime = _data.Regime
+                Vix = new GetVixVerdictRequest
+                {
+                    Symbol = _data.Symbol,
+                    CurrentValue = _data.CurrentValue,
+                    Ema10 = _data.Ema10,
+                    Ema20 = _data.Ema20,
+                    Momentum3D = _data.Momentum3D,
+                    Momentum5D = _data.Momentum5D,
+                    Percentile = _data.Percentile,
+                    IsSpike = _data.IsSpike,
+                    Regime = _data.Regime
+                },
+                VnIndex = new GetVnIndexVerdictRequestDto
+                {
+                    Symbol = _analysis.Symbol,
+                    Close = _analysis.Close,
+                    Ema9 = _analysis.Ema9,
+                    Ema21 = _analysis.Ema21,
+                    Ema50 = _analysis.Ema50,
+                    Rsi14 = _analysis.Rsi14,
+                    Atr14 = _analysis.Atr14,
+                    AverageVolume20 = _analysis.AverageVolume20,
+                    HighestHigh20 = _analysis.HighestHigh20,
+                    LowestLow20 = _analysis.LowestLow20,
+                    Trend = _analysis.Trend,
+                    Momentum = _analysis.Momentum,
+                    Setup = _analysis.Setup,
+                    Signal = _analysis.Signal,
+                    Confidence = _analysis.Confidence,
+                    HistoryCount = _analysis.HistoryCount
+                }
             });
         }
         catch
@@ -208,6 +399,58 @@
             _isLoadingAiVerdict = false;
         }
     }
+
+    private BadgeStyle SignalBadgeStyle => _analysis?.Signal switch
+    {
+        "Long" => BadgeStyle.Success,
+        "Short" => BadgeStyle.Danger,
+        _ => BadgeStyle.Light
+    };
+
+    private string SignalBackgroundClass => _analysis?.Signal switch
+    {
+        "Long" => "bg-success bg-opacity-10",
+        "Short" => "bg-danger bg-opacity-10",
+        _ => "bg-secondary bg-opacity-10"
+    };
+
+    private string SignalLabel => _analysis?.Signal switch
+    {
+        "Long" => L[RK.VnIndexAnalysis.SignalLong],
+        "Short" => L[RK.VnIndexAnalysis.SignalShort],
+        _ => L[RK.VnIndexAnalysis.SignalNone]
+    };
+
+    private string VnIndexTrendLabel => _analysis?.Trend switch
+    {
+        "Up" => L[RK.VnIndexAnalysis.TrendUp],
+        "Down" => L[RK.VnIndexAnalysis.TrendDown],
+        _ => L[RK.VnIndexAnalysis.TrendSideways]
+    };
+
+    private string MomentumLabel => _analysis?.Momentum switch
+    {
+        "Strong" => L[RK.VnIndexAnalysis.MomentumStrong],
+        "Weak" => L[RK.VnIndexAnalysis.MomentumWeak],
+        _ => L[RK.VnIndexAnalysis.MomentumNeutral]
+    };
+
+    private string MomentumClass => _analysis?.Momentum switch
+    {
+        "Strong" => "text-success",
+        "Weak" => "text-danger",
+        _ => "text-muted"
+    };
+
+    private string SetupLabel => _analysis?.Setup switch
+    {
+        "Pullback" => L[RK.VnIndexAnalysis.SetupPullback],
+        "Breakout" => L[RK.VnIndexAnalysis.SetupBreakout],
+        _ => L[RK.VnIndexAnalysis.SetupNone]
+    };
+
+    private static string FormatValue(decimal? value) =>
+        value?.ToString("N2") ?? "-";
 
     private BadgeStyle RegimeBadgeStyle => _data?.Regime switch
     {

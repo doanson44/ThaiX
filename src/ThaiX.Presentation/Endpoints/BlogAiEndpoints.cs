@@ -2,6 +2,7 @@ using ThaiX.Application.Common.Interfaces;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Endpoints;
 
@@ -30,13 +31,10 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a blog editor. Based on the article content below, suggest 3 concise, " +
-                "compelling titles (under 70 characters each). Return ONLY the 3 titles, one per " +
-                "line, no numbering, no preamble, no explanation.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Blog.GenerateTitle.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.GenerateTitle.User", request.ContentHtml);
 
-            var result = await ai.GenerateAsync($"Article content:\n{request.ContentHtml}", systemPrompt, cts.Token);
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
         .WithName("GenerateBlogTitle")
@@ -51,13 +49,8 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a blog editor. Write a concise 2-3 sentence summary/excerpt for this " +
-                "article, based only on the content given. Return ONLY the summary text, no " +
-                "preamble, quotes, or explanation.")
-                .WithCurrentCultureInstruction();
-
-            var prompt = $"Title: {request.Title}\n\nArticle content:\n{request.ContentHtml}";
+            var systemPrompt = AiPromptResources.Get("Blog.GenerateSummary.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.GenerateSummary.User", request.Title, request.ContentHtml);
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
@@ -79,14 +72,10 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                $"You are a professional editor. Rewrite the given text in a {request.Tone} tone, " +
-                "preserving HTML tags/formatting and every fact/claim exactly as given — never invent " +
-                "new information. Return ONLY the rewritten text with no preamble, quotes, or " +
-                "explanation.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Format("Blog.Rewrite.System", request.Tone).WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.Rewrite.User", text);
 
-            var result = await ai.GenerateAsync($"Text to rewrite:\n{text}", systemPrompt, cts.Token);
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
         .WithName("RewriteBlogText")
@@ -107,14 +96,10 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a meticulous proofreader. Fix spelling, grammar, and tense-consistency " +
-                "issues in the given text, preserving HTML tags/formatting and all facts/claims " +
-                "exactly as given. Return ONLY the corrected text with no preamble, quotes, or " +
-                "explanation.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Blog.ImproveGrammar.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.ImproveGrammar.User", text);
 
-            var result = await ai.GenerateAsync($"Text to correct:\n{text}", systemPrompt, cts.Token);
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
         .WithName("ImproveBlogGrammar")
@@ -129,13 +114,8 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a blog editor. Suggest 3-6 relevant tags for this article, based only on " +
-                "the content given. Return ONLY a comma-separated list of tags, no preamble, no " +
-                "numbering, no explanation.")
-                .WithCurrentCultureInstruction();
-
-            var prompt = $"Title: {request.Title}\n\nArticle content:\n{request.ContentHtml}";
+            var systemPrompt = AiPromptResources.Get("Blog.GenerateTags.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.GenerateTags.User", request.Title, request.ContentHtml);
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
@@ -151,17 +131,8 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are an SEO specialist. Based on the article title and summary below, produce " +
-                "SEO metadata. Respond in EXACTLY this 3-line format (do not translate the labels " +
-                "\"TITLE:\", \"DESCRIPTION:\", \"KEYWORDS:\" even if asked to respond in another " +
-                "language below):\n" +
-                "TITLE: <SEO title, under 60 characters>\n" +
-                "DESCRIPTION: <meta description, under 155 characters>\n" +
-                "KEYWORDS: <comma-separated keywords>")
-                .WithCurrentCultureInstruction();
-
-            var prompt = $"Title: {request.Title}\n\nSummary: {request.Summary}";
+            var systemPrompt = AiPromptResources.Get("Blog.GenerateSeo.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format("Blog.GenerateSeo.User", request.Title, request.Summary);
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
 
             var (metaTitle, metaDescription, keywords) = ParseSeoResponse(result.Text);
@@ -188,26 +159,15 @@ public static class BlogAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a decisive editor-in-chief reviewing a blog post before it goes live. " +
-                "You MUST commit to ONE clear verdict — never hedge, never say \"it depends\".\n\n" +
-                "Respond in exactly this format:\n" +
-                "Line 1: exactly the literal English text \"READY TO PUBLISH\" or \"NEEDS WORK\" and " +
-                "nothing else — do NOT translate this line even if asked to respond in another " +
-                "language below.\n" +
-                "Line 2 onward: itemized concrete issues found — grammar, missing/weak SEO fields, " +
-                "readability (paragraph length, missing headings), tag/category mismatch. If none, " +
-                "say so plainly. Be direct — this is for a real publishing decision, not a " +
-                "disclaimer-filled report.")
-                .WithCurrentCultureInstruction();
-
-            var prompt =
-                $"Title: {request.Title}\n" +
-                $"Summary: {request.Summary}\n" +
-                $"Category: {request.CategoryName ?? "(none)"}\n" +
-                $"Meta Title: {request.MetaTitle ?? "(none)"}\n" +
-                $"Meta Description: {request.MetaDescription ?? "(none)"}\n\n" +
-                $"Content:\n{request.ContentHtml}";
+            var systemPrompt = AiPromptResources.Get("Blog.Review.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format(
+                "Blog.Review.User",
+                request.Title,
+                request.Summary,
+                request.CategoryName ?? "(none)",
+                request.MetaTitle ?? "(none)",
+                request.MetaDescription ?? "(none)",
+                request.ContentHtml);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
 

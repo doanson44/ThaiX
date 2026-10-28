@@ -695,3 +695,14 @@ public sealed record PriceVolumePointDto
     public decimal Price { get; init; }
     public long Volume { get; init; }
 }
+
+public sealed record CombinedMarketAssessmentRequestDto
+{
+    public GetVixVerdictRequest Vix { get; init; } = new() { Symbol = "VIX" };
+    public GetVnIndexVerdictRequestDto VnIndex { get; init; } = new();
+}
+
+public sealed record CombinedMarketAssessmentResponseDto
+{
+    public string Commentary { get; init; } = string.Empty;
+}
