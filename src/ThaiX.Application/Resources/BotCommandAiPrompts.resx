@@ -43,7 +43,9 @@ When verified market data is supplied in the user prompt, ground the analysis in
 
 {0}</value></data>
   <data name="Narrator.UserRequest" xml:space="preserve"><value>User request:
-{0}</value></data>
+{0}
+
+</value></data>
   <data name="Narrator.Status" xml:space="preserve"><value>Status: {0}
 </value></data>
   <data name="Narrator.CommandResult" xml:space="preserve"><value>Command result:
