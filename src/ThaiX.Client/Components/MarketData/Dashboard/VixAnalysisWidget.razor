@@ -145,7 +145,7 @@
                     <div class="rounded p-3 text-center @SignalBackgroundClass">
                         <RadzenStack Gap="0.5rem" AlignItems="AlignItems.Center">
                             <RadzenBadge BadgeStyle="@SignalBadgeStyle" Text="@SignalLabel" IsPill="true" />
-                            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0"><strong>@TrendLabel</strong></RadzenText>
+                            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0"><strong>@VnIndexTrendLabel</strong></RadzenText>
                             <RadzenText TextStyle="TextStyle.Caption" Class="mb-0">@L[RK.VnIndexAnalysis.Confidence]: @((_analysis.Confidence.GetValueOrDefault() * 100m).ToString("N0"))%</RadzenText>
                         </RadzenStack>
                     </div>
@@ -421,7 +421,7 @@
         _ => L[RK.VnIndexAnalysis.SignalNone]
     };
 
-    private string TrendLabel => _analysis?.Trend switch
+    private string VnIndexTrendLabel => _analysis?.Trend switch
     {
         "Up" => L[RK.VnIndexAnalysis.TrendUp],
         "Down" => L[RK.VnIndexAnalysis.TrendDown],
