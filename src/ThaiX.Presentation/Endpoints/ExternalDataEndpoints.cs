@@ -52,6 +52,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnI
 using ThaiX.Application.Features.TcbsTop10.Queries.GetTcbsTop10Portfolios;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Endpoints;
 
@@ -1107,27 +1108,26 @@ public static class ExternalDataEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(25));
 
-            var systemPrompt = (
-                "You are a Vietnamese equity-market analyst commenting on VNINDEX daily technical conditions. " +
-                "Use only the supplied candle history, trend, momentum, setup, signal, indicators, and support/resistance levels. " +
-                "Explain what the setup suggests and what risks matter; do not invent macro events or guarantee outcomes. " +
-                "Return 2-4 concise sentences in the user's current language, no preamble.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Market.VnIndex.System").WithCurrentCultureInstruction();
 
-            var prompt =
-                $"Symbol: {request.Symbol}\n" +
-                $"Latest close: {Fmt(request.Close)}\n" +
-                $"EMA9/EMA21/EMA50: {Fmt(request.Ema9)} / {Fmt(request.Ema21)} / {Fmt(request.Ema50)}\n" +
-                $"RSI14: {Fmt(request.Rsi14)}\n" +
-                $"ATR14: {Fmt(request.Atr14)}\n" +
-                $"Average volume (20D): {Fmt(request.AverageVolume20)}\n" +
-                $"20D resistance/support: {Fmt(request.HighestHigh20)} / {Fmt(request.LowestLow20)}\n" +
-                $"Trend: {request.Trend}\n" +
-                $"Momentum: {request.Momentum}\n" +
-                $"Setup: {request.Setup}\n" +
-                $"Signal: {request.Signal}\n" +
-                $"Confidence: {request.Confidence:P0}\n" +
-                $"Candles analyzed: {request.HistoryCount}";
+            var prompt = AiPromptResources.Format(
+                "Market.VnIndex.User",
+                request.Symbol,
+                Fmt(request.Close),
+                Fmt(request.Ema9),
+                Fmt(request.Ema21),
+                Fmt(request.Ema50),
+                Fmt(request.Rsi14),
+                Fmt(request.Atr14),
+                Fmt(request.AverageVolume20),
+                Fmt(request.HighestHigh20),
+                Fmt(request.LowestLow20),
+                request.Trend,
+                request.Momentum,
+                request.Setup,
+                request.Signal,
+                request.Confidence.ToString("P0"),
+                request.HistoryCount);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             var response = ApiResponse<InvestingVnIndexVerdictResponse>.SuccessResult(
@@ -1154,37 +1154,35 @@ public static class ExternalDataEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(25));
 
-            var systemPrompt = (
-                "You are a market analyst. Assess the supplied VIX risk regime and VNINDEX technical data together. " +
-                "Return three clearly separated sections in the user's current language: VIX assessment, VNINDEX technical assessment, " +
-                "and overall market assessment. Explain whether volatility/risk appetite agrees with VNINDEX trend and momentum, " +
-                "identify the main risk and a practical risk-management takeaway. Use only supplied data, explicitly note missing data, " +
-                "do not invent macro events, and do not guarantee outcomes. Keep each section to 2-3 concise sentences.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Market.Combined.System").WithCurrentCultureInstruction();
 
-            var prompt =
-                "VIX DATA\n" +
-                $"Symbol: {request.Vix.Symbol}\n" +
-                $"Current value: {Fmt(request.Vix.CurrentValue)}\n" +
-                $"EMA10/EMA20: {Fmt(request.Vix.Ema10)} / {Fmt(request.Vix.Ema20)}\n" +
-                $"Momentum 3D/5D: {Fmt(request.Vix.Momentum3D)} / {Fmt(request.Vix.Momentum5D)}\n" +
-                $"Historical percentile: {request.Vix.Percentile:P0}\n" +
-                $"Spike: {request.Vix.IsSpike}\n" +
-                $"Regime: {request.Vix.Regime}\n\n" +
-                "VNINDEX DATA\n" +
-                $"Symbol: {request.VnIndex.Symbol}\n" +
-                $"Latest close: {Fmt(request.VnIndex.Close)}\n" +
-                $"EMA9/EMA21/EMA50: {Fmt(request.VnIndex.Ema9)} / {Fmt(request.VnIndex.Ema21)} / {Fmt(request.VnIndex.Ema50)}\n" +
-                $"RSI14: {Fmt(request.VnIndex.Rsi14)}\n" +
-                $"ATR14: {Fmt(request.VnIndex.Atr14)}\n" +
-                $"Average volume (20D): {Fmt(request.VnIndex.AverageVolume20)}\n" +
-                $"20D resistance/support: {Fmt(request.VnIndex.HighestHigh20)} / {Fmt(request.VnIndex.LowestLow20)}\n" +
-                $"Trend: {request.VnIndex.Trend}\n" +
-                $"Momentum: {request.VnIndex.Momentum}\n" +
-                $"Setup: {request.VnIndex.Setup}\n" +
-                $"Signal: {request.VnIndex.Signal}\n" +
-                $"Confidence: {request.VnIndex.Confidence:P0}\n" +
-                $"Candles analyzed: {request.VnIndex.HistoryCount}";
+            var prompt = AiPromptResources.Format(
+                "Market.Combined.User",
+                request.Vix.Symbol,
+                Fmt(request.Vix.CurrentValue),
+                Fmt(request.Vix.Ema10),
+                Fmt(request.Vix.Ema20),
+                Fmt(request.Vix.Momentum3D),
+                Fmt(request.Vix.Momentum5D),
+                request.Vix.Percentile.ToString("P0"),
+                request.Vix.IsSpike,
+                request.Vix.Regime,
+                request.VnIndex.Symbol,
+                Fmt(request.VnIndex.Close),
+                Fmt(request.VnIndex.Ema9),
+                Fmt(request.VnIndex.Ema21),
+                Fmt(request.VnIndex.Ema50),
+                Fmt(request.VnIndex.Rsi14),
+                Fmt(request.VnIndex.Atr14),
+                Fmt(request.VnIndex.AverageVolume20),
+                Fmt(request.VnIndex.HighestHigh20),
+                Fmt(request.VnIndex.LowestLow20),
+                request.VnIndex.Trend,
+                request.VnIndex.Momentum,
+                request.VnIndex.Setup,
+                request.VnIndex.Signal,
+                request.VnIndex.Confidence.ToString("P0"),
+                request.VnIndex.HistoryCount);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             var response = ApiResponse<CombinedMarketAssessmentResponse>.SuccessResult(
@@ -1233,24 +1231,19 @@ public static class ExternalDataEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(25));
 
-            var systemPrompt = (
-                "You are a macro markets analyst commenting on the CBOE Volatility Index (VIX) for a " +
-                "retail trader/investor. Based on the data given, explain what the current VIX level and " +
-                "regime mean for risk appetite, liquidity, and capital flows right now, and give a direct, " +
-                "practical takeaway for someone managing a stock/crypto portfolio. Be concrete and confident — " +
-                "no wishy-washy disclaimers. Return 2-4 sentences, no preamble.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Market.Vix.System").WithCurrentCultureInstruction();
 
-            var prompt =
-                $"Symbol: {request.Symbol}\n" +
-                $"Current Value: {Fmt(request.CurrentValue)}\n" +
-                $"EMA10: {Fmt(request.Ema10)}\n" +
-                $"EMA20: {Fmt(request.Ema20)}\n" +
-                $"Momentum 3D: {Fmt(request.Momentum3D)}\n" +
-                $"Momentum 5D: {Fmt(request.Momentum5D)}\n" +
-                $"Percentile (vs history): {request.Percentile:P0}\n" +
-                $"Is Spike: {request.IsSpike}\n" +
-                $"Regime: {request.Regime}";
+            var prompt = AiPromptResources.Format(
+                "Market.Vix.User",
+                request.Symbol,
+                Fmt(request.CurrentValue),
+                Fmt(request.Ema10),
+                Fmt(request.Ema20),
+                Fmt(request.Momentum3D),
+                Fmt(request.Momentum5D),
+                request.Percentile.ToString("P0"),
+                request.IsSpike,
+                request.Regime);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
 
