@@ -4,6 +4,7 @@ using ThaiX.Application.Features.Resumes;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Endpoints;
 
@@ -41,18 +42,13 @@ public static class ResumeAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a professional resume writer. Rewrite the given text to be clear, concise, and " +
-                "professional, using strong action verbs. Preserve every fact, number, and claim exactly as " +
-                "given — never invent achievements, metrics, or responsibilities that are not already present. " +
-                "Return ONLY the rewritten text with no preamble, quotes, or explanation.")
-                .WithCurrentCultureInstruction();
-
+            var systemPrompt = AiPromptResources.Get("Resume.Polish.System").WithCurrentCultureInstruction();
             var contextLine = string.IsNullOrWhiteSpace(request.FieldContext)
                 ? string.Empty
-                : $"Context: {request.FieldContext}\n\n";
+                : AiPromptResources.Format("Resume.Polish.Context", request.FieldContext);
 
-            var result = await ai.GenerateAsync($"{contextLine}Text to rewrite:\n{text}", systemPrompt, cts.Token);
+            var prompt = AiPromptResources.Format("Resume.Polish.User", contextLine, text);
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildTextResponse(result.Text, httpContext));
         })
         .WithName("PolishResumeText")
@@ -67,11 +63,7 @@ public static class ResumeAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a professional resume writer. Write a concise 2-4 sentence professional summary for " +
-                "this person, based ONLY on the facts given below. Do not invent skills, employers, or " +
-                "achievements not listed. Return ONLY the summary text with no preamble, quotes, or explanation.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Resume.GenerateSummary.System").WithCurrentCultureInstruction();
 
             var prompt = BuildResumeFactsPrompt(
                 request.FullName, request.Headline, request.Skills, request.Experience, request.Projects, request.Education);
@@ -91,17 +83,11 @@ public static class ResumeAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a resume/ATS optimization advisor. Compare the candidate's resume against the job " +
-                "description below. Suggest concrete keywords and skills to add or emphasize, and which existing " +
-                "experience to highlight, so the resume matches the job better. Base suggestions only on what " +
-                "the candidate already has — never tell them to claim a skill or experience they don't have. " +
-                "Return a concise bullet-point report, no preamble.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Resume.OptimizeForJob.System").WithCurrentCultureInstruction();
 
             var resumeFacts = BuildResumeFactsPrompt(
                 null, null, request.Content.Skills, request.Content.Experience, request.Content.Projects, null, request.Content.Summary);
-            var prompt = $"Job description:\n{request.JobDescription.Trim()}\n\nCandidate resume:\n{resumeFacts}";
+            var prompt = AiPromptResources.Format("Resume.OptimizeForJob.User", request.JobDescription.Trim(), resumeFacts);
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             return Results.Ok(BuildReportResponse(result.Text, httpContext));
@@ -118,13 +104,7 @@ public static class ResumeAiEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(CallTimeout);
 
-            var systemPrompt = (
-                "You are a meticulous resume proofreader. Review the resume content below for spelling errors, " +
-                "grammar mistakes, and inconsistent verb tense (e.g. a past job described in present tense, or a " +
-                "current job described in past tense). List concrete issues found, naming which field/entry each " +
-                "one is in. If you find no issues, say so plainly. Do not rewrite the content yourself — only " +
-                "report what you find. Return a concise report, no preamble.")
-                .WithCurrentCultureInstruction();
+            var systemPrompt = AiPromptResources.Get("Resume.CheckConsistency.System").WithCurrentCultureInstruction();
 
             var resumeFacts = BuildResumeFactsPrompt(
                 null, null, request.Content.Skills, request.Content.Experience, request.Content.Projects,
@@ -162,37 +142,37 @@ public static class ResumeAiEndpoints
     {
         var sb = new StringBuilder();
 
-        if (!string.IsNullOrWhiteSpace(fullName)) sb.AppendLine($"Name: {fullName}");
-        if (!string.IsNullOrWhiteSpace(headline)) sb.AppendLine($"Headline: {headline}");
-        if (!string.IsNullOrWhiteSpace(summary)) sb.AppendLine($"Summary: {summary}");
-        if (skills.Count > 0) sb.AppendLine($"Skills: {string.Join(", ", skills)}");
+        if (!string.IsNullOrWhiteSpace(fullName)) sb.AppendLine(AiPromptResources.Format("Resume.Facts.Name", fullName));
+        if (!string.IsNullOrWhiteSpace(headline)) sb.AppendLine(AiPromptResources.Format("Resume.Facts.Headline", headline));
+        if (!string.IsNullOrWhiteSpace(summary)) sb.AppendLine(AiPromptResources.Format("Resume.Facts.Summary", summary));
+        if (skills.Count > 0) sb.AppendLine(AiPromptResources.Format("Resume.Facts.Skills", string.Join(", ", skills)));
 
         if (experience.Count > 0)
         {
-            sb.AppendLine("Experience:");
+            sb.AppendLine(AiPromptResources.Get("Resume.Facts.ExperienceHeading"));
             foreach (var exp in experience)
             {
-                var end = string.IsNullOrWhiteSpace(exp.EndDate) ? "Present" : exp.EndDate;
-                sb.AppendLine($"- {exp.Position} at {exp.Company} ({exp.StartDate} - {end}): {exp.Description}");
+                var end = string.IsNullOrWhiteSpace(exp.EndDate) ? AiPromptResources.Get("Resume.Facts.Present") : exp.EndDate;
+                sb.AppendLine(AiPromptResources.Format("Resume.Facts.ExperienceItem", exp.Position, exp.Company, exp.StartDate, end, exp.Description));
             }
         }
 
         if (projects.Count > 0)
         {
-            sb.AppendLine("Projects:");
+            sb.AppendLine(AiPromptResources.Get("Resume.Facts.ProjectsHeading"));
             foreach (var proj in projects)
             {
-                sb.AppendLine($"- {proj.Name}: {proj.Description}");
+                sb.AppendLine(AiPromptResources.Format("Resume.Facts.ProjectItem", proj.Name, proj.Description));
             }
         }
 
         if (education is { Count: > 0 })
         {
-            sb.AppendLine("Education:");
+            sb.AppendLine(AiPromptResources.Get("Resume.Facts.EducationHeading"));
             foreach (var edu in education)
             {
-                var end = string.IsNullOrWhiteSpace(edu.EndDate) ? "Present" : edu.EndDate;
-                sb.AppendLine($"- {edu.Degree} at {edu.School} ({edu.StartDate} - {end})");
+                var end = string.IsNullOrWhiteSpace(edu.EndDate) ? AiPromptResources.Get("Resume.Facts.Present") : edu.EndDate;
+                sb.AppendLine(AiPromptResources.Format("Resume.Facts.EducationItem", edu.Degree, edu.School, edu.StartDate, end));
             }
         }
 
