@@ -299,6 +299,18 @@ public static class TelegramEndpoints
                 await RecordAssistantMessageBestEffortAsync(
                     conversationHistoryService, isGroup, chatId, responseText, cancellationToken);
             }
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Telegram command processing was canceled with the webhook request. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                    httpContext.GetCorrelationId(),
+                    request.MessageId);
+                await telegramNotificationService.SendToChatAsync(
+                    chatId,
+                    "Command processing failed. Please try again.",
+                    CancellationToken.None);
+            }
             catch (Exception ex)
             {
                 logger.LogError(
