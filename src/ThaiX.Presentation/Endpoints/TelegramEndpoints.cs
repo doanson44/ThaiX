@@ -167,7 +167,7 @@ public static class TelegramEndpoints
 
                         if (!string.IsNullOrWhiteSpace(chatReply))
                         {
-                            await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
+                            await telegramNotificationService.SendToChatAsync(chatId, chatReply, CancellationToken.None);
                             await RecordAssistantMessageBestEffortAsync(
                                 conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
                         }
@@ -225,7 +225,7 @@ public static class TelegramEndpoints
                             cancellationToken);
                         if (!string.IsNullOrWhiteSpace(chatReply))
                         {
-                            await telegramNotificationService.SendToChatAsync(chatId, chatReply, cancellationToken);
+                            await telegramNotificationService.SendToChatAsync(chatId, chatReply, CancellationToken.None);
                             await RecordAssistantMessageBestEffortAsync(
                                 conversationHistoryService, isGroup, chatId, chatReply, cancellationToken);
                         }
@@ -295,9 +295,21 @@ public static class TelegramEndpoints
                     && !string.IsNullOrWhiteSpace(result.PlainText)
                         ? result.PlainText
                         : FormatResponseText(telegramFormatter, result);
-                await telegramNotificationService.SendRenderedToChatAsync(chatId, responseText, cancellationToken);
+                await telegramNotificationService.SendRenderedToChatAsync(chatId, responseText, CancellationToken.None);
                 await RecordAssistantMessageBestEffortAsync(
                     conversationHistoryService, isGroup, chatId, responseText, cancellationToken);
+            }
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+            {
+                logger.LogWarning(
+                    ex,
+                    "Telegram command processing was canceled with the webhook request. CorrelationId={CorrelationId}, MessageId={MessageId}",
+                    httpContext.GetCorrelationId(),
+                    request.MessageId);
+                await telegramNotificationService.SendToChatAsync(
+                    chatId,
+                    "Command processing failed. Please try again.",
+                    CancellationToken.None);
             }
             catch (Exception ex)
             {
