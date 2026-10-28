@@ -113,17 +113,32 @@ public sealed class ProxyTransport : IApiTransport
             return _options.BinanceBaseUrl;
         }
 
+        if (IsInvestingRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.InvestingBaseUrl))
+        {
+            return _options.InvestingBaseUrl;
+        }
+
         return _options.BaseUrl;
     }
 
     private static bool IsBinanceRequest(string targetUrl)
+    {
+        return IsHostRequest(targetUrl, "binance.com");
+    }
+
+    private static bool IsInvestingRequest(string targetUrl)
+    {
+        return IsHostRequest(targetUrl, "investing.com");
+    }
+
+    private static bool IsHostRequest(string targetUrl, string suffix)
     {
         if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
         {
             return false;
         }
 
-        return targetUri.Host.EndsWith("binance.com", StringComparison.OrdinalIgnoreCase);
+        return targetUri.Host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase);
     }
 
     private AuthenticationHeaderValue? BuildAuthorization()

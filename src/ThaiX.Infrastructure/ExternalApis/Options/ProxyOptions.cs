@@ -9,5 +9,6 @@ public sealed class ProxyOptions
 
     public string BaseUrl { get; set; } = string.Empty;
     public string BinanceBaseUrl { get; set; } = string.Empty;
+    public string InvestingBaseUrl { get; set; } = string.Empty;
     public string Token { get; set; } = string.Empty;
 }
