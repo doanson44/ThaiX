@@ -10,6 +10,7 @@ using ThaiX.Domain.Aggregates.TradingSuggestions;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Endpoints;
 
@@ -73,32 +74,21 @@ public static class TradingEndpoints
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cts.CancelAfter(TimeSpan.FromSeconds(25));
 
-            var systemPrompt = (
-                "You are a decisive trading analyst. Based on the technical analysis data given, you MUST " +
-                "commit to ONE clear verdict — never hedge, never say \"it depends\" or \"could go either way\". " +
-                "Weigh the trend, momentum, setup, and confidence, then decide firmly.\n\n" +
-                "Respond in exactly this format:\n" +
-                "Line 1: exactly the literal English text \"TRADE\" or \"NO TRADE\" and nothing else — do NOT " +
-                "translate this line even if asked to respond in another language below.\n" +
-                "Line 2 onward: 2-3 direct sentences explaining why, referencing the specific data given " +
-                "(trend, momentum, confidence, and risk/reward from entry/stop/targets if present). " +
-                "Be direct and confident — this is for an experienced trader making a real decision, not a " +
-                "disclaimer-filled report.")
-                .WithCurrentCultureInstruction();
-
-            var prompt =
-                $"Symbol: {request.Symbol}\n" +
-                $"Market: {request.MarketType}\n" +
-                $"Timeframe: {request.Timeframe}\n" +
-                $"Trend: {request.Trend}\n" +
-                $"Momentum: {request.Momentum}\n" +
-                $"Setup: {request.Setup}\n" +
-                $"Signal: {request.Signal}\n" +
-                $"Confidence: {request.Confidence:P0}\n" +
-                $"Entry: {Fmt(request.EntryPrice)}\n" +
-                $"Stop Loss: {Fmt(request.StopLoss)}\n" +
-                $"Take Profit 1: {Fmt(request.TakeProfit1)}\n" +
-                $"Take Profit 2: {Fmt(request.TakeProfit2)}";
+            var systemPrompt = AiPromptResources.Get("Trading.Verdict.System").WithCurrentCultureInstruction();
+            var prompt = AiPromptResources.Format(
+                "Trading.Verdict.User",
+                request.Symbol,
+                request.MarketType,
+                request.Timeframe,
+                request.Trend,
+                request.Momentum,
+                request.Setup,
+                request.Signal,
+                request.Confidence.ToString("P0"),
+                Fmt(request.EntryPrice),
+                Fmt(request.StopLoss),
+                Fmt(request.TakeProfit1),
+                Fmt(request.TakeProfit2));
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
 
