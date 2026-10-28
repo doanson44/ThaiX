@@ -66,6 +66,7 @@ public static class ExternalDataEndpoints
         MapBankInterestRatesEndpoints(endpoints);
         MapBankDepositRatesEndpoints(endpoints);
         MapMarketDataEndpoints(endpoints);
+        MapCombinedMarketAssessmentEndpoints(endpoints);
         MapBybitEndpoints(endpoints);
         MapBinanceEndpoints(endpoints);
         MapMexcEndpoints(endpoints);
@@ -1139,6 +1140,63 @@ public static class ExternalDataEndpoints
         .WithDescription("AI commentary on the current VNINDEX technical analysis snapshot.");
     }
 
+    private static void MapCombinedMarketAssessmentEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/external-data/market/assessment")
+            .WithTags("External Data - Market Assessment");
+
+        group.MapPost("/", async (
+            CombinedMarketAssessmentRequest request,
+            IAiTextGenerationService ai,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(25));
+
+            var systemPrompt = (
+                "You are a market analyst. Assess the supplied VIX risk regime and VNINDEX technical data together. " +
+                "Return three clearly separated sections in the user's current language: VIX assessment, VNINDEX technical assessment, " +
+                "and overall market assessment. Explain whether volatility/risk appetite agrees with VNINDEX trend and momentum, " +
+                "identify the main risk and a practical risk-management takeaway. Use only supplied data, explicitly note missing data, " +
+                "do not invent macro events, and do not guarantee outcomes. Keep each section to 2-3 concise sentences.")
+                .WithCurrentCultureInstruction();
+
+            var prompt =
+                "VIX DATA\n" +
+                $"Symbol: {request.Vix.Symbol}\n" +
+                $"Current value: {Fmt(request.Vix.CurrentValue)}\n" +
+                $"EMA10/EMA20: {Fmt(request.Vix.Ema10)} / {Fmt(request.Vix.Ema20)}\n" +
+                $"Momentum 3D/5D: {Fmt(request.Vix.Momentum3D)} / {Fmt(request.Vix.Momentum5D)}\n" +
+                $"Historical percentile: {request.Vix.Percentile:P0}\n" +
+                $"Spike: {request.Vix.IsSpike}\n" +
+                $"Regime: {request.Vix.Regime}\n\n" +
+                "VNINDEX DATA\n" +
+                $"Symbol: {request.VnIndex.Symbol}\n" +
+                $"Latest close: {Fmt(request.VnIndex.Close)}\n" +
+                $"EMA9/EMA21/EMA50: {Fmt(request.VnIndex.Ema9)} / {Fmt(request.VnIndex.Ema21)} / {Fmt(request.VnIndex.Ema50)}\n" +
+                $"RSI14: {Fmt(request.VnIndex.Rsi14)}\n" +
+                $"ATR14: {Fmt(request.VnIndex.Atr14)}\n" +
+                $"Average volume (20D): {Fmt(request.VnIndex.AverageVolume20)}\n" +
+                $"20D resistance/support: {Fmt(request.VnIndex.HighestHigh20)} / {Fmt(request.VnIndex.LowestLow20)}\n" +
+                $"Trend: {request.VnIndex.Trend}\n" +
+                $"Momentum: {request.VnIndex.Momentum}\n" +
+                $"Setup: {request.VnIndex.Setup}\n" +
+                $"Signal: {request.VnIndex.Signal}\n" +
+                $"Confidence: {request.VnIndex.Confidence:P0}\n" +
+                $"Candles analyzed: {request.VnIndex.HistoryCount}";
+
+            var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
+            var response = ApiResponse<CombinedMarketAssessmentResponse>.SuccessResult(
+                new CombinedMarketAssessmentResponse { Commentary = result.Text.Trim() });
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .WithName("GetCombinedMarketAssessment")
+        .WithDescription("Generate one AI assessment covering VIX, VNINDEX technical conditions, and the overall market.");
+    }
+
     private static void MapYahooFinanceEndpoints(IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/external-data/yahoo-finance")
@@ -1515,3 +1573,14 @@ public sealed record VixVerdictResponse
     public string Commentary { get; init; } = string.Empty;
 }
 
+
+public sealed record CombinedMarketAssessmentRequest
+{
+    public required GetVixVerdictRequest Vix { get; init; }
+    public required GetInvestingVnIndexVerdictRequest VnIndex { get; init; }
+}
+
+public sealed record CombinedMarketAssessmentResponse
+{
+    public string Commentary { get; init; } = string.Empty;
+}
