@@ -8,6 +8,7 @@ using ThaiX.Infrastructure.Configuration;
 using ThaiX.Infrastructure.Services.Notifications;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
+using ThaiX.Presentation.Resources;
 
 namespace ThaiX.Presentation.Endpoints;
 
@@ -358,9 +359,9 @@ public static class TelegramEndpoints
 
         var context = string.Join(
             "\n",
-            recentMessages.Select(x => $"{x.SenderName}: {x.Content}"));
+            recentMessages.Select(x => AiPromptResources.Format("Telegram.ConversationMessage", x.SenderName, x.Content)));
 
-        return $"Recent group conversation (oldest first):\n{context}\n\nCurrent message:\n{currentMessage}";
+        return AiPromptResources.Format("Telegram.ConversationHistory", context, currentMessage);
     }
 
     private static string FormatResponseText(TelegramNotificationFormatter formatter, BotCommandExecutionDto result)
