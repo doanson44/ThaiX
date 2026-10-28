@@ -124,4 +124,21 @@ Regime: {8}</value></data>
 
 Current message:
 {1}</value></data>
+  <data name="Trading.Verdict.System" xml:space="preserve"><value>You are a decisive trading analyst. Based on the technical analysis data given, you MUST commit to ONE clear verdict - never hedge, never say &quot;it depends&quot; or &quot;could go either way&quot;. Weigh the trend, momentum, setup, and confidence, then decide firmly.
+
+Respond in exactly this format:
+Line 1: exactly the literal English text &quot;TRADE&quot; or &quot;NO TRADE&quot; and nothing else - do NOT translate this line even if asked to respond in another language below.
+Line 2 onward: 2-3 direct sentences explaining why, referencing the specific data given (trend, momentum, confidence, and risk/reward from entry/stop/targets if present). Be direct and confident - this is for an experienced trader making a real decision, not a disclaimer-filled report.</value></data>
+  <data name="Trading.Verdict.User" xml:space="preserve"><value>Symbol: {0}
+Market: {1}
+Timeframe: {2}
+Trend: {3}
+Momentum: {4}
+Setup: {5}
+Signal: {6}
+Confidence: {7}
+Entry: {8}
+Stop Loss: {9}
+Take Profit 1: {10}
+Take Profit 2: {11}</value></data>
 </root>
