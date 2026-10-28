@@ -59,6 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IBotCommandModule, PriceStockBotCommandModule>();
         services.AddScoped<IBotCommandModule, PriceCryptoIndicatorsBotCommandModule>();
         services.AddScoped<IBotCommandModule, PriceStockIndicatorsBotCommandModule>();
+        services.AddScoped<IBotCommandModule, MarketSummaryBotCommandModule>();
         services.AddScoped<IBotCommandModule, SignalBotCommandModule>();
         services.AddScoped<IBotCommandModule, PortfolioBotCommandModule>();
         services.AddScoped<IBotCommandModule, AlertBotCommandModule>();
