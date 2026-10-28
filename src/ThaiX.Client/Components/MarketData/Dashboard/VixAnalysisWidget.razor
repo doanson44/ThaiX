@@ -269,6 +269,12 @@
                     <RadzenStack Gap="0.5rem">
                         @if (_aiVerdict is null && !_isLoadingAiVerdict)
                         {
+                            @if (!string.IsNullOrWhiteSpace(_aiVerdictError))
+                            {
+                                <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                                    @_aiVerdictError
+                                </RadzenAlert>
+                            }
                             <RadzenButton Text="@L[RK.Vix.GetAiAssessment]"
                                           Click="FetchAiVerdictAsync"
                                           ButtonStyle="ButtonStyle.Light"
@@ -279,12 +285,6 @@
                         else if (_isLoadingAiVerdict)
                         {
                             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
-                        }
-                        else if (!string.IsNullOrWhiteSpace(_aiVerdictError))
-                        {
-                            <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
-                                @_aiVerdictError
-                            </RadzenAlert>
                         }
                         else if (_aiVerdict is not null)
                         {
