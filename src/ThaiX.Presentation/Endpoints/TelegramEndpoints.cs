@@ -51,9 +51,10 @@ public static class TelegramEndpoints
             ITelegramNotificationService telegramNotificationService,
             TelegramNotificationFormatter telegramFormatter,
             HttpContext httpContext,
-            ILogger<TelegramEndpoints> logger,
+            ILoggerFactory loggerFactory,
             CancellationToken cancellationToken) =>
         {
+            var logger = loggerFactory.CreateLogger(nameof(TelegramEndpoints));
             var rawText = request.Text?.Trim();
             var originalUserMessage = rawText;
             var wasNaturalLanguageInput = !string.IsNullOrWhiteSpace(rawText) && !rawText.StartsWith('/');
