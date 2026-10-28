@@ -35,7 +35,9 @@ public sealed class BotCommandIntentResolver : IBotCommandIntentResolver
             "If the request is not supported or required arguments cannot be resolved confidently, return exactly: NONE.\n\n" +
             "The input may include recent conversation history and a Current message section. Treat the Current message as the request; use history only to resolve references or omitted arguments, and never repeat an earlier action unless the current message asks for it. " +
             "Use command syntax and descriptions as the source of truth. Do not rely on hardcoded ticker lists or assume an asset class from a symbol alone. Prefer a command with automatic asset detection when the asset type is unclear. " +
-            "For market analysis requests, choose the relevant data-retrieval command available in the catalog; the response will be analyzed separately using the command's actual result.";
+            "For a broad summary of today's Vietnam stock market, Vietnam market conditions, or a request to interpret VIX together with VNINDEX, choose the market-summary command when it exists in the supplied catalog. " +
+            "Do not choose market-summary for a question focused only on an individual stock, cryptocurrency, or US market. Choose the most specific relevant command for those requests. " +
+            "For other market analysis requests, choose the relevant data-retrieval command available in the catalog; the response will be analyzed separately using the command's actual result.";
 
         var prompt = $"Command catalog:\n{catalog}\n\nUser message and available context:\n{mentionText.Trim()}\n\nReturn command:";
 
