@@ -17,6 +17,7 @@ public sealed class ExternalDataService : IExternalDataService
     private readonly DragonCapitalApiProvider _dragonCapitalApiProvider;
     private readonly SacombankApiProvider _sacombankApiProvider;
     private readonly YahooFinanceApiProvider _yahooFinanceApiProvider;
+    private readonly InvestingApiProvider _investingApiProvider;
     private readonly CoinGeckoApiProvider _coinGeckoApiProvider;
     private readonly MexcApiProvider _mexcApiProvider;
     private readonly IWealthClubApiProvider _iWealthClubApiProvider;
@@ -33,6 +34,7 @@ public sealed class ExternalDataService : IExternalDataService
         DragonCapitalApiProvider dragonCapitalApiProvider,
         SacombankApiProvider sacombankApiProvider,
         YahooFinanceApiProvider yahooFinanceApiProvider,
+        InvestingApiProvider investingApiProvider,
         CoinGeckoApiProvider coinGeckoApiProvider,
         MexcApiProvider mexcApiProvider,
         IWealthClubApiProvider iWealthClubApiProvider,
@@ -48,6 +50,7 @@ public sealed class ExternalDataService : IExternalDataService
         _dragonCapitalApiProvider = dragonCapitalApiProvider;
         _sacombankApiProvider = sacombankApiProvider;
         _yahooFinanceApiProvider = yahooFinanceApiProvider;
+        _investingApiProvider = investingApiProvider;
         _coinGeckoApiProvider = coinGeckoApiProvider;
         _mexcApiProvider = mexcApiProvider;
         _iWealthClubApiProvider = iWealthClubApiProvider;
@@ -146,6 +149,11 @@ public sealed class ExternalDataService : IExternalDataService
     public Task<T?> GetYahooFinanceVixChartAsync<T>(CancellationToken cancellationToken = default)
     {
         return _yahooFinanceApiProvider.GetVixChartAsync<T>(cancellationToken);
+    }
+
+    public Task<T?> GetInvestingVnIndexCandlesAsync<T>(CancellationToken cancellationToken = default)
+    {
+        return _investingApiProvider.GetVnIndexCandlesAsync<T>(cancellationToken);
     }
 
     public Task<T?> GetCoinGeckoCoinsListAsync<T>(CancellationToken cancellationToken = default)

@@ -233,6 +233,7 @@ public static class DependencyInjection
             .AddScoped<DragonCapitalApiProvider>()
             .AddScoped<SacombankApiProvider>()
             .AddScoped<YahooFinanceApiProvider>()
+            .AddScoped<InvestingApiProvider>()
             .AddScoped<CoinGeckoApiProvider>()
             .AddScoped<MexcApiProvider>()
             .AddScoped<IWealthClubApiProvider>()

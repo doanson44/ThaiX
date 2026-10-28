@@ -29,6 +29,7 @@ internal class StubExternalDataService : IExternalDataService
     public virtual Task<T?> GetDragonCapitalFundPortfolioAsync<T>(string fundCode, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetSacombankExchangeRatesAsync<T>(CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetYahooFinanceVixChartAsync<T>(CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
+    public virtual Task<T?> GetInvestingVnIndexCandlesAsync<T>(CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetCoinGeckoCoinsListAsync<T>(CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetCoinGeckoCoinMarketByIdAsync<T>(string coinId, CancellationToken cancellationToken = default) => Task.FromResult((T?)(object?)null);
     public virtual Task<T?> GetMexcContractTickerAsync<T>(CancellationToken cancellationToken = default)

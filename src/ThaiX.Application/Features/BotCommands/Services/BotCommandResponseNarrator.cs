@@ -29,9 +29,15 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
         var prompt =
             "Answer the user's actual request as a knowledgeable market analyst in a natural, conversational style. " +
             "Use only facts supported by the command result. Explain what the data suggests, its limitations, and relevant risks or scenarios when supported. " +
-            "Keep prices, numbers, symbols, percentages, and source facts exact. Do not invent indicators, news, historical data, or certainty. " +
+            "Keep prices, numbers, symbols, percentages, timestamps, and source facts exact. Do not invent indicators, news, historical data, or certainty. " +
             "Clearly distinguish observed facts from interpretation, and respond in the same language as the user's request. " +
-            "Do not merely reformat the command output; interpret it where the supplied evidence allows.\n\n" +
+            "Do not merely reformat the command output; interpret it where the supplied evidence allows. " +
+            "If the result contains both VNINDEX and VIX data, organize the answer as: (1) a concise market overview based on the observed VNINDEX trend, momentum, setup, and signal; " +
+            "(2) the available technical evidence, such as EMA, RSI, ATR, volume, support, and resistance; " +
+            "(3) VIX risk context, explicitly noting that VIX reflects expected US equity volatility and is not a direct measure or standalone predictor of Vietnam market direction; " +
+            "(4) plausible bullish, bearish, and neutral scenarios, each grounded in supplied data and including what could confirm or invalidate it; " +
+            "(5) a concise conclusion and the next signals to monitor. " +
+            "If one source is unavailable, state that limitation and analyze only what is available. Do not call daily data real-time unless the source says so. Do not give guaranteed-return claims or unsupported buy/sell instructions.\n\n" +
             sourceText;
 
         try
