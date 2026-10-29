@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using MySql.EntityFrameworkCore.Metadata;
 
 #nullable disable
@@ -6,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace ThaiX.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial_MariaDb : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +28,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Scopes = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -93,7 +94,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Color = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -115,7 +116,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Slug = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -138,7 +139,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Logo = table.Column<string>(type: "varchar(2048)", maxLength: 2048, nullable: true),
                     FundTypeName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     FundTypeSlug = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    LastInvestmentDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    LastInvestmentDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     YearFounded = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     AverageCurrentRoi = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: true),
@@ -160,7 +161,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     LosersPercent = table.Column<decimal>(type: "decimal(10,4)", precision: 10, scale: 4, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -193,10 +194,10 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     PublicRaiseUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
                     PrivateRaiseUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
                     TotalRaiseUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
-                    PrivateAnnounceDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    ListingDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    IdoDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    NextUnlockDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    PrivateAnnounceDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ListingDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    IdoDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    NextUnlockDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     MarketCapUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
                     ReportedMarketCapUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
                     InitialMarketCapUsd = table.Column<decimal>(type: "decimal(28,2)", precision: 28, scale: 2, nullable: true),
@@ -213,7 +214,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     PriceChange1y = table.Column<decimal>(type: "decimal(10,4)", precision: 10, scale: 4, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -230,7 +231,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Name = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
                     Logo = table.Column<string>(type: "varchar(2048)", maxLength: 2048, nullable: true),
                     Ticker = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    NextUnlockDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    NextUnlockDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     UnlockAmount = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     UnlockValueUsd = table.Column<decimal>(type: "decimal(28,6)", precision: 28, scale: 6, nullable: true),
                     RoundName = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
@@ -243,7 +244,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     UnlockPercent = table.Column<decimal>(type: "decimal(10,4)", precision: 10, scale: 4, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -284,12 +285,12 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Company = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     JobTitle = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     AvatarUrl = table.Column<string>(type: "varchar(2048)", maxLength: 2048, nullable: true),
-                    Birthday = table.Column<DateOnly>(type: "date", nullable: true),
+                    Birthday = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Notes = table.Column<string>(type: "varchar(4000)", maxLength: 4000, nullable: true),
                     IsArchived = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -311,7 +312,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Name = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -338,7 +339,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     UsageCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -361,7 +362,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ParentCategoryId = table.Column<Guid>(type: "char(36)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -389,7 +390,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ColorHex = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -413,7 +414,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Size = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -446,7 +447,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ShareExpiresAtUtc = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -471,7 +472,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     IsEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -497,7 +498,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     IsArchived = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -528,7 +529,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Status = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -555,7 +556,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Recurrence = table.Column<string>(type: "longtext", nullable: false),
                     Status = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
                     TimeZoneId = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
-                    ExecuteTimeLocal = table.Column<TimeOnly>(type: "time", nullable: false),
+                    ExecuteTimeLocal = table.Column<TimeSpan>(type: "time", nullable: false),
                     OneTimeAtLocal = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     StartDateLocal = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     StartAtUtc = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -568,7 +569,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ExecutionCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -593,7 +594,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Error = table.Column<string>(type: "longtext", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -612,7 +613,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     PortfolioType = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -630,7 +631,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    DrawDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    DrawDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     DayOfWeek = table.Column<string>(type: "varchar(3)", maxLength: 3, nullable: false),
                     Num1 = table.Column<int>(type: "int", nullable: false),
                     Num2 = table.Column<int>(type: "int", nullable: false),
@@ -643,7 +644,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Jackpot2Value = table.Column<long>(type: "bigint", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -667,7 +668,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     TriggerCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -677,6 +678,33 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PriceAlerts", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "PublicHtmlPages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Title = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    StorageKey = table.Column<string>(type: "varchar(1024)", maxLength: 1024, nullable: false),
+                    SizeBytes = table.Column<long>(type: "bigint", nullable: false),
+                    IsPublished = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    PublishedAtUtc = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastViewedAtUtc = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Slug = table.Column<string>(type: "varchar(80)", maxLength: 80, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
+                    CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "char(36)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PublicHtmlPages", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -694,7 +722,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ContentJson = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -713,11 +741,11 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     SourceContentId = table.Column<long>(type: "bigint", nullable: false),
-                    PostedAt = table.Column<DateOnly>(type: "date", nullable: false),
-                    EffectiveDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PostedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EffectiveDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -731,7 +759,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
                     Symbol = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false),
-                    TradeDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    TradeDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     TradeTime = table.Column<string>(type: "varchar(8)", maxLength: 8, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     Change = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
@@ -740,7 +768,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Side = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -757,7 +785,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ContactId = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -776,13 +804,13 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Enabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Destination = table.Column<string>(type: "varchar(512)", maxLength: 512, nullable: false),
                     MinimumSeverity = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
-                    QuietHoursStart = table.Column<TimeOnly>(type: "time", nullable: true),
-                    QuietHoursEnd = table.Column<TimeOnly>(type: "time", nullable: true),
+                    QuietHoursStart = table.Column<TimeSpan>(type: "time(6)", nullable: true),
+                    QuietHoursEnd = table.Column<TimeSpan>(type: "time(6)", nullable: true),
                     TimeZoneId = table.Column<string>(type: "varchar(128)", maxLength: 128, nullable: false),
                     BatchingMode = table.Column<string>(type: "varchar(32)", maxLength: 32, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -822,7 +850,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     CurrentBalance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -850,7 +878,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ReportKey = table.Column<string>(type: "varchar(120)", maxLength: 120, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -994,7 +1022,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ReadTimeMinutes = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1185,8 +1213,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     DocumentNumberLast4 = table.Column<string>(type: "varchar(4)", maxLength: 4, nullable: false),
                     IssuedBy = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     IssuedPlace = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
-                    IssuedDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ExpiryDate = table.Column<DateOnly>(type: "date", nullable: true)
+                    IssuedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ExpiryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1274,7 +1302,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     CountryId = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1304,7 +1332,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     CountryId = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1334,7 +1362,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -1360,7 +1388,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1400,7 +1428,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     RenderedPayloadJson = table.Column<string>(type: "longtext", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1435,7 +1463,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     ErrorMessage = table.Column<string>(type: "varchar(2048)", maxLength: 2048, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1471,7 +1499,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1501,13 +1529,13 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     PrincipalAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     InterestRate = table.Column<decimal>(type: "decimal(8,4)", precision: 8, scale: 4, nullable: false),
                     InterestType = table.Column<string>(type: "varchar(16)", maxLength: 16, nullable: false),
-                    DepositDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    MaturityDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    DepositDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    MaturityDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Status = table.Column<string>(type: "varchar(24)", maxLength: 24, nullable: false),
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1544,7 +1572,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1568,7 +1596,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    TargetDrawDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    TargetDrawDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     PredictionType = table.Column<string>(type: "varchar(255)", nullable: false),
                     Num1 = table.Column<int>(type: "int", nullable: false),
                     Num2 = table.Column<int>(type: "int", nullable: false),
@@ -1582,7 +1610,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Power655ResultId = table.Column<Guid>(type: "char(36)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -1651,7 +1679,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1692,7 +1720,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1729,7 +1757,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     TargetDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1760,7 +1788,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     Note = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1804,7 +1832,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     TakeProfit2 = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1859,7 +1887,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     CityId = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -1896,7 +1924,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     StockPositionId = table.Column<Guid>(type: "char(36)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false)
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
                 },
                 constraints: table =>
                 {
@@ -1925,7 +1953,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     TagId = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "longblob", nullable: false),
+                    RowVersion = table.Column<DateTime>(type: "timestamp(6)", rowVersion: true, nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)"),
                     CreatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "char(36)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
@@ -2452,6 +2480,22 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                 column: "IsEnabled");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PublicHtmlPages_IsPublished",
+                table: "PublicHtmlPages",
+                column: "IsPublished");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PublicHtmlPages_LastViewedAtUtc",
+                table: "PublicHtmlPages",
+                column: "LastViewedAtUtc");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PublicHtmlPages_Slug",
+                table: "PublicHtmlPages",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RecurringTransactions_CategoryId",
                 table: "RecurringTransactions",
                 column: "CategoryId");
@@ -2712,6 +2756,9 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "PriceAlerts");
+
+            migrationBuilder.DropTable(
+                name: "PublicHtmlPages");
 
             migrationBuilder.DropTable(
                 name: "RecurringTransactions");
