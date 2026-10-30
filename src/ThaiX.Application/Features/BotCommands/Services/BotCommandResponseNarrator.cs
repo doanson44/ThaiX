@@ -45,8 +45,8 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
             if (string.IsNullOrWhiteSpace(rewritten))
             {
                 _logger.LogWarning(
-                    "AI narration returned an empty response. Falling back to structured command output.");
-                return result with { PlainText = string.Empty };
+                    "AI narration returned an empty response. Falling back to command output.");
+                return CreateFallbackResult(result);
             }
 
             return result with
@@ -61,11 +61,16 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
         catch (Exception ex)
         {
             _logger.LogWarning(
-                "AI narration failed with {ExceptionType}. Falling back to structured command output.",
+                "AI narration failed with {ExceptionType}. Falling back to command output.",
                 ex.GetType().Name);
-            return result with { PlainText = string.Empty };
+            return CreateFallbackResult(result);
         }
     }
+
+    private static BotCommandExecutionDto CreateFallbackResult(BotCommandExecutionDto result)
+        => result.Card is not null
+            ? result with { PlainText = string.Empty }
+            : result;
 
     private static string BuildAiSourceText(BotCommandExecutionDto result, int maxChars, string userMessage)
     {
