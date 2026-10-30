@@ -40,7 +40,8 @@ public sealed class BotCommandResponseNarratorTests
             It.Is<string>(prompt =>
                 prompt.Contains("Analyze BTC and explain the main risks.", StringComparison.Ordinal)
                 && prompt.Contains("Price: 67000", StringComparison.Ordinal)
-                && prompt.Contains("Change: 2.5%", StringComparison.Ordinal)),
+                && prompt.Contains("Change: 2.5%", StringComparison.Ordinal)
+                && prompt.Contains("Never reproduce the raw serialization", StringComparison.Ordinal)),
             It.Is<string?>(systemPrompt => systemPrompt == "Use evidence only."),
             It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -97,6 +98,58 @@ public sealed class BotCommandResponseNarratorTests
         narrated.Card.Should().BeSameAs(result.Card);
     }
 
+    [Fact]
+    public async Task NarrateAsync_WhenAiGenerationFailsWithoutCard_ShouldPreservePlainTextConfirmation()
+    {
+        // Arrange
+        var aiService = new Mock<IAiTextGenerationService>();
+        aiService
+            .Setup(x => x.GenerateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("Provider unavailable"));
+
+        var narrator = CreateNarrator(aiService.Object);
+        var result = CreateTextOnlyCommandResult();
+
+        // Act
+        var narrated = await narrator.NarrateAsync(
+            result,
+            new BotCommandNarrationOptions { Enabled = true },
+            CancellationToken.None);
+
+        // Assert
+        narrated.PlainText.Should().Be(result.PlainText);
+        narrated.Card.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task NarrateAsync_WhenAiReturnsEmptyTextWithoutCard_ShouldPreservePlainTextConfirmation()
+    {
+        // Arrange
+        var aiService = new Mock<IAiTextGenerationService>();
+        aiService
+            .Setup(x => x.GenerateAsync(
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new AiTextGenerationResult("test", "test", string.Empty));
+
+        var narrator = CreateNarrator(aiService.Object);
+        var result = CreateTextOnlyCommandResult();
+
+        // Act
+        var narrated = await narrator.NarrateAsync(
+            result,
+            new BotCommandNarrationOptions { Enabled = true },
+            CancellationToken.None);
+
+        // Assert
+        narrated.PlainText.Should().Be(result.PlainText);
+        narrated.Card.Should().BeNull();
+    }
+
     private static BotCommandResponseNarrator CreateNarrator(IAiTextGenerationService aiService)
         => new(aiService, Mock.Of<ILogger<BotCommandResponseNarrator>>());
 
@@ -116,5 +169,12 @@ public sealed class BotCommandResponseNarratorTests
                     new() { Label = "Change", Value = "2.5%" }
                 ]
             }
+        };
+
+    private static BotCommandExecutionDto CreateTextOnlyCommandResult()
+        => new()
+        {
+            Status = BotCommandExecutionStatus.Completed,
+            PlainText = "Alert created successfully. ID: 42."
         };
 }
