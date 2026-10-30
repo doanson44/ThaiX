@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Resources;
@@ -8,10 +9,14 @@ namespace ThaiX.Application.Features.BotCommands.Services;
 public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
 {
     private readonly IAiTextGenerationService _aiTextGenerationService;
+    private readonly ILogger<BotCommandResponseNarrator> _logger;
 
-    public BotCommandResponseNarrator(IAiTextGenerationService aiTextGenerationService)
+    public BotCommandResponseNarrator(
+        IAiTextGenerationService aiTextGenerationService,
+        ILogger<BotCommandResponseNarrator> logger)
     {
         _aiTextGenerationService = aiTextGenerationService;
+        _logger = logger;
     }
 
     public async Task<BotCommandExecutionDto> NarrateAsync(
@@ -39,7 +44,9 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
             var rewritten = aiResult.Text?.Trim();
             if (string.IsNullOrWhiteSpace(rewritten))
             {
-                return result;
+                _logger.LogWarning(
+                    "AI narration returned an empty response. Falling back to structured command output.");
+                return result with { PlainText = string.Empty };
             }
 
             return result with
@@ -47,9 +54,16 @@ public sealed class BotCommandResponseNarrator : IBotCommandResponseNarrator
                 PlainText = rewritten
             };
         }
-        catch
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            return result;
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                "AI narration failed with {ExceptionType}. Falling back to structured command output.",
+                ex.GetType().Name);
+            return result with { PlainText = string.Empty };
         }
     }
 
