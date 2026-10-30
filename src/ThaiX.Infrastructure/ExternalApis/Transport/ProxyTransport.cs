@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -34,6 +35,7 @@ public sealed class ProxyTransport : IApiTransport
 
     public async Task<T?> SendAsync<T>(ApiRequest request, CancellationToken cancellationToken)
     {
+        var usesCmsxProxy = UsesCmsxProxy(request.Url);
         var payload = new ProxyRequest
         {
             TargetUrl = request.Url,
@@ -47,11 +49,7 @@ public sealed class ProxyTransport : IApiTransport
         };
 
         using var message = new HttpRequestMessage(HttpMethod.Post, BuildProxyUri(request.Url));
-        var authorization = BuildAuthorization();
-        if (authorization is not null)
-        {
-            message.Headers.Authorization = authorization;
-        }
+        AddProxyAuthentication(message, usesCmsxProxy);
         message.Content = new StringContent(JsonSerializer.Serialize(payload, PayloadOptions), Encoding.UTF8, "application/json");
 
         var timeout = TimeSpan.FromSeconds(ResolveTimeout(request));
@@ -70,15 +68,39 @@ public sealed class ProxyTransport : IApiTransport
         }
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return default;
+        }
+
+        if (usesCmsxProxy)
+        {
+            var proxyResponse = JsonSerializer.Deserialize<CmsxProxyResponse>(content, JsonOptions)
+                ?? throw new JsonException("CMSX proxy returned an empty response envelope.");
+
+            if (proxyResponse.StatusCode is < 100 or > 599)
+            {
+                throw new JsonException("CMSX proxy returned an invalid target status code.");
+            }
+
+            if (proxyResponse.StatusCode is < 200 or >= 300)
+            {
+                throw new HttpRequestException(
+                    $"Proxied external API request failed. StatusCode={proxyResponse.StatusCode}, ReasonPhrase={proxyResponse.ReasonPhrase}",
+                    null,
+                    (HttpStatusCode)proxyResponse.StatusCode);
+            }
+
+            content = proxyResponse.Body ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return default;
+            }
+        }
 
         if (typeof(T) == typeof(string))
         {
             return (T?)(object)content;
-        }
-
-        if (string.IsNullOrWhiteSpace(content))
-        {
-            return default;
         }
 
         return JsonSerializer.Deserialize<T>(content, JsonOptions);
@@ -121,6 +143,28 @@ public sealed class ProxyTransport : IApiTransport
         return _options.BaseUrl;
     }
 
+    private bool UsesCmsxProxy(string targetUrl)
+    {
+        return !(IsBinanceRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.BinanceBaseUrl))
+            && !(IsInvestingRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.InvestingBaseUrl));
+    }
+
+    private void AddProxyAuthentication(HttpRequestMessage message, bool usesCmsxProxy)
+    {
+        if (string.IsNullOrWhiteSpace(_options.Token))
+        {
+            return;
+        }
+
+        if (usesCmsxProxy)
+        {
+            message.Headers.TryAddWithoutValidation("X-Content-Management-Key", _options.Token);
+            return;
+        }
+
+        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.Token);
+    }
+
     private static bool IsBinanceRequest(string targetUrl)
     {
         return IsHostRequest(targetUrl, "binance.com");
@@ -139,16 +183,6 @@ public sealed class ProxyTransport : IApiTransport
         }
 
         return targetUri.Host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private AuthenticationHeaderValue? BuildAuthorization()
-    {
-        if (string.IsNullOrWhiteSpace(_options.Token))
-        {
-            return null;
-        }
-
-        return new AuthenticationHeaderValue("Bearer", _options.Token);
     }
 
     private static string EnsureTrailingSlash(string value)
@@ -183,5 +217,12 @@ public sealed class ProxyTransport : IApiTransport
         public int TimeoutSeconds { get; init; }
         public bool UseCache { get; init; }
         public int? CacheDurationSeconds { get; init; }
+    }
+
+    private sealed class CmsxProxyResponse
+    {
+        public int StatusCode { get; init; }
+        public string? ReasonPhrase { get; init; }
+        public string? Body { get; init; }
     }
 }
