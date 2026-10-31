@@ -1971,4 +1971,18 @@
   <data name="VnIndexAnalysis.AiAssessmentTitle" xml:space="preserve"><value>Nhận định AI</value></data>
   <data name="VnIndexAnalysis.GetAiAssessment" xml:space="preserve"><value>Nhận định bằng AI</value></data>
   <data name="VnIndexAnalysis.AiAssessmentLoadFailed" xml:space="preserve"><value>Không thể tạo nhận định AI.</value></data>
+  <data name="Menu.CmsxProxyTester" xml:space="preserve"><value>Kiểm tra CMSX Proxy</value></data>
+  <data name="CmsxProxyTester.Description" xml:space="preserve"><value>Gửi HTTP request qua CMSX proxy đã cấu hình và kiểm tra phản hồi từ proxy lẫn máy chủ đích.</value></data>
+  <data name="CmsxProxyTester.SecurityNotice" xml:space="preserve"><value>Chỉ chấp nhận URL HTTP/HTTPS công khai. Request giới hạn 64 KB và response 1 MB. Tránh gửi thông tin bí mật nếu không cần thiết.</value></data>
+  <data name="CmsxProxyTester.Method" xml:space="preserve"><value>Phương thức HTTP</value></data>
+  <data name="CmsxProxyTester.TargetUrl" xml:space="preserve"><value>URL đích</value></data>
+  <data name="CmsxProxyTester.HeadersJson" xml:space="preserve"><value>Headers (đối tượng JSON)</value></data>
+  <data name="CmsxProxyTester.QueryJson" xml:space="preserve"><value>Query parameters (đối tượng JSON)</value></data>
+  <data name="CmsxProxyTester.RequestBody" xml:space="preserve"><value>Request body</value></data>
+  <data name="CmsxProxyTester.TimeoutSeconds" xml:space="preserve"><value>Timeout (giây)</value></data>
+  <data name="CmsxProxyTester.Send" xml:space="preserve"><value>Gửi request</value></data>
+  <data name="CmsxProxyTester.Response" xml:space="preserve"><value>Phản hồi proxy</value></data>
+  <data name="CmsxProxyTester.InvalidJson" xml:space="preserve"><value>JSON không hợp lệ</value></data>
+  <data name="CmsxProxyTester.InvalidJsonDetails" xml:space="preserve"><value>Headers và query parameters phải là đối tượng JSON hợp lệ.</value></data>
+  <data name="CmsxProxyTester.RequestFailed" xml:space="preserve"><value>Request thất bại</value></data>
 </root>

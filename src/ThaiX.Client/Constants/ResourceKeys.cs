@@ -58,6 +58,7 @@ public static class ResourceKeys
         public const string CommandTester = "Menu.CommandTester";
         public const string NotificationSender = "Menu.NotificationSender";
         public const string AiTester = "Menu.AiTester";
+        public const string CmsxProxyTester = "Menu.CmsxProxyTester";
         public const string Portfolios = "Menu.Portfolios";
         public const string ExpenseTracker = "Menu.ExpenseTracker";
         public const string ApiClients = "Menu.ApiClients";
@@ -73,6 +74,24 @@ public static class ResourceKeys
         public const string JsonBins = "Menu.JsonBins";
         public const string PublicHtmlPages = "Menu.PublicHtmlPages";
         public const string Tools = "Menu.Tools";
+    }
+
+
+    public static class CmsxProxyTester
+    {
+        public const string Description = "CmsxProxyTester.Description";
+        public const string SecurityNotice = "CmsxProxyTester.SecurityNotice";
+        public const string Method = "CmsxProxyTester.Method";
+        public const string TargetUrl = "CmsxProxyTester.TargetUrl";
+        public const string HeadersJson = "CmsxProxyTester.HeadersJson";
+        public const string QueryJson = "CmsxProxyTester.QueryJson";
+        public const string RequestBody = "CmsxProxyTester.RequestBody";
+        public const string TimeoutSeconds = "CmsxProxyTester.TimeoutSeconds";
+        public const string Send = "CmsxProxyTester.Send";
+        public const string Response = "CmsxProxyTester.Response";
+        public const string InvalidJson = "CmsxProxyTester.InvalidJson";
+        public const string InvalidJsonDetails = "CmsxProxyTester.InvalidJsonDetails";
+        public const string RequestFailed = "CmsxProxyTester.RequestFailed";
     }
 
     public static class PublicHtmlPages
