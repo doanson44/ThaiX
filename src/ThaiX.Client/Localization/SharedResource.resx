@@ -1972,4 +1972,18 @@
   <data name="VnIndexAnalysis.AiAssessmentTitle" xml:space="preserve"><value>AI assessment</value></data>
   <data name="VnIndexAnalysis.GetAiAssessment" xml:space="preserve"><value>Get AI assessment</value></data>
   <data name="VnIndexAnalysis.AiAssessmentLoadFailed" xml:space="preserve"><value>Unable to generate the AI assessment.</value></data>
+  <data name="Menu.CmsxProxyTester" xml:space="preserve"><value>CMSX Proxy Tester</value></data>
+  <data name="CmsxProxyTester.Description" xml:space="preserve"><value>Send HTTP requests through the configured CMSX proxy and inspect both proxy and target responses.</value></data>
+  <data name="CmsxProxyTester.SecurityNotice" xml:space="preserve"><value>Only public HTTP/HTTPS targets are accepted. Requests are limited to 64 KB and responses to 1 MB. Avoid sending secrets unless required for the test.</value></data>
+  <data name="CmsxProxyTester.Method" xml:space="preserve"><value>HTTP method</value></data>
+  <data name="CmsxProxyTester.TargetUrl" xml:space="preserve"><value>Target URL</value></data>
+  <data name="CmsxProxyTester.HeadersJson" xml:space="preserve"><value>Headers (JSON object)</value></data>
+  <data name="CmsxProxyTester.QueryJson" xml:space="preserve"><value>Query parameters (JSON object)</value></data>
+  <data name="CmsxProxyTester.RequestBody" xml:space="preserve"><value>Request body</value></data>
+  <data name="CmsxProxyTester.TimeoutSeconds" xml:space="preserve"><value>Timeout (seconds)</value></data>
+  <data name="CmsxProxyTester.Send" xml:space="preserve"><value>Send request</value></data>
+  <data name="CmsxProxyTester.Response" xml:space="preserve"><value>Proxy response</value></data>
+  <data name="CmsxProxyTester.InvalidJson" xml:space="preserve"><value>Invalid JSON</value></data>
+  <data name="CmsxProxyTester.InvalidJsonDetails" xml:space="preserve"><value>Headers and query parameters must be valid JSON objects.</value></data>
+  <data name="CmsxProxyTester.RequestFailed" xml:space="preserve"><value>Request failed</value></data>
 </root>

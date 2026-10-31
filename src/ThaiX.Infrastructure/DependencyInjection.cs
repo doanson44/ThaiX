@@ -225,6 +225,7 @@ public static class DependencyInjection
         .AddHttpMessageHandler<ExternalApiResilienceHandler>();
 
         services
+            .AddScoped<ICmsxProxyDiagnosticService, CmsxProxyDiagnosticService>()
             .AddScoped<IApiTransport, ApiTransportRouter>()
             .AddScoped<ExternalApiService>()
             .AddScoped<CafeFApiProvider>()

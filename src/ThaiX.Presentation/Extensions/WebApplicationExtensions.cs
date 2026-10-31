@@ -236,6 +236,7 @@ public static class WebApplicationExtensions
         app.MapContactEndpoints();
         app.MapFileEndpoints();
         app.MapExternalDataEndpoints();
+        app.MapCmsxProxyTesterEndpoints();
         app.MapAiEndpoints();
         app.MapSlackEndpoints();
         app.MapTelegramEndpoints();

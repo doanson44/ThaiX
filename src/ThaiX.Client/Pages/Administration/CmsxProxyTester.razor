@@ -1,0 +1,145 @@
+@page "/admin/cmsx-proxy-tester"
+@attribute [Authorize(Policy = PermissionNames.SystemAdmin)]
+@using System.Net.Http.Json
+@using System.Text.Json
+@inject HttpClient Http
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+@using RK = ThaiX.Client.Constants.ResourceKeys
+
+<PageTitle>@L[RK.Menu.CmsxProxyTester] - ThaiX</PageTitle>
+
+<div class="container-fluid py-2">
+    <RadzenStack Gap="1rem">
+        <RadzenCard Class="w-100">
+            <RadzenStack Gap="0.75rem">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" Class="mb-0">@L[RK.Menu.CmsxProxyTester]</RadzenText>
+                <RadzenText Class="text-muted">@L[RK.CmsxProxyTester.Description]</RadzenText>
+
+                <div class="alert alert-warning mb-0" role="alert">
+                    @L[RK.CmsxProxyTester.SecurityNotice]
+                </div>
+
+                <EditForm Model="@_form" OnSubmit="@(_ => RunAsync())">
+                    <RadzenStack Gap="0.75rem">
+                        <RadzenRow Gap="1rem" RowGap="0.75rem">
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenFormField Text="@L[RK.CmsxProxyTester.Method]" Class="w-100">
+                                    <RadzenDropDown @bind-Value="_form.Method" Data="@_methods" Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="9">
+                                <RadzenFormField Text="@L[RK.CmsxProxyTester.TargetUrl]" Class="w-100">
+                                    <RadzenTextBox @bind-Value="_form.Url" Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <RadzenRow Gap="1rem" RowGap="0.75rem">
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenFormField Text="@L[RK.CmsxProxyTester.HeadersJson]" Class="w-100">
+                                    <RadzenTextArea @bind-Value="_form.HeadersJson" Rows="6" Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenFormField Text="@L[RK.CmsxProxyTester.QueryJson]" Class="w-100">
+                                    <RadzenTextArea @bind-Value="_form.QueryJson" Rows="6" Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                        </RadzenRow>
+
+                        <RadzenFormField Text="@L[RK.CmsxProxyTester.RequestBody]" Class="w-100">
+                            <RadzenTextArea @bind-Value="_form.Body" Rows="6" Class="w-100" />
+                        </RadzenFormField>
+
+                        <RadzenRow AlignItems="AlignItems.End" Gap="1rem">
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenFormField Text="@L[RK.CmsxProxyTester.TimeoutSeconds]" Class="w-100">
+                                    <RadzenNumeric @bind-Value="_form.TimeoutSeconds" Min="1" Max="60" Class="w-100" />
+                                </RadzenFormField>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="9">
+                                <RadzenButton ButtonType="ButtonType.Submit"
+                                              Text="@L[RK.CmsxProxyTester.Send]"
+                                              Icon="send"
+                                              IsBusy="@_isSending"
+                                              Disabled="@_isSending" />
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
+                </EditForm>
+            </RadzenStack>
+        </RadzenCard>
+
+        @if (!string.IsNullOrWhiteSpace(_result))
+        {
+            <RadzenCard Class="w-100">
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.H6">@L[RK.CmsxProxyTester.Response]</RadzenText>
+                    <RadzenText Class="text-muted">@_status</RadzenText>
+                    <pre class="border rounded p-3 mb-0 text-break" style="white-space:pre-wrap;overflow-wrap:anywhere">@_result</pre>
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </RadzenStack>
+</div>
+
+@code {
+    private static readonly string[] _methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"];
+    private readonly TestForm _form = new();
+    private bool _isSending;
+    private string? _status;
+    private string? _result;
+
+    private async Task RunAsync()
+    {
+        _isSending = true;
+        _status = null;
+        _result = null;
+
+        try
+        {
+            var headers = JsonSerializer.Deserialize<Dictionary<string, string>>(_form.HeadersJson) ?? [];
+            var query = JsonSerializer.Deserialize<Dictionary<string, string>>(_form.QueryJson) ?? [];
+            var request = new
+            {
+                url = _form.Url,
+                method = _form.Method,
+                headers,
+                queryParameters = query,
+                body = _form.Body,
+                timeoutSeconds = _form.TimeoutSeconds
+            };
+
+            using var response = await Http.PostAsJsonAsync("api/developer-tools/cmsx-proxy/test", request);
+            var content = await response.Content.ReadAsStringAsync();
+            using var document = JsonDocument.Parse(content);
+            _status = $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}";
+            _result = JsonSerializer.Serialize(document.RootElement, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (JsonException)
+        {
+            _status = L[RK.CmsxProxyTester.InvalidJson];
+            _result = L[RK.CmsxProxyTester.InvalidJsonDetails];
+        }
+        catch (Exception exception)
+        {
+            _status = L[RK.CmsxProxyTester.RequestFailed];
+            _result = exception.Message;
+        }
+        finally
+        {
+            _isSending = false;
+        }
+    }
+
+    private sealed class TestForm
+    {
+        public string Method { get; set; } = "GET";
+        public string Url { get; set; } = "https://httpbin.org/get";
+        public string HeadersJson { get; set; } = "{\n  \"Accept\": \"application/json\"\n}";
+        public string QueryJson { get; set; } = "{}";
+        public string? Body { get; set; }
+        public int TimeoutSeconds { get; set; } = 30;
+    }
+}
