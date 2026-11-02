@@ -154,8 +154,8 @@
     private MarketAnalysisCardDto CreateVixCard()
     {
         var data = _marketDashboard!.Vix!;
-        var change = data.CurrentPrice.HasValue && data.PreviousClose.HasValue
-            ? data.CurrentPrice.Value - data.PreviousClose.Value
+        var change = data.CurrentValue.HasValue && data.PreviousClose.HasValue
+            ? data.CurrentValue.Value - data.PreviousClose.Value
             : (decimal?)null;
         var changePct = data.PreviousClose is > 0m && change.HasValue
             ? change.Value / data.PreviousClose.Value * 100m
@@ -257,6 +257,9 @@
             EmaFast = data.Ema9,
             EmaMedium = data.Ema21,
             EmaSlow = data.Ema50,
+            EmaFastLabel = L[RK.BitcoinMarket.Ema9],
+            EmaMediumLabel = L[RK.BitcoinMarket.Ema21],
+            EmaSlowLabel = L[RK.BitcoinMarket.Ema50],
             Rsi14 = data.Rsi14,
             Atr14 = data.Atr14,
             AverageVolume20 = data.AverageVolume20,
