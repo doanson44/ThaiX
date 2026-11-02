@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components
 @using ThaiX.Client.Localization
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.ExternalData
@@ -5,6 +6,7 @@
 @inject IExternalDataService ExternalDataService
 @inject IStringLocalizer<SharedResource> L
 @inherits ThaiXPageBase
+
 @implements IDisposable
 
 <RadzenCard Class="h-100 w-100">
@@ -168,6 +170,7 @@
 </RadzenCard>
 
 @code {
+    [Parameter] public EventCallback OnDataLoaded { get; set; }
     private MexcGoldAnalysisResponseDto? _data;
 
     public MexcGoldAnalysisResponseDto? Data => _data;
@@ -196,6 +199,8 @@
         {
             _isLoading = false;
         }
+
+        await OnDataLoaded.InvokeAsync();
     }
 
     private BadgeStyle SignalBadgeStyle => _data?.Signal switch

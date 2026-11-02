@@ -1,11 +1,13 @@
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.ExternalData
+@using Microsoft.AspNetCore.Components
 @using ThaiX.Client.Localization
 @using Microsoft.Extensions.Localization
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @inject IExternalDataService ExternalDataService
 @inject IStringLocalizer<SharedResource> L
 @inherits ThaiXPageBase
+
 
 <RadzenCard Class="h-100 w-100">
     <RadzenStack Gap="0.75rem">
@@ -121,7 +123,7 @@
     
                         @if (_analysis.Signal is "Long" or "Short")
                         {
-                            <RadzenCard Class="p-3" Style="border: 1px solid var(--rz-border-color);">
+                            <div class="rounded border p-3">
                                 <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">@L[RK.VnIndexAnalysis.TradePlan]</RadzenText>
                                 <RadzenRow>
                                     <RadzenColumn Size="6" SizeMD="3">
@@ -141,7 +143,7 @@
                                         <RadzenText TextStyle="TextStyle.Body2">@FormatValue(_analysis.TakeProfit2)</RadzenText>
                                     </RadzenColumn>
                                 </RadzenRow>
-                            </RadzenCard>
+                            </div>
                         }
                         else
                         {
@@ -155,6 +157,7 @@
 </RadzenCard>
 
 @code {
+    [Parameter] public EventCallback OnDataLoaded { get; set; }
     private VnIndexAnalysisResponseDto? _analysis;
     private bool _isLoading;
 
@@ -177,6 +180,8 @@
         {
             _isLoading = false;
         }
+
+        await OnDataLoaded.InvokeAsync();
     }
 
     private BadgeStyle SignalBadgeStyle => _analysis?.Signal switch

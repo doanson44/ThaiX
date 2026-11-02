@@ -46,19 +46,19 @@
 <RadzenStack Gap="1rem" class="mt-4">
     <RadzenRow class="align-items-stretch g-3">
         <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <VixAnalysisWidget @ref="_vixWidget" />
+            <VixAnalysisWidget @ref="_vixWidget" OnDataLoaded="OnMarketDataLoaded" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <VnIndexAnalysisWidget @ref="_vnIndexWidget" />
+            <VnIndexAnalysisWidget @ref="_vnIndexWidget" OnDataLoaded="OnMarketDataLoaded" />
         </RadzenColumn>
     </RadzenRow>
 
     <RadzenRow class="align-items-stretch g-3">
         <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <BitcoinAnalysisWidget @ref="_bitcoinWidget" />
+            <BitcoinAnalysisWidget @ref="_bitcoinWidget" OnDataLoaded="OnMarketDataLoaded" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <MexcGoldWidget @ref="_goldWidget" />
+            <MexcGoldWidget @ref="_goldWidget" OnDataLoaded="OnMarketDataLoaded" />
         </RadzenColumn>
     </RadzenRow>
 
@@ -114,6 +114,12 @@
     private CombinedMarketAssessmentResponseDto? _aiAssessment;
     private string? _aiAssessmentError;
     private bool _isLoadingAiAssessment;
+
+    private Task OnMarketDataLoaded()
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
     private bool CanGetAiAssessment =>
         _vixWidget?.Data is { Success: true } &&

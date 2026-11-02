@@ -1,11 +1,13 @@
 @using ThaiX.Client.Models.ExternalData
 @using ThaiX.Client.Services.ExternalData
+@using Microsoft.AspNetCore.Components
 @using ThaiX.Client.Localization
 @using Microsoft.Extensions.Localization
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @inject IExternalDataService ExternalDataService
 @inject IStringLocalizer<SharedResource> L
 @inherits ThaiXPageBase
+
 
 <RadzenCard Class="h-100 w-100">
     @if (_isLoading)
@@ -96,10 +98,10 @@
             @* E. Macro Mapping *@
             <RadzenRow>
                 <RadzenColumn Size="6">
-                    <RadzenCard class="p-2 h-100" Style="border: 1px solid var(--rz-border-color);">
+                    <div class="rounded border p-2 h-100">
                         <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-1">@L[RK.Vix.Liquidity]</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2"><strong>@RegimeLiquidity</strong></RadzenText>
-                    </RadzenCard>
+                    </div>
                 </RadzenColumn>
                 <RadzenColumn Size="6">
                     <RadzenCard class="p-2 h-100" Style="border: 1px solid var(--rz-border-color);">
@@ -120,6 +122,7 @@
 </RadzenCard>
 
 @code {
+    [Parameter] public EventCallback OnDataLoaded { get; set; }
     private VixResponseDto? _data;
     private bool _isLoading;
 
@@ -142,6 +145,8 @@
         {
             _isLoading = false;
         }
+
+        await OnDataLoaded.InvokeAsync();
     }
 
     private BadgeStyle RegimeBadgeStyle => _data?.Regime switch

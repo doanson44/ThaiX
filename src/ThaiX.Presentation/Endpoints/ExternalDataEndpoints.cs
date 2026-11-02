@@ -1665,8 +1665,8 @@ public sealed record CombinedMarketAssessmentRequest
 {
     public required GetVixVerdictRequest Vix { get; init; }
     public required GetInvestingVnIndexVerdictRequest VnIndex { get; init; }
-    public required GetBitcoinMarketAssessmentRequest Bitcoin { get; init; }
-    public required GetGoldMarketAssessmentRequest Gold { get; init; }
+    public GetBitcoinMarketAssessmentRequest Bitcoin { get; init; } = new();
+    public GetGoldMarketAssessmentRequest Gold { get; init; } = new();
 }
 
 public sealed record GetBitcoinMarketAssessmentRequest
