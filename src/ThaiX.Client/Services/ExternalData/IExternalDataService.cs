@@ -20,6 +20,7 @@ public interface IExternalDataService
     Task<ApiResponse<VixResponseDto>> GetYahooFinanceVixAsync(CancellationToken cancellationToken = default);
     Task<VixVerdictDto> GetVixVerdictAsync(GetVixVerdictRequest request, CancellationToken cancellationToken = default);
     Task<ApiResponse<VnDirectChangePricesResponseDto>> GetVnDirectChangePricesAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<MexcGoldAnalysisResponseDto>> GetMexcGoldAnalysisAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<VnIndexAnalysisResponseDto>> GetInvestingVnIndexAnalysisAsync(CancellationToken cancellationToken = default);
     Task<VnIndexVerdictResponseDto> GetInvestingVnIndexVerdictAsync(GetVnIndexVerdictRequestDto request, CancellationToken cancellationToken = default);
     Task<CombinedMarketAssessmentResponseDto> GetCombinedMarketAssessmentAsync(CombinedMarketAssessmentRequestDto request, CancellationToken cancellationToken = default);
