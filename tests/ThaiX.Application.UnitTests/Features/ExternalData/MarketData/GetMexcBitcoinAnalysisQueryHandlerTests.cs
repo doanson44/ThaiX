@@ -142,7 +142,7 @@ public sealed class GetMexcBitcoinAnalysisQueryHandlerTests
         var startTime = DateTimeOffset.FromUnixTimeMilliseconds(1_700_000_000_000);
         for (var i = 0; i < count; i++)
         {
-            var open = 60000m + i;
+            var open = 63500m + i;
             var close = open + 1m;
             var high = close + 100m;
             var low = open - 100m;
