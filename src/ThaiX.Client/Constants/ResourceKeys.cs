@@ -180,6 +180,11 @@ public static class ResourceKeys
         public const string TakeProfit2 = "GoldMarket.TakeProfit2";
     }
 
+    public static class MarketDashboard
+    {
+        public const string LoadFailed = "MarketDashboard.LoadFailed";
+    }
+
     public static class BitcoinMarket
     {
         public const string Title = "BitcoinMarket.Title";
