@@ -395,14 +395,14 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
 
         if (!string.IsNullOrWhiteSpace(message.Title))
         {
-            builder.Append($"<b>{EscapeHtml(message.Title.Trim())}</b>\\n");
+            builder.Append($"<b>{EscapeHtml(message.Title.Trim())}</b>\n");
         }
 
-        builder.Append($"Severity: {EscapeHtml(message.Severity.ToString())}\\n");
+        builder.Append($"Severity: {EscapeHtml(message.Severity.ToString())}\n");
 
         if (builder.Length > 0)
         {
-            builder.Append('\\n');
+            builder.Append('\n');
         }
 
         builder.Append(EscapeHtml(message.Text.Trim()));
