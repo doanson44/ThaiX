@@ -1,3 +1,4 @@
+using MediatR;
 using System.Globalization;
 using System.Text.Json;
 using ThaiX.Application.Common.Interfaces;
@@ -49,8 +50,8 @@ public sealed class GetMexcGoldAnalysisQueryHandler(IExternalDataService externa
             Low = latest.Low,
             Volume = latest.Volume,
             QuoteVolume = latest.QuoteVolume,
-            LastUpdated = DateTimeOffset.FromUnixTimeMilliseconds(latest.CloseTime)
-                .ToString("yyyy-MM-dd HH:mm 'UTC'", CultureInfo.InvariantCulture),
+            LastUpdated = DateTimeOffset.FromUnixTimeMilliseconds(latest.OpenTime)
+                .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             Message = "Success",
             Success = true
         };
