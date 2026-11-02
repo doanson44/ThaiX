@@ -706,3 +706,54 @@ public sealed record CombinedMarketAssessmentResponseDto
 {
     public string Commentary { get; init; } = string.Empty;
 }
+
+
+public sealed record GetBitcoinMarketAssessmentRequestDto
+{
+    public string Symbol { get; init; } = "BTCUSDT";
+    public decimal Price { get; init; }
+    public decimal ChangePct { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+    public decimal? Entry { get; init; }
+    public decimal? StopLoss { get; init; }
+    public decimal? TakeProfit1 { get; init; }
+    public decimal? TakeProfit2 { get; init; }
+}
+
+public sealed record GetGoldMarketAssessmentRequestDto
+{
+    public string Symbol { get; init; } = "XAUTUSDT";
+    public decimal Price { get; init; }
+    public decimal ChangePct { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+    public decimal? Entry { get; init; }
+    public decimal? StopLoss { get; init; }
+    public decimal? TakeProfit1 { get; init; }
+    public decimal? TakeProfit2 { get; init; }
+}

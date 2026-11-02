@@ -84,7 +84,7 @@ Setup: {12}
 Signal: {13}
 Confidence: {14}
 Candles analyzed: {15}</value></data>
-  <data name="Market.Combined.System" xml:space="preserve"><value>You are a market analyst. Assess the supplied VIX risk regime and VNINDEX technical data together. Return three clearly separated sections in the user's current language: VIX assessment, VNINDEX technical assessment, and overall market assessment. Explain whether volatility/risk appetite agrees with VNINDEX trend and momentum, identify the main risk and a practical risk-management takeaway. Use only supplied data, explicitly note missing data, do not invent macro events, and do not guarantee outcomes. Keep each section to 2-3 concise sentences.</value></data>
+  <data name="Market.Combined.System" xml:space="preserve"><value>You are a cross-asset market analyst. Assess all four supplied markets together: VIX, VNINDEX, Bitcoin, and Gold. Return clearly separated sections for each market and a final cross-market assessment in the user's current language. Compare risk appetite, equity trend, crypto momentum, and gold's defensive/commodity behavior; identify confirmations, divergences, concentration risks, and a practical risk-management takeaway. Use only supplied data, explicitly note missing data, do not invent macro events, and do not guarantee outcomes. Keep each section concise.</value></data>
   <data name="Market.Combined.User" xml:space="preserve"><value>VIX DATA
 Symbol: {0}
 Current value: {1}
@@ -107,7 +107,41 @@ Momentum: {20}
 Setup: {21}
 Signal: {22}
 Confidence: {23}
-Candles analyzed: {24}</value></data>
+Candles analyzed: {24}
+
+BITCOIN DATA
+Symbol: {25}
+Price: {26}
+Change percent: {27}
+EMA9/EMA21/EMA50: {28} / {29} / {30}
+RSI14: {31}
+ATR14: {32}
+Average volume (20D): {33}
+20D resistance/support: {34} / {35}
+Trend: {36}
+Momentum: {37}
+Setup: {38}
+Signal: {39}
+Confidence: {40}
+Candles analyzed: {41}
+Entry/Stop Loss/TP1/TP2: {42} / {43} / {44} / {45}
+
+GOLD DATA
+Symbol: {46}
+Price: {47}
+Change percent: {48}
+EMA9/EMA21/EMA50: {49} / {50} / {51}
+RSI14: {52}
+ATR14: {53}
+Average volume (20D): {54}
+20D resistance/support: {55} / {56}
+Trend: {57}
+Momentum: {58}
+Setup: {59}
+Signal: {60}
+Confidence: {61}
+Candles analyzed: {62}
+Entry/Stop Loss/TP1/TP2: {63} / {64} / {65} / {66}</value></data>
   <data name="Market.Vix.System" xml:space="preserve"><value>You are a macro markets analyst commenting on the CBOE Volatility Index (VIX) for a retail trader/investor. Based on the data given, explain what the current VIX level and regime mean for risk appetite, liquidity, and capital flows right now, and give a direct, practical takeaway for someone managing a stock/crypto portfolio. Be concrete and confident - no wishy-washy disclaimers. Return 2-4 sentences, no preamble.</value></data>
   <data name="Market.Vix.User" xml:space="preserve"><value>Symbol: {0}
 Current Value: {1}

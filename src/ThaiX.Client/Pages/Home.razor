@@ -1,7 +1,10 @@
 @page "/"
 @using ThaiX.Client.Components.MarketData.Dashboard
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
 @inject Microsoft.Extensions.Localization.IStringLocalizer<ThaiX.Client.Localization.SharedResource> L
 @inject NavigationManager Navigation
+@inject IExternalDataService ExternalDataService
 @using RK = ThaiX.Client.Constants.ResourceKeys
 <PageTitle>@L[RK.Menu.Home] - ThaiX</PageTitle>
 
@@ -15,18 +18,12 @@
                 <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat">
                     @L[RK.HomePage.AuthenticatedAs] @auth.User.FindFirst("email")?.Value
                 </RadzenAlert>
-
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                    <RadzenButton Text="@L[RK.Menu.Profile]"
-                                  Icon="account_circle"
-                                  ButtonStyle="ButtonStyle.Primary"
+                    <RadzenButton Text="@L[RK.Menu.Profile]" Icon="account_circle" ButtonStyle="ButtonStyle.Primary"
                                   Click="@(() => Navigation.NavigateTo("/account/profile"))" />
-
                     @if (auth.User.HasClaim("scope", PermissionNames.UserRead))
                     {
-                        <RadzenButton Text="@L[RK.Menu.Users]"
-                                      Icon="groups"
-                                      ButtonStyle="ButtonStyle.Info"
+                        <RadzenButton Text="@L[RK.Menu.Users]" Icon="groups" ButtonStyle="ButtonStyle.Info"
                                       Click="@(() => Navigation.NavigateTo("/admin/users"))" />
                     }
                 </RadzenStack>
@@ -36,13 +33,9 @@
                     @L[RK.HomePage.NotAuthenticated]
                 </RadzenAlert>
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                    <RadzenButton Text="@L[RK.Menu.Login]"
-                                  Icon="login"
-                                  ButtonStyle="ButtonStyle.Primary"
+                    <RadzenButton Text="@L[RK.Menu.Login]" Icon="login" ButtonStyle="ButtonStyle.Primary"
                                   Click="@(() => Navigation.NavigateTo("/auth/login"))" />
-                    <RadzenButton Text="@L[RK.Menu.Register]"
-                                  Icon="person_add"
-                                  ButtonStyle="ButtonStyle.Light"
+                    <RadzenButton Text="@L[RK.Menu.Register]" Icon="person_add" ButtonStyle="ButtonStyle.Light"
                                   Click="@(() => Navigation.NavigateTo("/auth/register"))" />
                 </RadzenStack>
             </NotAuthorized>
@@ -50,29 +43,190 @@
     </RadzenStack>
 </RadzenCard>
 
-<div class="mt-4">
-    <RadzenStack Gap="1rem">
-        <RadzenRow class="align-items-stretch">
-            <RadzenColumn Size="12" SizeMD="6" class="d-flex">
-                <VixAnalysisWidget />
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6" class="d-flex">
-                <VnDirectChangePricesWidget />
-            </RadzenColumn>
-        </RadzenRow>
-        <RadzenRow class="align-items-stretch">
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="3" class="d-flex">
-                <CommoditiesWidget />
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="3" class="d-flex">
-                <CurrenciesWidget />
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="3" class="d-flex">
-                <BitcoinAnalysisWidget />
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="3" class="d-flex">
-                <MexcGoldWidget />
-            </RadzenColumn>
-        </RadzenRow>
-    </RadzenStack>
-</div>
+<RadzenStack Gap="1rem" class="mt-4">
+    <RadzenRow class="align-items-stretch g-3">
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+            <VixAnalysisWidget @ref="_vixWidget" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+            <VnIndexAnalysisWidget @ref="_vnIndexWidget" />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow class="align-items-stretch g-3">
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+            <BitcoinAnalysisWidget @ref="_bitcoinWidget" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+            <MexcGoldWidget @ref="_goldWidget" />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <AuthorizeView>
+        <Authorized>
+            <RadzenCard>
+                <RadzenStack Gap="1rem">
+                    <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H2" Class="mb-0">
+                        @L[RK.Vix.AiAssessmentTitle]
+                    </RadzenText>
+                    <RadzenButton Text="@L[RK.Vix.GetAiAssessment]" Icon="auto_awesome"
+                                  ButtonStyle="ButtonStyle.Primary" Click="GetAiAssessmentAsync"
+                                  Disabled="@(!CanGetAiAssessment || _isLoadingAiAssessment)" />
+                    @if (_isLoadingAiAssessment)
+                    {
+                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+                    }
+                    else if (!string.IsNullOrWhiteSpace(_aiAssessmentError))
+                    {
+                        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            @_aiAssessmentError
+                        </RadzenAlert>
+                    }
+                    else if (_aiAssessment is not null)
+                    {
+                        <RadzenText TextStyle="TextStyle.Body1" Style="white-space: pre-line">
+                            @_aiAssessment.Commentary
+                        </RadzenText>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        </Authorized>
+    </AuthorizeView>
+
+    <RadzenRow class="align-items-stretch g-3">
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="4" class="d-flex">
+            <VnDirectChangePricesWidget />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="4" class="d-flex">
+            <CommoditiesWidget />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="4" class="d-flex">
+            <CurrenciesWidget />
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@code {
+    private VixAnalysisWidget? _vixWidget;
+    private VnIndexAnalysisWidget? _vnIndexWidget;
+    private BitcoinAnalysisWidget? _bitcoinWidget;
+    private MexcGoldWidget? _goldWidget;
+    private CombinedMarketAssessmentResponseDto? _aiAssessment;
+    private string? _aiAssessmentError;
+    private bool _isLoadingAiAssessment;
+
+    private bool CanGetAiAssessment =>
+        _vixWidget?.Data is { Success: true } &&
+        _vnIndexWidget?.Data is { Success: true } &&
+        _bitcoinWidget?.Data is { Success: true } &&
+        _goldWidget?.Data is { Success: true };
+
+    private async Task GetAiAssessmentAsync()
+    {
+        var vix = _vixWidget?.Data;
+        var vnIndex = _vnIndexWidget?.Data;
+        var bitcoin = _bitcoinWidget?.Data;
+        var gold = _goldWidget?.Data;
+
+        if (vix is not { Success: true } || vnIndex is not { Success: true } ||
+            bitcoin is not { Success: true } || gold is not { Success: true } || _isLoadingAiAssessment)
+            return;
+
+        _isLoadingAiAssessment = true;
+        _aiAssessment = null;
+        _aiAssessmentError = null;
+        try
+        {
+            _aiAssessment = await ExternalDataService.GetCombinedMarketAssessmentAsync(new CombinedMarketAssessmentRequestDto
+            {
+                Vix = new GetVixVerdictRequest
+                {
+                    Symbol = vix.Symbol,
+                    CurrentValue = vix.CurrentValue,
+                    Ema10 = vix.Ema10,
+                    Ema20 = vix.Ema20,
+                    Momentum3D = vix.Momentum3D,
+                    Momentum5D = vix.Momentum5D,
+                    Percentile = vix.Percentile,
+                    IsSpike = vix.IsSpike,
+                    Regime = vix.Regime
+                },
+                VnIndex = new GetVnIndexVerdictRequestDto
+                {
+                    Symbol = vnIndex.Symbol,
+                    Close = vnIndex.Close,
+                    Ema9 = vnIndex.Ema9,
+                    Ema21 = vnIndex.Ema21,
+                    Ema50 = vnIndex.Ema50,
+                    Rsi14 = vnIndex.Rsi14,
+                    Atr14 = vnIndex.Atr14,
+                    AverageVolume20 = vnIndex.AverageVolume20,
+                    HighestHigh20 = vnIndex.HighestHigh20,
+                    LowestLow20 = vnIndex.LowestLow20,
+                    Trend = vnIndex.Trend,
+                    Momentum = vnIndex.Momentum,
+                    Setup = vnIndex.Setup,
+                    Signal = vnIndex.Signal,
+                    Confidence = vnIndex.Confidence,
+                    HistoryCount = vnIndex.HistoryCount
+                },
+                Bitcoin = new GetBitcoinMarketAssessmentRequestDto
+                {
+                    Symbol = bitcoin.Symbol,
+                    Price = bitcoin.Price,
+                    ChangePct = bitcoin.ChangePct,
+                    Ema9 = bitcoin.Ema9,
+                    Ema21 = bitcoin.Ema21,
+                    Ema50 = bitcoin.Ema50,
+                    Rsi14 = bitcoin.Rsi14,
+                    Atr14 = bitcoin.Atr14,
+                    AverageVolume20 = bitcoin.AverageVolume20,
+                    HighestHigh20 = bitcoin.HighestHigh20,
+                    LowestLow20 = bitcoin.LowestLow20,
+                    Trend = bitcoin.Trend,
+                    Momentum = bitcoin.Momentum,
+                    Setup = bitcoin.Setup,
+                    Signal = bitcoin.Signal,
+                    Confidence = bitcoin.Confidence,
+                    HistoryCount = bitcoin.HistoryCount,
+                    Entry = bitcoin.Entry,
+                    StopLoss = bitcoin.StopLoss,
+                    TakeProfit1 = bitcoin.TakeProfit1,
+                    TakeProfit2 = bitcoin.TakeProfit2
+                },
+                Gold = new GetGoldMarketAssessmentRequestDto
+                {
+                    Symbol = gold.Symbol,
+                    Price = gold.Price,
+                    ChangePct = gold.ChangePct,
+                    Ema9 = gold.Ema9,
+                    Ema21 = gold.Ema21,
+                    Ema50 = gold.Ema50,
+                    Rsi14 = gold.Rsi14,
+                    Atr14 = gold.Atr14,
+                    AverageVolume20 = gold.AverageVolume20,
+                    HighestHigh20 = gold.HighestHigh20,
+                    LowestLow20 = gold.LowestLow20,
+                    Trend = gold.Trend,
+                    Momentum = gold.Momentum,
+                    Setup = gold.Setup,
+                    Signal = gold.Signal,
+                    Confidence = gold.Confidence,
+                    HistoryCount = gold.HistoryCount,
+                    Entry = gold.Entry,
+                    StopLoss = gold.StopLoss,
+                    TakeProfit1 = gold.TakeProfit1,
+                    TakeProfit2 = gold.TakeProfit2
+                }
+            });
+        }
+        catch
+        {
+            _aiAssessmentError = L[RK.Vix.AiAssessmentLoadFailed];
+        }
+        finally
+        {
+            _isLoadingAiAssessment = false;
+        }
+    }
+}
