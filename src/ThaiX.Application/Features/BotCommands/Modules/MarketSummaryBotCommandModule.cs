@@ -5,6 +5,7 @@ using ThaiX.Application.Common.Models;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
 using ThaiX.Domain.Common.Constants;
 
@@ -17,7 +18,7 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
         Name = "market-summary",
         Aliases = ["market-today", "vn-market", "tong-hop-thi-truong"],
         Syntax = "/market-summary",
-        Description = "Summarize Vietnam market conditions using VIX, VNINDEX technical indicators, and MEXC gold data.",
+        Description = "Summarize broad market conditions using VIX, VNINDEX technical indicators, MEXC gold, and BTC spot market data.",
         Category = BotCommandCategory.TechnicalAnalysis,
         RequiredPermissions = [Permissions.TradingView],
         SupportsAsync = false
@@ -49,21 +50,26 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             new GetYahooFinanceVixQuery(),
             ex => new YahooFinanceVixResponse { Symbol = "^VIX", Success = false, Message = ex.Message },
             cancellationToken);
+        var btcTask = SendSafelyAsync(
+            new GetMexcSpotTicker24HrBySymbolQuery { Symbol = "BTCUSDT" },
+            ex => new MexcSpotTicker24HrBySymbolResponse { Symbol = "BTCUSDT", Success = false, Message = ex.Message },
+            cancellationToken);
 
-        await Task.WhenAll(vixSafeTask, vnIndexTask, goldTask);
+        await Task.WhenAll(vixSafeTask, vnIndexTask, goldTask, btcTask);
 
         var vix = await vixSafeTask;
         var vnIndex = await vnIndexTask;
         var gold = await goldTask;
+        var btc = await btcTask;
 
-        if (!vix.Success && !vnIndex.Success && !gold.Success)
+        if (!vix.Success && !vnIndex.Success && !gold.Success && (!btc.Success || btc.Data is null))
         {
             return new BotCommandExecutionDto
             {
                 Status = BotCommandExecutionStatus.Failed,
-                PlainText = "Market summary is unavailable because VIX, VNINDEX, and MEXC gold data could not be retrieved. " +
+                PlainText = "Market summary is unavailable because VIX, VNINDEX, MEXC gold, and BTC data could not be retrieved. " +
                     $"VIX: {vix.Message ?? "unavailable"}. VNINDEX: {vnIndex.Message ?? "unavailable"}. " +
-                    $"Gold: {gold.Message ?? "unavailable"}.",
+                    $"Gold: {gold.Message ?? "unavailable"}. BTC: {btc.Message ?? "unavailable"}.",
                 ErrorCode = ErrorCodes.EXTERNAL_SERVICE_ERROR
             };
         }
@@ -121,6 +127,20 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             lines.Add($"MEXC gold: unavailable. Source message: {gold.Message ?? "no data returned"}.");
         }
 
+        if (btc.Success && btc.Data is not null)
+        {
+            lines.Add(
+                $"Bitcoin spot ({btc.Data.Symbol}): last={btc.Data.LastPrice ?? "unavailable"}, " +
+                $"change24h={btc.Data.PriceChange ?? "unavailable"} ({btc.Data.PriceChangePercent ?? "unavailable"}%), " +
+                $"high24h={btc.Data.HighPrice ?? "unavailable"}, low24h={btc.Data.LowPrice ?? "unavailable"}, " +
+                $"quoteVolume24h={btc.Data.QuoteVolume ?? "unavailable"}, " +
+                $"updatedAt={FormatTimestamp(btc.Data.CloseTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(btc.Data.CloseTime) : null)}.");
+        }
+        else
+        {
+            lines.Add($"Bitcoin spot (BTCUSDT): unavailable. Source message: {btc.Message ?? "no data returned"}.");
+        }
+
         var metrics = new List<NotificationMetric>();
         if (vix.Success)
         {
@@ -149,6 +169,13 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             metrics.Add(new NotificationMetric { Label = "Gold Daily Range", Value = $"{Format(gold.Low)} - {Format(gold.High)}" });
         }
 
+        if (btc.Success && btc.Data is not null)
+        {
+            metrics.Add(new NotificationMetric { Label = "BTC Price (USDT)", Value = btc.Data.LastPrice ?? "unavailable" });
+            metrics.Add(new NotificationMetric { Label = "BTC Change 24h", Value = $"{btc.Data.PriceChange ?? "unavailable"} ({btc.Data.PriceChangePercent ?? "unavailable"}%)" });
+            metrics.Add(new NotificationMetric { Label = "BTC High / Low 24h", Value = $"{btc.Data.HighPrice ?? "unavailable"} / {btc.Data.LowPrice ?? "unavailable"}" });
+        }
+
         return new BotCommandExecutionDto
         {
             Status = BotCommandExecutionStatus.Completed,
@@ -156,7 +183,7 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             Card = new NotificationCard
             {
                 Category = "Market Summary",
-                Title = "Vietnam Market: VIX + VNINDEX + Gold",
+                Title = "Market Overview: VIX + VNINDEX + Gold + BTC",
                 Type = NotificationCardType.Summary,
                 Metrics = metrics
             }
