@@ -3,6 +3,7 @@ using ThaiX.Application.Common.Models;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.BotCommands.Modules;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
 
 namespace ThaiX.Application.UnitTests.Features.BotCommands.Modules;
@@ -42,7 +43,27 @@ public sealed class MarketSummaryBotCommandModuleTests
             LowestLow20 = 1210m
         };
 
+        var gold = new MexcGoldAnalysisResponse
+        {
+            Symbol = "GOLD(XAUT)USDT",
+            Price = 2350m,
+            BopPrice = 2300m,
+            Change = 50m,
+            ChangePct = 2.17m,
+            High = 2360m,
+            Low = 2290m,
+            Volume = 12m,
+            QuoteVolume = 28200m,
+            LastUpdated = "2026-11-02",
+            Success = true
+        };
+
         var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(
+                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query is GetMexcGoldAnalysisQuery),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(gold);
         mediator
             .Setup(x => x.Send(
                 It.Is<IRequest<YahooFinanceVixResponse>>(query => query is GetYahooFinanceVixQuery),
@@ -77,10 +98,12 @@ public sealed class MarketSummaryBotCommandModuleTests
         result.PlainText.Should().Contain("regime=EarlyRisk");
         result.PlainText.Should().Contain("VNINDEX (daily):");
         result.PlainText.Should().Contain("close=1288.5");
+        result.PlainText.Should().Contain("MEXC gold (GOLD(XAUT)USDT): price=2350");
         result.Card.Should().NotBeNull();
         result.Card!.Type.Should().Be(NotificationCardType.Summary);
         result.Card.Metrics.Should().Contain(x => x.Label == "VIX");
         result.Card.Metrics.Should().Contain(x => x.Label == "VNINDEX Close" && x.Value == "1288.5");
+        result.Card.Metrics.Should().Contain(x => x.Label == "Gold Price" && x.Value == "2350");
     }
 
     [Fact]
@@ -88,6 +111,15 @@ public sealed class MarketSummaryBotCommandModuleTests
     {
         // Arrange
         var mediator = new Mock<IMediator>();
+        mediator
+            .Setup(x => x.Send(
+                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query is GetMexcGoldAnalysisQuery),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MexcGoldAnalysisResponse
+            {
+                Success = false,
+                Message = "Gold source unavailable"
+            });
         mediator
             .Setup(x => x.Send(
                 It.Is<IRequest<YahooFinanceVixResponse>>(query => query is GetYahooFinanceVixQuery),
@@ -130,5 +162,6 @@ public sealed class MarketSummaryBotCommandModuleTests
         result.Status.Should().Be(BotCommandExecutionStatus.Completed);
         result.PlainText.Should().Contain("value=21");
         result.PlainText.Should().Contain("VNINDEX: unavailable");
+        result.PlainText.Should().Contain("MEXC gold: unavailable");
     }
 }
