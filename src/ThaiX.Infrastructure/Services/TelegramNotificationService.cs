@@ -13,7 +13,7 @@ namespace ThaiX.Infrastructure.Services;
 
 public sealed class TelegramNotificationService : ITelegramNotificationService
 {
-    private const int ChunkLength = 4000;
+    private const int MaxMessageLength = 3500;
     private const int MaxRetries = 3;
 
     private readonly HttpClient _httpClient;
@@ -42,22 +42,9 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
         var eventKey = message.Kind.ToString();
         var routePath = ResolveRoutingPath(eventKey);
         var chatId = ResolveChatId(routePath);
-        var fullText = BuildText(message);
-        var chunks = SplitIntoChunks(fullText, ChunkLength);
 
         using var _ = await AsyncLock.GetLockByKey($"telegram:chat:{chatId}").LockAsync(ct);
-        {
-            for (var i = 0; i < chunks.Count; i++)
-            {
-                var text = chunks.Count > 1 ? $"{chunks[i]} ({i + 1}/{chunks.Count})" : chunks[i];
-                await SendWithRetryAsync(chatId, text, ct);
-
-                if (i < chunks.Count - 1)
-                {
-                    await Task.Delay(TimeSpan.FromMilliseconds(100), ct);
-                }
-            }
-        }
+        await SendChunksAsync(chatId, BuildText(message), ct, addChunkNumber: true);
     }
 
     public async Task SendToChatAsync(string chatId, string text, CancellationToken ct)
@@ -65,7 +52,7 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
         ArgumentException.ThrowIfNullOrWhiteSpace(chatId);
         ArgumentException.ThrowIfNullOrWhiteSpace(text);
 
-        await SendWithRetryAsync(chatId, EncodeHtml(text), ct);
+        await SendChunksAsync(chatId, EncodeHtml(text), ct);
     }
 
     public async Task SendRenderedToChatAsync(string chatId, string htmlText, CancellationToken ct)
@@ -73,7 +60,30 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
         ArgumentException.ThrowIfNullOrWhiteSpace(chatId);
         ArgumentException.ThrowIfNullOrWhiteSpace(htmlText);
 
-        await SendWithRetryAsync(chatId, htmlText, ct);
+        await SendChunksAsync(chatId, htmlText, ct);
+    }
+
+    private async Task SendChunksAsync(
+        string chatId,
+        string htmlText,
+        CancellationToken ct,
+        bool addChunkNumber = false)
+    {
+        var chunks = SplitHtmlIntoChunks(htmlText, MaxMessageLength);
+
+        for (var i = 0; i < chunks.Count; i++)
+        {
+            var text = addChunkNumber && chunks.Count > 1
+                ? $"{chunks[i]} ({i + 1}/{chunks.Count})"
+                : chunks[i];
+
+            await SendWithRetryAsync(chatId, text, ct);
+
+            if (i < chunks.Count - 1)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(100), ct);
+            }
+        }
     }
 
     private async Task SendWithRetryAsync(string chatId, string text, CancellationToken ct)
@@ -198,36 +208,137 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
         return TimeSpan.FromMilliseconds(baseMs + jitter);
     }
 
-    private static IReadOnlyList<string> SplitIntoChunks(string text, int maxLength)
+    private static IReadOnlyList<string> SplitHtmlIntoChunks(string html, int maxLength)
     {
-        if (text.Length <= maxLength)
+        var chunks = new List<string>();
+        var openTags = new List<(string Name, string OpeningTag)>();
+        var builder = new StringBuilder();
+        var visibleLength = 0;
+        var index = 0;
+
+        void StartNextChunk()
         {
-            return [text];
+            builder.Clear();
+            foreach (var tag in openTags)
+            {
+                builder.Append(tag.OpeningTag);
+            }
+
+            visibleLength = 0;
         }
 
-        var chunks = new List<string>();
-        var start = 0;
-        while (start < text.Length)
+        void CompleteChunk()
         {
-            var length = Math.Min(maxLength, text.Length - start);
-            if (start + length < text.Length)
+            for (var tagIndex = openTags.Count - 1; tagIndex >= 0; tagIndex--)
             {
-                var breakAt = text.LastIndexOfAny(['\n', ' '], start + length - 1, length);
-                if (breakAt > start)
+                builder.Append("</").Append(openTags[tagIndex].Name).Append('>');
+            }
+
+            if (visibleLength > 0)
+            {
+                chunks.Add(builder.ToString());
+            }
+
+            StartNextChunk();
+        }
+
+        while (index < html.Length)
+        {
+            if (html[index] == '<')
+            {
+                var tagEnd = html.IndexOf('>', index + 1);
+                if (tagEnd >= 0)
                 {
-                    length = breakAt - start;
+                    var tag = html[index..(tagEnd + 1)];
+                    UpdateOpenTags(tag, openTags);
+                    builder.Append(tag);
+                    index = tagEnd + 1;
+                    continue;
                 }
             }
 
-            chunks.Add(text.Substring(start, length).Trim());
-            start += length;
-            while (start < text.Length && char.IsWhiteSpace(text[start]))
+            if (html[index] == '&')
             {
-                start++;
+                var entityEnd = html.IndexOf(';', index + 1);
+                if (entityEnd > index && entityEnd - index <= 12)
+                {
+                    var entity = html[index..(entityEnd + 1)];
+                    var decoded = WebUtility.HtmlDecode(entity);
+                    if (!string.Equals(decoded, entity, StringComparison.Ordinal))
+                    {
+                        AppendVisibleToken(entity, decoded.Length);
+                        index = entityEnd + 1;
+                        continue;
+                    }
+                }
             }
+
+            var rune = Rune.GetRuneAt(html, index);
+            var tokenLength = rune.Utf16SequenceLength;
+            AppendVisibleToken(html.Substring(index, tokenLength), tokenLength);
+            index += tokenLength;
+        }
+
+        if (visibleLength > 0)
+        {
+            CompleteChunk();
         }
 
         return chunks;
+
+        void AppendVisibleToken(string token, int tokenLength)
+        {
+            if (visibleLength > 0 && visibleLength + tokenLength > maxLength)
+            {
+                CompleteChunk();
+            }
+
+            builder.Append(token);
+            visibleLength += tokenLength;
+        }
+    }
+
+    private static void UpdateOpenTags(string tag, List<(string Name, string OpeningTag)> openTags)
+    {
+        if (tag.Length < 3 || tag.StartsWith("<!", StringComparison.Ordinal) || tag.StartsWith("<?", StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        var content = tag.AsSpan(1, tag.Length - 2).Trim();
+        var isClosing = content.StartsWith("/", StringComparison.Ordinal);
+        if (isClosing)
+        {
+            content = content[1..].TrimStart();
+        }
+
+        var isSelfClosing = content.EndsWith("/", StringComparison.Ordinal);
+        var nameLength = 0;
+        while (nameLength < content.Length
+            && !char.IsWhiteSpace(content[nameLength])
+            && content[nameLength] != '/')
+        {
+            nameLength++;
+        }
+
+        if (nameLength == 0)
+        {
+            return;
+        }
+
+        var name = content[..nameLength].ToString();
+        if (isClosing)
+        {
+            var openIndex = openTags.FindLastIndex(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (openIndex >= 0)
+            {
+                openTags.RemoveRange(openIndex, openTags.Count - openIndex);
+            }
+        }
+        else if (!isSelfClosing)
+        {
+            openTags.Add((name, tag));
+        }
     }
 
     private string ResolveRoutingPath(string eventKey)
@@ -284,14 +395,14 @@ public sealed class TelegramNotificationService : ITelegramNotificationService
 
         if (!string.IsNullOrWhiteSpace(message.Title))
         {
-            builder.Append($"<b>{EscapeHtml(message.Title.Trim())}</b>\n");
+            builder.Append($"<b>{EscapeHtml(message.Title.Trim())}</b>\\n");
         }
 
-        builder.Append($"Severity: {EscapeHtml(message.Severity.ToString())}\n");
+        builder.Append($"Severity: {EscapeHtml(message.Severity.ToString())}\\n");
 
         if (builder.Length > 0)
         {
-            builder.Append('\n');
+            builder.Append('\\n');
         }
 
         builder.Append(EscapeHtml(message.Text.Trim()));
