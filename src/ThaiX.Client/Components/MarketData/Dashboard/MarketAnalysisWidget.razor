@@ -1,9 +1,11 @@
 @using ThaiX.Client.Localization
+@using Microsoft.AspNetCore.Components
 @using ThaiX.Client.Models.ExternalData
 @using Microsoft.Extensions.Localization
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @inject IStringLocalizer<SharedResource> L
 @inherits ThaiXPageBase
+@implements IDisposable
 
 <RadzenCard Class="h-100 w-100">
     @if (!Data.Success)
@@ -186,6 +188,17 @@
 
 @code {
     [Parameter, EditorRequired] public MarketAnalysisCardDto Data { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Viewport.OnBreakpointChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        Viewport.OnBreakpointChanged -= StateHasChanged;
+    }
 
     private string SignalLabel => Data.Regime switch
     {

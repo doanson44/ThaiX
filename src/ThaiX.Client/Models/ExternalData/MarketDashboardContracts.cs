@@ -28,9 +28,9 @@ public sealed record MarketAnalysisCardDto
     public decimal? EmaFast { get; init; }
     public decimal? EmaMedium { get; init; }
     public decimal? EmaSlow { get; init; }
-    public string EmaFastLabel { get; init; } = "EMA 9";
-    public string EmaMediumLabel { get; init; } = "EMA 21";
-    public string EmaSlowLabel { get; init; } = "EMA 50";
+    public string EmaFastLabel { get; init; } = string.Empty;
+    public string EmaMediumLabel { get; init; } = string.Empty;
+    public string EmaSlowLabel { get; init; } = string.Empty;
     public decimal? Rsi14 { get; init; }
     public decimal? Atr14 { get; init; }
     public decimal? AverageVolume20 { get; init; }

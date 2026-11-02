@@ -176,8 +176,8 @@
             LastUpdated = data.LastUpdateTime?.ToString("yyyy-MM-dd HH:mm"),
             EmaFast = data.Ema10,
             EmaMedium = data.Ema20,
-            EmaFastLabel = "EMA 10",
-            EmaMediumLabel = "EMA 20",
+            EmaFastLabel = L[RK.Vix.Ema10],
+            EmaMediumLabel = L[RK.Vix.Ema20],
             Trend = data.Ema10.HasValue && data.Ema20.HasValue
                 ? data.Ema10 > data.Ema20 ? "Up" : "Down"
                 : null,
@@ -211,6 +211,12 @@
             EmaFast = data.Ema9,
             EmaMedium = data.Ema21,
             EmaSlow = data.Ema50,
+            EmaFastLabel = L[RK.GoldMarket.Ema9],
+            EmaMediumLabel = L[RK.GoldMarket.Ema21],
+            EmaSlowLabel = L[RK.GoldMarket.Ema50],
+            EmaFastLabel = L[RK.BitcoinMarket.Ema9],
+            EmaMediumLabel = L[RK.BitcoinMarket.Ema21],
+            EmaSlowLabel = L[RK.BitcoinMarket.Ema50],
             Rsi14 = data.Rsi14,
             Atr14 = data.Atr14,
             AverageVolume20 = data.AverageVolume20,
