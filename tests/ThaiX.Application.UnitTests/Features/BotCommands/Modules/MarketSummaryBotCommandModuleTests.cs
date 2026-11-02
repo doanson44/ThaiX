@@ -4,6 +4,7 @@ using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.BotCommands.Modules;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24Hr;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
 
@@ -144,7 +145,7 @@ public sealed class MarketSummaryBotCommandModuleTests
 
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query => query is GetMexcSpotTicker24HrBySymbolQuery),
+                It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query => query.GetType() == typeof(GetMexcSpotTicker24HrBySymbolQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MexcSpotTicker24HrBySymbolResponse
             {
