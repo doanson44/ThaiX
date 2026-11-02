@@ -66,6 +66,12 @@ public sealed class GetYahooFinanceVixQueryHandler
             .OrderBy(x => x.Timestamp)
             .ToList();
 
+        var history = series.Select(x => new VixHistoryPoint
+        {
+            DateLabel = DateTimeOffset.FromUnixTimeSeconds(x.Timestamp).ToString("yyyy-MM-dd"),
+            Close = x.Close
+        }).ToList();
+
         if (series.Count < 6)
         {
             return new YahooFinanceVixResponse
@@ -79,6 +85,7 @@ public sealed class GetYahooFinanceVixQueryHandler
                 FiftyTwoWeekHigh = meta.FiftyTwoWeekHigh,
                 FiftyTwoWeekLow = meta.FiftyTwoWeekLow,
                 LastUpdateTime = lastUpdateTime,
+                History = history,
                 Success = true,
                 Message = "Insufficient data for feature engineering."
             };
@@ -150,6 +157,7 @@ public sealed class GetYahooFinanceVixQueryHandler
             Momentum5D = momentum5D,
             Percentile = percentile,
             IsSpike = isSpike,
+            History = history,
             Regime = regime,
             Success = true,
             Message = "Success"

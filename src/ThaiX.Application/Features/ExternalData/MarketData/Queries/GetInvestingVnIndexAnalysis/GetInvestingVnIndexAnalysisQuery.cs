@@ -39,4 +39,11 @@ public sealed record InvestingVnIndexAnalysisResponse
     public decimal? StopLoss { get; init; }
     public decimal? TakeProfit1 { get; init; }
     public decimal? TakeProfit2 { get; init; }
+    public IReadOnlyList<VnIndexHistoryPoint> History { get; init; } = [];
+}
+
+public sealed record VnIndexHistoryPoint
+{
+    public string DateLabel { get; init; } = string.Empty;
+    public decimal Close { get; init; }
 }
