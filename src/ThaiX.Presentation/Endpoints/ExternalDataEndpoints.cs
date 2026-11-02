@@ -1015,7 +1015,7 @@ public static class ExternalDataEndpoints
             response.Metadata.CorrelationId = httpContext.GetCorrelationId();
             return Results.Ok(response);
         })
-        .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
+        .AllowAnonymous()
         .WithName("GetMexcGoldAnalysis")
         .WithDescription("Get daily GOLD(XAUT)USDT spot price and calculate the current candle's price change, change percentage, high, low, and volume.");
 
