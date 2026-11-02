@@ -145,6 +145,18 @@ public static class ResourceKeys
         public const string NotAuthenticated = "Home.NotAuthenticated";
     }
 
+    public static class GoldMarket
+    {
+        public const string Title = "GoldMarket.Title";
+        public const string LastPrice = "GoldMarket.LastPrice";
+        public const string Open = "GoldMarket.Open";
+        public const string High = "GoldMarket.High";
+        public const string Low = "GoldMarket.Low";
+        public const string Volume = "GoldMarket.Volume";
+        public const string LastUpdated = "GoldMarket.LastUpdated";
+        public const string LoadFailed = "GoldMarket.LoadFailed";
+    }
+
     public static class Breadcrumb
     {
         /// <summary>Label for the Account segment in breadcrumb (e.g. /account/2fa).</summary>
