@@ -63,24 +63,25 @@ public sealed class MarketSummaryBotCommandModuleTests
         var mediator = new Mock<IMediator>();
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query is GetMexcGoldAnalysisQuery),
+                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query.GetType() == typeof(GetMexcGoldAnalysisQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(gold);
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<YahooFinanceVixResponse>>(query => query is GetYahooFinanceVixQuery),
+                It.Is<IRequest<YahooFinanceVixResponse>>(query => query.GetType() == typeof(GetYahooFinanceVixQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(vix);
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<InvestingVnIndexAnalysisResponse>>(query => query is GetInvestingVnIndexAnalysisQuery),
+                It.Is<IRequest<InvestingVnIndexAnalysisResponse>>(query => query.GetType() == typeof(GetInvestingVnIndexAnalysisQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(vnIndex);
 
         mediator
             .Setup(x => x.Send(
                 It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query =>
-                    query is GetMexcSpotTicker24HrBySymbolQuery { Symbol: "BTCUSDT" }),
+                    query.GetType() == typeof(GetMexcSpotTicker24HrBySymbolQuery)
+                    && ((GetMexcSpotTicker24HrBySymbolQuery)query).Symbol == "BTCUSDT"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MexcSpotTicker24HrBySymbolResponse
             {
@@ -139,13 +140,14 @@ public sealed class MarketSummaryBotCommandModuleTests
         var mediator = new Mock<IMediator>();
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query is GetMexcGoldAnalysisQuery),
+                It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query.GetType() == typeof(GetMexcGoldAnalysisQuery)),
                 It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Gold source unavailable"));
 
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query => query.GetType() == typeof(GetMexcSpotTicker24HrBySymbolQuery)),
+                It.Is<IRequest<MexcSpotTicker24HrBySymbolResponse>>(query =>
+                    query.GetType() == typeof(GetMexcSpotTicker24HrBySymbolQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new MexcSpotTicker24HrBySymbolResponse
             {
@@ -155,7 +157,7 @@ public sealed class MarketSummaryBotCommandModuleTests
             });
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<YahooFinanceVixResponse>>(query => query is GetYahooFinanceVixQuery),
+                It.Is<IRequest<YahooFinanceVixResponse>>(query => query.GetType() == typeof(GetYahooFinanceVixQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new YahooFinanceVixResponse
             {
@@ -166,7 +168,8 @@ public sealed class MarketSummaryBotCommandModuleTests
             });
         mediator
             .Setup(x => x.Send(
-                It.Is<IRequest<InvestingVnIndexAnalysisResponse>>(query => query is GetInvestingVnIndexAnalysisQuery),
+                It.Is<IRequest<InvestingVnIndexAnalysisResponse>>(query =>
+                    query.GetType() == typeof(GetInvestingVnIndexAnalysisQuery)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new InvestingVnIndexAnalysisResponse
             {
