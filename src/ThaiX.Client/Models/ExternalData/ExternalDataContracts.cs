@@ -700,6 +700,8 @@ public sealed record CombinedMarketAssessmentRequestDto
 {
     public GetVixVerdictRequest Vix { get; init; } = new() { Symbol = "VIX" };
     public GetVnIndexVerdictRequestDto VnIndex { get; init; } = new();
+    public GetBitcoinMarketAssessmentRequestDto Bitcoin { get; init; } = new();
+    public GetGoldMarketAssessmentRequestDto Gold { get; init; } = new();
 }
 
 public sealed record CombinedMarketAssessmentResponseDto
