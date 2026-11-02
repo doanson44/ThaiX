@@ -155,6 +155,9 @@ public static class ResourceKeys
         public const string Volume = "GoldMarket.Volume";
         public const string LastUpdated = "GoldMarket.LastUpdated";
         public const string LoadFailed = "GoldMarket.LoadFailed";
+        public const string Pair = "GoldMarket.Pair";
+        public const string Currency = "GoldMarket.Currency";
+        public const string QuoteVolume = "GoldMarket.QuoteVolume";
     }
 
     public static class Breadcrumb
