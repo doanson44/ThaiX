@@ -134,7 +134,7 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
                 $"change24h={btc.Data.PriceChange ?? "unavailable"} ({btc.Data.PriceChangePercent ?? "unavailable"}%), " +
                 $"high24h={btc.Data.HighPrice ?? "unavailable"}, low24h={btc.Data.LowPrice ?? "unavailable"}, " +
                 $"quoteVolume24h={btc.Data.QuoteVolume ?? "unavailable"}, " +
-                $"updatedAt={FormatTimestamp(btc.Data.CloseTime > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(btc.Data.CloseTime) : null)}.");
+                $"updatedAt={FormatTimestamp(btc.Data.CloseTime)}.");
         }
         else
         {
@@ -214,6 +214,24 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
 
     private static string FormatPercent(decimal? value)
         => value?.ToString("+0.##%;-0.##%;0%", CultureInfo.InvariantCulture) ?? "unavailable";
+
+    private static string FormatTimestamp(long unixMilliseconds)
+    {
+        if (unixMilliseconds <= 0)
+        {
+            return "unavailable";
+        }
+
+        try
+        {
+            return DateTimeOffset.FromUnixTimeMilliseconds(unixMilliseconds)
+                .ToString("yyyy-MM-dd HH:mm 'UTC'", CultureInfo.InvariantCulture);
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return "unavailable";
+        }
+    }
 
     private static string FormatTimestamp(DateTime? value)
         => value.HasValue
