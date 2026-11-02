@@ -54,6 +54,12 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
             };
         }
 
+        var history = candles.Select(candle => new VnIndexHistoryPoint
+        {
+            DateLabel = new DateTimeOffset(candle.Time, TimeSpan.Zero).ToString("yyyy-MM-dd"),
+            Close = candle.Close
+        }).ToList();
+
         var context = new KlineExecutionContext
         {
             MarketType = MarketType.Stock,
@@ -85,7 +91,8 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
                 PreviousClose = previousClose,
                 Change = change,
                 ChangePct = changePct,
-                Volume = latest.Volume
+                Volume = latest.Volume,
+                History = history
             };
         }
 
@@ -107,6 +114,7 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
             Change = change,
             ChangePct = changePct,
             Volume = last.Volume,
+            History = history,
             Ema9 = indicators.Ema9,
             Ema21 = indicators.Ema21,
             Ema50 = indicators.Ema50,

@@ -28,9 +28,16 @@ public sealed record YahooFinanceVixResponse
     public decimal? Momentum5D { get; init; }
     public double Percentile { get; init; }
     public bool IsSpike { get; init; }
+    public IReadOnlyList<VixHistoryPoint> History { get; init; } = [];
     // Regime (stable code: RiskOn | EarlyRisk | Panic | Recovery)
     // Liquidity, CapitalFlow, Action are derived client-side from Regime for i18n support.
     public string? Regime { get; init; }
     public bool Success { get; init; }
     public string? Message { get; init; }
+}
+
+public sealed record VixHistoryPoint
+{
+    public string DateLabel { get; init; } = string.Empty;
+    public decimal Close { get; init; }
 }

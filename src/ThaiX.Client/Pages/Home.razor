@@ -185,7 +185,12 @@
             Momentum5D = data.Momentum5D,
             Regime = data.Regime,
             Percentile = (decimal)data.Percentile,
-            IsSpike = data.IsSpike
+            IsSpike = data.IsSpike,
+            History = data.History.Select(point => new MarketAnalysisCandleDto
+            {
+                DateLabel = point.DateLabel,
+                Close = point.Close
+            }).ToList()
         };
     }
 
@@ -227,7 +232,12 @@
             Entry = data.Entry,
             StopLoss = data.StopLoss,
             TakeProfit1 = data.TakeProfit1,
-            TakeProfit2 = data.TakeProfit2
+            TakeProfit2 = data.TakeProfit2,
+            History = data.History.Select(point => new MarketAnalysisCandleDto
+            {
+                DateLabel = point.DateLabel,
+                Close = point.Close
+            }).ToList()
         };
     }
 

@@ -213,6 +213,7 @@ public sealed record VixResponseDto
     public decimal? Momentum5D { get; init; }
     public double Percentile { get; init; }
     public bool IsSpike { get; init; }
+    public IReadOnlyList<MarketAnalysisCandleDto> History { get; init; } = [];
     public string? Regime { get; init; }
     public bool Success { get; init; }
     public string? Message { get; init; }
@@ -296,6 +297,7 @@ public sealed record VnIndexAnalysisResponseDto
     public decimal? StopLoss { get; init; }
     public decimal? TakeProfit1 { get; init; }
     public decimal? TakeProfit2 { get; init; }
+    public IReadOnlyList<MarketAnalysisCandleDto> History { get; init; } = [];
 }
 
 /// <summary>
