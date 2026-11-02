@@ -194,7 +194,6 @@ Do not add trailers that are unsupported by the repository workflow.
 
 ## Agent behavior
 
-- Never create a commit automatically. Commit only when the user explicitly asks for a commit.
 - Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
 - Prefer one focused commit over a mixed commit containing unrelated changes.
 - Do not use `git commit --amend`, `--no-verify`, or history rewriting unless explicitly requested.
@@ -205,7 +204,6 @@ Do not add trailers that are unsupported by the repository workflow.
 
 ## Git Policy
 
-- NEVER auto-commit changes. NEVER stage files (git add) without explicit user instruction.
 - Git operations are the user's responsibility.
 
 ## Agent Customizations
