@@ -31,14 +31,14 @@
 
             <RadzenStack Gap="0.25rem">
                 <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.LastPrice]</RadzenText>
-                <RadzenText TextStyle="TextStyle.H3" Class="mb-0">@($"{_data.Price:N2} {L[RK.GoldMarket.Currency]}")</RadzenText>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : TextStyle.H3)" Class="mb-0">@($"{_data.Price:N2} {L[RK.GoldMarket.Currency]}")</RadzenText>
                 <RadzenText TextStyle="TextStyle.Body2" Class="@(_data.Change >= 0 ? "text-success" : "text-danger")">
                     <strong>@($"{_data.Change:+0.00;-0.00;0.00} {L[RK.GoldMarket.Currency]} ({_data.ChangePct:+0.00;-0.00;0.00}%)")</strong>
                 </RadzenText>
             </RadzenStack>
 
             <RadzenRow>
-                <RadzenColumn Size="6" SizeMD="3">
+                <RadzenColumn Size="6" SizeMD="4">
                     <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Open]</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.BopPrice:N2}")</strong></RadzenText>
                 </RadzenColumn>
