@@ -1985,4 +1985,12 @@
   <data name="CmsxProxyTester.InvalidJson" xml:space="preserve"><value>JSON không hợp lệ</value></data>
   <data name="CmsxProxyTester.InvalidJsonDetails" xml:space="preserve"><value>Headers và query parameters phải là đối tượng JSON hợp lệ.</value></data>
   <data name="CmsxProxyTester.RequestFailed" xml:space="preserve"><value>Request thất bại</value></data>
+  <data name="GoldMarket.Title" xml:space="preserve"><value>Giá vàng (XAUT/USDT)</value></data>
+  <data name="GoldMarket.LastPrice" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="GoldMarket.Open" xml:space="preserve"><value>Giá mở cửa ngày</value></data>
+  <data name="GoldMarket.High" xml:space="preserve"><value>Giá cao nhất ngày</value></data>
+  <data name="GoldMarket.Low" xml:space="preserve"><value>Giá thấp nhất ngày</value></data>
+  <data name="GoldMarket.Volume" xml:space="preserve"><value>Khối lượng ngày (XAUT)</value></data>
+  <data name="GoldMarket.LastUpdated" xml:space="preserve"><value>Ngày nến (UTC)</value></data>
+  <data name="GoldMarket.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu thị trường vàng.</value></data>
 </root>
