@@ -121,7 +121,7 @@ public static class TelegramEndpoints
                 string? resolvedCommand = null;
                 using (var intentCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
                 {
-                    intentCts.CancelAfter(TimeSpan.FromSeconds(10));
+                    intentCts.CancelAfter(TimeSpan.FromSeconds(30));
 
                     try
                     {
@@ -205,7 +205,7 @@ public static class TelegramEndpoints
             if (isNaturalLanguage)
             {
                 using var aiCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                aiCts.CancelAfter(TimeSpan.FromSeconds(10));
+                aiCts.CancelAfter(TimeSpan.FromSeconds(30));
 
                 try
                 {
