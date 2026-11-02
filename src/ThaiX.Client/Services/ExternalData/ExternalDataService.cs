@@ -101,6 +101,9 @@ public sealed class ExternalDataService : IExternalDataService
             cancellationToken);
     }
 
+    public Task<ApiResponse<MarketDashboardResponseDto>> GetMarketDashboardAsync(CancellationToken cancellationToken = default) =>
+        GetEnvelopeAsync<MarketDashboardResponseDto>("market/dashboard", cancellationToken);
+
     public Task<ApiResponse<VixResponseDto>> GetYahooFinanceVixAsync(CancellationToken cancellationToken = default) =>
         GetEnvelopeCachedAsync<VixResponseDto>(
             CacheGroups.ExternalMarket,

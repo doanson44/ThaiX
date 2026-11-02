@@ -64,9 +64,14 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
             EventRisk = EventRisk.Low
         };
 
+        var latestCandle = candles[^1];
+        var previousClose = candles.Count > 1 ? candles[^2].Close : (decimal?)null;
+        var change = previousClose.HasValue ? latestCandle.Close - previousClose.Value : 0m;
+        var changePct = previousClose is > 0m ? change / previousClose.Value * 100m : 0m;
+
         if (candles.Count < _indicatorService.GetMinimumBars(context))
         {
-            var latest = candles[^1];
+            var latest = latestCandle;
             return new InvestingVnIndexAnalysisResponse
             {
                 Success = false,
@@ -77,6 +82,9 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
                 High = latest.High,
                 Low = latest.Low,
                 Close = latest.Close,
+                PreviousClose = previousClose,
+                Change = change,
+                ChangePct = changePct,
                 Volume = latest.Volume
             };
         }
@@ -95,6 +103,9 @@ public sealed class GetInvestingVnIndexAnalysisQueryHandler
             High = last.High,
             Low = last.Low,
             Close = last.Close,
+            PreviousClose = previousClose,
+            Change = change,
+            ChangePct = changePct,
             Volume = last.Volume,
             Ema9 = indicators.Ema9,
             Ema21 = indicators.Ema21,

@@ -44,23 +44,35 @@
 </RadzenCard>
 
 <RadzenStack Gap="1rem" class="mt-4">
-    <RadzenRow class="align-items-stretch g-3">
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <VixAnalysisWidget @ref="_vixWidget" OnDataLoaded="OnMarketDataLoaded" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <VnIndexAnalysisWidget @ref="_vnIndexWidget" OnDataLoaded="OnMarketDataLoaded" />
-        </RadzenColumn>
-    </RadzenRow>
-
-    <RadzenRow class="align-items-stretch g-3">
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <BitcoinAnalysisWidget @ref="_bitcoinWidget" OnDataLoaded="OnMarketDataLoaded" />
-        </RadzenColumn>
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
-            <MexcGoldWidget @ref="_goldWidget" OnDataLoaded="OnMarketDataLoaded" />
-        </RadzenColumn>
-    </RadzenRow>
+    @if (_isLoadingMarketDashboard)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+    }
+    else if (_marketDashboard is null)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @L[RK.MarketDashboard.LoadFailed]
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenRow class="align-items-stretch g-3">
+            <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+                <MarketAnalysisWidget Data="@CreateVixCard()" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+                <MarketAnalysisWidget Data="@CreateVnIndexCard()" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow class="align-items-stretch g-3">
+            <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+                <MarketAnalysisWidget Data="@CreateBitcoinCard()" />
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6" SizeLG="6" class="d-flex">
+                <MarketAnalysisWidget Data="@CreateGoldCard()" />
+            </RadzenColumn>
+        </RadzenRow>
+    }
 
     <AuthorizeView>
         <Authorized>
@@ -107,32 +119,220 @@
 </RadzenStack>
 
 @code {
-    private VixAnalysisWidget? _vixWidget;
-    private VnIndexAnalysisWidget? _vnIndexWidget;
-    private BitcoinAnalysisWidget? _bitcoinWidget;
-    private MexcGoldWidget? _goldWidget;
+    private MarketDashboardResponseDto? _marketDashboard;
     private CombinedMarketAssessmentResponseDto? _aiAssessment;
     private string? _aiAssessmentError;
+    private bool _isLoadingMarketDashboard = true;
     private bool _isLoadingAiAssessment;
 
-    private Task OnMarketDataLoaded()
+    protected override async Task OnInitializedAsync()
     {
-        StateHasChanged();
-        return Task.CompletedTask;
+        try
+        {
+            var response = await ExternalDataService.GetMarketDashboardAsync();
+            _marketDashboard = response.Data;
+        }
+        catch
+        {
+            _marketDashboard = null;
+        }
+        finally
+        {
+            _isLoadingMarketDashboard = false;
+        }
     }
 
     private bool CanGetAiAssessment =>
-        _vixWidget?.Data is { Success: true } &&
-        _vnIndexWidget?.Data is { Success: true } &&
-        _bitcoinWidget?.Data is { Success: true } &&
-        _goldWidget?.Data is { Success: true };
+        _marketDashboard is
+        {
+            Vix.Success: true,
+            VnIndex.Success: true,
+            Bitcoin.Success: true,
+            Gold.Success: true
+        };
+
+    private MarketAnalysisCardDto CreateVixCard()
+    {
+        var data = _marketDashboard!.Vix!;
+        var change = data.CurrentValue.HasValue && data.PreviousClose.HasValue
+            ? data.CurrentValue.Value - data.PreviousClose.Value
+            : (decimal?)null;
+        var changePct = data.PreviousClose is > 0m && change.HasValue
+            ? change.Value / data.PreviousClose.Value * 100m
+            : (decimal?)null;
+
+        return new MarketAnalysisCardDto
+        {
+            Title = L[RK.Vix.Title],
+            Symbol = data.Symbol,
+            Success = data.Success,
+            Message = data.Message,
+            Price = data.CurrentValue,
+            Change = change,
+            ChangePct = changePct,
+            PreviousClose = data.PreviousClose,
+            High = data.DayHigh,
+            Low = data.DayLow,
+            LastUpdated = data.LastUpdateTime?.ToString("yyyy-MM-dd HH:mm"),
+            EmaFast = data.Ema10,
+            EmaMedium = data.Ema20,
+            EmaFastLabel = L[RK.Vix.Ema10],
+            EmaMediumLabel = L[RK.Vix.Ema20],
+            Trend = data.Ema10.HasValue && data.Ema20.HasValue
+                ? data.Ema10 > data.Ema20 ? "Up" : "Down"
+                : null,
+            Momentum3D = data.Momentum3D,
+            Momentum5D = data.Momentum5D,
+            Regime = data.Regime,
+            Percentile = (decimal)data.Percentile,
+            IsSpike = data.IsSpike
+        };
+    }
+
+    private MarketAnalysisCardDto CreateVnIndexCard()
+    {
+        var data = _marketDashboard!.VnIndex!;
+        return new MarketAnalysisCardDto
+        {
+            Title = L[RK.VnIndexAnalysis.Title],
+            Symbol = data.Symbol,
+            Success = data.Success,
+            Message = data.Message,
+            Price = data.Close,
+            PreviousClose = data.PreviousClose,
+            Change = data.Change,
+            ChangePct = data.ChangePct,
+            Open = data.Open,
+            High = data.High,
+            Low = data.Low,
+            Volume = data.Volume,
+            HistoryCount = data.HistoryCount,
+            LastUpdated = data.LatestTime?.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+            EmaFast = data.Ema9,
+            EmaMedium = data.Ema21,
+            EmaSlow = data.Ema50,
+            EmaFastLabel = L[RK.VnIndexAnalysis.Ema9],
+            EmaMediumLabel = L[RK.VnIndexAnalysis.Ema21],
+            EmaSlowLabel = L[RK.VnIndexAnalysis.Ema50],
+            Rsi14 = data.Rsi14,
+            Atr14 = data.Atr14,
+            AverageVolume20 = data.AverageVolume20,
+            HighestHigh20 = data.HighestHigh20,
+            LowestLow20 = data.LowestLow20,
+            Trend = data.Trend,
+            Momentum = data.Momentum,
+            Setup = data.Setup,
+            Signal = data.Signal,
+            Confidence = data.Confidence,
+            Entry = data.Entry,
+            StopLoss = data.StopLoss,
+            TakeProfit1 = data.TakeProfit1,
+            TakeProfit2 = data.TakeProfit2
+        };
+    }
+
+    private MarketAnalysisCardDto CreateBitcoinCard()
+    {
+        var data = _marketDashboard!.Bitcoin!;
+        return new MarketAnalysisCardDto
+        {
+            Title = L[RK.BitcoinMarket.Title],
+            Symbol = data.Symbol,
+            Success = data.Success,
+            Message = data.Message,
+            Price = data.Price,
+            Change = data.Change,
+            ChangePct = data.ChangePct,
+            PreviousClose = data.PreviousClose,
+            Open = data.Open,
+            High = data.High,
+            Low = data.Low,
+            Volume = data.Volume,
+            QuoteVolume = data.QuoteVolume,
+            HistoryCount = data.HistoryCount,
+            LastUpdated = data.LastUpdated,
+            EmaFast = data.Ema9,
+            EmaMedium = data.Ema21,
+            EmaSlow = data.Ema50,
+            EmaFastLabel = L[RK.BitcoinMarket.Ema9],
+            EmaMediumLabel = L[RK.BitcoinMarket.Ema21],
+            EmaSlowLabel = L[RK.BitcoinMarket.Ema50],
+            Rsi14 = data.Rsi14,
+            Atr14 = data.Atr14,
+            AverageVolume20 = data.AverageVolume20,
+            HighestHigh20 = data.HighestHigh20,
+            LowestLow20 = data.LowestLow20,
+            Trend = data.Trend,
+            Momentum = data.Momentum,
+            Setup = data.Setup,
+            Signal = data.Signal,
+            Confidence = data.Confidence,
+            Entry = data.Entry,
+            StopLoss = data.StopLoss,
+            TakeProfit1 = data.TakeProfit1,
+            TakeProfit2 = data.TakeProfit2,
+            History = data.History.Select(candle => new MarketAnalysisCandleDto
+            {
+                DateLabel = candle.DateLabel,
+                Close = candle.Close
+            }).ToList()
+        };
+    }
+
+    private MarketAnalysisCardDto CreateGoldCard()
+    {
+        var data = _marketDashboard!.Gold!;
+        return new MarketAnalysisCardDto
+        {
+            Title = L[RK.GoldMarket.Title],
+            Symbol = data.Symbol,
+            Success = data.Success,
+            Message = data.Message,
+            Price = data.Price,
+            Change = data.Change,
+            ChangePct = data.ChangePct,
+            PreviousClose = data.PreviousClose,
+            Open = data.BopPrice,
+            High = data.High,
+            Low = data.Low,
+            Volume = data.Volume,
+            QuoteVolume = data.QuoteVolume,
+            HistoryCount = data.HistoryCount,
+            LastUpdated = data.LastUpdated,
+            EmaFast = data.Ema9,
+            EmaMedium = data.Ema21,
+            EmaSlow = data.Ema50,
+            EmaFastLabel = L[RK.GoldMarket.Ema9],
+            EmaMediumLabel = L[RK.GoldMarket.Ema21],
+            EmaSlowLabel = L[RK.GoldMarket.Ema50],
+            Rsi14 = data.Rsi14,
+            Atr14 = data.Atr14,
+            AverageVolume20 = data.AverageVolume20,
+            HighestHigh20 = data.HighestHigh20,
+            LowestLow20 = data.LowestLow20,
+            Trend = data.Trend,
+            Momentum = data.Momentum,
+            Setup = data.Setup,
+            Signal = data.Signal,
+            Confidence = data.Confidence,
+            Entry = data.Entry,
+            StopLoss = data.StopLoss,
+            TakeProfit1 = data.TakeProfit1,
+            TakeProfit2 = data.TakeProfit2,
+            History = data.History.Select(candle => new MarketAnalysisCandleDto
+            {
+                DateLabel = candle.DateLabel,
+                Close = candle.Close
+            }).ToList()
+        };
+    }
 
     private async Task GetAiAssessmentAsync()
     {
-        var vix = _vixWidget?.Data;
-        var vnIndex = _vnIndexWidget?.Data;
-        var bitcoin = _bitcoinWidget?.Data;
-        var gold = _goldWidget?.Data;
+        var vix = _marketDashboard?.Vix;
+        var vnIndex = _marketDashboard?.VnIndex;
+        var bitcoin = _marketDashboard?.Bitcoin;
+        var gold = _marketDashboard?.Gold;
 
         if (vix is not { Success: true } || vnIndex is not { Success: true } ||
             bitcoin is not { Success: true } || gold is not { Success: true } || _isLoadingAiAssessment)

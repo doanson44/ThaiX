@@ -18,6 +18,9 @@ public sealed record InvestingVnIndexAnalysisResponse
     public decimal? High { get; init; }
     public decimal? Low { get; init; }
     public decimal? Close { get; init; }
+    public decimal? PreviousClose { get; init; }
+    public decimal? Change { get; init; }
+    public decimal? ChangePct { get; init; }
     public decimal? Volume { get; init; }
     public decimal? Ema9 { get; init; }
     public decimal? Ema21 { get; init; }

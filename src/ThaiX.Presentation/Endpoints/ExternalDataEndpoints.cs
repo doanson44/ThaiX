@@ -51,6 +51,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectTech
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectTopStocks;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMarketDashboard;
 using ThaiX.Application.Features.TcbsTop10.Queries.GetTcbsTop10Portfolios;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
@@ -69,6 +70,7 @@ public static class ExternalDataEndpoints
         MapBankInterestRatesEndpoints(endpoints);
         MapBankDepositRatesEndpoints(endpoints);
         MapMarketDataEndpoints(endpoints);
+        MapMarketDashboardEndpoints(endpoints);
         MapCombinedMarketAssessmentEndpoints(endpoints);
         MapBybitEndpoints(endpoints);
         MapBinanceEndpoints(endpoints);
@@ -754,6 +756,26 @@ public static class ExternalDataEndpoints
         .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
         .WithName("GetBinanceSpotTicker24Hr")
         .WithDescription("Get Binance spot 24hr tickers. Without symbol returns all symbols; with symbol query returns one ticker (example: BTCUSDT).");
+    }
+
+    private static void MapMarketDashboardEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/external-data/market/dashboard")
+            .WithTags("External Data - Market Data");
+
+        group.MapGet("/", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetMarketDashboardQuery(), cancellationToken);
+            var response = ApiResponse<MarketDashboardResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .AllowAnonymous()
+        .WithName("GetMarketDashboard")
+        .WithDescription("Get VIX, VNINDEX, Bitcoin, and gold analysis snapshots in one request.");
     }
 
     private static void MapMexcEndpoints(IEndpointRouteBuilder endpoints)

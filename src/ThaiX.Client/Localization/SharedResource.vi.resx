@@ -2047,4 +2047,5 @@
   <data name="BitcoinMarket.TakeProfit2" xml:space="preserve"><value>Chốt lời 2</value></data>
   <data name="BitcoinMarket.LastUpdated" xml:space="preserve"><value>Ngày nến (UTC)</value></data>
   <data name="BitcoinMarket.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu thị trường Bitcoin.</value></data>
+  <data name="MarketDashboard.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu bảng tổng quan thị trường.</value></data>
 </root>

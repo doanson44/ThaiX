@@ -2048,4 +2048,5 @@
   <data name="BitcoinMarket.TakeProfit2" xml:space="preserve"><value>Take profit 2</value></data>
   <data name="BitcoinMarket.LastUpdated" xml:space="preserve"><value>Candle date (UTC)</value></data>
   <data name="BitcoinMarket.LoadFailed" xml:space="preserve"><value>Unable to load Bitcoin market data.</value></data>
+  <data name="MarketDashboard.LoadFailed" xml:space="preserve"><value>Unable to load market dashboard data.</value></data>
 </root>

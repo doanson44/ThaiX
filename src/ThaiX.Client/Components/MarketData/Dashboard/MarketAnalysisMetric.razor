@@ -1,0 +1,11 @@
+@using Microsoft.AspNetCore.Components
+
+<RadzenStack Gap="0">
+    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@Label</RadzenText>
+    <RadzenText TextStyle="TextStyle.Body2"><strong>@Value</strong></RadzenText>
+</RadzenStack>
+
+@code {
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public object? Value { get; set; }
+}
