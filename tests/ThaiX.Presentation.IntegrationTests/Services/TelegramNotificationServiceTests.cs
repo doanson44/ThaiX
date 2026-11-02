@@ -23,7 +23,7 @@ public sealed class TelegramNotificationServiceTests
 
         await service.SendRenderedToChatAsync("-100123", html, CancellationToken.None);
 
-        handler.Messages.Should().HaveCountGreaterThan(1);
+        handler.Messages.Count.Should().BeGreaterThan(1);
         handler.Messages.Should().OnlyContain(message =>
             message.StartsWith("<b>", StringComparison.Ordinal)
             && message.EndsWith("</b>", StringComparison.Ordinal));
