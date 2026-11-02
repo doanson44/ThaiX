@@ -18,6 +18,7 @@ public interface IExternalDataService
     Task<ApiResponse<CoinGeckoCoinsListResponseDto>> GetCoinGeckoCoinsListAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<CoinGeckoCoinMarketResponseDto>> GetCoinGeckoCoinMarketByIdAsync(string coinId, CancellationToken cancellationToken = default);
     Task<ApiResponse<VixResponseDto>> GetYahooFinanceVixAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<MarketDashboardResponseDto>> GetMarketDashboardAsync(CancellationToken cancellationToken = default);
     Task<VixVerdictDto> GetVixVerdictAsync(GetVixVerdictRequest request, CancellationToken cancellationToken = default);
     Task<ApiResponse<VnDirectChangePricesResponseDto>> GetVnDirectChangePricesAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<MexcGoldAnalysisResponseDto>> GetMexcGoldAnalysisAsync(CancellationToken cancellationToken = default);

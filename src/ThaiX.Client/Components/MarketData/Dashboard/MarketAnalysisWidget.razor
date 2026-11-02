@@ -1,0 +1,270 @@
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<RadzenCard Class="h-100 w-100">
+    @if (!Data.Success)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @(Data.Message ?? L[RK.BitcoinMarket.LoadFailed])
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">@Data.Title</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@Data.Symbol</RadzenText>
+                </RadzenStack>
+                <RadzenStack Gap="0" class="text-end">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : TextStyle.H3)" Class="mb-0">@FormatValue(Data.Price)</RadzenText>
+                    @if (Data.ChangePct.HasValue)
+                    {
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@(Data.ChangePct.Value >= 0 ? "text-success" : "text-danger")">
+                            <strong>@FormatChange(Data.Change, Data.ChangePct)</strong>
+                        </RadzenText>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Data.LastUpdated))
+                    {
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@Data.LastUpdated</RadzenText>
+                    }
+                </RadzenStack>
+            </RadzenStack>
+
+            <div class="rounded p-3 text-center @SignalBackgroundClass">
+                <RadzenStack Gap="0.5rem" AlignItems="AlignItems.Center">
+                    <RadzenBadge BadgeStyle="@SignalBadgeStyle" Text="@SignalLabel" IsPill="true" />
+                    <RadzenText TextStyle="TextStyle.H5" Class="mb-0"><strong>@SignalDetail</strong></RadzenText>
+                </RadzenStack>
+            </div>
+
+            <RadzenRow>
+                @if (Data.Open.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Open]" Value="@FormatValue(Data.Open)" /></RadzenColumn>
+                }
+                @if (Data.PreviousClose.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.PreviousClose]" Value="@FormatValue(Data.PreviousClose)" /></RadzenColumn>
+                }
+                @if (Data.High.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.High]" Value="@FormatValue(Data.High)" /></RadzenColumn>
+                }
+                @if (Data.Low.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Low]" Value="@FormatValue(Data.Low)" /></RadzenColumn>
+                }
+                @if (Data.Volume.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Volume]" Value="@FormatValue(Data.Volume)" /></RadzenColumn>
+                }
+                @if (Data.QuoteVolume.HasValue)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.QuoteVolume]" Value="@FormatValue(Data.QuoteVolume)" /></RadzenColumn>
+                }
+                @if (Data.HistoryCount > 0)
+                {
+                    <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.HistoryCount]" Value="@Data.HistoryCount" /></RadzenColumn>
+                }
+            </RadzenRow>
+
+            @if (Data.History.Count > 0)
+            {
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.HistoryTitle]</RadzenText>
+                    <RadzenChart Style="height: 220px; width: 100%;">
+                        <RadzenLineSeries Data="@Data.History"
+                                          CategoryProperty="@nameof(MarketAnalysisCandleDto.DateLabel)"
+                                          ValueProperty="@nameof(MarketAnalysisCandleDto.Close)"
+                                          Title="@L[RK.BitcoinMarket.LastPrice]" />
+                        <RadzenCategoryAxis />
+                        <RadzenValueAxis />
+                    </RadzenChart>
+                </RadzenStack>
+            }
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.Trend]</RadzenText>
+                <RadzenRow>
+                    @if (Data.EmaFast.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@Data.EmaFastLabel" Value="@FormatValue(Data.EmaFast)" /></RadzenColumn>
+                    }
+                    @if (Data.EmaMedium.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@Data.EmaMediumLabel" Value="@FormatValue(Data.EmaMedium)" /></RadzenColumn>
+                    }
+                    @if (Data.EmaSlow.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@Data.EmaSlowLabel" Value="@FormatValue(Data.EmaSlow)" /></RadzenColumn>
+                    }
+                    @if (Data.Rsi14.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Rsi14]" Value="@FormatValue(Data.Rsi14)" /></RadzenColumn>
+                    }
+                    @if (Data.Atr14.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Atr14]" Value="@FormatValue(Data.Atr14)" /></RadzenColumn>
+                    }
+                    @if (Data.AverageVolume20.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.AverageVolume20]" Value="@FormatValue(Data.AverageVolume20)" /></RadzenColumn>
+                    }
+                    @if (Data.HighestHigh20.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.HighestHigh20]" Value="@FormatValue(Data.HighestHigh20)" /></RadzenColumn>
+                    }
+                    @if (Data.LowestLow20.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.LowestLow20]" Value="@FormatValue(Data.LowestLow20)" /></RadzenColumn>
+                    }
+                    @if (Data.Percentile.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.Vix.Percentile]" Value="@Data.Percentile.Value.ToString("P1")" /></RadzenColumn>
+                    }
+                    @if (Data.Momentum3D.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.Vix.Momentum3D]" Value="@FormatPercent(Data.Momentum3D)" /></RadzenColumn>
+                    }
+                    @if (Data.Momentum5D.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.Vix.Momentum5D]" Value="@FormatPercent(Data.Momentum5D)" /></RadzenColumn>
+                    }
+                    @if (Data.IsSpike.HasValue)
+                    {
+                        <RadzenColumn Size="6" SizeMD="4"><MarketAnalysisMetric Label="@L[RK.Vix.Spike]" Value="@(Data.IsSpike.Value ? L[RK.Vix.SpikeYes] : L[RK.Vix.SpikeNo])" /></RadzenColumn>
+                    }
+                </RadzenRow>
+            </RadzenStack>
+
+            @if (!string.IsNullOrWhiteSpace(Data.Trend) || !string.IsNullOrWhiteSpace(Data.Momentum) ||
+                 !string.IsNullOrWhiteSpace(Data.Setup) || Data.Confidence.HasValue)
+            {
+                <RadzenStack Gap="0.5rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.Signal]</RadzenText>
+                    <RadzenRow>
+                        @if (!string.IsNullOrWhiteSpace(Data.Trend))
+                        {
+                            <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Trend]" Value="@TrendLabel" /></RadzenColumn>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Data.Momentum))
+                        {
+                            <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Momentum]" Value="@MomentumLabel" /></RadzenColumn>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Data.Setup))
+                        {
+                            <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Setup]" Value="@SetupLabel" /></RadzenColumn>
+                        }
+                        @if (Data.Confidence.HasValue)
+                        {
+                            <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Confidence]" Value="@Data.Confidence.Value.ToString("P1")" /></RadzenColumn>
+                        }
+                    </RadzenRow>
+                </RadzenStack>
+            }
+
+            @if (Data.Entry.HasValue)
+            {
+                <div class="rounded border p-3">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-2">@L[RK.BitcoinMarket.Signal]</RadzenText>
+                    <RadzenRow>
+                        <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.Entry]" Value="@FormatValue(Data.Entry)" /></RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.StopLoss]" Value="@FormatValue(Data.StopLoss)" /></RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.TakeProfit1]" Value="@FormatValue(Data.TakeProfit1)" /></RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3"><MarketAnalysisMetric Label="@L[RK.BitcoinMarket.TakeProfit2]" Value="@FormatValue(Data.TakeProfit2)" /></RadzenColumn>
+                    </RadzenRow>
+                </div>
+            }
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    [Parameter, EditorRequired] public MarketAnalysisCardDto Data { get; set; } = new();
+
+    private string SignalLabel => Data.Regime switch
+    {
+        "RiskOn" => L[RK.Vix.RegimeRiskOn],
+        "EarlyRisk" => L[RK.Vix.RegimeEarlyRisk],
+        "Panic" => L[RK.Vix.RegimePanic],
+        "Recovery" => L[RK.Vix.RegimeRecovery],
+        _ => Data.Signal switch
+        {
+            "Long" => L[RK.VnIndexAnalysis.SignalLong],
+            "Short" => L[RK.VnIndexAnalysis.SignalShort],
+            "None" => L[RK.VnIndexAnalysis.SignalNone],
+            _ => DisplayValue(Data.Signal)
+        }
+    };
+
+    private string SignalDetail => Data.Regime switch
+    {
+        "RiskOn" => L[RK.Vix.ActionIncreaseExposure],
+        "Panic" => L[RK.Vix.ActionReduceExposure],
+        "Recovery" => L[RK.Vix.ActionBuildPosition],
+        "EarlyRisk" => L[RK.Vix.ActionReduceRisk],
+        _ => TrendLabel
+    };
+
+    private string TrendLabel => Data.Trend switch
+    {
+        "Up" => L[RK.VnIndexAnalysis.TrendUp],
+        "Down" => L[RK.VnIndexAnalysis.TrendDown],
+        "Sideways" => L[RK.VnIndexAnalysis.TrendSideways],
+        _ => DisplayValue(Data.Trend)
+    };
+
+    private string MomentumLabel => Data.Momentum switch
+    {
+        "Strong" => L[RK.VnIndexAnalysis.MomentumStrong],
+        "Weak" => L[RK.VnIndexAnalysis.MomentumWeak],
+        "Neutral" => L[RK.VnIndexAnalysis.MomentumNeutral],
+        _ => DisplayValue(Data.Momentum)
+    };
+
+    private string SetupLabel => Data.Setup switch
+    {
+        "Pullback" => L[RK.VnIndexAnalysis.SetupPullback],
+        "Breakout" => L[RK.VnIndexAnalysis.SetupBreakout],
+        _ => DisplayValue(Data.Setup)
+    };
+
+    private string SignalBackgroundClass => Data.Signal switch
+    {
+        "Long" => "bg-success bg-opacity-10",
+        "Short" => "bg-danger bg-opacity-10",
+        _ => Data.Regime switch
+        {
+            "RiskOn" or "Recovery" => "bg-success bg-opacity-10",
+            "Panic" => "bg-danger bg-opacity-10",
+            "EarlyRisk" => "bg-warning bg-opacity-10",
+            _ => "bg-secondary bg-opacity-10"
+        }
+    };
+
+    private BadgeStyle SignalBadgeStyle => Data.Signal switch
+    {
+        "Long" => BadgeStyle.Success,
+        "Short" => BadgeStyle.Danger,
+        _ => Data.Regime switch
+        {
+            "RiskOn" => BadgeStyle.Success,
+            "Recovery" => BadgeStyle.Info,
+            "Panic" => BadgeStyle.Danger,
+            "EarlyRisk" => BadgeStyle.Warning,
+            _ => BadgeStyle.Secondary
+        }
+    };
+
+    private static string FormatValue(decimal? value) => value?.ToString("N2") ?? "-";
+    private static string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+    private static string FormatChange(decimal? change, decimal? changePct) =>
+        $"{change.GetValueOrDefault():+0.00;-0.00;0.00} ({changePct.GetValueOrDefault():+0.00;-0.00;0.00}%)";
+    private static string FormatPercent(decimal? value) =>
+        value.HasValue ? $"{value.Value * 100m:+0.00;-0.00;0.00}%" : "-";
+}
