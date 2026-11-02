@@ -36,7 +36,6 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
         BotCommandContext context,
         CancellationToken cancellationToken)
     {
-        var vixTask = _mediator.Send(new GetYahooFinanceVixQuery(), cancellationToken);
         var vnIndexTask = SendSafelyAsync(
             new GetInvestingVnIndexAnalysisQuery(),
             ex => new InvestingVnIndexAnalysisResponse { Success = false, Message = ex.Message },
