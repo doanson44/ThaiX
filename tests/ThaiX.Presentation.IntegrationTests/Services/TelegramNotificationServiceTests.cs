@@ -31,9 +31,10 @@ public sealed class TelegramNotificationServiceTests
         var visibleChunks = handler.Messages
             .Select(message => WebUtility.HtmlDecode(Regex.Replace(message, "<[^>]+>", string.Empty)))
             .ToArray();
+        var expectedVisibleText = WebUtility.HtmlDecode(Regex.Replace(html, "<[^>]+>", string.Empty));
 
         visibleChunks.Should().OnlyContain(chunk => chunk.Length <= 3500);
-        string.Concat(visibleChunks).Should().Be(WebUtility.HtmlDecode(html));
+        string.Concat(visibleChunks).Should().Be(expectedVisibleText);
     }
 
     private sealed class TelegramMessageHandler : HttpMessageHandler
