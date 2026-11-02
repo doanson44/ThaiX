@@ -1994,4 +1994,7 @@
   <data name="GoldMarket.Volume" xml:space="preserve"><value>Daily volume (XAUT)</value></data>
   <data name="GoldMarket.LastUpdated" xml:space="preserve"><value>Candle date (UTC)</value></data>
   <data name="GoldMarket.LoadFailed" xml:space="preserve"><value>Unable to load gold market data.</value></data>
+  <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC · GOLD(XAUT)/USDT</value></data>
+  <data name="GoldMarket.Currency" xml:space="preserve"><value>USDT</value></data>
+  <data name="GoldMarket.QuoteVolume" xml:space="preserve"><value>Daily quote volume (USDT)</value></data>
 </root>
