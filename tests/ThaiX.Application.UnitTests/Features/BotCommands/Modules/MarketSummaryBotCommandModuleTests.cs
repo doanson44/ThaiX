@@ -11,7 +11,7 @@ namespace ThaiX.Application.UnitTests.Features.BotCommands.Modules;
 public sealed class MarketSummaryBotCommandModuleTests
 {
     [Fact]
-    public async Task ExecuteAsync_WhenBothSourcesSucceed_ShouldReturnCombinedVixAndVnIndexData()
+    public async Task ExecuteAsync_WhenAllSourcesSucceed_ShouldReturnCombinedMarketData()
     {
         // Arrange
         var vix = new YahooFinanceVixResponse
