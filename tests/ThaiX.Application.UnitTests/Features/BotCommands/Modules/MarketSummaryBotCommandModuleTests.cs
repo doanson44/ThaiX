@@ -115,11 +115,7 @@ public sealed class MarketSummaryBotCommandModuleTests
             .Setup(x => x.Send(
                 It.Is<IRequest<MexcGoldAnalysisResponse>>(query => query is GetMexcGoldAnalysisQuery),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new MexcGoldAnalysisResponse
-            {
-                Success = false,
-                Message = "Gold source unavailable"
-            });
+            .ThrowsAsync(new InvalidOperationException("Gold source unavailable"));
         mediator
             .Setup(x => x.Send(
                 It.Is<IRequest<YahooFinanceVixResponse>>(query => query is GetYahooFinanceVixQuery),
