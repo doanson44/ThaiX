@@ -4,6 +4,7 @@ using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Models;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
 using ThaiX.Domain.Common.Constants;
 
@@ -16,7 +17,7 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
         Name = "market-summary",
         Aliases = ["market-today", "vn-market", "tong-hop-thi-truong"],
         Syntax = "/market-summary",
-        Description = "Summarize today's Vietnam market using verified VIX volatility-regime data and VNINDEX daily technical indicators.",
+        Description = "Summarize Vietnam market conditions using VIX, VNINDEX technical indicators, and MEXC gold data.",
         Category = BotCommandCategory.TechnicalAnalysis,
         RequiredPermissions = [Permissions.TradingView],
         SupportsAsync = false
@@ -35,21 +36,34 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
         BotCommandContext context,
         CancellationToken cancellationToken)
     {
-        var vixTask = _mediator.Send(new GetYahooFinanceVixQuery(), cancellationToken);
-        var vnIndexTask = _mediator.Send(new GetInvestingVnIndexAnalysisQuery(), cancellationToken);
+        var vnIndexTask = SendSafelyAsync(
+            new GetInvestingVnIndexAnalysisQuery(),
+            ex => new InvestingVnIndexAnalysisResponse { Success = false, Message = ex.Message },
+            cancellationToken);
+        var goldTask = SendSafelyAsync(
+            new GetMexcGoldAnalysisQuery(),
+            ex => new MexcGoldAnalysisResponse { Symbol = "GOLD(XAUT)USDT", Success = false, Message = ex.Message },
+            cancellationToken);
 
-        await Task.WhenAll(vixTask, vnIndexTask);
+        var vixSafeTask = SendSafelyAsync(
+            new GetYahooFinanceVixQuery(),
+            ex => new YahooFinanceVixResponse { Symbol = "^VIX", Success = false, Message = ex.Message },
+            cancellationToken);
 
-        var vix = await vixTask;
+        await Task.WhenAll(vixSafeTask, vnIndexTask, goldTask);
+
+        var vix = await vixSafeTask;
         var vnIndex = await vnIndexTask;
+        var gold = await goldTask;
 
-        if (!vix.Success && !vnIndex.Success)
+        if (!vix.Success && !vnIndex.Success && !gold.Success)
         {
             return new BotCommandExecutionDto
             {
                 Status = BotCommandExecutionStatus.Failed,
-                PlainText = "Market summary is unavailable because neither VIX nor VNINDEX data could be retrieved. " +
-                    $"VIX: {vix.Message ?? "unavailable"}. VNINDEX: {vnIndex.Message ?? "unavailable"}.",
+                PlainText = "Market summary is unavailable because VIX, VNINDEX, and MEXC gold data could not be retrieved. " +
+                    $"VIX: {vix.Message ?? "unavailable"}. VNINDEX: {vnIndex.Message ?? "unavailable"}. " +
+                    $"Gold: {gold.Message ?? "unavailable"}.",
                 ErrorCode = ErrorCodes.EXTERNAL_SERVICE_ERROR
             };
         }
@@ -94,6 +108,19 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             lines.Add($"VNINDEX: unavailable. Source message: {vnIndex.Message ?? "no data returned"}.");
         }
 
+        if (gold.Success)
+        {
+            lines.Add(
+                $"MEXC gold ({gold.Symbol}): price={Format(gold.Price)}, open={Format(gold.BopPrice)}, " +
+                $"change={Format(gold.Change)}, changePct={Format(gold.ChangePct)}%, high={Format(gold.High)}, " +
+                $"low={Format(gold.Low)}, volume={Format(gold.Volume)}, quoteVolume={Format(gold.QuoteVolume)}, " +
+                $"dailyCandleDate={gold.LastUpdated}.");
+        }
+        else
+        {
+            lines.Add($"MEXC gold: unavailable. Source message: {gold.Message ?? "no data returned"}.");
+        }
+
         var metrics = new List<NotificationMetric>();
         if (vix.Success)
         {
@@ -115,6 +142,13 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             metrics.Add(new NotificationMetric { Label = "Support 20D", Value = Format(vnIndex.LowestLow20) });
         }
 
+        if (gold.Success)
+        {
+            metrics.Add(new NotificationMetric { Label = "Gold Price", Value = Format(gold.Price) });
+            metrics.Add(new NotificationMetric { Label = "Gold Daily Change", Value = $"{Format(gold.Change)} ({Format(gold.ChangePct)}%)" });
+            metrics.Add(new NotificationMetric { Label = "Gold Daily Range", Value = $"{Format(gold.Low)} - {Format(gold.High)}" });
+        }
+
         return new BotCommandExecutionDto
         {
             Status = BotCommandExecutionStatus.Completed,
@@ -122,11 +156,30 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
             Card = new NotificationCard
             {
                 Category = "Market Summary",
-                Title = "Vietnam Market: VIX + VNINDEX",
+                Title = "Vietnam Market: VIX + VNINDEX + Gold",
                 Type = NotificationCardType.Summary,
                 Metrics = metrics
             }
         };
+    }
+
+    private async Task<TResponse> SendSafelyAsync<TResponse>(
+        IRequest<TResponse> query,
+        Func<Exception, TResponse> failureFactory,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _mediator.Send(query, cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return failureFactory(ex);
+        }
     }
 
     private static string Format(decimal? value)

@@ -1986,4 +1986,15 @@
   <data name="CmsxProxyTester.InvalidJson" xml:space="preserve"><value>Invalid JSON</value></data>
   <data name="CmsxProxyTester.InvalidJsonDetails" xml:space="preserve"><value>Headers and query parameters must be valid JSON objects.</value></data>
   <data name="CmsxProxyTester.RequestFailed" xml:space="preserve"><value>Request failed</value></data>
+  <data name="GoldMarket.Title" xml:space="preserve"><value>Gold (XAUT/USDT)</value></data>
+  <data name="GoldMarket.LastPrice" xml:space="preserve"><value>Last price</value></data>
+  <data name="GoldMarket.Open" xml:space="preserve"><value>Daily open</value></data>
+  <data name="GoldMarket.High" xml:space="preserve"><value>Daily high</value></data>
+  <data name="GoldMarket.Low" xml:space="preserve"><value>Daily low</value></data>
+  <data name="GoldMarket.Volume" xml:space="preserve"><value>Daily volume (XAUT)</value></data>
+  <data name="GoldMarket.LastUpdated" xml:space="preserve"><value>Candle date (UTC)</value></data>
+  <data name="GoldMarket.LoadFailed" xml:space="preserve"><value>Unable to load gold market data.</value></data>
+  <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC · GOLD(XAUT)/USDT</value></data>
+  <data name="GoldMarket.Currency" xml:space="preserve"><value>USDT</value></data>
+  <data name="GoldMarket.QuoteVolume" xml:space="preserve"><value>Daily quote volume (USDT)</value></data>
 </root>

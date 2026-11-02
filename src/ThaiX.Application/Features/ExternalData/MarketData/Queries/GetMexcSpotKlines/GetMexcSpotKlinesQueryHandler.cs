@@ -36,7 +36,15 @@ public sealed class GetMexcSpotKlinesQueryHandler
         CancellationToken cancellationToken)
     {
         var symbol = request.Symbol.Trim().ToUpperInvariant();
-        if (symbol.Length is < 3 or > 20 || !symbol.All(char.IsLetterOrDigit))
+        var hasParentheses = symbol.Contains('(') || symbol.Contains(')');
+        var hasValidParentheses = !hasParentheses ||
+            (symbol.Count(character => character == '(') == 1 &&
+             symbol.Count(character => character == ')') == 1 &&
+             symbol.IndexOf('(') < symbol.IndexOf(')'));
+
+        if (symbol.Length is < 3 or > 30 ||
+            !symbol.All(character => char.IsLetterOrDigit(character) || character is '(' or ')') ||
+            !hasValidParentheses)
         {
             return new MexcSpotKlinesResponse
             {
@@ -44,7 +52,7 @@ public sealed class GetMexcSpotKlinesQueryHandler
                 Interval = request.Interval?.Trim() ?? string.Empty,
                 Data = new List<MexcSpotKlineDto>(),
                 Success = false,
-                Message = "Invalid symbol. Use only letters/digits, length 3-20."
+                Message = "Invalid symbol. Use letters/digits and optionally one balanced parenthesis pair, length 3-30."
             };
         }
 

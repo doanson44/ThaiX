@@ -33,6 +33,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContract
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractTickers;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotDepth;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotKlines;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24Hr;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetStockPriceHistory;
@@ -992,6 +993,31 @@ public static class ExternalDataEndpoints
         .RequireAuthorization(Domain.Common.Constants.Permissions.MasterDataRead)
         .WithName("GetMexcSpotKlines")
         .WithDescription("Get MEXC spot klines by symbol and interval. Supported interval: 1m, 5m, 15m, 30m, 60m, 4h, 1d, 1W, 1M.");
+
+        // GET /api/external-data/mexc/gold-analysis
+        group.MapGet("/gold-analysis", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetMexcGoldAnalysisQuery(), cancellationToken);
+
+            if (!result.Success)
+            {
+                var errorResponse = ApiResponse<MexcGoldAnalysisResponse>.ErrorResult(
+                    "GOLD_MARKET_DATA_UNAVAILABLE",
+                    result.Message ?? "Unable to retrieve gold market data.");
+                errorResponse.Metadata.CorrelationId = httpContext.GetCorrelationId();
+                return Results.BadRequest(errorResponse);
+            }
+
+            var response = ApiResponse<MexcGoldAnalysisResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .AllowAnonymous()
+        .WithName("GetMexcGoldAnalysis")
+        .WithDescription("Get daily GOLD(XAUT)USDT spot price and calculate the current candle's price change, change percentage, high, low, and volume.");
 
         // GET /api/external-data/mexc/spot-depth/{symbol}
         group.MapGet("/spot-depth/{symbol}", async (
