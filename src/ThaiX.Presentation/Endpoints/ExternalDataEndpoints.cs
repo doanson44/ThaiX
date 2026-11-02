@@ -34,6 +34,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContract
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotDepth;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotKlines;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcBitcoinAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24Hr;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetStockPriceHistory;
@@ -1018,6 +1019,31 @@ public static class ExternalDataEndpoints
         .AllowAnonymous()
         .WithName("GetMexcGoldAnalysis")
         .WithDescription("Get 500 daily GOLD(XAUT)USDT spot candles and calculate technical indicators and market analysis using the shared kline pipeline.");
+
+        // GET /api/external-data/mexc/bitcoin-analysis
+        group.MapGet("/bitcoin-analysis", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetMexcBitcoinAnalysisQuery(), cancellationToken);
+
+            if (!result.Success)
+            {
+                var errorResponse = ApiResponse<MexcBitcoinAnalysisResponse>.ErrorResult(
+                    "BITCOIN_MARKET_DATA_UNAVAILABLE",
+                    result.Message ?? "Unable to retrieve Bitcoin market data.");
+                errorResponse.Metadata.CorrelationId = httpContext.GetCorrelationId();
+                return Results.BadRequest(errorResponse);
+            }
+
+            var response = ApiResponse<MexcBitcoinAnalysisResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .AllowAnonymous()
+        .WithName("GetMexcBitcoinAnalysis")
+        .WithDescription("Get 500 daily BTCUSDT spot candles and calculate technical indicators and market analysis using the shared kline pipeline.");
 
         // GET /api/external-data/mexc/spot-depth/{symbol}
         group.MapGet("/spot-depth/{symbol}", async (

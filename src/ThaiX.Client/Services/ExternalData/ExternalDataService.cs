@@ -156,6 +156,13 @@ public sealed class ExternalDataService : IExternalDataService
             ClientCacheTtl.Ticker,
             cancellationToken);
 
+    public Task<ApiResponse<MexcBitcoinAnalysisResponseDto>> GetMexcBitcoinAnalysisAsync(CancellationToken cancellationToken = default) =>
+        GetEnvelopeCachedAsync<MexcBitcoinAnalysisResponseDto>(
+            CacheGroups.ExternalExchangeMexc,
+            "mexc/bitcoin-analysis",
+            ClientCacheTtl.Ticker,
+            cancellationToken);
+
     public Task<ApiResponse<VnDirectTopStocksResponseDto>> GetVnDirectTopStocksAsync(CancellationToken cancellationToken = default) =>
         GetEnvelopeCachedAsync<VnDirectTopStocksResponseDto>(
             CacheGroups.ExternalVnDirect,
