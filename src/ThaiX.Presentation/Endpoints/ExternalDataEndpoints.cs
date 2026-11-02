@@ -34,6 +34,7 @@ using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContract
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotDepth;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotKlines;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcBitcoinAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24Hr;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetStockPriceHistory;
@@ -1017,7 +1018,32 @@ public static class ExternalDataEndpoints
         })
         .AllowAnonymous()
         .WithName("GetMexcGoldAnalysis")
-        .WithDescription("Get daily GOLD(XAUT)USDT spot price and calculate the current candle's price change, change percentage, high, low, and volume.");
+        .WithDescription("Get 500 daily GOLD(XAUT)USDT spot candles and calculate technical indicators and market analysis using the shared kline pipeline.");
+
+        // GET /api/external-data/mexc/bitcoin-analysis
+        group.MapGet("/bitcoin-analysis", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var result = await mediator.Send(new GetMexcBitcoinAnalysisQuery(), cancellationToken);
+
+            if (!result.Success)
+            {
+                var errorResponse = ApiResponse<MexcBitcoinAnalysisResponse>.ErrorResult(
+                    "BITCOIN_MARKET_DATA_UNAVAILABLE",
+                    result.Message ?? "Unable to retrieve Bitcoin market data.");
+                errorResponse.Metadata.CorrelationId = httpContext.GetCorrelationId();
+                return Results.BadRequest(errorResponse);
+            }
+
+            var response = ApiResponse<MexcBitcoinAnalysisResponse>.SuccessResult(result);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .AllowAnonymous()
+        .WithName("GetMexcBitcoinAnalysis")
+        .WithDescription("Get 500 daily BTCUSDT spot candles and calculate technical indicators and market analysis using the shared kline pipeline.");
 
         // GET /api/external-data/mexc/spot-depth/{symbol}
         group.MapGet("/spot-depth/{symbol}", async (
@@ -1208,7 +1234,49 @@ public static class ExternalDataEndpoints
                 request.VnIndex.Setup,
                 request.VnIndex.Signal,
                 request.VnIndex.Confidence,
-                request.VnIndex.HistoryCount);
+                request.VnIndex.HistoryCount,
+                request.Bitcoin.Symbol,
+                Fmt(request.Bitcoin.Price),
+                Fmt(request.Bitcoin.ChangePct),
+                Fmt(request.Bitcoin.Ema9),
+                Fmt(request.Bitcoin.Ema21),
+                Fmt(request.Bitcoin.Ema50),
+                Fmt(request.Bitcoin.Rsi14),
+                Fmt(request.Bitcoin.Atr14),
+                Fmt(request.Bitcoin.AverageVolume20),
+                Fmt(request.Bitcoin.HighestHigh20),
+                Fmt(request.Bitcoin.LowestLow20),
+                request.Bitcoin.Trend,
+                request.Bitcoin.Momentum,
+                request.Bitcoin.Setup,
+                request.Bitcoin.Signal,
+                Fmt(request.Bitcoin.Confidence),
+                request.Bitcoin.HistoryCount,
+                Fmt(request.Bitcoin.Entry),
+                Fmt(request.Bitcoin.StopLoss),
+                Fmt(request.Bitcoin.TakeProfit1),
+                Fmt(request.Bitcoin.TakeProfit2),
+                request.Gold.Symbol,
+                Fmt(request.Gold.Price),
+                Fmt(request.Gold.ChangePct),
+                Fmt(request.Gold.Ema9),
+                Fmt(request.Gold.Ema21),
+                Fmt(request.Gold.Ema50),
+                Fmt(request.Gold.Rsi14),
+                Fmt(request.Gold.Atr14),
+                Fmt(request.Gold.AverageVolume20),
+                Fmt(request.Gold.HighestHigh20),
+                Fmt(request.Gold.LowestLow20),
+                request.Gold.Trend,
+                request.Gold.Momentum,
+                request.Gold.Setup,
+                request.Gold.Signal,
+                Fmt(request.Gold.Confidence),
+                request.Gold.HistoryCount,
+                Fmt(request.Gold.Entry),
+                Fmt(request.Gold.StopLoss),
+                Fmt(request.Gold.TakeProfit1),
+                Fmt(request.Gold.TakeProfit2));
 
             var result = await ai.GenerateAsync(prompt, systemPrompt, cts.Token);
             var response = ApiResponse<CombinedMarketAssessmentResponse>.SuccessResult(
@@ -1597,6 +1665,58 @@ public sealed record CombinedMarketAssessmentRequest
 {
     public required GetVixVerdictRequest Vix { get; init; }
     public required GetInvestingVnIndexVerdictRequest VnIndex { get; init; }
+    public GetBitcoinMarketAssessmentRequest Bitcoin { get; init; } = new();
+    public GetGoldMarketAssessmentRequest Gold { get; init; } = new();
+}
+
+public sealed record GetBitcoinMarketAssessmentRequest
+{
+    public string Symbol { get; init; } = "BTCUSDT";
+    public decimal Price { get; init; }
+    public decimal ChangePct { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+    public decimal? Entry { get; init; }
+    public decimal? StopLoss { get; init; }
+    public decimal? TakeProfit1 { get; init; }
+    public decimal? TakeProfit2 { get; init; }
+}
+
+public sealed record GetGoldMarketAssessmentRequest
+{
+    public string Symbol { get; init; } = "XAUTUSDT";
+    public decimal Price { get; init; }
+    public decimal ChangePct { get; init; }
+    public decimal? Ema9 { get; init; }
+    public decimal? Ema21 { get; init; }
+    public decimal? Ema50 { get; init; }
+    public decimal? Rsi14 { get; init; }
+    public decimal? Atr14 { get; init; }
+    public decimal? AverageVolume20 { get; init; }
+    public decimal? HighestHigh20 { get; init; }
+    public decimal? LowestLow20 { get; init; }
+    public string? Trend { get; init; }
+    public string? Momentum { get; init; }
+    public string? Setup { get; init; }
+    public string? Signal { get; init; }
+    public decimal? Confidence { get; init; }
+    public int HistoryCount { get; init; }
+    public decimal? Entry { get; init; }
+    public decimal? StopLoss { get; init; }
+    public decimal? TakeProfit1 { get; init; }
+    public decimal? TakeProfit2 { get; init; }
 }
 
 public sealed record CombinedMarketAssessmentResponse

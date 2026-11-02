@@ -21,6 +21,7 @@ public interface IExternalDataService
     Task<VixVerdictDto> GetVixVerdictAsync(GetVixVerdictRequest request, CancellationToken cancellationToken = default);
     Task<ApiResponse<VnDirectChangePricesResponseDto>> GetVnDirectChangePricesAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<MexcGoldAnalysisResponseDto>> GetMexcGoldAnalysisAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<MexcBitcoinAnalysisResponseDto>> GetMexcBitcoinAnalysisAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<VnIndexAnalysisResponseDto>> GetInvestingVnIndexAnalysisAsync(CancellationToken cancellationToken = default);
     Task<VnIndexVerdictResponseDto> GetInvestingVnIndexVerdictAsync(GetVnIndexVerdictRequestDto request, CancellationToken cancellationToken = default);
     Task<CombinedMarketAssessmentResponseDto> GetCombinedMarketAssessmentAsync(CombinedMarketAssessmentRequestDto request, CancellationToken cancellationToken = default);

@@ -158,6 +158,61 @@ public static class ResourceKeys
         public const string Pair = "GoldMarket.Pair";
         public const string Currency = "GoldMarket.Currency";
         public const string QuoteVolume = "GoldMarket.QuoteVolume";
+        public const string PreviousClose = "GoldMarket.PreviousClose";
+        public const string HistoryTitle = "GoldMarket.HistoryTitle";
+        public const string HistoryCount = "GoldMarket.HistoryCount";
+        public const string Ema9 = "GoldMarket.Ema9";
+        public const string Ema21 = "GoldMarket.Ema21";
+        public const string Ema50 = "GoldMarket.Ema50";
+        public const string Rsi14 = "GoldMarket.Rsi14";
+        public const string Atr14 = "GoldMarket.Atr14";
+        public const string AverageVolume20 = "GoldMarket.AverageVolume20";
+        public const string HighestHigh20 = "GoldMarket.HighestHigh20";
+        public const string LowestLow20 = "GoldMarket.LowestLow20";
+        public const string Trend = "GoldMarket.Trend";
+        public const string Momentum = "GoldMarket.Momentum";
+        public const string Setup = "GoldMarket.Setup";
+        public const string Signal = "GoldMarket.Signal";
+        public const string Confidence = "GoldMarket.Confidence";
+        public const string Entry = "GoldMarket.Entry";
+        public const string StopLoss = "GoldMarket.StopLoss";
+        public const string TakeProfit1 = "GoldMarket.TakeProfit1";
+        public const string TakeProfit2 = "GoldMarket.TakeProfit2";
+    }
+
+    public static class BitcoinMarket
+    {
+        public const string Title = "BitcoinMarket.Title";
+        public const string Pair = "BitcoinMarket.Pair";
+        public const string Currency = "BitcoinMarket.Currency";
+        public const string LastPrice = "BitcoinMarket.LastPrice";
+        public const string PreviousClose = "BitcoinMarket.PreviousClose";
+        public const string Open = "BitcoinMarket.Open";
+        public const string High = "BitcoinMarket.High";
+        public const string Low = "BitcoinMarket.Low";
+        public const string Volume = "BitcoinMarket.Volume";
+        public const string QuoteVolume = "BitcoinMarket.QuoteVolume";
+        public const string HistoryTitle = "BitcoinMarket.HistoryTitle";
+        public const string HistoryCount = "BitcoinMarket.HistoryCount";
+        public const string Ema9 = "BitcoinMarket.Ema9";
+        public const string Ema21 = "BitcoinMarket.Ema21";
+        public const string Ema50 = "BitcoinMarket.Ema50";
+        public const string Rsi14 = "BitcoinMarket.Rsi14";
+        public const string Atr14 = "BitcoinMarket.Atr14";
+        public const string AverageVolume20 = "BitcoinMarket.AverageVolume20";
+        public const string HighestHigh20 = "BitcoinMarket.HighestHigh20";
+        public const string LowestLow20 = "BitcoinMarket.LowestLow20";
+        public const string Trend = "BitcoinMarket.Trend";
+        public const string Momentum = "BitcoinMarket.Momentum";
+        public const string Setup = "BitcoinMarket.Setup";
+        public const string Signal = "BitcoinMarket.Signal";
+        public const string Confidence = "BitcoinMarket.Confidence";
+        public const string Entry = "BitcoinMarket.Entry";
+        public const string StopLoss = "BitcoinMarket.StopLoss";
+        public const string TakeProfit1 = "BitcoinMarket.TakeProfit1";
+        public const string TakeProfit2 = "BitcoinMarket.TakeProfit2";
+        public const string LastUpdated = "BitcoinMarket.LastUpdated";
+        public const string LoadFailed = "BitcoinMarket.LoadFailed";
     }
 
     public static class Breadcrumb

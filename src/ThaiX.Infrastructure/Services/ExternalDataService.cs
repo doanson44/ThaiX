@@ -216,6 +216,11 @@ public sealed class ExternalDataService : IExternalDataService
         return _mexcApiProvider.GetSpotKlinesAsync<T>(symbol, interval, cancellationToken);
     }
 
+    public Task<T?> GetMexcSpotKlinesAsync<T>(string symbol, string interval, int limit, CancellationToken cancellationToken = default)
+    {
+        return _mexcApiProvider.GetSpotKlinesAsync<T>(symbol, interval, limit, cancellationToken);
+    }
+
     public Task<T?> GetMexcSpotDepthAsync<T>(string symbol, CancellationToken cancellationToken = default)
     {
         return _mexcApiProvider.GetSpotDepthAsync<T>(symbol, cancellationToken);

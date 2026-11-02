@@ -1,0 +1,221 @@
+@using Microsoft.AspNetCore.Components
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+@implements IDisposable
+
+<RadzenCard Class="h-100 w-100">
+    @if (_isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center p-4">
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        </div>
+    }
+    else if (_data is null || !_data.Success)
+    {
+        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            @(_data?.Message ?? L[RK.BitcoinMarket.LoadFailed])
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">
+                    @L[RK.BitcoinMarket.Title]
+                </RadzenText>
+                <RadzenBadge Text="@L[RK.BitcoinMarket.Pair]" BadgeStyle="BadgeStyle.Warning" />
+            </RadzenStack>
+
+            <RadzenStack Gap="0.25rem">
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.LastPrice]</RadzenText>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : TextStyle.H3)" Class="mb-0">@($"{_data.Price:N2} {L[RK.BitcoinMarket.Currency]}")</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body2" Class="@(_data.Change >= 0 ? "text-success" : "text-danger")">
+                    <strong>@($"{_data.Change:+0.00;-0.00;0.00} {L[RK.BitcoinMarket.Currency]} ({_data.ChangePct:+0.00;-0.00;0.00}%)")</strong>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.PreviousClose]: @($"{_data.PreviousClose:N2}")</RadzenText>
+            </RadzenStack>
+
+            <RadzenRow>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Open]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.Open:N2}")</strong></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.High]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.High:N2}")</strong></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Low]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.Low:N2}")</strong></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Volume]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.Volume:N2}")</strong></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.QuoteVolume]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.QuoteVolume:N2}")</strong></RadzenText>
+                </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.HistoryCount]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@_data.HistoryCount / 500</strong></RadzenText>
+                </RadzenColumn>
+            </RadzenRow>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.HistoryTitle]</RadzenText>
+                <RadzenChart Style="height: 240px; width: 100%;">
+                    <RadzenLineSeries Data="@_data.History"
+                                      CategoryProperty="@nameof(MexcBitcoinCandleDto.DateLabel)"
+                                      ValueProperty="@nameof(MexcBitcoinCandleDto.Close)"
+                                      Title="@L[RK.BitcoinMarket.LastPrice]" />
+                    <RadzenCategoryAxis />
+                    <RadzenValueAxis />
+                </RadzenChart>
+            </RadzenStack>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.Trend]</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Ema9]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema9)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Ema21]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema21)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Ema50]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema50)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Rsi14]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Rsi14)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Atr14]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Atr14)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.AverageVolume20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.AverageVolume20)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.HighestHigh20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.HighestHigh20)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.LowestLow20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.LowestLow20)</strong></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.BitcoinMarket.Signal]</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Trend]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Trend)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Momentum]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Momentum)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Setup]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Setup)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Confidence]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@(_data.Confidence?.ToString("P1") ?? "-")</strong></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenBadge Text="@DisplayValue(_data.Signal)" BadgeStyle="@SignalBadgeStyle" />
+                @if (_data.Entry.HasValue)
+                {
+                    <RadzenRow>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.Entry]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Entry)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.StopLoss]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.StopLoss)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.TakeProfit1]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.TakeProfit1)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.BitcoinMarket.TakeProfit2]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.TakeProfit2)</strong></RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+                }
+            </RadzenStack>
+
+            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
+                @L[RK.BitcoinMarket.LastUpdated]: @_data.LastUpdated
+            </RadzenText>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    [Parameter] public EventCallback OnDataLoaded { get; set; }
+    private MexcBitcoinAnalysisResponseDto? _data;
+
+    public MexcBitcoinAnalysisResponseDto? Data => _data;
+    private bool _isLoading;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Viewport.OnBreakpointChanged += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetMexcBitcoinAnalysisAsync();
+            if (response is { Data: not null })
+                _data = response.Data;
+        }
+        catch
+        {
+            // Keep _data null so the widget shows load failure.
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+
+        await OnDataLoaded.InvokeAsync();
+    }
+
+    private BadgeStyle SignalBadgeStyle => _data?.Signal switch
+    {
+        "Long" => BadgeStyle.Success,
+        "Short" => BadgeStyle.Danger,
+        _ => BadgeStyle.Secondary
+    };
+
+    private static string FormatValue(decimal? value) => value?.ToString("N2") ?? "-";
+
+    private static string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+
+    public void Dispose()
+    {
+        Viewport.OnBreakpointChanged -= StateHasChanged;
+    }
+}

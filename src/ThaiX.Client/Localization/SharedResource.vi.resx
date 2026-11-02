@@ -1996,4 +1996,55 @@
   <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC · GOLD(XAUT)/USDT</value></data>
   <data name="GoldMarket.Currency" xml:space="preserve"><value>USDT</value></data>
   <data name="GoldMarket.QuoteVolume" xml:space="preserve"><value>Khối lượng quy đổi ngày (USDT)</value></data>
+  <data name="GoldMarket.PreviousClose" xml:space="preserve"><value>Giá đóng cửa phiên trước</value></data>
+  <data name="GoldMarket.HistoryTitle" xml:space="preserve"><value>Lịch sử giá 500 ngày</value></data>
+  <data name="GoldMarket.HistoryCount" xml:space="preserve"><value>Số nến ngày</value></data>
+  <data name="GoldMarket.Ema9" xml:space="preserve"><value>EMA 9</value></data>
+  <data name="GoldMarket.Ema21" xml:space="preserve"><value>EMA 21</value></data>
+  <data name="GoldMarket.Ema50" xml:space="preserve"><value>EMA 50</value></data>
+  <data name="GoldMarket.Rsi14" xml:space="preserve"><value>RSI 14</value></data>
+  <data name="GoldMarket.Atr14" xml:space="preserve"><value>ATR 14</value></data>
+  <data name="GoldMarket.AverageVolume20" xml:space="preserve"><value>Khối lượng trung bình 20 ngày</value></data>
+  <data name="GoldMarket.HighestHigh20" xml:space="preserve"><value>Đỉnh cao nhất 20 ngày</value></data>
+  <data name="GoldMarket.LowestLow20" xml:space="preserve"><value>Đáy thấp nhất 20 ngày</value></data>
+  <data name="GoldMarket.Trend" xml:space="preserve"><value>Xu hướng</value></data>
+  <data name="GoldMarket.Momentum" xml:space="preserve"><value>Động lượng</value></data>
+  <data name="GoldMarket.Setup" xml:space="preserve"><value>Thiết lập</value></data>
+  <data name="GoldMarket.Signal" xml:space="preserve"><value>Tín hiệu</value></data>
+  <data name="GoldMarket.Confidence" xml:space="preserve"><value>Độ tin cậy</value></data>
+  <data name="GoldMarket.Entry" xml:space="preserve"><value>Giá vào lệnh</value></data>
+  <data name="GoldMarket.StopLoss" xml:space="preserve"><value>Cắt lỗ</value></data>
+  <data name="GoldMarket.TakeProfit1" xml:space="preserve"><value>Chốt lời 1</value></data>
+  <data name="GoldMarket.TakeProfit2" xml:space="preserve"><value>Chốt lời 2</value></data>
+  <data name="BitcoinMarket.Title" xml:space="preserve"><value>Bitcoin (BTC/USDT)</value></data>
+  <data name="BitcoinMarket.Pair" xml:space="preserve"><value>MEXC · BTC/USDT</value></data>
+  <data name="BitcoinMarket.Currency" xml:space="preserve"><value>USDT</value></data>
+  <data name="BitcoinMarket.LastPrice" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="BitcoinMarket.PreviousClose" xml:space="preserve"><value>Giá đóng cửa phiên trước</value></data>
+  <data name="BitcoinMarket.Open" xml:space="preserve"><value>Giá mở cửa ngày</value></data>
+  <data name="BitcoinMarket.High" xml:space="preserve"><value>Giá cao nhất ngày</value></data>
+  <data name="BitcoinMarket.Low" xml:space="preserve"><value>Giá thấp nhất ngày</value></data>
+  <data name="BitcoinMarket.Volume" xml:space="preserve"><value>Khối lượng ngày (BTC)</value></data>
+  <data name="BitcoinMarket.QuoteVolume" xml:space="preserve"><value>Khối lượng quy đổi ngày (USDT)</value></data>
+  <data name="BitcoinMarket.HistoryTitle" xml:space="preserve"><value>Lịch sử giá 500 ngày</value></data>
+  <data name="BitcoinMarket.HistoryCount" xml:space="preserve"><value>Số nến ngày</value></data>
+  <data name="BitcoinMarket.Ema9" xml:space="preserve"><value>EMA 9</value></data>
+  <data name="BitcoinMarket.Ema21" xml:space="preserve"><value>EMA 21</value></data>
+  <data name="BitcoinMarket.Ema50" xml:space="preserve"><value>EMA 50</value></data>
+  <data name="BitcoinMarket.Rsi14" xml:space="preserve"><value>RSI 14</value></data>
+  <data name="BitcoinMarket.Atr14" xml:space="preserve"><value>ATR 14</value></data>
+  <data name="BitcoinMarket.AverageVolume20" xml:space="preserve"><value>Khối lượng trung bình 20 ngày</value></data>
+  <data name="BitcoinMarket.HighestHigh20" xml:space="preserve"><value>Đỉnh cao nhất 20 ngày</value></data>
+  <data name="BitcoinMarket.LowestLow20" xml:space="preserve"><value>Đáy thấp nhất 20 ngày</value></data>
+  <data name="BitcoinMarket.Trend" xml:space="preserve"><value>Xu hướng</value></data>
+  <data name="BitcoinMarket.Momentum" xml:space="preserve"><value>Động lượng</value></data>
+  <data name="BitcoinMarket.Setup" xml:space="preserve"><value>Thiết lập</value></data>
+  <data name="BitcoinMarket.Signal" xml:space="preserve"><value>Tín hiệu</value></data>
+  <data name="BitcoinMarket.Confidence" xml:space="preserve"><value>Độ tin cậy</value></data>
+  <data name="BitcoinMarket.Entry" xml:space="preserve"><value>Giá vào lệnh</value></data>
+  <data name="BitcoinMarket.StopLoss" xml:space="preserve"><value>Cắt lỗ</value></data>
+  <data name="BitcoinMarket.TakeProfit1" xml:space="preserve"><value>Chốt lời 1</value></data>
+  <data name="BitcoinMarket.TakeProfit2" xml:space="preserve"><value>Chốt lời 2</value></data>
+  <data name="BitcoinMarket.LastUpdated" xml:space="preserve"><value>Ngày nến (UTC)</value></data>
+  <data name="BitcoinMarket.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu thị trường Bitcoin.</value></data>
 </root>
