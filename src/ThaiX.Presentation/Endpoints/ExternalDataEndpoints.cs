@@ -1017,7 +1017,7 @@ public static class ExternalDataEndpoints
         })
         .AllowAnonymous()
         .WithName("GetMexcGoldAnalysis")
-        .WithDescription("Get daily GOLD(XAUT)USDT spot price and calculate the current candle's price change, change percentage, high, low, and volume.");
+        .WithDescription("Get 500 daily GOLD(XAUT)USDT spot candles and calculate technical indicators and market analysis using the shared kline pipeline,  and volume.");
 
         // GET /api/external-data/mexc/spot-depth/{symbol}
         group.MapGet("/spot-depth/{symbol}", async (

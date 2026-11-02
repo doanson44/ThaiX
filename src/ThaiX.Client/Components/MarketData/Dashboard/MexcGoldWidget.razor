@@ -5,6 +5,7 @@
 @inject IExternalDataService ExternalDataService
 @inject IStringLocalizer<SharedResource> L
 @inherits ThaiXPageBase
+@implements IDisposable
 
 <RadzenCard Class="h-100 w-100">
     @if (_isLoading)
@@ -16,13 +17,13 @@
     else if (_data is null || !_data.Success)
     {
         <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
-            @L[RK.GoldMarket.LoadFailed]
+            @(_data?.Message ?? L[RK.GoldMarket.LoadFailed])
         </RadzenAlert>
     }
     else
     {
         <RadzenStack Gap="1rem">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
                 <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">
                     @L[RK.GoldMarket.Title]
                 </RadzenText>
@@ -35,6 +36,7 @@
                 <RadzenText TextStyle="TextStyle.Body2" Class="@(_data.Change >= 0 ? "text-success" : "text-danger")">
                     <strong>@($"{_data.Change:+0.00;-0.00;0.00} {L[RK.GoldMarket.Currency]} ({_data.ChangePct:+0.00;-0.00;0.00}%)")</strong>
                 </RadzenText>
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.PreviousClose]: @($"{_data.PreviousClose:N2}")</RadzenText>
             </RadzenStack>
 
             <RadzenRow>
@@ -58,7 +60,105 @@
                     <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.QuoteVolume]</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body2"><strong>@($"{_data.QuoteVolume:N2}")</strong></RadzenText>
                 </RadzenColumn>
+                <RadzenColumn Size="6" SizeMD="4">
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.HistoryCount]</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@_data.HistoryCount / 500</strong></RadzenText>
+                </RadzenColumn>
             </RadzenRow>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.GoldMarket.HistoryTitle]</RadzenText>
+                <RadzenChart Style="height: 240px; width: 100%;">
+                    <RadzenLineSeries Data="@_data.History"
+                                      CategoryProperty="@nameof(MexcGoldCandleDto.DateLabel)"
+                                      ValueProperty="@nameof(MexcGoldCandleDto.Close)"
+                                      Title="@L[RK.GoldMarket.LastPrice]" />
+                    <RadzenCategoryAxis />
+                    <RadzenValueAxis />
+                </RadzenChart>
+            </RadzenStack>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.GoldMarket.Trend]</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Ema9]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema9)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Ema21]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema21)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Ema50]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Ema50)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Rsi14]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Rsi14)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Atr14]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Atr14)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.AverageVolume20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.AverageVolume20)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.HighestHigh20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.HighestHigh20)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="4">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.LowestLow20]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.LowestLow20)</strong></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenStack>
+
+            <RadzenStack Gap="0.5rem">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">@L[RK.GoldMarket.Signal]</RadzenText>
+                <RadzenRow>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Trend]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Trend)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Momentum]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Momentum)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Setup]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@DisplayValue(_data.Setup)</strong></RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn Size="6" SizeMD="3">
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Confidence]</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@(_data.Confidence?.ToString("P1") ?? "-")</strong></RadzenText>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenBadge Text="@DisplayValue(_data.Signal)" BadgeStyle="@SignalBadgeStyle" />
+                @if (_data.Entry.HasValue)
+                {
+                    <RadzenRow>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.Entry]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.Entry)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.StopLoss]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.StopLoss)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.TakeProfit1]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.TakeProfit1)</strong></RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="6" SizeMD="3">
+                            <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@L[RK.GoldMarket.TakeProfit2]</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body2"><strong>@FormatValue(_data.TakeProfit2)</strong></RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+                }
+            </RadzenStack>
 
             <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">
                 @L[RK.GoldMarket.LastUpdated]: @_data.LastUpdated
@@ -70,6 +170,12 @@
 @code {
     private MexcGoldAnalysisResponseDto? _data;
     private bool _isLoading;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Viewport.OnBreakpointChanged += StateHasChanged;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,5 +194,21 @@
         {
             _isLoading = false;
         }
+    }
+
+    private BadgeStyle SignalBadgeStyle => _data?.Signal switch
+    {
+        "Long" => BadgeStyle.Success,
+        "Short" => BadgeStyle.Danger,
+        _ => BadgeStyle.Secondary
+    };
+
+    private static string FormatValue(decimal? value) => value?.ToString("N2") ?? "-";
+
+    private static string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+
+    public void Dispose()
+    {
+        Viewport.OnBreakpointChanged -= StateHasChanged;
     }
 }

@@ -1,29 +1,41 @@
-using MediatR;
 using System.Globalization;
 using System.Text.Json;
+using MediatR;
 using ThaiX.Application.Common.Interfaces;
+using ThaiX.Application.Trading;
 
 namespace ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcGoldAnalysis;
 
-public sealed class GetMexcGoldAnalysisQueryHandler(IExternalDataService externalDataService)
+public sealed class GetMexcGoldAnalysisQueryHandler(
+    IExternalDataService externalDataService,
+    IIndicatorService indicatorService,
+    IKlineExecutionEngine executionEngine)
     : IRequestHandler<GetMexcGoldAnalysisQuery, MexcGoldAnalysisResponse>
 {
     private const string GoldSymbol = "GOLD(XAUT)USDT";
     private const string DailyInterval = "1d";
+    private const int HistoryLimit = 500;
+    private const string InsufficientHistoryMessage = "Insufficient daily gold candle history for indicator computation.";
 
     public async Task<MexcGoldAnalysisResponse> Handle(
         GetMexcGoldAnalysisQuery request,
         CancellationToken cancellationToken)
     {
-        var rows = await externalDataService
-            .GetMexcSpotKlinesAsync<List<List<JsonElement>>>(GoldSymbol, DailyInterval, cancellationToken);
+        var rows = await externalDataService.GetMexcSpotKlinesAsync<List<List<JsonElement>>>(
+            GoldSymbol,
+            DailyInterval,
+            HistoryLimit,
+            cancellationToken);
 
         var candles = rows?
             .Where(row => row.Count >= 8)
             .Select(ParseCandle)
             .Where(candle => candle is not null)
             .Select(candle => candle!)
+            .GroupBy(candle => candle.OpenTime)
+            .Select(group => group.First())
             .OrderBy(candle => candle.OpenTime)
+            .TakeLast(HistoryLimit)
             .ToList();
 
         if (candles is not { Count: > 0 })
@@ -36,23 +48,85 @@ public sealed class GetMexcGoldAnalysisQueryHandler(IExternalDataService externa
             };
         }
 
-        var latest = candles[^1];
-        var change = latest.Close - latest.Open;
+        var history = candles.Select(candle => new Kline
+        {
+            Time = DateTimeOffset.FromUnixTimeMilliseconds(candle.OpenTime).UtcDateTime,
+            Open = candle.Open,
+            High = candle.High,
+            Low = candle.Low,
+            Close = candle.Close,
+            Volume = candle.Volume
+        }).ToList();
 
-        return new MexcGoldAnalysisResponse
+        var context = new KlineExecutionContext
+        {
+            MarketType = MarketType.CryptoSpot,
+            Timeframe = DailyInterval,
+            MarketRegime = MarketRegime.Neutral,
+            EventRisk = EventRisk.Low
+        };
+
+        var latest = candles[^1];
+        var previousClose = candles.Count > 1 ? candles[^2].Close : (decimal?)null;
+        var change = previousClose.HasValue ? latest.Close - previousClose.Value : 0m;
+        var changePct = previousClose is > 0m ? change / previousClose.Value * 100m : 0m;
+        var response = new MexcGoldAnalysisResponse
         {
             Symbol = GoldSymbol,
             Price = latest.Close,
             BopPrice = latest.Open,
             Change = change,
-            ChangePct = latest.Open == 0 ? 0 : change / latest.Open * 100,
+            ChangePct = changePct,
             High = latest.High,
             Low = latest.Low,
             Volume = latest.Volume,
             QuoteVolume = latest.QuoteVolume,
+            PreviousClose = previousClose,
+            HistoryCount = candles.Count,
+            History = candles.Select(candle => new MexcGoldCandle
+            {
+                Time = DateTimeOffset.FromUnixTimeMilliseconds(candle.OpenTime),
+                DateLabel = DateTimeOffset.FromUnixTimeMilliseconds(candle.OpenTime)
+                    .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                Open = candle.Open,
+                High = candle.High,
+                Low = candle.Low,
+                Close = candle.Close,
+                Volume = candle.Volume
+            }).ToList(),
             LastUpdated = DateTimeOffset.FromUnixTimeMilliseconds(latest.OpenTime)
                 .ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-            Message = "Success",
+            Success = false
+        };
+
+        if (candles.Count < indicatorService.GetMinimumBars(context))
+        {
+            return response with { Message = InsufficientHistoryMessage };
+        }
+
+        var indicators = indicatorService.Compute(context, history);
+        var analysis = executionEngine.Execute(context, history);
+
+        return response with
+        {
+            Ema9 = indicators.Ema9,
+            Ema21 = indicators.Ema21,
+            Ema50 = indicators.Ema50,
+            Rsi14 = indicators.Rsi14,
+            Atr14 = indicators.Atr14,
+            AverageVolume20 = indicators.AverageVolume20,
+            HighestHigh20 = indicators.HighestHigh20,
+            LowestLow20 = indicators.LowestLow20,
+            Trend = analysis.Trend.ToString(),
+            Momentum = analysis.Momentum.ToString(),
+            Setup = analysis.Setup.ToString(),
+            Signal = analysis.Signal.ToString(),
+            Confidence = analysis.Confidence,
+            Entry = analysis.Trade?.Entry,
+            StopLoss = analysis.Trade?.StopLoss,
+            TakeProfit1 = analysis.Trade?.TakeProfit1,
+            TakeProfit2 = analysis.Trade?.TakeProfit2,
+            Message = "Analysis completed.",
             Success = true
         };
     }
@@ -66,7 +140,12 @@ public sealed class GetMexcGoldAnalysisQueryHandler(IExternalDataService externa
             !TryReadDecimal(row[4], out var close) ||
             !TryReadDecimal(row[5], out var volume) ||
             !TryReadInt64(row[6], out var closeTime) ||
-            !TryReadDecimal(row[7], out var quoteVolume))
+            !TryReadDecimal(row[7], out var quoteVolume) ||
+            high < low ||
+            high < open ||
+            high < close ||
+            low > open ||
+            low > close)
         {
             return null;
         }

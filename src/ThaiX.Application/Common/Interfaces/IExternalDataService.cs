@@ -202,6 +202,10 @@ public interface IExternalDataService
     /// </summary>
     Task<T?> GetMexcSpotKlinesAsync<T>(string symbol, string interval, CancellationToken cancellationToken = default);
 
+    /// <summary>Gets a bounded number of MEXC spot klines by symbol and interval.</summary>
+    Task<T?> GetMexcSpotKlinesAsync<T>(string symbol, string interval, int limit, CancellationToken cancellationToken = default)
+        => GetMexcSpotKlinesAsync<T>(symbol, interval, cancellationToken);
+
     /// <summary>
     /// Gets MEXC spot depth by symbol.
     /// Limit is fixed by provider configuration.

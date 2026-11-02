@@ -158,6 +158,26 @@ public static class ResourceKeys
         public const string Pair = "GoldMarket.Pair";
         public const string Currency = "GoldMarket.Currency";
         public const string QuoteVolume = "GoldMarket.QuoteVolume";
+        public const string PreviousClose = "GoldMarket.PreviousClose";
+        public const string HistoryTitle = "GoldMarket.HistoryTitle";
+        public const string HistoryCount = "GoldMarket.HistoryCount";
+        public const string Ema9 = "GoldMarket.Ema9";
+        public const string Ema21 = "GoldMarket.Ema21";
+        public const string Ema50 = "GoldMarket.Ema50";
+        public const string Rsi14 = "GoldMarket.Rsi14";
+        public const string Atr14 = "GoldMarket.Atr14";
+        public const string AverageVolume20 = "GoldMarket.AverageVolume20";
+        public const string HighestHigh20 = "GoldMarket.HighestHigh20";
+        public const string LowestLow20 = "GoldMarket.LowestLow20";
+        public const string Trend = "GoldMarket.Trend";
+        public const string Momentum = "GoldMarket.Momentum";
+        public const string Setup = "GoldMarket.Setup";
+        public const string Signal = "GoldMarket.Signal";
+        public const string Confidence = "GoldMarket.Confidence";
+        public const string Entry = "GoldMarket.Entry";
+        public const string StopLoss = "GoldMarket.StopLoss";
+        public const string TakeProfit1 = "GoldMarket.TakeProfit1";
+        public const string TakeProfit2 = "GoldMarket.TakeProfit2";
     }
 
     public static class Breadcrumb

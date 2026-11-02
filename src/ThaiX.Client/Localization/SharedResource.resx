@@ -1997,4 +1997,24 @@
   <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC · GOLD(XAUT)/USDT</value></data>
   <data name="GoldMarket.Currency" xml:space="preserve"><value>USDT</value></data>
   <data name="GoldMarket.QuoteVolume" xml:space="preserve"><value>Daily quote volume (USDT)</value></data>
+  <data name="GoldMarket.PreviousClose" xml:space="preserve"><value>Previous close</value></data>
+  <data name="GoldMarket.HistoryTitle" xml:space="preserve"><value>500-day price history</value></data>
+  <data name="GoldMarket.HistoryCount" xml:space="preserve"><value>Daily candles</value></data>
+  <data name="GoldMarket.Ema9" xml:space="preserve"><value>EMA 9</value></data>
+  <data name="GoldMarket.Ema21" xml:space="preserve"><value>EMA 21</value></data>
+  <data name="GoldMarket.Ema50" xml:space="preserve"><value>EMA 50</value></data>
+  <data name="GoldMarket.Rsi14" xml:space="preserve"><value>RSI 14</value></data>
+  <data name="GoldMarket.Atr14" xml:space="preserve"><value>ATR 14</value></data>
+  <data name="GoldMarket.AverageVolume20" xml:space="preserve"><value>Average volume 20</value></data>
+  <data name="GoldMarket.HighestHigh20" xml:space="preserve"><value>Highest high 20</value></data>
+  <data name="GoldMarket.LowestLow20" xml:space="preserve"><value>Lowest low 20</value></data>
+  <data name="GoldMarket.Trend" xml:space="preserve"><value>Trend</value></data>
+  <data name="GoldMarket.Momentum" xml:space="preserve"><value>Momentum</value></data>
+  <data name="GoldMarket.Setup" xml:space="preserve"><value>Setup</value></data>
+  <data name="GoldMarket.Signal" xml:space="preserve"><value>Signal</value></data>
+  <data name="GoldMarket.Confidence" xml:space="preserve"><value>Confidence</value></data>
+  <data name="GoldMarket.Entry" xml:space="preserve"><value>Entry</value></data>
+  <data name="GoldMarket.StopLoss" xml:space="preserve"><value>Stop loss</value></data>
+  <data name="GoldMarket.TakeProfit1" xml:space="preserve"><value>Take profit 1</value></data>
+  <data name="GoldMarket.TakeProfit2" xml:space="preserve"><value>Take profit 2</value></data>
 </root>

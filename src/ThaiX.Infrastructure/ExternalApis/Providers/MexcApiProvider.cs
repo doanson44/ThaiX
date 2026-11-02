@@ -299,6 +299,12 @@ public sealed class MexcApiProvider
     /// Gets MEXC spot klines by symbol and interval.
     /// </summary>
     public Task<T?> GetSpotKlinesAsync<T>(string symbol, string interval, CancellationToken cancellationToken = default)
+        => GetSpotKlinesAsync<T>(symbol, interval, limit: null, cancellationToken: cancellationToken);
+
+    public Task<T?> GetSpotKlinesAsync<T>(string symbol, string interval, int limit, CancellationToken cancellationToken = default)
+        => GetSpotKlinesAsync<T>(symbol, interval, (int?)limit, cancellationToken);
+
+    private Task<T?> GetSpotKlinesAsync<T>(string symbol, string interval, int? limit, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
@@ -313,6 +319,19 @@ public sealed class MexcApiProvider
         var endpoint = GetSpotKlinesEndpoint();
         var normalizedSymbol = symbol.Trim().ToUpperInvariant();
 
+        if (limit is < 1 or > 1000)
+            throw new ArgumentOutOfRangeException(nameof(limit), "Limit must be between 1 and 1000.");
+
+        var queryParameters = new Dictionary<string, string>
+        {
+            ["symbol"] = normalizedSymbol,
+            ["interval"] = interval.Trim()
+        };
+        if (limit.HasValue)
+        {
+            queryParameters["limit"] = limit.Value.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
         var request = new ApiRequest
         {
             Url = endpoint.Url,
@@ -323,11 +342,7 @@ public sealed class MexcApiProvider
                 : null,
             UseProxy = endpoint.UseProxy,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30,
-            QueryParameters = new Dictionary<string, string>
-            {
-                ["symbol"] = normalizedSymbol,
-                ["interval"] = interval.Trim()
-            }
+            QueryParameters = queryParameters
         };
 
         return _apiService.ExecuteAsync<T>(request, cancellationToken);
