@@ -43,7 +43,7 @@ ThaiX.Domain         -> no dependencies
 ThaiX.Application    -> depends on Domain
 ThaiX.Infrastructure -> depends on Application + Domain
 ThaiX.Presentation   -> depends on Application + Infrastructure
-ThaiX.Client         -> Blazor WASM, consumes the Presentation API
+ThaiX.Client         -> Blazor WebAssembly, consumes the Presentation API
 ```
 
 - **Domain**: aggregates, entities, value objects, domain events. No outward dependencies.
@@ -118,3 +118,19 @@ See [AGENTS.md](AGENTS.md) for repository conventions (architecture rules, codin
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).
+
+## Agent and crawler discovery
+
+The Presentation host exposes `/robots.txt`, `/sitemap.xml`, `/api.md`,
+`/auth.md`, and `/.well-known/api-catalog`. The homepage also supports
+`Accept: text/markdown` and publishes RFC 8288 `Link` headers.
+
+Set `PublicOrigin` to the site's HTTPS origin (for example, `https://app.example.com`)
+in production. If omitted, the existing `ClientBaseUrl` setting is used. The sitemap
+is unavailable until a valid canonical origin is configured; request Host headers are
+not used to construct canonical URLs.
+
+OAuth/OIDC discovery, protected-resource metadata, MCP, WebMCP, agent registration,
+and DNS-AID/DNSSEC are not advertised because the current application and deployment
+do not provide those capabilities. DNS-AID and DNSSEC require corresponding DNS records
+and DNSSEC signing at the authoritative DNS provider.

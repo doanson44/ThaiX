@@ -211,6 +211,7 @@ public static class WebApplicationExtensions
 
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<AgentDiscoveryMiddleware>();
 
         ConfigureStaticFileStorage(app);
         ConfigureSwagger(app);
@@ -263,6 +264,7 @@ public static class WebApplicationExtensions
         app.MapJsonBinPublicEndpoints();
         app.MapPublicHtmlEndpoints();
         app.MapExpenseTrackerEndpoints();
+        app.MapAgentDiscoveryEndpoints();
 
         return app;
     }
