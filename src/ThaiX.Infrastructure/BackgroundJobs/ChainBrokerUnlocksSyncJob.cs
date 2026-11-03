@@ -315,13 +315,21 @@ public sealed class ChainBrokerUnlocksSyncJob : HangfireJobBase
 
             if (staleIds.Count > 0)
             {
-                foreach (var staleBatch in staleIds.Chunk(BatchSize))
+                try
                 {
-                    await db.ChainBrokerUnlocks
-                        .Where(u => staleBatch.Contains(u.Id))
-                        .ExecuteDeleteAsync(ct);
+                    foreach (var staleBatch in staleIds.Chunk(BatchSize))
+                    {
+                        await db.ChainBrokerUnlocks
+                            .Where(u => staleBatch.Contains(u.Id))
+                            .ExecuteDeleteAsync(ct);
 
-                    _logger.LogDebug("ChainBroker unlocks: removed {Count} stale records", staleBatch.Length);
+                        _logger.LogDebug("ChainBroker unlocks: removed {Count} stale records", staleBatch.Length);
+                    }
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // Stale-record cleanup is best-effort; the next sync re-diffs and retries deletion.
+                    _logger.LogWarning(ex, "ChainBroker unlocks: stale-record deletion failed; will retry on next sync");
                 }
             }
         }

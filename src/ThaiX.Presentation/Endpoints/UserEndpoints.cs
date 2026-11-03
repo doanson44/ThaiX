@@ -170,6 +170,7 @@ public static class UserEndpoints
             IIdentityUserService identityUserService,
             IEmailSender emailSender,
             IConfiguration configuration,
+            ILogger<Program> logger,
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
@@ -192,9 +193,10 @@ public static class UserEndpoints
                             "If you did not expect this email, please contact your administrator."),
                         cancellationToken);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // Don't fail create if email sending fails; user can resend from account
+                    logger.LogError(ex, "Failed to send activation email for user {UserId}", userId);
                 }
             }
             var response = ApiResponse<Guid>.SuccessResult(userId);

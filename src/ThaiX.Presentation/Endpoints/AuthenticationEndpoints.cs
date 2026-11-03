@@ -101,6 +101,7 @@ public static class AuthenticationEndpoints
         [FromServices] IEmailSender emailSender,
         [FromServices] IStringLocalizer<SharedResource> localizer,
         [FromServices] IConfiguration configuration,
+        [FromServices] ILogger<Program> logger,
         CancellationToken cancellationToken)
     {
         if (request.Password != request.ConfirmPassword)
@@ -145,9 +146,10 @@ public static class AuthenticationEndpoints
                     "If you did not create an account, you can safely ignore this email."),
                 cancellationToken);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Don't fail registration if email sending fails
+            logger.LogError(ex, "Failed to send confirmation email for user {UserId}", user.Id);
         }
 
         var response = new RegisterResponse

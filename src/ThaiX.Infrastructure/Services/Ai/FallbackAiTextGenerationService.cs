@@ -253,12 +253,15 @@ public sealed class FallbackAiTextGenerationService : IAiTextGenerationService
 
     private async Task NotifyAllProvidersFailedAsync(IReadOnlyList<string> failures, CancellationToken ct)
     {
+        // Deduplication key is constant content + day bucket: without the day bucket this alert
+        // fires once ever (NotificationService dedupes by content hash), hiding recurring failures.
         var message = new NotificationMessage
         {
             Kind = NotificationKind.SystemAlert,
             Severity = NotificationSeverity.Critical,
             Title = "AI provider fallback exhausted",
-            Text = $"All configured AI providers failed. Failures: {string.Join(" | ", failures)}"
+            Text = $"All configured AI providers failed. Failures: {string.Join(" | ", failures)}",
+            DeduplicationKey = $"ai-provider-fallback-exhausted:{DateTime.UtcNow:yyyy-MM-dd}"
         };
 
         try

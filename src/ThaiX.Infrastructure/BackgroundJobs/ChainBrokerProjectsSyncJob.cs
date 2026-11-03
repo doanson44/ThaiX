@@ -270,23 +270,31 @@ public sealed class ChainBrokerProjectsSyncJob : HangfireJobBase
 
                 if (staleProjects.Count > 0)
                 {
-                    foreach (var staleBatch in staleProjects.Chunk(BatchSize))
+                    try
                     {
-                        var staleProjectIds = staleBatch.Select(p => p.Id).ToArray();
+                        foreach (var staleBatch in staleProjects.Chunk(BatchSize))
+                        {
+                            var staleProjectIds = staleBatch.Select(p => p.Id).ToArray();
 
-                        await using var transaction = await db.Database.BeginTransactionAsync(ct);
+                            await using var transaction = await db.Database.BeginTransactionAsync(ct);
 
-                        await db.ChainBrokerProjectFundRefs
-                            .Where(x => staleProjectIds.Contains(x.ProjectId))
-                            .ExecuteDeleteAsync(ct);
+                            await db.ChainBrokerProjectFundRefs
+                                .Where(x => staleProjectIds.Contains(x.ProjectId))
+                                .ExecuteDeleteAsync(ct);
 
-                        await db.ChainBrokerProjects
-                            .Where(p => staleProjectIds.Contains(p.Id))
-                            .ExecuteDeleteAsync(ct);
+                            await db.ChainBrokerProjects
+                                .Where(p => staleProjectIds.Contains(p.Id))
+                                .ExecuteDeleteAsync(ct);
 
-                        await transaction.CommitAsync(ct);
+                            await transaction.CommitAsync(ct);
 
-                        _logger.LogDebug("ChainBroker projects: removed {Count} stale records", staleBatch.Length);
+                            _logger.LogDebug("ChainBroker projects: removed {Count} stale records", staleBatch.Length);
+                        }
+                    }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        // Stale-record cleanup is best-effort; the next sync re-diffs and retries deletion.
+                        _logger.LogWarning(ex, "ChainBroker projects: stale-record deletion failed; will retry on next sync");
                     }
                 }
             }

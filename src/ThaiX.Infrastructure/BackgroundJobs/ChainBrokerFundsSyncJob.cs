@@ -276,13 +276,21 @@ public sealed class ChainBrokerFundsSyncJob : HangfireJobBase
 
             if (staleSlugs.Count > 0)
             {
-                foreach (var staleBatch in staleSlugs.Chunk(BatchSize))
+                try
                 {
-                    await db.ChainBrokerFunds
-                        .Where(f => staleBatch.Contains(f.Slug))
-                        .ExecuteDeleteAsync(ct);
+                    foreach (var staleBatch in staleSlugs.Chunk(BatchSize))
+                    {
+                        await db.ChainBrokerFunds
+                            .Where(f => staleBatch.Contains(f.Slug))
+                            .ExecuteDeleteAsync(ct);
 
-                    _logger.LogDebug("ChainBroker funds: removed {Count} stale records", staleBatch.Length);
+                        _logger.LogDebug("ChainBroker funds: removed {Count} stale records", staleBatch.Length);
+                    }
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    // Stale-record cleanup is best-effort; the next sync re-diffs and retries deletion.
+                    _logger.LogWarning(ex, "ChainBroker funds: stale-record deletion failed; will retry on next sync");
                 }
             }
         }

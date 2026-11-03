@@ -16,7 +16,7 @@ public sealed class MarketSummaryBotCommandModule : IBotCommandModule
     private static readonly BotCommandMetadata MetadataValue = new()
     {
         Name = "market-summary",
-        Aliases = ["market-today", "vn-market", "tong-hop-thi-truong"],
+        Aliases = ["market-today", "vn-market", "tong-hop-thi-truong", "summary"],
         Syntax = "/market-summary",
         Description = "Summarize broad market conditions using VIX, VNINDEX technical indicators, MEXC gold, and BTC spot market data.",
         Category = BotCommandCategory.TechnicalAnalysis,

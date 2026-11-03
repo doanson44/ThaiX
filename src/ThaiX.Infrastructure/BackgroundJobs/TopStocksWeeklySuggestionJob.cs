@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetTwentyFourHMoneyTransactionHistory;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetVnDirectTopStocks;
 using ThaiX.Application.Features.Trading.Queries.GetTradeSuggestion;
 using ThaiX.Application.Trading;
@@ -187,7 +188,7 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
         TimeframeRequest timeframeRequest,
         CancellationToken cancellationToken)
     {
-        var suggestions = new List<(int Rank, string Symbol, decimal CompositeScore, TradeSuggestionDto Suggestion)>();
+        var suggestions = new List<(int Rank, string Symbol, decimal CompositeScore, TradeSuggestionDto Suggestion, decimal? BetterThanVolumePercent)>();
         var picked = 0;
         var scanned = 0;
 
@@ -221,7 +222,8 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
                 }
 
                 picked++;
-                suggestions.Add((picked, stock.Code, stock.CompositeScore, suggestion));
+                var betterThanPercent = await GetBetterThanVolumePercentAsync(stock.Code, suggestion.EntryPrice!.Value, cancellationToken);
+                suggestions.Add((picked, stock.Code, stock.CompositeScore, suggestion, betterThanPercent));
             }
             catch (Exception ex)
             {
@@ -234,6 +236,42 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
         }
 
         return new TimeframeRunResult(timeframeRequest.Timeframe, scanned, candidates.Count, picked, suggestions);
+    }
+
+    /// <summary>
+    /// Percent of today's matched trading volume done at a worse (higher) price than the suggested
+    /// entry, i.e. how much of the day's traded volume this entry would beat. Volume is used as a
+    /// proxy for "people" since per-investor transaction counts are not stored.
+    /// </summary>
+    private async Task<decimal?> GetBetterThanVolumePercentAsync(
+        string symbol,
+        decimal entryPrice,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var history = await _mediator.Send(
+                new GetTwentyFourHMoneyTransactionHistoryQuery
+                {
+                    Symbol = symbol,
+                    CurrentPrice = entryPrice,
+                    Page = 1,
+                    PerPage = 1
+                },
+                cancellationToken);
+
+            return history.PriceComparison?
+                .FirstOrDefault(p => p.Period == "1D")?
+                .BetterPercent;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "TopStocksWeeklySuggestionJob: failed to compute 24HMoney price comparison for {Code}",
+                symbol);
+            return null;
+        }
     }
 
     /// <summary>
@@ -264,7 +302,7 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
                 continue;
             }
 
-            foreach (var (rank, symbol, score, suggestion) in tf.Suggestions)
+            foreach (var (rank, symbol, score, suggestion, betterThanVolumePercent) in tf.Suggestions)
             {
                 var signal = suggestion.Signal?.ToUpperInvariant() ?? "NONE";
                 var signalEmoji = signal switch
@@ -279,6 +317,11 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
                 body.Append($"Signal: {signalEmoji} {signal} (conf: {suggestion.Confidence:0.00})\n");
                 body.Append($"Entry: {FormatPrice(suggestion.EntryPrice)}  SL: {FormatPrice(suggestion.StopLoss)}\n");
                 body.Append($"TP1: {FormatPrice(suggestion.TakeProfit1)}  TP2: {FormatPrice(suggestion.TakeProfit2)}\n");
+                body.Append($"High: {FormatPrice(suggestion.HistoricalHigh)}  Low: {FormatPrice(suggestion.HistoricalLow)}\n");
+                if (betterThanVolumePercent.HasValue)
+                {
+                    body.Append($"Better than {betterThanVolumePercent.Value:0.#}% of today's matched volume\n");
+                }
                 body.Append($"Score: {score:0.00}");
 
                 sections.Add(new NotificationSection
@@ -356,5 +399,5 @@ public sealed class TopStocksWeeklySuggestionJob : HangfireJobBase
         int Scanned,
         int TotalCandidates,
         int Picked,
-        IReadOnlyList<(int Rank, string Symbol, decimal CompositeScore, TradeSuggestionDto Suggestion)> Suggestions);
+        IReadOnlyList<(int Rank, string Symbol, decimal CompositeScore, TradeSuggestionDto Suggestion, decimal? BetterThanVolumePercent)> Suggestions);
 }

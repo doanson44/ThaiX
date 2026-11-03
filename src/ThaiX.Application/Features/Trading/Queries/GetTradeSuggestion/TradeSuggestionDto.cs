@@ -13,4 +13,8 @@ public sealed record TradeSuggestionDto
     public decimal? TakeProfit2 { get; init; }
 
     public decimal Confidence { get; init; }
+
+    /// <summary>Highest/lowest close-period price seen across the fetched kline window (not a true all-time extreme).</summary>
+    public decimal? HistoricalHigh { get; init; }
+    public decimal? HistoricalLow { get; init; }
 }

@@ -64,7 +64,9 @@ public sealed class GetTradeSuggestionQueryHandler
             StopLoss = result.Trade?.StopLoss,
             TakeProfit1 = result.Trade?.TakeProfit1,
             TakeProfit2 = result.Trade?.TakeProfit2,
-            Confidence = result.Confidence
+            Confidence = result.Confidence,
+            HistoricalHigh = klines.Max(k => k.High),
+            HistoricalLow = klines.Min(k => k.Low)
         };
     }
 }

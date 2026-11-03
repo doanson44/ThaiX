@@ -279,6 +279,7 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
                 body.Append($"Signal: {signalEmoji} {signal} (conf: {suggestion.Confidence:0.00})\n");
                 body.Append($"Entry: {FormatPrice(suggestion.EntryPrice)}  SL: {FormatPrice(suggestion.StopLoss)}\n");
                 body.Append($"TP1: {FormatPrice(suggestion.TakeProfit1)}  TP2: {FormatPrice(suggestion.TakeProfit2)}\n");
+                body.Append($"High: {FormatPrice(suggestion.HistoricalHigh)}  Low: {FormatPrice(suggestion.HistoricalLow)}\n");
                 body.Append($"Score: {score:0.00}");
 
                 sections.Add(new NotificationSection
