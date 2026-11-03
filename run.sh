@@ -4,11 +4,17 @@ set -e
 IMAGE_NAME="doanson44/thaix"
 TAG="${IMAGE_TAG:-latest}"
 CONTAINER_NAME="thaix"
+NETWORK_NAME="thaix-network"
 
 MAX_RETRIES=30
 RETRY_INTERVAL=3
 STARTUP_WAIT=30
 PORT=8080
+
+echo "Ensuring Docker network ${NETWORK_NAME} exists..."
+if ! docker network inspect "${NETWORK_NAME}" >/dev/null 2>&1; then
+    docker network create "${NETWORK_NAME}" >/dev/null
+fi
 
 echo "Pulling image ${IMAGE_NAME}:${TAG}..."
 docker pull "${IMAGE_NAME}:${TAG}"
@@ -23,6 +29,7 @@ sudo mkdir -p /srv/thaix/{storage,logs,keys}
 
 echo "Starting new container..."
 docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped \
+  --network "${NETWORK_NAME}" \
   -p 8080:8080 \
   -e ASPNETCORE_ENVIRONMENT=Production \
   -v /srv/thaix/appsettings.Production.json:/app/appsettings.Production.json:ro,z \
