@@ -40,6 +40,7 @@ elif ! grep -qE '^DB_PASSWORD=.+$' "$ENV_FILE"; then
     printf 'DB_PASSWORD is missing or empty in %s\n' "$ENV_FILE" >&2
     exit 1
 fi
+chmod 0600 "$ENV_FILE"
 
 export MARIADB_DATA_DIR="$DATA_DIR"
 
