@@ -20,6 +20,39 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
         - [Health status](/health)
         """;
 
+    private static bool AcceptsMarkdown(string acceptHeader)
+    {
+        foreach (var mediaRange in acceptHeader.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parameters = mediaRange.Split(';', StringSplitOptions.TrimEntries);
+            if (!parameters[0].Equals("text/markdown", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var qualityParameter = parameters
+                .Skip(1)
+                .FirstOrDefault(parameter => parameter.StartsWith("q=", StringComparison.OrdinalIgnoreCase));
+
+            if (qualityParameter is null)
+            {
+                return true;
+            }
+
+            if (double.TryParse(
+                    qualityParameter.AsSpan(2),
+                    System.Globalization.NumberStyles.AllowDecimalPoint,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out var quality) &&
+                quality > 0 && quality <= 1)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public async Task InvokeAsync(HttpContext context)
     {
         if (context.Request.Path == "/" &&
@@ -28,9 +61,7 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
             context.Response.Headers.Append("Link", HomepageLinks);
             context.Response.Headers.Append("Vary", "Accept");
 
-            if (context.Request.Headers["Accept"].ToString()
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Any(value => value.StartsWith("text/markdown", StringComparison.OrdinalIgnoreCase)))
+            if (AcceptsMarkdown(context.Request.Headers["Accept"].ToString()))
             {
                 context.Response.StatusCode = StatusCodes.Status200OK;
                 context.Response.ContentType = "text/markdown; charset=utf-8";

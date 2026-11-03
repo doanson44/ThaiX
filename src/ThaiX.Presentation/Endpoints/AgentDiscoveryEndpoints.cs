@@ -19,15 +19,39 @@ public static class AgentDiscoveryEndpoints
 
         User-agent: OAI-SearchBot
         Allow: /
+        Disallow: /account/
+        Disallow: /admin/
         Disallow: /api/
+        Disallow: /auth/
+        Disallow: /crm/
+        Disallow: /notifications/
+        Disallow: /portfolio/
+        Disallow: /security/
+        Disallow: /hangfire
 
         User-agent: Claude-SearchBot
         Allow: /
+        Disallow: /account/
+        Disallow: /admin/
         Disallow: /api/
+        Disallow: /auth/
+        Disallow: /crm/
+        Disallow: /notifications/
+        Disallow: /portfolio/
+        Disallow: /security/
+        Disallow: /hangfire
 
         User-agent: PerplexityBot
         Allow: /
+        Disallow: /account/
+        Disallow: /admin/
         Disallow: /api/
+        Disallow: /auth/
+        Disallow: /crm/
+        Disallow: /notifications/
+        Disallow: /portfolio/
+        Disallow: /security/
+        Disallow: /hangfire
 
         User-agent: GPTBot
         Disallow: /
