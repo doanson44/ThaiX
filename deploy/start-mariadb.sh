@@ -33,13 +33,45 @@ if [[ ! -f "$ENV_FILE" ]]; then
     umask 077
     {
         printf 'DB_PASSWORD=%s\n' "$(openssl rand -hex 32)"
+        printf 'MARIADB_DATA_DIR=%s\n' "$DATA_DIR"
     } > "$ENV_FILE"
     chmod 0600 "$ENV_FILE"
     printf 'Created database credentials: %s\n' "$ENV_FILE"
-elif ! grep -qE '^DB_PASSWORD=.+$' "$ENV_FILE"; then
+elif ! grep -qE '^DB_PASSWORD=.+
+
+export MARIADB_DATA_DIR="$DATA_DIR"
+
+docker compose \
+    --project-name thaix \
+    --env-file "$ENV_FILE" \
+    --file "$COMPOSE_FILE" \
+    up -d mariadb
+
+printf '\nMariaDB container status:\n'
+docker compose \
+    --project-name thaix \
+    --env-file "$ENV_FILE" \
+    --file "$COMPOSE_FILE" \
+    ps mariadb
+
+printf '\nDatabase files: %s\n' "$DATA_DIR"
+printf 'Credentials file: %s (permissions 0600)\n' "$ENV_FILE"
+printf 'To start the API with the same database credentials, run:\n'
+printf '  docker compose --project-name thaix --env-file %q --file %q up -d\n' "$ENV_FILE" "$COMPOSE_FILE"
+ "$ENV_FILE"; then
     printf 'DB_PASSWORD is missing or empty in %s\n' "$ENV_FILE" >&2
     exit 1
 fi
+
+if grep -q '^MARIADB_DATA_DIR=' "$ENV_FILE"; then
+    if ! grep -Fxq "MARIADB_DATA_DIR=$DATA_DIR" "$ENV_FILE"; then
+        printf 'MARIADB_DATA_DIR in %s must be %s\n' "$ENV_FILE" "$DATA_DIR" >&2
+        exit 1
+    fi
+else
+    printf 'MARIADB_DATA_DIR=%s\n' "$DATA_DIR" >> "$ENV_FILE"
+fi
+
 chmod 0600 "$ENV_FILE"
 
 export MARIADB_DATA_DIR="$DATA_DIR"
