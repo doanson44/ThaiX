@@ -2,13 +2,13 @@
 set -Eeuo pipefail
 
 readonly SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR/.." && pwd)"
-readonly COMPOSE_FILE="${REPO_ROOT/docker-compose.yml"
+readonly REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+readonly COMPOSE_FILE="${REPO_ROOT}/docker-compose.yml"
 readonly DATA_ROOT="/srv/thaix/data"
-readonly DATA_DIR="${DATA_ROOT/mariadb"
-readonly ENV_FILE="${DATA_ROOT/.env"
+readonly DATA_DIR="${DATA_ROOT}/mariadb"
+readonly ENV_FILE="${DATA_ROOT}/.env"
 
-if [[ "${EUID" -ne 0 ]]; then
+if [[ "${EUID}" -ne 0 ]]; then
     printf 'Run this script as root: sudo %s\n' "$0" >&2
     exit 1
 fi
