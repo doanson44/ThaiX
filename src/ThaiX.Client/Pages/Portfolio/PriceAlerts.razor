@@ -197,9 +197,18 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && _grid is not null)
+        if (!firstRender)
+        {
+            return;
+        }
+
+        if (_grid is not null)
         {
             await _grid.Reload();
+        }
+        else
+        {
+            await LoadDataAsync(new LoadDataArgs { Skip = 0, Top = _pageSize });
         }
     }
 
@@ -242,25 +251,35 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 
     private async Task ApplySearchAsync()
     {
-        if (_grid is null) return;
-        await _grid.Reload();
+        _currentPage = 1;
+        await ReloadAsync();
     }
 
     private async Task ReloadAsync()
     {
-        if (_grid is null) return;
-        await _grid.Reload();
+        if (_grid is not null)
+        {
+            await _grid.Reload();
+            return;
+        }
+
+        await LoadDataAsync(new LoadDataArgs
+        {
+            Skip = (_currentPage - 1) * _pageSize,
+            Top = _pageSize
+        });
     }
 
     private async Task GoToPageAsync(int page)
     {
-        if (_grid is null) return;
-        await _grid.GoToPage(page - 1);
+        _currentPage = page;
+        await ReloadAsync();
     }
 
     private static DialogOptions BuildDialogOptions() => new()
