@@ -10,6 +10,7 @@ using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
+using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;
@@ -185,7 +186,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var userId = await CreateUserWithPermissionsAsync(
             email,
             "Test@Pass123",
-            ["EmailOtp.Test.Read"],
+            [Permissions.UserRead],
             confirmEmail: true);
         await EnableEmailOtpAsync(userId);
         var (challengeId, code) = await RequestChallengeAsync(email);
@@ -206,7 +207,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
             .Where(claim => claim.Type == ClaimTypeConstants.Permission)
             .Select(claim => claim.Value)
             .Should()
-            .Contain("EmailOtp.Test.Read");
+            .Contain(Permissions.UserRead);
     }
 
     [Fact]
