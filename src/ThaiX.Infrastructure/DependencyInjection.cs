@@ -354,6 +354,7 @@ public static class DependencyInjection
         services.AddScoped<BotTradeSuggestionAsyncJob>();
         services.AddScoped<ScheduledPostPublisherJob>();
         services.AddScoped<JsonBinExpiredCleanupJob>();
+        services.AddScoped<EmailOtpChallengeCleanupJob>();
 
         return services;
     }
