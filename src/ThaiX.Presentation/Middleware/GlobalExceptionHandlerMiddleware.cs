@@ -207,6 +207,8 @@ public sealed class GlobalExceptionHandlerMiddleware
         return errorCode switch
         {
             ErrorCodes.INVALID_CREDENTIALS => T(Error.InvalidCredentials, ErrorMessages.INVALID_CREDENTIALS),
+            ErrorCodes.INVALID_EMAIL_OTP => T(Error.InvalidEmailOtp, ErrorMessages.INVALID_EMAIL_OTP),
+            ErrorCodes.EMAIL_NOT_CONFIRMED => T(Error.EmailNotConfirmed, ErrorMessages.EMAIL_NOT_CONFIRMED),
             ErrorCodes.ACCOUNT_LOCKED => T(Error.AccountLocked, ErrorMessages.ACCOUNT_LOCKED),
             ErrorCodes.ACCOUNT_NOT_ALLOWED => T(Error.AccountNotAllowed, ErrorMessages.ACCOUNT_NOT_ALLOWED),
             ErrorCodes.UNAUTHORIZED => T(Error.Unauthorized, ErrorMessages.UNAUTHORIZED),
@@ -247,6 +249,7 @@ public sealed class GlobalExceptionHandlerMiddleware
             ErrorCodes.ACCOUNT_LOCKED => StatusCodes.Status423Locked,
             ErrorCodes.ACCOUNT_NOT_ALLOWED => StatusCodes.Status403Forbidden,
             ErrorCodes.INVALID_CREDENTIALS => StatusCodes.Status401Unauthorized,
+            ErrorCodes.INVALID_EMAIL_OTP => StatusCodes.Status400BadRequest,
             ErrorCodes.UNAUTHORIZED => StatusCodes.Status401Unauthorized,
             ErrorCodes.FORBIDDEN => StatusCodes.Status403Forbidden,
             ErrorCodes.INSUFFICIENT_PERMISSIONS => StatusCodes.Status403Forbidden,
