@@ -3,7 +3,8 @@ namespace ThaiX.Application.Common.Interfaces;
 public sealed record EmailOtpChallengeInfo(
     Guid ChallengeId,
     DateTime ExpiresAtUtc,
-    DateTime ResendAfterUtc);
+    DateTime ResendAfterUtc,
+    int CodeLength);
 
 public interface IEmailOtpService
 {
