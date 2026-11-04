@@ -215,7 +215,7 @@ public sealed class AuthenticationService : IAuthenticationService
                 ErrorMessages.RESOURCE_NOT_FOUND);
         }
 
-        var result = await _userManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode.Replace(" ", string.Empty).Replace("-", string.Empty));
+        var result = await _userManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
         if (!result.Succeeded)
         {
             _logger.LogWarning("Invalid recovery code for user: {UserId}", user.Id);
