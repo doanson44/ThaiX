@@ -32,6 +32,8 @@ public static class ResourceKeys
         public const string PasswordResetFailed = "Error.PasswordResetFailed";
         public const string TwoFactorCodeInvalid = "Error.TwoFactorCodeInvalid";
         public const string InvalidCredentials = "Error.InvalidCredentials";
+        public const string InvalidEmailOtp = "Error.InvalidEmailOtp";
+        public const string EmailNotConfirmed = "Error.EmailNotConfirmed";
         public const string ValidationFailed = "Error.ValidationFailed";
         public const string Forbidden = "Error.Forbidden";
         public const string InternalError = "Error.InternalError";
