@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Serilog;
 using ThaiX.Application;
 using ThaiX.Infrastructure;
@@ -28,6 +29,20 @@ try
     builder.Services.AddClientCors(builder.Configuration);
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHealthChecks();
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.AddPolicy("EmailOtpRequest", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(15),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }));
+    });
     builder.Services.AddPermissionAuthorization();
     builder.Services.AddHttpJsonStringEnums();
     builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment.IsDevelopment());
@@ -50,6 +65,7 @@ try
 
     // Configure the HTTP middleware pipeline
     app.ConfigureMiddlewarePipeline();
+    app.UseRateLimiter();
 
     app.MapStaticAssets();
 
