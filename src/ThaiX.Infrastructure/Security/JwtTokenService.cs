@@ -162,7 +162,7 @@ public sealed class JwtTokenService
     /// Generates a short-lived session token for 2FA verification.
     /// Valid for 5 minutes only.
     /// </summary>
-    public string GenerateTwoFactorSessionToken(Guid userId)
+    public string GenerateTwoFactorSessionToken(Guid userId, bool rememberMe = false)
     {
         var jwtSettings = GetJwtSettings();
         var securityKey = new SymmetricSecurityKey(
@@ -175,7 +175,8 @@ public sealed class JwtTokenService
         {
             new(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("purpose", "2fa")
+            new("purpose", "2fa"),
+            new("remember_me", rememberMe.ToString())
         };
 
         var token = new JwtSecurityToken(
@@ -191,9 +192,9 @@ public sealed class JwtTokenService
     }
 
     /// <summary>
-    /// Validates a 2FA session token and returns the user ID.
+    /// Validates a 2FA session token and returns its user ID and Remember Me choice.
     /// </summary>
-    public Guid? ValidateTwoFactorSessionToken(string token)
+    public TwoFactorSession? ValidateTwoFactorSessionToken(string token)
     {
         var principal = ValidateToken(token);
         if (principal == null) return null;
@@ -205,8 +206,11 @@ public sealed class JwtTokenService
                   ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (sub == null || !Guid.TryParse(sub, out var userId)) return null;
 
-        return userId;
+        var rememberMe = bool.TryParse(principal.FindFirst("remember_me")?.Value, out var enabled) && enabled;
+        return new TwoFactorSession(userId, rememberMe);
     }
+
+    public sealed record TwoFactorSession(Guid UserId, bool RememberMe);
 
     private JwtSettings GetJwtSettings()
     {

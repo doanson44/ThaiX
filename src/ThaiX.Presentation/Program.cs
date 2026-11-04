@@ -1,3 +1,6 @@
+using System.Net;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using ThaiX.Application;
 using ThaiX.Infrastructure;
@@ -26,8 +29,48 @@ try
 
     builder.Services.AddRequestLocalization(builder.Configuration);
     builder.Services.AddClientCors(builder.Configuration);
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+
+        var knownProxies = builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [];
+        foreach (var proxy in knownProxies.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            if (!IPAddress.TryParse(proxy, out var address))
+            {
+                throw new InvalidOperationException($"ForwardedHeaders:KnownProxies contains an invalid IP address: '{proxy}'.");
+            }
+
+            options.KnownProxies.Add(address);
+        }
+    });
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHealthChecks();
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+        options.AddPolicy("EmailOtpRequest", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(15),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }));
+        options.AddPolicy("EmailOtpVerify", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(5),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }));
+    });
     builder.Services.AddPermissionAuthorization();
     builder.Services.AddHttpJsonStringEnums();
     builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment.IsDevelopment());
@@ -50,6 +93,7 @@ try
 
     // Configure the HTTP middleware pipeline
     app.ConfigureMiddlewarePipeline();
+    app.UseRateLimiter();
 
     app.MapStaticAssets();
 

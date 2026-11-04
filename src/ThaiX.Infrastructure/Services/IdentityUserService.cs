@@ -145,6 +145,7 @@ public sealed class IdentityUserService : IIdentityUserService
         }
 
         var changes = new List<string>();
+        var emailChanged = false;
 
         // Update email if provided
         if (!string.IsNullOrWhiteSpace(email) && email != user.Email)
@@ -166,6 +167,8 @@ public sealed class IdentityUserService : IIdentityUserService
 
             // Reset email confirmation when email changes
             user.EmailConfirmed = false;
+            user.EmailOtpLoginEnabled = false;
+            emailChanged = true;
 
             changes.Add($"Email changed from '{oldEmail}' to '{email}'");
         }
@@ -210,6 +213,17 @@ public sealed class IdentityUserService : IIdentityUserService
             throw new OperationFailedException(
                 Application.Common.Constants.ErrorCodes.INTERNAL_ERROR,
                 $"Failed to update user: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+        }
+
+        if (emailChanged)
+        {
+            await _context.EmailOtpChallenges
+                .Where(x => x.UserId == userId &&
+                            x.ConsumedAtUtc == null &&
+                            x.InvalidatedAtUtc == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
+                    cancellationToken);
         }
 
         // Note: RefreshSignInAsync is not called because the app uses JWT-only auth (no cookie scheme).
@@ -687,6 +701,44 @@ public sealed class IdentityUserService : IIdentityUserService
         var codes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, count);
         _logger.LogInformation("Generated {Count} recovery codes for user {UserId}", count, userId);
         return codes ?? Enumerable.Empty<string>();
+    }
+
+    public async Task SetEmailOtpLoginEnabledAsync(
+        Guid userId,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString())
+            ?? throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.RESOURCE_NOT_FOUND,
+                "The requested user was not found.");
+
+        if (enabled && !user.EmailConfirmed)
+        {
+            throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.EMAIL_NOT_CONFIRMED,
+                Application.Common.Constants.ErrorMessages.EMAIL_NOT_CONFIRMED);
+        }
+
+        user.EmailOtpLoginEnabled = enabled;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.INTERNAL_ERROR,
+                "Unable to update email OTP login settings.");
+        }
+
+        if (!enabled)
+        {
+            await _context.EmailOtpChallenges
+                .Where(x => x.UserId == userId &&
+                            x.ConsumedAtUtc == null &&
+                            x.InvalidatedAtUtc == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
+                    cancellationToken);
+        }
     }
 
     public async Task<bool> GetTwoFactorEnabledAsync(

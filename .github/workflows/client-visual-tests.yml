@@ -1,0 +1,41 @@
+name: ThaiX Client Visual Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - "src/ThaiX.Client/**"
+      - "tests/ThaiX.Client.VisualTests/**"
+      - "Directory.Packages.props"
+      - ".github/workflows/client-visual-tests.yml"
+
+jobs:
+  login-responsive:
+    name: Email OTP Login Responsive UI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+          dotnet-quality: "preview"
+
+      - name: Restore visual test project
+        run: dotnet restore tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj
+
+      - name: Build visual test project
+        run: dotnet build tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-restore
+
+      - name: Install Playwright Chromium
+        run: pwsh tests/ThaiX.Client.VisualTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
+
+      - name: Run email OTP responsive checks
+        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~LoginEmailOtpVisualTests
+        env:
+          VISUAL_TEST_PARALLELISM: "2"
+          VISUAL_SKIP_AUTH_LOGIN: "true"

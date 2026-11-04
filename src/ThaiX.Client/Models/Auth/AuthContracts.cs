@@ -35,6 +35,7 @@ public sealed record UserInfoResponse
     public required Guid UserId { get; init; }
     public required string Email { get; init; }
     public required bool EmailConfirmed { get; init; }
+    public bool EmailOtpLoginEnabled { get; init; }
     public required List<string> Permissions { get; init; }
 }
 
@@ -133,4 +134,29 @@ public sealed record ExternalLoginDto
     public required string LoginProvider { get; init; }
     public required string ProviderKey { get; init; }
     public string? ProviderDisplayName { get; init; }
+}
+
+public sealed record RequestEmailOtpRequest
+{
+    public required string Email { get; init; }
+}
+
+public sealed record RequestEmailOtpResponse
+{
+    public required Guid ChallengeId { get; init; }
+    public required DateTime ExpiresAt { get; init; }
+    public required DateTime ResendAfter { get; init; }
+    public required int CodeLength { get; init; }
+}
+
+public sealed record VerifyEmailOtpRequest
+{
+    public required Guid ChallengeId { get; init; }
+    public required string Code { get; init; }
+    public bool RememberMe { get; init; }
+}
+
+public sealed record UpdateLoginSettingsRequest
+{
+    public bool EmailOtpLoginEnabled { get; init; }
 }

@@ -178,6 +178,14 @@ public interface IIdentityUserService
 
     #endregion
 
+    /// <summary>
+    /// Enables or disables email OTP login for the specified user.
+    /// </summary>
+    Task SetEmailOtpLoginEnabledAsync(
+        Guid userId,
+        bool enabled,
+        CancellationToken cancellationToken = default);
+
     #region Two-Factor Authentication
 
     /// <summary>

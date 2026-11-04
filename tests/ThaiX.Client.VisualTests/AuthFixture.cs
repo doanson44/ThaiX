@@ -41,6 +41,28 @@ public sealed class AuthFixture : IAsyncLifetime
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
 
+        if (string.Equals(
+                Environment.GetEnvironmentVariable("VISUAL_SKIP_AUTH_LOGIN"),
+                "true",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var publicOnlyContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+            {
+                IgnoreHTTPSErrors = true,
+                ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
+            });
+            var publicOnlyPage = await publicOnlyContext.NewPageAsync();
+            await GotoAsync(publicOnlyPage, "/auth/login", 1280, 800);
+            await EnsureDemoModeAsync(publicOnlyPage);
+
+            _publicStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
+            await publicOnlyContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
+            await publicOnlyContext.CloseAsync();
+
+            _authStorageStatePath = _publicStorageStatePath;
+            return;
+        }
+
         var authContext = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             IgnoreHTTPSErrors = true,
@@ -82,7 +104,7 @@ public sealed class AuthFixture : IAsyncLifetime
     /// Opens an isolated browser context + page (safe for parallel workers). Caller must dispose the context.
     /// </summary>
     public async Task<(IBrowserContext Context, IPage Page)> CreatePageAsync(
-        bool authenticated, int width, int height)
+        bool authenticated, int width, int height, string? locale = null)
     {
         var storagePath = authenticated ? _authStorageStatePath : _publicStorageStatePath;
         if (string.IsNullOrEmpty(storagePath))
@@ -90,12 +112,19 @@ public sealed class AuthFixture : IAsyncLifetime
             throw new InvalidOperationException("AuthFixture storage state was not initialized.");
         }
 
-        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        var contextOptions = new BrowserNewContextOptions
         {
             IgnoreHTTPSErrors = true,
             StorageStatePath = storagePath,
             ViewportSize = new ViewportSize { Width = width, Height = height }
-        });
+        };
+
+        if (!string.IsNullOrWhiteSpace(locale))
+        {
+            contextOptions.Locale = locale;
+        }
+
+        var context = await Browser.NewContextAsync(contextOptions);
         var page = await context.NewPageAsync();
         return (context, page);
     }

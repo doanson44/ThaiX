@@ -60,7 +60,7 @@ public sealed class AuthenticationService : IAuthenticationService
         if (signInResult.RequiresTwoFactor)
         {
             _logger.LogInformation("2FA required for user: {UserId}", user.Id);
-            var sessionToken = _jwtTokenService.GenerateTwoFactorSessionToken(user.Id);
+            var sessionToken = _jwtTokenService.GenerateTwoFactorSessionToken(user.Id, rememberMe);
             return new AuthenticationResult
             {
                 Succeeded = false,
@@ -106,20 +106,66 @@ public sealed class AuthenticationService : IAuthenticationService
         };
     }
 
+    public async Task<AuthenticationResult> AuthenticateWithEmailOtpAsync(
+        Guid userId,
+        bool rememberMe = false,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null || !user.EmailConfirmed || !user.EmailOtpLoginEnabled)
+        {
+            throw new OperationFailedException(
+                ErrorCodes.INVALID_CREDENTIALS,
+                ErrorMessages.INVALID_CREDENTIALS);
+        }
+
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            throw new OperationFailedException(
+                ErrorCodes.ACCOUNT_LOCKED,
+                ErrorMessages.ACCOUNT_LOCKED);
+        }
+
+        if (!await _signInManager.CanSignInAsync(user))
+        {
+            throw new OperationFailedException(
+                ErrorCodes.ACCOUNT_NOT_ALLOWED,
+                ErrorMessages.ACCOUNT_NOT_ALLOWED);
+        }
+
+        if (user.TwoFactorEnabled)
+        {
+            return new AuthenticationResult
+            {
+                Succeeded = false,
+                RequiresTwoFactor = true,
+                TwoFactorSessionToken = _jwtTokenService.GenerateTwoFactorSessionToken(user.Id, rememberMe)
+            };
+        }
+
+        var token = await GenerateUserTokenResultAsync(user, rememberMe, cancellationToken);
+        return new AuthenticationResult
+        {
+            Succeeded = true,
+            RequiresTwoFactor = false,
+            Token = token
+        };
+    }
+
     public async Task<TokenResult> AuthenticateWithTwoFactorAsync(
         string twoFactorSessionToken,
         string twoFactorCode,
         CancellationToken cancellationToken = default)
     {
-        var userId = _jwtTokenService.ValidateTwoFactorSessionToken(twoFactorSessionToken);
-        if (userId == null)
+        var session = _jwtTokenService.ValidateTwoFactorSessionToken(twoFactorSessionToken);
+        if (session == null)
         {
             throw new OperationFailedException(
                 ErrorCodes.INVALID_TOKEN,
                 ErrorMessages.INVALID_TOKEN);
         }
 
-        var user = await _userManager.FindByIdAsync(userId.Value.ToString());
+        var user = await _userManager.FindByIdAsync(session.UserId.ToString());
         if (user == null)
         {
             throw new OperationFailedException(
@@ -145,7 +191,7 @@ public sealed class AuthenticationService : IAuthenticationService
 
         _logger.LogInformation("User logged in with 2FA: {UserId}, {Email}", user.Id, user.Email);
 
-        return await GenerateUserTokenResultAsync(user, false, cancellationToken);
+        return await GenerateUserTokenResultAsync(user, session.RememberMe, cancellationToken);
     }
 
     public async Task<TokenResult> AuthenticateWithRecoveryCodeAsync(
@@ -153,15 +199,15 @@ public sealed class AuthenticationService : IAuthenticationService
         string recoveryCode,
         CancellationToken cancellationToken = default)
     {
-        var userId = _jwtTokenService.ValidateTwoFactorSessionToken(twoFactorSessionToken);
-        if (userId == null)
+        var session = _jwtTokenService.ValidateTwoFactorSessionToken(twoFactorSessionToken);
+        if (session == null)
         {
             throw new OperationFailedException(
                 ErrorCodes.INVALID_TOKEN,
                 ErrorMessages.INVALID_TOKEN);
         }
 
-        var user = await _userManager.FindByIdAsync(userId.Value.ToString());
+        var user = await _userManager.FindByIdAsync(session.UserId.ToString());
         if (user == null)
         {
             throw new OperationFailedException(
@@ -169,7 +215,7 @@ public sealed class AuthenticationService : IAuthenticationService
                 ErrorMessages.RESOURCE_NOT_FOUND);
         }
 
-        var result = await _userManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode.Replace(" ", string.Empty).Replace("-", string.Empty));
+        var result = await _userManager.RedeemTwoFactorRecoveryCodeAsync(user, recoveryCode);
         if (!result.Succeeded)
         {
             _logger.LogWarning("Invalid recovery code for user: {UserId}", user.Id);
@@ -182,7 +228,7 @@ public sealed class AuthenticationService : IAuthenticationService
 
         _logger.LogInformation("User logged in with recovery code: {UserId}, {Email}", user.Id, user.Email);
 
-        return await GenerateUserTokenResultAsync(user, false, cancellationToken);
+        return await GenerateUserTokenResultAsync(user, session.RememberMe, cancellationToken);
     }
 
     public async Task<AuthenticationResult> AuthenticateExternalUserAsync(

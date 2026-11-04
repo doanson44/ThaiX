@@ -64,6 +64,16 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
+        services.AddOptions<Authentication.EmailOtpOptions>()
+            .BindConfiguration(Authentication.EmailOtpOptions.SectionName)
+            .Validate(x => x.CodeLength is >= 4 and <= 9, "Email OTP code length must be between 4 and 9.")
+            .Validate(x => x.ExpirationMinutes > 0, "Email OTP expiration must be positive.")
+            .Validate(x => TimeSpan.FromMinutes(x.ExpirationMinutes) >= TimeSpan.FromSeconds(x.ResendCooldownSeconds), "Email OTP expiration must not be shorter than its resend cooldown.")
+            .Validate(x => x.MaximumAttempts > 0, "Email OTP maximum attempts must be positive.")
+            .Validate(x => x.ResendCooldownSeconds >= 0, "Email OTP resend cooldown cannot be negative.")
+            .Validate(x => x.RetentionDays > 0, "Email OTP retention must be positive.")
+            .ValidateOnStart();
+
         // Options
         services.AddOptions<EmailSettings>()
             .BindConfiguration(EmailSettings.SectionName)
@@ -123,6 +133,7 @@ public static class DependencyInjection
             .AddSingleton<IDateTimeProvider, DateTimeProviderService>()
             .AddScoped<ICurrentUserService, CurrentUserService>()
             .AddScoped<IAuthenticationService, Authentication.AuthenticationService>()
+            .AddScoped<IEmailOtpService, Authentication.EmailOtpService>()
             .AddScoped<IIdentityUserService, Services.IdentityUserService>()
             .AddScoped<Identity.IdentityUserService>()
             .AddScoped<ApiClientService>()
@@ -343,6 +354,7 @@ public static class DependencyInjection
         services.AddScoped<BotTradeSuggestionAsyncJob>();
         services.AddScoped<ScheduledPostPublisherJob>();
         services.AddScoped<JsonBinExpiredCleanupJob>();
+        services.AddScoped<EmailOtpChallengeCleanupJob>();
 
         return services;
     }

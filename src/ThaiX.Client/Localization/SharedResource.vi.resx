@@ -2062,4 +2062,17 @@
   <data name="SystemLogs.PreviewFailed" xml:space="preserve"><value>Không thể xem trước tệp nhật ký này.</value></data>
   <data name="SystemLogs.DownloadFailed" xml:space="preserve"><value>Không thể tải xuống tệp nhật ký này.</value></data>
   <data name="SystemLogs.PreviewTruncated" xml:space="preserve"><value>Bản xem trước chỉ hiển thị 100.000 ký tự đầu tiên. Hãy tải tệp xuống để xem toàn bộ nhật ký.</value></data>
+  <data name="Auth.Login.WithPassword" xml:space="preserve"><value>Mật khẩu</value></data>
+  <data name="Auth.Login.WithEmailOtp" xml:space="preserve"><value>Mã OTP qua email</value></data>
+  <data name="Auth.EmailOtp.Code" xml:space="preserve"><value>Mã xác minh</value></data>
+  <data name="Auth.EmailOtp.Request" xml:space="preserve"><value>Gửi mã xác minh</value></data>
+  <data name="Auth.EmailOtp.Resend" xml:space="preserve"><value>Gửi lại mã xác minh</value></data>
+  <data name="Auth.EmailOtp.Verify" xml:space="preserve"><value>Xác minh và đăng nhập</value></data>
+  <data name="Auth.EmailOtp.Requested" xml:space="preserve"><value>Nếu tài khoản đủ điều kiện, mã xác minh đã được gửi đến email.</value></data>
+  <data name="Auth.EmailOtp.ExpiresAt" xml:space="preserve"><value>Mã sẽ hết hạn lúc {0}.</value></data>
+  <data name="Profile.LoginSettings" xml:space="preserve"><value>Cài đặt đăng nhập</value></data>
+  <data name="Profile.EmailOtpLoginEnabled" xml:space="preserve"><value>Bật đăng nhập bằng OTP email</value></data>
+  <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Cho phép đăng nhập bằng mã dùng một lần được gửi đến địa chỉ email đã xác nhận.</value></data>
+  <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Đã lưu cài đặt đăng nhập.</value></data>
+  <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Không thể lưu cài đặt đăng nhập.</value></data>
 </root>

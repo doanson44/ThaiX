@@ -25,6 +25,7 @@ using ThaiX.Domain.Aggregates.TcbsTop10;
 using ThaiX.Domain.Aggregates.TradingSuggestions;
 using ThaiX.Domain.Common.Entities;
 using ThaiX.Domain.Identity;
+using ThaiX.Infrastructure.Persistence.Entities;
 using FileAttachment = ThaiX.Domain.Common.Entities.FileAttachment;
 
 namespace ThaiX.Infrastructure.Persistence;
@@ -52,6 +53,7 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
 
     public DbSet<Domain.Aggregates.ApiClient.ApiClient> ApiClients => Set<Domain.Aggregates.ApiClient.ApiClient>();
     public DbSet<Domain.Aggregates.Outbox.OutboxMessage> OutboxMessages => Set<Domain.Aggregates.Outbox.OutboxMessage>();
+    public DbSet<EmailOtpChallenge> EmailOtpChallenges => Set<EmailOtpChallenge>();
 
     // Contacts
     public DbSet<Contact> Contacts => Set<Contact>();

@@ -37,6 +37,37 @@ public sealed class AuthService : IAuthService
         return loginResponse;
     }
 
+    public async Task<RequestEmailOtpResponse> RequestEmailOtpAsync(
+        RequestEmailOtpRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsJsonAsync("api/auth/email-otp/request", request, cancellationToken);
+        return await ApiResponseReader.ReadSuccessDataAsync<RequestEmailOtpResponse>(response, cancellationToken);
+    }
+
+    public async Task<LoginResponse> VerifyEmailOtpAsync(
+        VerifyEmailOtpRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PostAsJsonAsync("api/auth/email-otp/verify", request, cancellationToken);
+        var loginResponse = await ApiResponseReader.ReadSuccessDataAsync<LoginResponse>(response, cancellationToken);
+
+        if (!loginResponse.RequiresTwoFactor && !string.IsNullOrEmpty(loginResponse.Token))
+        {
+            await _authenticationStateProvider.MarkUserAsAuthenticatedAsync(loginResponse.Token);
+        }
+
+        return loginResponse;
+    }
+
+    public async Task UpdateLoginSettingsAsync(
+        UpdateLoginSettingsRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PutAsJsonAsync("api/auth/login-settings", request, cancellationToken);
+        await ApiResponseReader.ReadSuccessAsync(response, cancellationToken);
+    }
+
     public async Task<LoginResponse> LoginWith2faAsync(
         LoginWith2faRequest request,
         CancellationToken cancellationToken = default)

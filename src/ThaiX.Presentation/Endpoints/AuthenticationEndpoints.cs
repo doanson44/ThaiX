@@ -6,6 +6,9 @@ using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Emails;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Authentication.Commands.Login;
+using ThaiX.Application.Features.Authentication.Commands.RequestEmailOtp;
+using ThaiX.Application.Features.Authentication.Commands.VerifyEmailOtp;
+using ThaiX.Application.Features.Authentication.Commands.UpdateLoginSettings;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Presentation.Localization;
 using ThaiX.Presentation.Models;
@@ -25,6 +28,32 @@ public static class AuthenticationEndpoints
             .WithName("Login")
             .WithSummary("User login with username/email and password")
             .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<object>>(StatusCodes.Status401Unauthorized);
+
+        group.MapPost("/email-otp/request", RequestEmailOtpAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting("EmailOtpRequest")
+            .WithName("RequestEmailOtp")
+            .WithSummary("Request an email OTP login challenge")
+            .Produces<ApiResponse<RequestEmailOtpResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<object>>(StatusCodes.Status429TooManyRequests);
+
+        group.MapPost("/email-otp/verify", VerifyEmailOtpAsync)
+            .AllowAnonymous()
+            .RequireRateLimiting("EmailOtpVerify")
+            .WithName("VerifyEmailOtp")
+            .WithSummary("Verify an email OTP login challenge")
+            .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<object>>(StatusCodes.Status423Locked)
+            .Produces<ApiResponse<object>>(StatusCodes.Status429TooManyRequests);
+
+        group.MapPut("/login-settings", UpdateLoginSettingsAsync)
+            .RequireAuthorization()
+            .WithName("UpdateLoginSettings")
+            .WithSummary("Update current user's email OTP login preference")
+            .Produces<ApiResponse>(StatusCodes.Status200OK)
             .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
             .Produces<ApiResponse<object>>(StatusCodes.Status401Unauthorized);
 
@@ -92,6 +121,61 @@ public static class AuthenticationEndpoints
         return Results.Ok(ApiResponse<LoginResponse>.SuccessResult(
             response,
             localizer[Success.LoginSuccessful]));
+    }
+
+    private static async Task<IResult> RequestEmailOtpAsync(
+        [FromBody] RequestEmailOtpRequest request,
+        [FromServices] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var challenge = await mediator.Send(new RequestEmailOtpCommand(request.Email), cancellationToken);
+        var response = new RequestEmailOtpResponse
+        {
+            ChallengeId = challenge.ChallengeId,
+            ExpiresAt = challenge.ExpiresAtUtc,
+            ResendAfter = challenge.ResendAfterUtc,
+            CodeLength = challenge.CodeLength
+        };
+
+        return Results.Ok(ApiResponse<RequestEmailOtpResponse>.SuccessResult(response));
+    }
+
+    private static async Task<IResult> VerifyEmailOtpAsync(
+        [FromBody] VerifyEmailOtpRequest request,
+        [FromServices] IMediator mediator,
+        [FromServices] IStringLocalizer<SharedResource> localizer,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(
+            new VerifyEmailOtpCommand(request.ChallengeId, request.Code, request.RememberMe),
+            cancellationToken);
+
+        var response = result.RequiresTwoFactor
+            ? new LoginResponse { RequiresTwoFactor = true, TwoFactorSessionToken = result.TwoFactorSessionToken }
+            : new LoginResponse { Token = result.Token!.AccessToken, TokenType = result.Token.TokenType, ExpiresIn = result.Token.ExpiresIn };
+
+        return Results.Ok(ApiResponse<LoginResponse>.SuccessResult(
+            response,
+            result.RequiresTwoFactor ? localizer[Success.TwoFactorRequired] : localizer[Success.LoginSuccessful]));
+    }
+
+    private static async Task<IResult> UpdateLoginSettingsAsync(
+        [FromBody] UpdateLoginSettingsRequest request,
+        [FromServices] IHttpContextAccessor httpContextAccessor,
+        [FromServices] IMediator mediator,
+        [FromServices] IStringLocalizer<SharedResource> localizer,
+        CancellationToken cancellationToken)
+    {
+        var userIdValue = httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdValue, out var userId))
+        {
+            return Results.Json(
+                ApiResponse.ErrorResult(ErrorCodes.UNAUTHORIZED, localizer[Error.UserNotAuthenticated]),
+                statusCode: StatusCodes.Status401Unauthorized);
+        }
+
+        await mediator.Send(new UpdateLoginSettingsCommand(userId, request.EmailOtpLoginEnabled), cancellationToken);
+        return Results.Ok(ApiResponse.SuccessResult());
     }
 
     private static async Task<IResult> RegisterAsync(
@@ -204,6 +288,7 @@ public static class AuthenticationEndpoints
             UserId = user.Id,
             Email = user.Email!,
             EmailConfirmed = user.EmailConfirmed,
+            EmailOtpLoginEnabled = user.EmailOtpLoginEnabled,
             Permissions = permissions
         };
 
@@ -292,6 +377,7 @@ public record UserInfoResponse
     public required Guid UserId { get; init; }
     public required string Email { get; init; }
     public required bool EmailConfirmed { get; init; }
+    public bool EmailOtpLoginEnabled { get; init; }
     public required List<string> Permissions { get; init; }
 }
 
@@ -300,4 +386,29 @@ public record ChangePasswordRequest
     public required string CurrentPassword { get; init; }
     public required string NewPassword { get; init; }
     public required string ConfirmPassword { get; init; }
+}
+
+public sealed record RequestEmailOtpRequest
+{
+    public required string Email { get; init; }
+}
+
+public sealed record RequestEmailOtpResponse
+{
+    public required Guid ChallengeId { get; init; }
+    public required DateTime ExpiresAt { get; init; }
+    public required DateTime ResendAfter { get; init; }
+    public required int CodeLength { get; init; }
+}
+
+public sealed record VerifyEmailOtpRequest
+{
+    public required Guid ChallengeId { get; init; }
+    public required string Code { get; init; }
+    public bool RememberMe { get; init; }
+}
+
+public sealed record UpdateLoginSettingsRequest
+{
+    public bool EmailOtpLoginEnabled { get; init; }
 }

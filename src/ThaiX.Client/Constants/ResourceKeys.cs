@@ -265,6 +265,14 @@ public static class ResourceKeys
         public const string LoginSuccess = "Auth.Login.Success";
         public const string LoginSuccessDetail = "Auth.Login.Success.Detail";
         public const string LoginFailed = "Auth.Login.Failed";
+        public const string LoginWithPassword = "Auth.Login.WithPassword";
+        public const string LoginWithEmailOtp = "Auth.Login.WithEmailOtp";
+        public const string EmailOtpCode = "Auth.EmailOtp.Code";
+        public const string EmailOtpRequest = "Auth.EmailOtp.Request";
+        public const string EmailOtpResend = "Auth.EmailOtp.Resend";
+        public const string EmailOtpVerify = "Auth.EmailOtp.Verify";
+        public const string EmailOtpRequested = "Auth.EmailOtp.Requested";
+        public const string EmailOtpExpiresAt = "Auth.EmailOtp.ExpiresAt";
 
         public const string UsernameOrEmail = "Auth.UsernameOrEmail";
         public const string UsernameOrEmailPlaceholder = "Auth.UsernameOrEmail.Placeholder";
@@ -424,6 +432,11 @@ public static class ResourceKeys
         public const string Permissions = "Profile.Permissions";
         public const string PermissionsGranted = "Profile.Permissions.Granted";
         public const string NoPermissions = "Profile.NoPermissions";
+        public const string LoginSettings = "Profile.LoginSettings";
+        public const string EmailOtpLoginEnabled = "Profile.EmailOtpLoginEnabled";
+        public const string EmailOtpLoginDescription = "Profile.EmailOtpLoginDescription";
+        public const string LoginSettingsSaved = "Profile.LoginSettingsSaved";
+        public const string LoginSettingsSaveFailed = "Profile.LoginSettingsSaveFailed";
     }
 
     public static class Common
