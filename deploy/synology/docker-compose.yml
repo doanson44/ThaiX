@@ -1,0 +1,31 @@
+# WebApp on a Synology NAS: the app image from GHCR, using the MySQL/MariaDB the NAS already runs. Setup and operations:
+# README.md next to this file. The deploy job (.github/workflows/main.yml) copies this file to DEPLOY_DIR on every push
+# to master, so change it here, not on the NAS. Settings and secrets come from .env in DEPLOY_DIR (template: .env.example).
+
+name: ThaiX
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: "3"
+
+services:
+  app:
+    # Each commit on master is also tagged :sha-<7 chars>; set WEBAPP_IMAGE to one of those to roll back
+    image: ${WEBAPP_IMAGE:-ghcr.io/doanson44/ThaiX:latest}
+    container_name: thaix
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-5080}:8080"
+    # host.docker.internal is the NAS itself, where the database runs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      ASPNETCORE_ENVIRONMENT: Production
+      # Behind the DSM reverse proxy: take the client IP and scheme from X-Forwarded-* (short-link IP lists, system log)
+     
+    volumes:
+      # Written at runtime; must survive redeploys. The container gives them to UID 1654 (the app user) on start.
+    logging: *logging
