@@ -150,14 +150,14 @@ public sealed class EmailOtpService : IEmailOtpService
                 body,
                 cancellationToken);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            await InvalidateChallengeAsync(challenge.Id);
+            throw;
+        }
         catch (Exception ex)
         {
-            await _context.EmailOtpChallenges
-                .Where(x => x.Id == challenge.Id && x.ConsumedAtUtc == null)
-                .ExecuteUpdateAsync(
-                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
-                    cancellationToken);
-
+            await InvalidateChallengeAsync(challenge.Id);
             _logger.LogError(ex, "Failed to send email OTP for user {UserId}", user.Id);
         }
 
@@ -226,6 +226,15 @@ public sealed class EmailOtpService : IEmailOtpService
         }
 
         return user.Id;
+    }
+
+    private async Task InvalidateChallengeAsync(Guid challengeId)
+    {
+        await _context.EmailOtpChallenges
+            .Where(x => x.Id == challengeId && x.ConsumedAtUtc == null)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
+                CancellationToken.None);
     }
 
     private static OperationFailedException InvalidCode() =>
