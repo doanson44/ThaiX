@@ -61,75 +61,78 @@ public sealed class EmailOtpService : IEmailOtpService
         }
 
         var cooldown = TimeSpan.FromSeconds(_options.ResendCooldownSeconds);
-        await using var transaction = await _context.Database.BeginTransactionAsync(
+        EmailOtpChallenge challenge;
+
+        await using (var transaction = await _context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
-            cancellationToken);
-
-        await _context.Users
-            .Where(x => x.Id == user.Id)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.EmailOtpLoginEnabled, x => x.EmailOtpLoginEnabled),
-                cancellationToken);
-
-        var currentUser = await _context.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
-
-        if (currentUser is null || !currentUser.EmailConfirmed ||
-            !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser) ||
-            !await _signInManager.CanSignInAsync(currentUser))
+            cancellationToken))
         {
+            await _context.Users
+                .Where(x => x.Id == user.Id)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.EmailOtpLoginEnabled, x => x.EmailOtpLoginEnabled),
+                    cancellationToken);
+
+            var currentUser = await _context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+
+            if (currentUser is null || !currentUser.EmailConfirmed ||
+                !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser) ||
+                !await _signInManager.CanSignInAsync(currentUser))
+            {
+                await transaction.CommitAsync(cancellationToken);
+                return genericResponse;
+            }
+
+            var retentionCutoff = now.AddDays(-_options.RetentionDays);
+            await _context.EmailOtpChallenges
+                .Where(x => x.ExpiresAtUtc < retentionCutoff ||
+                            (x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff) ||
+                            (x.InvalidatedAtUtc != null && x.InvalidatedAtUtc < retentionCutoff))
+                .ExecuteDeleteAsync(cancellationToken);
+
+            var recentChallenge = await _context.EmailOtpChallenges
+                .Where(x => x.UserId == currentUser.Id && x.CreatedAtUtc > now - cooldown)
+                .OrderByDescending(x => x.CreatedAtUtc)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (recentChallenge is not null)
+            {
+                await transaction.CommitAsync(cancellationToken);
+                return new EmailOtpChallengeInfo(
+                    recentChallenge.Id,
+                    recentChallenge.ExpiresAtUtc,
+                    recentChallenge.CreatedAtUtc.Add(cooldown),
+                    _options.CodeLength);
+            }
+
+            await _context.EmailOtpChallenges
+                .Where(x => x.UserId == currentUser.Id &&
+                            x.ConsumedAtUtc == null &&
+                            x.InvalidatedAtUtc == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
+                    cancellationToken);
+
+            var code = RandomNumberGenerator
+                .GetInt32(0, (int)Math.Pow(10, _options.CodeLength))
+                .ToString($"D{_options.CodeLength}");
+
+            challenge = new EmailOtpChallenge
+            {
+                Id = Guid.NewGuid(),
+                UserId = currentUser.Id,
+                CodeHash = _passwordHasher.HashPassword(currentUser, code),
+                CreatedAtUtc = now,
+                ExpiresAtUtc = now.AddMinutes(_options.ExpirationMinutes),
+                FailedAttempts = 0
+            };
+
+            _context.EmailOtpChallenges.Add(challenge);
+            await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-            return genericResponse;
         }
-
-        var retentionCutoff = now.AddDays(-_options.RetentionDays);
-        await _context.EmailOtpChallenges
-            .Where(x => x.ExpiresAtUtc < retentionCutoff ||
-                        (x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff) ||
-                        (x.InvalidatedAtUtc != null && x.InvalidatedAtUtc < retentionCutoff))
-            .ExecuteDeleteAsync(cancellationToken);
-
-        var recentChallenge = await _context.EmailOtpChallenges
-            .Where(x => x.UserId == user.Id && x.CreatedAtUtc > now - cooldown)
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (recentChallenge is not null)
-        {
-            await transaction.CommitAsync(cancellationToken);
-            return new EmailOtpChallengeInfo(
-                recentChallenge.Id,
-                recentChallenge.ExpiresAtUtc,
-                recentChallenge.CreatedAtUtc.Add(cooldown),
-                _options.CodeLength);
-        }
-
-        await _context.EmailOtpChallenges
-            .Where(x => x.UserId == user.Id &&
-                        x.ConsumedAtUtc == null &&
-                        x.InvalidatedAtUtc == null)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
-                cancellationToken);
-
-        var code = RandomNumberGenerator
-            .GetInt32(0, (int)Math.Pow(10, _options.CodeLength))
-            .ToString($"D{_options.CodeLength}");
-
-        var challenge = new EmailOtpChallenge
-        {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            CodeHash = _passwordHasher.HashPassword(currentUser, code),
-            CreatedAtUtc = now,
-            ExpiresAtUtc = now.AddMinutes(_options.ExpirationMinutes),
-            FailedAttempts = 0
-        };
-
-        _context.EmailOtpChallenges.Add(challenge);
-        await _context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
 
         try
         {
@@ -139,7 +142,7 @@ public sealed class EmailOtpService : IEmailOtpService
                 footNote: "ThaiX Security Team");
 
             await _emailSender.SendEmailAsync(
-                currentUser.Email!,
+                user.Email!,
                 "ThaiX - Login Verification",
                 body,
                 cancellationToken);
