@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MySqlConnector;
 using System.Security.Claims;
 using ThaiX.Application.Common.Constants;
 using ThaiX.Infrastructure.Configuration;
@@ -24,6 +25,9 @@ public static class DbInitializer
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<ApplicationRole>>();
             var seedSettings = services.GetRequiredService<IOptions<SeedSettings>>().Value;
+
+            // Ensure MariaDB compatibility for collations
+            await EnsureMariaDbCollationCompatAsync(context, logger);
 
             // Apply pending migrations
             logger.LogInformation("Applying database migrations...");
@@ -142,6 +146,30 @@ public static class DbInitializer
                 await userManager.AddClaimsAsync(adminUser, missingPermissions);
                 logger.LogInformation("Added {Count} missing permissions to admin user", missingPermissions.Count);
             }
+        }
+    }
+
+    // MariaDB 10.10+ returns NULL for uca1400_* collations (MDEV-27009), which crashes
+    // MySql.EntityFrameworkCore's connection-open character-set load (InvalidCastException).
+    // MySqlConnector is unaffected, so use it to set the compat flag before the Oracle
+    // provider opens its first connection. Best-effort: missing SUPER privilege just logs.
+    private static async Task EnsureMariaDbCollationCompatAsync(ApplicationDbContext context, ILogger logger)
+    {
+        var connectionString = context.Database.GetConnectionString();
+        if (string.IsNullOrEmpty(connectionString)) return;
+
+        try
+        {
+            await using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = "SET GLOBAL old_mode = 'UTF8_IS_UTF8MB3,NO_NULL_COLLATION_IDS';";
+            await command.ExecuteNonQueryAsync();
+            logger.LogInformation("MariaDB old_mode compatibility flag applied");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not apply MariaDB old_mode compatibility flag; continuing");
         }
     }
 }
