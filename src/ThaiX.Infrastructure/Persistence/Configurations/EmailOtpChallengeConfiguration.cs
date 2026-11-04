@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence.Entities;
 
 namespace ThaiX.Infrastructure.Persistence.Configurations;
@@ -14,6 +15,10 @@ public sealed class EmailOtpChallengeConfiguration : IEntityTypeConfiguration<Em
         builder.Property(x => x.CreatedAtUtc).IsRequired();
         builder.Property(x => x.ExpiresAtUtc).IsRequired();
         builder.Property(x => x.FailedAttempts).IsRequired();
+        builder.HasOne<ApplicationUser>()
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => x.ExpiresAtUtc);
         builder.HasIndex(x => new { x.UserId, x.ConsumedAtUtc, x.InvalidatedAtUtc });
