@@ -134,9 +134,19 @@ else
     private bool _showResendConfirmationLink;
     private string _resendConfirmationEmail = string.Empty;
 
-    private string EmailOtpRequestLabel => _otpCooldownSeconds > 0
-        ? $"{L[RK.Auth.EmailOtpRequest]} ({_otpCooldownSeconds}s)"
-        : L[RK.Auth.EmailOtpRequest];
+    private string EmailOtpRequestLabel
+    {
+        get
+        {
+            var label = _emailOtpChallengeId.HasValue
+                ? L[RK.Auth.EmailOtpResend].Value
+                : L[RK.Auth.EmailOtpRequest].Value;
+
+            return _otpCooldownSeconds > 0
+                ? $"{label} ({_otpCooldownSeconds}s)"
+                : label;
+        }
+    }
 
     private string ResendConfirmationUrl => string.IsNullOrWhiteSpace(_resendConfirmationEmail)
         ? $"/{RouteSegments.ResendConfirmation}"
@@ -168,6 +178,7 @@ else
                 Email = _otpEmail.Trim()
             });
             _emailOtpChallengeId = challenge.ChallengeId;
+            _emailOtpCode = string.Empty;
             _otpExpiresAt = challenge.ExpiresAt;
             _otpCodeLength = challenge.CodeLength;
             NotificationService.NotifySuccess(L[RK.Auth.EmailOtpRequested]);
