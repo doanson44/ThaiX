@@ -59,6 +59,11 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
 
     public async Task InvokeAsync(HttpContext context)
     {
+        if (context.Request.Path.Value?.StartsWith("/.well-known/agent-skills/", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        }
+
         if (context.Request.Path == "/" &&
             (HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsHead(context.Request.Method)))
         {
