@@ -42,6 +42,8 @@
   <data name="Error.Forbidden" xml:space="preserve"><value>You do not have permission to perform this action.</value></data>
   <data name="Error.InternalError" xml:space="preserve"><value>An unexpected error occurred. Please try again later.</value></data>
   <data name="Error.InvalidCredentials" xml:space="preserve"><value>Invalid email or password.</value></data>
+  <data name="Error.InvalidEmailOtp" xml:space="preserve"><value>The verification code is invalid or expired, or the attempt limit was reached.</value></data>
+  <data name="Error.EmailNotConfirmed" xml:space="preserve"><value>Please confirm your email address before enabling email OTP login.</value></data>
   <data name="Error.AccountLocked" xml:space="preserve"><value>Your account has been locked. Please contact support.</value></data>
   <data name="Error.AccountNotAllowed" xml:space="preserve"><value>Sign in not allowed. Please confirm your email.</value></data>
   <data name="Error.Unauthorized" xml:space="preserve"><value>You are not authorized to access this resource.</value></data>
