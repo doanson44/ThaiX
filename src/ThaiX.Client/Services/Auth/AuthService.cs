@@ -37,12 +37,12 @@ public sealed class AuthService : IAuthService
         return loginResponse;
     }
 
-    public async Task<Guid> RequestEmailOtpAsync(
+    public async Task<RequestEmailOtpResponse> RequestEmailOtpAsync(
         RequestEmailOtpRequest request,
         CancellationToken cancellationToken = default)
     {
         using var response = await _httpClient.PostAsJsonAsync("api/auth/email-otp/request", request, cancellationToken);
-        return await ApiResponseReader.ReadSuccessDataAsync<Guid>(response, cancellationToken);
+        return await ApiResponseReader.ReadSuccessDataAsync<RequestEmailOtpResponse>(response, cancellationToken);
     }
 
     public async Task<LoginResponse> VerifyEmailOtpAsync(
