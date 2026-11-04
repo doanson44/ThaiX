@@ -41,6 +41,28 @@ public sealed class AuthFixture : IAsyncLifetime
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
 
+        if (string.Equals(
+                Environment.GetEnvironmentVariable("VISUAL_SKIP_AUTH_LOGIN"),
+                "true",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            var publicContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+            {
+                IgnoreHTTPSErrors = true,
+                ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
+            });
+            var publicPage = await publicContext.NewPageAsync();
+            await GotoAsync(publicPage, "/auth/login", 1280, 800);
+            await EnsureDemoModeAsync(publicPage);
+
+            _publicStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
+            await publicContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
+            await publicContext.CloseAsync();
+
+            _authStorageStatePath = _publicStorageStatePath;
+            return;
+        }
+
         var authContext = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             IgnoreHTTPSErrors = true,
