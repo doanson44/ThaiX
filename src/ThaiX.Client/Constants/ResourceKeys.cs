@@ -271,6 +271,7 @@ public static class ResourceKeys
         public const string EmailOtpRequest = "Auth.EmailOtp.Request";
         public const string EmailOtpVerify = "Auth.EmailOtp.Verify";
         public const string EmailOtpRequested = "Auth.EmailOtp.Requested";
+        public const string EmailOtpExpiresAt = "Auth.EmailOtp.ExpiresAt";
 
         public const string UsernameOrEmail = "Auth.UsernameOrEmail";
         public const string UsernameOrEmailPlaceholder = "Auth.UsernameOrEmail.Placeholder";
