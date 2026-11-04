@@ -20,7 +20,7 @@ public sealed class LoginEmailOtpVisualTests
     public async Task LoginPage_EmailOtpMode_ShouldRemainUsableWithoutHorizontalOverflow(int width, int height)
     {
         // Arrange
-        var (context, page) = await _auth.CreatePageAsync(false, width, height);
+        var (context, page) = await _auth.CreatePageAsync(false, width, height, locale: "en-US");
 
         try
         {
