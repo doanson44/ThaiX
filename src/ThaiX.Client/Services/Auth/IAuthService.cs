@@ -5,6 +5,9 @@ namespace ThaiX.Client.Services.Auth;
 public interface IAuthService
 {
     Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<Guid> RequestEmailOtpAsync(RequestEmailOtpRequest request, CancellationToken cancellationToken = default);
+    Task<LoginResponse> VerifyEmailOtpAsync(VerifyEmailOtpRequest request, CancellationToken cancellationToken = default);
+    Task UpdateLoginSettingsAsync(UpdateLoginSettingsRequest request, CancellationToken cancellationToken = default);
     Task<LoginResponse> LoginWith2faAsync(LoginWith2faRequest request, CancellationToken cancellationToken = default);
     Task<LoginResponse> LoginWithRecoveryCodeAsync(LoginWithRecoveryCodeRequest request, CancellationToken cancellationToken = default);
     Task<RegisterResponse> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default);
