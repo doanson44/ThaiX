@@ -97,6 +97,24 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task RequestEmailOtp_WhenLoginPreferenceIsDisabled_ShouldNotSendEmail()
+    {
+        // Arrange
+        var email = $"email-otp-disabled-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email, confirmEmail: true);
+        using var scope = Factory.Services.CreateScope();
+        var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+        var emailSender = (FakeEmailSender)scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+        // Act
+        var result = await otpService.RequestAsync(email);
+
+        // Assert
+        result.ChallengeId.Should().NotBeEmpty();
+        emailSender.SentEmails.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RequestEmailOtp_ForUnknownEmail_ShouldReturnGenericResponse()
     {
         // Arrange
@@ -346,6 +364,32 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var user = await userManager.FindByIdAsync(userId.ToString());
         user!.EmailOtpLoginEnabled.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateLoginSettings_WhenEmailIsUnconfirmed_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var email = $"email-otp-unconfirmed-setting-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await AuthenticateAsync(email);
+
+        using (var scope = Factory.Services.CreateScope())
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            user!.EmailConfirmed = false;
+            (await userManager.UpdateAsync(user)).Succeeded.Should().BeTrue();
+        }
+
+        // Act
+        var response = await Client.PutAsJsonAsync("/api/auth/login-settings", new
+        {
+            EmailOtpLoginEnabled = true
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
