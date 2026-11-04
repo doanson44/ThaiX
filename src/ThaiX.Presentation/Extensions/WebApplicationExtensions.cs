@@ -231,6 +231,7 @@ public static class WebApplicationExtensions
         app.MapTokenEndpoints();
         app.MapAccountEndpoints();
         app.MapHealthEndpoints();
+        app.MapSystemLogEndpoints();
         app.MapUserEndpoints();
         app.MapApiClientEndpoints();
         app.MapMasterDataEndpoints();
