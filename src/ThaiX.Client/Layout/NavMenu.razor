@@ -126,6 +126,7 @@
 
             @if (auth.User.HasClaim("scope", PermissionNames.UserRead)
                 || auth.User.HasClaim("scope", PermissionNames.SystemAdmin)
+                || auth.User.HasClaim("scope", PermissionNames.SystemViewLogs)
                 || auth.User.HasClaim("scope", PermissionNames.ResumeWrite)
                 || auth.User.HasClaim("scope", PermissionNames.JsonBinRead)
                 || auth.User.HasClaim("scope", PermissionNames.FileRead))
@@ -140,6 +141,10 @@
                         <RadzenPanelMenuItem Text="@L[RK.Menu.CommandTester]" Icon="terminal" Path="admin/command-tester" />
                         <RadzenPanelMenuItem Text="@L[RK.Menu.AiTester]" Icon="psychology" Path="admin/ai-tester" />
                         <RadzenPanelMenuItem Text="@L[RK.Menu.CmsxProxyTester]" Icon="http" Path="admin/cmsx-proxy-tester" />
+                    }
+                    @if (auth.User.HasClaim("scope", PermissionNames.SystemViewLogs))
+                    {
+                        <RadzenPanelMenuItem Text="@L[RK.Menu.SystemLogs]" Icon="description" Path="admin/system-logs" />
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.JsonBinRead))
                     {
