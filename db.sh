@@ -9,7 +9,7 @@ DATA_DIR="/srv/thaix/data"
 DATABASE="thaix_db"
 DB_USER="thaix_user"
 DB_PASSWORD="Abc@12345"
-ROOT_PASSWORD="Abc@12345"
+ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-Abc@12345}"
 STARTUP_TIMEOUT=180
 
 log() {
@@ -130,6 +130,11 @@ until docker exec "$CONTAINER_NAME" mariadb-admin ping -uroot "-p$ROOT_PASSWORD"
 done
 
 log "MariaDB is ready."
+
+# Apply connector compatibility flags as root; the application account stays least-privileged.
+OLD_MODE_SQL="SET GLOBAL old_mode = CONCAT_WS(',', NULLIF(@@GLOBAL.old_mode, ''), IF(FIND_IN_SET('UTF8_IS_UTF8MB3', @@GLOBAL.old_mode) = 0, 'UTF8_IS_UTF8MB3', NULL), IF(FIND_IN_SET('NO_NULL_COLLATION_IDS', @@GLOBAL.old_mode) = 0, 'NO_NULL_COLLATION_IDS', NULL));"
+docker exec -e "MYSQL_PWD=$ROOT_PASSWORD" "$CONTAINER_NAME" mariadb -uroot -e "$OLD_MODE_SQL" >/dev/null
+log "MariaDB old_mode compatibility flags configured."
 log "API container: $API_CONTAINER"
 log "MariaDB container: $CONTAINER_NAME"
 log "Docker network: $NETWORK_NAME"
