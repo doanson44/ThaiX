@@ -223,15 +223,23 @@ public sealed class EmailOtpService : IEmailOtpService
         return user.Id;
     }
 
-    public Task<int> CleanupExpiredAsync(CancellationToken cancellationToken = default)
+    public async Task<int> CleanupExpiredAsync(CancellationToken cancellationToken = default)
     {
         var retentionCutoff = DateTime.UtcNow.AddDays(-_options.RetentionDays);
 
-        return _context.EmailOtpChallenges
-            .Where(x => x.ExpiresAtUtc < retentionCutoff ||
-                        (x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff) ||
-                        (x.InvalidatedAtUtc != null && x.InvalidatedAtUtc < retentionCutoff))
+        var deletedCount = await _context.EmailOtpChallenges
+            .Where(x => x.ExpiresAtUtc < retentionCutoff)
             .ExecuteDeleteAsync(cancellationToken);
+
+        deletedCount += await _context.EmailOtpChallenges
+            .Where(x => x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        deletedCount += await _context.EmailOtpChallenges
+            .Where(x => x.InvalidatedAtUtc != null && x.InvalidatedAtUtc < retentionCutoff)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return deletedCount;
     }
 
     private async Task InvalidateChallengeAsync(Guid challengeId)
