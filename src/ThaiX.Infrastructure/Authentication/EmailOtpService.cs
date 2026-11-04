@@ -47,7 +47,8 @@ public sealed class EmailOtpService : IEmailOtpService
         var genericResponse = new EmailOtpChallengeInfo(
             Guid.NewGuid(),
             now.AddMinutes(_options.ExpirationMinutes),
-            now.AddSeconds(_options.ResendCooldownSeconds));
+            now.AddSeconds(_options.ResendCooldownSeconds),
+            _options.CodeLength);
 
         var user = await _userManager.FindByEmailAsync(email.Trim());
         if (user is null || !user.EmailConfirmed || !user.EmailOtpLoginEnabled ||
@@ -79,7 +80,8 @@ public sealed class EmailOtpService : IEmailOtpService
             return new EmailOtpChallengeInfo(
                 recentChallenge.Id,
                 recentChallenge.ExpiresAtUtc,
-                recentChallenge.CreatedAtUtc.Add(cooldown));
+                recentChallenge.CreatedAtUtc.Add(cooldown),
+                _options.CodeLength);
         }
 
         await _context.EmailOtpChallenges
@@ -135,7 +137,8 @@ public sealed class EmailOtpService : IEmailOtpService
         return new EmailOtpChallengeInfo(
             challenge.Id,
             challenge.ExpiresAtUtc,
-            challenge.CreatedAtUtc.Add(cooldown));
+            challenge.CreatedAtUtc.Add(cooldown),
+            _options.CodeLength);
     }
 
     public async Task<Guid> VerifyAsync(
