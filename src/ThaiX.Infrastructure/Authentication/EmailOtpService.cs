@@ -105,9 +105,7 @@ public sealed class EmailOtpService : IEmailOtpService
                     cancellationToken);
 
             _logger.LogError(ex, "Failed to send email OTP for user {UserId}", user.Id);
-            throw new OperationFailedException(
-                ErrorCodes.INTERNAL_ERROR,
-                "Unable to send the verification email.");
+            return challenge.Id;
         }
 
         return challenge.Id;
