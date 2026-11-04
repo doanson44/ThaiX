@@ -1,14 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
-using ThaiX.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace ThaiX.Infrastructure.Persistence.Migrations;
 
-[DbContext(typeof(ApplicationDbContext))]
-[Migration("20261104050000_AddEmailOtpLogin")]
 public partial class AddEmailOtpLogin : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
