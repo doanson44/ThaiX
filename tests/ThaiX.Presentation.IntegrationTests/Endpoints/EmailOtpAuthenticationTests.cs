@@ -396,9 +396,11 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
 
         // Act
         var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+        var deletedCount = await otpService.CleanupExpiredAsync();
         var newChallenge = await otpService.RequestAsync(email);
 
         // Assert
+        deletedCount.Should().BeGreaterThan(0);
         newChallenge.ChallengeId.Should().NotBe(oldChallengeId);
         (await dbContext.EmailOtpChallenges.AnyAsync(x => x.Id == oldChallengeId)).Should().BeFalse();
     }
