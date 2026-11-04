@@ -18,6 +18,7 @@ public static class HangfireJobIds
     public const string ScheduledPostPublisherJob = nameof(ScheduledPostPublisherJob);
     public const string PollDueNotificationSchedules = nameof(PollDueNotificationSchedules);
     public const string JsonBinExpiredCleanupJob = nameof(JsonBinExpiredCleanupJob);
+    public const string EmailOtpChallengeCleanupJob = nameof(EmailOtpChallengeCleanupJob);
 }
 
 public interface IHangfireJobState
