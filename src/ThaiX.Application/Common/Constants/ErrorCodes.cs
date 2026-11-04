@@ -15,6 +15,7 @@ public static class ErrorCodes
     public const string ACCOUNT_LOCKED = "AUTH_ACCOUNT_LOCKED";
     public const string ACCOUNT_NOT_ALLOWED = "AUTH_ACCOUNT_NOT_ALLOWED";
     public const string EMAIL_NOT_CONFIRMED = "AUTH_EMAIL_NOT_CONFIRMED";
+    public const string INVALID_EMAIL_OTP = "AUTH_INVALID_EMAIL_OTP";
     public const string INVALID_TOKEN = "AUTH_INVALID_TOKEN";
     public const string TOKEN_EXPIRED = "AUTH_TOKEN_EXPIRED";
     public const string UNAUTHORIZED = "AUTH_UNAUTHORIZED";
@@ -96,6 +97,7 @@ public static class ErrorMessages
     public const string ACCOUNT_LOCKED = "Your account has been locked. Please contact support.";
     public const string ACCOUNT_NOT_ALLOWED = "Sign in not allowed. Please confirm your email.";
     public const string EMAIL_NOT_CONFIRMED = "Please confirm your email address before signing in.";
+    public const string INVALID_EMAIL_OTP = "The verification code is invalid or expired, or the attempt limit was reached.";
     public const string INVALID_TOKEN = "The provided token is invalid.";
     public const string TOKEN_EXPIRED = "Your session has expired. Please sign in again.";
     public const string UNAUTHORIZED = "You are not authorized to access this resource.";
