@@ -30,7 +30,7 @@ public sealed class LoginEmailOtpVisualTests
 
             // Assert
             Assert.Equal(0, await page.Locator("input[type='password']").CountAsync());
-            Assert.True(await page.Locator("input[type='text']").CountAsync() >= 1);
+            Assert.True(await page.Locator("input.rz-textbox").CountAsync() >= 1);
 
             foreach (var viewport in new[] { (Width: 375, Height: 812), (Width: 768, Height: 1024), (Width: 1280, Height: 800) })
             {
