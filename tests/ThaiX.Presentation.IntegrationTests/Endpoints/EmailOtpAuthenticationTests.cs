@@ -378,6 +378,32 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task RequestEmailOtp_ShouldDeleteChallengesPastRetentionWindow()
+    {
+        // Arrange
+        var email = $"email-otp-retention-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (oldChallengeId, _) = await RequestChallengeAsync(email);
+
+        using var scope = Factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await dbContext.EmailOtpChallenges
+            .Where(x => x.Id == oldChallengeId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(
+                x => x.ExpiresAtUtc,
+                DateTime.UtcNow.AddDays(-2)));
+
+        // Act
+        var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+        var newChallenge = await otpService.RequestAsync(email);
+
+        // Assert
+        newChallenge.ChallengeId.Should().NotBe(oldChallengeId);
+        (await dbContext.EmailOtpChallenges.AnyAsync(x => x.Id == oldChallengeId)).Should().BeFalse();
+    }
+
+    [Fact]
     public async Task VerifyEmailOtp_AfterExpiration_ShouldRejectCode()
     {
         // Arrange
