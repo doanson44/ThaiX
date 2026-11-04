@@ -106,6 +106,45 @@ public sealed class AuthenticationService : IAuthenticationService
         };
     }
 
+    public async Task<AuthenticationResult> AuthenticateWithEmailOtpAsync(
+        Guid userId,
+        bool rememberMe = false,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null || !user.EmailConfirmed || !user.EmailOtpLoginEnabled)
+        {
+            throw new OperationFailedException(
+                ErrorCodes.INVALID_CREDENTIALS,
+                ErrorMessages.INVALID_CREDENTIALS);
+        }
+
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            throw new OperationFailedException(
+                ErrorCodes.ACCOUNT_LOCKED,
+                ErrorMessages.ACCOUNT_LOCKED);
+        }
+
+        if (user.TwoFactorEnabled)
+        {
+            return new AuthenticationResult
+            {
+                Succeeded = false,
+                RequiresTwoFactor = true,
+                TwoFactorSessionToken = _jwtTokenService.GenerateTwoFactorSessionToken(user.Id)
+            };
+        }
+
+        var token = await GenerateUserTokenResultAsync(user, rememberMe, cancellationToken);
+        return new AuthenticationResult
+        {
+            Succeeded = true,
+            RequiresTwoFactor = false,
+            Token = token
+        };
+    }
+
     public async Task<TokenResult> AuthenticateWithTwoFactorAsync(
         string twoFactorSessionToken,
         string twoFactorCode,
