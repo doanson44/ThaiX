@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Application.Common.Exceptions;
-using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
@@ -179,7 +178,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task VerifyEmailOtp_ShouldPreservePermissionClaimsInJwt()
+    public async Task VerifyEmailOtp_ShouldPreservePermissionScopesInJwt()
     {
         // Arrange
         var email = $"email-otp-permissions-{Guid.NewGuid():N}@thaix.test";
@@ -204,7 +203,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token!);
         jwt.Claims
-            .Where(claim => claim.Type == ClaimTypeConstants.Permission)
+            .Where(claim => claim.Type == "scope")
             .Select(claim => claim.Value)
             .Should()
             .Contain(Permissions.UserRead);
