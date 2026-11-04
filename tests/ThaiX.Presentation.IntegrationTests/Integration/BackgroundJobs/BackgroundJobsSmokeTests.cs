@@ -35,6 +35,7 @@ public sealed class BackgroundJobsSmokeTests : IntegrationTestBase
             typeof(MexcMarketScannerJob),
             typeof(MexcSpotWeeklySuggestionJob),
             typeof(OutboxProcessorJob),
+            typeof(EmailOtpChallengeCleanupJob),
             typeof(PersistWeeklySuggestionReportJob),
             typeof(PriceAlertCheckerJob),
             typeof(TopStocksWeeklySuggestionJob),
@@ -124,6 +125,7 @@ public sealed class BackgroundJobsSmokeTests : IntegrationTestBase
         var mexcSpotWeekly = provider.GetRequiredService<MexcSpotWeeklySuggestionJob>();
         var topStocksWeekly = provider.GetRequiredService<TopStocksWeeklySuggestionJob>();
         var twentyFourHMoneyTransactions = provider.GetRequiredService<TwentyFourHMoneyTransactionSyncJob>();
+        var emailOtpCleanup = provider.GetRequiredService<EmailOtpChallengeCleanupJob>();
 
         // Act
         await InvokeWithPreCanceledToken(ct => botTradeSuggestion.RunAsync(
@@ -147,6 +149,7 @@ public sealed class BackgroundJobsSmokeTests : IntegrationTestBase
         await InvokeWithPreCanceledToken(ct => mexcSpotWeekly.RunAsync(ct));
         await InvokeWithPreCanceledToken(ct => topStocksWeekly.RunAsync(ct));
         await InvokeWithPreCanceledToken(ct => twentyFourHMoneyTransactions.RunAsync(ct));
+        await InvokeWithPreCanceledToken(ct => emailOtpCleanup.CleanupExpiredChallenges(ct));
 
         // Assert
         true.Should().BeTrue();
