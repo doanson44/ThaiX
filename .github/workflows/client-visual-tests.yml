@@ -38,3 +38,4 @@ jobs:
         run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~LoginEmailOtpVisualTests
         env:
           VISUAL_TEST_PARALLELISM: "2"
+          VISUAL_SKIP_AUTH_LOGIN: "true"
