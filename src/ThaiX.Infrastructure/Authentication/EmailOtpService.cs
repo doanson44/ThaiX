@@ -76,19 +76,25 @@ public sealed class EmailOtpService : IEmailOtpService
                     setters => setters.SetProperty(x => x.EmailOtpLoginEnabled, x => x.EmailOtpLoginEnabled),
                     cancellationToken);
 
-            var lockedUser = await _context.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+            var userStillExists = await _context.Users
+                .AnyAsync(x => x.Id == user.Id, cancellationToken);
 
-            if (lockedUser is null || !lockedUser.EmailConfirmed ||
-                !lockedUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(lockedUser) ||
-                !await _signInManager.CanSignInAsync(lockedUser))
+            if (!userStillExists)
             {
                 await transaction.CommitAsync(cancellationToken);
                 return genericResponse;
             }
 
-            currentUser = lockedUser;
+            await _context.Entry(user).ReloadAsync(cancellationToken);
+            currentUser = user;
+
+            if (!currentUser.EmailConfirmed ||
+                !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser) ||
+                !await _signInManager.CanSignInAsync(currentUser))
+            {
+                await transaction.CommitAsync(cancellationToken);
+                return genericResponse;
+            }
             await CleanupExpiredAsync(cancellationToken);
 
             var recentChallenge = await _context.EmailOtpChallenges
