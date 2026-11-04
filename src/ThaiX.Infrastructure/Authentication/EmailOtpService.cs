@@ -18,6 +18,7 @@ public sealed class EmailOtpService : IEmailOtpService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<EmailOtpService> _logger;
@@ -26,6 +27,7 @@ public sealed class EmailOtpService : IEmailOtpService
     public EmailOtpService(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
         IPasswordHasher<ApplicationUser> passwordHasher,
         IEmailSender emailSender,
         IOptions<EmailOtpOptions> options,
@@ -33,6 +35,7 @@ public sealed class EmailOtpService : IEmailOtpService
     {
         _context = context;
         _userManager = userManager;
+        _signInManager = signInManager;
         _passwordHasher = passwordHasher;
         _emailSender = emailSender;
         _options = options.Value;
@@ -52,7 +55,7 @@ public sealed class EmailOtpService : IEmailOtpService
 
         var user = await _userManager.FindByEmailAsync(email.Trim());
         if (user is null || !user.EmailConfirmed || !user.EmailOtpLoginEnabled ||
-            await _userManager.IsLockedOutAsync(user))
+            await _userManager.IsLockedOutAsync(user) || !await _signInManager.CanSignInAsync(user))
         {
             return genericResponse;
         }
@@ -73,13 +76,14 @@ public sealed class EmailOtpService : IEmailOtpService
             .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
 
         if (currentUser is null || !currentUser.EmailConfirmed ||
-            !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser))
+            !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser) ||
+            !await _signInManager.CanSignInAsync(currentUser))
         {
             await transaction.CommitAsync(cancellationToken);
             return genericResponse;
         }
 
-        var retentionCutoff = now.AddDays(-1);
+        var retentionCutoff = now.AddDays(-_options.RetentionDays);
         await _context.EmailOtpChallenges
             .Where(x => x.ExpiresAtUtc < retentionCutoff ||
                         (x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff) ||
