@@ -11,6 +11,13 @@
 
 <RadzenText TextStyle="TextStyle.H4">@L[RK.Auth.LoginTitle]</RadzenText>
 
+<RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" class="mb-3">
+    <RadzenButton Text="@L[RK.Auth.LoginWithPassword]" ButtonStyle="@(!_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(false))" />
+    <RadzenButton Text="@L[RK.Auth.LoginWithEmailOtp]" ButtonStyle="@(_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(true))" />
+</RadzenStack>
+
+@if (!_useEmailOtp)
+{
 <RadzenTemplateForm Data="@_model" Submit="@((LoginFormModel _) => OnSubmitAsync())">
     <div class="mb-3">
         <RadzenLabel Text="@L[RK.Auth.UsernameOrEmail]" class="mb-1" />
@@ -53,6 +60,39 @@
                       class="w-100" />
     </div>
 </RadzenTemplateForm>
+}
+else
+{
+    <RadzenStack Gap="1rem">
+        <div>
+            <RadzenLabel Text="@L[RK.Auth.Email]" class="mb-1" />
+            <RadzenTextBox @bind-Value="_otpEmail" Placeholder="@L[RK.Auth.EmailPlaceholder]" class="w-100" />
+        </div>
+        <RadzenButton Text="@L[RK.Auth.EmailOtpRequest]"
+                      Icon="mail"
+                      Click="OnRequestEmailOtpAsync"
+                      Disabled="@_isSubmitting"
+                      IsBusy="@_isSubmitting"
+                      class="w-100" />
+        @if (_emailOtpChallengeId.HasValue)
+        {
+            <div>
+                <RadzenLabel Text="@L[RK.Auth.EmailOtpCode]" class="mb-1" />
+                <RadzenTextBox @bind-Value="_emailOtpCode" MaxLength="6" class="w-100" />
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <RadzenCheckBox TValue="bool" @bind-Value="_otpRememberMe" Name="otpRememberMe" />
+                <RadzenLabel Text="@L[RK.Auth.RememberMe]" Component="otpRememberMe" />
+            </div>
+            <RadzenButton Text="@L[RK.Auth.EmailOtpVerify]"
+                          Icon="verified"
+                          Click="OnVerifyEmailOtpAsync"
+                          Disabled="@_isSubmitting"
+                          IsBusy="@_isSubmitting"
+                          class="w-100" />
+        }
+    </RadzenStack>
+}
 
 <div class="d-flex flex-column gap-1 mt-3">
     <RadzenLink Path="@($"/{RouteSegments.ForgotPassword}")" Text="@L[RK.Auth.ForgotPasswordLink]" />
@@ -77,12 +117,96 @@
 @code {
     private LoginFormModel _model = new();
     private bool _isSubmitting;
+    private bool _useEmailOtp;
+    private Guid? _emailOtpChallengeId;
+    private string _otpEmail = string.Empty;
+    private string _emailOtpCode = string.Empty;
+    private bool _otpRememberMe;
     private bool _showResendConfirmationLink;
     private string _resendConfirmationEmail = string.Empty;
 
     private string ResendConfirmationUrl => string.IsNullOrWhiteSpace(_resendConfirmationEmail)
         ? $"/{RouteSegments.ResendConfirmation}"
         : $"/{RouteSegments.ResendConfirmation}?email={Uri.EscapeDataString(_resendConfirmationEmail)}";
+
+    private void SetLoginMode(bool useEmailOtp)
+    {
+        _useEmailOtp = useEmailOtp;
+        _emailOtpChallengeId = null;
+        _emailOtpCode = string.Empty;
+        if (useEmailOtp && string.IsNullOrWhiteSpace(_otpEmail))
+        {
+            _otpEmail = _model.Username.Trim();
+        }
+    }
+
+    private async Task OnRequestEmailOtpAsync()
+    {
+        if (_isSubmitting || string.IsNullOrWhiteSpace(_otpEmail))
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        try
+        {
+            _emailOtpChallengeId = await AuthService.RequestEmailOtpAsync(new RequestEmailOtpRequest
+            {
+                Email = _otpEmail.Trim()
+            });
+            NotificationService.NotifySuccess(L[RK.Auth.EmailOtpRequested]);
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.Auth.LoginFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task OnVerifyEmailOtpAsync()
+    {
+        if (_isSubmitting || !_emailOtpChallengeId.HasValue || _emailOtpCode.Length != 6)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        try
+        {
+            var result = await AuthService.VerifyEmailOtpAsync(new VerifyEmailOtpRequest
+            {
+                ChallengeId = _emailOtpChallengeId.Value,
+                Code = _emailOtpCode,
+                RememberMe = _otpRememberMe
+            });
+
+            if (result.RequiresTwoFactor)
+            {
+                Navigation.NavigateTo($"/{RouteSegments.Login2Fa}?sessionToken={Uri.EscapeDataString(result.TwoFactorSessionToken!)}");
+                return;
+            }
+
+            NotificationService.NotifySuccess(L[RK.Auth.LoginSuccess], L[RK.Auth.LoginSuccessDetail]);
+            Navigation.NavigateTo("/");
+        }
+        catch (ApiException ex)
+        {
+            if (AuthErrorCodes.IsLockout(ex))
+            {
+                Navigation.NavigateTo($"/{RouteSegments.Lockout}");
+                return;
+            }
+
+            NotificationService.NotifyError(L[RK.Auth.LoginFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
 
     private async Task OnSubmitAsync()
     {
