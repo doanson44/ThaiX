@@ -515,6 +515,32 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task UpdateLoginSettings_WhenDisabled_ShouldInvalidateActiveChallenges()
+    {
+        // Arrange
+        var email = $"email-otp-disable-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, _) = await RequestChallengeAsync(email);
+        await AuthenticateAsync(email);
+
+        // Act
+        var response = await Client.PutAsJsonAsync("/api/auth/login-settings", new
+        {
+            EmailOtpLoginEnabled = false
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var scope = Factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var challenge = await dbContext.EmailOtpChallenges
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == challengeId);
+        challenge.InvalidatedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task UpdateLoginSettings_WhenEmailIsUnconfirmed_ShouldReturnBadRequest()
     {
         // Arrange
