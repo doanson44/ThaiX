@@ -175,47 +175,6 @@ public sealed class EmailOtpService : IEmailOtpService
         return user.Id;
     }
 
-    public async Task SetLoginEnabledAsync(
-        Guid userId,
-        bool enabled,
-        CancellationToken cancellationToken = default)
-    {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user is null)
-        {
-            throw new OperationFailedException(
-                ErrorCodes.RESOURCE_NOT_FOUND,
-                ErrorMessages.RESOURCE_NOT_FOUND);
-        }
-
-        if (enabled && !user.EmailConfirmed)
-        {
-            throw new OperationFailedException(
-                ErrorCodes.INVALID_REQUEST,
-                "Email must be confirmed before enabling email OTP login.");
-        }
-
-        user.EmailOtpLoginEnabled = enabled;
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            throw new OperationFailedException(
-                ErrorCodes.INTERNAL_ERROR,
-                "Unable to update email OTP login settings.");
-        }
-
-        if (!enabled)
-        {
-            await _context.EmailOtpChallenges
-                .Where(x => x.UserId == userId &&
-                            x.ConsumedAtUtc == null &&
-                            x.InvalidatedAtUtc == null)
-                .ExecuteUpdateAsync(
-                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
-                    cancellationToken);
-        }
-    }
-
     private static OperationFailedException InvalidCode() =>
         new(ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
 }
