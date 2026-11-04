@@ -77,6 +77,10 @@ else
                       class="w-100" />
         @if (_emailOtpChallengeId.HasValue)
         {
+            @if (_otpExpiresAt.HasValue)
+            {
+                <RadzenText TextStyle="TextStyle.Caption">@L[RK.Auth.EmailOtpExpiresAt, _otpExpiresAt.Value.ToLocalTime().ToString("t")]</RadzenText>
+            }
             <div>
                 <RadzenLabel Text="@L[RK.Auth.EmailOtpCode]" class="mb-1" />
                 <RadzenTextBox @bind-Value="_emailOtpCode" MaxLength="@_otpCodeLength" class="w-100" />
@@ -179,10 +183,10 @@ else
         }
     }
 
-    private void StartOtpCooldown()
+    private void StartOtpCooldown(DateTime resendAfter)
     {
         _otpCooldownTimer?.Dispose();
-        _otpCooldownSeconds = 60;
+        _otpCooldownSeconds = Math.Max(0, (int)Math.Ceiling((resendAfter - DateTime.UtcNow).TotalSeconds));
         _otpCooldownTimer = new Timer(_ => _ = InvokeAsync(() =>
         {
             if (_otpCooldownSeconds > 0)
