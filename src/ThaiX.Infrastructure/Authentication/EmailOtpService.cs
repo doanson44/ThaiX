@@ -158,7 +158,7 @@ public sealed class EmailOtpService : IEmailOtpService
         catch (Exception ex)
         {
             await InvalidateChallengeAsync(challenge.Id);
-            _logger.LogError(ex, "Failed to send email OTP for user {UserId}", user.Id);
+            _logger.LogError("Failed to send email OTP. Failure type: {FailureType}", ex.GetType().Name);
         }
 
         return new EmailOtpChallengeInfo(
