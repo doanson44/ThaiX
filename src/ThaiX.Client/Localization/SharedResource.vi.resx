@@ -2066,6 +2066,7 @@
   <data name="Auth.Login.WithEmailOtp" xml:space="preserve"><value>Mã OTP qua email</value></data>
   <data name="Auth.EmailOtp.Code" xml:space="preserve"><value>Mã xác minh</value></data>
   <data name="Auth.EmailOtp.Request" xml:space="preserve"><value>Gửi mã xác minh</value></data>
+  <data name="Auth.EmailOtp.Resend" xml:space="preserve"><value>Gửi lại mã xác minh</value></data>
   <data name="Auth.EmailOtp.Verify" xml:space="preserve"><value>Xác minh và đăng nhập</value></data>
   <data name="Auth.EmailOtp.Requested" xml:space="preserve"><value>Nếu tài khoản đủ điều kiện, mã xác minh đã được gửi đến email.</value></data>
   <data name="Auth.EmailOtp.ExpiresAt" xml:space="preserve"><value>Mã sẽ hết hạn lúc {0}.</value></data>
