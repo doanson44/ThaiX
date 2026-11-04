@@ -2063,4 +2063,15 @@
   <data name="SystemLogs.PreviewFailed" xml:space="preserve"><value>Unable to preview this log file.</value></data>
   <data name="SystemLogs.DownloadFailed" xml:space="preserve"><value>Unable to download this log file.</value></data>
   <data name="SystemLogs.PreviewTruncated" xml:space="preserve"><value>Preview is limited to the first 100,000 characters. Download the file to view the complete log.</value></data>
+  <data name="Auth.Login.WithPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="Auth.Login.WithEmailOtp" xml:space="preserve"><value>Email OTP</value></data>
+  <data name="Auth.EmailOtp.Code" xml:space="preserve"><value>Verification code</value></data>
+  <data name="Auth.EmailOtp.Request" xml:space="preserve"><value>Send verification code</value></data>
+  <data name="Auth.EmailOtp.Verify" xml:space="preserve"><value>Verify and sign in</value></data>
+  <data name="Auth.EmailOtp.Requested" xml:space="preserve"><value>If the account is eligible, a verification code has been sent.</value></data>
+  <data name="Profile.LoginSettings" xml:space="preserve"><value>Login settings</value></data>
+  <data name="Profile.EmailOtpLoginEnabled" xml:space="preserve"><value>Enable email OTP login</value></data>
+  <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Allow signing in with a one-time code sent to your confirmed email address.</value></data>
+  <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Login settings saved.</value></data>
+  <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Unable to save login settings.</value></data>
 </root>
