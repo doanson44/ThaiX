@@ -56,6 +56,11 @@ public partial class AddEmailOtpLogin : Migration
             column: "UserId");
 
         migrationBuilder.CreateIndex(
+            name: "IX_EmailOtpChallenges_UserId_CreatedAtUtc",
+            table: "EmailOtpChallenges",
+            columns: new[] { "UserId", "CreatedAtUtc" });
+
+        migrationBuilder.CreateIndex(
             name: "IX_EmailOtpChallenges_UserId_ConsumedAtUtc_InvalidatedAtUtc",
             table: "EmailOtpChallenges",
             columns: new[] { "UserId", "ConsumedAtUtc", "InvalidatedAtUtc" });
