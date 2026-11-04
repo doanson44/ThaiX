@@ -95,8 +95,6 @@ public sealed class EmailOtpService : IEmailOtpService
                 await transaction.CommitAsync(cancellationToken);
                 return genericResponse;
             }
-            await CleanupExpiredAsync(cancellationToken);
-
             var recentChallenge = await _context.EmailOtpChallenges
                 .Where(x => x.UserId == currentUser.Id && x.CreatedAtUtc > now - cooldown)
                 .OrderByDescending(x => x.CreatedAtUtc)
