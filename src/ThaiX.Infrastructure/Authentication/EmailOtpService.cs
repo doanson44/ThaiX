@@ -59,8 +59,25 @@ public sealed class EmailOtpService : IEmailOtpService
 
         var cooldown = TimeSpan.FromSeconds(_options.ResendCooldownSeconds);
         await using var transaction = await _context.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
+            IsolationLevel.ReadCommitted,
             cancellationToken);
+
+        await _context.Users
+            .Where(x => x.Id == user.Id)
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(x => x.EmailOtpLoginEnabled, x => x.EmailOtpLoginEnabled),
+                cancellationToken);
+
+        var currentUser = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
+
+        if (currentUser is null || !currentUser.EmailConfirmed ||
+            !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser))
+        {
+            await transaction.CommitAsync(cancellationToken);
+            return genericResponse;
+        }
 
         var retentionCutoff = now.AddDays(-1);
         await _context.EmailOtpChallenges
@@ -100,7 +117,7 @@ public sealed class EmailOtpService : IEmailOtpService
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
-            CodeHash = _passwordHasher.HashPassword(user, code),
+            CodeHash = _passwordHasher.HashPassword(currentUser, code),
             CreatedAtUtc = now,
             ExpiresAtUtc = now.AddMinutes(_options.ExpirationMinutes),
             FailedAttempts = 0
@@ -118,7 +135,7 @@ public sealed class EmailOtpService : IEmailOtpService
                 footNote: "ThaiX Security Team");
 
             await _emailSender.SendEmailAsync(
-                user.Email!,
+                currentUser.Email!,
                 "ThaiX - Login Verification",
                 body,
                 cancellationToken);
