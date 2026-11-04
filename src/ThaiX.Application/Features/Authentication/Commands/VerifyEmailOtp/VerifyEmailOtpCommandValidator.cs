@@ -7,6 +7,6 @@ public sealed class VerifyEmailOtpCommandValidator : AbstractValidator<VerifyEma
     public VerifyEmailOtpCommandValidator()
     {
         RuleFor(x => x.ChallengeId).NotEmpty();
-        RuleFor(x => x.Code).NotEmpty().Length(6).Matches("^[0-9]{6}$");
+        RuleFor(x => x.Code).NotEmpty().Length(4, 9).Matches("^[0-9]+$");
     }
 }
