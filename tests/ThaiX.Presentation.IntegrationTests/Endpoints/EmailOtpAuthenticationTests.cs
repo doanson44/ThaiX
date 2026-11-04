@@ -648,15 +648,17 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         user.Should().NotBeNull();
 
         user!.EmailOtpLoginEnabled = true;
-        user.TwoFactorEnabled = enableTwoFactor;
-        if (enableTwoFactor)
-        {
-            var authenticatorKeyResult = await userManager.ResetAuthenticatorKeyAsync(user);
-            authenticatorKeyResult.Succeeded.Should().BeTrue();
-        }
+        user.TwoFactorEnabled = false;
 
         var result = await userManager.UpdateAsync(user);
         result.Succeeded.Should().BeTrue();
+
+        if (enableTwoFactor)
+        {
+            var identityUserService = scope.ServiceProvider.GetRequiredService<IIdentityUserService>();
+            await identityUserService.GetAuthenticatorKeyAsync(userId);
+            await identityUserService.SetTwoFactorEnabledAsync(userId, true);
+        }
     }
 
     private async Task<(Guid ChallengeId, string Code)> RequestChallengeAsync(string email)
