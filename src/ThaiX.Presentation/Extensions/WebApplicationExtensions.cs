@@ -180,6 +180,14 @@ public static class WebApplicationExtensions
                     job => job.RunAsync(CancellationToken.None),
                     cron,
                     options),
+
+            [HangfireJobIds.EmailOtpChallengeCleanupJob] = (jobId, queue, cron, options) =>
+                ScheduleRecurringJob<EmailOtpChallengeCleanupJob>(
+                    jobId,
+                    queue,
+                    job => job.CleanupExpiredChallenges(CancellationToken.None),
+                    cron,
+                    options),
         };
 
     /// <summary>
