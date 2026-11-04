@@ -73,9 +73,27 @@ public static class ResourceKeys
         public const string BlogTags = "Menu.BlogTags";
         public const string JsonBins = "Menu.JsonBins";
         public const string PublicHtmlPages = "Menu.PublicHtmlPages";
+        public const string SystemLogs = "Menu.SystemLogs";
         public const string Tools = "Menu.Tools";
     }
 
+
+    public static class SystemLogs
+    {
+        public const string Title = "SystemLogs.Title";
+        public const string Description = "SystemLogs.Description";
+        public const string FileName = "SystemLogs.FileName";
+        public const string Size = "SystemLogs.Size";
+        public const string LastModified = "SystemLogs.LastModified";
+        public const string Preview = "SystemLogs.Preview";
+        public const string Download = "SystemLogs.Download";
+        public const string ClosePreview = "SystemLogs.ClosePreview";
+        public const string Empty = "SystemLogs.Empty";
+        public const string LoadFailed = "SystemLogs.LoadFailed";
+        public const string PreviewFailed = "SystemLogs.PreviewFailed";
+        public const string DownloadFailed = "SystemLogs.DownloadFailed";
+        public const string PreviewTruncated = "SystemLogs.PreviewTruncated";
+    }
 
     public static class CmsxProxyTester
     {

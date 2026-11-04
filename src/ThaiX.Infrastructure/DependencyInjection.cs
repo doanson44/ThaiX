@@ -189,6 +189,7 @@ public static class DependencyInjection
         // Storage
         services
             .AddSingleton<IFileStorage, LocalFileStorage>()
+            .AddSingleton<ISystemLogReader, SystemLogReader>()
             .AddSingleton<IFileUrlProvider, StorageFileUrlProvider>();
 
 

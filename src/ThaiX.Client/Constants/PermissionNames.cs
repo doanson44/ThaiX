@@ -23,6 +23,7 @@ public static class PermissionNames
     public const string ContactWrite = "Contact.Write";
     public const string ContactDelete = "Contact.Delete";
     public const string SystemAdmin = "System.Admin";
+    public const string SystemViewLogs = "System.ViewLogs";
 
     public const string ChainBrokerDataRead = "ChainBrokerData.Read";
     public const string ChainBrokerDataSync = "ChainBrokerData.Sync";
@@ -127,6 +128,7 @@ public static class PermissionNames
             ContactWrite,
             ContactDelete,
             SystemAdmin,
+            SystemViewLogs,
             ChainBrokerDataRead,
             ChainBrokerDataSync,
             TcbsTop10DataSync,

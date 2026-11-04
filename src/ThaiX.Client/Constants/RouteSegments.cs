@@ -83,6 +83,7 @@ public static class RouteSegments
     public const string Users = "admin/users";
     public const string SlackCommands = "admin/command-tester";
     public const string AiTester = "admin/ai-tester";
+    public const string SystemLogs = "admin/system-logs";
     public const string JsonBins = "admin/json-bins";
     public const string JsonBinCreate = "admin/json-bins/create";
     public const string JsonBinEdit = "admin/json-bins/{Id:guid}";

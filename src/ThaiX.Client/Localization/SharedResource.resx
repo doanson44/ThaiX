@@ -2049,4 +2049,18 @@
   <data name="BitcoinMarket.LastUpdated" xml:space="preserve"><value>Candle date (UTC)</value></data>
   <data name="BitcoinMarket.LoadFailed" xml:space="preserve"><value>Unable to load Bitcoin market data.</value></data>
   <data name="MarketDashboard.LoadFailed" xml:space="preserve"><value>Unable to load market dashboard data.</value></data>
+  <data name="Menu.SystemLogs" xml:space="preserve"><value>System Logs</value></data>
+  <data name="SystemLogs.Title" xml:space="preserve"><value>System Logs</value></data>
+  <data name="SystemLogs.Description" xml:space="preserve"><value>Browse, preview, and download application log files.</value></data>
+  <data name="SystemLogs.FileName" xml:space="preserve"><value>File name</value></data>
+  <data name="SystemLogs.Size" xml:space="preserve"><value>Size</value></data>
+  <data name="SystemLogs.LastModified" xml:space="preserve"><value>Last modified</value></data>
+  <data name="SystemLogs.Preview" xml:space="preserve"><value>Preview</value></data>
+  <data name="SystemLogs.Download" xml:space="preserve"><value>Download</value></data>
+  <data name="SystemLogs.ClosePreview" xml:space="preserve"><value>Close preview</value></data>
+  <data name="SystemLogs.Empty" xml:space="preserve"><value>No log files found.</value></data>
+  <data name="SystemLogs.LoadFailed" xml:space="preserve"><value>Unable to load log files.</value></data>
+  <data name="SystemLogs.PreviewFailed" xml:space="preserve"><value>Unable to preview this log file.</value></data>
+  <data name="SystemLogs.DownloadFailed" xml:space="preserve"><value>Unable to download this log file.</value></data>
+  <data name="SystemLogs.PreviewTruncated" xml:space="preserve"><value>Preview is limited to the first 100,000 characters. Download the file to view the complete log.</value></data>
 </root>

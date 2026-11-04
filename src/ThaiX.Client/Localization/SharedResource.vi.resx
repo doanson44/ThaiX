@@ -2048,4 +2048,18 @@
   <data name="BitcoinMarket.LastUpdated" xml:space="preserve"><value>Ngày nến (UTC)</value></data>
   <data name="BitcoinMarket.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu thị trường Bitcoin.</value></data>
   <data name="MarketDashboard.LoadFailed" xml:space="preserve"><value>Không thể tải dữ liệu bảng tổng quan thị trường.</value></data>
+  <data name="Menu.SystemLogs" xml:space="preserve"><value>Nhật ký hệ thống</value></data>
+  <data name="SystemLogs.Title" xml:space="preserve"><value>Nhật ký hệ thống</value></data>
+  <data name="SystemLogs.Description" xml:space="preserve"><value>Xem trước và tải xuống các tệp nhật ký ứng dụng.</value></data>
+  <data name="SystemLogs.FileName" xml:space="preserve"><value>Tên tệp</value></data>
+  <data name="SystemLogs.Size" xml:space="preserve"><value>Dung lượng</value></data>
+  <data name="SystemLogs.LastModified" xml:space="preserve"><value>Chỉnh sửa lần cuối</value></data>
+  <data name="SystemLogs.Preview" xml:space="preserve"><value>Xem trước</value></data>
+  <data name="SystemLogs.Download" xml:space="preserve"><value>Tải xuống</value></data>
+  <data name="SystemLogs.ClosePreview" xml:space="preserve"><value>Đóng bản xem trước</value></data>
+  <data name="SystemLogs.Empty" xml:space="preserve"><value>Không tìm thấy tệp nhật ký.</value></data>
+  <data name="SystemLogs.LoadFailed" xml:space="preserve"><value>Không thể tải danh sách tệp nhật ký.</value></data>
+  <data name="SystemLogs.PreviewFailed" xml:space="preserve"><value>Không thể xem trước tệp nhật ký này.</value></data>
+  <data name="SystemLogs.DownloadFailed" xml:space="preserve"><value>Không thể tải xuống tệp nhật ký này.</value></data>
+  <data name="SystemLogs.PreviewTruncated" xml:space="preserve"><value>Bản xem trước chỉ hiển thị 100.000 ký tự đầu tiên. Hãy tải tệp xuống để xem toàn bộ nhật ký.</value></data>
 </root>

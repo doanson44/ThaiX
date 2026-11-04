@@ -1,0 +1,237 @@
+@page "/admin/system-logs"
+@attribute [Authorize(Policy = PermissionNames.SystemViewLogs)]
+@using System.Globalization
+@using ThaiX.Client.Models.SystemLogs
+@using ThaiX.Client.Services.Ui
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject HttpClient Http
+@inject IFileDownloadService FileDownloadService
+@inject IStringLocalizer<SharedResource> L
+@inherits ThaiXPageBase
+
+<PageTitle>@L[RK.SystemLogs.Title] - ThaiX</PageTitle>
+
+<RadzenStack Gap="1rem" Class="w-100">
+    <RadzenCard Class="w-100">
+        <RadzenStack Gap="1rem">
+            <RadzenStack Orientation="Orientation.Horizontal"
+                         AlignItems="AlignItems.Center"
+                         JustifyContent="JustifyContent.SpaceBetween"
+                         Wrap="FlexWrap.Wrap">
+                <div>
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)"
+                                TagName="TagName.H1"
+                                Class="mb-0">@L[RK.SystemLogs.Title]</RadzenText>
+                    <RadzenText Class="text-muted">@L[RK.SystemLogs.Description]</RadzenText>
+                </div>
+                <RadzenButton Text="@L[RK.Common.Refresh]"
+                              Icon="refresh"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@LoadFilesAsync"
+                              Disabled="@_isLoading" />
+            </RadzenStack>
+
+            @if (!string.IsNullOrWhiteSpace(_errorMessage))
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Danger"
+                             Variant="Variant.Flat"
+                             Shade="Shade.Lighter"
+                             AllowClose="true">
+                    @_errorMessage
+                </RadzenAlert>
+            }
+
+            @if (_isLoading)
+            {
+                <RadzenText Class="text-muted">@L[RK.Common.Loading]</RadzenText>
+            }
+            else
+            {
+                <RadzenDataGrid TItem="SystemLogFileDto"
+                                Data="@_files"
+                                AllowPaging="true"
+                                PageSize="10"
+                                ShowPagingSummary="true"
+                                EmptyText="@L[RK.SystemLogs.Empty]"
+                                Class="w-100">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="SystemLogFileDto"
+                                              Property="FileName"
+                                              Title="@L[RK.SystemLogs.FileName]" />
+                        <RadzenDataGridColumn TItem="SystemLogFileDto"
+                                              Title="@L[RK.SystemLogs.Size]">
+                            <Template Context="file">@FormatFileSize(file.SizeBytes)</Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="SystemLogFileDto"
+                                              Title="@L[RK.SystemLogs.LastModified]">
+                            <Template Context="file">@file.LastModifiedUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="SystemLogFileDto"
+                                              Sortable="false"
+                                              Filterable="false">
+                            <Template Context="file">
+                                <RadzenStack Orientation="Orientation.Horizontal"
+                                             Gap="0.5rem"
+                                             Wrap="FlexWrap.Wrap">
+                                    <RadzenButton Text="@L[RK.SystemLogs.Preview]"
+                                                  Icon="visibility"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@(() => PreviewAsync(file))"
+                                                  Disabled="@_isPreviewLoading" />
+                                    <RadzenButton Text="@L[RK.SystemLogs.Download]"
+                                                  Icon="download"
+                                                  ButtonStyle="ButtonStyle.Secondary"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@(() => DownloadAsync(file))"
+                                                  Disabled="@_isDownloading" />
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            }
+        </RadzenStack>
+    </RadzenCard>
+
+    @if (_selectedFile is not null)
+    {
+        <RadzenCard Class="w-100">
+            <RadzenStack Gap="0.75rem">
+                <RadzenStack Orientation="Orientation.Horizontal"
+                             AlignItems="AlignItems.Center"
+                             JustifyContent="JustifyContent.SpaceBetween"
+                             Wrap="FlexWrap.Wrap">
+                    <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@_selectedFile.FileName</RadzenText>
+                    <RadzenButton Text="@L[RK.SystemLogs.ClosePreview]"
+                                  Icon="close"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small"
+                                  Click="@ClosePreview" />
+                </RadzenStack>
+
+                @if (_isPreviewLoading)
+                {
+                    <RadzenText Class="text-muted">@L[RK.Common.Loading]</RadzenText>
+                }
+                else if (_preview is not null)
+                {
+                    @if (_preview.IsTruncated)
+                    {
+                        <RadzenAlert AlertStyle="AlertStyle.Warning"
+                                     Variant="Variant.Flat"
+                                     Shade="Shade.Lighter"
+                                     AllowClose="false">
+                            @L[RK.SystemLogs.PreviewTruncated]
+                        </RadzenAlert>
+                    }
+                    <pre class="border rounded p-3 bg-body-tertiary overflow-auto mb-0"
+                         style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 60vh;">@_preview.Content</pre>
+                }
+            </RadzenStack>
+        </RadzenCard>
+    }
+</RadzenStack>
+
+@code {
+    private IReadOnlyList<SystemLogFileDto> _files = [];
+    private SystemLogFileDto? _selectedFile;
+    private SystemLogFilePreviewDto? _preview;
+    private string? _errorMessage;
+    private bool _isLoading;
+    private bool _isPreviewLoading;
+    private bool _isDownloading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFilesAsync();
+    }
+
+    private async Task LoadFilesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            _files = await Http.GetFromJsonAsync<List<SystemLogFileDto>>("/api/system-logs") ?? [];
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = L[RK.SystemLogs.LoadFailed];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            _errorMessage = L[RK.SystemLogs.LoadFailed];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task PreviewAsync(SystemLogFileDto file)
+    {
+        _selectedFile = file;
+        _preview = null;
+        _isPreviewLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var fileName = Uri.EscapeDataString(file.FileName);
+            _preview = await Http.GetFromJsonAsync<SystemLogFilePreviewDto>(
+                $"/api/system-logs/{fileName}");
+            if (_preview is null)
+            {
+                _errorMessage = L[RK.SystemLogs.PreviewFailed];
+            }
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = L[RK.SystemLogs.PreviewFailed];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            _errorMessage = L[RK.SystemLogs.PreviewFailed];
+        }
+        finally
+        {
+            _isPreviewLoading = false;
+        }
+    }
+
+    private async Task DownloadAsync(SystemLogFileDto file)
+    {
+        _isDownloading = true;
+        _errorMessage = null;
+
+        try
+        {
+            var fileName = Uri.EscapeDataString(file.FileName);
+            var content = await Http.GetByteArrayAsync($"/api/system-logs/{fileName}/download");
+            await FileDownloadService.DownloadAsync(file.FileName, "text/plain", content);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = L[RK.SystemLogs.DownloadFailed];
+        }
+        finally
+        {
+            _isDownloading = false;
+        }
+    }
+
+    private void ClosePreview()
+    {
+        _selectedFile = null;
+        _preview = null;
+    }
+
+    private static string FormatFileSize(long sizeBytes) => sizeBytes switch
+    {
+        < 1024 => $"{sizeBytes} B",
+        < 1024 * 1024 => $"{sizeBytes / 1024d:0.##} KB",
+        _ => $"{sizeBytes / (1024d * 1024d):0.##} MB"
+    };
+}
