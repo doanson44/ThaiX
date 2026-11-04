@@ -2069,6 +2069,7 @@
   <data name="Auth.EmailOtp.Request" xml:space="preserve"><value>Send verification code</value></data>
   <data name="Auth.EmailOtp.Verify" xml:space="preserve"><value>Verify and sign in</value></data>
   <data name="Auth.EmailOtp.Requested" xml:space="preserve"><value>If the account is eligible, a verification code has been sent.</value></data>
+  <data name="Auth.EmailOtp.ExpiresAt" xml:space="preserve"><value>Code expires at {0}.</value></data>
   <data name="Profile.LoginSettings" xml:space="preserve"><value>Login settings</value></data>
   <data name="Profile.EmailOtpLoginEnabled" xml:space="preserve"><value>Enable email OTP login</value></data>
   <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Allow signing in with a one-time code sent to your confirmed email address.</value></data>
