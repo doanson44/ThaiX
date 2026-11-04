@@ -69,6 +69,7 @@ public sealed class EmailOtpService : IEmailOtpService
             IsolationLevel.ReadCommitted,
             cancellationToken))
         {
+            // Serialize requests for this account before reading or replacing its active challenge.
             await _context.Users
                 .Where(x => x.Id == user.Id)
                 .ExecuteUpdateAsync(
