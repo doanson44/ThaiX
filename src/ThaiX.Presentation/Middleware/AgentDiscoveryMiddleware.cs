@@ -8,7 +8,7 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
         "</auth.md>; rel=\"describedby\"; type=\"text/markdown\", " +
         "</.well-known/api-catalog>; rel=\"describedby\"; type=\"application/linkset+json\", " +
         "</.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", " +
-        "</.well-known/ai-catalog.json>; rel=\"describedby\"; type=\"application/json\"";
+        "</.well-known/ai-catalog.json>; rel=\"ai-catalog\"; type=\"application/json\"";
 
     private const string HomepageMarkdown = """
         # ThaiX
