@@ -430,6 +430,40 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task UpdateUser_WhenEmailChanges_ShouldDisableOtpAndInvalidateChallenges()
+    {
+        // Arrange
+        var email = $"email-otp-email-change-{Guid.NewGuid():N}@thaix.test";
+        var newEmail = $"email-otp-new-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, _) = await RequestChallengeAsync(email);
+
+        using var scope = Factory.Services.CreateScope();
+        var identityUserService = scope.ServiceProvider.GetRequiredService<IIdentityUserService>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        // Act
+        await identityUserService.UpdateUserAsync(
+            userId,
+            newEmail,
+            phoneNumber: null,
+            emailConfirmed: null,
+            twoFactorEnabled: null);
+
+        // Assert
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        user!.EmailConfirmed.Should().BeFalse();
+        user.EmailOtpLoginEnabled.Should().BeFalse();
+
+        var challenge = await dbContext.EmailOtpChallenges
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == challengeId);
+        challenge.InvalidatedAtUtc.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task UpdateLoginSettings_WhenAuthenticated_ShouldPersistEmailOtpPreference()
     {
         // Arrange
