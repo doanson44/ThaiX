@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Application.Common.Exceptions;
 using ThaiX.Application.Common.Interfaces;
-using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
@@ -49,7 +48,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
             Code = code,
             RememberMe = false
         });
-        replay.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        replay.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -91,11 +90,11 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var emailSender = (FakeEmailSender)scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
         // Act
-        var firstChallengeId = await otpService.RequestAsync(email);
-        var secondChallengeId = await otpService.RequestAsync(email);
+        var firstChallenge = await otpService.RequestAsync(email);
+        var secondChallenge = await otpService.RequestAsync(email);
 
         // Assert
-        secondChallengeId.Should().Be(firstChallengeId);
+        secondChallenge.ChallengeId.Should().Be(firstChallenge.ChallengeId);
         emailSender.SentEmails.Should().ContainSingle();
     }
 
@@ -238,7 +237,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
         var emailSender = (FakeEmailSender)scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
-        var challengeId = await otpService.RequestAsync(email);
+        var challenge = await otpService.RequestAsync(email);
         emailSender.SentEmails.Should().ContainSingle();
         emailSender.SentEmails.Single().Subject.Should().Be("ThaiX - Login Verification");
 
@@ -246,6 +245,6 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var match = Regex.Match(htmlBody, @"<h1>(?<code>[0-9]{6})</h1>");
         match.Success.Should().BeTrue();
 
-        return (challengeId, match.Groups["code"].Value);
+        return (challenge.ChallengeId, match.Groups["code"].Value);
     }
 }
