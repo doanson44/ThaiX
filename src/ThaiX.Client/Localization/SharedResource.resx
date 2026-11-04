@@ -2067,6 +2067,7 @@
   <data name="Auth.Login.WithEmailOtp" xml:space="preserve"><value>Email OTP</value></data>
   <data name="Auth.EmailOtp.Code" xml:space="preserve"><value>Verification code</value></data>
   <data name="Auth.EmailOtp.Request" xml:space="preserve"><value>Send verification code</value></data>
+  <data name="Auth.EmailOtp.Resend" xml:space="preserve"><value>Resend verification code</value></data>
   <data name="Auth.EmailOtp.Verify" xml:space="preserve"><value>Verify and sign in</value></data>
   <data name="Auth.EmailOtp.Requested" xml:space="preserve"><value>If the account is eligible, a verification code has been sent.</value></data>
   <data name="Auth.EmailOtp.ExpiresAt" xml:space="preserve"><value>Code expires at {0}.</value></data>
