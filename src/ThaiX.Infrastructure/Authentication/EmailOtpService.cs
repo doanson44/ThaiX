@@ -195,13 +195,14 @@ public sealed class EmailOtpService : IEmailOtpService
             throw InvalidCode();
         }
 
+        var verifiedAt = DateTime.UtcNow;
         if (_passwordHasher.VerifyHashedPassword(user, challenge.CodeHash, code) == PasswordVerificationResult.Failed)
         {
             await _context.EmailOtpChallenges
                 .Where(x => x.Id == challengeId &&
                             x.ConsumedAtUtc == null &&
                             x.InvalidatedAtUtc == null &&
-                            x.ExpiresAtUtc > now &&
+                            x.ExpiresAtUtc > verifiedAt &&
                             x.FailedAttempts < _options.MaximumAttempts)
                 .ExecuteUpdateAsync(
                     setters => setters.SetProperty(x => x.FailedAttempts, x => x.FailedAttempts + 1),
@@ -214,10 +215,10 @@ public sealed class EmailOtpService : IEmailOtpService
             .Where(x => x.Id == challengeId &&
                         x.ConsumedAtUtc == null &&
                         x.InvalidatedAtUtc == null &&
-                        x.ExpiresAtUtc > now &&
+                        x.ExpiresAtUtc > verifiedAt &&
                         x.FailedAttempts < _options.MaximumAttempts)
             .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.ConsumedAtUtc, now),
+                setters => setters.SetProperty(x => x.ConsumedAtUtc, verifiedAt),
                 cancellationToken);
 
         if (consumed != 1)
