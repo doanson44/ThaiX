@@ -92,7 +92,9 @@ public static class AgentDiscoveryEndpoints
         """;
 
     private const string AuthenticationDocumentation = """
-        # ThaiX authentication
+        # Auth.md
+
+        This document describes the authentication methods currently implemented by ThaiX. It does not advertise OAuth 2.0, OpenID Connect, or dynamic agent registration.
 
         Protected ThaiX API routes use JWT Bearer authentication. Send an issued access token
         using the `Authorization: Bearer <token>` request header.
@@ -103,6 +105,18 @@ public static class AgentDiscoveryEndpoints
         Do not treat the JWT login/token endpoints as OAuth endpoints. Client registration,
         delegated authorization, dynamic client registration, and agent-specific registration
         are not advertised by this document.
+
+        Machine-to-machine token issuance is available at POST /api/token/client-credentials. It accepts
+        a ThaiX-specific JSON request with clientId, clientSecret, and scope fields. This is not an
+        OAuth 2.0 token endpoint and does not implement the OAuth token request or response contract.
+        Machine clients must be provisioned by a ThaiX administrator; public self-service registration
+        is not available. Never include client secrets in discovery documents or browser-visible code.
+
+        Interactive user login is available at POST /api/auth/login and is not an OAuth authorization-code flow.
+
+        ThaiX does not operate an OAuth 2.0 authorization server or OpenID Connect provider.
+        OAuth authorization-server metadata and OAuth Protected Resource Metadata are therefore
+        intentionally not published. Do not infer OAuth endpoints from JWT issuance routes.
 
         API permissions are enforced by permission claims. Access to a route depends on the
         permissions required by that route.
