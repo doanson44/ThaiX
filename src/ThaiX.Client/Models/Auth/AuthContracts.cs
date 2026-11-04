@@ -141,28 +141,6 @@ public sealed record RequestEmailOtpRequest
     public required string Email { get; init; }
 }
 
-public sealed record RequestEmailOtpResponse
-{
-    public required Guid ChallengeId { get; init; }
-}
-
-public sealed record VerifyEmailOtpRequest
-{
-    public required Guid ChallengeId { get; init; }
-    public required string Code { get; init; }
-    public bool RememberMe { get; init; }
-}
-
-public sealed record UpdateLoginSettingsRequest
-{
-    public bool EmailOtpLoginEnabled { get; init; }
-}
-
-public sealed record RequestEmailOtpRequest
-{
-    public required string Email { get; init; }
-}
-
 public sealed record VerifyEmailOtpRequest
 {
     public required Guid ChallengeId { get; init; }
