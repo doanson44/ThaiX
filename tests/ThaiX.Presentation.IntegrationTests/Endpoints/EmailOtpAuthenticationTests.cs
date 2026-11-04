@@ -52,6 +52,89 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task RequestEmailOtp_ForEligibleUser_ShouldReturnChallengeMetadata()
+    {
+        // Arrange
+        var email = $"email-otp-request-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/request", new { Email = email });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var envelope = await ReadResponseAsync<RequestEmailOtpDto>(response);
+        envelope.Success.Should().BeTrue();
+        envelope.Data!.ChallengeId.Should().NotBeEmpty();
+        envelope.Data.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
+        envelope.Data.ResendAfter.Should().BeAfter(DateTime.UtcNow);
+        envelope.Data.CodeLength.Should().Be(6);
+    }
+
+    [Fact]
+    public async Task RequestEmailOtp_ForUnconfirmedUser_ShouldReturnGenericResponseWithoutEmail()
+    {
+        // Arrange
+        var email = $"email-otp-unconfirmed-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: false);
+        using var scope = Factory.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        user!.EmailOtpLoginEnabled = true;
+        (await userManager.UpdateAsync(user)).Succeeded.Should().BeTrue();
+
+        var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+        var emailSender = (FakeEmailSender)scope.ServiceProvider.GetRequiredService<IEmailSender>();
+
+        // Act
+        var result = await otpService.RequestAsync(email);
+
+        // Assert
+        result.ChallengeId.Should().NotBeEmpty();
+        result.ExpiresAtUtc.Should().BeAfter(DateTime.UtcNow);
+        emailSender.SentEmails.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task RequestEmailOtp_ForUnknownEmail_ShouldReturnGenericResponse()
+    {
+        // Arrange
+        var email = $"missing-{Guid.NewGuid():N}@thaix.test";
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/request", new { Email = email });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var envelope = await ReadResponseAsync<RequestEmailOtpDto>(response);
+        envelope.Success.Should().BeTrue();
+        envelope.Data!.ChallengeId.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task VerifyEmailOtp_WithInvalidCode_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var email = $"email-otp-invalid-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+        var incorrectCode = code == "999999" ? "000000" : "999999";
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/verify", new
+        {
+            ChallengeId = challengeId,
+            Code = incorrectCode,
+            RememberMe = false
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task VerifyEmailOtp_WhenAuthenticatorTwoFactorIsEnabled_ShouldRequireSecondFactor()
     {
         // Arrange
@@ -125,6 +208,69 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         // Assert
         results.Count(result => result == userId).Should().Be(1);
         results.Count(result => result == Guid.Empty).Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RequestEmailOtp_AfterCooldown_ShouldInvalidatePreviousChallenge()
+    {
+        // Arrange
+        var email = $"email-otp-resend-old-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (oldChallengeId, oldCode) = await RequestChallengeAsync(email);
+
+        using (var scope = Factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await dbContext.EmailOtpChallenges
+                .Where(x => x.Id == oldChallengeId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(
+                    x => x.CreatedAtUtc,
+                    DateTime.UtcNow.AddMinutes(-2)));
+        }
+
+        // Act
+        using var resendScope = Factory.Services.CreateScope();
+        var otpService = resendScope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+        var newChallenge = await otpService.RequestAsync(email);
+
+        // Assert
+        newChallenge.ChallengeId.Should().NotBe(oldChallengeId);
+        var oldChallenge = await resendScope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>()
+            .EmailOtpChallenges
+            .AsNoTracking()
+            .FirstAsync(x => x.Id == oldChallengeId);
+        oldChallenge.InvalidatedAtUtc.Should().NotBeNull();
+        await Assert.ThrowsAsync<OperationFailedException>(
+            () => otpService.VerifyAsync(oldChallengeId, oldCode));
+    }
+
+    [Fact]
+    public async Task RequestEmailOtp_ConcurrentRequests_ShouldCreateOnlyOneChallenge()
+    {
+        // Arrange
+        var email = $"email-otp-concurrent-request-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+
+        // Act
+        var challengeResults = await Task.WhenAll(Enumerable.Range(0, 2).Select(async _ =>
+        {
+            using var scope = Factory.Services.CreateScope();
+            var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+            return await otpService.RequestAsync(email);
+        }));
+
+        // Assert
+        challengeResults.Select(x => x.ChallengeId).Distinct().Should().ContainSingle();
+
+        using var verifyScope = Factory.Services.CreateScope();
+        var dbContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var recentChallenges = await dbContext.EmailOtpChallenges
+            .AsNoTracking()
+            .CountAsync(x => x.UserId == userId && x.CreatedAtUtc > DateTime.UtcNow.AddMinutes(-1));
+        recentChallenges.Should().Be(1);
     }
 
     [Fact]
@@ -216,6 +362,14 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    private sealed record RequestEmailOtpDto
+    {
+        public Guid ChallengeId { get; init; }
+        public DateTime ExpiresAt { get; init; }
+        public DateTime ResendAfter { get; init; }
+        public int CodeLength { get; init; }
     }
 
     private async Task EnableEmailOtpAsync(Guid userId, bool enableTwoFactor = false)
