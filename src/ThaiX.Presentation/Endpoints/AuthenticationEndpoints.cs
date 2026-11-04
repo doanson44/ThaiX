@@ -36,7 +36,8 @@ public static class AuthenticationEndpoints
             .RequireRateLimiting("EmailOtpRequest")
             .WithName("RequestEmailOtp")
             .WithSummary("Request an email OTP login challenge")
-            .Produces<ApiResponse<RequestEmailOtpResponse>>(StatusCodes.Status200OK);
+            .Produces<ApiResponse<RequestEmailOtpResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<object>>(StatusCodes.Status429TooManyRequests);
 
         group.MapPost("/email-otp/verify", VerifyEmailOtpAsync)
             .AllowAnonymous()
@@ -44,13 +45,17 @@ public static class AuthenticationEndpoints
             .WithName("VerifyEmailOtp")
             .WithSummary("Verify an email OTP login challenge")
             .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
-            .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest);
+            .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<object>>(StatusCodes.Status423Locked)
+            .Produces<ApiResponse<object>>(StatusCodes.Status429TooManyRequests);
 
         group.MapPut("/login-settings", UpdateLoginSettingsAsync)
             .RequireAuthorization()
             .WithName("UpdateLoginSettings")
             .WithSummary("Update current user's email OTP login preference")
-            .Produces<ApiResponse>(StatusCodes.Status200OK);
+            .Produces<ApiResponse>(StatusCodes.Status200OK)
+            .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+            .Produces<ApiResponse<object>>(StatusCodes.Status401Unauthorized);
 
         group.MapPost("/register", RegisterAsync)
             .AllowAnonymous()
