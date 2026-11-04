@@ -265,7 +265,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task VerifyEmailOtp_WithRememberMeAndAuthenticatorTwoFactor_ShouldUseExtendedJwtLifetime()
+    public async Task VerifyEmailOtp_WithRememberMeAndTwoFactorRecoveryCode_ShouldUseExtendedJwtLifetime()
     {
         // Arrange
         var email = $"email-otp-2fa-remember-{Guid.NewGuid():N}@thaix.test";
@@ -283,35 +283,27 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         otpEnvelope.Data!.RequiresTwoFactor.Should().BeTrue();
 
         using var scope = Factory.Services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var user = await userManager.FindByIdAsync(userId.ToString());
-        var authenticatorCode = await userManager.GenerateTwoFactorTokenAsync(
-            user!,
-            userManager.Options.Tokens.AuthenticatorTokenProvider);
         var identityUserService = scope.ServiceProvider.GetRequiredService<IIdentityUserService>();
-        (await identityUserService.VerifyTwoFactorTokenAsync(userId, authenticatorCode)).Should().BeTrue();
+        var recoveryCode = (await identityUserService.GenerateNewTwoFactorRecoveryCodesAsync(userId)).First();
 
         var sessionJwt = new JwtSecurityTokenHandler().ReadJwtToken(otpEnvelope.Data!.TwoFactorSessionToken!);
         sessionJwt.Claims.Single(x => x.Type == "remember_me").Value.Should().Be("True");
 
         // Act
-        var response = await Client.PostAsJsonAsync("/api/account/login-2fa", new
+        var response = await Client.PostAsJsonAsync("/api/account/login-recovery", new
         {
             TwoFactorSessionToken = otpEnvelope.Data.TwoFactorSessionToken,
-            TwoFactorCode = authenticatorCode
+            RecoveryCode = recoveryCode
         });
 
         // Assert
-        response.StatusCode.Should().Be(
-            HttpStatusCode.OK,
-            await response.Content.ReadAsStringAsync());
+        response.StatusCode.Should().Be(HttpStatusCode.OK, await response.Content.ReadAsStringAsync());
         var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token!);
         var issuedAt = long.Parse(jwt.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Iat).Value);
         var issuedAtUtc = DateTimeOffset.FromUnixTimeSeconds(issuedAt).UtcDateTime;
         (jwt.ValidTo - issuedAtUtc).TotalMinutes.Should().BeApproximately(43200, 1);
     }
-
     [Fact]
     public async Task RequestEmailOtp_WithinCooldown_ShouldReturnGenericResponseWithoutSendingAnotherEmail()
     {
