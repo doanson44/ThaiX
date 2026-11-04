@@ -40,6 +40,7 @@ public static class AuthenticationEndpoints
 
         group.MapPost("/email-otp/verify", VerifyEmailOtpAsync)
             .AllowAnonymous()
+            .RequireRateLimiting("EmailOtpVerify")
             .WithName("VerifyEmailOtp")
             .WithSummary("Verify an email OTP login challenge")
             .Produces<ApiResponse<LoginResponse>>(StatusCodes.Status200OK)
