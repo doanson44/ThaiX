@@ -4278,6 +4278,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("UserId", "CreatedAtUtc");
+
                     b.HasIndex("UserId", "ConsumedAtUtc", "InvalidatedAtUtc");
 
                     b.ToTable("EmailOtpChallenges", (string)null);
