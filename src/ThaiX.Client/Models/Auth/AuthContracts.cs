@@ -141,6 +141,13 @@ public sealed record RequestEmailOtpRequest
     public required string Email { get; init; }
 }
 
+public sealed record RequestEmailOtpResponse
+{
+    public required Guid ChallengeId { get; init; }
+    public required DateTime ExpiresAt { get; init; }
+    public required DateTime ResendAfter { get; init; }
+}
+
 public sealed record VerifyEmailOtpRequest
 {
     public required Guid ChallengeId { get; init; }
