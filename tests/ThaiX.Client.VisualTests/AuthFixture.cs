@@ -46,18 +46,18 @@ public sealed class AuthFixture : IAsyncLifetime
                 "true",
                 StringComparison.OrdinalIgnoreCase))
         {
-            var publicContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+            var publicOnlyContext = await Browser.NewContextAsync(new BrowserNewContextOptions
             {
                 IgnoreHTTPSErrors = true,
                 ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
             });
-            var publicPage = await publicContext.NewPageAsync();
-            await GotoAsync(publicPage, "/auth/login", 1280, 800);
-            await EnsureDemoModeAsync(publicPage);
+            var publicOnlyPage = await publicOnlyContext.NewPageAsync();
+            await GotoAsync(publicOnlyPage, "/auth/login", 1280, 800);
+            await EnsureDemoModeAsync(publicOnlyPage);
 
             _publicStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
-            await publicContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
-            await publicContext.CloseAsync();
+            await publicOnlyContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
+            await publicOnlyContext.CloseAsync();
 
             _authStorageStatePath = _publicStorageStatePath;
             return;
@@ -75,8 +75,7 @@ public sealed class AuthFixture : IAsyncLifetime
 
         await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
         await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
-        await authenticatedPage.Locator("button[type='submit']").ClickAsync(
-            new LocatorClickOptions { Timeout = 60000, NoWaitAfter = true });
+        await authenticatedPage.ClickAsync("button[type='submit']");
         await authenticatedPage.WaitForURLAsync(
             url => new Uri(url).AbsolutePath == "/",
             new PageWaitForURLOptions { Timeout = 60000 });
