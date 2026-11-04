@@ -66,7 +66,6 @@ public static class DependencyInjection
 
         services.AddOptions<Authentication.EmailOtpOptions>()
             .BindConfiguration(Authentication.EmailOtpOptions.SectionName)
-            .Validate(x => x.CodeLength is >= 4 and <= 9, "Email OTP code length must be between 4 and 9.")
             .Validate(x => x.ExpirationMinutes > 0, "Email OTP expiration must be positive.")
             .Validate(x => x.MaximumAttempts > 0, "Email OTP maximum attempts must be positive.")
             .Validate(x => x.ResendCooldownSeconds >= 0, "Email OTP resend cooldown cannot be negative.")
