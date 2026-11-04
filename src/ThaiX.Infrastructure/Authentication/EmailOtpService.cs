@@ -62,6 +62,8 @@ public sealed class EmailOtpService : IEmailOtpService
 
         var cooldown = TimeSpan.FromSeconds(_options.ResendCooldownSeconds);
         EmailOtpChallenge challenge;
+        ApplicationUser currentUser;
+        string code;
 
         await using (var transaction = await _context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
@@ -73,18 +75,19 @@ public sealed class EmailOtpService : IEmailOtpService
                     setters => setters.SetProperty(x => x.EmailOtpLoginEnabled, x => x.EmailOtpLoginEnabled),
                     cancellationToken);
 
-            var currentUser = await _context.Users
+            var lockedUser = await _context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == user.Id, cancellationToken);
 
-            if (currentUser is null || !currentUser.EmailConfirmed ||
-                !currentUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(currentUser) ||
-                !await _signInManager.CanSignInAsync(currentUser))
+            if (lockedUser is null || !lockedUser.EmailConfirmed ||
+                !lockedUser.EmailOtpLoginEnabled || await _userManager.IsLockedOutAsync(lockedUser) ||
+                !await _signInManager.CanSignInAsync(lockedUser))
             {
                 await transaction.CommitAsync(cancellationToken);
                 return genericResponse;
             }
 
+            currentUser = lockedUser;
             var retentionCutoff = now.AddDays(-_options.RetentionDays);
             await _context.EmailOtpChallenges
                 .Where(x => x.ExpiresAtUtc < retentionCutoff ||
@@ -115,7 +118,7 @@ public sealed class EmailOtpService : IEmailOtpService
                     setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
                     cancellationToken);
 
-            var code = RandomNumberGenerator
+            code = RandomNumberGenerator
                 .GetInt32(0, (int)Math.Pow(10, _options.CodeLength))
                 .ToString($"D{_options.CodeLength}");
 
@@ -142,7 +145,7 @@ public sealed class EmailOtpService : IEmailOtpService
                 footNote: "ThaiX Security Team");
 
             await _emailSender.SendEmailAsync(
-                user.Email!,
+                currentUser.Email!,
                 "ThaiX - Login Verification",
                 body,
                 cancellationToken);
