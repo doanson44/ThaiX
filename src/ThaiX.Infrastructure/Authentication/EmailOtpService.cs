@@ -75,7 +75,7 @@ public sealed class EmailOtpService : IEmailOtpService
                 setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
                 cancellationToken);
 
-        var code = RandomNumberGenerator.GetInt32(0, (int)Math.Pow(10, _options.CodeLength)).ToString($"D{_options.CodeLength}");
+        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
         var challenge = new EmailOtpChallenge
         {
             Id = Guid.NewGuid(),
@@ -162,7 +162,7 @@ public sealed class EmailOtpService : IEmailOtpService
                         x.ConsumedAtUtc == null &&
                         x.InvalidatedAtUtc == null &&
                         x.ExpiresAtUtc > now &&
-                        x.FailedAttempts < MaximumAttempts)
+                        x.FailedAttempts < _options.MaximumAttempts)
             .ExecuteUpdateAsync(
                 setters => setters.SetProperty(x => x.ConsumedAtUtc, now),
                 cancellationToken);
@@ -217,5 +217,5 @@ public sealed class EmailOtpService : IEmailOtpService
     }
 
     private static OperationFailedException InvalidCode() =>
-        new(ErrorCodes.INVALID_REQUEST, ErrorMessages.INVALID_REQUEST);
+        new(ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
 }
