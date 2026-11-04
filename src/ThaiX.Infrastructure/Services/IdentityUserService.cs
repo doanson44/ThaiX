@@ -702,8 +702,8 @@ public sealed class IdentityUserService : IIdentityUserService
         if (enabled && !user.EmailConfirmed)
         {
             throw new OperationFailedException(
-                Application.Common.Constants.ErrorCodes.INVALID_REQUEST,
-                "Email must be confirmed before enabling email OTP login.");
+                Application.Common.Constants.ErrorCodes.EMAIL_NOT_CONFIRMED,
+                Application.Common.Constants.ErrorMessages.EMAIL_NOT_CONFIRMED);
         }
 
         user.EmailOtpLoginEnabled = enabled;
