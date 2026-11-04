@@ -6,7 +6,9 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
         "</>; rel=\"alternate\"; type=\"text/markdown\", " +
         "</api.md>; rel=\"service-doc\"; type=\"text/markdown\", " +
         "</auth.md>; rel=\"describedby\"; type=\"text/markdown\", " +
-        "</.well-known/api-catalog>; rel=\"describedby\"; type=\"application/linkset+json\"";
+        "</.well-known/api-catalog>; rel=\"describedby\"; type=\"application/linkset+json\", " +
+        "</.well-known/agent-skills/index.json>; rel=\"describedby\"; type=\"application/json\", " +
+        "</.well-known/ai-catalog.json>; rel=\"describedby\"; type=\"application/json\"";
 
     private const string HomepageMarkdown = """
         # ThaiX
@@ -17,6 +19,8 @@ public sealed class AgentDiscoveryMiddleware(RequestDelegate next)
         - [Public API documentation](/api.md)
         - [Authentication documentation](/auth.md)
         - [API linkset catalog](/.well-known/api-catalog)
+        - [Agent Skills index](/.well-known/agent-skills/index.json)
+        - [Agentic Resource Discovery manifest](/.well-known/ai-catalog.json)
         - [Health status](/health)
         """;
 
