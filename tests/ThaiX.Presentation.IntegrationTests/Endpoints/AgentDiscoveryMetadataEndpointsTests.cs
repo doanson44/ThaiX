@@ -31,6 +31,7 @@ public sealed class AgentDiscoveryMetadataEndpointsTests : IntegrationTestBase
 
         var artifactResponse = await Client.GetAsync(skill.GetProperty("url").GetString());
         artifactResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        artifactResponse.Content.Headers.ContentType!.MediaType.Should().Be("text/markdown");
         var artifact = await artifactResponse.Content.ReadAsByteArrayAsync();
         var actualDigest = Convert.ToHexString(SHA256.HashData(artifact)).ToLowerInvariant();
         digest.Should().Be("sha256:" + actualDigest);
