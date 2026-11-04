@@ -201,12 +201,41 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
-        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token);
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token!);
         jwt.Claims
             .Where(claim => claim.Type == ClaimTypeConstants.Permission)
             .Select(claim => claim.Value)
             .Should()
             .Contain("EmailOtp.Test.Read");
+    }
+
+    [Fact]
+    public async Task VerifyEmailOtp_WhenAccountIsLockedOut_ShouldReturnLockedStatus()
+    {
+        // Arrange
+        var email = $"email-otp-locked-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+
+        using (var scope = Factory.Services.CreateScope())
+        {
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var user = await userManager.FindByIdAsync(userId.ToString());
+            await userManager.SetLockoutEnabledAsync(user!, true);
+            await userManager.SetLockoutEndDateAsync(user!, DateTimeOffset.UtcNow.AddMinutes(10));
+        }
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/verify", new
+        {
+            ChallengeId = challengeId,
+            Code = code,
+            RememberMe = false
+        });
+
+        // Assert
+        response.StatusCode.Should().Be((HttpStatusCode)423);
     }
 
     [Fact]
