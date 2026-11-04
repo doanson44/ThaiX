@@ -33,6 +33,7 @@ public static class AuthenticationEndpoints
 
         group.MapPost("/email-otp/request", RequestEmailOtpAsync)
             .AllowAnonymous()
+            .RequireRateLimiting("EmailOtpRequest")
             .WithName("RequestEmailOtp")
             .WithSummary("Request an email OTP login challenge")
             .Produces<ApiResponse<Guid>>(StatusCodes.Status200OK);
