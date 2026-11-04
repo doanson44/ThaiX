@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Application.Common.Exceptions;
 using ThaiX.Application.Common.Interfaces;
+using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
@@ -96,6 +97,35 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         // Assert
         secondChallengeId.Should().Be(firstChallengeId);
         emailSender.SentEmails.Should().ContainSingle();
+    }
+
+    [Fact]
+    public async Task VerifyEmailOtp_ConcurrentRequests_ShouldConsumeChallengeOnlyOnce()
+    {
+        // Arrange
+        var email = $"email-otp-concurrent-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+
+        // Act
+        var results = await Task.WhenAll(Enumerable.Range(0, 2).Select(async _ =>
+        {
+            using var scope = Factory.Services.CreateScope();
+            var otpService = scope.ServiceProvider.GetRequiredService<IEmailOtpService>();
+            try
+            {
+                return await otpService.VerifyAsync(challengeId, code);
+            }
+            catch (OperationFailedException)
+            {
+                return Guid.Empty;
+            }
+        }));
+
+        // Assert
+        results.Count(result => result == userId).Should().Be(1);
+        results.Count(result => result == Guid.Empty).Should().Be(1);
     }
 
     [Fact]
@@ -209,8 +239,8 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var emailSender = (FakeEmailSender)scope.ServiceProvider.GetRequiredService<IEmailSender>();
 
         var challengeId = await otpService.RequestAsync(email);
-        var sentEmail = emailSender.SentEmails.Should().ContainSingle().Subject;
-        sentEmail.Should().Be("ThaiX - Login Verification");
+        emailSender.SentEmails.Should().ContainSingle();
+        emailSender.SentEmails.Single().Subject.Should().Be("ThaiX - Login Verification");
 
         var htmlBody = emailSender.SentEmails.Single().HtmlBody;
         var match = Regex.Match(htmlBody, @"<h1>(?<code>[0-9]{6})</h1>");
