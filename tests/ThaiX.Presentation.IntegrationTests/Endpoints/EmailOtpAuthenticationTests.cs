@@ -288,6 +288,11 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var authenticatorCode = await userManager.GenerateTwoFactorTokenAsync(
             user!,
             userManager.Options.Tokens.AuthenticatorTokenProvider);
+        var identityUserService = scope.ServiceProvider.GetRequiredService<IIdentityUserService>();
+        (await identityUserService.VerifyTwoFactorTokenAsync(userId, authenticatorCode)).Should().BeTrue();
+
+        var sessionJwt = new JwtSecurityTokenHandler().ReadJwtToken(otpEnvelope.Data!.TwoFactorSessionToken!);
+        sessionJwt.Claims.Single(x => x.Type == "remember_me").Value.Should().Be("True");
 
         // Act
         var response = await Client.PostAsJsonAsync("/api/account/login-2fa", new
@@ -297,9 +302,11 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         });
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(
+            HttpStatusCode.OK,
+            await response.Content.ReadAsStringAsync());
         var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
-        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token);
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token!);
         var issuedAt = long.Parse(jwt.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Iat).Value);
         var issuedAtUtc = DateTimeOffset.FromUnixTimeSeconds(issuedAt).UtcDateTime;
         (jwt.ValidTo - issuedAtUtc).TotalMinutes.Should().BeApproximately(43200, 1);
@@ -409,14 +416,15 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         }));
 
         // Assert
-        challengeResults.Select(x => x.ChallengeId).Distinct().Should().ContainSingle();
-
         using var verifyScope = Factory.Services.CreateScope();
         var dbContext = verifyScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var recentChallenges = await dbContext.EmailOtpChallenges
+        var recentChallengeIds = await dbContext.EmailOtpChallenges
             .AsNoTracking()
-            .CountAsync(x => x.UserId == userId && x.CreatedAtUtc > DateTime.UtcNow.AddMinutes(-1));
-        recentChallenges.Should().Be(1);
+            .Where(x => x.UserId == userId && x.CreatedAtUtc > DateTime.UtcNow.AddMinutes(-1))
+            .Select(x => x.Id)
+            .ToListAsync();
+        recentChallengeIds.Should().ContainSingle();
+        challengeResults.Count(x => x.ChallengeId == recentChallengeIds[0]).Should().Be(1);
     }
 
     [Fact]
