@@ -126,6 +126,13 @@ public sealed class AuthenticationService : IAuthenticationService
                 ErrorMessages.ACCOUNT_LOCKED);
         }
 
+        if (!await _signInManager.CanSignInAsync(user))
+        {
+            throw new OperationFailedException(
+                ErrorCodes.ACCOUNT_NOT_ALLOWED,
+                ErrorMessages.ACCOUNT_NOT_ALLOWED);
+        }
+
         if (user.TwoFactorEnabled)
         {
             return new AuthenticationResult
