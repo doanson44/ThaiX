@@ -219,5 +219,5 @@ public sealed class EmailOtpService : IEmailOtpService
     }
 
     private static OperationFailedException InvalidCode() =>
-        new(ErrorCodes.INVALID_REQUEST, ErrorMessages.INVALID_REQUEST);
+        new(ErrorCodes.INVALID_EMAIL_OTP, ErrorMessages.INVALID_EMAIL_OTP);
 }
