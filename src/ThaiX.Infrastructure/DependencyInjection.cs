@@ -70,6 +70,7 @@ public static class DependencyInjection
             .Validate(x => x.ExpirationMinutes > 0, "Email OTP expiration must be positive.")
             .Validate(x => x.MaximumAttempts > 0, "Email OTP maximum attempts must be positive.")
             .Validate(x => x.ResendCooldownSeconds >= 0, "Email OTP resend cooldown cannot be negative.")
+            .Validate(x => x.RetentionDays > 0, "Email OTP retention must be positive.")
             .ValidateOnStart();
 
         // Options
