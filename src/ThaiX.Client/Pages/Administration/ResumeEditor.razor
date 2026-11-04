@@ -18,7 +18,7 @@
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem" Class="tx-resume-toolbar">
             <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">@L[RK.Resume.AdminTitle]</RadzenText>
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                @if (!string.IsNullOrWhiteSpace(_model.Slug))
+                @if (_model.IsPublished && !string.IsNullOrWhiteSpace(_model.Slug))
                 {
                     <RadzenLink Path="@($"/resume/{_model.Slug}")" Target="_blank" Text="@L[RK.Resume.ViewPublic]" />
                 }
