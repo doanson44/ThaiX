@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Emails;
 using ThaiX.Application.Common.Exceptions;
@@ -14,28 +15,26 @@ namespace ThaiX.Infrastructure.Authentication;
 
 public sealed class EmailOtpService : IEmailOtpService
 {
-    private const int CodeLength = 6;
-    private const int ExpirationMinutes = 5;
-    private const int MaximumAttempts = 5;
-    private static readonly TimeSpan ResendCooldown = TimeSpan.FromSeconds(60);
-
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<EmailOtpService> _logger;
+    private readonly EmailOtpOptions _options;
 
     public EmailOtpService(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         IPasswordHasher<ApplicationUser> passwordHasher,
         IEmailSender emailSender,
+        IOptions<EmailOtpOptions> options,
         ILogger<EmailOtpService> logger)
     {
         _context = context;
         _userManager = userManager;
         _passwordHasher = passwordHasher;
         _emailSender = emailSender;
+        _options = options.Value;
         _logger = logger;
     }
 
@@ -57,7 +56,7 @@ public sealed class EmailOtpService : IEmailOtpService
             .OrderByDescending(x => x.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (activeChallenge is not null && now - activeChallenge.CreatedAtUtc < ResendCooldown)
+        if (activeChallenge is not null && now - activeChallenge.CreatedAtUtc < TimeSpan.FromSeconds(_options.ResendCooldownSeconds))
         {
             return activeChallenge.Id;
         }
@@ -70,14 +69,14 @@ public sealed class EmailOtpService : IEmailOtpService
                 setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
                 cancellationToken);
 
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        var code = RandomNumberGenerator.GetInt32(0, (int)Math.Pow(10, _options.CodeLength)).ToString($"D{_options.CodeLength}");
         var challenge = new EmailOtpChallenge
         {
             Id = Guid.NewGuid(),
             UserId = user.Id,
             CodeHash = _passwordHasher.HashPassword(user, code),
             CreatedAtUtc = now,
-            ExpiresAtUtc = now.AddMinutes(ExpirationMinutes),
+            ExpiresAtUtc = now.AddMinutes(_options.ExpirationMinutes),
             FailedAttempts = 0
         };
 
@@ -88,7 +87,7 @@ public sealed class EmailOtpService : IEmailOtpService
         {
             var body = EmailTemplateBuilder.Build(
                 "ThaiX - Login Verification",
-                $"<p>Use this verification code to sign in to your ThaiX account:</p><h1>{code}</h1><p>This code expires in {ExpirationMinutes} minutes. Do not share it with anyone.</p>",
+                $"<p>Use this verification code to sign in to your ThaiX account:</p><h1>{code}</h1><p>This code expires in {_options.ExpirationMinutes} minutes. Do not share it with anyone.</p>",
                 footNote: "ThaiX Security Team");
 
             await _emailSender.SendEmailAsync(
@@ -127,7 +126,7 @@ public sealed class EmailOtpService : IEmailOtpService
             challenge.ConsumedAtUtc.HasValue ||
             challenge.InvalidatedAtUtc.HasValue ||
             challenge.ExpiresAtUtc <= now ||
-            challenge.FailedAttempts >= MaximumAttempts)
+            challenge.FailedAttempts >= _options.MaximumAttempts)
         {
             throw InvalidCode();
         }
@@ -145,7 +144,7 @@ public sealed class EmailOtpService : IEmailOtpService
                             x.ConsumedAtUtc == null &&
                             x.InvalidatedAtUtc == null &&
                             x.ExpiresAtUtc > now &&
-                            x.FailedAttempts < MaximumAttempts)
+                            x.FailedAttempts < _options.MaximumAttempts)
                 .ExecuteUpdateAsync(
                     setters => setters.SetProperty(x => x.FailedAttempts, x => x.FailedAttempts + 1),
                     cancellationToken);
@@ -213,5 +212,5 @@ public sealed class EmailOtpService : IEmailOtpService
     }
 
     private static OperationFailedException InvalidCode() =>
-        new(ErrorCodes.INVALID_CREDENTIALS, ErrorMessages.INVALID_CREDENTIALS);
+        new(ErrorCodes.INVALID_REQUEST, ErrorMessages.INVALID_REQUEST);
 }
