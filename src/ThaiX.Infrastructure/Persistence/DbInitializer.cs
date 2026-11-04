@@ -28,6 +28,7 @@ public static class DbInitializer
 
             // Ensure MariaDB compatibility for collations
             await EnsureMariaDbCollationCompatAsync(context, logger);
+            await EnsureDatabaseDefaultCollationAsync(context, logger);
 
             // Apply pending migrations
             logger.LogInformation("Applying database migrations...");
@@ -170,6 +171,33 @@ public static class DbInitializer
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Could not apply MariaDB old_mode compatibility flag; continuing");
+        }
+    }
+
+    // New tables inherit the database default collation; a mismatch with existing
+    // utf8mb4_unicode_ci key columns makes CREATE TABLE ... FOREIGN KEY fail (errno 150).
+    private static async Task EnsureDatabaseDefaultCollationAsync(ApplicationDbContext context, ILogger logger)
+    {
+        const string expected = "utf8mb4_unicode_ci";
+        var connectionString = context.Database.GetConnectionString();
+        if (string.IsNullOrEmpty(connectionString)) return;
+
+        try
+        {
+            await using var connection = new MySqlConnection(connectionString);
+            await connection.OpenAsync();
+            await using var command = connection.CreateCommand();
+            command.CommandText = "SELECT DEFAULT_COLLATION_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = DATABASE()";
+            var current = (string?)await command.ExecuteScalarAsync();
+            if (string.Equals(current, expected, StringComparison.OrdinalIgnoreCase)) return;
+
+            command.CommandText = $"ALTER DATABASE `{connection.Database.Replace("`", "``")}` CHARACTER SET utf8mb4 COLLATE {expected}";
+            await command.ExecuteNonQueryAsync();
+            logger.LogInformation("Database default collation changed from {Current} to {Expected}", current, expected);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Could not align database default collation; continuing");
         }
     }
 }

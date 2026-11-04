@@ -135,6 +135,10 @@ log "MariaDB is ready."
 OLD_MODE_SQL="SET GLOBAL old_mode = CONCAT_WS(',', NULLIF(@@GLOBAL.old_mode, ''), IF(FIND_IN_SET('UTF8_IS_UTF8MB3', @@GLOBAL.old_mode) = 0, 'UTF8_IS_UTF8MB3', NULL), IF(FIND_IN_SET('NO_NULL_COLLATION_IDS', @@GLOBAL.old_mode) = 0, 'NO_NULL_COLLATION_IDS', NULL));"
 docker exec -e "MYSQL_PWD=$ROOT_PASSWORD" "$CONTAINER_NAME" mariadb -uroot -e "$OLD_MODE_SQL" >/dev/null
 log "MariaDB old_mode compatibility flags configured."
+
+# New tables inherit the database collation; it must match the utf8mb4_unicode_ci key columns (FK errno 150).
+docker exec -e "MYSQL_PWD=$ROOT_PASSWORD" "$CONTAINER_NAME" mariadb -uroot -e "ALTER DATABASE $DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" >/dev/null
+log "MariaDB default collation set to utf8mb4_unicode_ci."
 log "API container: $API_CONTAINER"
 log "MariaDB container: $CONTAINER_NAME"
 log "Docker network: $NETWORK_NAME"
