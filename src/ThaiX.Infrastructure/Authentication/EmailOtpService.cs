@@ -89,7 +89,7 @@ public sealed class EmailOtpService : IEmailOtpService
             var body = EmailTemplateBuilder.Build(
                 "ThaiX - Login Verification",
                 $"<p>Use this verification code to sign in to your ThaiX account:</p><h1>{code}</h1><p>This code expires in {ExpirationMinutes} minutes. Do not share it with anyone.</p>",
-                footer: "ThaiX Security Team");
+                footNote: "ThaiX Security Team");
 
             await _emailSender.SendEmailAsync(
                 user.Email!,
