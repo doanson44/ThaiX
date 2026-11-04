@@ -689,6 +689,44 @@ public sealed class IdentityUserService : IIdentityUserService
         return codes ?? Enumerable.Empty<string>();
     }
 
+    public async Task SetEmailOtpLoginEnabledAsync(
+        Guid userId,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString())
+            ?? throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.RESOURCE_NOT_FOUND,
+                "The requested user was not found.");
+
+        if (enabled && !user.EmailConfirmed)
+        {
+            throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.INVALID_REQUEST,
+                "Email must be confirmed before enabling email OTP login.");
+        }
+
+        user.EmailOtpLoginEnabled = enabled;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new OperationFailedException(
+                Application.Common.Constants.ErrorCodes.INTERNAL_ERROR,
+                "Unable to update email OTP login settings.");
+        }
+
+        if (!enabled)
+        {
+            await _context.EmailOtpChallenges
+                .Where(x => x.UserId == userId &&
+                            x.ConsumedAtUtc == null &&
+                            x.InvalidatedAtUtc == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
+                    cancellationToken);
+        }
+    }
+
     public async Task<bool> GetTwoFactorEnabledAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
