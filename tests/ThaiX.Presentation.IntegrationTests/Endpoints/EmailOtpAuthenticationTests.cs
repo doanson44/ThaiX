@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ThaiX.Application.Common.Exceptions;
+using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
@@ -150,6 +152,61 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task VerifyEmailOtp_WithRememberMe_ShouldUseExtendedJwtLifetime()
+    {
+        // Arrange
+        var email = $"email-otp-remember-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/verify", new
+        {
+            ChallengeId = challengeId,
+            Code = code,
+            RememberMe = true
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
+        envelope.Data!.ExpiresIn.Should().BeGreaterThan(1800);
+    }
+
+    [Fact]
+    public async Task VerifyEmailOtp_ShouldPreservePermissionClaimsInJwt()
+    {
+        // Arrange
+        var email = $"email-otp-permissions-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateUserWithPermissionsAsync(
+            email,
+            "Test@Pass123",
+            ["EmailOtp.Test.Read"],
+            confirmEmail: true);
+        await EnableEmailOtpAsync(userId);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/auth/email-otp/verify", new
+        {
+            ChallengeId = challengeId,
+            Code = code,
+            RememberMe = false
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token);
+        jwt.Claims
+            .Where(claim => claim.Type == ClaimTypeConstants.Permission)
+            .Select(claim => claim.Value)
+            .Should()
+            .Contain("EmailOtp.Test.Read");
     }
 
     [Fact]
