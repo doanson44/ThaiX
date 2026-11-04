@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace ThaiX.Presentation.Endpoints;
 
 public static class AgentDiscoveryMetadataEndpoints
@@ -8,7 +6,7 @@ public static class AgentDiscoveryMetadataEndpoints
         "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
     private const string AgentSkillDigest =
-        "sha256:f0613a5dd22648c4ca0826825e95840907ae946439744f09cc576b9b4cea2b71";
+        "sha256:508f61c7405c042c72391c0f2ac10a011cbdd5fc8624ff07297f3be3180f7833";
 
     public static void MapAgentDiscoveryMetadataEndpoints(this IEndpointRouteBuilder endpoints)
     {
@@ -105,7 +103,7 @@ public static class AgentDiscoveryMetadataEndpoints
     private static void SetDiscoveryHeaders(HttpContext context)
     {
         context.Response.Headers["Access-Control-Allow-Origin"] = "*";
-        context.Response.Headers.CacheControl = "public, max-age=3600";
+        context.Response.Headers["Cache-Control"] = "public, max-age=3600";
     }
 
     private static string? GetCanonicalOrigin(IConfiguration configuration)
