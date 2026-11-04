@@ -20,6 +20,7 @@ public sealed class EmailOtpChallengeConfiguration : IEntityTypeConfiguration<Em
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(x => x.UserId);
+        builder.HasIndex(x => new { x.UserId, x.CreatedAtUtc });
         builder.HasIndex(x => x.ExpiresAtUtc);
         builder.HasIndex(x => new { x.UserId, x.ConsumedAtUtc, x.InvalidatedAtUtc });
     }
