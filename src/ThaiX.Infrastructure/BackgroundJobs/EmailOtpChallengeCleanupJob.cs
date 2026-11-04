@@ -26,6 +26,10 @@ public sealed class EmailOtpChallengeCleanupJob : HangfireJobBase
             return;
         }
 
+        using var jobLock = await AcquireJobLockAsync(
+            HangfireJobIds.EmailOtpChallengeCleanupJob,
+            cancellationToken);
+
         var deletedCount = await _emailOtpService.CleanupExpiredAsync(cancellationToken);
         if (deletedCount > 0)
         {
