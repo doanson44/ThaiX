@@ -36,7 +36,7 @@ public static class AuthenticationEndpoints
             .RequireRateLimiting("EmailOtpRequest")
             .WithName("RequestEmailOtp")
             .WithSummary("Request an email OTP login challenge")
-            .Produces<ApiResponse<Guid>>(StatusCodes.Status200OK);
+            .Produces<ApiResponse<RequestEmailOtpResponse>>(StatusCodes.Status200OK);
 
         group.MapPost("/email-otp/verify", VerifyEmailOtpAsync)
             .AllowAnonymous()
@@ -123,8 +123,15 @@ public static class AuthenticationEndpoints
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
-        var challengeId = await mediator.Send(new RequestEmailOtpCommand(request.Email), cancellationToken);
-        return Results.Ok(ApiResponse<Guid>.SuccessResult(challengeId));
+        var challenge = await mediator.Send(new RequestEmailOtpCommand(request.Email), cancellationToken);
+        var response = new RequestEmailOtpResponse
+        {
+            ChallengeId = challenge.ChallengeId,
+            ExpiresAt = challenge.ExpiresAtUtc,
+            ResendAfter = challenge.ResendAfterUtc
+        };
+
+        return Results.Ok(ApiResponse<RequestEmailOtpResponse>.SuccessResult(response));
     }
 
     private static async Task<IResult> VerifyEmailOtpAsync(
@@ -378,6 +385,13 @@ public record ChangePasswordRequest
 public sealed record RequestEmailOtpRequest
 {
     public required string Email { get; init; }
+}
+
+public sealed record RequestEmailOtpResponse
+{
+    public required Guid ChallengeId { get; init; }
+    public required DateTime ExpiresAt { get; init; }
+    public required DateTime ResendAfter { get; init; }
 }
 
 public sealed record VerifyEmailOtpRequest
