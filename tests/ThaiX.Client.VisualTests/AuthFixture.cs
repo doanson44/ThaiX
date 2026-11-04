@@ -53,7 +53,8 @@ public sealed class AuthFixture : IAsyncLifetime
 
         await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
         await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
-        await authenticatedPage.ClickAsync("button[type='submit']");
+        await authenticatedPage.Locator("button[type='submit']").ClickAsync(
+            new LocatorClickOptions { Timeout = 60000, NoWaitAfter = true });
         await authenticatedPage.WaitForURLAsync(
             url => new Uri(url).AbsolutePath == "/",
             new PageWaitForURLOptions { Timeout = 60000 });
