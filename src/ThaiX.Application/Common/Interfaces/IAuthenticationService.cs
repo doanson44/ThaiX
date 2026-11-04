@@ -18,6 +18,14 @@ public interface IAuthenticationService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Completes email OTP authentication and preserves the configured authenticator 2FA step.
+    /// </summary>
+    Task<AuthenticationResult> AuthenticateWithEmailOtpAsync(
+        Guid userId,
+        bool rememberMe = false,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Authenticates a user with a two-factor code after initial login.
     /// </summary>
     Task<TokenResult> AuthenticateWithTwoFactorAsync(
