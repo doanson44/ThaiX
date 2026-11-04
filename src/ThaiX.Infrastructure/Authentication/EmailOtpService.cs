@@ -39,32 +39,47 @@ public sealed class EmailOtpService : IEmailOtpService
         _logger = logger;
     }
 
-    public async Task<Guid> RequestAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<EmailOtpChallengeInfo> RequestAsync(
+        string email,
+        CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
+        var genericResponse = new EmailOtpChallengeInfo(
+            Guid.NewGuid(),
+            now.AddMinutes(_options.ExpirationMinutes),
+            now.AddSeconds(_options.ResendCooldownSeconds));
+
         var user = await _userManager.FindByEmailAsync(email.Trim());
         if (user is null || !user.EmailConfirmed || !user.EmailOtpLoginEnabled ||
             await _userManager.IsLockedOutAsync(user))
         {
-            return Guid.NewGuid();
+            return genericResponse;
         }
 
-        var now = DateTime.UtcNow;
+        var cooldown = TimeSpan.FromSeconds(_options.ResendCooldownSeconds);
         await using var transaction = await _context.Database.BeginTransactionAsync(
             IsolationLevel.Serializable,
             cancellationToken);
 
-        var activeChallenge = await _context.EmailOtpChallenges
-            .Where(x => x.UserId == user.Id &&
-                        x.ConsumedAtUtc == null &&
-                        x.InvalidatedAtUtc == null &&
-                        x.ExpiresAtUtc > now)
+        var retentionCutoff = now.AddDays(-1);
+        await _context.EmailOtpChallenges
+            .Where(x => x.ExpiresAtUtc < retentionCutoff ||
+                        (x.ConsumedAtUtc != null && x.ConsumedAtUtc < retentionCutoff) ||
+                        (x.InvalidatedAtUtc != null && x.InvalidatedAtUtc < retentionCutoff))
+            .ExecuteDeleteAsync(cancellationToken);
+
+        var recentChallenge = await _context.EmailOtpChallenges
+            .Where(x => x.UserId == user.Id && x.CreatedAtUtc > now - cooldown)
             .OrderByDescending(x => x.CreatedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (activeChallenge is not null && now - activeChallenge.CreatedAtUtc < TimeSpan.FromSeconds(_options.ResendCooldownSeconds))
+        if (recentChallenge is not null)
         {
             await transaction.CommitAsync(cancellationToken);
-            return activeChallenge.Id;
+            return new EmailOtpChallengeInfo(
+                recentChallenge.Id,
+                recentChallenge.ExpiresAtUtc,
+                recentChallenge.CreatedAtUtc.Add(cooldown));
         }
 
         await _context.EmailOtpChallenges
@@ -75,7 +90,10 @@ public sealed class EmailOtpService : IEmailOtpService
                 setters => setters.SetProperty(x => x.InvalidatedAtUtc, now),
                 cancellationToken);
 
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        var code = RandomNumberGenerator
+            .GetInt32(0, (int)Math.Pow(10, _options.CodeLength))
+            .ToString($"D{_options.CodeLength}");
+
         var challenge = new EmailOtpChallenge
         {
             Id = Guid.NewGuid(),
@@ -112,10 +130,12 @@ public sealed class EmailOtpService : IEmailOtpService
                     cancellationToken);
 
             _logger.LogError(ex, "Failed to send email OTP for user {UserId}", user.Id);
-            return challenge.Id;
         }
 
-        return challenge.Id;
+        return new EmailOtpChallengeInfo(
+            challenge.Id,
+            challenge.ExpiresAtUtc,
+            challenge.CreatedAtUtc.Add(cooldown));
     }
 
     public async Task<Guid> VerifyAsync(
@@ -127,7 +147,10 @@ public sealed class EmailOtpService : IEmailOtpService
         var challenge = await _context.EmailOtpChallenges
             .FirstOrDefaultAsync(x => x.Id == challengeId, cancellationToken);
 
-        if (challenge is null ||
+        if (string.IsNullOrWhiteSpace(code) ||
+            code.Length != _options.CodeLength ||
+            code.Any(character => character is < '0' or > '9') ||
+            challenge is null ||
             challenge.ConsumedAtUtc.HasValue ||
             challenge.InvalidatedAtUtc.HasValue ||
             challenge.ExpiresAtUtc <= now ||
