@@ -265,6 +265,7 @@ public static class WebApplicationExtensions
         app.MapPublicHtmlEndpoints();
         app.MapExpenseTrackerEndpoints();
         app.MapAgentDiscoveryEndpoints();
+        app.MapAgentDiscoveryMetadataEndpoints();
 
         return app;
     }
