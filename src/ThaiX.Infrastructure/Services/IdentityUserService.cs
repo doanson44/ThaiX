@@ -145,6 +145,7 @@ public sealed class IdentityUserService : IIdentityUserService
         }
 
         var changes = new List<string>();
+        var emailChanged = false;
 
         // Update email if provided
         if (!string.IsNullOrWhiteSpace(email) && email != user.Email)
@@ -166,6 +167,8 @@ public sealed class IdentityUserService : IIdentityUserService
 
             // Reset email confirmation when email changes
             user.EmailConfirmed = false;
+            user.EmailOtpLoginEnabled = false;
+            emailChanged = true;
 
             changes.Add($"Email changed from '{oldEmail}' to '{email}'");
         }
@@ -210,6 +213,17 @@ public sealed class IdentityUserService : IIdentityUserService
             throw new OperationFailedException(
                 Application.Common.Constants.ErrorCodes.INTERNAL_ERROR,
                 $"Failed to update user: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
+        }
+
+        if (emailChanged)
+        {
+            await _context.EmailOtpChallenges
+                .Where(x => x.UserId == userId &&
+                            x.ConsumedAtUtc == null &&
+                            x.InvalidatedAtUtc == null)
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(x => x.InvalidatedAtUtc, DateTime.UtcNow),
+                    cancellationToken);
         }
 
         // Note: RefreshSignInAsync is not called because the app uses JWT-only auth (no cookie scheme).
