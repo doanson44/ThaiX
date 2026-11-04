@@ -13,8 +13,8 @@
 <RadzenText TextStyle="TextStyle.H4">@L[RK.Auth.LoginTitle]</RadzenText>
 
 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" class="mb-3">
-    <RadzenButton Text="@L[RK.Auth.LoginWithPassword]" ButtonStyle="@(!_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(false))" />
-    <RadzenButton Text="@L[RK.Auth.LoginWithEmailOtp]" ButtonStyle="@(_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(true))" />
+    <RadzenButton Text="@L[RK.Auth.LoginWithPassword]" ButtonType="ButtonType.Button" ButtonStyle="@(!_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(false))" />
+    <RadzenButton Text="@L[RK.Auth.LoginWithEmailOtp]" ButtonType="ButtonType.Button" ButtonStyle="@(_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(true))" />
 </RadzenStack>
 
 @if (!_useEmailOtp)
@@ -71,6 +71,7 @@ else
         </div>
         <RadzenButton Text="@EmailOtpRequestLabel"
                       Icon="mail"
+                      ButtonType="ButtonType.Button"
                       Click="OnRequestEmailOtpAsync"
                       Disabled="@(_isSubmitting || _otpCooldownSeconds > 0)"
                       IsBusy="@_isSubmitting"
@@ -91,6 +92,7 @@ else
             </div>
             <RadzenButton Text="@L[RK.Auth.EmailOtpVerify]"
                           Icon="verified"
+                          ButtonType="ButtonType.Button"
                           Click="OnVerifyEmailOtpAsync"
                           Disabled="@_isSubmitting"
                           IsBusy="@_isSubmitting"
@@ -115,6 +117,7 @@ else
 
 <RadzenButton Text="@L[RK.Auth.ExternalLoginGoogle]"
               Icon="g_mobiledata"
+              ButtonType="ButtonType.Button"
               Click="LoginWithGoogle"
               ButtonStyle="ButtonStyle.Light"
               class="w-100" />
