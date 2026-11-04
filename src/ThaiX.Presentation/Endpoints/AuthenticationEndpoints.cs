@@ -128,7 +128,8 @@ public static class AuthenticationEndpoints
         {
             ChallengeId = challenge.ChallengeId,
             ExpiresAt = challenge.ExpiresAtUtc,
-            ResendAfter = challenge.ResendAfterUtc
+            ResendAfter = challenge.ResendAfterUtc,
+            CodeLength = challenge.CodeLength
         };
 
         return Results.Ok(ApiResponse<RequestEmailOtpResponse>.SuccessResult(response));
@@ -392,6 +393,7 @@ public sealed record RequestEmailOtpResponse
     public required Guid ChallengeId { get; init; }
     public required DateTime ExpiresAt { get; init; }
     public required DateTime ResendAfter { get; init; }
+    public required int CodeLength { get; init; }
 }
 
 public sealed record VerifyEmailOtpRequest
