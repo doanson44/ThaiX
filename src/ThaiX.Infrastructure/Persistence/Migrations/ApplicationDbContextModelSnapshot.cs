@@ -4276,6 +4276,10 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ExpiresAtUtc");
 
+                    b.HasIndex("ConsumedAtUtc");
+
+                    b.HasIndex("InvalidatedAtUtc");
+
                     b.HasIndex("UserId");
 
                     b.HasIndex("UserId", "CreatedAtUtc");
