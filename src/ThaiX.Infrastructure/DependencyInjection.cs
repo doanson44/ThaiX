@@ -123,6 +123,7 @@ public static class DependencyInjection
             .AddSingleton<IDateTimeProvider, DateTimeProviderService>()
             .AddScoped<ICurrentUserService, CurrentUserService>()
             .AddScoped<IAuthenticationService, Authentication.AuthenticationService>()
+            .AddScoped<IEmailOtpService, Authentication.EmailOtpService>()
             .AddScoped<IIdentityUserService, Services.IdentityUserService>()
             .AddScoped<Identity.IdentityUserService>()
             .AddScoped<ApiClientService>()
