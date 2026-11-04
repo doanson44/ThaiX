@@ -42,6 +42,8 @@
   <data name="Error.Forbidden" xml:space="preserve"><value>Bạn không có quyền thực hiện thao tác này.</value></data>
   <data name="Error.InternalError" xml:space="preserve"><value>Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.</value></data>
   <data name="Error.InvalidCredentials" xml:space="preserve"><value>Email hoặc mật khẩu không hợp lệ.</value></data>
+  <data name="Error.InvalidEmailOtp" xml:space="preserve"><value>Mã xác minh không hợp lệ, đã hết hạn hoặc đã vượt quá số lần thử cho phép.</value></data>
+  <data name="Error.EmailNotConfirmed" xml:space="preserve"><value>Vui lòng xác nhận địa chỉ email trước khi bật đăng nhập bằng OTP.</value></data>
   <data name="Error.AccountLocked" xml:space="preserve"><value>Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.</value></data>
   <data name="Error.AccountNotAllowed" xml:space="preserve"><value>Không thể đăng nhập. Vui lòng xác nhận email của bạn.</value></data>
   <data name="Error.Unauthorized" xml:space="preserve"><value>Bạn chưa được xác thực để truy cập tài nguyên này.</value></data>
