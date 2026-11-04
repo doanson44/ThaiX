@@ -643,7 +643,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         user.TwoFactorEnabled = enableTwoFactor;
         if (enableTwoFactor)
         {
-            var authenticatorKeyResult = await userManager.SetAuthenticatorKeyAsync(user, "JBSWY3DPEHPK3PXP");
+            var authenticatorKeyResult = await userManager.ResetAuthenticatorKeyAsync(user);
             authenticatorKeyResult.Succeeded.Should().BeTrue();
         }
 
