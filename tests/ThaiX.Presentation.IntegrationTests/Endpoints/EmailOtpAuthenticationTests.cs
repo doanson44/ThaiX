@@ -284,7 +284,7 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
 
         using var scope = Factory.Services.CreateScope();
         var identityUserService = scope.ServiceProvider.GetRequiredService<IIdentityUserService>();
-        var recoveryCode = (await identityUserService.GenerateNewTwoFactorRecoveryCodesAsync(userId)).First();
+        var recoveryCode = (await identityUserService.GenerateNewTwoFactorRecoveryCodesAsync(userId, 10)).First();
 
         var sessionJwt = new JwtSecurityTokenHandler().ReadJwtToken(otpEnvelope.Data!.TwoFactorSessionToken!);
         sessionJwt.Claims.Single(x => x.Type == "remember_me").Value.Should().Be("True");
