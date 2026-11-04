@@ -22,6 +22,8 @@ public sealed class EmailOtpChallengeConfiguration : IEntityTypeConfiguration<Em
         builder.HasIndex(x => x.UserId);
         builder.HasIndex(x => new { x.UserId, x.CreatedAtUtc });
         builder.HasIndex(x => x.ExpiresAtUtc);
+        builder.HasIndex(x => x.ConsumedAtUtc);
+        builder.HasIndex(x => x.InvalidatedAtUtc);
         builder.HasIndex(x => new { x.UserId, x.ConsumedAtUtc, x.InvalidatedAtUtc });
     }
 }
