@@ -195,6 +195,9 @@ public static class WebApplicationExtensions
     /// </summary>
     public static WebApplication ConfigureMiddlewarePipeline(this WebApplication app)
     {
+        // Forwarded headers must run before rate limiting, HTTPS redirection, and request logging.
+        app.UseForwardedHeaders();
+
         var requestLocalizationOptions = app.Services
             .GetRequiredService<IOptions<RequestLocalizationOptions>>()
             .Value;

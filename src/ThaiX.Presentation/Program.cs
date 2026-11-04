@@ -1,4 +1,6 @@
+using System.Net;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 using ThaiX.Application;
 using ThaiX.Infrastructure;
@@ -27,6 +29,22 @@ try
 
     builder.Services.AddRequestLocalization(builder.Configuration);
     builder.Services.AddClientCors(builder.Configuration);
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+
+        var knownProxies = builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [];
+        foreach (var proxy in knownProxies.Where(value => !string.IsNullOrWhiteSpace(value)))
+        {
+            if (!IPAddress.TryParse(proxy, out var address))
+            {
+                throw new InvalidOperationException($"ForwardedHeaders:KnownProxies contains an invalid IP address: '{proxy}'.");
+            }
+
+            options.KnownProxies.Add(address);
+        }
+    });
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHealthChecks();
     builder.Services.AddRateLimiter(options =>

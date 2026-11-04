@@ -265,7 +265,48 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
     }
 
     [Fact]
-    public async Task RequestEmailOtp_WithinCooldown_ShouldReuseChallengeWithoutSendingAnotherEmail()
+    public async Task VerifyEmailOtp_WithRememberMeAndAuthenticatorTwoFactor_ShouldUseExtendedJwtLifetime()
+    {
+        // Arrange
+        var email = $"email-otp-2fa-remember-{Guid.NewGuid():N}@thaix.test";
+        var userId = await CreateTestUserAsync(email, confirmEmail: true);
+        await EnableEmailOtpAsync(userId, enableTwoFactor: true);
+        var (challengeId, code) = await RequestChallengeAsync(email);
+
+        var otpResponse = await Client.PostAsJsonAsync("/api/auth/email-otp/verify", new
+        {
+            ChallengeId = challengeId,
+            Code = code,
+            RememberMe = true
+        });
+        var otpEnvelope = await ReadResponseAsync<LoginTokenResponse>(otpResponse);
+        otpEnvelope.Data!.RequiresTwoFactor.Should().BeTrue();
+
+        using var scope = Factory.Services.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        var authenticatorCode = await userManager.GenerateTwoFactorTokenAsync(
+            user!,
+            userManager.Options.Tokens.AuthenticatorTokenProvider);
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/account/login-2fa", new
+        {
+            TwoFactorSessionToken = otpEnvelope.Data.TwoFactorSessionToken,
+            TwoFactorCode = authenticatorCode
+        });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var envelope = await ReadResponseAsync<LoginTokenResponse>(response);
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(envelope.Data!.Token);
+        var issuedAt = long.Parse(jwt.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Iat).Value);
+        var issuedAtUtc = DateTimeOffset.FromUnixTimeSeconds(issuedAt).UtcDateTime;
+        (jwt.ValidTo - issuedAtUtc).TotalMinutes.Should().BeApproximately(43200, 1);
+    }
+
+    [Fact]
+    public async Task RequestEmailOtp_WithinCooldown_ShouldReturnGenericResponseWithoutSendingAnotherEmail()
     {
         // Arrange
         var email = $"email-otp-resend-{Guid.NewGuid():N}@thaix.test";
@@ -281,7 +322,8 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
         var secondChallenge = await otpService.RequestAsync(email);
 
         // Assert
-        secondChallenge.ChallengeId.Should().Be(firstChallenge.ChallengeId);
+        secondChallenge.ChallengeId.Should().NotBe(firstChallenge.ChallengeId);
+        secondChallenge.ExpiresAtUtc.Should().BeAfter(DateTime.UtcNow);
         emailSender.SentEmails.Should().ContainSingle();
     }
 
@@ -599,6 +641,12 @@ public sealed class EmailOtpAuthenticationTests : IntegrationTestBase
 
         user!.EmailOtpLoginEnabled = true;
         user.TwoFactorEnabled = enableTwoFactor;
+        if (enableTwoFactor)
+        {
+            var authenticatorKeyResult = await userManager.SetAuthenticatorKeyAsync(user, "JBSWY3DPEHPK3PXP");
+            authenticatorKeyResult.Succeeded.Should().BeTrue();
+        }
+
         var result = await userManager.UpdateAsync(user);
         result.Succeeded.Should().BeTrue();
     }

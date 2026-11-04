@@ -24,8 +24,9 @@ services:
     environment:
       TZ: Asia/Ho_Chi_Minh
       ASPNETCORE_ENVIRONMENT: Production
-      # Behind the DSM reverse proxy: take the client IP and scheme from X-Forwarded-* (short-link IP lists, system log)
-     
+      # Set REVERSE_PROXY_IP in the deployment .env to the DSM reverse proxy IP seen by this container.
+      ForwardedHeaders__KnownProxies__0: ${REVERSE_PROXY_IP:-}
+
     volumes:
       # Written at runtime; must survive redeploys. The container gives them to UID 1654 (the app user) on start.
     logging: *logging

@@ -103,11 +103,7 @@ public sealed class EmailOtpService : IEmailOtpService
             if (recentChallenge is not null)
             {
                 await transaction.CommitAsync(cancellationToken);
-                return new EmailOtpChallengeInfo(
-                    recentChallenge.Id,
-                    recentChallenge.ExpiresAtUtc,
-                    recentChallenge.CreatedAtUtc.Add(cooldown),
-                    _options.CodeLength);
+                return genericResponse;
             }
 
             await _context.EmailOtpChallenges
