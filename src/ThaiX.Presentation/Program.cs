@@ -42,6 +42,16 @@ try
                     QueueLimit = 0,
                     AutoReplenishment = true
                 }));
+        options.AddPolicy("EmailOtpVerify", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(5),
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                }));
     });
     builder.Services.AddPermissionAuthorization();
     builder.Services.AddHttpJsonStringEnums();
