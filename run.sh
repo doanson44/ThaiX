@@ -5,6 +5,8 @@ IMAGE_NAME="doanson44/thaix"
 TAG="${IMAGE_TAG:-latest}"
 CONTAINER_NAME="thaix"
 NETWORK_NAME="thaix-network"
+DB_CONTAINER_NAME="thaix-mariadb"
+DB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-Abc@12345}"
 
 MAX_RETRIES=30
 RETRY_INTERVAL=3
@@ -18,6 +20,27 @@ fi
 
 echo "Pulling image ${IMAGE_NAME}:${TAG}..."
 docker pull "${IMAGE_NAME}:${TAG}"
+
+echo "Waiting for MariaDB container ${DB_CONTAINER_NAME}..."
+if ! docker inspect "${DB_CONTAINER_NAME}" >/dev/null 2>&1; then
+    echo "MariaDB container not found. Run db.sh before deploying the application."
+    exit 1
+fi
+
+DB_RETRIES=0
+until docker exec -e "MYSQL_PWD=${DB_ROOT_PASSWORD}" "${DB_CONTAINER_NAME}" mariadb-admin ping -uroot --silent >/dev/null 2>&1; do
+    DB_RETRIES=$((DB_RETRIES + 1))
+    if [ "${DB_RETRIES}" -ge "${MAX_RETRIES}" ]; then
+        echo "MariaDB did not become ready."
+        docker logs --tail 100 "${DB_CONTAINER_NAME}" || true
+        exit 1
+    fi
+    sleep "${RETRY_INTERVAL}"
+done
+
+OLD_MODE_SQL="SET GLOBAL old_mode = CONCAT_WS(',', NULLIF(@@GLOBAL.old_mode, ''), IF(FIND_IN_SET('UTF8_IS_UTF8MB3', @@GLOBAL.old_mode) = 0, 'UTF8_IS_UTF8MB3', NULL), IF(FIND_IN_SET('NO_NULL_COLLATION_IDS', @@GLOBAL.old_mode) = 0, 'NO_NULL_COLLATION_IDS', NULL));"
+docker exec -e "MYSQL_PWD=${DB_ROOT_PASSWORD}" "${DB_CONTAINER_NAME}" mariadb -uroot -e "${OLD_MODE_SQL}" >/dev/null
+echo "MariaDB old_mode compatibility flags configured."
 
 if [ "$(docker ps -aq -f name=^/${CONTAINER_NAME}$)" ]; then
     echo "Stopping and removing existing container..."
