@@ -35,6 +35,24 @@ else
 
     <RadzenCard Variant="Variant.Outlined" class="rz-mt-3">
         <RadzenStack Gap="1rem">
+            <RadzenText TextStyle="TextStyle.H6">@L[RK.Profile.LoginSettings]</RadzenText>
+            <RadzenText TextStyle="TextStyle.Caption">@L[RK.Profile.EmailOtpLoginDescription]</RadzenText>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenCheckBox TValue="bool"
+                                @bind-Value="_emailOtpLoginEnabled"
+                                Disabled="@(!_profile.EmailConfirmed || _isSavingLoginSettings)" />
+                <RadzenLabel Text="@L[RK.Profile.EmailOtpLoginEnabled]" />
+            </RadzenStack>
+            <RadzenButton Text="@L[RK.Common.Save]"
+                          Icon="save"
+                          Click="SaveLoginSettingsAsync"
+                          Disabled="@(_isSavingLoginSettings || !_profile.EmailConfirmed)"
+                          IsBusy="@_isSavingLoginSettings" />
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenCard Variant="Variant.Outlined" class="rz-mt-3">
+        <RadzenStack Gap="1rem">
             <RadzenStack Gap="0.25rem">
                 <RadzenText TextStyle="TextStyle.H6" class="mb-0">@L[RK.Profile.Permissions]</RadzenText>
                 <RadzenText TextStyle="TextStyle.Caption" class="text-muted">
@@ -88,6 +106,8 @@ else
     private UserInfoResponse? _profile;
     private ExternalLoginsResponse? _externalLogins;
     private bool _isLoading = true;
+    private bool _emailOtpLoginEnabled;
+    private bool _isSavingLoginSettings;
     private string? _removingLoginProvider;
     private bool _loaded;
 
@@ -107,6 +127,7 @@ else
         try
         {
             _profile = await AuthService.GetCurrentUserAsync();
+            _emailOtpLoginEnabled = _profile.EmailOtpLoginEnabled;
             _externalLogins = await AuthService.GetExternalLoginsAsync();
             _loaded = true;
         }
@@ -121,6 +142,34 @@ else
         finally
         {
             _isLoading = false;
+        }
+    }
+
+    private async Task SaveLoginSettingsAsync()
+    {
+        if (_profile is null || _isSavingLoginSettings || !_profile.EmailConfirmed)
+        {
+            return;
+        }
+
+        _isSavingLoginSettings = true;
+        try
+        {
+            await AuthService.UpdateLoginSettingsAsync(new UpdateLoginSettingsRequest
+            {
+                EmailOtpLoginEnabled = _emailOtpLoginEnabled
+            });
+            _profile = _profile with { EmailOtpLoginEnabled = _emailOtpLoginEnabled };
+            NotificationService.NotifySuccess(L[RK.Profile.LoginSettingsSaved]);
+        }
+        catch (ApiException ex)
+        {
+            _emailOtpLoginEnabled = _profile.EmailOtpLoginEnabled;
+            NotificationService.NotifyError(L[RK.Profile.LoginSettingsSaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSavingLoginSettings = false;
         }
     }
 
