@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,10 @@ public sealed class EmailOtpService : IEmailOtpService
         }
 
         var now = DateTime.UtcNow;
+        await using var transaction = await _context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
+
         var activeChallenge = await _context.EmailOtpChallenges
             .Where(x => x.UserId == user.Id &&
                         x.ConsumedAtUtc == null &&
@@ -58,6 +63,7 @@ public sealed class EmailOtpService : IEmailOtpService
 
         if (activeChallenge is not null && now - activeChallenge.CreatedAtUtc < TimeSpan.FromSeconds(_options.ResendCooldownSeconds))
         {
+            await transaction.CommitAsync(cancellationToken);
             return activeChallenge.Id;
         }
 
@@ -82,6 +88,7 @@ public sealed class EmailOtpService : IEmailOtpService
 
         _context.EmailOtpChallenges.Add(challenge);
         await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
 
         try
         {
