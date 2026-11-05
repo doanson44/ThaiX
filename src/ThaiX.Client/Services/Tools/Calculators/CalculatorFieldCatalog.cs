@@ -153,7 +153,11 @@ public static class CalculatorFieldCatalog
             [
                 Num("winRatePct", RK.Calc.Field.WinRatePct, "55"),
                 Num("riskReward", RK.Calc.Field.RiskReward, "1.5"),
-                Num("riskPerTradePct", RK.Calc.Field.RiskPerTradePct, "1")
+                Num("riskPerTradePct", RK.Calc.Field.RiskPerTradePct, "1"),
+                Num("ruinThresholdPct", RK.Calc.Field.RuinThresholdPct, "50"),
+                Num("tradeHorizon", RK.Calc.Field.TradeHorizon, "100"),
+                Num("simulationCount", RK.Calc.Field.SimulationCount, "2000"),
+                Num("randomSeed", RK.Calc.Field.RandomSeed, "2026")
             ],
             "max-drawdown" =>
             [
