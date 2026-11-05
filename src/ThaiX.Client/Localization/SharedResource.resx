@@ -2133,4 +2133,6 @@
   <data name="Calc.Field.SlippagePct" xml:space="preserve"><value>Slippage per side %</value></data>
   <data name="Calc.Result.SlippageCost" xml:space="preserve"><value>Slippage cost</value></data>
   <data name="Calc.Result.BreakEvenWinRatePct" xml:space="preserve"><value>Gross break-even win rate %</value></data>
+  <data name="Calc.Field.KellyCapPct" xml:space="preserve"><value>Maximum Kelly allocation %</value></data>
+  <data name="Calc.Result.KellyCapped" xml:space="preserve"><value>Capped Kelly %</value></data>
 </root>
