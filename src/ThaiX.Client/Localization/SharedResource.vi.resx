@@ -2105,4 +2105,12 @@
   <data name="Tools.FieldLabel.Pattern" xml:space="preserve"><value>Biểu thức</value></data>
   <data name="Tools.FieldLabel.Headers" xml:space="preserve"><value>Headers (Tên: giá trị)</value></data>
   <data name="Tools.FieldLabel.Body" xml:space="preserve"><value>Nội dung</value></data>
+  <data name="Tools.FieldLabel.Length" xml:space="preserve"><value>Độ dài</value></data>
+  <data name="Tools.FieldLabel.Symbols" xml:space="preserve"><value>Ký tự đặc biệt</value></data>
+  <data name="Tools.FieldLabel.Breaking" xml:space="preserve"><value>Thay đổi không tương thích</value></data>
+  <data name="Tools.FieldLabel.Option" xml:space="preserve"><value>Tùy chọn</value></data>
+  <data name="Tools.FieldLabel.CronExpression" xml:space="preserve"><value>Biểu thức cron 5 trường</value></data>
+  <data name="Tools.FieldLabel.GitignorePreset" xml:space="preserve"><value>Mẫu: dotnet, node, vs, rider</value></data>
+  <data name="Tools.FieldLabel.HttpMethod" xml:space="preserve"><value>HTTP method: GET, POST, PUT, DELETE</value></data>
+  <data name="Tools.FieldLabel.CommitScope" xml:space="preserve"><value>Loại/phạm vi, ví dụ feat/tools</value></data>
 </root>
