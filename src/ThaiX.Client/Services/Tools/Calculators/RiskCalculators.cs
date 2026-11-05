@@ -164,17 +164,31 @@ public static class RiskCalculators
             [F(ddPct)]);
     }
 
-    public static CalculatorResult LossRecovery(decimal lossPct)
+    public static CalculatorResult LossRecovery(decimal lossPct) =>
+        LossRecovery([lossPct]);
+
+    public static CalculatorResult LossRecovery(IReadOnlyList<decimal> lossScenarios)
     {
-        RequirePositive(lossPct, "Loss %");
-        if (lossPct >= 100) throw new CalculatorInputException("Loss % must be below 100.");
-        var remaining = 1m - lossPct / 100m;
-        var recovery = (1m / remaining - 1m) * 100m;
+        if (lossScenarios.Count is < 1 or > 10)
+            throw new CalculatorInputException("Provide between 1 and 10 loss scenarios.");
+
+        var lines = new List<CalcLine>();
+        foreach (var lossPct in lossScenarios)
+        {
+            RequirePositive(lossPct, "Loss %");
+            if (lossPct >= 100)
+                throw new CalculatorInputException("Loss % must be below 100.");
+
+            var remaining = 1m - lossPct / 100m;
+            var recovery = (1m / remaining - 1m) * 100m;
+            lines.Add(Line("Calc.Result.LossPct", lossPct));
+            lines.Add(Line("Calc.Result.RecoveryPct", recovery));
+        }
+
         return new CalculatorResult(
-            [Line("Calc.Result.RecoveryPct", recovery)],
-            "recovery% = 1/(1 − loss%) − 1",
-            "Calc.Interp.LossRecovery",
-            [F(recovery)]);
+            lines,
+            "required recovery% = 1 / (1 − loss%) − 1; each loss percentage is an independent scenario",
+            "Calc.Interp.LossRecovery");
     }
 
     public static CalculatorResult Expectancy(decimal winRatePct, decimal avgWin, decimal avgLoss)
