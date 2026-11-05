@@ -18,7 +18,7 @@ Use this skill when you need one of these outcomes for `ThaiX.Presentation`:
   - `Package` for local artifacts.
   - `WebDeploy` to deploy directly to hosting using an explicitly supplied `.publishSettings` file.
 - Defaults to `Package`. Remote deployment must always be explicitly selected with `-Mode WebDeploy`.
-- Clears only the configured local `PublishDir` output folder. It preserves unrelated files in `DeployDir`; `Compress-Archive -Force` replaces only the target ZIP.
+- In Package mode, clears only a dedicated `PublishDir` located inside the repository and rejects the repository root or paths outside it. It preserves unrelated files in `DeployDir`; `Compress-Archive -Force` replaces only the target ZIP.
 
 ### 1) Package mode
 
@@ -68,6 +68,6 @@ powershell -ExecutionPolicy Bypass -File .agents/skills/publish-code/publish.ps1
 - The script does not disable TLS certificate validation. Do not add `AllowUntrustedCertificate=true` to bypass an invalid certificate.
 - The password is passed to MSBuild through a process-scoped environment variable rather than a command-line property; same-user process inspection and the publish-settings file still require appropriate host security.
 - Verify the target host/profile before running WebDeploy. Package mode is the safe default.
-- For CI/CD, prefer injecting password from environment variable `MONSTERASP_WEBDEPLOY_PASSWORD` instead of storing plaintext secrets in repo.
+- The script prefers `MONSTERASP_WEBDEPLOY_PASSWORD`; it falls back to the password in the publish profile only when the environment variable is empty. Prefer the environment variable and keep publish-settings files out of source control.
 - In package mode, deploy the full published folder, not only `wwwroot`.
 - For IIS targets, keep `web.config` and `ThaiX.Presentation.dll` together.

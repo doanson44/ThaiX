@@ -15,6 +15,7 @@ Apply these rules in every task:
 - Use `ResourceKeys` constants; do not hardcode UI/API messages.
 - Use ASCII in source files; `.resx` is the only Unicode exception.
 - Keep package versions in `Directory.Packages.props` only.
+- For current provider, MediatR pipeline, and permission-claim facts, consult `.agents/rules/repository-facts.md` before changing related code.
 - Do not auto-stage or auto-commit unless user explicitly requests it.
 - Agent asset changes must follow `.github/AGENT_SYNC_POLICY.md`.
 - `.agents/` is the canonical shared source; synchronize matching assets to runtime folders actually present in this checkout (`.github/` and `.cursor/`).

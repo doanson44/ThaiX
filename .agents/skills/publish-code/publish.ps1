@@ -23,16 +23,6 @@ Write-Host "Mode: $Mode"
 Write-Host "Project: $projectPath"
 Write-Host "Configuration: $Configuration"
 
-if (Test-Path $PublishDir) {
-    Write-Host "Removing existing publish folder: $PublishDir"
-    Remove-Item -LiteralPath $PublishDir -Recurse -Force
-}
-
-if (-not (Test-Path $DeployDir)) {
-    Write-Host "Creating deploy folder: $DeployDir"
-    New-Item -ItemType Directory -Path $DeployDir | Out-Null
-}
-
 # Restore client libraries (libman) so wwwroot/lib content is included in publish output
 Write-Host "Restoring client libraries (libman) for ThaiX.Client..."
 Push-Location -Path (Join-Path $repoRoot 'src/ThaiX.Client')
@@ -46,6 +36,24 @@ if ($libmanExitCode -ne 0) {
 }
 
 if ($Mode -eq 'Package') {
+    $repoRootPath = (Resolve-Path -Path '.').Path
+    $publishOutputPath = [System.IO.Path]::GetFullPath((Join-Path $repoRootPath $PublishDir))
+    $repoRootPrefix = $repoRootPath.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    if ($publishOutputPath.Equals($repoRootPath, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not $publishOutputPath.StartsWith($repoRootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        Write-Error "PublishDir must be a dedicated output directory inside the repository; refusing to clean '$PublishDir'."
+        exit 1
+    }
+
+    if (Test-Path $publishOutputPath) {
+        Write-Host "Removing existing publish output folder: $PublishDir"
+        Remove-Item -LiteralPath $publishOutputPath -Recurse -Force
+    }
+
+    if (-not (Test-Path $DeployDir)) {
+        Write-Host "Creating deploy folder: $DeployDir"
+        New-Item -ItemType Directory -Path $DeployDir | Out-Null
+    }
     Write-Host "Publish output: $PublishDir"
     Write-Host "Deploy folder: $DeployDir"
     Write-Host "Zip file: $ZipPath"
@@ -109,10 +117,9 @@ if (-not $selectedProfile) {
 $publishUrl = $selectedProfile.publishUrl
 $msdeploySite = $selectedProfile.msdeploySite
 $userName = $selectedProfile.userName
-$password = $selectedProfile.userPWD
-
-if ([string]::IsNullOrWhiteSpace($password) -and -not [string]::IsNullOrWhiteSpace($env:MONSTERASP_WEBDEPLOY_PASSWORD)) {
-    $password = $env:MONSTERASP_WEBDEPLOY_PASSWORD
+$password = $env:MONSTERASP_WEBDEPLOY_PASSWORD
+if ([string]::IsNullOrWhiteSpace($password)) {
+    $password = $selectedProfile.userPWD
 }
 
 if ([string]::IsNullOrWhiteSpace($publishUrl) -or [string]::IsNullOrWhiteSpace($msdeploySite) -or [string]::IsNullOrWhiteSpace($userName) -or [string]::IsNullOrWhiteSpace($password)) {
