@@ -2130,4 +2130,6 @@
   <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Periods to trough</value></data>
   <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Periods to recovery</value></data>
   <data name="Calc.Result.ExpectancyR" xml:space="preserve"><value>Expectancy (R)</value></data>
+  <data name="Calc.Field.SlippagePct" xml:space="preserve"><value>Slippage per side %</value></data>
+  <data name="Calc.Result.SlippageCost" xml:space="preserve"><value>Slippage cost</value></data>
 </root>
