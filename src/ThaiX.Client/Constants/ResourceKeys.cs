@@ -2014,6 +2014,12 @@ public static class ResourceKeys
             public const string Build = "Tools.Action.Build";
         }
 
+        public static class Cron
+        {
+            public const string ExpressionLabel = "Tools.Cron.ExpressionLabel";
+            public const string NextRunsUtc = "Tools.Cron.NextRunsUtc";
+        }
+
         public static class PasswordStrength
         {
             public const string Score = "Tools.PasswordStrength.Score";
