@@ -511,6 +511,40 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MarketCap_WithTotalAndMaximumSupply_ShouldReturnMarketCapAndFdv()
+    {
+        // Arrange / Act
+        var result = CryptoCalculators.MarketCap(2m, 100m, 120m, 150m);
+
+        // Assert
+        Assert.Equal("200", result.Breakdown[0].Value);
+        Assert.Equal("240", result.Breakdown[1].Value);
+        Assert.Equal("300", result.Breakdown[2].Value);
+        Assert.Equal("Calc.Result.TotalSupplyValue", result.Breakdown[1].LabelKey);
+        Assert.Equal("Calc.Result.Fdv", result.Breakdown[2].LabelKey);
+    }
+
+    [Fact]
+    public void MarketCap_WhenTotalSupplyIsBelowCirculatingSupply_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => CryptoCalculators.MarketCap(2m, 100m, 90m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void MarketCap_WhenMaximumSupplyIsBelowTotalSupply_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => CryptoCalculators.MarketCap(2m, 100m, 120m, 110m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void FuturesPnl_WhenFeeReachesOneHundredPercent_ShouldThrow()
     {
         // Arrange / Act
