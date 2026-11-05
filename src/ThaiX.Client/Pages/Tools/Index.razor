@@ -23,12 +23,53 @@
                        Class="w-100 ThaiX-tools-hub__search"
                        aria-label="@L[RK.Tools.SearchPlaceholder]" />
 
+        @if (FilteredFavorites().Any())
+        {
+            <RadzenStack Gap="0.75rem" Class="ThaiX-tools-hub__favorites">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
+                    @L[RK.Tools.Favorites]
+                </RadzenText>
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    @foreach (var tool in FilteredFavorites())
+                    {
+                        <RadzenColumn Size="12" SizeSM="6" SizeLG="4">
+                            <RadzenCard Class="h-100 ThaiX-tools-hub__card"
+                                        Style="cursor: pointer;"
+                                        @onclick="@(() => NavigateToTool(tool))">
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" AlignItems="AlignItems.Start" Class="ThaiX-tools-hub__card-inner">
+                                    <RadzenIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
+                                    <RadzenStack Gap="0.25rem" Class="ThaiX-tools-hub__card-text">
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">@L[tool.TitleKey]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[tool.DescriptionKey]</RadzenText>
+                                    </RadzenStack>
+                                    <RadzenButton Icon="star"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Size="ButtonSize.Small"
+                                                  title="@L[RK.Tools.RemoveFavorite]"
+                                                  aria-label="@L[RK.Tools.RemoveFavorite]"
+                                                  Click="@(() => ToggleFavoriteAsync(tool))"
+                                                  @onclick:stopPropagation="true" />
+                                </RadzenStack>
+                            </RadzenCard>
+                        </RadzenColumn>
+                    }
+                </RadzenRow>
+            </RadzenStack>
+        }
+
         @if (FilteredLastUsed().Any())
         {
             <RadzenStack Gap="0.75rem" Class="ThaiX-tools-hub__recent">
-                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
-                    @L[RK.Tools.LastUsed]
-                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
+                        @L[RK.Tools.LastUsed]
+                    </RadzenText>
+                    <RadzenButton Icon="history"
+                                  Text="@L[RK.Tools.ClearHistory]"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small"
+                                  Click="ClearLastUsedAsync" />
+                </RadzenStack>
                 <RadzenRow Gap="0.75rem" RowGap="0.75rem">
                     @foreach (var tool in FilteredLastUsed())
                     {
@@ -42,6 +83,13 @@
                                         <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">@L[tool.TitleKey]</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[tool.DescriptionKey]</RadzenText>
                                     </RadzenStack>
+                                    <RadzenButton Icon="@FavoriteIcon(tool)"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Size="ButtonSize.Small"
+                                                  title="@FavoriteLabel(tool)"
+                                                  aria-label="@FavoriteLabel(tool)"
+                                                  Click="@(() => ToggleFavoriteAsync(tool))"
+                                                  @onclick:stopPropagation="true" />
                                 </RadzenStack>
                             </RadzenCard>
                         </RadzenColumn>
@@ -82,16 +130,22 @@
 @code {
     private string? _filter;
     private IReadOnlyList<ToolDefinition> _lastUsedTools = [];
+    private IReadOnlyList<ToolDefinition> _favoriteTools = [];
+    private HashSet<string> _favoriteSlugs = new(StringComparer.OrdinalIgnoreCase);
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             _lastUsedTools = await ToolStateStore.GetLastUsedAsync();
+            _favoriteTools = await ToolStateStore.GetFavoriteToolsAsync();
+            _favoriteSlugs = _favoriteTools.Select(tool => tool.Slug).ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
         catch
         {
             _lastUsedTools = [];
+            _favoriteTools = [];
+            _favoriteSlugs.Clear();
         }
     }
 
@@ -105,6 +159,39 @@
                 || L[t.TitleKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase)
                 || L[t.DescriptionKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase));
     }
+
+    private IEnumerable<ToolDefinition> FilteredFavorites()
+    {
+        var q = _filter?.Trim();
+        return string.IsNullOrEmpty(q)
+            ? _favoriteTools
+            : _favoriteTools.Where(t =>
+                t.Slug.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.TitleKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.DescriptionKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task ToggleFavoriteAsync(ToolDefinition tool)
+    {
+        var isFavorite = await ToolStateStore.ToggleFavoriteAsync(tool);
+        _favoriteSlugs = isFavorite
+            ? _favoriteSlugs.Append(tool.Slug).ToHashSet(StringComparer.OrdinalIgnoreCase)
+            : _favoriteSlugs.Where(slug => !slug.Equals(tool.Slug, StringComparison.OrdinalIgnoreCase))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        _favoriteTools = await ToolStateStore.GetFavoriteToolsAsync();
+    }
+
+    private async Task ClearLastUsedAsync()
+    {
+        await ToolStateStore.ClearLastUsedAsync();
+        _lastUsedTools = [];
+    }
+
+    private string FavoriteIcon(ToolDefinition tool) =>
+        _favoriteSlugs.Contains(tool.Slug) ? "star" : "star_outline";
+
+    private string FavoriteLabel(ToolDefinition tool) =>
+        L[_favoriteSlugs.Contains(tool.Slug) ? RK.Tools.RemoveFavorite : RK.Tools.AddFavorite].Value;
 
     private void NavigateToTool(ToolDefinition tool) => Navigation.NavigateTo($"/tools/{tool.Slug}");
 
