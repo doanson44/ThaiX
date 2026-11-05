@@ -1654,7 +1654,7 @@
   <data name="Tools.ConsecutiveLoss.Title" xml:space="preserve"><value>Consecutive Losses</value></data>
   <data name="Tools.ConsecutiveLoss.Description" xml:space="preserve"><value>Equity left after N losing trades at fixed risk</value></data>
   <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Market Cap</value></data>
-  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Market capitalization from price and supply</value></data>
+  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Calculate circulating market cap, total supply valuation, and fully diluted valuation</value></data>
   <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>Market Cap Compare</value></data>
   <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Implied price for a target market cap</value></data>
   <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>ATH Drawdown</value></data>
@@ -1776,7 +1776,7 @@
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
   <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Full Kelly ≈ {0}% of bankroll.</value></data>
   <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>After losses, equity ≈ {0} (drawdown {1}%).</value></data>
-  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Market cap ≈ {0}.</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Market cap uses circulating supply; total supply valuation and FDV are shown when supplied.</value></data>
   <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Implied price ≈ {0}.</value></data>
   <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Down {0}% from ATH; need {1}% to recover.</value></data>
   <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Expense Tracker</value></data>
@@ -2121,4 +2121,8 @@
   <data name="Tools.FieldLabel.IgnoreCase" xml:space="preserve"><value>Ignore case</value></data>
   <data name="Tools.FieldLabel.ErrorCorrection" xml:space="preserve"><value>Error correction</value></data>
   <data name="Tools.FieldLabel.QuietZone" xml:space="preserve"><value>Quiet zone (modules)</value></data>
+  <data name="Calc.Field.TotalSupply" xml:space="preserve"><value>Total supply (optional)</value></data>
+  <data name="Calc.Field.MaxSupply" xml:space="preserve"><value>Maximum supply (optional)</value></data>
+  <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Total supply valuation</value></data>
+  <data name="Calc.Result.Fdv" xml:space="preserve"><value>Fully diluted valuation (FDV)</value></data>
 </root>
