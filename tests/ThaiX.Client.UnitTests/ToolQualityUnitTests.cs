@@ -126,7 +126,7 @@ public sealed class ToolQualityUnitTests
 
         // Assert
         Assert.DoesNotContain("<img", html, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("onerror=", html, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("<script", html, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("href=\"javascript:", html, StringComparison.OrdinalIgnoreCase);
     }
 
