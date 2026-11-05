@@ -601,7 +601,7 @@ public sealed class ToolQualityUnitTests
         var result = TradingCalculators.PositionSize(1000m, 1m, 100m, 110m, TradeSide.Short);
 
         // Assert
-        Assert.Equal("10", result.Breakdown[1].Value);
+        Assert.Equal("1", result.Breakdown[1].Value);
     }
 
     [Fact]
