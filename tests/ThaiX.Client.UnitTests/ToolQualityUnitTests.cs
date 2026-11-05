@@ -408,6 +408,39 @@ public sealed class ToolQualityUnitTests
             next);
     }
 
+    [Fact]
+    public void GetNextCronOccurrences_WithLeapDaySchedule_ShouldFindFutureOccurrences()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var next = GeneratorToolTransforms.GetNextCronOccurrences("0 0 29 2 *", fromUtc, 3);
+
+        // Assert
+        Assert.Equal(
+            new[]
+            {
+                new DateTimeOffset(2028, 2, 29, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2032, 2, 29, 0, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2036, 2, 29, 0, 0, 0, TimeSpan.Zero)
+            },
+            next);
+    }
+
+    [Fact]
+    public void GetNextCronOccurrences_WithImpossibleCalendarDate_ShouldThrowFormatException()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 11, 5, 12, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var act = () => GeneratorToolTransforms.GetNextCronOccurrences("0 0 31 2 *", fromUtc);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
     [Theory]
     [InlineData("* * * *")]
     [InlineData("60 * * * *")]
