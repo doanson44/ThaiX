@@ -117,6 +117,24 @@ public sealed class DevToolsSmokeTests
         }
     }
 
+    [Theory]
+    [InlineData(375, 812)]
+    [InlineData(768, 1024)]
+    [InlineData(1280, 800)]
+    public async Task ToolHost_JsonFormatter_ShouldNotOverflowViewport(int width, int height)
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, width, height);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/tools/json-formatter", width, height);
+
+            var horizontalOverflow = await page.EvaluateAsync<int>(
+                "() => document.documentElement.scrollWidth - document.documentElement.clientWidth");
+
+            Assert.True(horizontalOverflow <= 0, $"Horizontal overflow detected at {width}px: {horizontalOverflow}px.");
+        }
+    }
+
     [Fact]
     public async Task ToolHost_JsonFormatter_CtrlEnter_ShouldRunPrimaryAction()
     {
