@@ -322,6 +322,23 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void UrlComponentCodec_ShouldEncodeAndDecodeReservedCharacters()
+    {
+        // Arrange
+        const string component = "BTC/USDT?source=chart&mode=fast";
+
+        // Act
+        var encoded = EncodeToolTransforms.UrlEncodeComponent(component);
+        var decoded = EncodeToolTransforms.UrlDecodeComponent(encoded);
+
+        // Assert
+        Assert.Contains("%2F", encoded, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("%3F", encoded, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("%26", encoded, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(component, decoded);
+    }
+
+    [Fact]
     public void UrlEncode_WithAbsoluteUrl_ShouldPreserveUrlSeparators()
     {
         // Arrange
