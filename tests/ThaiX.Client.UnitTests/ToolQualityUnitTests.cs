@@ -738,6 +738,18 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void Expectancy_ShouldReportAbsoluteAndRMultipleValues()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.Expectancy(50m, 2m, 1m);
+
+        // Assert
+        Assert.Equal("0.5", result.Breakdown[0].Value);
+        Assert.Equal("0.5", result.Breakdown[1].Value);
+        Assert.Equal("Calc.Result.ExpectancyR", result.Breakdown[1].LabelKey);
+    }
+
+    [Fact]
     public void MaxDrawdownFromSeries_WithRecoveredDrawdown_ShouldReportDurations()
     {
         // Arrange / Act
