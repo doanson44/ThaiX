@@ -303,6 +303,15 @@ else
 
         try
         {
+            await ToolStateStore.RecordLastUsedAsync(_tool);
+        }
+        catch
+        {
+            // Recent history is best-effort and must not block opening a tool.
+        }
+
+        try
+        {
             var envelope = await ToolStateStore.LoadAsync(_tool);
             if (envelope is not null && !string.IsNullOrWhiteSpace(envelope.StateJson))
             {
