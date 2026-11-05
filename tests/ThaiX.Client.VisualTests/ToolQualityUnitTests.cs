@@ -36,6 +36,23 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void FormatSql_WithKeywordsInsideLiteralsAndComments_ShouldPreserveThem()
+    {
+        // Arrange
+        const string sql = "select 'from where', [order] from trades where note = 'order by'; -- from\nselect 1";
+
+        // Act
+        var formatted = TextToolTransforms.FormatSql(sql);
+
+        // Assert
+        Assert.Contains("'from where'", formatted, StringComparison.Ordinal);
+        Assert.Contains("[order]", formatted, StringComparison.Ordinal);
+        Assert.Contains("'order by'", formatted, StringComparison.Ordinal);
+        Assert.Contains("-- from", formatted, StringComparison.Ordinal);
+        Assert.Contains("SELECT", formatted, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void HtmlToMarkdownRough_WithHeadingsLinksAndLists_ShouldPreserveStructure()
     {
         // Arrange
