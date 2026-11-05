@@ -143,7 +143,7 @@ public static class GeneratorToolTransforms
                 start = minimum;
                 end = maximum;
             }
-            else if (range.Contains('-', StringComparison.Ordinal))
+            else if (range.Contains('-'))
             {
                 var bounds = range.Split('-');
                 if (bounds.Length != 2)
