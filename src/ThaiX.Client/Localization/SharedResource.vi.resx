@@ -1743,6 +1743,8 @@
   <data name="Calc.Placeholder.TargetMcapScenarios" xml:space="preserve"><value>vd: 500000000,1000000000,2000000000</value></data>
   <data name="Calc.Field.Ath" xml:space="preserve"><value>Đỉnh lịch sử (ATH)</value></data>
   <data name="Calc.Field.Current" xml:space="preserve"><value>Giá hiện tại</value></data>
+  <data name="Calc.Field.CurrentPrice" xml:space="preserve"><value>Giá thị trường hiện tại (không bắt buộc)</value></data>
+  <data name="Calc.Field.FeePerLegPct" xml:space="preserve"><value>Phí mỗi lần mua/lệnh %</value></data>
   <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>vd: 100,1;102,2</value></data>
   <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>vd: 100,50;90,50</value></data>
   <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>vd: 10000,9800,10200,9500</value></data>
