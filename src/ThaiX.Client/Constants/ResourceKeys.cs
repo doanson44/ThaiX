@@ -2094,8 +2094,6 @@ public static class ResourceKeys
             public const string IgnoreWhitespace = "Tools.FieldLabel.IgnoreWhitespace";
             public const string Multiline = "Tools.FieldLabel.Multiline";
             public const string Singleline = "Tools.FieldLabel.Singleline";
-            public const string MultilineHelp = "Tools.FieldHelp.Multiline";
-            public const string SinglelineHelp = "Tools.FieldHelp.Singleline";
             public const string Headers = "Tools.FieldLabel.Headers";
             public const string Body = "Tools.FieldLabel.Body";
             public const string Length = "Tools.FieldLabel.Length";
@@ -2111,6 +2109,12 @@ public static class ResourceKeys
             public const string GitignorePreset = "Tools.FieldLabel.GitignorePreset";
             public const string HttpMethod = "Tools.FieldLabel.HttpMethod";
             public const string CommitScope = "Tools.FieldLabel.CommitScope";
+        }
+
+        public static class FieldHelp
+        {
+            public const string Multiline = "Tools.FieldHelp.Multiline";
+            public const string Singleline = "Tools.FieldHelp.Singleline";
         }
 
         public static class Category
