@@ -149,7 +149,7 @@ public sealed class ToolQualityUnitTests
     public void FormatSql_WithCarriageReturnComment_ShouldFormatFollowingStatement()
     {
         // Arrange
-        const string sql = "select 1 -- comment\\rselect 2";
+        const string sql = "select 1 -- comment\rselect 2";
 
         // Act
         var formatted = TextToolTransforms.FormatSql(sql);

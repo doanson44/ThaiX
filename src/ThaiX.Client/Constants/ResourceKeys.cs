@@ -2380,64 +2380,6 @@ public static class ResourceKeys
             public const string Description = "Tools.Sha256.Description";
         }
 
-        public static class JwtDecoder
-        {
-            public const string Title = "Tools.JwtDecoder.Title";
-            public const string Description = "Tools.JwtDecoder.Description";
-        }
-
-        public static class PasswordGenerator
-        {
-            public const string Title = "Tools.PasswordGenerator.Title";
-            public const string Description = "Tools.PasswordGenerator.Description";
-        }
-
-        public static class PasswordStrength
-        {
-            public const string Title = "Tools.PasswordStrength.Title";
-            public const string Description = "Tools.PasswordStrength.Description";
-        }
-
-        public static class Uuid
-        {
-            public const string Title = "Tools.Uuid.Title";
-            public const string Description = "Tools.Uuid.Description";
-        }
-
-        public static class Cron
-        {
-            public const string Title = "Tools.Cron.Title";
-            public const string Description = "Tools.Cron.Description";
-        }
-
-        public static class Qr
-        {
-            public const string Title = "Tools.Qr.Title";
-            public const string Description = "Tools.Qr.Description";
-        }
-
-        public static class Curl
-        {
-            public const string Title = "Tools.Curl.Title";
-            public const string Description = "Tools.Curl.Description";
-        }
-
-        public static class Gitignore
-        {
-            public const string Title = "Tools.Gitignore.Title";
-            public const string Description = "Tools.Gitignore.Description";
-        }
-
-        public static class ConventionalCommit
-        {
-            public const string Title = "Tools.ConventionalCommit.Title";
-            public const string Description = "Tools.ConventionalCommit.Description";
-        }
-
-        public static class Regex
-        {
-            public const string Title = "Tools.Regex.Title";
-            public const string Description = "Tools.Regex.Description";
         }
 
         public static class UnixTimestamp
