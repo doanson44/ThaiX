@@ -30,7 +30,7 @@ window.ThaiXEnsureMermaid = async function () {
     const dark = window.ThaiXIsDarkUi();
     window.mermaid.initialize({
         startOnLoad: false,
-        securityLevel: 'loose',
+        securityLevel: 'strict',
         theme: dark ? 'dark' : 'default',
         themeVariables: dark ? {
             darkMode: true,
@@ -112,7 +112,13 @@ window.ThaiXCollectMermaidBlocks = function (container) {
         found.push({ el: pre, source: (pre.textContent || '').replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim() });
     });
 
-    // 2) Classic / other renderers
+    // 2) Sanitized Markdig output may not retain the mermaid class attribute.
+    container.querySelectorAll('pre:not(:has(code))').forEach((pre) => {
+        const source = (pre.textContent || '').replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
+        if (window.ThaiXIsMermaidSource(source)) found.push({ el: pre, source });
+    });
+
+    // 3) Classic / other renderers
     container.querySelectorAll('pre code').forEach((code) => {
         const cls = (code.className || '').toLowerCase();
         const source = (code.textContent || '').replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
