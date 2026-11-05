@@ -117,7 +117,7 @@
 
     private async Task HandleKeyDown(KeyboardEventArgs args)
     {
-        if (args.CtrlKey && args.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase))
+        if ((args.CtrlKey || args.MetaKey) && args.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase))
         {
             await OnRunShortcut.InvokeAsync();
             return;
