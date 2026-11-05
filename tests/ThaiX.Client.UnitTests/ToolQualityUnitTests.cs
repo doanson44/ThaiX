@@ -1,12 +1,46 @@
 using ThaiX.Client.Services.Tools;
 using ThaiX.Client.Services.Tools.Calculators;
 using ThaiX.Client.Services.Tools.Transforms;
+using Microsoft.JSInterop;
 using Xunit;
 
 namespace ThaiX.Client.UnitTests;
 
 public sealed class ToolQualityUnitTests
 {
+    [Fact]
+    public async Task GetLastUsedAsync_WithDuplicateAndUnknownSlugs_ShouldReturnUniqueKnownTools()
+    {
+        // Arrange
+        const string stored = "[\"json-formatter\",\"json-formatter\",\"JSON-FORMATTER\",\"unknown-tool\",\"base64\"]";
+        var store = new ToolStateStore(new StubJsRuntime(stored), null!, null!, null!);
+
+        // Act
+        var tools = await store.GetLastUsedAsync();
+
+        // Assert
+        Assert.Equal(2, tools.Count);
+        Assert.Equal("json-formatter", tools[0].Slug);
+        Assert.Equal("base64", tools[1].Slug);
+    }
+
+    private sealed class StubJsRuntime(string? storedValue) : IJSRuntime
+    {
+        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args) =>
+            InvokeAsync<TValue>(identifier, CancellationToken.None, args);
+
+        public ValueTask<TValue> InvokeAsync<TValue>(
+            string identifier,
+            CancellationToken cancellationToken,
+            object?[]? args)
+        {
+            if (!string.Equals(identifier, "localStorage.getItem", StringComparison.Ordinal))
+                throw new InvalidOperationException($"Unexpected JS invocation: {identifier}");
+
+            return ValueTask.FromResult((TValue)(object?)storedValue!);
+        }
+    }
+
     [Fact]
     public void CsvToJson_WithQuotedCommaAndEscapedQuote_ShouldPreserveValues()
     {
