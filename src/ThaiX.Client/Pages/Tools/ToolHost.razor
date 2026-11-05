@@ -47,6 +47,11 @@ else
                                   ButtonStyle="ButtonStyle.Light"
                                   Disabled="@_busy"
                                   Click="ExportWorkspaceAsync" />
+            <ResponsiveIconButton Text="@(_isFullscreen ? L[RK.Tools.ExitFullscreen].Value : L[RK.Tools.Fullscreen].Value)"
+                                  Icon="@(_isFullscreen ? "fullscreen_exit" : "fullscreen")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Disabled="@_busy"
+                                  Click="ToggleFullscreen" />
             <InputFile OnChange="ImportWorkspaceAsync"
                        accept=".json,application/json"
                        class="form-control form-control-sm"
