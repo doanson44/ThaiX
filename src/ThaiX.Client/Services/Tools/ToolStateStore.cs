@@ -11,6 +11,9 @@ namespace ThaiX.Client.Services.Tools;
 
 public sealed class ToolStateStore : IToolStateStore
 {
+    private const string LastUsedStorageKey = "ThaiX.tools.last-used";
+    private const int LastUsedLimit = 10;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -32,6 +35,40 @@ public sealed class ToolStateStore : IToolStateStore
         _jsonBins = jsonBins;
         _authStateProvider = authStateProvider;
         _navigation = navigation;
+    }
+
+    public async Task<IReadOnlyList<ToolDefinition>> GetLastUsedAsync(CancellationToken cancellationToken = default)
+    {
+        var json = await _js.InvokeAsync<string?>("localStorage.getItem", cancellationToken, LastUsedStorageKey);
+        if (string.IsNullOrWhiteSpace(json))
+            return [];
+
+        try
+        {
+            var slugs = JsonSerializer.Deserialize<string[]>(json, JsonOptions) ?? [];
+            return slugs
+                .Select(ToolCatalog.Find)
+                .Where(tool => tool is not null)
+                .Cast<ToolDefinition>()
+                .Take(LastUsedLimit)
+                .ToArray();
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
+    public async Task RecordLastUsedAsync(ToolDefinition tool, CancellationToken cancellationToken = default)
+    {
+        var recent = (await GetLastUsedAsync(cancellationToken))
+            .Where(item => !item.Slug.Equals(tool.Slug, StringComparison.OrdinalIgnoreCase))
+            .Select(item => item.Slug)
+            .Prepend(tool.Slug)
+            .Take(LastUsedLimit);
+
+        var json = JsonSerializer.Serialize(recent, JsonOptions);
+        await _js.InvokeVoidAsync("localStorage.setItem", cancellationToken, LastUsedStorageKey, json);
     }
 
     public async Task<ToolStateEnvelope?> LoadAsync(ToolDefinition tool, CancellationToken cancellationToken = default)
