@@ -39,7 +39,13 @@ public static class EncodeToolTransforms
         return Convert.ToHexString(hash).ToLowerInvariant();
     }
 
-    public static string DecodeJwt(string token)
+    public static string DecodeJwt(
+        string token,
+        string warning = "UNVERIFIED: signature is not checked. Treat all claims as untrusted.",
+        string headerLabel = "Header",
+        string payloadLabel = "Payload",
+        string signaturePresentLabel = "Signature present (not verified).",
+        string signatureMissingLabel = "Signature missing.")
     {
         var parts = token.Trim().Split('.');
         if (parts.Length < 2)
@@ -47,11 +53,11 @@ public static class EncodeToolTransforms
 
         var header = PrettyJson(Base64UrlDecode(parts[0]));
         var payload = PrettyJson(Base64UrlDecode(parts[1]));
-        var sigNote = parts.Length >= 3 && !string.IsNullOrWhiteSpace(parts[2])
-            ? "Signature present (not verified)."
-            : "Signature missing.";
+        var signatureNote = parts.Length >= 3 && !string.IsNullOrWhiteSpace(parts[2])
+            ? signaturePresentLabel
+            : signatureMissingLabel;
 
-        return $"// Header\n{header}\n\n// Payload\n{payload}\n\n// {sigNote}";
+        return $"{warning}\n\n// {headerLabel}\n{header}\n\n// {payloadLabel}\n{payload}\n\n// {signatureNote}";
     }
 
     public static string NewUuid(bool v7, string format = "D")
