@@ -2578,6 +2578,8 @@ public static class ResourceKeys
             public const string LossCount = "Calc.Result.LossCount";
             public const string FundingPayer = "Calc.Result.FundingPayer";
             public const string FundingReceiver = "Calc.Result.FundingReceiver";
+            public const string AbsolutePeakToTroughPeriods = "Calc.Result.AbsolutePeakToTroughPeriods";
+            public const string AbsoluteTroughToRecoveryPeriods = "Calc.Result.AbsoluteTroughToRecoveryPeriods";
             public const string AdverseMovePct = "Calc.Result.AdverseMovePct";
         }
 
