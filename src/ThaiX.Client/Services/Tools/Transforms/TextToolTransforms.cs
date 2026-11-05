@@ -152,7 +152,7 @@ public static class TextToolTransforms
             if (lineComment)
             {
                 output.Append(character);
-                if (character == '\n') lineComment = false;
+                if (character is '\n' or '\r') lineComment = false;
                 continue;
             }
 
