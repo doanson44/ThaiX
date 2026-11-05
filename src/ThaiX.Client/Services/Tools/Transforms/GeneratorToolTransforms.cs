@@ -34,7 +34,15 @@ public static class GeneratorToolTransforms
         return new string(chars);
     }
 
-    public static string PasswordStrength(string password)
+    public static string PasswordStrength(
+        string password,
+        string scoreLabel = "Score",
+        string weakLabel = "Weak",
+        string fairLabel = "Fair",
+        string goodLabel = "Good",
+        string strongLabel = "Strong",
+        string lengthLabel = "Length",
+        string disclaimer = "Heuristic only; not an entropy or breach check.")
     {
         var p = password ?? "";
         var score = 0;
@@ -46,12 +54,12 @@ public static class GeneratorToolTransforms
         if (p.Length > 0 && p.Distinct().Count() <= 3) score = Math.Max(0, score - 2);
         var label = score switch
         {
-            <= 1 => "Weak",
-            2 => "Fair",
-            3 => "Good",
-            _ => "Strong"
+            <= 1 => weakLabel,
+            2 => fairLabel,
+            3 => goodLabel,
+            _ => strongLabel
         };
-        return $"Score: {score}/5 — {label}\nLength: {p.Length}\nHeuristic only; not an entropy or breach check.";
+        return $"{scoreLabel}: {score}/5 - {label}\n{lengthLabel}: {p.Length}\n{disclaimer}";
     }
 
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
