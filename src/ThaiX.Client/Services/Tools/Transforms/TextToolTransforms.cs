@@ -286,9 +286,17 @@ public static class TextToolTransforms
         return sb.ToString();
     }
 
-    public static string RegexTest(string pattern, string input, string? replacement, int timeoutMs = 200)
+    public static string RegexTest(
+        string pattern,
+        string input,
+        string? replacement,
+        int timeoutMs = 200,
+        bool ignoreCase = false)
     {
-        var regex = new Regex(pattern, RegexOptions.None, TimeSpan.FromMilliseconds(timeoutMs));
+        var options = RegexOptions.CultureInvariant;
+        if (ignoreCase)
+            options |= RegexOptions.IgnoreCase;
+        var regex = new Regex(pattern, options, TimeSpan.FromMilliseconds(timeoutMs));
         var matches = regex.Matches(input ?? "");
         var sb = new StringBuilder();
         sb.AppendLine($"Matches: {matches.Count}");
