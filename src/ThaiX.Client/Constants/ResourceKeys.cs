@@ -2025,6 +2025,7 @@ public static class ResourceKeys
             public const string Symbols = "Tools.FieldLabel.Symbols";
             public const string Breaking = "Tools.FieldLabel.Breaking";
             public const string Option = "Tools.FieldLabel.Option";
+            public const string Format = "Tools.FieldLabel.Format";
             public const string CronExpression = "Tools.FieldLabel.CronExpression";
             public const string GitignorePreset = "Tools.FieldLabel.GitignorePreset";
             public const string HttpMethod = "Tools.FieldLabel.HttpMethod";
