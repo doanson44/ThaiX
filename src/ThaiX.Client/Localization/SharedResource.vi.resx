@@ -2125,4 +2125,5 @@
   <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Định giá theo tổng cung</value></data>
   <data name="Calc.Result.Fdv" xml:space="preserve"><value>Định giá pha loãng hoàn toàn (FDV)</value></data>
   <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>Sang Unix (mili giây)</value></data>
+  <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
 </root>
