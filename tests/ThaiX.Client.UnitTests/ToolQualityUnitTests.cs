@@ -964,7 +964,7 @@ public sealed class ToolQualityUnitTests
         var net = TradingCalculators.PositionSize(10000m, 1m, 100m, 90m, TradeSide.Long, 0.1m, 0.2m);
 
         // Act
-        var grossQuantity = decimal.Parse(gross.Breakdown[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var grossQuantity = decimal.Parse(gross.Breakdown[5].Value, System.Globalization.CultureInfo.InvariantCulture);
         var netQuantity = decimal.Parse(net.Breakdown[5].Value, System.Globalization.CultureInfo.InvariantCulture);
 
         // Assert
