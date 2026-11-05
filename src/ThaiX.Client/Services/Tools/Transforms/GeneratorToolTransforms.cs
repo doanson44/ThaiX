@@ -179,8 +179,23 @@ public static class GeneratorToolTransforms
         return number;
     }
 
-    public static string QrSvg(string text, int border = 2) =>
-        QrCode.EncodeText(text ?? "", QrCode.Ecc.Medium).ToSvgString(border);
+    public static string QrSvg(string text, int border = 4, string errorCorrection = "medium")
+    {
+        if (border is < 0 or > 16)
+            throw new FormatException("QR quiet zone must be between 0 and 16 modules.");
+
+        var level = (errorCorrection ?? string.Empty).Trim().ToLowerInvariant() switch
+        {
+            "low" => QrCode.Ecc.Low,
+            "medium" => QrCode.Ecc.Medium,
+            "quartile" => QrCode.Ecc.Quartile,
+            "high" => QrCode.Ecc.High,
+            _ => throw new FormatException("QR error correction must be low, medium, quartile, or high.")
+        };
+
+        return QrCode.EncodeTextAdvanced(text ?? string.Empty, level, boostEcl: false)
+            .ToSvgString(border);
+    }
 
     public static string BuildCurl(string method, string url, string headers, string body)
     {
