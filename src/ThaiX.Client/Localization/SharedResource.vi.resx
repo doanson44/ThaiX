@@ -2132,4 +2132,6 @@
   <data name="Calc.Field.SlippagePct" xml:space="preserve"><value>Trượt giá mỗi chiều %</value></data>
   <data name="Calc.Result.SlippageCost" xml:space="preserve"><value>Chi phí trượt giá</value></data>
   <data name="Calc.Result.BreakEvenWinRatePct" xml:space="preserve"><value>Tỷ lệ thắng hòa vốn (chưa tính phí) %</value></data>
+  <data name="Calc.Field.KellyCapPct" xml:space="preserve"><value>Giới hạn tỷ trọng Kelly tối đa %</value></data>
+  <data name="Calc.Result.KellyCapped" xml:space="preserve"><value>Kelly sau giới hạn %</value></data>
 </root>
