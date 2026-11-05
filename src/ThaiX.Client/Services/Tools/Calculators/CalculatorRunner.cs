@@ -52,7 +52,8 @@ public static class CalculatorRunner
                 D(fields, "supply"),
                 OptionalD(fields, "totalSupply"),
                 OptionalD(fields, "maxSupply")),
-            "market-cap-compare" => CryptoCalculators.MarketCapCompare(D(fields, "supply"), D(fields, "targetMcap")),
+            "market-cap-compare" => CryptoCalculators.MarketCapCompare(
+                D(fields, "supply"), TargetMarketCaps(fields)),
             "ath-drawdown" => CryptoCalculators.AthDrawdown(D(fields, "ath"), D(fields, "current")),
             _ => throw new CalculatorInputException($"Unknown calculator '{slug}'.")
         };
@@ -86,6 +87,27 @@ public static class CalculatorRunner
         }
 
         return list;
+    }
+
+    private static IReadOnlyList<decimal> TargetMarketCaps(IReadOnlyDictionary<string, string> fields)
+    {
+        if (!fields.TryGetValue("targetMcaps", out var raw) || string.IsNullOrWhiteSpace(raw))
+            return [D(fields, "targetMcap")];
+
+        var values = raw.Split([',', ';', '\\r', '\\n', ' ', '\\t'], StringSplitOptions.RemoveEmptyEntries);
+        if (values.Length is < 1 or > 10)
+            throw new CalculatorInputException("Provide between 1 and 10 target market-cap scenarios.");
+
+        var targets = new List<decimal>(values.Length);
+        foreach (var value in values)
+        {
+            if (!decimal.TryParse(value, NumberStyles.Number, Inv, out var target)
+                && !decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out target))
+                throw new CalculatorInputException($"Invalid target market cap: {value}.");
+            targets.Add(target);
+        }
+
+        return targets;
     }
 
     private static TradeSide Side(IReadOnlyDictionary<string, string> fields) =>
