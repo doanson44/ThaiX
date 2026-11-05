@@ -2455,6 +2455,7 @@ public static class ResourceKeys
             public const string MakerPct = "Calc.Field.MakerPct";
             public const string TakerPct = "Calc.Field.TakerPct";
             public const string OpenFeePct = "Calc.Field.OpenFeePct";
+            public const string SlippagePct = "Calc.Field.SlippagePct";
             public const string CloseFeePct = "Calc.Field.CloseFeePct";
             public const string FeePct = "Calc.Field.FeePct";
             public const string MmrPct = "Calc.Field.MmrPct";
