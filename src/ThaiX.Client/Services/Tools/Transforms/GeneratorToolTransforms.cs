@@ -72,7 +72,7 @@ public static class GeneratorToolTransforms
         if (count is < 1 or > 100)
             throw new ArgumentOutOfRangeException(nameof(count));
 
-        var parts = (expression ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var parts = (expression ?? string.Empty).Split([' ', '\\t', '\\r', '\\n'], StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length != 5)
             throw new FormatException("Cron expression must contain exactly five fields.");
 
