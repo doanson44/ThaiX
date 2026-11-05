@@ -48,22 +48,36 @@ public static class EncodeToolTransforms
     public static string NewUuid(bool v7) =>
         v7 ? Guid.CreateVersion7().ToString() : Guid.NewGuid().ToString();
 
-    public static string UnixConvert(string input, bool toUnix)
+    public static string UnixConvert(string input, bool toUnix, bool milliseconds = false)
     {
         if (toUnix)
         {
-            if (!DateTimeOffset.TryParse(input.Trim(), out var dto))
+            if (!DateTimeOffset.TryParse(
+                    input.Trim(),
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                    out var dateTime))
                 throw new FormatException("Invalid date/time.");
-            return dto.ToUnixTimeSeconds().ToString();
+
+            return (milliseconds ? dateTime.ToUnixTimeMilliseconds() : dateTime.ToUnixTimeSeconds())
+                .ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        if (!long.TryParse(input.Trim(), out var seconds))
+        if (!long.TryParse(input.Trim(), System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out var timestamp))
             throw new FormatException("Invalid Unix timestamp.");
-        // support ms if looks like ms
-        var dto2 = seconds > 9_999_999_999
-            ? DateTimeOffset.FromUnixTimeMilliseconds(seconds)
-            : DateTimeOffset.FromUnixTimeSeconds(seconds);
-        return dto2.UtcDateTime.ToString("O") + " (UTC)";
+
+        try
+        {
+            var dateTime = milliseconds
+                ? DateTimeOffset.FromUnixTimeMilliseconds(timestamp)
+                : DateTimeOffset.FromUnixTimeSeconds(timestamp);
+            return dateTime.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture) + " (UTC)";
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            throw new FormatException("Unix timestamp is outside the supported range.");
+        }
     }
 
     private static string Base64UrlDecode(string segment)
