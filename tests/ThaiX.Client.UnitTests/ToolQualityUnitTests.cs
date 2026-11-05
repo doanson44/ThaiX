@@ -3,7 +3,7 @@ using ThaiX.Client.Services.Tools.Calculators;
 using ThaiX.Client.Services.Tools.Transforms;
 using Xunit;
 
-namespace ThaiX.Client.VisualTests;
+namespace ThaiX.Client.UnitTests;
 
 public sealed class ToolQualityUnitTests
 {
