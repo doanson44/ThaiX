@@ -920,6 +920,43 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MarketCapCompare_WithMultipleTargets_ShouldReturnEachImpliedPrice()
+    {
+        // Arrange
+        var fields = new Dictionary<string, string>
+        {
+            ["supply"] = "1000000",
+            ["targetMcaps"] = "500000000,1000000000,2000000000"
+        };
+
+        // Act
+        var result = CalculatorRunner.Run("market-cap-compare", fields);
+
+        // Assert
+        Assert.Equal(6, result.Breakdown.Count);
+        Assert.Equal("500", result.Breakdown[1].Value);
+        Assert.Equal("1000", result.Breakdown[3].Value);
+        Assert.Equal("2000", result.Breakdown[5].Value);
+    }
+
+    [Fact]
+    public void MarketCapCompare_WithMoreThanTenTargets_ShouldThrow()
+    {
+        // Arrange
+        var fields = new Dictionary<string, string>
+        {
+            ["supply"] = "1000000",
+            ["targetMcaps"] = string.Join(',', Enumerable.Range(1, 11))
+        };
+
+        // Act
+        var act = () => CalculatorRunner.Run("market-cap-compare", fields);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void RiskReward_ShouldReportGrossBreakEvenWinRate()
     {
         // Arrange / Act
