@@ -1993,6 +1993,8 @@ public static class ResourceKeys
             public const string EncodeBase64Url = "Tools.Action.EncodeBase64Url";
             public const string DecodeBase64Url = "Tools.Action.DecodeBase64Url";
             public const string Encode = "Tools.Action.Encode";
+            public const string EncodeComponent = "Tools.Action.EncodeComponent";
+            public const string DecodeComponent = "Tools.Action.DecodeComponent";
             public const string Hash = "Tools.Action.Hash";
             public const string Generate = "Tools.Action.Generate";
             public const string ToUnix = "Tools.Action.ToUnix";
