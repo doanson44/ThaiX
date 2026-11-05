@@ -1120,6 +1120,30 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void FuturesPnl_WithPositiveFundingRate_ShouldDeductLongFundingCashflow()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.FuturesPnl(
+            100m, 110m, 1m, 10m, TradeSide.Long, 0m, 0m, 0m, 1m, 0.01m, 2);
+
+        // Assert
+        Assert.Equal("-0.021", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingCashflow").Value);
+        Assert.Equal("9.979", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.NetPnl").Value);
+    }
+
+    [Fact]
+    public void FuturesPnl_WithNegativeFundingRate_ShouldCreditLongFundingCashflow()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.FuturesPnl(
+            100m, 110m, 1m, 10m, TradeSide.Long, 0m, 0m, 0m, 1m, -0.01m, 2);
+
+        // Assert
+        Assert.Equal("0.021", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingCashflow").Value);
+        Assert.Equal("10.021", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.NetPnl").Value);
+    }
+
+    [Fact]
     public void Liquidation_ForLongLinearIsolatedPosition_ShouldUseMaintenanceMarginDenominator()
     {
         // Arrange / Act
