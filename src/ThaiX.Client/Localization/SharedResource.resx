@@ -2149,4 +2149,9 @@
   <data name="Tools.Regex.Replace" xml:space="preserve"><value>Replace</value></data>
   <data name="Tools.Qr.Generated" xml:space="preserve"><value>QR generated.</value></data>
   <data name="Tools.FieldLabel.Replacement" xml:space="preserve"><value>Replacement text</value></data>
+  <data name="Tools.JwtDecoder.Header" xml:space="preserve"><value>Header</value></data>
+  <data name="Tools.JwtDecoder.Payload" xml:space="preserve"><value>Payload</value></data>
+  <data name="Tools.JwtDecoder.UnverifiedWarning" xml:space="preserve"><value>UNVERIFIED: signature is not checked. Treat all claims as untrusted.</value></data>
+  <data name="Tools.JwtDecoder.SignaturePresent" xml:space="preserve"><value>Signature present (not verified).</value></data>
+  <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Signature missing.</value></data>
 </root>
