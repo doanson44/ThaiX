@@ -2144,4 +2144,7 @@
   <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Heuristic only; not an entropy or breach check.</value></data>
   <data name="Tools.Cron.ExpressionLabel" xml:space="preserve"><value>Cron</value></data>
   <data name="Tools.Cron.NextRunsUtc" xml:space="preserve"><value>Next runs (UTC)</value></data>
+  <data name="Tools.Regex.Matches" xml:space="preserve"><value>Matches</value></data>
+  <data name="Tools.Regex.Group" xml:space="preserve"><value>Group</value></data>
+  <data name="Tools.Regex.Replace" xml:space="preserve"><value>Replace</value></data>
 </root>
