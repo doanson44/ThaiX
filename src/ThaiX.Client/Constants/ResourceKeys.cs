@@ -2000,6 +2000,10 @@ public static class ResourceKeys
         public const string PrivacyCloudSync = "Tools.Privacy.CloudSync";
         public const string ValidationTitle = "Tools.Validation.Title";
         public const string ValidationGeneric = "Tools.Validation.Generic";
+        public const string ValidationFormat = "Tools.Validation.Format";
+        public const string ValidationJson = "Tools.Validation.Json";
+        public const string ValidationOperation = "Tools.Validation.Operation";
+        public const string ValidationBrowser = "Tools.Validation.Browser";
 
         public static class Action
         {
@@ -2486,6 +2490,8 @@ public static class ResourceKeys
         public const string Formula = "Calc.Formula";
         public const string Interpretation = "Calc.Interpretation";
         public const string RiskDisclaimer = "Calc.RiskDisclaimer";
+        public const string ValidationInput = "Calc.Validation.Input";
+        public const string ValidationFormat = "Calc.Validation.Format";
         public const string Yes = "Calc.Yes";
         public const string No = "Calc.No";
         public const string SideLong = "Calc.Side.Long";
