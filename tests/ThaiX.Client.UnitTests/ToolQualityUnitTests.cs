@@ -376,6 +376,32 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void RegexTest_WithIgnoreCase_ShouldMatchDifferentCasing()
+    {
+        // Arrange
+        const string input = "BTCUSDT btcusdt";
+
+        // Act
+        var result = TextToolTransforms.RegexTest("btcusdt", input, null, ignoreCase: true);
+
+        // Assert
+        Assert.Contains("Matches: 2", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void RegexTest_WithoutIgnoreCase_ShouldRemainCaseSensitive()
+    {
+        // Arrange
+        const string input = "BTCUSDT btcusdt";
+
+        // Act
+        var result = TextToolTransforms.RegexTest("btcusdt", input, null);
+
+        // Assert
+        Assert.Contains("Matches: 1", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PasswordStrength_ShouldDiscloseHeuristicLimitations()
     {
         // Arrange / Act
