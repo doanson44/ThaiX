@@ -1776,6 +1776,7 @@
   <data name="Calc.Result.TotalOutlay" xml:space="preserve"><value>Total outlay including fees</value></data>
   <data name="Calc.Result.MarketValue" xml:space="preserve"><value>Current market value</value></data>
   <data name="Calc.Result.UnrealizedPnl" xml:space="preserve"><value>Unrealized PnL</value></data>
+  <data name="Calc.Result.LossCount" xml:space="preserve"><value>Consecutive loss count</value></data>
   <data name="Calc.Result.GrossProfit" xml:space="preserve"><value>Gross profit before fees</value></data>
   <data name="Calc.Result.NetRisk" xml:space="preserve"><value>Net risk after fees and slippage</value></data>
   <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Break-even price</value></data>
