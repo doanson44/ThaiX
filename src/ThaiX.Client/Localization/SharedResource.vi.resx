@@ -1512,6 +1512,9 @@
   <data name="Tools.RemoveFavorite" xml:space="preserve"><value>Bỏ khỏi yêu thích</value></data>
   <data name="Tools.ImportWorkspace" xml:space="preserve"><value>Nhập workspace</value></data>
   <data name="Tools.ExportWorkspace" xml:space="preserve"><value>Xuất workspace</value></data>
+  <data name="Tools.Fullscreen" xml:space="preserve"><value>Toàn màn hình</value></data>
+  <data name="Tools.ExitFullscreen" xml:space="preserve"><value>Thoát toàn màn hình</value></data>
+  <data name="Tools.RunShortcutHint" xml:space="preserve"><value>Ctrl+Enter để chạy</value></data>
   <data name="Tools.Import.Success" xml:space="preserve"><value>Đã nhập workspace.</value></data>
   <data name="Tools.Import.Failed" xml:space="preserve"><value>Không thể nhập workspace.</value></data>
   <data name="Tools.Export.Success" xml:space="preserve"><value>Đã xuất workspace.</value></data>
