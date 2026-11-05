@@ -1075,6 +1075,61 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void AverageEntry_WithPerLegFees_ShouldIncludeFeesInCostBasis()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.AverageEntry([(100m, 1m), (200m, 1m)], 1m);
+
+        // Assert
+        Assert.Equal("151.5", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.AverageEntry").Value);
+        Assert.Equal("303", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.Cost").Value);
+        Assert.Equal("3", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.Fees").Value);
+    }
+
+    [Fact]
+    public void Dca_WithFeesAndCurrentPrice_ShouldReportOutlayAndUnrealizedPnl()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Dca([(100m, 100m), (200m, 100m)], 1m, 150m);
+
+        // Assert
+        Assert.Equal("202", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.TotalOutlay").Value);
+        Assert.Equal("225", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.MarketValue").Value);
+        Assert.Equal("23", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.UnrealizedPnl").Value);
+    }
+
+    [Fact]
+    public void StopLoss_WithFeesAndSlippage_ShouldMoveLongStopFurtherAway()
+    {
+        // Arrange
+        var gross = TradingCalculators.StopLoss(10000m, 1m, 10m, 100m, TradeSide.Long);
+        var net = TradingCalculators.StopLoss(10000m, 1m, 10m, 100m, TradeSide.Long, 0.1m, 0.1m);
+
+        // Act
+        var grossStop = decimal.Parse(gross.Breakdown.Single(line => line.LabelKey == "Calc.Result.StopLossPrice").Value, System.Globalization.CultureInfo.InvariantCulture);
+        var netStop = decimal.Parse(net.Breakdown.Single(line => line.LabelKey == "Calc.Result.StopLossPrice").Value, System.Globalization.CultureInfo.InvariantCulture);
+        var totalRiskPerUnit = decimal.Parse(net.Breakdown.Single(line => line.LabelKey == "Calc.Result.TotalRiskPerUnit").Value, System.Globalization.CultureInfo.InvariantCulture);
+
+        // Assert
+        Assert.True(netStop < grossStop);
+        Assert.Equal(1m, totalRiskPerUnit);
+    }
+
+    [Fact]
+    public void TakeProfit_WithFeesAndSlippage_ShouldReportGrossAndNetProfit()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.TakeProfit(100m, TradeSide.Long, 1m, 90m, 2m, null, 0.1m, 0.1m);
+
+        // Assert
+        var grossProfit = decimal.Parse(result.Breakdown.Single(line => line.LabelKey == "Calc.Result.GrossProfit").Value, System.Globalization.CultureInfo.InvariantCulture);
+        var netProfit = decimal.Parse(result.Breakdown.Single(line => line.LabelKey == "Calc.Result.ExpectedProfit").Value, System.Globalization.CultureInfo.InvariantCulture);
+        Assert.True(netProfit < grossProfit);
+        Assert.Contains(result.Breakdown, line => line.LabelKey == "Calc.Result.NetRisk");
+        Assert.Contains(result.Breakdown, line => line.LabelKey == "Calc.Result.BreakEvenWinRatePct");
+    }
+
+    [Fact]
     public void TakeProfit_WhenBothTargetModesAreProvided_ShouldThrow()
     {
         // Arrange / Act
