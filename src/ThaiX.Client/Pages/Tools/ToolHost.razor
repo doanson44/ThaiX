@@ -194,6 +194,13 @@ else
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="ignoreCase" />
                             <RadzenLabel Text="@L[RK.Tools.FieldLabel.IgnoreCase]" Component="ignoreCase" Class="rz-ms-2" />
                         </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.Replacement]" Class="w-100">
+                                <RadzenTextBox Value="@_state.Option"
+                                               ValueChanged="OnOptionChanged"
+                                               Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
                     }
                     @if (SlugEquals("uuid"))
                     {
