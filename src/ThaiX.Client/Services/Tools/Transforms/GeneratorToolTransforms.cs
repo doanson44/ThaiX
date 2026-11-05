@@ -276,9 +276,10 @@ public static class GeneratorToolTransforms
     public static string ConventionalCommit(string type, string scope, string subject, bool breaking, string body)
     {
         var normalizedType = (type ?? string.Empty).Trim().ToLowerInvariant();
-        string[] allowedTypes = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"];
-        if (!allowedTypes.Contains(normalizedType, StringComparer.Ordinal))
-            throw new FormatException("Type must be a supported Conventional Commit type.");
+        if (normalizedType.Length == 0
+            || !char.IsAsciiLetter(normalizedType[0])
+            || normalizedType.Any(character => !char.IsAsciiLetterOrDigit(character) && character != '-'))
+            throw new FormatException("Type must start with a letter and contain only letters, digits, or hyphens.");
 
         var normalizedScope = (scope ?? string.Empty).Trim();
         if (normalizedScope.Any(character => char.IsWhiteSpace(character) || character is '(' or ')'))
