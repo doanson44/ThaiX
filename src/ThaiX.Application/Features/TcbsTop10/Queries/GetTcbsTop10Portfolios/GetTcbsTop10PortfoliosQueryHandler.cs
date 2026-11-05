@@ -23,8 +23,9 @@ public sealed class GetTcbsTop10PortfoliosQueryHandler
             .AsNoTracking()
             .AsSplitQuery()
             .Include(p => p.Tickers)
-            .Include(p => p.Images)
+            .Include(p => p.Attachments)
             .OrderByDescending(p => p.PostedAt)
+            .ThenByDescending(p => p.CreatedAt)
             .ToListAsync(cancellationToken);
 
         var portfolios = portfolioEntities
@@ -44,16 +45,26 @@ public sealed class GetTcbsTop10PortfoliosQueryHandler
                     .OrderBy(t => t.Ticker)
                     .Select(t => t.Ticker)
                     .ToList(),
-                Images = p.Images
-                    .OrderBy(i => i.ImageType)
-                    .Select(i => new TcbsTop10ImageDto
+                Attachments = p.Attachments
+                    .OrderBy(a => a.Kind)
+                    .ThenBy(a => a.ImageType)
+                    .Select(a => new TcbsTop10AttachmentDto
                     {
-                        ImageType = (int)i.ImageType,
-                        FileGuid = i.FileGuid
+                        Kind = (int)a.Kind,
+                        ImageType = a.ImageType.HasValue ? (int)a.ImageType.Value : null,
+                        FileGuid = a.FileGuid,
+                        Url = a.Url
                     })
                     .ToList()
             })
             .ToList();
+
+        var top10Ids = portfolioEntities
+            .Where(p => p.Source == TcbsPortfolioSource.IWealthClub)
+            .Select(p => p.Id)
+            .ToHashSet();
+
+        var top10Portfolios = portfolios.Where(p => top10Ids.Contains(p.Id)).ToList();
 
         // Derive current holdings by replaying Add/Remove events newest-first (DESC).
         // A ticker is currently held if it appears in AddedTickers of some entry
@@ -61,7 +72,7 @@ public sealed class GetTcbsTop10PortfoliosQueryHandler
         // Stop once 10 holdings are confirmed.
         var held = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var removed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var p in portfolios) // already sorted DESC by PostedAt
+        foreach (var p in top10Portfolios) // already sorted DESC by PostedAt
         {
             foreach (var ticker in p.RemovedTickers)
                 removed.Add(ticker);
@@ -80,7 +91,7 @@ public sealed class GetTcbsTop10PortfoliosQueryHandler
         {
             Portfolios = portfolios,
             CurrentHoldings = [.. held.OrderBy(t => t)],
-            AllTimeHoldings = [.. portfolios
+            AllTimeHoldings = [.. top10Portfolios
                 .SelectMany(p => p.AddedTickers)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(t => t)]

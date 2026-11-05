@@ -3798,27 +3798,39 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.ToTable("ResumeProfiles", (string)null);
                 });
 
-            modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Image", b =>
+            modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Attachment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("FileGuid")
+                    b.Property<Guid?>("FileGuid")
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("ImageType")
-                        .HasColumnType("int");
+                    b.Property<string>("ImageType")
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasDefaultValue("Image");
 
                     b.Property<Guid>("PortfolioId")
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PortfolioId", "ImageType")
                         .IsUnique();
 
-                    b.ToTable("TcbsTop10Images");
+                    b.ToTable("TcbsTop10Images", (string)null);
                 });
 
             modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Portfolio", b =>
@@ -3842,7 +3854,14 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp(6)")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)");
 
-                    b.Property<long>("SourceContentId")
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasDefaultValue("IWealthClub");
+
+                    b.Property<long?>("SourceContentId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -3853,6 +3872,8 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.HasIndex("SourceContentId")
                         .IsUnique();
 
+                    b.HasIndex("Source", "PostedAt");
+
                     b.ToTable("TcbsTop10Portfolios");
                 });
 
@@ -3862,8 +3883,10 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("ChangeType")
-                        .HasColumnType("int");
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)");
 
                     b.Property<Guid>("PortfolioId")
                         .HasColumnType("char(36)");
@@ -4735,10 +4758,10 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Image", b =>
+            modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Attachment", b =>
                 {
                     b.HasOne("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Portfolio", "Portfolio")
-                        .WithMany("Images")
+                        .WithMany("Attachments")
                         .HasForeignKey("PortfolioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -4844,7 +4867,7 @@ namespace ThaiX.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("ThaiX.Domain.Aggregates.TcbsTop10.TcbsTop10Portfolio", b =>
                 {
-                    b.Navigation("Images");
+                    b.Navigation("Attachments");
 
                     b.Navigation("Tickers");
                 });

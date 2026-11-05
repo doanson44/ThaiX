@@ -688,9 +688,9 @@ internal static class DemoDataGenerators
                 EffectiveDate = DateOnly.FromDateTime(f.Date.Past(1)),
                 AddedTickers = [f.PickRandom("VNM", "FPT", "HPG"), f.PickRandom("VCB", "MWG")],
                 RemovedTickers = [f.PickRandom("GAS", "MSN")],
-                Images =
+                Attachments =
                 [
-                    new TcbsTop10ImageDto { ImageType = 1, FileGuid = f.Random.Guid() }
+                    new TcbsTop10AttachmentDto { Kind = 0, ImageType = 1, FileGuid = f.Random.Guid() }
                 ]
             });
 

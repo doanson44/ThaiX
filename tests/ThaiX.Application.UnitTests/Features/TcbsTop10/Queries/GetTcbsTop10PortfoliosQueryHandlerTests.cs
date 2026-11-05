@@ -39,6 +39,8 @@ public sealed class GetTcbsTop10PortfoliosQueryHandlerTests
 
         result.Portfolios.Should().HaveCount(2);
         result.CurrentHoldings.Should().BeEquivalentTo(new[] { "B", "C", "D" }, options => options.WithStrictOrdering());
-        result.Portfolios.SelectMany(p => p.Images).Should().ContainSingle(i => i.ImageType == (int)TcbsPortfolioImageType.PortfolioDetail);
+        result.Portfolios.SelectMany(p => p.Attachments)
+            .Should().ContainSingle(a => a.Kind == (int)TcbsAttachmentKind.Image
+                && a.ImageType == (int)TcbsPortfolioImageType.PortfolioDetail);
     }
 }

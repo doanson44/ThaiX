@@ -6,14 +6,19 @@ services:
       dockerfile: src/ThaiX.Presentation/Dockerfile
     image: thaix-api:${TAG:-latest}
     container_name: thaix-api
+    init: true
+    ipc: host
     ports:
       - "${API_PORT:-5005}:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ConnectionStrings__DefaultConnection: "Server=mariadb;Port=3306;Database=thaix_db;User=root;Password=${DB_PASSWORD:-Abc12345};CharSet=utf8mb4;"
+      ConnectionStrings__HangfireConnection: "${HANGFIRE_CONNECTION:-Server=host.docker.internal,1433;Database=ThaiXHangfireDb;User Id=thaix_docker;Password=ThaiX!Docker2026;Encrypt=False;TrustServerCertificate=True;MultipleActiveResultSets=True}"
       Jwt__SecretKey: "${JWT_SECRET_KEY:-LOCAL_DEVELOPMENT_SECRET_KEY_32_CHARS_MINIMUM}"
       AllowedOrigins__0: "${CLIENT_BASE_URL:-http://localhost:5005}"
       ClientBaseUrl: "${CLIENT_BASE_URL:-http://localhost:5005}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       mariadb:
         condition: service_healthy

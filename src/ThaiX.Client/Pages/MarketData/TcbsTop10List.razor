@@ -105,20 +105,26 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="TcbsTop10PortfolioDto" Title="@L[RK.TcbsTop10.Images]" MinWidth="15rem" Sortable="false">
                         <Template Context="item">
-                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                            <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
                                 @foreach (var image in GetVisibleImages(item))
                                 {
                                     <button class="btn p-0 border-0 bg-transparent"
-                                            @onclick="@(() => OpenImagePreview(image.FileGuid))"
-                                            title="@GetImageLabel(image.ImageType)">
-                                        <SafeImage Src="@GetImageUrl(image.FileGuid)"
-                                                   Alt="@GetImageLabel(image.ImageType)"
+                                            @onclick="@(() => OpenImagePreview(image.FileGuid!.Value))"
+                                            title="@GetImageLabel(image.ImageType ?? -1)">
+                                        <SafeImage Src="@GetImageUrl(image.FileGuid!.Value)"
+                                                   Alt="@GetImageLabel(image.ImageType ?? -1)"
                                                    Class="img-thumbnail"
                                                    Width="64"
                                                    Height="48"
                                                    FallbackIcon="image"
                                                    FallbackClass="safe-image-fallback img-thumbnail" />
                                     </button>
+                                }
+                                @foreach (var pdf in GetPdfAttachments(item))
+                                {
+                                    <a href="@pdf.Url" target="_blank" rel="noopener" class="text-decoration-none" title="@pdf.Url">
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Danger" Variant="Variant.Outlined" Text="@GetPdfLabel(pdf)" />
+                                    </a>
                                 }
                             </RadzenStack>
                         </Template>
@@ -165,22 +171,29 @@
                             </div>
                         }
                         @{ var visibleImages = GetVisibleImages(portfolio).ToList(); }
-                        @if (visibleImages.Any())
+                        @{ var pdfAttachments = GetPdfAttachments(portfolio).ToList(); }
+                        @if (visibleImages.Any() || pdfAttachments.Any())
                         {
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap" Class="mt-1">
                                 @foreach (var image in visibleImages)
                                 {
                                     <button class="btn p-0 border-0 bg-transparent"
-                                            @onclick="@(() => OpenImagePreview(image.FileGuid))"
-                                            title="@GetImageLabel(image.ImageType)">
-                                        <SafeImage Src="@GetImageUrl(image.FileGuid)"
-                                                   Alt="@GetImageLabel(image.ImageType)"
+                                            @onclick="@(() => OpenImagePreview(image.FileGuid!.Value))"
+                                            title="@GetImageLabel(image.ImageType ?? -1)">
+                                        <SafeImage Src="@GetImageUrl(image.FileGuid!.Value)"
+                                                   Alt="@GetImageLabel(image.ImageType ?? -1)"
                                                    Class="img-thumbnail"
                                                    Width="80"
                                                    Height="60"
                                                    FallbackIcon="image"
                                                    FallbackClass="safe-image-fallback img-thumbnail" />
                                     </button>
+                                }
+                                @foreach (var pdf in pdfAttachments)
+                                {
+                                    <a href="@pdf.Url" target="_blank" rel="noopener" class="text-decoration-none" title="@pdf.Url">
+                                        <RadzenBadge BadgeStyle="BadgeStyle.Danger" Variant="Variant.Outlined" Text="@GetPdfLabel(pdf)" />
+                                    </a>
                                 }
                             </RadzenStack>
                         }
@@ -278,8 +291,14 @@
             ? DemoImageUrls.Chart(fileGuid.ToString("N"))
             : $"https://iwealthclub.example.invalid/file/file/download?guid={fileGuid}";
 
-    private IEnumerable<TcbsTop10ImageDto> GetVisibleImages(TcbsTop10PortfolioDto portfolio) =>
-        portfolio.Images.OrderBy(i => i.ImageType);
+    private IEnumerable<TcbsTop10AttachmentDto> GetVisibleImages(TcbsTop10PortfolioDto portfolio) =>
+        portfolio.Attachments.Where(a => a.Kind == 0).OrderBy(a => a.ImageType);
+
+    private IEnumerable<TcbsTop10AttachmentDto> GetPdfAttachments(TcbsTop10PortfolioDto portfolio) =>
+        portfolio.Attachments.Where(a => a.Kind == 1).OrderBy(a => a.Url, StringComparer.Ordinal);
+
+    private static string GetPdfLabel(TcbsTop10AttachmentDto attachment) =>
+        System.IO.Path.GetFileNameWithoutExtension(attachment.Url ?? string.Empty);
 
     private void OpenImagePreview(Guid fileGuid)
     {

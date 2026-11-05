@@ -17,6 +17,7 @@
     <PackageReference Include="Hangfire.SqlServer" />
     <PackageReference Include="MySqlConnector" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Playwright" />
     <PackageReference Include="MySql.EntityFrameworkCore" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Polly.Core" />
