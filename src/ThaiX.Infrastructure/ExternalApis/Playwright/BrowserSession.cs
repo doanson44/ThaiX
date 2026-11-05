@@ -48,62 +48,98 @@ public sealed class BrowserSession : IAsyncDisposable
 
         try
         {
-            var browser = await EnsureBrowserAsync(cancellationToken);
-            var context = await browser.NewContextAsync(new BrowserNewContextOptions
-            {
-                Locale = _options.Locale,
-                UserAgent = string.IsNullOrWhiteSpace(_options.UserAgent) ? null : _options.UserAgent,
-                ExtraHTTPHeaders = string.IsNullOrWhiteSpace(_options.AcceptLanguage)
-                    ? null
-                    : new Dictionary<string, string> { ["Accept-Language"] = _options.AcceptLanguage }
-            });
+            const int maxAttempts = 2;
 
-            try
+            for (var attempt = 1; ; attempt++)
             {
-                var page = await context.NewPageAsync();
+                var isLastAttempt = attempt >= maxAttempts;
 
-                var response = await page.GotoAsync(url, new PageGotoOptions
+                var browser = await EnsureBrowserAsync(cancellationToken);
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions
                 {
-                    WaitUntil = WaitUntilState.DOMContentLoaded,
-                    Timeout = ResolveNavigationTimeoutMs(timeoutSeconds)
+                    Locale = _options.Locale,
+                    UserAgent = string.IsNullOrWhiteSpace(_options.UserAgent) ? null : _options.UserAgent,
+                    ExtraHTTPHeaders = string.IsNullOrWhiteSpace(_options.AcceptLanguage)
+                        ? null
+                        : new Dictionary<string, string> { ["Accept-Language"] = _options.AcceptLanguage }
                 });
 
-                if (response is null || !response.Ok)
+                try
                 {
-                    throw new InvalidOperationException(
-                        $"Browser navigation failed for '{url}'. Status={response?.Status.ToString() ?? "none"}. " +
-                        "A 403 here means the bot challenge was not passed (check ExternalApis:Browser:UserAgent/Channel).");
-                }
+                    var page = await context.NewPageAsync();
 
-                if (!string.IsNullOrWhiteSpace(waitForSelector))
-                {
-                    try
+                    var response = await page.GotoAsync(url, new PageGotoOptions
                     {
-                        await page.WaitForSelectorAsync(waitForSelector, new PageWaitForSelectorOptions
+                        WaitUntil = WaitUntilState.DOMContentLoaded,
+                        Timeout = ResolveNavigationTimeoutMs(timeoutSeconds)
+                    });
+
+                    if (response is null || !response.Ok)
+                    {
+                        throw new InvalidOperationException(
+                            $"Browser navigation failed for '{url}'. Status={response?.Status.ToString() ?? "none"}. " +
+                            "A 403 here means the bot challenge was not passed (check ExternalApis:Browser:UserAgent/Channel).");
+                    }
+
+                    var selectorTimedOut = false;
+
+                    if (!string.IsNullOrWhiteSpace(waitForSelector))
+                    {
+                        try
                         {
-                            Timeout = Math.Max(1, _options.WaitForSelectorTimeoutSeconds) * 1000
-                        });
+                            await page.WaitForSelectorAsync(waitForSelector, new PageWaitForSelectorOptions
+                            {
+                                State = WaitForSelectorState.Attached,
+                                Timeout = Math.Max(1, _options.WaitForSelectorTimeoutSeconds) * 1000
+                            });
+                        }
+                        catch (Exception ex) when (ex is System.TimeoutException or PlaywrightException)
+                        {
+                            selectorTimedOut = true;
+                            _logger.LogWarning(
+                                "Browser wait for selector '{Selector}' did not complete (attempt {Attempt}/{MaxAttempts}). Url={Url}, Reason={Reason}",
+                                waitForSelector, attempt, maxAttempts, url, ex.Message);
+                        }
                     }
-                    catch (PlaywrightException ex)
+
+                    var html = await page.ContentAsync();
+
+                    if (IsChallengePage(html))
                     {
-                        _logger.LogWarning(ex, "Browser wait for selector '{Selector}' timed out. Url={Url}", waitForSelector, url);
+                        if (!isLastAttempt)
+                        {
+                            _logger.LogWarning(
+                                "Browser received a bot challenge page (attempt {Attempt}/{MaxAttempts}). Url={Url}, Title='{Title}', Length={Length}",
+                                attempt, maxAttempts, url, ExtractTitle(html), html.Length);
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                $"Browser received a bot challenge page for '{url}'. Status={response.Status}, Title='{ExtractTitle(html)}', Length={html.Length}. " +
+                                "Configure ExternalApis:Browser:UserAgent or Channel (for example 'msedge').");
+                        }
                     }
+                    else if (!selectorTimedOut)
+                    {
+                        return html;
+                    }
+                    else if (isLastAttempt)
+                    {
+                        _logger.LogWarning(
+                            "Browser selector '{Selector}' never appeared, returning the rendered HTML. Url={Url}, Title='{Title}', Length={Length}",
+                            waitForSelector, url, ExtractTitle(html), html.Length);
+                        return html;
+                    }
+
+                    _logger.LogInformation(
+                        "Retrying browser fetch. Url={Url}, NextAttempt={Attempt}/{MaxAttempts}", url, attempt + 1, maxAttempts);
                 }
-
-                var html = await page.ContentAsync();
-
-                if (IsChallengePage(html))
+                finally
                 {
-                    throw new InvalidOperationException(
-                        $"Browser received a bot challenge page for '{url}'. Status={response.Status}, Title='{ExtractTitle(html)}', Length={html.Length}. " +
-                        "Configure ExternalApis:Browser:UserAgent or Channel (for example 'msedge').");
+                    await context.CloseAsync();
                 }
 
-                return html;
-            }
-            finally
-            {
-                await context.CloseAsync();
+                await Task.Delay(TimeSpan.FromSeconds(3), cancellationToken);
             }
         }
         finally
