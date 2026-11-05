@@ -2014,6 +2014,15 @@ public static class ResourceKeys
             public const string Build = "Tools.Action.Build";
         }
 
+        public static class JwtDecoder
+        {
+            public const string Header = "Tools.JwtDecoder.Header";
+            public const string Payload = "Tools.JwtDecoder.Payload";
+            public const string UnverifiedWarning = "Tools.JwtDecoder.UnverifiedWarning";
+            public const string SignaturePresent = "Tools.JwtDecoder.SignaturePresent";
+            public const string SignatureMissing = "Tools.JwtDecoder.SignatureMissing";
+        }
+
         public static class Qr
         {
             public const string Generated = "Tools.Qr.Generated";
