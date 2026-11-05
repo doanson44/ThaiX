@@ -462,7 +462,7 @@ else
         "json-formatter" => [("pretty", L[RK.Tools.Action.Pretty].Value, "auto_fix"), ("minify", L[RK.Tools.Action.Minify].Value, "compress"), ("validate", L[RK.Tools.Action.Validate].Value, "check")],
         "json-compare" => [("compare", L[RK.Tools.Action.Compare].Value, "compare")],
         "jwt-decoder" => [("decode", L[RK.Tools.Action.Decode].Value, "key")],
-        "base64" => [("b64e", L[RK.Tools.Action.Encode].Value, "lock"), ("b64d", L[RK.Tools.Action.Decode].Value, "lock_open")],
+        "base64" => [("b64e", L[RK.Tools.Action.Encode].Value, "lock"), ("b64d", L[RK.Tools.Action.Decode].Value, "lock_open"), ("b64ue", L[RK.Tools.Action.EncodeBase64Url].Value, "link"), ("b64ud", L[RK.Tools.Action.DecodeBase64Url].Value, "link_off")],
         "url-codec" => [("urle", L[RK.Tools.Action.Encode].Value, "link"), ("urld", L[RK.Tools.Action.Decode].Value, "link_off")],
         "sha256" => [("sha", L[RK.Tools.Action.Hash].Value, "fingerprint")],
         "uuid" => [("uuid", L[RK.Tools.Action.Generate].Value, "add")],
@@ -512,6 +512,8 @@ else
                 case "decode": _state.Output = EncodeToolTransforms.DecodeJwt(_state.Input); break;
                 case "b64e": _state.Output = EncodeToolTransforms.Base64Encode(_state.Input); break;
                 case "b64d": _state.Output = EncodeToolTransforms.Base64Decode(_state.Input); break;
+                case "b64ue": _state.Output = EncodeToolTransforms.Base64UrlEncode(_state.Input); break;
+                case "b64ud": _state.Output = EncodeToolTransforms.Base64UrlDecodeText(_state.Input); break;
                 case "urle": _state.Output = EncodeToolTransforms.UrlEncode(_state.Input); break;
                 case "urld": _state.Output = EncodeToolTransforms.UrlDecode(_state.Input); break;
                 case "sha": _state.Output = EncodeToolTransforms.Sha256Hex(_state.Input); break;
