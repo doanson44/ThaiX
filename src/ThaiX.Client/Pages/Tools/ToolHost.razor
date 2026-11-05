@@ -556,7 +556,15 @@ else
                     _inputValid = true;
                     break;
                 case "compare": _state.Output = JsonToolTransforms.Compare(_state.Input, _state.Input2); break;
-                case "decode": _state.Output = EncodeToolTransforms.DecodeJwt(_state.Input); break;
+                case "decode":
+                    _state.Output = EncodeToolTransforms.DecodeJwt(
+                        _state.Input,
+                        L[RK.Tools.JwtDecoder.UnverifiedWarning].Value,
+                        L[RK.Tools.JwtDecoder.Header].Value,
+                        L[RK.Tools.JwtDecoder.Payload].Value,
+                        L[RK.Tools.JwtDecoder.SignaturePresent].Value,
+                        L[RK.Tools.JwtDecoder.SignatureMissing].Value);
+                    break;
                 case "b64e": _state.Output = EncodeToolTransforms.Base64Encode(_state.Input); break;
                 case "b64d": _state.Output = EncodeToolTransforms.Base64Decode(_state.Input); break;
                 case "b64ue": _state.Output = EncodeToolTransforms.Base64UrlEncode(_state.Input); break;
