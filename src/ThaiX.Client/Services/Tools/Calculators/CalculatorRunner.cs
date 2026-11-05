@@ -15,7 +15,7 @@ public static class CalculatorRunner
                 D(fields, "entry"), D(fields, "stopLoss"), D(fields, "takeProfit"), Side(fields)),
             "futures-pnl" => TradingCalculators.FuturesPnl(
                 D(fields, "entry"), D(fields, "exit"), D(fields, "size"), D(fields, "leverage"), Side(fields),
-                FeePct(fields, "openFeePct"), FeePct(fields, "closeFeePct")),
+                FeePct(fields, "openFeePct"), FeePct(fields, "closeFeePct"), D(fields, "slippagePct", 0m)),
             "liquidation" => TradingCalculators.Liquidation(
                 D(fields, "entry"), D(fields, "leverage"), Side(fields), D(fields, "mmrPct")),
             "average-entry" => TradingCalculators.AverageEntry(ParsePairs(fields, "legs", priceKey: true)),
