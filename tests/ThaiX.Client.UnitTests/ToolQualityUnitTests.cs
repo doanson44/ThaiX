@@ -957,6 +957,39 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void FuturesPnl_WithContractSize_ShouldScaleBaseQuantityAndPnl()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.FuturesPnl(
+            100m, 110m, 2m, 10m, TradeSide.Long, 0m, 0m, 0m, 3m);
+
+        // Assert
+        Assert.Equal("60", result.Breakdown[0].Value);
+        Assert.Equal("3", result.Breakdown[1].Value);
+        Assert.Equal("6", result.Breakdown[2].Value);
+    }
+
+    [Fact]
+    public void Liquidation_ForLongLinearIsolatedPosition_ShouldUseMaintenanceMarginDenominator()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Liquidation(100m, 10m, TradeSide.Long, 0.5m);
+
+        // Assert
+        Assert.Equal("90.45226131", result.Breakdown[0].Value);
+    }
+
+    [Fact]
+    public void Liquidation_ForShortLinearIsolatedPosition_ShouldUseMaintenanceMarginDenominator()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Liquidation(100m, 10m, TradeSide.Short, 0.5m);
+
+        // Assert
+        Assert.Equal("109.45273632", result.Breakdown[0].Value);
+    }
+
+    [Fact]
     public void PositionSize_WithFeesAndSlippage_ShouldReducePositionQuantity()
     {
         // Arrange
