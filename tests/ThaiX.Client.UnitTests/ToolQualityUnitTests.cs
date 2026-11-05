@@ -665,6 +665,33 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void GetNextCronOccurrences_WithNamedMonthAndWeekdays_ShouldReturnExpectedDates()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 12, 31, 0, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var next = GeneratorToolTransforms.GetNextCronOccurrences("0 9 * JAN MON-FRI", fromUtc, 2);
+
+        // Assert
+        Assert.Equal(new DateTimeOffset(2027, 1, 1, 9, 0, 0, TimeSpan.Zero), next[0]);
+        Assert.Equal(new DateTimeOffset(2027, 1, 4, 9, 0, 0, TimeSpan.Zero), next[1]);
+    }
+
+    [Fact]
+    public void GetNextCronOccurrences_WithLeapDayAlias_ShouldFindNextLeapYear()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var next = GeneratorToolTransforms.GetNextCronOccurrences("0 0 29 FEB *", fromUtc, 1);
+
+        // Assert
+        Assert.Equal(new DateTimeOffset(2028, 2, 29, 0, 0, 0, TimeSpan.Zero), next[0]);
+    }
+
+    [Fact]
     public void DescribeCron_WithLocalizedLabels_ShouldUseProvidedHeadings()
     {
         // Arrange
