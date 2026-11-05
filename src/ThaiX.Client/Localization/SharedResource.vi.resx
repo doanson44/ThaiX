@@ -1505,6 +1505,7 @@
   <data name="Menu.Tools" xml:space="preserve"><value>Công cụ</value></data>
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Công cụ</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Tiện ích lập trình và máy tính giao dịch/rủi ro/crypto chạy trên trình duyệt. Bản nháp lưu cục bộ; một số công cụ có thể Lưu/Chia sẻ qua JSON Bin khi đăng nhập.</value></data>
+  <data name="Tools.LastUsed" xml:space="preserve"><value>Đã sử dụng gần đây</value></data>
   <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Tìm công cụ…</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Lưu</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Chia sẻ</value></data>
