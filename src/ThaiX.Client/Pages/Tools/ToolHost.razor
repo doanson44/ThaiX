@@ -586,7 +586,10 @@ else
 
     private string FormatToolIssue(Exception ex) => ex switch
     {
+        JsonException json when json.LineNumber is long line && json.BytePositionInLine is long column =>
+            L[RK.Tools.ValidationJsonPosition, line + 1, column + 1],
         JsonException => L[RK.Tools.ValidationJson],
+        CalculatorInputException => L[RK.Tools.ValidationFormat],
         FormatException or ArgumentException => L[RK.Tools.ValidationFormat],
         JSException => L[RK.Tools.ValidationBrowser],
         InvalidOperationException or NotSupportedException => L[RK.Tools.ValidationOperation],
