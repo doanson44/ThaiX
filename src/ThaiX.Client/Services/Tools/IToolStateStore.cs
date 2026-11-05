@@ -12,6 +12,12 @@ public interface IToolStateStore
 
     Task RecordLastUsedAsync(ToolDefinition tool, CancellationToken cancellationToken = default);
 
+    Task ClearLastUsedAsync(CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ToolDefinition>> GetFavoriteToolsAsync(CancellationToken cancellationToken = default);
+
+    Task<bool> ToggleFavoriteAsync(ToolDefinition tool, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Persists the tool draft using the active storage policy (cloud when eligible, otherwise browser).
     /// </summary>
