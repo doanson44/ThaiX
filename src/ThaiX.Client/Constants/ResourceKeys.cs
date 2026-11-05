@@ -2541,6 +2541,7 @@ public static class ResourceKeys
             public const string Trough = "Calc.Field.Trough";
             public const string EquitySeries = "Calc.Field.EquitySeries";
             public const string LossPct = "Calc.Field.LossPct";
+            public const string LossScenarios = "Calc.Field.LossScenarios";
             public const string AvgWin = "Calc.Field.AvgWin";
             public const string AvgLoss = "Calc.Field.AvgLoss";
             public const string PayoffRatio = "Calc.Field.PayoffRatio";
@@ -2573,6 +2574,7 @@ public static class ResourceKeys
             public const string UnrealizedPnl = "Calc.Result.UnrealizedPnl";
             public const string GrossProfit = "Calc.Result.GrossProfit";
             public const string NetRisk = "Calc.Result.NetRisk";
+            public const string LossPct = "Calc.Result.LossPct";
         }
 
         public static class Placeholder
@@ -2580,6 +2582,7 @@ public static class ResourceKeys
             public const string LegsPriceQty = "Calc.Placeholder.LegsPriceQty";
             public const string LegsPriceAmount = "Calc.Placeholder.LegsPriceAmount";
             public const string EquitySeries = "Calc.Placeholder.EquitySeries";
+            public const string LossScenarios = "Calc.Placeholder.LossScenarios";
             public const string TargetMcapScenarios = "Calc.Placeholder.TargetMcapScenarios";
         }
     }
