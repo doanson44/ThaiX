@@ -234,7 +234,7 @@ Do not add trailers that are unsupported by the repository workflow.
 These rules are single-source and must be synchronized to all agent runtimes.
 
 - `docs/` is reserved for project/product documentation only.
-- AI agent docs, workflows, prompts, and maintenance guides must live under `.github/` only.
+- Canonical shared agent skills and rules live under `.agents/`; Copilot-specific instructions, prompts, and runtime mirrors live under `.github/`.
 - Agent asset changes must follow `.github/AGENT_SYNC_POLICY.md` and keep `.agents`, `.github`, `.cursor`, `.trae`, and `.continue` synchronized where the asset type exists.
 - Never create/update agent-operation documents under `docs/`.
 <!-- AGENT_SHARED_RULES:END -->
