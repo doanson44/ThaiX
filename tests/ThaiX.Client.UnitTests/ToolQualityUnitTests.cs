@@ -42,6 +42,34 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void YamlToJson_WithMalformedFlowSequence_ShouldReportSourcePosition()
+    {
+        // Arrange
+        const string yaml = "items: [one, two";
+
+        // Act
+        var act = () => ConvertToolTransforms.YamlToJson(yaml);
+
+        // Assert
+        var exception = Assert.Throws<YamlDotNet.Core.YamlException>(act);
+        Assert.Contains("Line:", exception.Message, StringComparison.Ordinal);
+        Assert.Contains("Col:", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FormatXml_WithSignificantTextWhitespace_ShouldPreserveIt()
+    {
+        // Arrange
+        const string xml = "<root><item> value </item></root>";
+
+        // Act
+        var formatted = ConvertToolTransforms.FormatXml(xml);
+
+        // Assert
+        Assert.Contains("<item> value </item>", formatted, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void CsvToJson_WithQuotedCommaAndEscapedQuote_ShouldPreserveValues()
     {
         // Arrange
