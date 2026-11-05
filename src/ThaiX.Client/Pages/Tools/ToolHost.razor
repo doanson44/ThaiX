@@ -594,7 +594,17 @@ else
                 case "re": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, null, ignoreCase: _state.Flag); break;
                 case "reReplace": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, _state.Option, ignoreCase: _state.Flag); break;
                 case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
-                case "pws": _state.Output = GeneratorToolTransforms.PasswordStrength(_state.Input); break;
+                case "pws":
+                    _state.Output = GeneratorToolTransforms.PasswordStrength(
+                        _state.Input,
+                        L[RK.Tools.PasswordStrength.Score].Value,
+                        L[RK.Tools.PasswordStrength.Weak].Value,
+                        L[RK.Tools.PasswordStrength.Fair].Value,
+                        L[RK.Tools.PasswordStrength.Good].Value,
+                        L[RK.Tools.PasswordStrength.Strong].Value,
+                        L[RK.Tools.PasswordStrength.Length].Value,
+                        L[RK.Tools.PasswordStrength.Disclaimer].Value);
+                    break;
                 case "cron":
                     _state.Output = GeneratorToolTransforms.DescribeCron(_state.Option);
                     break;
