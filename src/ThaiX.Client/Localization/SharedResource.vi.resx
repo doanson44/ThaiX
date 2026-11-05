@@ -2153,4 +2153,6 @@
   <data name="Tools.JwtDecoder.UnverifiedWarning" xml:space="preserve"><value>CHƯA XÁC MINH: chữ ký chưa được kiểm tra. Không tin cậy các claims.</value></data>
   <data name="Tools.JwtDecoder.SignaturePresent" xml:space="preserve"><value>Có chữ ký (chưa xác minh).</value></data>
   <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Không có chữ ký.</value></data>
+  <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Mã hóa thành phần URL</value></data>
+  <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Giải mã thành phần URL</value></data>
 </root>
