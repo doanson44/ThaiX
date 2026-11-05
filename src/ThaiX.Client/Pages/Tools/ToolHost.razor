@@ -167,6 +167,28 @@ else
             @if (NeedsOptions())
             {
                 <RadzenRow Gap="1rem" RowGap="0.5rem" Class="mb-2">
+                    @if (SlugEquals("qr"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.ErrorCorrection]" Class="w-100">
+                                <RadzenDropDown TValue="string"
+                                                Data="@QrErrorCorrectionOptions"
+                                                Value="@(string.IsNullOrWhiteSpace(_state.Option) ? "medium" : _state.Option)"
+                                                ValueChanged="OnOptionChanged"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.QuietZone]" Class="w-100">
+                                <RadzenNumeric TValue="int"
+                                               Value="@_state.Number"
+                                               ValueChanged="@((int value) => OnNumberChanged(value))"
+                                               Min="0" Max="16"
+                                               Class="w-100"
+                                               aria-label="@L[RK.Tools.FieldLabel.QuietZone]" />
+                            </RadzenFormField>
+                        </RadzenColumn>
+                    }
                     @if (SlugEquals("regex"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
@@ -284,6 +306,7 @@ else
 
 @code {
     private static readonly string[] UuidFormats = ["D", "N", "B", "P", "X"];
+    private static readonly string[] QrErrorCorrectionOptions = ["low", "medium", "quartile", "high"];
 
     [Parameter] public string Slug { get; set; } = string.Empty;
 
@@ -457,7 +480,7 @@ else
     private bool NeedsOptions() =>
         SlugEquals("uuid") || SlugEquals("password-generator")
         || SlugEquals("curl") || SlugEquals("conventional-commit")
-        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex");
+        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex") || SlugEquals("qr");
 
     private string LeftLabel() => Slug.ToLowerInvariant() switch
     {
@@ -576,7 +599,7 @@ else
                     _state.Output = GeneratorToolTransforms.DescribeCron(_state.Option);
                     break;
                 case "qr":
-                    _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input);
+                    _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input, _state.Number, _state.Option);
                     _state.Output = "QR generated.";
                     break;
                 case "curl":
