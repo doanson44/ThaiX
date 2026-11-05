@@ -433,6 +433,9 @@ public static class TradingCalculators
             throw new CalculatorInputException("Provide target %, or target R:R together with stop loss.");
         }
 
+        if (targetPrice <= 0)
+            throw new CalculatorInputException("Computed take-profit price must be greater than zero.");
+
         var fee = feePct / 100m;
         var slippage = slippagePct / 100m;
         var effectiveEntry = side == TradeSide.Long
