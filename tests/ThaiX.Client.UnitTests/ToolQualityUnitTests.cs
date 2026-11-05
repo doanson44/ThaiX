@@ -1047,6 +1047,39 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void Funding_WithFractionalPeriodCount_ShouldThrow()
+    {
+        // Arrange
+        var fields = new Dictionary<string, string>
+        {
+            ["notional"] = "1000",
+            ["ratePct"] = "0.01",
+            ["periods"] = "1.5",
+            ["side"] = "long"
+        };
+
+        // Act
+        var act = () => CalculatorRunner.Run("funding", fields);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void MaxDrawdownFromSeries_WithRecoveredTrough_ShouldReportRecoveryPeriods()
+    {
+        // Arrange
+        decimal[] equity = [100m, 80m, 90m, 100m];
+
+        // Act
+        var result = RiskCalculators.MaxDrawdownFromSeries(equity);
+
+        // Assert
+        Assert.Contains(result.Breakdown, line =>
+            line.LabelKey == "Calc.Result.TroughToRecoveryPeriods" && line.Value == "2");
+    }
+
+    [Fact]
     public void Funding_WithNegativeRate_ShouldReverseLongCashflowSign()
     {
         // Arrange / Act
