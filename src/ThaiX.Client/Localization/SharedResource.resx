@@ -2248,4 +2248,6 @@
   <data name="Tools.FieldLabel.IgnoreWhitespace" xml:space="preserve"><value>Ignore whitespace</value></data>
   <data name="Tools.FieldLabel.Multiline" xml:space="preserve"><value>Multiline</value></data>
   <data name="Tools.FieldLabel.Singleline" xml:space="preserve"><value>Singleline</value></data>
+  <data name="Tools.FieldHelp.Multiline" xml:space="preserve"><value>^ and $ match the start and end of each line.</value></data>
+  <data name="Tools.FieldHelp.Singleline" xml:space="preserve"><value>The dot (.) also matches newline characters.</value></data>
 </root>
