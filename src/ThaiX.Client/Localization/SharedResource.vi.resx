@@ -1793,7 +1793,8 @@
   <data name="Calc.Result.RandomSeed" xml:space="preserve"><value>Seed ngẫu nhiên</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Drawdown tối đa %</value></data>
-  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Phục hồi %</value></data>
+  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Tỷ lệ phục hồi cần thiết %</value></data>
+  <data name="Calc.Result.LossPct" xml:space="preserve"><value>Kịch bản mức lỗ %</value></data>
   <data name="Calc.Result.Expectancy" xml:space="preserve"><value>Kỳ vọng</value></data>
   <data name="Calc.Result.KellyFull" xml:space="preserve"><value>Kelly đầy đủ %</value></data>
   <data name="Calc.Result.KellyHalf" xml:space="preserve"><value>Nửa Kelly %</value></data>
