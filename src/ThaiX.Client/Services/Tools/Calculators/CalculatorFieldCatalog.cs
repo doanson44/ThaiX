@@ -180,7 +180,8 @@ public static class CalculatorFieldCatalog
             ],
             "loss-recovery" =>
             [
-                Num("lossPct", RK.Calc.Field.LossPct, "20")
+                Num("lossPct", RK.Calc.Field.LossPct, "20"),
+                Text("lossScenarios", RK.Calc.Field.LossScenarios, RK.Calc.Placeholder.LossScenarios)
             ],
             "expectancy" =>
             [
