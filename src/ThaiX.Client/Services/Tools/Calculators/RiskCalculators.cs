@@ -93,8 +93,8 @@ public static class RiskCalculators
     {
         if (equity.Count < 2)
             throw new CalculatorInputException("Provide at least two equity points.");
-        if (equity.Any(value => value <= 0))
-            throw new CalculatorInputException("Equity series values must be greater than zero.");
+        if (equity.Any(value => value < 0))
+            throw new CalculatorInputException("Equity series values cannot be negative.");
 
         var runningPeak = equity[0];
         var runningPeakIndex = 0;
@@ -121,7 +121,7 @@ public static class RiskCalculators
             }
 
             var drawdown = runningPeak - value;
-            var drawdownPct = drawdown / runningPeak * 100m;
+            var drawdownPct = runningPeak == 0m ? 0m : drawdown / runningPeak * 100m;
 
             if (drawdown > maxAbsoluteDrawdown)
             {
