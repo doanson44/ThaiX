@@ -10,7 +10,7 @@ public static class CalculatorRunner
         slug.ToLowerInvariant() switch
         {
             "position-size" => TradingCalculators.PositionSize(
-                D(fields, "account"), D(fields, "riskPct"), D(fields, "entry"), D(fields, "stopLoss")),
+                D(fields, "account"), D(fields, "riskPct"), D(fields, "entry"), D(fields, "stopLoss"), Side(fields)),
             "risk-reward" => TradingCalculators.RiskReward(
                 D(fields, "entry"), D(fields, "stopLoss"), D(fields, "takeProfit"), Side(fields)),
             "futures-pnl" => TradingCalculators.FuturesPnl(
