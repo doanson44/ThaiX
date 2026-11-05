@@ -6,6 +6,20 @@ namespace ThaiX.Client.Services.Tools.Transforms;
 
 public static class GeneratorToolTransforms
 {
+    private static readonly IReadOnlyDictionary<string, int> CronMonthAliases =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["JAN"] = 1, ["FEB"] = 2, ["MAR"] = 3, ["APR"] = 4,
+            ["MAY"] = 5, ["JUN"] = 6, ["JUL"] = 7, ["AUG"] = 8,
+            ["SEP"] = 9, ["OCT"] = 10, ["NOV"] = 11, ["DEC"] = 12
+        };
+
+    private static readonly IReadOnlyDictionary<string, int> CronWeekdayAliases =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["SUN"] = 0, ["MON"] = 1, ["TUE"] = 2, ["WED"] = 3,
+            ["THU"] = 4, ["FRI"] = 5, ["SAT"] = 6
+        };
     public static string GeneratePassword(int length, bool symbols)
     {
         length = Math.Clamp(length, 4, 128);
@@ -91,8 +105,8 @@ public static class GeneratorToolTransforms
         var minute = ParseCronField(parts[0], 0, 59);
         var hour = ParseCronField(parts[1], 0, 23);
         var dayOfMonth = ParseCronField(parts[2], 1, 31);
-        var month = ParseCronField(parts[3], 1, 12);
-        var dayOfWeek = ParseCronField(parts[4], 0, 7, normalizeSunday: true);
+        var month = ParseCronField(parts[3], 1, 12, aliases: CronMonthAliases);
+        var dayOfWeek = ParseCronField(parts[4], 0, 7, normalizeSunday: true, aliases: CronWeekdayAliases);
 
         var utc = fromUtc.ToUniversalTime();
         var startDate = utc.UtcDateTime.Date;
@@ -144,7 +158,12 @@ public static class GeneratorToolTransforms
 
     private sealed record CronField(HashSet<int> Values, bool IsWildcard);
 
-    private static CronField ParseCronField(string expression, int minimum, int maximum, bool normalizeSunday = false)
+    private static CronField ParseCronField(
+        string expression,
+        int minimum,
+        int maximum,
+        bool normalizeSunday = false,
+        IReadOnlyDictionary<string, int>? aliases = null)
     {
         if (string.IsNullOrWhiteSpace(expression))
             throw new FormatException("Cron fields cannot be empty.");
@@ -177,14 +196,14 @@ public static class GeneratorToolTransforms
                 var bounds = range.Split('-');
                 if (bounds.Length != 2)
                     throw new FormatException($"Invalid cron range: {range}");
-                start = ParseCronNumber(bounds[0], minimum, maximum);
-                end = ParseCronNumber(bounds[1], minimum, maximum);
+                start = ParseCronNumber(bounds[0], minimum, maximum, aliases);
+                end = ParseCronNumber(bounds[1], minimum, maximum, aliases);
                 if (start > end)
                     throw new FormatException($"Cron range start exceeds end: {range}");
             }
             else
             {
-                start = ParseCronNumber(range, minimum, maximum);
+                start = ParseCronNumber(range, minimum, maximum, aliases);
                 end = stepParts.Length == 2 ? maximum : start;
             }
 
@@ -198,14 +217,23 @@ public static class GeneratorToolTransforms
         return new CronField(values, expression == "*");
     }
 
-    private static int ParseCronNumber(string value, int minimum, int maximum)
+    private static int ParseCronNumber(
+        string value,
+        int minimum,
+        int maximum,
+        IReadOnlyDictionary<string, int>? aliases = null)
     {
-        if (!int.TryParse(value, System.Globalization.NumberStyles.None,
+        var parsed = aliases is not null && aliases.TryGetValue(value, out var alias)
+            ? alias
+            : int.TryParse(value, System.Globalization.NumberStyles.None,
                 System.Globalization.CultureInfo.InvariantCulture, out var number)
-            || number < minimum || number > maximum)
+                ? number
+                : -1;
+
+        if (parsed < minimum || parsed > maximum)
             throw new FormatException($"Cron value '{value}' must be between {minimum} and {maximum}.");
 
-        return number;
+        return parsed;
     }
 
     public static string QrSvg(string text, int border = 4, string errorCorrection = "medium")
