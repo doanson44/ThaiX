@@ -57,8 +57,123 @@ public static class GeneratorToolTransforms
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
         $"{minute} {hour} {dayOfMonth} {month} {dayOfWeek}";
 
-    public static string DescribeCron(string expression) =>
-        $"Cron: {expression}\n(Preview only — validate in your scheduler.)";
+    public static string DescribeCron(string expression, DateTimeOffset? fromUtc = null)
+    {
+        var occurrences = GetNextCronOccurrences(expression, fromUtc ?? DateTimeOffset.UtcNow);
+        var lines = occurrences.Select(value => value.ToString("yyyy-MM-dd HH:mm 'UTC'", System.Globalization.CultureInfo.InvariantCulture));
+        return $"Cron: {expression}\nNext runs (UTC):\n{string.Join("\n", lines)}";
+    }
+
+    public static IReadOnlyList<DateTimeOffset> GetNextCronOccurrences(
+        string expression,
+        DateTimeOffset fromUtc,
+        int count = 5)
+    {
+        if (count is < 1 or > 100)
+            throw new ArgumentOutOfRangeException(nameof(count));
+
+        var parts = (expression ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 5)
+            throw new FormatException("Cron expression must contain exactly five fields.");
+
+        var minute = ParseCronField(parts[0], 0, 59);
+        var hour = ParseCronField(parts[1], 0, 23);
+        var dayOfMonth = ParseCronField(parts[2], 1, 31);
+        var month = ParseCronField(parts[3], 1, 12);
+        var dayOfWeek = ParseCronField(parts[4], 0, 7, normalizeSunday: true);
+
+        var utc = fromUtc.ToUniversalTime();
+        var cursor = new DateTimeOffset(
+            utc.Year, utc.Month, utc.Day, utc.Hour, utc.Minute, 0, TimeSpan.Zero).AddMinutes(1);
+        var occurrences = new List<DateTimeOffset>(count);
+        var maxMinutes = 5 * 366 * 24 * 60;
+
+        for (var index = 0; index < maxMinutes && occurrences.Count < count; index++, cursor = cursor.AddMinutes(1))
+        {
+            var date = cursor.UtcDateTime;
+            if (!minute.Values.Contains(date.Minute)
+                || !hour.Values.Contains(date.Hour)
+                || !month.Values.Contains(date.Month))
+                continue;
+
+            var matchesDay = dayOfMonth.Values.Contains(date.Day);
+            var matchesWeekday = dayOfWeek.Values.Contains((int)date.DayOfWeek);
+            var matchesCalendarDay = dayOfMonth.IsWildcard && dayOfWeek.IsWildcard
+                || dayOfMonth.IsWildcard && matchesWeekday
+                || dayOfWeek.IsWildcard && matchesDay
+                || !dayOfMonth.IsWildcard && !dayOfWeek.IsWildcard && (matchesDay || matchesWeekday);
+
+            if (matchesCalendarDay)
+                occurrences.Add(cursor);
+        }
+
+        if (occurrences.Count != count)
+            throw new FormatException("Cron expression has no upcoming occurrence within five years.");
+
+        return occurrences;
+    }
+
+    private sealed record CronField(HashSet<int> Values, bool IsWildcard);
+
+    private static CronField ParseCronField(string expression, int minimum, int maximum, bool normalizeSunday = false)
+    {
+        if (string.IsNullOrWhiteSpace(expression))
+            throw new FormatException("Cron fields cannot be empty.");
+
+        var values = new HashSet<int>();
+        foreach (var item in expression.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var stepParts = item.Split('/');
+            if (stepParts.Length > 2)
+                throw new FormatException($"Invalid cron field: {expression}");
+
+            var step = stepParts.Length == 2
+                ? ParseCronNumber(stepParts[1], 1, maximum - minimum + 1)
+                : 1;
+            var range = stepParts[0];
+            int start;
+            int end;
+
+            if (range == "*")
+            {
+                start = minimum;
+                end = maximum;
+            }
+            else if (range.Contains('-', StringComparison.Ordinal))
+            {
+                var bounds = range.Split('-');
+                if (bounds.Length != 2)
+                    throw new FormatException($"Invalid cron range: {range}");
+                start = ParseCronNumber(bounds[0], minimum, maximum);
+                end = ParseCronNumber(bounds[1], minimum, maximum);
+                if (start > end)
+                    throw new FormatException($"Cron range start exceeds end: {range}");
+            }
+            else
+            {
+                start = ParseCronNumber(range, minimum, maximum);
+                end = stepParts.Length == 2 ? maximum : start;
+            }
+
+            for (var value = start; value <= end; value += step)
+                values.Add(normalizeSunday && value == 7 ? 0 : value);
+        }
+
+        if (values.Count == 0)
+            throw new FormatException($"Cron field has no values: {expression}");
+
+        return new CronField(values, expression == "*");
+    }
+
+    private static int ParseCronNumber(string value, int minimum, int maximum)
+    {
+        if (!int.TryParse(value, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var number)
+            || number < minimum || number > maximum)
+            throw new FormatException($"Cron value '{value}' must be between {minimum} and {maximum}.");
+
+        return number;
+    }
 
     public static string QrSvg(string text, int border = 2) =>
         QrCode.EncodeText(text ?? "", QrCode.Ecc.Medium).ToSvgString(border);
