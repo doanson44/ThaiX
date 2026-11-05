@@ -1515,7 +1515,7 @@
   <data name="Tools.ExportWorkspace" xml:space="preserve"><value>Export workspace</value></data>
   <data name="Tools.Fullscreen" xml:space="preserve"><value>Fullscreen</value></data>
   <data name="Tools.ExitFullscreen" xml:space="preserve"><value>Exit fullscreen</value></data>
-  <data name="Tools.RunShortcutHint" xml:space="preserve"><value>Ctrl+Enter to run</value></data>
+  <data name="Tools.RunShortcutHint" xml:space="preserve"><value>Ctrl/⌘+Enter to run</value></data>
   <data name="Tools.Import.Success" xml:space="preserve"><value>Workspace imported.</value></data>
   <data name="Tools.Import.Failed" xml:space="preserve"><value>Could not import workspace.</value></data>
   <data name="Tools.Export.Success" xml:space="preserve"><value>Workspace exported.</value></data>
