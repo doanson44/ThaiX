@@ -2014,6 +2014,17 @@ public static class ResourceKeys
             public const string Build = "Tools.Action.Build";
         }
 
+        public static class PasswordStrength
+        {
+            public const string Score = "Tools.PasswordStrength.Score";
+            public const string Weak = "Tools.PasswordStrength.Weak";
+            public const string Fair = "Tools.PasswordStrength.Fair";
+            public const string Good = "Tools.PasswordStrength.Good";
+            public const string Strong = "Tools.PasswordStrength.Strong";
+            public const string Length = "Tools.PasswordStrength.Length";
+            public const string Disclaimer = "Tools.PasswordStrength.Disclaimer";
+        }
+
         public static class FieldLabel
         {
             public const string InputText = "Tools.FieldLabel.InputText";
