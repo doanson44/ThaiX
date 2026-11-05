@@ -163,7 +163,7 @@ public sealed class DevToolsSmokeTests
 
             var input = page.Locator(".ThaiX-mono-editor__input").First;
             await input.WaitForAsync(Visible(15000));
-            await input.FillAsync("{\\n  \\"value\\": }");
+            await input.FillAsync("{\n  \\"value\\": }");
             await page.GetByRole(AriaRole.Button, new() { Name = "Pretty" }).ClickAsync();
 
             await page.GetByText("Invalid JSON at line 2, byte column", new() { Exact = false })
