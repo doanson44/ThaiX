@@ -1688,6 +1688,10 @@
   <data name="Calc.Reset" xml:space="preserve"><value>Đặt lại</value></data>
   <data name="Calc.Results" xml:space="preserve"><value>Kết quả</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Công thức</value></data>
+  <data name="Calc.Result.AbsolutePeakToTroughPeriods" xml:space="preserve"><value>Số kỳ từ đỉnh tuyệt đối đến đáy</value></data>
+  <data name="Calc.Result.AbsoluteTroughToRecoveryPeriods" xml:space="preserve"><value>Số kỳ từ đáy tuyệt đối đến phục hồi</value></data>
+  <data name="Calc.Result.FundingPayer" xml:space="preserve"><value>Bên trả funding</value></data>
+  <data name="Calc.Result.FundingReceiver" xml:space="preserve"><value>Bên nhận funding</value></data>
   <data name="Calc.Formula.position-size" xml:space="preserve"><value>Rủi ro mỗi đơn vị = khoảng cách giá khớp vào/giá dừng lỗ bất lợi + phí vào/ra; khối lượng = ngân sách rủi ro tài khoản / rủi ro mỗi đơn vị. Phí và trượt giá áp dụng cho mỗi chiều.</value></data>
   <data name="Calc.Formula.risk-reward" xml:space="preserve"><value>Rủi ro ròng = khoảng cách đến dừng lỗ bất lợi + phí vào/ra; lợi nhuận ròng = khoảng cách đến mục tiêu bất lợi - phí vào/ra; R:R ròng = lợi nhuận ròng / rủi ro ròng.</value></data>
   <data name="Calc.Formula.futures-pnl" xml:space="preserve"><value>Ước tính hợp đồng tuyến tính: khối lượng cơ sở = số hợp đồng x quy mô hợp đồng; PnL gộp dùng giá vào/ra đã điều chỉnh; funding dùng notional trung bình vào/ra mỗi kỳ; PnL ròng = PnL gộp - phí + dòng tiền funding theo chiều vị thế.</value></data>
