@@ -2128,4 +2128,5 @@
   <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
   <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Số kỳ đến đáy</value></data>
   <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Số kỳ phục hồi</value></data>
+  <data name="Calc.Result.ExpectancyR" xml:space="preserve"><value>Kỳ vọng (R)</value></data>
 </root>
