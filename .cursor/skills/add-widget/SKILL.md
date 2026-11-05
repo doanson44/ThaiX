@@ -37,6 +37,8 @@ Create in `Application/Features/ExternalData/{Feature}/Queries/{QueryName}/`:
 
 ```csharp
 // {QueryName}Query.cs
+using ThaiX.Application.Common.Interfaces.Messaging;
+
 public sealed record {QueryName}Query : IAppQuery<{QueryName}Response>;
 
 public sealed record {QueryName}Response
@@ -57,6 +59,9 @@ public sealed record {QueryName}Response
 
 ```csharp
 // {QueryName}QueryHandler.cs
+using MediatR;
+using ThaiX.Application.Common.Interfaces;
+
 public sealed class {QueryName}QueryHandler
      : IRequestHandler<{QueryName}Query, {QueryName}Response>
 {
