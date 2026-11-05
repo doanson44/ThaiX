@@ -1506,6 +1506,23 @@
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Công cụ</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Tiện ích lập trình và máy tính giao dịch/rủi ro/crypto chạy trên trình duyệt. Bản nháp lưu cục bộ; một số công cụ có thể Lưu/Chia sẻ qua JSON Bin khi đăng nhập.</value></data>
   <data name="Tools.LastUsed" xml:space="preserve"><value>Đã sử dụng gần đây</value></data>
+  <data name="Tools.Favorites" xml:space="preserve"><value>Yêu thích</value></data>
+  <data name="Tools.ClearHistory" xml:space="preserve"><value>Xóa lịch sử</value></data>
+  <data name="Tools.AddFavorite" xml:space="preserve"><value>Thêm vào yêu thích</value></data>
+  <data name="Tools.RemoveFavorite" xml:space="preserve"><value>Bỏ khỏi yêu thích</value></data>
+  <data name="Tools.ImportWorkspace" xml:space="preserve"><value>Nhập workspace</value></data>
+  <data name="Tools.ExportWorkspace" xml:space="preserve"><value>Xuất workspace</value></data>
+  <data name="Tools.Import.Success" xml:space="preserve"><value>Đã nhập workspace.</value></data>
+  <data name="Tools.Import.Failed" xml:space="preserve"><value>Không thể nhập workspace.</value></data>
+  <data name="Tools.Export.Success" xml:space="preserve"><value>Đã xuất workspace.</value></data>
+  <data name="Tools.History.Cleared" xml:space="preserve"><value>Đã xóa lịch sử công cụ gần đây.</value></data>
+  <data name="Tools.Save.Pending" xml:space="preserve"><value>Đang lưu bản nháp…</value></data>
+  <data name="Tools.Save.Saved" xml:space="preserve"><value>Đã lưu bản nháp</value></data>
+  <data name="Tools.Save.StatusFailed" xml:space="preserve"><value>Không thể lưu bản nháp</value></data>
+  <data name="Tools.Workspace.WrongTool" xml:space="preserve"><value>Workspace này thuộc về một công cụ khác.</value></data>
+  <data name="Tools.Workspace.UnsupportedVersion" xml:space="preserve"><value>Phiên bản workspace này không được hỗ trợ.</value></data>
+  <data name="Tools.Workspace.Invalid" xml:space="preserve"><value>Tệp workspace không hợp lệ.</value></data>
+  <data name="Tools.Workspace.TooLarge" xml:space="preserve"><value>Tệp workspace không được vượt quá 1 MB.</value></data>
   <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Tìm công cụ…</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Lưu</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Chia sẻ</value></data>
