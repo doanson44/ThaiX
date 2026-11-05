@@ -523,6 +523,22 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void RegexTest_WithReplacement_ShouldApplyReplacementText()
+    {
+        // Arrange
+        const string input = "BTCUSDT ETHUSDT";
+
+        // Act
+        var result = TextToolTransforms.RegexTest(
+            "[A-Z]{3,10}USDT",
+            input,
+            "$0-PERP");
+
+        // Assert
+        Assert.Contains("BTCUSDT-PERP ETHUSDT-PERP", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void RegexTest_WithoutIgnoreCase_ShouldRemainCaseSensitive()
     {
         // Arrange
