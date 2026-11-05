@@ -2126,4 +2126,6 @@
   <data name="Calc.Result.Fdv" xml:space="preserve"><value>Định giá pha loãng hoàn toàn (FDV)</value></data>
   <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>Sang Unix (mili giây)</value></data>
   <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
+  <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Số kỳ đến đáy</value></data>
+  <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Số kỳ phục hồi</value></data>
 </root>
