@@ -154,6 +154,24 @@ public sealed class DevToolsSmokeTests
     }
 
     [Fact]
+    public async Task ToolHost_JsonFormatter_InvalidJson_ShouldShowLocalizedPosition()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/tools/json-formatter", 1280, 800);
+
+            var input = page.Locator(".ThaiX-mono-editor__input").First;
+            await input.WaitForAsync(Visible(15000));
+            await input.FillAsync("{\\n  \\"value\\": }");
+            await page.GetByRole(AriaRole.Button, new() { Name = "Pretty" }).ClickAsync();
+
+            await page.GetByText("Invalid JSON at line 2, byte column", new() { Exact = false })
+                .WaitForAsync(Visible(5000));
+        }
+    }
+
+    [Fact]
     public async Task ToolHost_Fullscreen_ShouldExitWithEscape()
     {
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
