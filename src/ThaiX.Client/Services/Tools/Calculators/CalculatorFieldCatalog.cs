@@ -49,6 +49,7 @@ public static class CalculatorFieldCatalog
             "position-size" =>
             [
                 Currency(),
+                Side(),
                 Num("account", RK.Calc.Field.Account),
                 Num("riskPct", RK.Calc.Field.RiskPct, "1"),
                 Num("entry", RK.Calc.Field.Entry),
