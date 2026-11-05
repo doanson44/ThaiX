@@ -2002,6 +2002,7 @@ public static class ResourceKeys
         public const string ValidationGeneric = "Tools.Validation.Generic";
         public const string ValidationFormat = "Tools.Validation.Format";
         public const string ValidationJson = "Tools.Validation.Json";
+        public const string ValidationJsonPosition = "Tools.Validation.JsonPosition";
         public const string ValidationOperation = "Tools.Validation.Operation";
         public const string ValidationBrowser = "Tools.Validation.Browser";
 
