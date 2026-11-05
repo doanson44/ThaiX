@@ -62,7 +62,7 @@ public sealed class ToolQualityUnitTests
         var command = GeneratorToolTransforms.BuildCurl("GET", url, string.Empty, string.Empty);
 
         // Assert
-        Assert.Contains("'https://example.com/a'\\\\''b'", command, StringComparison.Ordinal);
+        Assert.Contains("'https://example.com/a'\\''b'", command, StringComparison.Ordinal);
     }
 
     [Fact]
