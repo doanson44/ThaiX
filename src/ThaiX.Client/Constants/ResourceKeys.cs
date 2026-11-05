@@ -2380,7 +2380,6 @@ public static class ResourceKeys
             public const string Description = "Tools.Sha256.Description";
         }
 
-        }
 
         public static class UnixTimestamp
         {
