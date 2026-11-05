@@ -843,6 +843,18 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MaxDrawdownFromSeries_WithOnlyZeroEquity_ShouldReturnZeroDrawdown()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.MaxDrawdownFromSeries([0m, 0m]);
+
+        // Assert
+        Assert.Equal("0", result.Breakdown[0].Value);
+        Assert.Equal("0", result.Breakdown[1].Value);
+        Assert.Equal("0", result.Breakdown[3].Value);
+    }
+
+    [Fact]
     public void MaxDrawdownFromSeries_WithZeroEquity_ShouldReportFullDrawdown()
     {
         // Arrange / Act
