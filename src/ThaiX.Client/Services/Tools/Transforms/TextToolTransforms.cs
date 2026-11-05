@@ -291,7 +291,10 @@ public static class TextToolTransforms
         string input,
         string? replacement,
         int timeoutMs = 200,
-        bool ignoreCase = false)
+        bool ignoreCase = false,
+        string matchesLabel = "Matches",
+        string groupLabel = "Group",
+        string replaceLabel = "Replace")
     {
         var options = RegexOptions.CultureInvariant;
         if (ignoreCase)
@@ -299,20 +302,20 @@ public static class TextToolTransforms
         var regex = new Regex(pattern, options, TimeSpan.FromMilliseconds(timeoutMs));
         var matches = regex.Matches(input ?? "");
         var sb = new StringBuilder();
-        sb.AppendLine($"Matches: {matches.Count}");
+        sb.AppendLine($"{matchesLabel}: {matches.Count}");
         var i = 0;
         foreach (Match m in matches)
         {
             sb.AppendLine($"[{i}] index={m.Index} length={m.Length} value={m.Value}");
             for (var g = 1; g < m.Groups.Count; g++)
-                sb.AppendLine($"  group {g}: {m.Groups[g].Value}");
+                sb.AppendLine($"  {groupLabel} {g}: {m.Groups[g].Value}");
             i++;
         }
 
         if (replacement is not null)
         {
             sb.AppendLine();
-            sb.AppendLine("Replace:");
+            sb.AppendLine($"{replaceLabel}:");
             sb.AppendLine(regex.Replace(input ?? "", replacement));
         }
 
