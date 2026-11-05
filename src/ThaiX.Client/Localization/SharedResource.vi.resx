@@ -1709,7 +1709,7 @@
   <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Phí taker %</value></data>
   <data name="Calc.Field.OpenFeePct" xml:space="preserve"><value>Phí mở %</value></data>
   <data name="Calc.Field.CloseFeePct" xml:space="preserve"><value>Phí đóng %</value></data>
-  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Phí %</value></data>
+  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Phí mỗi chiều %</value></data>
   <data name="Calc.Field.MmrPct" xml:space="preserve"><value>Ký quỹ duy trì %</value></data>
   <data name="Calc.Field.Notional" xml:space="preserve"><value>Notional</value></data>
   <data name="Calc.Field.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
@@ -1746,6 +1746,10 @@
   <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>vd: 100,50;90,50</value></data>
   <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>vd: 10000,9800,10200,9500</value></data>
   <data name="Calc.Result.RiskAmount" xml:space="preserve"><value>Số tiền rủi ro</value></data>
+  <data name="Calc.Result.PriceRiskPerUnit" xml:space="preserve"><value>Rủi ro giá trên mỗi đơn vị</value></data>
+  <data name="Calc.Result.FeesPerUnit" xml:space="preserve"><value>Tổng phí hai chiều trên mỗi đơn vị</value></data>
+  <data name="Calc.Result.SlippageCostPerUnit" xml:space="preserve"><value>Trượt giá hai chiều trên mỗi đơn vị</value></data>
+  <data name="Calc.Result.TotalRiskPerUnit" xml:space="preserve"><value>Tổng rủi ro trên mỗi đơn vị</value></data>
   <data name="Calc.Result.Quantity" xml:space="preserve"><value>Khối lượng</value></data>
   <data name="Calc.Result.Notional" xml:space="preserve"><value>Notional</value></data>
   <data name="Calc.Result.RiskDistance" xml:space="preserve"><value>Khoảng rủi ro</value></data>
