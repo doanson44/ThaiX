@@ -1655,7 +1655,7 @@
   <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Vốn hóa</value></data>
   <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Tính vốn hóa theo nguồn cung lưu hành, định giá theo tổng cung và FDV</value></data>
   <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>So sánh vốn hóa</value></data>
-  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Giá ngụ ý theo vốn hóa mục tiêu</value></data>
+  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Ước tính giá tại vốn hóa mục tiêu dựa trên nguồn cung lưu hành</value></data>
   <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>Drawdown từ ATH</value></data>
   <data name="Tools.AthDrawdown.Description" xml:space="preserve"><value>Drawdown từ đỉnh lịch sử và % phục hồi</value></data>
   <data name="Calc.Calculate" xml:space="preserve"><value>Tính</value></data>
