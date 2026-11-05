@@ -48,16 +48,33 @@ public static class CryptoCalculators
             [F(price * circulatingSupply)]);
     }
 
-    public static CalculatorResult MarketCapCompare(decimal circulatingSupply, decimal targetMarketCap)
+    public static CalculatorResult MarketCapCompare(decimal circulatingSupply, decimal targetMarketCap) =>
+        MarketCapCompare(circulatingSupply, [targetMarketCap]);
+
+    public static CalculatorResult MarketCapCompare(
+        decimal circulatingSupply,
+        IReadOnlyList<decimal> targetMarketCaps)
     {
         RequirePositive(circulatingSupply, "Circulating supply");
-        RequirePositive(targetMarketCap, "Target market cap");
-        var implied = targetMarketCap / circulatingSupply;
+        if (targetMarketCaps.Count is < 1 or > 10)
+            throw new CalculatorInputException("Provide between 1 and 10 target market-cap scenarios.");
+
+        var lines = new List<CalcLine>();
+        var prices = new List<string>();
+        foreach (var targetMarketCap in targetMarketCaps)
+        {
+            RequirePositive(targetMarketCap, "Target market cap");
+            var implied = targetMarketCap / circulatingSupply;
+            lines.Add(Line("Calc.Result.TargetMarketCap", targetMarketCap));
+            lines.Add(Line("Calc.Result.ImpliedPrice", implied));
+            prices.Add(F(implied));
+        }
+
         return new CalculatorResult(
-            [Line("Calc.Result.ImpliedPrice", implied)],
-            "impliedPrice = targetMarketCap / circulatingSupply",
+            lines,
+            "impliedPrice = targetMarketCap / circulatingSupply; each target market cap is an independent scenario",
             "Calc.Interp.MarketCapCompare",
-            [F(implied)]);
+            prices);
     }
 
     public static CalculatorResult AthDrawdown(decimal ath, decimal current)
