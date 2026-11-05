@@ -2478,6 +2478,8 @@ public static class ResourceKeys
             public const string Losses = "Calc.Field.Losses";
             public const string Price = "Calc.Field.Price";
             public const string Supply = "Calc.Field.Supply";
+            public const string TotalSupply = "Calc.Field.TotalSupply";
+            public const string MaxSupply = "Calc.Field.MaxSupply";
             public const string TargetMcap = "Calc.Field.TargetMcap";
             public const string Ath = "Calc.Field.Ath";
             public const string Current = "Calc.Field.Current";
