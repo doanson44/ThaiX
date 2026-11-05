@@ -36,6 +36,46 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void HtmlToMarkdownRough_WithHeadingsLinksAndLists_ShouldPreserveStructure()
+    {
+        // Arrange
+        const string html = "<h2>Tools</h2><p>Use <strong>ThaiX</strong> <a href=\"https://example.com\">docs</a>.</p><ul><li>One</li><li>Two</li></ul>";
+
+        // Act
+        var markdown = TextToolTransforms.HtmlToMarkdownRough(html);
+
+        // Assert
+        Assert.Contains("## Tools", markdown, StringComparison.Ordinal);
+        Assert.Contains("**ThaiX**", markdown, StringComparison.Ordinal);
+        Assert.Contains("[docs](https://example.com)", markdown, StringComparison.Ordinal);
+        Assert.Contains("- One", markdown, StringComparison.Ordinal);
+        Assert.Contains("- Two", markdown, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithSingleQuoteInUrl_ShouldEscapeShellArgument()
+    {
+        // Arrange
+        const string url = "https://example.com/a'b";
+
+        // Act
+        var command = GeneratorToolTransforms.BuildCurl("GET", url, string.Empty, string.Empty);
+
+        // Assert
+        Assert.Contains("'https://example.com/a'\\\\''b'", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithInvalidMethod_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl("GET; rm -rf /", "https://example.com", "", "");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void CsvToJson_WithUnterminatedQuote_ShouldThrowFormatException()
     {
         // Arrange
