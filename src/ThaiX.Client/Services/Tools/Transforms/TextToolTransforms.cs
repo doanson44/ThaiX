@@ -286,6 +286,46 @@ public static class TextToolTransforms
         return sb.ToString();
     }
 
+    public static string DiffSideBySide(string left, string right, bool ignoreWhitespace = true)
+    {
+        var model = new SideBySideDiffBuilder(new Differ())
+            .BuildDiffModel(left ?? string.Empty, right ?? string.Empty, ignoreWhitespace);
+        var leftWidth = model.OldText.Lines.Max(line => line.Text?.Length ?? 0);
+        var lineNumberWidth = Math.Max(1, model.OldText.Lines.Count.ToString().Length);
+        var builder = new StringBuilder();
+        builder.Append("OLD".PadRight(lineNumberWidth + leftWidth + 3))
+            .Append(" | NEW")
+            .AppendLine();
+
+        for (var index = 0; index < model.OldText.Lines.Count; index++)
+        {
+            var oldLine = model.OldText.Lines[index];
+            var newLine = model.NewText.Lines[index];
+            var oldText = oldLine.Text ?? string.Empty;
+            var newText = newLine.Text ?? string.Empty;
+            var oldCell = $"{DiffPrefix(oldLine.Type)} {oldText}".PadRight(leftWidth + 2);
+            var newCell = $"{DiffPrefix(newLine.Type)} {newText}";
+
+            builder.Append((index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(lineNumberWidth))
+                .Append(' ')
+                .Append(oldCell)
+                .Append(" | ")
+                .Append((index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(lineNumberWidth))
+                .Append(' ')
+                .AppendLine(newCell);
+        }
+
+        return builder.ToString();
+    }
+
+    private static string DiffPrefix(ChangeType type) => type switch
+    {
+        ChangeType.Deleted => "-",
+        ChangeType.Inserted => "+",
+        ChangeType.Modified => "~",
+        _ => " "
+    };
+
     public static string RegexTest(
         string pattern,
         string input,
