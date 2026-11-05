@@ -194,6 +194,44 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void GetNextCronOccurrences_WithWeekdayQuarterHours_ShouldReturnExpectedUtcTimes()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 11, 6, 8, 59, 0, TimeSpan.Zero);
+
+        // Act
+        var next = GeneratorToolTransforms.GetNextCronOccurrences("*/15 9-10 * * 1-5", fromUtc);
+
+        // Assert
+        Assert.Equal(
+            [
+                new DateTimeOffset(2026, 11, 6, 9, 0, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 11, 6, 9, 15, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 11, 6, 9, 30, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 11, 6, 9, 45, 0, TimeSpan.Zero),
+                new DateTimeOffset(2026, 11, 6, 10, 0, 0, TimeSpan.Zero)
+            ],
+            next);
+    }
+
+    [Theory]
+    [InlineData("* * * *")]
+    [InlineData("60 * * * *")]
+    [InlineData("*/0 * * * *")]
+    [InlineData("1-60 * * * *")]
+    public void GetNextCronOccurrences_WithInvalidExpression_ShouldThrowFormatException(string expression)
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 11, 6, 8, 59, 0, TimeSpan.Zero);
+
+        // Act
+        var act = () => GeneratorToolTransforms.GetNextCronOccurrences(expression, fromUtc);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void PasswordStrength_ShouldDiscloseHeuristicLimitations()
     {
         // Arrange / Act
