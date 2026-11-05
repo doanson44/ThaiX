@@ -11,7 +11,7 @@ public static class ToolSampleCatalog
         ArgumentNullException.ThrowIfNull(state);
 
         return tool.Kind == ToolKind.Calculator
-            ? MatchesCalculatorDefaults(tool.Slug, state)
+            ? state.Fields is null || state.Fields.Count == 0
             : IsTextToolEmpty(state);
     }
 
@@ -433,21 +433,4 @@ public static class ToolSampleCatalog
         && state.Number == 16
         && (state.Fields is null || state.Fields.Count == 0 || state.Fields.Values.All(string.IsNullOrWhiteSpace));
 
-    private static bool MatchesCalculatorDefaults(string slug, ToolWorkspaceState state)
-    {
-        state.Fields ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        var defaults = CalculatorFieldCatalog.DefaultFields(slug);
-
-        foreach (var field in CalculatorFieldCatalog.FieldsFor(slug))
-        {
-            var current = state.Fields.TryGetValue(field.Key, out var value) ? value ?? string.Empty : string.Empty;
-            var baseline = defaults.TryGetValue(field.Key, out var sample) ? sample ?? string.Empty : string.Empty;
-            if (!string.Equals(current, baseline, StringComparison.OrdinalIgnoreCase))
-                return false;
-        }
-
-        return state.Fields
-            .Where(x => !defaults.ContainsKey(x.Key))
-            .All(x => string.IsNullOrWhiteSpace(x.Value));
-    }
 }
