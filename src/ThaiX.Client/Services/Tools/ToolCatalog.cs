@@ -7,6 +7,8 @@ public static class ToolCatalog
 {
     public const JsonBinCategories JsonBinCategory = JsonBinCategories.Temp;
     public const int StateEnvelopeVersion = 1;
+    public const int WorkspaceExportVersion = 1;
+    public const int MaxWorkspaceBytes = 1_048_576;
 
     public static string BuildCloudCode(string userId, string toolSlug) =>
         $"tools.{userId}.{toolSlug}";
