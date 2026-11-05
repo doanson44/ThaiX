@@ -353,41 +353,10 @@ public static class ConvertToolTransforms
         if (string.IsNullOrEmpty(name))
             return JsonSerializer.Serialize("property");
 
-        var validStart = char.IsLetter(name[0]) || name[0] is '_' or '
-
-    private static string EscapeCsv(string value)
-    {
-        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
-            return "\"" + value.Replace("\"", "\"\"") + "\"";
-        return value;
-    }
-
-    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
-    {
-        JsonValueKind.String => v.GetString() ?? "",
-        JsonValueKind.Null => "",
-        _ => v.ToString()
-    };
-}
-;
+        var isDollar = (char)36;
+        var validStart = char.IsLetter(name[0]) || name[0] == '_' || name[0] == isDollar;
         var validTail = name.Skip(1).All(character =>
-            char.IsLetterOrDigit(character) || character is '_' or '
-
-    private static string EscapeCsv(string value)
-    {
-        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
-            return "\"" + value.Replace("\"", "\"\"") + "\"";
-        return value;
-    }
-
-    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
-    {
-        JsonValueKind.String => v.GetString() ?? "",
-        JsonValueKind.Null => "",
-        _ => v.ToString()
-    };
-}
-);
+            char.IsLetterOrDigit(character) || character == '_' || character == isDollar);
 
         return validStart && validTail ? name : JsonSerializer.Serialize(name);
     }
