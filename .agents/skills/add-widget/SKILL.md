@@ -249,7 +249,7 @@ Rules:
             <RadzenStack Orientation="Orientation.Horizontal"
                          AlignItems="AlignItems.Center"
                          JustifyContent="JustifyContent.SpaceBetween">
-                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H2" Class="mb-0">@L[{Feature}.Title]</RadzenText>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">@L[{Feature}.Title]</RadzenText>
                 @* right-side value / timestamp *@
             </RadzenStack>
 
