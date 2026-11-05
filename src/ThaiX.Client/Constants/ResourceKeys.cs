@@ -2578,6 +2578,7 @@ public static class ResourceKeys
             public const string LossCount = "Calc.Result.LossCount";
             public const string FundingPayer = "Calc.Result.FundingPayer";
             public const string FundingReceiver = "Calc.Result.FundingReceiver";
+            public const string AdverseMovePct = "Calc.Result.AdverseMovePct";
         }
 
         public static class Placeholder
