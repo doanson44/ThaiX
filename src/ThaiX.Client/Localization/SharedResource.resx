@@ -2118,4 +2118,5 @@
   <data name="Tools.Action.EncodeBase64Url" xml:space="preserve"><value>Encode Base64URL</value></data>
   <data name="Tools.Action.DecodeBase64Url" xml:space="preserve"><value>Decode Base64URL</value></data>
   <data name="Tools.FieldLabel.Format" xml:space="preserve"><value>UUID format</value></data>
+  <data name="Tools.FieldLabel.IgnoreCase" xml:space="preserve"><value>Ignore case</value></data>
 </root>
