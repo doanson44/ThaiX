@@ -231,11 +231,11 @@ else
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.RegexMultiline" ValueChanged="@((bool value) => OnRegexMultilineChanged(value))" Name="regexMultiline" />
-                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Multiline]" Component="regexMultiline" Class="rz-ms-2" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Multiline]" Component="regexMultiline" Class="rz-ms-2" title="@L[RK.Tools.FieldHelp.Multiline]" />
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.RegexSingleline" ValueChanged="@((bool value) => OnRegexSinglelineChanged(value))" Name="regexSingleline" />
-                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Singleline]" Component="regexSingleline" Class="rz-ms-2" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Singleline]" Component="regexSingleline" Class="rz-ms-2" title="@L[RK.Tools.FieldHelp.Singleline]" />
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="6">
                             <RadzenFormField Text="@L[RK.Tools.FieldLabel.Replacement]" Class="w-100">
