@@ -2148,4 +2148,5 @@
   <data name="Tools.Regex.Group" xml:space="preserve"><value>Group</value></data>
   <data name="Tools.Regex.Replace" xml:space="preserve"><value>Replace</value></data>
   <data name="Tools.Qr.Generated" xml:space="preserve"><value>QR generated.</value></data>
+  <data name="Tools.FieldLabel.Replacement" xml:space="preserve"><value>Replacement text</value></data>
 </root>
