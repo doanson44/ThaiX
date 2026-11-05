@@ -226,9 +226,9 @@ public static class ConvertToolTransforms
         {
             var item = el.GetArrayLength() > 0 ? el[0] : default;
             var itemName = name.EndsWith("s", StringComparison.Ordinal) ? name[..^1] : name + "Item";
-            if (item.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            if (IsHomogeneousArray(el) && (item.ValueKind == JsonValueKind.Object || item.ValueKind == JsonValueKind.Array))
                 EmitCsharp(item, itemName, sb, seen);
-            sb.AppendLine($"// Use List<{MapCsharp(item, itemName)}> for root array.");
+            sb.AppendLine($"// Root array type: {MapCsharp(el, itemName)}.");
             return;
         }
 
@@ -281,9 +281,9 @@ public static class ConvertToolTransforms
         {
             var item = el.GetArrayLength() > 0 ? el[0] : default;
             var itemName = name.EndsWith("s", StringComparison.Ordinal) ? name[..^1] : name + "Item";
-            if (item.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            if (IsHomogeneousArray(el) && (item.ValueKind == JsonValueKind.Object || item.ValueKind == JsonValueKind.Array))
                 EmitTs(item, itemName, sb, seen);
-            sb.AppendLine($"export type {name} = {MapTs(item, itemName)}[];");
+            sb.AppendLine($"export type {name} = {MapTs(el, itemName)};");
             return;
         }
 
