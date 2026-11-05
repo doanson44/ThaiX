@@ -24,7 +24,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Password generator | Use `RandomNumberGenerator.GetInt32` to avoid modulo bias; ensure each selected character class appears at least once; cryptographically shuffle the result | Length and selected character class tests |
 | Trading calculators | Bound risk percentages, constrain maintenance margin, reject ambiguous simultaneous take-profit modes, validate stop-loss direction for R:R mode, and prevent invalid short target prices | Boundary and mutually-exclusive-mode tests |
 | Risk calculators | Reject non-positive equity-series points; document risk-of-ruin as a heuristic rather than a calibrated probability | Equity-series validation test |
-| cURL generator | Validate the HTTP method and shell-quote the URL, headers, and body to prevent argument injection through single quotes | Invalid method and quoted URL tests |
+| cURL generator | Validate the HTTP method and shell-quote the URL, headers, and body to prevent argument injection through single quotes | Invalid method and quoted URL tests |\n| JSON code generators | Sanitize generated type/property identifiers and quote non-identifier TypeScript property names | Special property-name tests for C# and TypeScript output |
 | HTML to Markdown | Preserve common heading, paragraph, link, emphasis, inline-code, and list structure instead of stripping all tags | Structural conversion test |
 
 ## Findings and follow-up backlog
@@ -111,13 +111,13 @@ The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite covers:
 4. SQL keywords inside string literals, quoted identifiers, and comments.
 5. HTML headings, links, emphasis, inline code, and list conversion.
 6. cURL URL shell escaping and HTTP method validation.
-8. Password length and selected character-class inclusion.
-9. Calculator sample seeding for new versus initialized workspaces.
-10. Position-size risk percentage upper bound.
-11. Liquidation maintenance-margin upper bound.
-12. Mutually exclusive take-profit target modes.
-13. Positive equity-series requirement for max drawdown.
-14. Signed funding cashflow with a negative rate.
+9. Password length and selected character-class inclusion.
+10. Calculator sample seeding for new versus initialized workspaces.
+11. Position-size risk percentage upper bound.
+12. Liquidation maintenance-margin upper bound.
+13. Mutually exclusive take-profit target modes.
+14. Positive equity-series requirement for max drawdown.
+15. Signed funding cashflow with a negative rate.
 
 ## Verification status
 
@@ -131,6 +131,6 @@ dotnet test tests/ThaiX.Client.UnitTests/ThaiX.Client.UnitTests.csproj --no-rest
 dotnet test ThaiX.slnx --no-restore
 ```
 
-The CSV parser, regex-based HTML conversion, SQL formatter, and financial formulas should receive
+The CSV parser, regex-based HTML conversion, SQL formatter, generated model code, and financial formulas should receive
 additional runtime review before production release. Financial outputs are estimates and must not be
 represented as exchange guarantees or investment advice.
