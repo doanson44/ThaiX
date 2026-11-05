@@ -1716,6 +1716,7 @@
   <data name="Calc.Formula.ath-drawdown" xml:space="preserve"><value>Drawdown percentage = (all-time high - current price) / all-time high x 100; recovery percentage = all-time high / current price - 1.</value></data>
   <data name="Tools.Valid" xml:space="preserve"><value>Valid</value></data>
   <data name="Tools.Invalid" xml:space="preserve"><value>Invalid</value></data>
+  <data name="Tools.EditorStats" xml:space="preserve"><value>{0} lines · {1} chars</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Interpretation</value></data>
   <data name="Calc.Validation.Input" xml:space="preserve"><value>Review the entered values and the calculator constraints.</value></data>
   <data name="Calc.Validation.Format" xml:space="preserve"><value>One or more values have an invalid number or list format.</value></data>
