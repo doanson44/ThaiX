@@ -53,7 +53,9 @@ public static class CalculatorFieldCatalog
                 Num("account", RK.Calc.Field.Account),
                 Num("riskPct", RK.Calc.Field.RiskPct, "1"),
                 Num("entry", RK.Calc.Field.Entry),
-                Num("stopLoss", RK.Calc.Field.StopLoss)
+                Num("stopLoss", RK.Calc.Field.StopLoss),
+                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
+                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
             ],
             "risk-reward" =>
             [
@@ -61,7 +63,9 @@ public static class CalculatorFieldCatalog
                 Side(),
                 Num("entry", RK.Calc.Field.Entry),
                 Num("stopLoss", RK.Calc.Field.StopLoss),
-                Num("takeProfit", RK.Calc.Field.TakeProfit)
+                Num("takeProfit", RK.Calc.Field.TakeProfit),
+                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
+                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
             ],
             "futures-pnl" =>
             [
