@@ -2142,4 +2142,6 @@
   <data name="Tools.PasswordStrength.Strong" xml:space="preserve"><value>Strong</value></data>
   <data name="Tools.PasswordStrength.Length" xml:space="preserve"><value>Length</value></data>
   <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Heuristic only; not an entropy or breach check.</value></data>
+  <data name="Tools.Cron.ExpressionLabel" xml:space="preserve"><value>Cron</value></data>
+  <data name="Tools.Cron.NextRunsUtc" xml:space="preserve"><value>Next runs (UTC)</value></data>
 </root>
