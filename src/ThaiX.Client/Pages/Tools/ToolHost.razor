@@ -210,12 +210,24 @@ else
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="sideBySide" />
                             <RadzenLabel Text="@L[RK.Tools.FieldLabel.SideBySide]" Component="sideBySide" Class="rz-ms-2" />
                         </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.IgnoreWhitespace" ValueChanged="@((bool value) => OnIgnoreWhitespaceChanged(value))" Name="ignoreWhitespace" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.IgnoreWhitespace]" Component="ignoreWhitespace" Class="rz-ms-2" />
+                        </RadzenColumn>
                     }
                     @if (SlugEquals("regex"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="ignoreCase" />
                             <RadzenLabel Text="@L[RK.Tools.FieldLabel.IgnoreCase]" Component="ignoreCase" Class="rz-ms-2" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.RegexMultiline" ValueChanged="@((bool value) => OnRegexMultilineChanged(value))" Name="regexMultiline" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Multiline]" Component="regexMultiline" Class="rz-ms-2" />
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.RegexSingleline" ValueChanged="@((bool value) => OnRegexSinglelineChanged(value))" Name="regexSingleline" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Singleline]" Component="regexSingleline" Class="rz-ms-2" />
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="6">
                             <RadzenFormField Text="@L[RK.Tools.FieldLabel.Replacement]" Class="w-100">
@@ -754,7 +766,9 @@ else
                         ignoreCase: _state.Flag,
                         matchesLabel: L[RK.Tools.Regex.Matches].Value,
                         groupLabel: L[RK.Tools.Regex.Group].Value,
-                        replaceLabel: L[RK.Tools.Regex.Replace].Value);
+                        replaceLabel: L[RK.Tools.Regex.Replace].Value,
+                        multiline: _state.RegexMultiline,
+                        singleline: _state.RegexSingleline);
                     break;
                 case "reReplace":
                     _state.Output = TextToolTransforms.RegexTest(
@@ -764,7 +778,9 @@ else
                         ignoreCase: _state.Flag,
                         matchesLabel: L[RK.Tools.Regex.Matches].Value,
                         groupLabel: L[RK.Tools.Regex.Group].Value,
-                        replaceLabel: L[RK.Tools.Regex.Replace].Value);
+                        replaceLabel: L[RK.Tools.Regex.Replace].Value,
+                        multiline: _state.RegexMultiline,
+                        singleline: _state.RegexSingleline);
                     break;
                 case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
                 case "pws":
@@ -966,6 +982,24 @@ else
     private void OnFlagChanged(bool value)
     {
         _state.Flag = value;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private void OnRegexMultilineChanged(bool value)
+    {
+        _state.RegexMultiline = value;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private void OnRegexSinglelineChanged(bool value)
+    {
+        _state.RegexSingleline = value;
+        _ = ScheduleLocalSaveAsync();
+    }
+
+    private void OnIgnoreWhitespaceChanged(bool value)
+    {
+        _state.IgnoreWhitespace = value;
         _ = ScheduleLocalSaveAsync();
     }
 
