@@ -81,7 +81,9 @@ public static class CalculatorFieldCatalog
                 Num("takerPct", RK.Calc.Field.TakerPct, "0.04", showWhenCustom: false),
                 Num("openFeePct", RK.Calc.Field.OpenFeePct, "0.04", showWhenCustom: true),
                 Num("closeFeePct", RK.Calc.Field.CloseFeePct, "0.04", showWhenCustom: true),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
+                Num("slippagePct", RK.Calc.Field.SlippagePct, "0"),
+                Num("fundingRatePct", RK.Calc.Field.FundingRatePct, "0"),
+                Num("fundingPeriods", RK.Calc.Field.Periods, "0")
             ],
             "liquidation" =>
             [
