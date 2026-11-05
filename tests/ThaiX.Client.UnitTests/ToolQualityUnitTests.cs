@@ -816,8 +816,8 @@ public sealed class ToolQualityUnitTests
             100m, 110m, 1m, 10m, TradeSide.Long, 0m, 0m, 1m);
 
         // Assert
-        Assert.Equal("7.9", result.Breakdown[0].Value);
-        Assert.Equal("2.1", result.Breakdown[1].Value);
+        Assert.Equal("7.9", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.GrossPnl").Value);
+        Assert.Equal("2.1", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.SlippageCost").Value);
     }
 
     [Fact]
@@ -828,8 +828,8 @@ public sealed class ToolQualityUnitTests
             100m, 90m, 1m, 10m, TradeSide.Short, 0m, 0m, 1m);
 
         // Assert
-        Assert.Equal("8.1", result.Breakdown[0].Value);
-        Assert.Equal("1.9", result.Breakdown[1].Value);
+        Assert.Equal("8.1", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.GrossPnl").Value);
+        Assert.Equal("1.9", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.SlippageCost").Value);
     }
 
     [Fact]
@@ -964,9 +964,9 @@ public sealed class ToolQualityUnitTests
             100m, 110m, 2m, 10m, TradeSide.Long, 0m, 0m, 0m, 3m);
 
         // Assert
-        Assert.Equal("60", result.Breakdown[0].Value);
-        Assert.Equal("3", result.Breakdown[1].Value);
-        Assert.Equal("6", result.Breakdown[2].Value);
+        Assert.Equal("60", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.GrossPnl").Value);
+        Assert.Equal("3", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.ContractSize").Value);
+        Assert.Equal("6", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.BaseQuantity").Value);
     }
 
     [Fact]
