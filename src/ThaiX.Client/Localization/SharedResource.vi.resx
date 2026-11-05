@@ -2084,8 +2084,8 @@
   <data name="Tools.Action.Encode" xml:space="preserve"><value>Mã hóa</value></data>
   <data name="Tools.Action.Hash" xml:space="preserve"><value>Băm</value></data>
   <data name="Tools.Action.Generate" xml:space="preserve"><value>Tạo</value></data>
-  <data name="Tools.Action.ToUnix" xml:space="preserve"><value>Sang Unix</value></data>
-  <data name="Tools.Action.FromUnix" xml:space="preserve"><value>Từ Unix</value></data>
+  <data name="Tools.Action.ToUnix" xml:space="preserve"><value>Sang Unix (giây)</value></data>
+  <data name="Tools.Action.FromUnix" xml:space="preserve"><value>Từ Unix (giây)</value></data>
   <data name="Tools.Action.Format" xml:space="preserve"><value>Định dạng</value></data>
   <data name="Tools.Action.YamlToJson" xml:space="preserve"><value>YAML → JSON</value></data>
   <data name="Tools.Action.JsonToYaml" xml:space="preserve"><value>JSON → YAML</value></data>
@@ -2113,4 +2113,5 @@
   <data name="Tools.FieldLabel.GitignorePreset" xml:space="preserve"><value>Mẫu: dotnet, node, vs, rider</value></data>
   <data name="Tools.FieldLabel.HttpMethod" xml:space="preserve"><value>HTTP method: GET, POST, PUT, DELETE</value></data>
   <data name="Tools.FieldLabel.CommitScope" xml:space="preserve"><value>Loại/phạm vi, ví dụ feat/tools</value></data>
+  <data name="Tools.Action.FromUnixMilliseconds" xml:space="preserve"><value>Từ Unix (mili giây)</value></data>
 </root>
