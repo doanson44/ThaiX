@@ -896,6 +896,22 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     overflow-x: clip;
 }
 
+.ThaiX-tools--fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1080;
+    max-width: none;
+    overflow-x: clip;
+    overflow-y: auto;
+    padding: max(env(safe-area-inset-top), 0.5rem) max(env(safe-area-inset-right), 0.5rem)
+        max(env(safe-area-inset-bottom), 0.5rem) max(env(safe-area-inset-left), 0.5rem);
+    background: var(--bs-body-bg);
+}
+
+.ThaiX-tools--fullscreen .ThaiX-tools__body {
+    min-height: calc(100vh - 8rem);
+}
+
 .ThaiX-tools__stack,
 .ThaiX-tools__body,
 .ThaiX-tools-dual,
