@@ -8,6 +8,10 @@ public interface IToolStateStore
     /// </summary>
     Task<ToolStateEnvelope?> LoadAsync(ToolDefinition tool, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ToolDefinition>> GetLastUsedAsync(CancellationToken cancellationToken = default);
+
+    Task RecordLastUsedAsync(ToolDefinition tool, CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Persists the tool draft using the active storage policy (cloud when eligible, otherwise browser).
     /// </summary>
