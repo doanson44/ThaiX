@@ -2106,4 +2106,12 @@
   <data name="Tools.FieldLabel.Pattern" xml:space="preserve"><value>Pattern</value></data>
   <data name="Tools.FieldLabel.Headers" xml:space="preserve"><value>Headers (Header: value)</value></data>
   <data name="Tools.FieldLabel.Body" xml:space="preserve"><value>Body</value></data>
+  <data name="Tools.FieldLabel.Length" xml:space="preserve"><value>Length</value></data>
+  <data name="Tools.FieldLabel.Symbols" xml:space="preserve"><value>Symbols</value></data>
+  <data name="Tools.FieldLabel.Breaking" xml:space="preserve"><value>Breaking</value></data>
+  <data name="Tools.FieldLabel.Option" xml:space="preserve"><value>Option</value></data>
+  <data name="Tools.FieldLabel.CronExpression" xml:space="preserve"><value>Five-field cron expression</value></data>
+  <data name="Tools.FieldLabel.GitignorePreset" xml:space="preserve"><value>Preset: dotnet, node, vs, rider</value></data>
+  <data name="Tools.FieldLabel.HttpMethod" xml:space="preserve"><value>HTTP method: GET, POST, PUT, DELETE</value></data>
+  <data name="Tools.FieldLabel.CommitScope" xml:space="preserve"><value>Type/scope, e.g. feat/tools</value></data>
 </root>
