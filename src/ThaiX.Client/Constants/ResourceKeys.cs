@@ -2018,6 +2018,14 @@ public static class ResourceKeys
             public const string Pattern = "Tools.FieldLabel.Pattern";
             public const string Headers = "Tools.FieldLabel.Headers";
             public const string Body = "Tools.FieldLabel.Body";
+            public const string Length = "Tools.FieldLabel.Length";
+            public const string Symbols = "Tools.FieldLabel.Symbols";
+            public const string Breaking = "Tools.FieldLabel.Breaking";
+            public const string Option = "Tools.FieldLabel.Option";
+            public const string CronExpression = "Tools.FieldLabel.CronExpression";
+            public const string GitignorePreset = "Tools.FieldLabel.GitignorePreset";
+            public const string HttpMethod = "Tools.FieldLabel.HttpMethod";
+            public const string CommitScope = "Tools.FieldLabel.CommitScope";
         }
 
         public static class Category
