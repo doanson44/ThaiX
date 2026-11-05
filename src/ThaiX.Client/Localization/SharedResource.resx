@@ -2125,4 +2125,5 @@
   <data name="Calc.Field.MaxSupply" xml:space="preserve"><value>Maximum supply (optional)</value></data>
   <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Total supply valuation</value></data>
   <data name="Calc.Result.Fdv" xml:space="preserve"><value>Fully diluted valuation (FDV)</value></data>
+  <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>To Unix milliseconds</value></data>
 </root>
