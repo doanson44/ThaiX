@@ -738,6 +738,29 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MaxDrawdownFromSeries_WithRecoveredDrawdown_ShouldReportDurations()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.MaxDrawdownFromSeries([100m, 120m, 90m, 100m, 120m, 110m]);
+
+        // Assert
+        Assert.Equal("30", result.Breakdown[0].Value);
+        Assert.Equal("25", result.Breakdown[1].Value);
+        Assert.Equal("1", result.Breakdown[2].Value);
+        Assert.Equal("2", result.Breakdown[3].Value);
+    }
+
+    [Fact]
+    public void MaxDrawdownFromSeries_WhenNotRecovered_ShouldReportPendingRecovery()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.MaxDrawdownFromSeries([100m, 120m, 90m, 100m]);
+
+        // Assert
+        Assert.Equal("N/A", result.Breakdown[3].Value);
+    }
+
+    [Fact]
     public void MaxDrawdownFromSeries_WhenEquityIsNonPositive_ShouldThrow()
     {
         // Arrange / Act
