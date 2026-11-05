@@ -37,17 +37,18 @@ Create in `Application/Features/ExternalData/{Feature}/Queries/{QueryName}/`:
 
 ```csharp
 // {QueryName}Query.cs
-public sealed record {QueryName}Query : IRequest<{QueryName}Response?>;
+public sealed record {QueryName}Query : IAppQuery<{QueryName}Response>;
 
 public sealed record {QueryName}Response
 {
-    // Business data only; API status and errors belong to the standard ApiResponse<T> envelope.
+    // Add upstream-provider status fields only when the feature contract needs them.
     // All domain fields here
 }
 ```
 
-- Keep query DTOs limited to business data. Do not duplicate `Success`, `Message`, or error fields from the standard API envelope.
-- Follow the existing external-service error and exception-mapping contract for upstream failures; do not return hardcoded user-facing messages from Application.
+- Use `IAppQuery<T>` for read-only requests, following the current Application messaging contract.
+- `ApiResponse<T>` is the outer API envelope. For external-data features that already model upstream provider availability with payload `Success`/`Message` fields, preserve that distinction: the outer envelope represents API processing, while the payload fields represent the provider/data result. Do not add these payload fields automatically when the feature does not need them.
+- Follow the existing external-service error and exception-mapping contract for transport/provider failures. Do not put localized UI text in Application.
 - Use `decimal?` for numeric values that may be missing.
 
 ### 1.2 Query Handler
@@ -55,14 +56,14 @@ public sealed record {QueryName}Response
 ```csharp
 // {QueryName}QueryHandler.cs
 public sealed class {QueryName}QueryHandler
-     : IRequestHandler<{QueryName}Query, {QueryName}Response?>
+     : IRequestHandler<{QueryName}Query, {QueryName}Response>
 {
     private readonly IExternalDataService _externalDataService;
 
     public {QueryName}QueryHandler(IExternalDataService externalDataService)
         => _externalDataService = externalDataService;
 
-    public async Task<{QueryName}Response?> Handle(
+    public async Task<{QueryName}Response> Handle(
         {QueryName}Query request,
         CancellationToken cancellationToken)
     {
@@ -70,7 +71,10 @@ public sealed class {QueryName}QueryHandler
             .Get{Source}Async<InternalResponse>(cancellationToken);
 
         if (apiResponse is null)
-            return null;
+        {
+            // Return a non-null provider-unavailable payload matching this feature's contract.
+            return new {QueryName}Response { ... };
+        }
 
         // Project from internal → response (manual, no AutoMapper).
         return new {QueryName}Response { ... };
@@ -110,11 +114,11 @@ Add to `Presentation/Endpoints/ExternalDataEndpoints.cs`:
 group.MapGet("{route}", async (IMediator mediator, HttpContext ctx, CancellationToken ct) =>
 {
     var result = await mediator.Send(new {QueryName}Query(), ct);
-    var response = ApiResponse<{QueryName}Response?>.SuccessResult(result);
+    var response = ApiResponse<{QueryName}Response>.SuccessResult(result);
     response.Metadata.CorrelationId = ctx.GetCorrelationId();
     return Results.Ok(response);
 })
-.RequireAuthorization(Permissions.MasterDataRead)
+.RequireAuthorization(Permissions.XxxRead) // or AllowAnonymous only when the endpoint is intentionally public
 .WithName("{QueryName}")
 .WithTags("ExternalData");
 ```
@@ -133,12 +137,13 @@ Add to `ThaiX.Client/Models/ExternalData/ExternalDataContracts.cs`:
 /// </summary>
 public sealed record {Feature}ResponseDto
 {
-    // Mirror business data fields only; transport status/errors remain in ApiResponse<T>.
+    // Mirror the server payload contract. Keep upstream Success/Message only when that feature uses them.
 }
 ```
 
 - One DTO per feature. Never reuse server-side types in the client.
 - `decimal?` for nullable numerics, `string?` for nullable strings.
+- Do not display a provider's raw technical `Message` directly to users; use localized `ResourceKeys` for the widget's failure state.
 
 ### 2.2 Client Service Interface
 
@@ -153,22 +158,14 @@ Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken canc
 Add to `ExternalDataService.cs`:
 
 ```csharp
-private const string {Feature}Endpoint = "{route-segment}";
+private const string FeatureEndpoint = "{route-segment}";
 
-public async Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken cancellationToken = default)
-{
-    var path = $"{ExternalDataBase}/{Feature}Endpoint";
-    var response = await _httpClient.GetAsync(path, cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-        throw new ApiException("EXTERNAL_API_ERROR", $"API call failed: {response.StatusCode}", response.StatusCode);
-
-    var envelope = await response.Content.ReadFromJsonAsync<ApiResponse<{Feature}ResponseDto>>(cancellationToken: cancellationToken);
-    if (envelope is null)
-        throw new ApiException("CLIENT_INVALID_RESPONSE", "Invalid response from external API.", HttpStatusCode.InternalServerError);
-
-    return envelope;
-}
+public Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken cancellationToken = default)
+    => GetEnvelopeCachedAsync<{Feature}ResponseDto>(
+        CacheGroups.{ExistingCacheGroup},
+        FeatureEndpoint,
+        ClientCacheTtl.{ExistingTtl},
+        cancellationToken);
 ```
 
 ---
@@ -235,7 +232,7 @@ Rules:
             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
         </div>
     }
-    else if (_hasError || _data is null)
+    else if (_hasError || _data is null || !_data.Success)
     {
         <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @L[{Feature}.LoadFailed]
@@ -275,6 +272,8 @@ Rules:
             var response = await ExternalDataService.Get{Feature}Async();
             if (response is { Data: not null })
                 _data = response.Data;
+            else
+                _hasError = true;
         }
         catch (Exception exception)
         {
@@ -353,6 +352,7 @@ In markup:
 
 - **Prefer self-fetch** (inject + call in `OnInitializedAsync`) — simpler usage, no caller plumbing.
 - Use `[Parameter] public Data` only when the parent page already owns the data and must share it across multiple components.
+- Reuse the existing client `GetEnvelopeAsync` / `GetEnvelopeCachedAsync` helpers and existing cache group/TTL constants; do not create a second envelope parser or manual cache implementation.
 - Never mix both patterns in the same widget.
 
 ---
