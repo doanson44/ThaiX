@@ -113,6 +113,31 @@ public sealed class ToolQualityUnitTests
         Assert.Contains("public long P1stValue", output, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData("D")]
+    [InlineData("N")]
+    [InlineData("B")]
+    [InlineData("P")]
+    [InlineData("X")]
+    public void NewUuid_WithSupportedFormat_ShouldParse(string format)
+    {
+        // Arrange / Act
+        var value = EncodeToolTransforms.NewUuid(v7: true, format);
+
+        // Assert
+        Assert.Equal(Guid.CreateVersion7(), Guid.ParseExact(value, format));
+    }
+
+    [Fact]
+    public void NewUuid_WithUnsupportedFormat_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => EncodeToolTransforms.NewUuid(v7: false, "invalid");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
     [Fact]
     public void Base64UrlEncodeAndDecode_ShouldRoundTripWithoutPadding()
     {
