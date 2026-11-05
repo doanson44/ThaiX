@@ -151,24 +151,28 @@ public static class RiskCalculators
             [F(exp)]);
     }
 
-    public static CalculatorResult Kelly(decimal winRatePct, decimal payoffRatio)
+    public static CalculatorResult Kelly(decimal winRatePct, decimal payoffRatio, decimal maxKellyPct = 25m)
     {
         RequirePct(winRatePct, "Win rate %");
         RequirePositive(payoffRatio, "Payoff ratio");
+        RequirePct(maxKellyPct, "Kelly cap %");
         var p = winRatePct / 100m;
         var q = 1m - p;
         var b = payoffRatio;
         var full = (b * p - q) / b;
         if (full < 0) full = 0;
+        var fullPct = full * 100m;
+        var cappedPct = Math.Min(fullPct, maxKellyPct);
         return new CalculatorResult(
             [
-                Line("Calc.Result.KellyFull", full * 100m),
-                Line("Calc.Result.KellyHalf", full * 50m),
-                Line("Calc.Result.KellyQuarter", full * 25m)
+                Line("Calc.Result.KellyFull", fullPct),
+                Line("Calc.Result.KellyHalf", fullPct / 2m),
+                Line("Calc.Result.KellyQuarter", fullPct / 4m),
+                Line("Calc.Result.KellyCapped", cappedPct)
             ],
-            "f* = (b×p − q)/b; half = f*/2; quarter = f*/4 (shown as % of bankroll)",
+            "f* = (b×p − q)/b; fractional Kelly = f* × fraction; capped Kelly = min(full Kelly, cap)",
             "Calc.Interp.Kelly",
-            [F(full * 100m)]);
+            [F(fullPct)]);
     }
 
     public static CalculatorResult ConsecutiveLoss(decimal equity, decimal riskPct, int losses)
