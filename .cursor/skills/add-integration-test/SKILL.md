@@ -204,4 +204,4 @@ If a test fails unexpectedly, inspect the response body to diagnose the issue be
 - Use `#region` blocks to group tests by endpoint route
 - Do NOT use `[Theory]` unless the endpoint has a documented parameterized contract
 - No shared mutable state between tests
-- Do NOT auto-commit after writing tests
+- Do not commit by default. If the user requests a PR workflow, commit the verified tests on the task branch and open the PR against `master`.

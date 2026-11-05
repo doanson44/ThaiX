@@ -212,7 +212,7 @@ Do not add trailers that are unsupported by the repository workflow.
 
 ## Git Policy
 
-- Git operations are the user's responsibility.
+- Perform Git operations when the user explicitly delegates them (including a requested branch/commit/PR workflow); otherwise do not create commits or pull requests on your own.
 
 ## Agent Customizations
 

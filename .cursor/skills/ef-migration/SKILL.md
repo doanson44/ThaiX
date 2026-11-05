@@ -1,6 +1,6 @@
 ---
 name: ef-migration
-description: "Manage EF Core migration lifecycle: create, revert applied migration, or remove latest unapplied migration. Use when database schema changes or rollback actions are required."
+description: "Manage EF Core migrations: add a new migration, revert the latest applied migration from the database, or remove the latest unapplied migration file. Use when schema changes are needed or a migration must be rolled back."
 argument-hint: "Action + description, e.g. 'add AddProducts', 'revert', or 'remove'"
 ---
 
@@ -140,4 +140,4 @@ Check that `Persistence/Migrations/` no longer contains the removed files and th
 - Build the solution before adding a migration: `dotnet build ThaiX.slnx`
 - Review `Down()` to ensure it safely reverts `Up()`.
 - Do NOT modify auto-generated migration files manually.
-- Do NOT auto-commit after migration operations.
+- Do not commit by default. If the user requests a PR workflow, commit the migration-related changes on the task branch and open the PR against `master`. Never apply database changes unless explicitly requested.

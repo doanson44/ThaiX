@@ -372,4 +372,4 @@ The command must exit successfully. Review all build errors; do not pipe away or
 | Using `@item.Price:N2` for number formatting | Use `@item.Price.ToString("N2")` or `@($"{item.Price:N2}")` |
 | `Style="border: 1px solid #ccc"` | Use `Style="border: 1px solid var(--rz-border-color);"` (CSS variable) |
 | Subscribing `OnBreakpointChanged` without `@implements IDisposable` | Always pair subscription with `IDisposable` |
-| Auto-commit after fix | NEVER commit -- git operations are the user's responsibility |
+| Commit after fix | Do not commit by default; when a PR workflow is requested, commit the verified fix and open the PR against `master` |
