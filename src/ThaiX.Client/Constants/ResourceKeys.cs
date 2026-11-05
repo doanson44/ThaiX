@@ -1961,6 +1961,7 @@ public static class ResourceKeys
         public const string HubTitle = "Tools.Hub.Title";
         public const string HubDescription = "Tools.Hub.Description";
         public const string SearchPlaceholder = "Tools.Search.Placeholder";
+        public const string LastUsed = "Tools.LastUsed";
         public const string Save = "Tools.Save";
         public const string Share = "Tools.Share";
         public const string ClearDraft = "Tools.ClearDraft";
