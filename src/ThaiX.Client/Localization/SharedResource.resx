@@ -1744,6 +1744,8 @@
   <data name="Calc.Placeholder.TargetMcapScenarios" xml:space="preserve"><value>e.g. 500000000,1000000000,2000000000</value></data>
   <data name="Calc.Field.Ath" xml:space="preserve"><value>All-time high</value></data>
   <data name="Calc.Field.Current" xml:space="preserve"><value>Current price</value></data>
+  <data name="Calc.Field.CurrentPrice" xml:space="preserve"><value>Current market price (optional)</value></data>
+  <data name="Calc.Field.FeePerLegPct" xml:space="preserve"><value>Fee per purchase/leg %</value></data>
   <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>e.g. 100,1;102,2</value></data>
   <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>e.g. 100,50;90,50</value></data>
   <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>e.g. 10000,9800,10200,9500</value></data>
@@ -1768,7 +1770,12 @@
   <data name="Calc.Result.LiquidationPrice" xml:space="preserve"><value>Liquidation price</value></data>
   <data name="Calc.Result.AverageEntry" xml:space="preserve"><value>Average entry</value></data>
   <data name="Calc.Result.Cost" xml:space="preserve"><value>Total cost</value></data>
-  <data name="Calc.Result.Invested" xml:space="preserve"><value>Invested</value></data>
+  <data name="Calc.Result.Invested" xml:space="preserve"><value>Invested before fees</value></data>
+  <data name="Calc.Result.TotalOutlay" xml:space="preserve"><value>Total outlay including fees</value></data>
+  <data name="Calc.Result.MarketValue" xml:space="preserve"><value>Current market value</value></data>
+  <data name="Calc.Result.UnrealizedPnl" xml:space="preserve"><value>Unrealized PnL</value></data>
+  <data name="Calc.Result.GrossProfit" xml:space="preserve"><value>Gross profit before fees</value></data>
+  <data name="Calc.Result.NetRisk" xml:space="preserve"><value>Net risk after fees and slippage</value></data>
   <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Break-even price</value></data>
   <data name="Calc.Result.FundingCashflow" xml:space="preserve"><value>Funding cashflow</value></data>
   <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
