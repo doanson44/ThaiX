@@ -100,6 +100,34 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void JsonToCsharp_WithRepeatedNestedTypeNames_ShouldGenerateUniqueTypes()
+    {
+        // Arrange
+        const string json = "{\"first\":{\"meta\":{\"id\":1}},\"second\":{\"meta\":{\"name\":\"ThaiX\"}}}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("public class Meta", output, StringComparison.Ordinal);
+        Assert.Contains("public class Meta2", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToTypescript_WithRepeatedNestedTypeNames_ShouldGenerateUniqueTypes()
+    {
+        // Arrange
+        const string json = "{\"first\":{\"meta\":{\"id\":1}},\"second\":{\"meta\":{\"name\":\"ThaiX\"}}}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Contains("export interface Meta", output, StringComparison.Ordinal);
+        Assert.Contains("export interface Meta2", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void JsonToCsharp_WithNonIdentifierPropertyName_ShouldGenerateValidProperty()
     {
         // Arrange
