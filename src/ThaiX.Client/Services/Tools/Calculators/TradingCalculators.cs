@@ -6,43 +6,97 @@ public static class TradingCalculators
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    public static CalculatorResult PositionSize(decimal account, decimal riskPct, decimal entry, decimal stopLoss, TradeSide side = TradeSide.Long)
+    public static CalculatorResult PositionSize(
+        decimal account,
+        decimal riskPct,
+        decimal entry,
+        decimal stopLoss,
+        TradeSide side = TradeSide.Long,
+        decimal feePct = 0m,
+        decimal slippagePct = 0m)
     {
         RequirePositive(account, "Account");
         RequirePositive(riskPct, "Risk %");
         if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
+        RequireFeePct(feePct, "Fee per side %");
+        RequireFeePct(slippagePct, "Slippage per side %");
+
         var stopIsAligned = side == TradeSide.Long ? stopLoss < entry : stopLoss > entry;
         if (!stopIsAligned)
             throw new CalculatorInputException("Stop loss must be below entry for long or above entry for short.");
-        var riskDist = Math.Abs(entry - stopLoss);
-        if (riskDist == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
+
+        var slippage = slippagePct / 100m;
+        var fee = feePct / 100m;
+        var effectiveEntry = side == TradeSide.Long
+            ? entry * (1m + slippage)
+            : entry * (1m - slippage);
+        var effectiveStop = side == TradeSide.Long
+            ? stopLoss * (1m - slippage)
+            : stopLoss * (1m + slippage);
+        var priceRiskPerUnit = Math.Abs(effectiveEntry - effectiveStop);
+        var feesPerUnit = (effectiveEntry + effectiveStop) * fee;
+        var slippageCostPerUnit = Math.Abs(effectiveEntry - entry) + Math.Abs(effectiveStop - stopLoss);
+        var totalRiskPerUnit = priceRiskPerUnit + feesPerUnit;
+        if (totalRiskPerUnit <= 0)
+            throw new CalculatorInputException("Total risk per unit must be greater than zero.");
 
         var riskAmount = account * (riskPct / 100m);
-        var qty = riskAmount / riskDist;
-        var notional = qty * entry;
+        var qty = riskAmount / totalRiskPerUnit;
+        var notional = qty * effectiveEntry;
 
         return new CalculatorResult(
             [
                 Line("Calc.Result.RiskAmount", riskAmount),
+                Line("Calc.Result.PriceRiskPerUnit", priceRiskPerUnit),
+                Line("Calc.Result.FeesPerUnit", feesPerUnit),
+                Line("Calc.Result.SlippageCostPerUnit", slippageCostPerUnit),
+                Line("Calc.Result.TotalRiskPerUnit", totalRiskPerUnit),
                 Line("Calc.Result.Quantity", qty),
                 Line("Calc.Result.Notional", notional)
             ],
-            "riskAmount = account × risk%; qty = riskAmount / |entry − SL|; notional = qty × entry",
+            "riskPerUnit = adverse entry/stop distance + entry/stop fees; qty = account risk amount / riskPerUnit; fees and slippage are charged per side",
             "Calc.Interp.PositionSize",
             [F(riskPct), F(qty), F(notional)]);
     }
 
-    public static CalculatorResult RiskReward(decimal entry, decimal stopLoss, decimal takeProfit, TradeSide side)
+    public static CalculatorResult RiskReward(
+        decimal entry,
+        decimal stopLoss,
+        decimal takeProfit,
+        TradeSide side,
+        decimal feePct = 0m,
+        decimal slippagePct = 0m)
     {
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
         RequirePositive(takeProfit, "Take profit");
+        RequireFeePct(feePct, "Fee per side %");
+        RequireFeePct(slippagePct, "Slippage per side %");
 
-        var risk = Math.Abs(entry - stopLoss);
-        var reward = Math.Abs(takeProfit - entry);
-        if (risk == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
+        var slippage = slippagePct / 100m;
+        var fee = feePct / 100m;
+        var effectiveEntry = side == TradeSide.Long
+            ? entry * (1m + slippage)
+            : entry * (1m - slippage);
+        var effectiveStop = side == TradeSide.Long
+            ? stopLoss * (1m - slippage)
+            : stopLoss * (1m + slippage);
+        var effectiveTarget = side == TradeSide.Long
+            ? takeProfit * (1m - slippage)
+            : takeProfit * (1m + slippage);
+
+        var grossRisk = Math.Abs(effectiveEntry - effectiveStop);
+        var grossReward = Math.Abs(effectiveTarget - effectiveEntry);
+        if (grossRisk == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
+
+        var riskFees = (effectiveEntry + effectiveStop) * fee;
+        var rewardFees = (effectiveEntry + effectiveTarget) * fee;
+        var risk = grossRisk + riskFees;
+        var reward = grossReward - rewardFees;
+        if (reward <= 0)
+            throw new CalculatorInputException("Take-profit reward must exceed round-trip fees and slippage.");
 
         var rr = reward / risk;
         var breakEvenWinRatePct = risk / (risk + reward) * 100m;
@@ -56,9 +110,11 @@ public static class TradingCalculators
                 Line("Calc.Result.RewardDistance", reward),
                 Line("Calc.Result.RiskReward", rr),
                 Line("Calc.Result.BreakEvenWinRatePct", breakEvenWinRatePct),
-                new("Calc.Result.LevelsAligned", aligned ? "Calc.Yes" : "Calc.No")
+                new("Calc.Result.LevelsAligned", aligned ? "Calc.Yes" : "Calc.No"),
+                Line("Calc.Result.Fees", riskFees),
+                Line("Calc.Result.Fees", rewardFees)
             ],
-            "R:R = |TP − entry| / |entry − SL|",
+            "net risk = adverse stop distance + entry/stop fees; net reward = adverse target distance - entry/target fees; net R:R = net reward / net risk",
             "Calc.Interp.RiskReward",
             [F(rr)]);
     }
