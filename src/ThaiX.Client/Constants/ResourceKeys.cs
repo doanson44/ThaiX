@@ -2010,6 +2010,7 @@ public static class ResourceKeys
         public const string ValidationBrowser = "Tools.Validation.Browser";
         public const string Valid = "Tools.Valid";
         public const string Invalid = "Tools.Invalid";
+        public const string EditorStats = "Tools.EditorStats";
 
         public static class Action
         {
