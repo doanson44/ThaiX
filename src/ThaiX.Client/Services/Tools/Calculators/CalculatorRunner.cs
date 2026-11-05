@@ -37,7 +37,8 @@ public static class CalculatorRunner
             "loss-recovery" => RiskCalculators.LossRecovery(D(fields, "lossPct")),
             "expectancy" => RiskCalculators.Expectancy(
                 D(fields, "winRatePct"), D(fields, "avgWin"), D(fields, "avgLoss")),
-            "kelly-criterion" => RiskCalculators.Kelly(D(fields, "winRatePct"), D(fields, "payoffRatio")),
+            "kelly-criterion" => RiskCalculators.Kelly(
+                D(fields, "winRatePct"), D(fields, "payoffRatio"), D(fields, "maxKellyPct", 25m)),
             "consecutive-loss" => RiskCalculators.ConsecutiveLoss(
                 D(fields, "equity"), D(fields, "riskPct"), Int(fields, "losses")),
             "market-cap" => CryptoCalculators.MarketCap(
