@@ -1642,7 +1642,7 @@
   <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Take Profit</value></data>
   <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Take-profit from target % or R:R</value></data>
   <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Risk of Ruin</value></data>
-  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Simplified fixed-fractional risk-of-ruin estimate</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Heuristic risk estimate only; not a calibrated probability of ruin</value></data>
   <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Max Drawdown</value></data>
   <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>Maximum drawdown from peak/trough or equity series</value></data>
   <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Loss Recovery</value></data>
@@ -1747,7 +1747,7 @@
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Take-profit price</value></data>
   <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Expected profit</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
-  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Risk of ruin %</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Heuristic risk estimate %</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Max drawdown</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Max drawdown %</value></data>
   <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Recovery %</value></data>
@@ -1770,7 +1770,7 @@
   <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Stop loss near {0} for the chosen risk.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
-  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Simplified RoR ≈ {0}% (educational model).</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Heuristic estimate ≈ {0}%; this is not a calibrated probability of ruin.</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Maximum drawdown about {0}%.</value></data>
   <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Need about {0}% gain to recover.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
