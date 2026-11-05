@@ -273,7 +273,7 @@ public static class ConvertToolTransforms
                 nested.Add((p.Value, ToPascal(p.Name)));
             else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
                 nested.Add((p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
-            sb.AppendLine($"  {p.Name}: {typeName};");
+            sb.AppendLine($"  {TypeScriptPropertyName(p.Name)}: {typeName};");
         }
         sb.AppendLine("}");
         sb.AppendLine();
@@ -307,13 +307,68 @@ public static class ConvertToolTransforms
 
     private static string ToPascal(string name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return "Property";
-        var parts = name.Split([' ', '-', '_', '.'], StringSplitOptions.RemoveEmptyEntries);
         var sb = new StringBuilder();
-        foreach (var p in parts)
-            sb.Append(char.ToUpperInvariant(p[0])).Append(p.AsSpan(1));
-        var s = sb.ToString();
-        return char.IsLetter(s[0]) ? s : "P" + s;
+        var capitalizeNext = true;
+        foreach (var character in name ?? string.Empty)
+        {
+            if (!char.IsLetterOrDigit(character))
+            {
+                capitalizeNext = true;
+                continue;
+            }
+
+            if (sb.Length == 0 && char.IsDigit(character))
+                sb.Append('P');
+
+            sb.Append(capitalizeNext ? char.ToUpperInvariant(character) : character);
+            capitalizeNext = false;
+        }
+
+        return sb.Length == 0 ? "Property" : sb.ToString();
+    }
+
+    private static string TypeScriptPropertyName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return JsonSerializer.Serialize("property");
+
+        var validStart = char.IsLetter(name[0]) || name[0] is '_' or '
+
+    private static string EscapeCsv(string value)
+    {
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
+    }
+
+    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
+    {
+        JsonValueKind.String => v.GetString() ?? "",
+        JsonValueKind.Null => "",
+        _ => v.ToString()
+    };
+}
+;
+        var validTail = name.Skip(1).All(character =>
+            char.IsLetterOrDigit(character) || character is '_' or '
+
+    private static string EscapeCsv(string value)
+    {
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
+    }
+
+    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
+    {
+        JsonValueKind.String => v.GetString() ?? "",
+        JsonValueKind.Null => "",
+        _ => v.ToString()
+    };
+}
+);
+
+        return validStart && validTail ? name : JsonSerializer.Serialize(name);
     }
 
     private static string EscapeCsv(string value)
