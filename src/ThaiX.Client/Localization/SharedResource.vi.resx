@@ -1768,8 +1768,13 @@
   <data name="Calc.Result.RoePct" xml:space="preserve"><value>ROE %</value></data>
   <data name="Calc.Result.LiquidationPrice" xml:space="preserve"><value>Giá thanh lý</value></data>
   <data name="Calc.Result.AverageEntry" xml:space="preserve"><value>Giá vào TB</value></data>
-  <data name="Calc.Result.Cost" xml:space="preserve"><value>Tổng chi phí</value></data>
-  <data name="Calc.Result.Invested" xml:space="preserve"><value>Đã đầu tư</value></data>
+  <data name="Calc.Result.Cost" xml:space="preserve"><value>Tổng chi phí gồm phí</value></data>
+  <data name="Calc.Result.Invested" xml:space="preserve"><value>Vốn đầu tư trước phí</value></data>
+  <data name="Calc.Result.TotalOutlay" xml:space="preserve"><value>Tổng chi phí gồm phí</value></data>
+  <data name="Calc.Result.MarketValue" xml:space="preserve"><value>Giá trị thị trường hiện tại</value></data>
+  <data name="Calc.Result.UnrealizedPnl" xml:space="preserve"><value>PnL chưa thực hiện</value></data>
+  <data name="Calc.Result.GrossProfit" xml:space="preserve"><value>Lợi nhuận gộp trước phí</value></data>
+  <data name="Calc.Result.NetRisk" xml:space="preserve"><value>Rủi ro ròng sau phí và trượt giá</value></data>
   <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Giá hòa vốn</value></data>
   <data name="Calc.Result.FundingCashflow" xml:space="preserve"><value>Dòng tiền funding</value></data>
   <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
@@ -1777,7 +1782,7 @@
   <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Ký quỹ cần thiết</value></data>
   <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Giá dừng lỗ</value></data>
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Giá chốt lời</value></data>
-  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lãi kỳ vọng</value></data>
+  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lợi nhuận ròng sau phí</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
   <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Tần suất chạm ngưỡng phá sản ước tính %</value></data>
   <data name="Calc.Result.RiskOfRuinConfidenceLow" xml:space="preserve"><value>Cận dưới khoảng tin cậy 95% %</value></data>
