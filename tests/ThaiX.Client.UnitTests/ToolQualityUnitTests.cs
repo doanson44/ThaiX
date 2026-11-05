@@ -424,6 +424,37 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void QrSvg_WithHighErrorCorrectionAndStandardQuietZone_ShouldReturnSvg()
+    {
+        // Arrange / Act
+        var svg = GeneratorToolTransforms.QrSvg("https://example.com", 4, "high");
+
+        // Assert
+        Assert.Contains("<svg", svg, StringComparison.Ordinal);
+        Assert.Contains("viewBox", svg, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void QrSvg_WithInvalidErrorCorrection_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.QrSvg("ThaiX", 4, "extreme");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void QrSvg_WithQuietZoneOutsideSupportedRange_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.QrSvg("ThaiX", 17, "medium");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void PasswordStrength_ShouldDiscloseHeuristicLimitations()
     {
         // Arrange / Act
