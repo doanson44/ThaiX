@@ -42,6 +42,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Risk calculators | Rejects negative equity while treating zero equity as a 100% drawdown; reports peak-to-trough and recovery periods; adds Expectancy in R multiples and a configurable Kelly cap; labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
 | Crypto calculators | Market Cap distinguishes circulating supply market cap, total-supply valuation, and maximum-supply FDV, with supply-order validation. |
 | Localization | Localizes ToolHost action labels, input labels, and generator options in English and Vietnamese. |
+| Last Used | Deduplicates persisted slugs case-insensitively and filters unknown tools before rendering the recent-tools list. |
 
 ## Remaining backlog
 
