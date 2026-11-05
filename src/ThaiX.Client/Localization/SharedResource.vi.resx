@@ -2076,4 +2076,33 @@
   <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Cho phép đăng nhập bằng mã dùng một lần được gửi đến địa chỉ email đã xác nhận.</value></data>
   <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Đã lưu cài đặt đăng nhập.</value></data>
   <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Không thể lưu cài đặt đăng nhập.</value></data>
+  <data name="Tools.Action.Pretty" xml:space="preserve"><value>Định dạng đẹp</value></data>
+  <data name="Tools.Action.Minify" xml:space="preserve"><value>Thu gọn</value></data>
+  <data name="Tools.Action.Validate" xml:space="preserve"><value>Kiểm tra</value></data>
+  <data name="Tools.Action.Compare" xml:space="preserve"><value>So sánh</value></data>
+  <data name="Tools.Action.Decode" xml:space="preserve"><value>Giải mã</value></data>
+  <data name="Tools.Action.Encode" xml:space="preserve"><value>Mã hóa</value></data>
+  <data name="Tools.Action.Hash" xml:space="preserve"><value>Băm</value></data>
+  <data name="Tools.Action.Generate" xml:space="preserve"><value>Tạo</value></data>
+  <data name="Tools.Action.ToUnix" xml:space="preserve"><value>Sang Unix</value></data>
+  <data name="Tools.Action.FromUnix" xml:space="preserve"><value>Từ Unix</value></data>
+  <data name="Tools.Action.Format" xml:space="preserve"><value>Định dạng</value></data>
+  <data name="Tools.Action.YamlToJson" xml:space="preserve"><value>YAML → JSON</value></data>
+  <data name="Tools.Action.JsonToYaml" xml:space="preserve"><value>JSON → YAML</value></data>
+  <data name="Tools.Action.CsvToJson" xml:space="preserve"><value>CSV → JSON</value></data>
+  <data name="Tools.Action.JsonToCsv" xml:space="preserve"><value>JSON → CSV</value></data>
+  <data name="Tools.Action.GenerateCsharp" xml:space="preserve"><value>Tạo mã C#</value></data>
+  <data name="Tools.Action.GenerateTypescript" xml:space="preserve"><value>Tạo mã TypeScript</value></data>
+  <data name="Tools.Action.Preview" xml:space="preserve"><value>Xem trước</value></data>
+  <data name="Tools.Action.HtmlToMarkdown" xml:space="preserve"><value>HTML → Markdown</value></data>
+  <data name="Tools.Action.MarkdownToHtml" xml:space="preserve"><value>Markdown → HTML</value></data>
+  <data name="Tools.Action.Test" xml:space="preserve"><value>Kiểm thử</value></data>
+  <data name="Tools.Action.Replace" xml:space="preserve"><value>Thay thế</value></data>
+  <data name="Tools.Action.Build" xml:space="preserve"><value>Tạo biểu thức</value></data>
+  <data name="Tools.FieldLabel.InputText" xml:space="preserve"><value>Văn bản đầu vào</value></data>
+  <data name="Tools.FieldLabel.Url" xml:space="preserve"><value>URL</value></data>
+  <data name="Tools.FieldLabel.Subject" xml:space="preserve"><value>Tiêu đề</value></data>
+  <data name="Tools.FieldLabel.Pattern" xml:space="preserve"><value>Biểu thức</value></data>
+  <data name="Tools.FieldLabel.Headers" xml:space="preserve"><value>Headers (Tên: giá trị)</value></data>
+  <data name="Tools.FieldLabel.Body" xml:space="preserve"><value>Nội dung</value></data>
 </root>
