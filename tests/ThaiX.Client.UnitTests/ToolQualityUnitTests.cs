@@ -125,7 +125,7 @@ public sealed class ToolQualityUnitTests
         var value = EncodeToolTransforms.NewUuid(v7: true, format);
 
         // Assert
-        Assert.Equal(Guid.CreateVersion7(), Guid.ParseExact(value, format));
+        Assert.True(Guid.TryParseExact(value, format, out _));
     }
 
     [Fact]
