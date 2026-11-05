@@ -65,11 +65,15 @@ public static class GeneratorToolTransforms
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
         $"{minute} {hour} {dayOfMonth} {month} {dayOfWeek}";
 
-    public static string DescribeCron(string expression, DateTimeOffset? fromUtc = null)
+    public static string DescribeCron(
+        string expression,
+        DateTimeOffset? fromUtc = null,
+        string cronLabel = "Cron",
+        string nextRunsLabel = "Next runs (UTC)")
     {
         var occurrences = GetNextCronOccurrences(expression, fromUtc ?? DateTimeOffset.UtcNow);
         var lines = occurrences.Select(value => value.ToString("yyyy-MM-dd HH:mm 'UTC'", System.Globalization.CultureInfo.InvariantCulture));
-        return $"Cron: {expression}\nNext runs (UTC):\n{string.Join("\n", lines)}";
+        return $"{cronLabel}: {expression}\n{nextRunsLabel}:\n{string.Join("\n", lines)}";
     }
 
     public static IReadOnlyList<DateTimeOffset> GetNextCronOccurrences(
