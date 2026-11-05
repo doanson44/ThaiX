@@ -45,6 +45,7 @@ public static class TradingCalculators
         if (risk == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
 
         var rr = reward / risk;
+        var breakEvenWinRatePct = risk / (risk + reward) * 100m;
         var aligned = side == TradeSide.Long
             ? takeProfit > entry && stopLoss < entry
             : takeProfit < entry && stopLoss > entry;
@@ -54,6 +55,7 @@ public static class TradingCalculators
                 Line("Calc.Result.RiskDistance", risk),
                 Line("Calc.Result.RewardDistance", reward),
                 Line("Calc.Result.RiskReward", rr),
+                Line("Calc.Result.BreakEvenWinRatePct", breakEvenWinRatePct),
                 new("Calc.Result.LevelsAligned", aligned ? "Calc.Yes" : "Calc.No")
             ],
             "R:R = |TP − entry| / |entry − SL|",
