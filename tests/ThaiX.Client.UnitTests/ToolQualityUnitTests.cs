@@ -236,6 +236,70 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void JsonToCsharp_WithCollidingSanitizedNames_ShouldUseUniqueProperties()
+    {
+        // Arrange
+        const string json = "{\"first-name\":1,\"first_name\":2}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("FirstName { get; set; }", output, StringComparison.Ordinal);
+        Assert.Contains("FirstName2 { get; set; }", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FuturesPnl_WhenFeeReachesOneHundredPercent_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.FuturesPnl(100m, 110m, 1m, 10m, TradeSide.Long, 100m, 0m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void Liquidation_WhenLeverageIsBelowOne_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.Liquidation(100m, 0.5m, TradeSide.Long, 0.5m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void CalculatorRunner_WhenFundingPeriodsAreFractional_ShouldThrow()
+    {
+        // Arrange
+        var fields = new Dictionary<string, string>
+        {
+            ["notional"] = "1000",
+            ["ratePct"] = "0.01",
+            ["periods"] = "1.5",
+            ["side"] = "long"
+        };
+
+        // Act
+        var act = () => CalculatorRunner.Run("funding", fields);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void RiskOfRuin_ShouldLabelOutputAsHeuristicNotProbability()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.RiskOfRuin(55m, 1.5m, 1m);
+
+        // Assert
+        Assert.Contains("not a calibrated probability", result.Formula, StringComparison.Ordinal);
+        Assert.Equal("Calc.Interp.RiskOfRuin", result.InterpretationKey);
+    }
+
+    [Fact]
     public void PositionSize_WhenRiskExceedsOneHundredPercent_ShouldThrow()
     {
         // Arrange / Act
