@@ -1737,7 +1737,9 @@
   <data name="Calc.Field.Losses" xml:space="preserve"><value>Số lệnh thua liên tiếp (N)</value></data>
   <data name="Calc.Field.Price" xml:space="preserve"><value>Giá</value></data>
   <data name="Calc.Field.Supply" xml:space="preserve"><value>Nguồn cung lưu hành</value></data>
-  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Vốn hóa mục tiêu</value></data>
+  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Vốn hóa mục tiêu (một kịch bản)</value></data>
+  <data name="Calc.Field.TargetMcapScenarios" xml:space="preserve"><value>Các mức vốn hóa mục tiêu bổ sung (không bắt buộc)</value></data>
+  <data name="Calc.Placeholder.TargetMcapScenarios" xml:space="preserve"><value>vd: 500000000,1000000000,2000000000</value></data>
   <data name="Calc.Field.Ath" xml:space="preserve"><value>Đỉnh lịch sử (ATH)</value></data>
   <data name="Calc.Field.Current" xml:space="preserve"><value>Giá hiện tại</value></data>
   <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>vd: 100,1;102,2</value></data>
@@ -1785,6 +1787,7 @@
   <data name="Calc.Result.RemainingEquity" xml:space="preserve"><value>Vốn còn lại</value></data>
   <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Vốn hóa</value></data>
   <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Giá ngụ ý</value></data>
+  <data name="Calc.Result.TargetMarketCap" xml:space="preserve"><value>Kịch bản vốn hóa mục tiêu</value></data>
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Rủi ro {0}% gợi ý qty {1} (notional {2}).</value></data>
   <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Lợi nhuận gấp {0}× khoảng rủi ro.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>PnL ròng {0}; ROE {1}%.</value></data>
