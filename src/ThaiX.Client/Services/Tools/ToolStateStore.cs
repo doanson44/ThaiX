@@ -47,6 +47,8 @@ public sealed class ToolStateStore : IToolStateStore
         {
             var slugs = JsonSerializer.Deserialize<string[]>(json, JsonOptions) ?? [];
             return slugs
+                .Where(slug => !string.IsNullOrWhiteSpace(slug))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Select(ToolCatalog.Find)
                 .Where(tool => tool is not null)
                 .Cast<ToolDefinition>()
