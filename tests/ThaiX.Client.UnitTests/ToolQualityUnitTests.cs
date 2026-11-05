@@ -883,14 +883,40 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
-    public void RiskOfRuin_ShouldLabelOutputAsHeuristicNotProbability()
+    public void RiskOfRuin_ShouldReportMonteCarloAssumptionsAndConfidenceInterval()
     {
         // Arrange / Act
-        var result = RiskCalculators.RiskOfRuin(55m, 1.5m, 1m);
+        var result = RiskCalculators.RiskOfRuin(55m, 1.5m, 1m, 50m, 100, 2000, 42);
 
         // Assert
-        Assert.Contains("not a calibrated probability", result.Formula, StringComparison.Ordinal);
+        Assert.Contains("Monte Carlo", result.Formula, StringComparison.Ordinal);
+        Assert.Contains("excludes fees, slippage", result.Formula, StringComparison.Ordinal);
         Assert.Equal("Calc.Interp.RiskOfRuin", result.InterpretationKey);
+        Assert.Contains(result.Breakdown, line => line.LabelKey == "Calc.Result.RiskOfRuinConfidenceLow");
+        Assert.Contains(result.Breakdown, line => line.LabelKey == "Calc.Result.RiskOfRuinConfidenceHigh");
+    }
+
+    [Fact]
+    public void RiskOfRuin_WithSameSeedAndInputs_ShouldReturnSameEstimate()
+    {
+        // Arrange
+        var first = RiskCalculators.RiskOfRuin(55m, 1.5m, 1m, 50m, 100, 2000, 1234);
+
+        // Act
+        var second = RiskCalculators.RiskOfRuin(55m, 1.5m, 1m, 50m, 100, 2000, 1234);
+
+        // Assert
+        Assert.Equal(first.Breakdown, second.Breakdown);
+    }
+
+    [Fact]
+    public void RiskOfRuin_WhenSimulationWorkExceedsLimit_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => RiskCalculators.RiskOfRuin(55m, 1.5m, 1m, 50m, 1000, 10000, 1);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
     }
 
     [Fact]
