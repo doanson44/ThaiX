@@ -13,11 +13,24 @@ public static class GeneratorToolTransforms
         const string lower = "abcdefghijkmnopqrstuvwxyz";
         const string digits = "23456789";
         const string syms = "!@#$%^&*-_=+?";
-        var alphabet = upper + lower + digits + (symbols ? syms : "");
-        var bytes = RandomNumberGenerator.GetBytes(length);
+        var groups = symbols
+            ? new[] { upper, lower, digits, syms }
+            : new[] { upper, lower, digits };
+        var alphabet = string.Concat(groups);
         var chars = new char[length];
-        for (var i = 0; i < length; i++)
-            chars[i] = alphabet[bytes[i] % alphabet.Length];
+
+        for (var i = 0; i < groups.Length; i++)
+            chars[i] = groups[i][RandomNumberGenerator.GetInt32(groups[i].Length)];
+
+        for (var i = groups.Length; i < chars.Length; i++)
+            chars[i] = alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
+
+        for (var i = chars.Length - 1; i > 0; i--)
+        {
+            var swapIndex = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[swapIndex]) = (chars[swapIndex], chars[i]);
+        }
+
         return new string(chars);
     }
 
@@ -38,7 +51,7 @@ public static class GeneratorToolTransforms
             3 => "Good",
             _ => "Strong"
         };
-        return $"Score: {score}/5 — {label}\nLength: {p.Length}";
+        return $"Score: {score}/5 — {label}\nLength: {p.Length}\nHeuristic only; not an entropy or breach check.";
     }
 
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
@@ -52,19 +65,28 @@ public static class GeneratorToolTransforms
 
     public static string BuildCurl(string method, string url, string headers, string body)
     {
+        var normalizedMethod = (method ?? string.Empty).Trim().ToUpperInvariant();
+        if (normalizedMethod.Length == 0 || normalizedMethod.Any(character => character is < 'A' or > 'Z'))
+            throw new FormatException("HTTP method must contain ASCII letters only.");
+        if (string.IsNullOrWhiteSpace(url))
+            throw new FormatException("URL is required.");
+
         var sb = new StringBuilder();
-        sb.Append("curl -X ").Append(method.Trim().ToUpperInvariant()).Append(" ");
-        sb.Append('\'').Append(url.Trim()).Append('\'');
+        sb.Append("curl -X ").Append(normalizedMethod).Append(" ");
+        sb.Append(ShellQuote(url.Trim()));
         foreach (var line in (headers ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var idx = line.IndexOf(':');
             if (idx <= 0) continue;
-            sb.Append(" \\\n  -H '").Append(line.Replace("'", "'\\''")).Append('\'');
+            sb.Append(" \\\n  -H ").Append(ShellQuote(line));
         }
         if (!string.IsNullOrWhiteSpace(body))
-            sb.Append(" \\\n  -d '").Append(body.Replace("'", "'\\''")).Append('\'');
+            sb.Append(" \\\n  -d ").Append(ShellQuote(body));
         return sb.ToString();
     }
+
+    private static string ShellQuote(string value) =>
+        "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
 
     public static string GitignorePreset(string preset) => preset.ToLowerInvariant() switch
     {

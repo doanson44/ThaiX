@@ -56,19 +56,118 @@ public static class ConvertToolTransforms
 
     public static string CsvToJson(string csv)
     {
-        var lines = csv.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        if (lines.Length == 0) return "[]";
-        var headers = SplitCsvLine(lines[0]);
+        if (string.IsNullOrEmpty(csv))
+            return "[]";
+
+        var records = ParseCsvRecords(csv.TrimStart('\uFEFF'));
+        if (records.Count == 0)
+            return "[]";
+
+        var headers = records[0].Select(value => value.Trim()).ToArray();
+        if (headers.Any(string.IsNullOrWhiteSpace))
+            throw new FormatException("CSV headers cannot be empty.");
+        if (headers.Distinct(StringComparer.Ordinal).Count() != headers.Length)
+            throw new FormatException("CSV headers must be unique.");
+
         var rows = new JsonArray();
-        for (var i = 1; i < lines.Length; i++)
+        for (var rowIndex = 1; rowIndex < records.Count; rowIndex++)
         {
-            var cols = SplitCsvLine(lines[i]);
+            var values = records[rowIndex];
+            if (values.Count > headers.Length)
+                throw new FormatException($"CSV record {rowIndex + 1} has more values than the header.");
+
             var obj = new JsonObject();
-            for (var c = 0; c < headers.Count; c++)
-                obj[headers[c]] = c < cols.Count ? cols[c] : "";
+            for (var columnIndex = 0; columnIndex < headers.Length; columnIndex++)
+                obj[headers[columnIndex]] = columnIndex < values.Count ? values[columnIndex] : string.Empty;
             rows.Add(obj);
         }
+
         return rows.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private static List<List<string>> ParseCsvRecords(string csv)
+    {
+        var records = new List<List<string>>();
+        var record = new List<string>();
+        var field = new StringBuilder();
+        var inQuotes = false;
+        var quoteClosed = false;
+
+        for (var index = 0; index < csv.Length; index++)
+        {
+            var character = csv[index];
+
+            if (inQuotes)
+            {
+                if (character == '"')
+                {
+                    if (index + 1 < csv.Length && csv[index + 1] == '"')
+                    {
+                        field.Append('"');
+                        index++;
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                        quoteClosed = true;
+                    }
+                }
+                else
+                {
+                    field.Append(character);
+                }
+
+                continue;
+            }
+
+            if (quoteClosed && character is not (',' or '\r' or '\n' or ' ' or '\t'))
+                throw new FormatException("Unexpected character after a quoted CSV field.");
+
+            if (character == '"')
+            {
+                if (field.Length > 0 || quoteClosed)
+                    throw new FormatException("A quoted CSV field must begin with a quote.");
+
+                inQuotes = true;
+                continue;
+            }
+
+            if (character == ',')
+            {
+                record.Add(field.ToString());
+                field.Clear();
+                quoteClosed = false;
+                continue;
+            }
+
+            if (character is '\r' or '\n')
+            {
+                if (character == '\r' && index + 1 < csv.Length && csv[index + 1] == '\n')
+                    index++;
+
+                record.Add(field.ToString());
+                field.Clear();
+                quoteClosed = false;
+                if (record.Any(value => value.Length > 0) || record.Count > 1)
+                    records.Add(record);
+                record = [];
+                continue;
+            }
+
+            if (!quoteClosed)
+                field.Append(character);
+        }
+
+        if (inQuotes)
+            throw new FormatException("CSV contains an unterminated quoted field.");
+
+        if (field.Length > 0 || record.Count > 0 || quoteClosed)
+        {
+            record.Add(field.ToString());
+            records.Add(record);
+        }
+
+        return records;
     }
 
     public static string JsonToCsv(string json)
@@ -177,7 +276,7 @@ public static class ConvertToolTransforms
                 nested.Add((p.Value, ToPascal(p.Name)));
             else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
                 nested.Add((p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
-            sb.AppendLine($"  {p.Name}: {typeName};");
+            sb.AppendLine($"  {TypeScriptPropertyName(p.Name)}: {typeName};");
         }
         sb.AppendLine("}");
         sb.AppendLine();
@@ -211,41 +310,68 @@ public static class ConvertToolTransforms
 
     private static string ToPascal(string name)
     {
-        if (string.IsNullOrWhiteSpace(name)) return "Property";
-        var parts = name.Split([' ', '-', '_', '.'], StringSplitOptions.RemoveEmptyEntries);
         var sb = new StringBuilder();
-        foreach (var p in parts)
-            sb.Append(char.ToUpperInvariant(p[0])).Append(p.AsSpan(1));
-        var s = sb.ToString();
-        return char.IsLetter(s[0]) ? s : "P" + s;
+        var capitalizeNext = true;
+        foreach (var character in name ?? string.Empty)
+        {
+            if (!char.IsLetterOrDigit(character))
+            {
+                capitalizeNext = true;
+                continue;
+            }
+
+            if (sb.Length == 0 && char.IsDigit(character))
+                sb.Append('P');
+
+            sb.Append(capitalizeNext ? char.ToUpperInvariant(character) : character);
+            capitalizeNext = false;
+        }
+
+        return sb.Length == 0 ? "Property" : sb.ToString();
     }
 
-    private static List<string> SplitCsvLine(string line)
+    private static string TypeScriptPropertyName(string name)
     {
-        var result = new List<string>();
-        var sb = new StringBuilder();
-        var inQuotes = false;
-        for (var i = 0; i < line.Length; i++)
-        {
-            var ch = line[i];
-            if (ch == '"')
-            {
-                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
-                {
-                    sb.Append('"');
-                    i++;
-                }
-                else inQuotes = !inQuotes;
-            }
-            else if (ch == ',' && !inQuotes)
-            {
-                result.Add(sb.ToString());
-                sb.Clear();
-            }
-            else sb.Append(ch);
-        }
-        result.Add(sb.ToString());
-        return result;
+        if (string.IsNullOrEmpty(name))
+            return JsonSerializer.Serialize("property");
+
+        var validStart = char.IsLetter(name[0]) || name[0] is '_' or '
+
+    private static string EscapeCsv(string value)
+    {
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
+    }
+
+    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
+    {
+        JsonValueKind.String => v.GetString() ?? "",
+        JsonValueKind.Null => "",
+        _ => v.ToString()
+    };
+}
+;
+        var validTail = name.Skip(1).All(character =>
+            char.IsLetterOrDigit(character) || character is '_' or '
+
+    private static string EscapeCsv(string value)
+    {
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
+        return value;
+    }
+
+    private static string JsonValueToString(JsonElement v) => v.ValueKind switch
+    {
+        JsonValueKind.String => v.GetString() ?? "",
+        JsonValueKind.Null => "",
+        _ => v.ToString()
+    };
+}
+);
+
+        return validStart && validTail ? name : JsonSerializer.Serialize(name);
     }
 
     private static string EscapeCsv(string value)

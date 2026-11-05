@@ -1,0 +1,287 @@
+using ThaiX.Client.Services.Tools;
+using ThaiX.Client.Services.Tools.Calculators;
+using ThaiX.Client.Services.Tools.Transforms;
+using Xunit;
+
+namespace ThaiX.Client.UnitTests;
+
+public sealed class ToolQualityUnitTests
+{
+    [Fact]
+    public void CsvToJson_WithQuotedCommaAndEscapedQuote_ShouldPreserveValues()
+    {
+        // Arrange
+        const string csv = "name,description\r\nThaiX,\"Tools, \"\"fast\"\"\"";
+
+        // Act
+        var json = ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Contains("\"name\": \"ThaiX\"", json, StringComparison.Ordinal);
+        Assert.Contains("Tools, ", json, StringComparison.Ordinal);
+        Assert.Contains("\\\"fast\\\"", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void CsvToJson_WithQuotedNewlineAndBom_ShouldPreserveRecord()
+    {
+        // Arrange
+        const string csv = "\uFEFFid,note\r\n1,\"first line\r\nsecond line\"";
+
+        // Act
+        var json = ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Contains("first line\\r\\nsecond line", json, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void FormatSql_WithKeywordsInsideLiteralsAndComments_ShouldPreserveThem()
+    {
+        // Arrange
+        const string sql = "select 'from where', [order] from trades /* where group */ where note = 'order by'; -- from\nselect 1";
+
+        // Act
+        var formatted = TextToolTransforms.FormatSql(sql);
+
+        // Assert
+        Assert.Contains("'from where'", formatted, StringComparison.Ordinal);
+        Assert.Contains("[order]", formatted, StringComparison.Ordinal);
+        Assert.Contains("'order by'", formatted, StringComparison.Ordinal);
+        Assert.Contains("/* where group */", formatted, StringComparison.Ordinal);
+        Assert.Contains("-- from", formatted, StringComparison.Ordinal);
+        Assert.Contains("SELECT", formatted, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HtmlToMarkdownRough_WithHeadingsLinksAndLists_ShouldPreserveStructure()
+    {
+        // Arrange
+        const string html = "<h2>Tools</h2><p>Use <strong>ThaiX</strong> <a href=\"https://example.com\">docs</a>.</p><ul><li>One</li><li>Two</li></ul>";
+
+        // Act
+        var markdown = TextToolTransforms.HtmlToMarkdownRough(html);
+
+        // Assert
+        Assert.Contains("## Tools", markdown, StringComparison.Ordinal);
+        Assert.Contains("**ThaiX**", markdown, StringComparison.Ordinal);
+        Assert.Contains("[docs](https://example.com)", markdown, StringComparison.Ordinal);
+        Assert.Contains("- One", markdown, StringComparison.Ordinal);
+        Assert.Contains("- Two", markdown, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToTypescript_WithSpecialPropertyName_ShouldQuoteProperty()
+    {
+        // Arrange
+        const string json = "{\"first-name\":\"ThaiX\",\"1st-value\":2}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Contains("\"first-name\": string;", output, StringComparison.Ordinal);
+        Assert.Contains("\"1st-value\": number;", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToCsharp_WithNonIdentifierPropertyName_ShouldGenerateValidProperty()
+    {
+        // Arrange
+        const string json = "{\"first-name\":\"ThaiX\",\"1st-value\":2}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("public string? FirstName", output, StringComparison.Ordinal);
+        Assert.Contains("public long P1stValue", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void UrlEncode_WithAbsoluteUrl_ShouldPreserveUrlSeparators()
+    {
+        // Arrange
+        const string url = "https://example.com/tools?q=btc usdt&tab=preview";
+
+        // Act
+        var encoded = EncodeToolTransforms.UrlEncode(url);
+
+        // Assert
+        Assert.StartsWith("https://example.com/tools?", encoded, StringComparison.Ordinal);
+        Assert.Contains("q=btc%20usdt&tab=preview", encoded, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithSingleQuoteInUrl_ShouldEscapeShellArgument()
+    {
+        // Arrange
+        const string url = "https://example.com/a'b";
+
+        // Act
+        var command = GeneratorToolTransforms.BuildCurl("GET", url, string.Empty, string.Empty);
+
+        // Assert
+        Assert.Contains("'https://example.com/a'\\''b'", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithInvalidMethod_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl("GET; rm -rf /", "https://example.com", "", "");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void CsvToJson_WithUnterminatedQuote_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string csv = "name,note\nThaiX,\"unfinished";
+
+        // Act
+        var act = () => ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void CsvToJson_WithQuoteInsideUnquotedField_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string csv = "name,note\nThaiX,unfinished\"quote";
+
+        // Act
+        var act = () => ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void CsvToJson_WithDuplicateHeaders_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string csv = "name,name\nThaiX,ThaiX";
+
+        // Act
+        var act = () => ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void GeneratePassword_ShouldIncludeRequiredCharacterClasses(bool symbols)
+    {
+        // Arrange
+        const int length = 32;
+
+        // Act
+        var password = GeneratorToolTransforms.GeneratePassword(length, symbols);
+
+        // Assert
+        Assert.Equal(length, password.Length);
+        Assert.True(password.Any(char.IsUpper));
+        Assert.True(password.Any(char.IsLower));
+        Assert.True(password.Any(char.IsDigit));
+        Assert.Equal(symbols, password.Any(character => "!@#$%^&*-_=+?".Contains(character)));
+    }
+
+    [Fact]
+    public void PasswordStrength_ShouldDiscloseHeuristicLimitations()
+    {
+        // Arrange / Act
+        var result = GeneratorToolTransforms.PasswordStrength("Example-Password-2026");
+
+        // Assert
+        Assert.Contains("Heuristic only", result, StringComparison.Ordinal);
+        Assert.Contains("not an entropy or breach check", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ShouldSeedSample_ForNewCalculatorWorkspace_ShouldReturnTrue()
+    {
+        // Arrange
+        var tool = ToolCatalog.Find("position-size")!;
+        var state = new ToolWorkspaceState();
+
+        // Act
+        var shouldSeed = ToolSampleCatalog.ShouldSeedSample(tool, state);
+
+        // Assert
+        Assert.True(shouldSeed);
+    }
+
+    [Fact]
+    public void ShouldSeedSample_ForInitializedCalculatorWorkspace_ShouldReturnFalse()
+    {
+        // Arrange
+        var tool = ToolCatalog.Find("position-size")!;
+        var state = new ToolWorkspaceState
+        {
+            Fields = CalculatorFieldCatalog.DefaultFields("position-size")
+        };
+
+        // Act
+        var shouldSeed = ToolSampleCatalog.ShouldSeedSample(tool, state);
+
+        // Assert
+        Assert.False(shouldSeed);
+    }
+
+    [Fact]
+    public void PositionSize_WhenRiskExceedsOneHundredPercent_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.PositionSize(1000m, 101m, 100m, 90m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void Liquidation_WhenMaintenanceMarginIsOneHundredPercent_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.Liquidation(100m, 10m, TradeSide.Long, 100m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void TakeProfit_WhenBothTargetModesAreProvided_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.TakeProfit(100m, TradeSide.Long, 1m, 90m, 2m, 10m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void MaxDrawdownFromSeries_WhenEquityIsNonPositive_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => RiskCalculators.MaxDrawdownFromSeries([100m, 0m, 90m]);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void Funding_WithNegativeRate_ShouldReverseLongCashflowSign()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Funding(1000m, -0.01m, 1, TradeSide.Long);
+
+        // Assert
+        Assert.True(decimal.Parse(result.Breakdown[0].Value, System.Globalization.CultureInfo.InvariantCulture) > 0m);
+    }
+}

@@ -10,6 +10,7 @@ public static class TradingCalculators
     {
         RequirePositive(account, "Account");
         RequirePositive(riskPct, "Risk %");
+        if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
         var riskDist = Math.Abs(entry - stopLoss);
@@ -95,6 +96,7 @@ public static class TradingCalculators
         RequirePositive(entry, "Entry");
         RequirePositive(leverage, "Leverage");
         RequireNonNegative(mmrPct, "MMR %");
+        if (mmrPct >= 100) throw new CalculatorInputException("MMR % must be below 100.");
         var mmr = mmrPct / 100m;
         // Isolated estimate (no cross / wallet extras).
         var liq = side == TradeSide.Long
@@ -162,6 +164,7 @@ public static class TradingCalculators
         RequirePositive(entry, "Entry");
         RequireNonNegative(openFeePct, "Open fee %");
         RequireNonNegative(closeFeePct, "Close fee %");
+        if (closeFeePct >= 100) throw new CalculatorInputException("Close fee % must be below 100.");
         var fOpen = openFeePct / 100m;
         var fClose = closeFeePct / 100m;
         // Round-trip BE so net ≈ 0 after fees on notional.
@@ -227,6 +230,7 @@ public static class TradingCalculators
     {
         RequirePositive(account, "Account");
         RequirePositive(riskPct, "Risk %");
+        if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(positionQty, "Position size");
         RequirePositive(entry, "Entry");
         var riskAmount = account * (riskPct / 100m);
@@ -258,9 +262,14 @@ public static class TradingCalculators
         RequirePositive(entry, "Entry");
         RequirePositive(positionQty, "Position size");
 
+        if (targetPct is not null && targetRr is not null)
+            throw new CalculatorInputException("Choose either target % or target R:R, not both.");
+
         if (targetPct is decimal pct)
         {
             RequirePositive(pct, "Target %");
+            if (side == TradeSide.Short && pct >= 100)
+                throw new CalculatorInputException("Short target % must be below 100.");
             var move = entry * (pct / 100m);
             var tpPct = side == TradeSide.Long ? entry + move : entry - move;
             var expectedPct = move * positionQty;
@@ -278,8 +287,10 @@ public static class TradingCalculators
         {
             RequirePositive(rr, "Target R:R");
             RequirePositive(sl, "Stop loss");
+            var alignedStop = side == TradeSide.Long ? sl < entry : sl > entry;
+            if (!alignedStop)
+                throw new CalculatorInputException("Stop loss must be below entry for long or above entry for short.");
             var risk = Math.Abs(entry - sl);
-            if (risk == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
             var reward = risk * rr;
             var tpRr = side == TradeSide.Long ? entry + reward : entry - reward;
             var expectedRr = reward * positionQty;

@@ -12,7 +12,15 @@ public static class EncodeToolTransforms
     public static string Base64Decode(string text) =>
         Encoding.UTF8.GetString(Convert.FromBase64String(text.Trim()));
 
-    public static string UrlEncode(string text) => Uri.EscapeDataString(text);
+    public static string UrlEncode(string text)
+    {
+        var value = text ?? string.Empty;
+        if (Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+            return uri.AbsoluteUri;
+
+        return Uri.EscapeDataString(value);
+    }
 
     public static string UrlDecode(string text) => Uri.UnescapeDataString(text);
 
