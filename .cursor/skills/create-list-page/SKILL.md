@@ -1,6 +1,6 @@
 ---
 name: create-list-page
-description: "Generate responsive Blazor WASM admin list pages with RadzenDataGrid, server-side paging, filtering, and mobile search UX. Use when creating or reworking data-grid listing pages."
+description: "Generate a Blazor WASM admin list page with RadzenDataGrid, server-side paging, filtering, responsive layout, and DebouncedSearchBox for mobile. Use when creating a new admin data grid page."
 argument-hint: "Entity name, e.g. 'Product'"
 ---
 
@@ -49,9 +49,7 @@ Generate a Blazor WASM admin list page following ThaiX conventions.
   - `AsyncSearchSelect`: `_selectedItemValue`, `OnSelectedItemChanged`.
   - `DebouncedSearchBox`: `_mobileSearchTerm`, `OnMobileSearchChanged`.
 - Use `SearchPlaceholder` and `Paging` in `AsyncSearchSelect` for large datasets.
-- Keep page data sync:
-  - `Selected` filter updates `FilteredMobileItems`.
-  - `All` reset when empty.
+- Distinguish local filtering from global search. Local filtering is valid only when the complete, bounded dataset is already loaded. For paged/server-loaded datasets, submit the search term to the API and refresh the server result/count; never filter only the current page and present it as a global search..
 
 AsyncSearchSelect example:
 ```razor
@@ -84,7 +82,7 @@ private Task OnSelectedEntityChanged(string? value)
 
 private Task<(IReadOnlyList<EntityDto>, int)> LoadEntitiesAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
 {
-    // Implement server-side filtering/paging, or local filter on _items.
+    // Use server-side filtering/paging for global search. Local filtering is valid only when _items contains the complete bounded dataset.
     // Return items + total count.
 }
 ```
@@ -113,12 +111,76 @@ private Task OnMobileSearchChanged(string value)
 }
 ```
 
-### 4.2 Full DTO Columns + Mobile Card Details
-- Desktop grid must show all DTO fields via `RadzenDataGridColumn`.
-- For each field in DTO, add:
+### 4.2 Mobile Sorting & Virtualize (Large Lists)
+- Use `Virtualize` when the loaded mobile collection is large enough to create meaningful DOM/rendering cost. It virtualizes already-loaded items; it does not provide server paging by itself.
+- For remote/large datasets, prefer a server-backed `ItemsProvider` or the existing API paging flow rather than loading every record into `_items`.
+- Use `<ClientSortBar>` to provide dropdown sorting capabilities based on `SortOption<T>`.
+
+Example implementation:
+```razor
+@if (Viewport.IsMobile && !_isLoading && _filtered.Any())
+{
+    <RadzenStack Gap="1rem">
+        <ClientSortBar TItem="EntityDto"
+                       Options="@SortOptions"
+                       SortKey="@_sortKey"
+                       SortKeyChanged="OnSortKeyChanged"
+                       Ascending="@_sortAscending"
+                       AscendingChanged="OnSortDirectionChanged"
+                       Label="@L[RK.Common.SortBy]"
+                       Placeholder="@L[RK.Common.SortBy]"
+                       AscendingLabel="@L[RK.Common.Ascending]"
+                       DescendingLabel="@L[RK.Common.Descending]" />
+        <Virtualize Items="@_filtered" Context="item" OverscanCount="5">
+            <div class="mb-3">
+                <RadzenCard Class="p-3 m-0">
+                    <RadzenText TextStyle="TextStyle.Body2"><strong>@item.Name</strong></RadzenText>
+                </RadzenCard>
+            </div>
+        </Virtualize>
+    </RadzenStack>
+}
+```
+In `@code`:
+```csharp
+private string? _sortKey;
+private bool _sortAscending = true;
+
+private IReadOnlyList<SortOption<EntityDto>> SortOptions =>
+[
+    new("name", L[RK.Feature.ColName], x => x.Name),
+    new("date", L[RK.Feature.ColDate], x => x.CreatedDate)
+];
+
+private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+private void OnSortDirectionChanged(bool asc) { _sortAscending = asc; ApplyFilter(); }
+
+private void ApplyFilter()
+{
+    IEnumerable<EntityDto> result = _items;
+    
+    // 1. Filter
+    if (!string.IsNullOrWhiteSpace(_mobileSearchTerm))
+        result = result.Where(x => x.Name.Contains(_mobileSearchTerm, StringComparison.OrdinalIgnoreCase));
+        
+    // 2. Sort
+    if (!string.IsNullOrEmpty(_sortKey))
+    {
+        var opt = SortOptions.FirstOrDefault(o => o.Key == _sortKey);
+        if (opt is not null)
+            result = _sortAscending ? result.OrderBy(opt.KeySelector) : result.OrderByDescending(opt.KeySelector);
+    }
+    
+    _filtered = result.ToList();
+}
+```
+
+### 4.3 Full DTO Columns + Mobile Card Details
+- Desktop grid should show the fields needed for the list task, prioritizing identifiers, status, and common search/sort fields. Do not expose every DTO field by default; use a detail dialog/page for secondary or sensitive fields.
+- For each selected list field, add:
   - `RadzenDataGridColumn TItem="EntityDto" Property="FieldName" Title="@L[ResourceKeys.{Feature}.FieldName]"`
   - If needed, use visible binding for large field sets: `Visible="@(Viewport.IsDesktop || Viewport.IsTablet)"`.
-- In mobile card mode, render same fields using `RadzenCard`:
+- In mobile card mode, render the same key list fields using `RadzenCard`; keep secondary details in a dialog/detail view:
   - `@L[ResourceKeys.{Feature}.FieldName]: @item.FieldName` (or formatted string for numerics/dates)
 -    Format recommendations:
   - currency/price: `@item.Price.ToString("N2")`
@@ -141,8 +203,96 @@ private Task OnMobileSearchChanged(string value)
 - `_isLoading` flag for grid loading
 - Disable actions during loading
 
-### 8. Breadcrumb
-- Update `RouteSegments` if new route segment
-- Update `ResourceKeys` if new label needed
-- Update `MainLayout.GetSegmentLabel()` if needed
-- Update `Layout/NavMenu.razor` to expose the new page in navigation (use localized `ResourceKeys` label)
+### 8. Breadcrumb (MANDATORY)
+
+Breadcrumbs are built **automatically** by `MainLayout.BuildBreadcrumbFromRoute()` based on URL segments. You MUST register every new URL segment so it resolves to a localized label instead of the raw slug.
+
+**Checklist — do ALL steps for every new page:**
+
+#### 8a. Add to `RouteSegments.cs`
+For each new URL segment (even intermediate ones like `chainbroker`):
+```csharp
+// src/ThaiX.Client/Constants/RouteSegments.cs
+public const string ChainBroker = "chainbroker";
+public const string ChainBrokerFunds = "funds";
+```
+
+#### 8b. Add to `ResourceKeys.Breadcrumb` if it's an intermediate segment
+If the segment is a parent (e.g. `chainbroker` in `/market/chainbroker/funds`), add a key under `ResourceKeys.Breadcrumb`:
+```csharp
+// src/ThaiX.Client/Constants/ResourceKeys.cs
+public static class Breadcrumb
+{
+    public const string Account = "Breadcrumb.Account";
+    public const string ChainBroker = "Breadcrumb.ChainBroker"; // add new intermediates here
+}
+```
+Leaf segments (funds, projects, unlocks) reuse their page `Title` key — no new Breadcrumb key needed.
+
+#### 8c. Add resx entries for new Breadcrumb keys
+```xml
+<!-- Localization.SharedResource.resx -->
+<data name="Breadcrumb.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+<!-- Localization.SharedResource.vi.resx -->
+<data name="Breadcrumb.ChainBroker" xml:space="preserve"><value>ChainBroker</value></data>
+```
+
+#### 8d. Update `MainLayout.GetSegmentLabel()` in `Layout/MainLayout.razor`
+Register the segment in the correct parent `switch`:
+
+```csharp
+// In the parent == RouteSegments.Market block:
+RouteSegments.ChainBroker => L[ResourceKeys.Breadcrumb.ChainBroker],
+
+// Add a new block for the new intermediate:
+if (parent == RouteSegments.ChainBroker)
+{
+    return segment switch
+    {
+        RouteSegments.ChainBrokerFunds => L[ResourceKeys.ChainBrokerFunds.Title],
+        RouteSegments.ChainBrokerProjects => L[ResourceKeys.ChainBrokerProjects.Title],
+        RouteSegments.ChainBrokerUnlocks => L[ResourceKeys.ChainBrokerUnlocks.Title],
+        _ => SegmentToTitle(segment)
+    };
+}
+```
+
+**Pattern summary for a route like `/area/group/page`:**
+| Segment | Where to handle |
+|---------|----------------|
+| `area` (index 0) | Top-level `switch` in `GetSegmentLabel` |
+| `group` (parent == `area`) | `parent == RouteSegments.Area` block |
+| `page` (parent == `group`) | new `parent == RouteSegments.Group` block |
+
+Do NOT skip any of the 4 steps above. If omitted, the breadcrumb will show raw slugs like "chainbroker" instead of localized labels.
+
+### 9. NavMenu permission guard (MANDATORY)
+
+Every page that requires a permission MUST be hidden in the NavMenu when the user lacks that permission. The current Blazor client checks `scope` claims with `auth.User.HasClaim("scope", PermissionNames.XxxRead)`. Server-side JWT validation also maps each token `scope` value to a `permission` claim for the permission authorization requirement. Keep the claim types distinct and aligned with the current token contract; see `.agents/rules/repository-facts.md`. NavMenu visibility is not a security boundary: the API endpoint must enforce `.RequireAuthorization(Permissions.X)`.
+
+**Pattern — single page:**
+```razor
+@if (auth.User.HasClaim("scope", PermissionNames.ChainBrokerDataRead))
+{
+    <RadzenPanelMenuItem Text="@L[ResourceKeys.ChainBrokerFunds.Title]"
+                         Path="market/chainbroker/funds"
+                         Icon="account_balance_wallet" />
+}
+```
+
+**Pattern — grouped pages under a shared permission:**
+```razor
+@if (auth.User.HasClaim("scope", PermissionNames.ChainBrokerDataRead))
+{
+    <RadzenPanelMenuItem Text="@L[ResourceKeys.ChainBrokerFunds.Title]" Path="market/chainbroker/funds" Icon="account_balance_wallet" />
+    <RadzenPanelMenuItem Text="@L[ResourceKeys.ChainBrokerProjects.Title]" Path="market/chainbroker/projects" Icon="rocket_launch" />
+    <RadzenPanelMenuItem Text="@L[ResourceKeys.ChainBrokerUnlocks.Title]" Path="market/chainbroker/unlocks" Icon="lock_open" />
+}
+```
+
+Rules:
+- If all children of a parent `RadzenPanelMenuItem` are permission-guarded, also guard the parent.
+- The `PermissionNames` constant used here MUST be registered in `PermissionNames.GetAll()` (client-side policy list used for Blazor policy registration in `Program.cs`).
+- Keep guard permission aligned with the page's `[Authorize(Policy = ...)]` attribute.
+
+**Admin seed is automatic.** `DbInitializer` calls `Permissions.GetAdminPermissions()` (reflection-based) on every startup and adds any missing permission claims to the admin user. Adding the constant to `Domain/Common/Constants/Permissions.cs` is all that is needed — no manual seed SQL or code changes required.

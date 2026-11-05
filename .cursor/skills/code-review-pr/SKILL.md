@@ -1,6 +1,6 @@
 ---
 name: code-review-pr
-description: "Review code changes against ThaiX architecture, data-access, caching, security, and permission standards. Use when reviewing pull requests or staged diffs."
+description: "Review code changes against ThaiX conventions. Check architecture, data access, caching, security, and permissions for all changed files. Score X/10. Use when reviewing a PR or staged changes."
 argument-hint: "Optionally specify branch or 'staged' for staged changes"
 ---
 
@@ -11,7 +11,9 @@ Review all changed files against ThaiX conventions.
 ## Procedure
 
 ### Step 1 -- Gather Changes
-- Run `git diff --staged` (or `git diff main...HEAD` for PR)
+
+- Determine the PR base branch from the actual repository configuration; ThaiX currently targets `master`.
+- Run `git diff --staged` for staged changes. For a PR, compare against `master` (for example, `git diff origin/master...HEAD`) after confirming the base branch exists.
 - List all changed files
 
 ### Step 2 -- Review Each File
@@ -35,4 +37,4 @@ Format findings as:
 - **GOOD**: Patterns done correctly
 
 Overall score: X/10
-Actionable recommendations with code patches.
+Actionable recommendations with file/line references and minimal patches. Report only findings supported by the diff and repository source.

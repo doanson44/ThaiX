@@ -140,4 +140,4 @@ Check that `Persistence/Migrations/` no longer contains the removed files and th
 - Build the solution before adding a migration: `dotnet build ThaiX.slnx`
 - Review `Down()` to ensure it safely reverts `Up()`.
 - Do NOT modify auto-generated migration files manually.
-- Do NOT auto-commit after migration operations.
+- Do not commit by default. If the user requests a PR workflow, commit the migration-related changes on the task branch and open the PR against `master`. Never apply database changes unless explicitly requested.

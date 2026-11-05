@@ -6,7 +6,7 @@ argument-hint: "[ThaiX.Client page, component, or UI request]"
 
 # ThaiX Frontend Design
 
-Use this skill as the entry point for frontend work in this repository when the request targets `ThaiX.Client`, Blazor pages/components, or ThaiX-specific UI conventions.
+Use this skill as the entry point for frontend work in this repository when the request targets `ThaiX.Client`, Blazor pages/components, or ThaiX-specific UI conventions. Do not introduce React, shadcn/ui, or Tailwind into ThaiX.Client based solely on generic skill examples.
 
 ## Purpose
 
@@ -41,8 +41,9 @@ Before routing or implementing anything, apply these constraints:
 
 Reference rules:
 
-- `.trae/rules/blazor-ui.md`
-- `.trae/rules/application-layer.md` when UI work also touches CQRS/API contracts
+- `AGENTS.md`
+- `.agents/rules/ponytail.md`
+- `.agents/rules/repository-facts.md` when UI work touches API contracts or permission claims
 
 ## Routing Guide
 
@@ -78,7 +79,7 @@ Before finishing any ThaiX frontend task, confirm all items below:
 - `IViewportService` lifecycle is correct when breakpoint-based rendering is used
 - Routes, breadcrumb labels, and menu placement are updated when a new page is created
 - Localization resources and `ResourceKeys` are added when new UI text is introduced
-- **Quality gate**: Run the [10K Checklist](references/10k-checklist.md) (Metics Media Field Guide) — 8-point bar for premium web quality
+- **Quality gate**: Use the [10K Checklist](references/10k-checklist.md) as optional visual-quality guidance for marketing/landing pages. It does not override ThaiX accessibility, usability, localization, responsive, or existing product design requirements.
 
 ## Examples
 

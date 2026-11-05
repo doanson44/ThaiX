@@ -1,6 +1,6 @@
 ---
 name: bug-fix
-description: "Diagnose and fix defects with minimal, targeted changes and verification. Use when debugging exceptions, regressions, or unexpected behavior."
+description: "Diagnose and fix a bug with minimal changes. Reproduce, identify root cause, implement fix, and verify with tests. Use when debugging errors, exceptions, or unexpected behavior."
 argument-hint: "Describe the bug: error message, stack trace, steps to reproduce"
 ---
 
@@ -28,4 +28,4 @@ Systematic bug diagnosis and minimal fix.
 ### Step 4 -- Verify
 - Run `dotnet test tests/ThaiX.Application.UnitTests`
 - If tests fail, iterate on the fix
-- Report status -- DO NOT auto-commit
+- Report status. Do not commit by default; when the user requests a PR workflow, commit the verified fix on the task branch and open the PR against `master`.
