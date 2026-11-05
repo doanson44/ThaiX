@@ -319,7 +319,7 @@ else
                 catch (JsonException) { _state = new ToolWorkspaceState { Input = envelope.StateJson }; }
             }
 
-            if (ToolSampleCatalog.ShouldSeedSample(_tool, _state))
+            if (envelope is null && ToolSampleCatalog.ShouldSeedSample(_tool, _state))
             {
                 _state = ToolSampleCatalog.Create(_tool.Slug);
                 if (IsCalculator())
