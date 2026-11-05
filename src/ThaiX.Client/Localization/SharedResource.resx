@@ -1689,6 +1689,10 @@
   <data name="Calc.Reset" xml:space="preserve"><value>Reset</value></data>
   <data name="Calc.Results" xml:space="preserve"><value>Results</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Formula</value></data>
+  <data name="Calc.Result.AbsolutePeakToTroughPeriods" xml:space="preserve"><value>Absolute peak-to-trough periods</value></data>
+  <data name="Calc.Result.AbsoluteTroughToRecoveryPeriods" xml:space="preserve"><value>Absolute trough-to-recovery periods</value></data>
+  <data name="Calc.Result.FundingPayer" xml:space="preserve"><value>Funding payer</value></data>
+  <data name="Calc.Result.FundingReceiver" xml:space="preserve"><value>Funding receiver</value></data>
   <data name="Calc.Formula.position-size" xml:space="preserve"><value>Risk per unit = adverse entry/stop distance + entry/stop fees; quantity = account risk amount / risk per unit. Fees and slippage apply per side.</value></data>
   <data name="Calc.Formula.risk-reward" xml:space="preserve"><value>Net risk = adverse stop distance + entry/stop fees; net reward = adverse target distance - entry/target fees; net R:R = net reward / net risk.</value></data>
   <data name="Calc.Formula.futures-pnl" xml:space="preserve"><value>Linear contract estimate: base quantity = contracts x contract size; gross PnL uses adjusted entry/exit; funding uses average open/close notional per period; net PnL = gross PnL - fees + side-adjusted funding.</value></data>
