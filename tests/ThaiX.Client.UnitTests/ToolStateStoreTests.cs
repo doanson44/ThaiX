@@ -1,4 +1,6 @@
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components.Authorization;
+using System.Security.Claims;
 using ThaiX.Client.Services.Tools;
 using Xunit;
 
@@ -58,6 +60,37 @@ public sealed class ToolStateStoreTests
     }
 
     [Fact]
+    public async Task LoadAsync_WithLegacyRawWorkspaceJson_ShouldPreserveTheDraft()
+    {
+        // Arrange
+        const string legacyJson = "{\"input\":\"legacy draft\",\"option\":\"pretty\"}";
+        var js = new InMemoryJsRuntime();
+        js.Set(ToolCatalog.LocalDraftKey("json-formatter"), legacyJson);
+        var store = new ToolStateStore(js, null!, new AnonymousAuthenticationStateProvider(), null!);
+
+        // Act
+        var envelope = await store.LoadAsync(ToolCatalog.Find("json-formatter")!);
+
+        // Assert
+        Assert.NotNull(envelope);
+        Assert.Equal(legacyJson, envelope.StateJson);
+    }
+
+    [Fact]
+    public async Task SaveLocalAsync_WhenWorkspaceExceedsSizeLimit_ShouldThrow()
+    {
+        // Arrange
+        var store = new ToolStateStore(new InMemoryJsRuntime(), null!, null!, null!);
+        var oversizedJson = new string('x', ToolCatalog.MaxWorkspaceBytes + 1);
+
+        // Act
+        var act = () => store.SaveLocalAsync(ToolCatalog.Find("json-formatter")!, oversizedJson);
+
+        // Assert
+        await Assert.ThrowsAsync<InvalidDataException>(act);
+    }
+
+    [Fact]
     public async Task GetFavoriteToolsAsync_WithDuplicateAndUnknownSlugs_ShouldReturnUniqueKnownTools()
     {
         // Arrange
@@ -73,6 +106,12 @@ public sealed class ToolStateStoreTests
         Assert.Equal(2, favorites.Count);
         Assert.Equal("base64", favorites[0].Slug);
         Assert.Equal("json-formatter", favorites[1].Slug);
+    }
+
+    private sealed class AnonymousAuthenticationStateProvider : AuthenticationStateProvider
+    {
+        protected override Task<AuthenticationState> GetAuthenticationStateAsync() =>
+            Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
     }
 
     private sealed class InMemoryJsRuntime : IJSRuntime
