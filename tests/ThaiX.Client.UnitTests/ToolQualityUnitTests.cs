@@ -181,6 +181,17 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void PasswordStrength_ShouldDiscloseHeuristicLimitations()
+    {
+        // Arrange / Act
+        var result = GeneratorToolTransforms.PasswordStrength("Example-Password-2026");
+
+        // Assert
+        Assert.Contains("Heuristic only", result, StringComparison.Ordinal);
+        Assert.Contains("not an entropy or breach check", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void ShouldSeedSample_ForNewCalculatorWorkspace_ShouldReturnTrue()
     {
         // Arrange
