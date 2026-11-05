@@ -74,15 +74,15 @@ public static class RiskCalculators
             var drawdown = peak - value;
             var drawdownPct = drawdown / peak * 100m;
             if (drawdown > maxDd)
-            {
                 maxDd = drawdown;
+
+            if (drawdownPct > maxDdPct)
+            {
+                maxDdPct = drawdownPct;
                 maxPeakIndex = peakIndex;
                 maxTroughIndex = index;
                 recoveryIndex = 0;
             }
-
-            if (drawdownPct > maxDdPct)
-                maxDdPct = drawdownPct;
         }
 
         var troughToRecovery = maxDd == 0
