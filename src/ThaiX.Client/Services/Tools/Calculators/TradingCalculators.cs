@@ -63,7 +63,7 @@ public static class TradingCalculators
 
     public static CalculatorResult FuturesPnl(
         decimal entry, decimal exit, decimal size, decimal leverage, TradeSide side,
-        decimal openFeePct, decimal closeFeePct)
+        decimal openFeePct, decimal closeFeePct, decimal slippagePct = 0m)
     {
         RequirePositive(entry, "Entry");
         RequirePositive(exit, "Exit");
@@ -72,10 +72,21 @@ public static class TradingCalculators
         RequireFeePct(openFeePct, "Open fee %");
         RequireFeePct(closeFeePct, "Close fee %");
 
+        RequireFeePct(slippagePct, "Slippage %");
+
         var direction = side == TradeSide.Long ? 1m : -1m;
-        var gross = (exit - entry) * size * direction;
-        var notionalOpen = entry * size;
-        var notionalClose = exit * size;
+        var slippage = slippagePct / 100m;
+        var effectiveEntry = side == TradeSide.Long
+            ? entry * (1m + slippage)
+            : entry * (1m - slippage);
+        var effectiveExit = side == TradeSide.Long
+            ? exit * (1m - slippage)
+            : exit * (1m + slippage);
+        var grossBeforeSlippage = (exit - entry) * size * direction;
+        var gross = (effectiveExit - effectiveEntry) * size * direction;
+        var slippageCost = grossBeforeSlippage - gross;
+        var notionalOpen = effectiveEntry * size;
+        var notionalClose = effectiveExit * size;
         var fees = notionalOpen * (openFeePct / 100m) + notionalClose * (closeFeePct / 100m);
         var net = gross - fees;
         var margin = notionalOpen / leverage;
@@ -84,12 +95,13 @@ public static class TradingCalculators
         return new CalculatorResult(
             [
                 Line("Calc.Result.GrossPnl", gross),
+                Line("Calc.Result.SlippageCost", slippageCost),
                 Line("Calc.Result.Fees", fees),
                 Line("Calc.Result.NetPnl", net),
                 Line("Calc.Result.Margin", margin),
                 Line("Calc.Result.RoePct", roe)
             ],
-            "gross = (exit − entry) × size × side; net = gross − fees; ROE% = net / (notional/leverage) × 100",
+            "gross = adjustedExit - adjustedEntry; slippage is applied on both entry and exit; net = gross - fees; ROE% = net / margin × 100",
             "Calc.Interp.FuturesPnl",
             [F(net), F(roe)]);
     }
