@@ -1738,7 +1738,9 @@
   <data name="Calc.Field.Losses" xml:space="preserve"><value>Consecutive losses (N)</value></data>
   <data name="Calc.Field.Price" xml:space="preserve"><value>Price</value></data>
   <data name="Calc.Field.Supply" xml:space="preserve"><value>Circulating supply</value></data>
-  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Target market cap</value></data>
+  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Target market cap (single scenario)</value></data>
+  <data name="Calc.Field.TargetMcapScenarios" xml:space="preserve"><value>Additional target market caps (optional)</value></data>
+  <data name="Calc.Placeholder.TargetMcapScenarios" xml:space="preserve"><value>e.g. 500000000,1000000000,2000000000</value></data>
   <data name="Calc.Field.Ath" xml:space="preserve"><value>All-time high</value></data>
   <data name="Calc.Field.Current" xml:space="preserve"><value>Current price</value></data>
   <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>e.g. 100,1;102,2</value></data>
@@ -1786,6 +1788,7 @@
   <data name="Calc.Result.RemainingEquity" xml:space="preserve"><value>Remaining equity</value></data>
   <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Market cap</value></data>
   <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Implied price</value></data>
+  <data name="Calc.Result.TargetMarketCap" xml:space="preserve"><value>Target market cap scenario</value></data>
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Risking {0}% suggests qty {1} (notional {2}).</value></data>
   <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Reward is {0}× the risk distance.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>Net PnL {0}; ROE {1}%.</value></data>
