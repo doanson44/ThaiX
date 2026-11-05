@@ -90,6 +90,34 @@ public sealed class DevToolsSmokeTests
     }
 
     [Fact]
+    public async Task ToolHost_JsonFormatter_ClearDraft_ShouldRemainEmptyAfterReload()
+    {
+        const string storageKey = "ThaiX.tools.draft.json-formatter";
+
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/tools/json-formatter", 1280, 800);
+
+            var input = page.Locator(".ThaiX-mono-editor__input").First;
+            await input.WaitForAsync(Visible(15000));
+            await input.FillAsync("{\"clearMe\":true}");
+            await page.WaitForTimeoutAsync(600);
+
+            await page.GetByRole(AriaRole.Button, new() { Name = "Clear draft" }).ClickAsync();
+            await page.WaitForFunctionAsync(
+                "(key) => { const raw = localStorage.getItem(key); if (!raw) return false; const envelope = JSON.parse(raw); const state = JSON.parse(envelope.stateJson); return state.input === ''; }",
+                storageKey);
+
+            await page.ReloadAsync();
+            await page.GetByText("JSON Formatter").First.WaitForAsync(Visible(15000));
+            await input.WaitForAsync(Visible(15000));
+
+            Assert.Equal(string.Empty, await input.InputValueAsync());
+        }
+    }
+
+    [Fact]
     public async Task ToolHost_MarkdownPreview_ShowsPreviewPane()
     {
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
