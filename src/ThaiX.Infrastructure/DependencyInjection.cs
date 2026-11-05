@@ -19,6 +19,7 @@ using ThaiX.Infrastructure.Caching;
 using ThaiX.Infrastructure.Configuration;
 using ThaiX.Infrastructure.ExternalApis.Core;
 using ThaiX.Infrastructure.ExternalApis.Options;
+using ThaiX.Infrastructure.ExternalApis.Playwright;
 using ThaiX.Infrastructure.ExternalApis.Providers;
 using ThaiX.Infrastructure.ExternalApis.Resilience;
 using ThaiX.Infrastructure.ExternalApis.Transport;
@@ -124,6 +125,9 @@ public static class DependencyInjection
 
         services.Configure<ProxyOptions>(
             configuration.GetSection(ProxyOptions.SectionName));
+
+        services.Configure<BrowserOptions>(
+            configuration.GetSection(BrowserOptions.SectionName));
 
         // Core services
         services
@@ -235,6 +239,10 @@ public static class DependencyInjection
                 client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
         })
         .AddHttpMessageHandler<ExternalApiResilienceHandler>();
+
+        services
+            .AddSingleton<BrowserSession>()
+            .AddSingleton<BrowserTransport>();
 
         services
             .AddScoped<ICmsxProxyDiagnosticService, CmsxProxyDiagnosticService>()

@@ -65,7 +65,7 @@ public sealed class TestApplicationDbContext : DbContext, IApplicationDbContext
     DbSet<ChainBrokerFund> IApplicationDbContext.ChainBrokerFunds => Set<ChainBrokerFund>();
     DbSet<TcbsTop10Portfolio> IApplicationDbContext.TcbsTop10Portfolios => Set<TcbsTop10Portfolio>();
     DbSet<TcbsTop10Ticker> IApplicationDbContext.TcbsTop10Tickers => Set<TcbsTop10Ticker>();
-    DbSet<TcbsTop10Image> IApplicationDbContext.TcbsTop10Images => Set<TcbsTop10Image>();
+    DbSet<TcbsTop10Attachment> IApplicationDbContext.TcbsTop10Attachments => Set<TcbsTop10Attachment>();
     DbSet<WeeklySuggestionReport> IApplicationDbContext.WeeklySuggestionReports => Set<WeeklySuggestionReport>();
     DbSet<WeeklySuggestionReportItem> IApplicationDbContext.WeeklySuggestionReportItems => Set<WeeklySuggestionReportItem>();
     DbSet<TwentyFourHMoneyTransaction> IApplicationDbContext.TwentyFourHMoneyTransactions => Set<TwentyFourHMoneyTransaction>();

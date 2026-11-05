@@ -610,18 +610,20 @@ public sealed record TcbsTop10PortfoliosResult
 public sealed record TcbsTop10PortfolioDto
 {
     public required Guid Id { get; init; }
-    public required long SourceContentId { get; init; }
+    public long? SourceContentId { get; init; }
     public required DateOnly PostedAt { get; init; }
     public required DateOnly EffectiveDate { get; init; }
     public required IReadOnlyList<string> AddedTickers { get; init; }
     public required IReadOnlyList<string> RemovedTickers { get; init; }
-    public required IReadOnlyList<TcbsTop10ImageDto> Images { get; init; }
+    public required IReadOnlyList<TcbsTop10AttachmentDto> Attachments { get; init; }
 }
 
-public sealed record TcbsTop10ImageDto
+public sealed record TcbsTop10AttachmentDto
 {
-    public required int ImageType { get; init; }
-    public required Guid FileGuid { get; init; }
+    public required int Kind { get; init; }
+    public int? ImageType { get; init; }
+    public Guid? FileGuid { get; init; }
+    public string? Url { get; init; }
 }
 
 public sealed record DragonCapitalFundPortfolioDto

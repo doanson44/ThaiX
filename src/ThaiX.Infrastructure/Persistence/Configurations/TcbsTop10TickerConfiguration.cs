@@ -12,7 +12,7 @@ public sealed class TcbsTop10TickerConfiguration : IEntityTypeConfiguration<Tcbs
 
         builder.Property(x => x.PortfolioId).IsRequired();
         builder.Property(x => x.Ticker).IsRequired().HasMaxLength(20);
-        builder.Property(x => x.ChangeType).IsRequired();
+        builder.Property(x => x.ChangeType).IsRequired().HasConversion<string>().HasMaxLength(32);
 
         builder.HasIndex(x => new { x.PortfolioId, x.Ticker, x.ChangeType }).IsUnique();
     }
