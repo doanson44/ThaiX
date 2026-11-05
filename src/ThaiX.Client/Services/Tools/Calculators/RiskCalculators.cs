@@ -237,19 +237,29 @@ public static class RiskCalculators
     {
         RequirePositive(equity, "Equity");
         RequirePositive(riskPct, "Risk %");
-        if (losses < 0) throw new CalculatorInputException("Losses cannot be negative.");
+        if (losses is < 0 or > 100)
+            throw new CalculatorInputException("Loss count must be between 0 and 100.");
         if (riskPct >= 100) throw new CalculatorInputException("Risk % must be below 100.");
+
         var factor = 1m - riskPct / 100m;
-        var remaining = equity * (decimal)Math.Pow((double)factor, losses);
-        var ddPct = equity == 0 ? 0 : (equity - remaining) / equity * 100m;
+        var remaining = equity;
+        var lines = new List<CalcLine>();
+        for (var loss = 1; loss <= losses; loss++)
+        {
+            remaining *= factor;
+            lines.Add(Line("Calc.Result.LossCount", loss));
+            lines.Add(Line("Calc.Result.RemainingEquity", remaining));
+        }
+
+        var drawdownPct = (equity - remaining) / equity * 100m;
+        lines.Insert(0, Line("Calc.Result.MaxDrawdownPct", drawdownPct));
+        lines.Insert(0, Line("Calc.Result.RemainingEquity", remaining));
+
         return new CalculatorResult(
-            [
-                Line("Calc.Result.RemainingEquity", remaining),
-                Line("Calc.Result.MaxDrawdownPct", ddPct)
-            ],
-            "remaining = equity × (1 − risk%)^N",
+            lines,
+            "remaining equity after each loss = previous equity × (1 − risk%); assumes fixed-fractional risk on current equity",
             "Calc.Interp.ConsecutiveLoss",
-            [F(remaining), F(ddPct)]);
+            [F(remaining), F(drawdownPct)]);
     }
 
     private static CalcLine Line(string key, decimal value) => new(key, F(value));
