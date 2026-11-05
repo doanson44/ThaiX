@@ -441,6 +441,25 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void DescribeCron_WithLocalizedLabels_ShouldUseProvidedHeadings()
+    {
+        // Arrange
+        var fromUtc = new DateTimeOffset(2026, 11, 6, 8, 59, 0, TimeSpan.Zero);
+
+        // Act
+        var output = GeneratorToolTransforms.DescribeCron(
+            "0 9 * * 1-5",
+            fromUtc,
+            cronLabel: "Expression",
+            nextRunsLabel: "Upcoming runs (UTC)");
+
+        // Assert
+        Assert.Contains("Expression: 0 9 * * 1-5", output, StringComparison.Ordinal);
+        Assert.Contains("Upcoming runs (UTC):", output, StringComparison.Ordinal);
+        Assert.Contains("2026-11-06 09:00 UTC", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void GetNextCronOccurrences_WithLeapDaySchedule_ShouldFindFutureOccurrences()
     {
         // Arrange
