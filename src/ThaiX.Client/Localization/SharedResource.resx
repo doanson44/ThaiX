@@ -2129,4 +2129,5 @@
   <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
   <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Periods to trough</value></data>
   <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Periods to recovery</value></data>
+  <data name="Calc.Result.ExpectancyR" xml:space="preserve"><value>Expectancy (R)</value></data>
 </root>
