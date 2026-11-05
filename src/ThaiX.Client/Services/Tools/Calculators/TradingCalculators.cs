@@ -189,52 +189,82 @@ public static class TradingCalculators
             [F(liq)]);
     }
 
-    public static CalculatorResult AverageEntry(IReadOnlyList<(decimal Price, decimal Qty)> legs)
+    public static CalculatorResult AverageEntry(
+        IReadOnlyList<(decimal Price, decimal Qty)> legs,
+        decimal feePct = 0m)
     {
         if (legs.Count == 0) throw new CalculatorInputException("Add at least one price/qty row.");
-        decimal cost = 0, qty = 0;
-        foreach (var (price, q) in legs)
+        RequireFeePct(feePct, "Fee per leg %");
+
+        decimal grossCost = 0m;
+        decimal quantity = 0m;
+        foreach (var (price, qty) in legs)
         {
             RequirePositive(price, "Price");
-            RequirePositive(q, "Quantity");
-            cost += price * q;
-            qty += q;
+            RequirePositive(qty, "Quantity");
+            grossCost += price * qty;
+            quantity += qty;
         }
 
-        var avg = cost / qty;
+        var fees = grossCost * (feePct / 100m);
+        var totalCost = grossCost + fees;
+        var averageEntry = totalCost / quantity;
         return new CalculatorResult(
             [
-                Line("Calc.Result.AverageEntry", avg),
-                Line("Calc.Result.Quantity", qty),
-                Line("Calc.Result.Cost", cost)
+                Line("Calc.Result.AverageEntry", averageEntry),
+                Line("Calc.Result.Quantity", quantity),
+                Line("Calc.Result.Cost", totalCost),
+                Line("Calc.Result.Fees", fees)
             ],
-            "avg = Σ(price×qty) / Σ(qty)",
+            "average entry = (sum of price × quantity + per-leg fees) / total quantity",
             "Calc.Interp.AverageEntry",
-            [F(avg), F(qty)]);
+            [F(averageEntry), F(quantity)]);
     }
 
-    public static CalculatorResult Dca(IReadOnlyList<(decimal Price, decimal Amount)> purchases)
+    public static CalculatorResult Dca(
+        IReadOnlyList<(decimal Price, decimal Amount)> purchases,
+        decimal feePct = 0m,
+        decimal? currentPrice = null)
     {
         if (purchases.Count == 0) throw new CalculatorInputException("Add at least one purchase row.");
-        decimal invested = 0, qty = 0;
+        RequireFeePct(feePct, "Fee per purchase %");
+        if (currentPrice is decimal marketPrice)
+            RequirePositive(marketPrice, "Current market price");
+
+        decimal invested = 0m;
+        decimal quantity = 0m;
         foreach (var (price, amount) in purchases)
         {
             RequirePositive(price, "Price");
             RequirePositive(amount, "Amount");
             invested += amount;
-            qty += amount / price;
+            quantity += amount / price;
         }
 
-        var avg = invested / qty;
+        var fees = invested * (feePct / 100m);
+        var totalOutlay = invested + fees;
+        var averageEntry = totalOutlay / quantity;
+        var lines = new List<CalcLine>
+        {
+            Line("Calc.Result.AverageEntry", averageEntry),
+            Line("Calc.Result.Quantity", quantity),
+            Line("Calc.Result.Invested", invested),
+            Line("Calc.Result.Fees", fees),
+            Line("Calc.Result.TotalOutlay", totalOutlay)
+        };
+
+        if (currentPrice is decimal current)
+        {
+            var marketValue = quantity * current;
+            lines.Add(Line("Calc.Result.MarketValue", marketValue));
+            lines.Add(Line("Calc.Result.UnrealizedPnl", marketValue - totalOutlay));
+        }
+
         return new CalculatorResult(
-            [
-                Line("Calc.Result.AverageEntry", avg),
-                Line("Calc.Result.Quantity", qty),
-                Line("Calc.Result.Invested", invested)
-            ],
-            "qty = Σ(amount/price); avg = invested / qty",
+            lines,
+            "quantity = sum(amount / price); fees = invested × fee%; average entry = (invested + fees) / quantity; current value = quantity × current price",
             "Calc.Interp.Dca",
-            [F(avg), F(invested)]);
+            [F(averageEntry), F(totalOutlay)]);
     }
 
     public static CalculatorResult BreakEven(decimal entry, TradeSide side, decimal openFeePct, decimal closeFeePct)
@@ -303,26 +333,58 @@ public static class TradingCalculators
     }
 
     public static CalculatorResult StopLoss(
-        decimal account, decimal riskPct, decimal positionQty, decimal entry, TradeSide side)
+        decimal account,
+        decimal riskPct,
+        decimal positionQty,
+        decimal entry,
+        TradeSide side,
+        decimal feePct = 0m,
+        decimal slippagePct = 0m)
     {
         RequirePositive(account, "Account");
         RequirePositive(riskPct, "Risk %");
         if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(positionQty, "Position size");
         RequirePositive(entry, "Entry");
+        RequireFeePct(feePct, "Fee per side %");
+        RequireFeePct(slippagePct, "Slippage per side %");
+
         var riskAmount = account * (riskPct / 100m);
-        var dist = riskAmount / positionQty;
-        var sl = side == TradeSide.Long ? entry - dist : entry + dist;
-        if (sl <= 0) throw new CalculatorInputException("Computed stop loss is not positive — reduce risk or size.");
+        var unitRiskBudget = riskAmount / positionQty;
+        var fee = feePct / 100m;
+        var slippage = slippagePct / 100m;
+        var effectiveEntry = side == TradeSide.Long
+            ? entry * (1m + slippage)
+            : entry * (1m - slippage);
+
+        var effectiveStop = side == TradeSide.Long
+            ? (effectiveEntry * (1m + fee) - unitRiskBudget) / (1m - fee)
+            : (unitRiskBudget + effectiveEntry * (1m - fee)) / (1m + fee);
+        var stopLoss = side == TradeSide.Long
+            ? effectiveStop / (1m - slippage)
+            : effectiveStop / (1m + slippage);
+
+        if (stopLoss <= 0)
+            throw new CalculatorInputException("Computed stop loss is not positive; reduce risk or position size.");
+        if (side == TradeSide.Long ? stopLoss >= entry : stopLoss <= entry)
+            throw new CalculatorInputException("Risk budget is too small to cover round-trip fees and slippage.");
+
+        var priceRiskPerUnit = Math.Abs(effectiveEntry - effectiveStop);
+        var feesPerUnit = (effectiveEntry + effectiveStop) * fee;
+        var slippageCostPerUnit = Math.Abs(effectiveEntry - entry) + Math.Abs(effectiveStop - stopLoss);
 
         return new CalculatorResult(
             [
                 Line("Calc.Result.RiskAmount", riskAmount),
-                Line("Calc.Result.StopLossPrice", sl)
+                Line("Calc.Result.StopLossPrice", stopLoss),
+                Line("Calc.Result.PriceRiskPerUnit", priceRiskPerUnit),
+                Line("Calc.Result.FeesPerUnit", feesPerUnit),
+                Line("Calc.Result.SlippageCostPerUnit", slippageCostPerUnit),
+                Line("Calc.Result.TotalRiskPerUnit", priceRiskPerUnit + feesPerUnit)
             ],
-            "dist = (account×risk%) / qty; Long SL = entry − dist; Short SL = entry + dist",
+            "stop price solves per-unit loss = adverse entry/stop distance + entry/stop fees for the configured risk budget; fees and slippage are per side",
             "Calc.Interp.StopLoss",
-            [F(sl)]);
+            [F(stopLoss)]);
     }
 
     /// <summary>
@@ -334,55 +396,91 @@ public static class TradingCalculators
         decimal positionQty,
         decimal? stopLoss,
         decimal? targetRr,
-        decimal? targetPct)
+        decimal? targetPct,
+        decimal feePct = 0m,
+        decimal slippagePct = 0m)
     {
         RequirePositive(entry, "Entry");
         RequirePositive(positionQty, "Position size");
+        RequireFeePct(feePct, "Fee per side %");
+        RequireFeePct(slippagePct, "Slippage per side %");
 
         if (targetPct is not null && targetRr is not null)
             throw new CalculatorInputException("Choose either target % or target R:R, not both.");
 
+        decimal targetPrice;
         if (targetPct is decimal pct)
         {
             RequirePositive(pct, "Target %");
             if (side == TradeSide.Short && pct >= 100)
                 throw new CalculatorInputException("Short target % must be below 100.");
             var move = entry * (pct / 100m);
-            var tpPct = side == TradeSide.Long ? entry + move : entry - move;
-            var expectedPct = move * positionQty;
-            return new CalculatorResult(
-                [
-                    Line("Calc.Result.TakeProfitPrice", tpPct),
-                    Line("Calc.Result.ExpectedProfit", expectedPct)
-                ],
-                "Long TP = entry×(1+%); Short TP = entry×(1−%); profit = |TP−entry|×qty",
-                "Calc.Interp.TakeProfit",
-                [F(tpPct), F(expectedPct)]);
+            targetPrice = side == TradeSide.Long ? entry + move : entry - move;
         }
-
-        if (targetRr is decimal rr && stopLoss is decimal sl)
+        else if (targetRr is decimal rr && stopLoss is decimal stop)
         {
             RequirePositive(rr, "Target R:R");
-            RequirePositive(sl, "Stop loss");
-            var alignedStop = side == TradeSide.Long ? sl < entry : sl > entry;
-            if (!alignedStop)
+            RequirePositive(stop, "Stop loss");
+            var stopIsAligned = side == TradeSide.Long ? stop < entry : stop > entry;
+            if (!stopIsAligned)
                 throw new CalculatorInputException("Stop loss must be below entry for long or above entry for short.");
-            var risk = Math.Abs(entry - sl);
-            var reward = risk * rr;
-            var tpRr = side == TradeSide.Long ? entry + reward : entry - reward;
-            var expectedRr = reward * positionQty;
-            return new CalculatorResult(
-                [
-                    Line("Calc.Result.TakeProfitPrice", tpRr),
-                    Line("Calc.Result.ExpectedProfit", expectedRr),
-                    Line("Calc.Result.RiskReward", rr)
-                ],
-                "reward = |entry−SL| × R:R; Long TP = entry+reward; Short TP = entry−reward",
-                "Calc.Interp.TakeProfit",
-                [F(tpRr), F(expectedRr)]);
+            targetPrice = side == TradeSide.Long
+                ? entry + Math.Abs(entry - stop) * rr
+                : entry - Math.Abs(entry - stop) * rr;
+        }
+        else
+        {
+            throw new CalculatorInputException("Provide target %, or target R:R together with stop loss.");
         }
 
-        throw new CalculatorInputException("Provide target % , or target R:R together with stop loss.");
+        var fee = feePct / 100m;
+        var slippage = slippagePct / 100m;
+        var effectiveEntry = side == TradeSide.Long
+            ? entry * (1m + slippage)
+            : entry * (1m - slippage);
+        var effectiveTarget = side == TradeSide.Long
+            ? targetPrice * (1m - slippage)
+            : targetPrice * (1m + slippage);
+        var grossProfit = Math.Abs(effectiveTarget - effectiveEntry) * positionQty;
+        var fees = (effectiveEntry + effectiveTarget) * fee * positionQty;
+        var netProfit = grossProfit - fees;
+        var lines = new List<CalcLine>
+        {
+            Line("Calc.Result.TakeProfitPrice", targetPrice),
+            Line("Calc.Result.GrossProfit", grossProfit),
+            Line("Calc.Result.ExpectedProfit", netProfit),
+            Line("Calc.Result.Fees", fees)
+        };
+
+        if (stopLoss is decimal stopLevel)
+        {
+            RequirePositive(stopLevel, "Stop loss");
+            var stopIsAligned = side == TradeSide.Long ? stopLevel < entry : stopLevel > entry;
+            if (!stopIsAligned)
+                throw new CalculatorInputException("Stop loss must be below entry for long or above entry for short.");
+
+            var effectiveStop = side == TradeSide.Long
+                ? stopLevel * (1m - slippage)
+                : stopLevel * (1m + slippage);
+            var netRisk = (Math.Abs(effectiveEntry - effectiveStop)
+                + (effectiveEntry + effectiveStop) * fee) * positionQty;
+            lines.Add(Line("Calc.Result.NetRisk", netRisk));
+            if (netProfit > 0)
+            {
+                lines.Add(Line("Calc.Result.RiskReward", netProfit / netRisk));
+                lines.Add(Line("Calc.Result.BreakEvenWinRatePct", netRisk / (netRisk + netProfit) * 100m));
+            }
+            else
+            {
+                lines.Add(new CalcLine("Calc.Result.BreakEvenWinRatePct", "N/A"));
+            }
+        }
+
+        return new CalculatorResult(
+            lines,
+            "net profit = adverse target move × quantity − entry/target fees; optional net R:R compares net profit with adverse stop loss after fees",
+            "Calc.Interp.TakeProfit",
+            [F(targetPrice), F(netProfit)]);
     }
 
     private static CalcLine Line(string key, decimal value) => new(key, F(value));
