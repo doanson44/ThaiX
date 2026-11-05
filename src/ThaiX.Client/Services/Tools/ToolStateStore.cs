@@ -156,6 +156,7 @@ public sealed class ToolStateStore : IToolStateStore
 
     public async Task SaveLocalAsync(ToolDefinition tool, string stateJson, CancellationToken cancellationToken = default)
     {
+        EnsureStateSize(stateJson);
         var envelope = CreateEnvelope(stateJson);
         var content = JsonSerializer.Serialize(envelope, JsonOptions);
 
@@ -207,6 +208,7 @@ public sealed class ToolStateStore : IToolStateStore
         if (!tool.AllowCloudSave)
             throw new InvalidOperationException("Cloud save is disabled for this tool.");
 
+        EnsureStateSize(stateJson);
         var userId = await RequireCloudUserIdAsync();
         await UpsertCloudAsync(tool, userId, CreateEnvelope(stateJson), cancellationToken, displayName);
     }
@@ -343,13 +345,34 @@ public sealed class ToolStateStore : IToolStateStore
 
     private static ToolStateEnvelope? DeserializeEnvelope(string json)
     {
+        EnsureStateSize(json);
+
         try
         {
-            return JsonSerializer.Deserialize<ToolStateEnvelope>(json, JsonOptions);
+            using var document = JsonDocument.Parse(json);
+            var root = document.RootElement;
+            var hasStateJson = root.ValueKind == JsonValueKind.Object
+                && (root.TryGetProperty("stateJson", out _) || root.TryGetProperty("StateJson", out _));
+
+            if (!hasStateJson)
+                return new ToolStateEnvelope { StateJson = json, SavedAtUtc = DateTime.UtcNow };
+
+            var envelope = JsonSerializer.Deserialize<ToolStateEnvelope>(json, JsonOptions);
+            if (envelope is null || envelope.V != ToolCatalog.StateEnvelopeVersion)
+                throw new InvalidDataException("Unsupported tool workspace envelope version.");
+
+            EnsureStateSize(envelope.StateJson);
+            return envelope;
         }
         catch (JsonException)
         {
             return new ToolStateEnvelope { StateJson = json, SavedAtUtc = DateTime.UtcNow };
         }
+    }
+
+    private static void EnsureStateSize(string stateJson)
+    {
+        if (System.Text.Encoding.UTF8.GetByteCount(stateJson ?? string.Empty) > ToolCatalog.MaxWorkspaceBytes)
+            throw new InvalidDataException("Tool workspace exceeds the maximum supported size.");
     }
 }
