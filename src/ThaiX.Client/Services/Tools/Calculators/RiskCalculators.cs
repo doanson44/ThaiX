@@ -40,7 +40,7 @@ public static class RiskCalculators
                 Line("Calc.Result.Edge", edge),
                 Line("Calc.Result.RiskOfRuinPct", ror)
             ],
-            "edge ≈ winRate − (1−winRate)/R:R; RoR ≈ ((1−edge)/(1+edge))^(100/risk%) × 100 (simplified)",
+            "Heuristic score only; this output is not a calibrated probability of ruin.",
             "Calc.Interp.RiskOfRuin",
             [F(ror)]);
     }
