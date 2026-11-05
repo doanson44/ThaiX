@@ -70,6 +70,21 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void PrettyPrint_WithLargeJsonArray_ShouldFormatWithoutTruncation()
+    {
+        // Arrange
+        var json = "{\"values\":[" + string.Join(',', Enumerable.Range(0, 50000)) + "]}";
+
+        // Act
+        var formatted = JsonToolTransforms.PrettyPrint(json);
+
+        // Assert
+        Assert.Contains("\"values\": [", formatted, StringComparison.Ordinal);
+        Assert.Contains("49999", formatted, StringComparison.Ordinal);
+        Assert.True(formatted.Length > json.Length);
+    }
+
+    [Fact]
     public void CsvToJson_WithQuotedCommaAndEscapedQuote_ShouldPreserveValues()
     {
         // Arrange
@@ -551,6 +566,32 @@ public sealed class ToolQualityUnitTests
 
         // Assert
         Assert.Contains("'https://example.com/a'\\''b'", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithQuotesAndShellMetacharacters_ShouldQuoteHeaderAndBody()
+    {
+        // Arrange
+        const string headers = "X-Comment: O'Reilly";
+        const string body = "{\"command\":\"$(id); echo 'unsafe'\"}";
+
+        // Act
+        var command = GeneratorToolTransforms.BuildCurl("POST", "https://example.com", headers, body);
+
+        // Assert
+        Assert.Contains("'X-Comment: O'\\''Reilly'", command, StringComparison.Ordinal);
+        Assert.Contains("$(id); echo", command, StringComparison.Ordinal);
+        Assert.Contains("'\\''unsafe'\\''", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithControlCharacterInUrl_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl("GET", "https://example.com/\nmalicious", "", "");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
     }
 
     [Fact]
