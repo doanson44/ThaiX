@@ -36,8 +36,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Regex | Adds an Ignore Case option while retaining the existing execution timeout. |
 | QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |
 | Conventional Commit | Validates type syntax, scope, subject, 72-character header limit, and breaking-change description. Custom lowercase types are allowed. |
-| Trading calculators | Adds Long/Short direction and stop-loss-side validation to Position Size; validates fee percentages, maintenance margin, leverage minimum, mutually exclusive Take Profit modes, and whole-number period/loss counts. |
-| Risk calculators | Rejects non-positive equity-series points and labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
+| Trading calculators | Adds Long/Short direction and stop-loss-side validation to Position Size; models per-side Futures PnL slippage; reports gross Risk/Reward break-even win rate; validates fee percentages, maintenance margin, leverage minimum, mutually exclusive Take Profit modes, and whole-number period/loss counts. |
+| Risk calculators | Rejects negative equity while treating zero equity as a 100% drawdown; reports peak-to-trough and recovery periods; adds Expectancy in R multiples and a configurable Kelly cap; labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
 | Crypto calculators | Market Cap distinguishes circulating supply market cap, total-supply valuation, and maximum-supply FDV, with supply-order validation. |
 | Localization | Localizes ToolHost action labels, input labels, and generator options in English and Vietnamese. |
 
@@ -55,7 +55,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | JSON generators | Handle heterogeneous arrays and all duplicate JSON object-key cases; validate generated output by compiling representative fixtures. |
 | JWT Decoder | Keep decoded claims clearly marked unverified. Signature verification requires an explicit algorithm/key input workflow and must not be implied by decoding. |
 | JSON Formatter / Validator | Add structured line/column diagnostics and large-payload tests. |
-| JSON Compare / Diff | Add JSON-path summaries and a side-by-side line view. |
+| JSON Compare / Diff | JSON Compare now reports JSON paths, missing-vs-null values, and quoted paths for special property names; add a side-by-side line view for text diff. |
 | YAML / XML | Add malformed-input diagnostics and explicit XML whitespace-preservation tests. |
 | SHA-256 | Add file hashing only if a browser file-input workflow is required. |
 | QR | Add fixed version/size controls only if print-layout requirements justify them. |
@@ -69,7 +69,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 |---|---|
 | Position Size | Add fee/slippage assumptions and report risk after costs. |
 | Risk/Reward | Add fee-adjusted net R:R and break-even win rate. |
-| Futures PnL | Add contract size, funding, slippage, and explicit exchange/contract models. |
+| Futures PnL | Add contract size, funding, and explicit exchange/contract models. Per-side slippage is now configurable. |
 | Liquidation | Add tiered maintenance margin and exchange-specific fee/funding assumptions before presenting it as exchange liquidation. |
 | Average Entry | Include per-leg fees and net cost basis. |
 | DCA | Add schedule planning and current market-value scenarios. |
@@ -85,9 +85,9 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Calculator | Remaining work |
 |---|---|
 | Risk of Ruin | A statistically defensible model needs a ruin threshold, finite horizon, return distribution, and cost assumptions. Monte Carlo requires reproducible seeds and documented assumptions. |
-| Max Drawdown | Add recovery duration, underwater curve, and peak-to-recovery tracking. |
+| Max Drawdown | Recovery duration is now measured in input periods. Add an underwater curve and actual time-based recovery only when dated equity observations are available. |
 | Loss Recovery | Add multi-scenario recovery tables. |
-| Expectancy | Add R-multiple mode, sample size, and uncertainty interval. |
+| Expectancy | R-multiple output is now included. Add sample size and uncertainty intervals only when trade-level variance is available. |
 | Kelly Criterion | Add configurable caps and stronger warnings about unstable input estimates. |
 | Consecutive Loss | Add equity curve and risk-per-trade comparison. |
 
@@ -111,15 +111,15 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 52 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (63 test cases total). Coverage includes:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 65 `[Fact]` tests and
+three parameterized `[Theory]` methods with 11 inline cases (76 test cases total). Coverage includes:
 
 - CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
 - SQL literals/comments, HTML conversion, and Markdown raw-HTML/unsafe-link payloads.
 - C#/TypeScript identifier sanitization and nested type collisions.
 - URL normalization, Base64URL, Unix seconds/milliseconds, and UUID formats.
 - cURL shell quoting, method/header validation, Cron parsing, Conventional Commit validation, QR settings, and password generation.
-- Calculator sample initialization, Position Size direction, trading boundaries, Risk of Ruin wording, Max Drawdown validation, Funding signs, and Market Cap/FDV supply rules.
+- Calculator sample initialization, Position Size direction, Futures slippage, Risk/Reward break-even, trading boundaries, Risk of Ruin wording, Max Drawdown recovery, Expectancy R, Kelly caps, Funding signs, and Market Cap/FDV supply rules.
 
 ## Verification status
 
