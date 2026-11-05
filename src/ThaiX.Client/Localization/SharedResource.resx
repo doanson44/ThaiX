@@ -2156,4 +2156,5 @@
   <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Signature missing.</value></data>
   <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Encode component</value></data>
   <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Decode component</value></data>
+  <data name="Tools.FieldLabel.SideBySide" xml:space="preserve"><value>Side by side</value></data>
 </root>
