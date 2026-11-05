@@ -60,7 +60,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | SHA-256 | Add file hashing only if a browser file-input workflow is required. |
 | QR | Add fixed version/size controls only if print-layout requirements justify them. |
 | cURL | Add broader multiline-header, control-character, and special-shell-character tests. |
-| Regex | Add multiline/singleline/dotall flags and clearer replacement ergonomics. |
+| Regex | Ignore Case and replacement input are now available. Add multiline/singleline/dotall flags and richer replacement ergonomics. |
 | Text Diff | Add side-by-side output and whitespace-ignore mode. |
 
 ### Trading calculators
@@ -111,8 +111,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 65 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (76 test cases total). Coverage includes:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 68 `[Fact]` tests and
+three parameterized `[Theory]` methods with 11 inline cases (79 test cases total). Coverage includes:
 
 - CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
 - SQL literals/comments, HTML conversion, and Markdown raw-HTML/unsafe-link payloads.
