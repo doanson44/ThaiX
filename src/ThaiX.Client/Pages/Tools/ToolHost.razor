@@ -177,21 +177,21 @@ else
                     @if (SlugEquals("password-generator"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
-                            <RadzenFormField Text="Length" Class="w-100">
-                                <RadzenNumeric TValue="int" Value="@_state.Number" ValueChanged="@((int value) => OnNumberChanged(value))" Min="4" Max="128" Class="w-100" />
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.Length]" Class="w-100">
+                                <RadzenNumeric TValue="int" Value="@_state.Number" ValueChanged="@((int value) => OnNumberChanged(value))" Min="4" Max="128" Class="w-100" aria-label="@L[RK.Tools.FieldLabel.Length]" />
                             </RadzenFormField>
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="sym" />
-                            <RadzenLabel Text="Symbols" Component="sym" Class="rz-ms-2" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Symbols]" Component="sym" Class="rz-ms-2" />
                         </RadzenColumn>
                     }
                     @if (SlugEquals("curl") || SlugEquals("conventional-commit") || SlugEquals("gitignore") || SlugEquals("cron"))
                     {
                         <RadzenColumn Size="12" SizeMD="6">
-                            <RadzenFormField Text="Option" Class="w-100">
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.Option]" Class="w-100">
                                 <RadzenTextBox Value="@_state.Option" ValueChanged="OnOptionChanged" Class="w-100"
-                                               Placeholder="@(SlugEquals("gitignore") ? "dotnet|node|vs|rider" : SlugEquals("curl") ? "GET|POST|..." : "feat/scope")" />
+                                               Placeholder="@(SlugEquals("gitignore") ? L[RK.Tools.FieldLabel.GitignorePreset].Value : SlugEquals("curl") ? L[RK.Tools.FieldLabel.HttpMethod].Value : SlugEquals("cron") ? L[RK.Tools.FieldLabel.CronExpression].Value : L[RK.Tools.FieldLabel.CommitScope].Value)" />
                             </RadzenFormField>
                         </RadzenColumn>
                     }
@@ -199,7 +199,7 @@ else
                     {
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="brk" />
-                            <RadzenLabel Text="Breaking" Component="brk" Class="rz-ms-2" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.Breaking]" Component="brk" Class="rz-ms-2" />
                         </RadzenColumn>
                     }
                 </RadzenRow>
