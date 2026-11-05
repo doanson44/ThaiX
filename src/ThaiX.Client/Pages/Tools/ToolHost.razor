@@ -167,6 +167,13 @@ else
             @if (NeedsOptions())
             {
                 <RadzenRow Gap="1rem" RowGap="0.5rem" Class="mb-2">
+                    @if (SlugEquals("regex"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="ignoreCase" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.IgnoreCase]" Component="ignoreCase" Class="rz-ms-2" />
+                        </RadzenColumn>
+                    }
                     @if (SlugEquals("uuid"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
@@ -450,7 +457,7 @@ else
     private bool NeedsOptions() =>
         SlugEquals("uuid") || SlugEquals("password-generator")
         || SlugEquals("curl") || SlugEquals("conventional-commit")
-        || SlugEquals("gitignore") || SlugEquals("cron");
+        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex");
 
     private string LeftLabel() => Slug.ToLowerInvariant() switch
     {
@@ -561,8 +568,8 @@ else
                 case "h2m": _state.Output = TextToolTransforms.HtmlToMarkdownRough(_state.Input); break;
                 case "m2h": _state.Output = TextToolTransforms.MarkdownToHtml(_state.Input); break;
                 case "diff": _state.Output = TextToolTransforms.Diff(_state.Input, _state.Input2); break;
-                case "re": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, null); break;
-                case "reReplace": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, _state.Option); break;
+                case "re": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, null, ignoreCase: _state.Flag); break;
+                case "reReplace": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, _state.Option, ignoreCase: _state.Flag); break;
                 case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
                 case "pws": _state.Output = GeneratorToolTransforms.PasswordStrength(_state.Input); break;
                 case "cron":
