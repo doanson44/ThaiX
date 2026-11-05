@@ -2049,6 +2049,7 @@ public static class ResourceKeys
             public const string Url = "Tools.FieldLabel.Url";
             public const string Subject = "Tools.FieldLabel.Subject";
             public const string Pattern = "Tools.FieldLabel.Pattern";
+            public const string Replacement = "Tools.FieldLabel.Replacement";
             public const string Headers = "Tools.FieldLabel.Headers";
             public const string Body = "Tools.FieldLabel.Body";
             public const string Length = "Tools.FieldLabel.Length";
