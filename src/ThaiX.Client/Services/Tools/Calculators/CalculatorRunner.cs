@@ -39,7 +39,7 @@ public static class CalculatorRunner
                 D(fields, "winRatePct"), D(fields, "avgWin"), D(fields, "avgLoss")),
             "kelly-criterion" => RiskCalculators.Kelly(D(fields, "winRatePct"), D(fields, "payoffRatio")),
             "consecutive-loss" => RiskCalculators.ConsecutiveLoss(
-                D(fields, "equity"), D(fields, "riskPct"), (int)D(fields, "losses")),
+                D(fields, "equity"), D(fields, "riskPct"), Int(fields, "losses")),
             "market-cap" => CryptoCalculators.MarketCap(D(fields, "price"), D(fields, "supply")),
             "market-cap-compare" => CryptoCalculators.MarketCapCompare(D(fields, "supply"), D(fields, "targetMcap")),
             "ath-drawdown" => CryptoCalculators.AthDrawdown(D(fields, "ath"), D(fields, "current")),
@@ -113,6 +113,15 @@ public static class CalculatorRunner
             && !decimal.TryParse(raw.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out v))
             throw new CalculatorInputException($"Invalid number for {key}.");
         return v;
+    }
+
+    private static int Int(IReadOnlyDictionary<string, string> fields, string key)
+    {
+        var value = D(fields, key);
+        if (value != decimal.Truncate(value) || value < int.MinValue || value > int.MaxValue)
+            throw new CalculatorInputException($"{key} must be a whole number.");
+
+        return decimal.ToInt32(value);
     }
 
     private static decimal? OptionalD(IReadOnlyDictionary<string, string> fields, string key)
