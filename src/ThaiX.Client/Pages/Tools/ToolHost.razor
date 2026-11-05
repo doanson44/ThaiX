@@ -466,7 +466,7 @@ else
         "url-codec" => [("urle", L[RK.Tools.Action.Encode].Value, "link"), ("urld", L[RK.Tools.Action.Decode].Value, "link_off")],
         "sha256" => [("sha", L[RK.Tools.Action.Hash].Value, "fingerprint")],
         "uuid" => [("uuid", L[RK.Tools.Action.Generate].Value, "add")],
-        "unix-timestamp" => [("toUnix", L[RK.Tools.Action.ToUnix].Value, "schedule"), ("fromUnix", L[RK.Tools.Action.FromUnix].Value, "event")],
+        "unix-timestamp" => [("toUnix", L[RK.Tools.Action.ToUnix].Value, "schedule"), ("fromUnix", L[RK.Tools.Action.FromUnix].Value, "event"), ("fromUnixMs", L[RK.Tools.Action.FromUnixMilliseconds].Value, "event")],
         "yaml-validator" => [("yamlVal", L[RK.Tools.Action.Validate].Value, "fact_check")],
         "yaml-json" => [("y2j", L[RK.Tools.Action.YamlToJson].Value, "swap_horiz"), ("j2y", L[RK.Tools.Action.JsonToYaml].Value, "swap_horiz")],
         "xml-formatter" => [("xml", L[RK.Tools.Action.Format].Value, "code")],
@@ -517,7 +517,8 @@ else
                 case "sha": _state.Output = EncodeToolTransforms.Sha256Hex(_state.Input); break;
                 case "uuid": _state.Output = EncodeToolTransforms.NewUuid(_state.Flag); break;
                 case "toUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: true); break;
-                case "fromUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false); break;
+                case "fromUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false, milliseconds: false); break;
+                case "fromUnixMs": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false, milliseconds: true); break;
                 case "yamlVal":
                     ConvertToolTransforms.ValidateYaml(_state.Input);
                     _inputValid = true;
