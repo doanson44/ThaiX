@@ -591,8 +591,26 @@ else
                 case "h2m": _state.Output = TextToolTransforms.HtmlToMarkdownRough(_state.Input); break;
                 case "m2h": _state.Output = TextToolTransforms.MarkdownToHtml(_state.Input); break;
                 case "diff": _state.Output = TextToolTransforms.Diff(_state.Input, _state.Input2); break;
-                case "re": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, null, ignoreCase: _state.Flag); break;
-                case "reReplace": _state.Output = TextToolTransforms.RegexTest(_state.Input2, _state.Input, _state.Option, ignoreCase: _state.Flag); break;
+                case "re":
+                    _state.Output = TextToolTransforms.RegexTest(
+                        _state.Input2,
+                        _state.Input,
+                        null,
+                        ignoreCase: _state.Flag,
+                        matchesLabel: L[RK.Tools.Regex.Matches].Value,
+                        groupLabel: L[RK.Tools.Regex.Group].Value,
+                        replaceLabel: L[RK.Tools.Regex.Replace].Value);
+                    break;
+                case "reReplace":
+                    _state.Output = TextToolTransforms.RegexTest(
+                        _state.Input2,
+                        _state.Input,
+                        _state.Option,
+                        ignoreCase: _state.Flag,
+                        matchesLabel: L[RK.Tools.Regex.Matches].Value,
+                        groupLabel: L[RK.Tools.Regex.Group].Value,
+                        replaceLabel: L[RK.Tools.Regex.Replace].Value);
+                    break;
                 case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
                 case "pws":
                     _state.Output = GeneratorToolTransforms.PasswordStrength(
