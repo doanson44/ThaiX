@@ -87,7 +87,6 @@ public static class GeneratorToolTransforms
 
     private static string ShellQuote(string value) =>
         "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
-    }
 
     public static string GitignorePreset(string preset) => preset.ToLowerInvariant() switch
     {
