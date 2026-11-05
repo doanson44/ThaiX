@@ -28,7 +28,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | SQL formatter | Scans strings, quoted identifiers, bracket/backtick identifiers, and line/block comments before formatting keywords. It remains a lightweight formatter, not a dialect parser. |
 | HTML to Markdown | Preserves common headings, links, emphasis, inline code, paragraphs, and lists. It remains a best-effort regex converter, not a full HTML5 parser. |
 | Markdown preview security | Disables raw HTML parsing in Markdig and sanitizes generated HTML with HtmlSanitizer. Mermaid rendering now uses `securityLevel: strict`; diagram source detection does not depend on sanitized class attributes. |
-| Cron | Validates five numeric fields and supports wildcards, steps, lists, and ranges. Shows the next five occurrences in UTC. Day-of-week accepts 0 or 7 for Sunday. Named months/days and Quartz extensions are not supported. |
+| Cron | Validates five numeric fields and supports wildcards, steps, lists, and ranges. Shows the next five occurrences in UTC, searching a 400-year Gregorian cycle so rare schedules such as leap day are handled. Day-of-week accepts 0 or 7 for Sunday. Named months/days and Quartz extensions are not supported. |
 | URL Codec | Preserves delimiters for absolute HTTP(S) URLs while escaping spaces. Non-URL inputs continue to use component encoding. |
 | Unix Timestamp | Seconds and milliseconds are explicit actions; input magnitude is no longer used to guess the unit. Date-only values are interpreted as UTC and output is labeled UTC. |
 | Base64 | Adds unpadded Base64URL encode/decode actions alongside standard Base64. |
@@ -111,8 +111,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 50 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (61 test cases total). Coverage includes:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 52 `[Fact]` tests and
+three parameterized `[Theory]` methods with 11 inline cases (63 test cases total). Coverage includes:
 
 - CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
 - SQL literals/comments, HTML conversion, and Markdown raw-HTML/unsafe-link payloads.
