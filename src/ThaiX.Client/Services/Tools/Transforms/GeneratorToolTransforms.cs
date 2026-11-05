@@ -201,7 +201,8 @@ public static class GeneratorToolTransforms
         if (border is < 0 or > 16)
             throw new FormatException("QR quiet zone must be between 0 and 16 modules.");
 
-        var level = (errorCorrection ?? string.Empty).Trim().ToLowerInvariant() switch
+        var normalizedErrorCorrection = string.IsNullOrWhiteSpace(errorCorrection) ? "medium" : errorCorrection.Trim().ToLowerInvariant();
+        var level = normalizedErrorCorrection switch
         {
             "low" => QrCode.Ecc.Low,
             "medium" => QrCode.Ecc.Medium,
