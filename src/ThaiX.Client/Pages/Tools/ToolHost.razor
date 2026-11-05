@@ -510,7 +510,7 @@ else
         "json-compare" => [("compare", L[RK.Tools.Action.Compare].Value, "compare")],
         "jwt-decoder" => [("decode", L[RK.Tools.Action.Decode].Value, "key")],
         "base64" => [("b64e", L[RK.Tools.Action.Encode].Value, "lock"), ("b64d", L[RK.Tools.Action.Decode].Value, "lock_open"), ("b64ue", L[RK.Tools.Action.EncodeBase64Url].Value, "link"), ("b64ud", L[RK.Tools.Action.DecodeBase64Url].Value, "link_off")],
-        "url-codec" => [("urle", L[RK.Tools.Action.Encode].Value, "link"), ("urld", L[RK.Tools.Action.Decode].Value, "link_off")],
+        "url-codec" => [("urle", L[RK.Tools.Action.Encode].Value, "link"), ("urld", L[RK.Tools.Action.Decode].Value, "link_off"), ("urlce", L[RK.Tools.Action.EncodeComponent].Value, "code"), ("urlcd", L[RK.Tools.Action.DecodeComponent].Value, "code")],
         "sha256" => [("sha", L[RK.Tools.Action.Hash].Value, "fingerprint")],
         "uuid" => [("uuid", L[RK.Tools.Action.Generate].Value, "add")],
         "unix-timestamp" => [("toUnix", L[RK.Tools.Action.ToUnix].Value, "schedule"), ("toUnixMs", L[RK.Tools.Action.ToUnixMilliseconds].Value, "schedule"), ("fromUnix", L[RK.Tools.Action.FromUnix].Value, "event"), ("fromUnixMs", L[RK.Tools.Action.FromUnixMilliseconds].Value, "event")],
@@ -571,6 +571,8 @@ else
                 case "b64ud": _state.Output = EncodeToolTransforms.Base64UrlDecodeText(_state.Input); break;
                 case "urle": _state.Output = EncodeToolTransforms.UrlEncode(_state.Input); break;
                 case "urld": _state.Output = EncodeToolTransforms.UrlDecode(_state.Input); break;
+                case "urlce": _state.Output = EncodeToolTransforms.UrlEncodeComponent(_state.Input); break;
+                case "urlcd": _state.Output = EncodeToolTransforms.UrlDecodeComponent(_state.Input); break;
                 case "sha": _state.Output = EncodeToolTransforms.Sha256Hex(_state.Input); break;
                 case "uuid": _state.Output = EncodeToolTransforms.NewUuid(_state.Flag, _state.Option); break;
                 case "toUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: true); break;
