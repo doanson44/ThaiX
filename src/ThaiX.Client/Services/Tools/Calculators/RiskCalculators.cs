@@ -91,60 +91,94 @@ public static class RiskCalculators
 
     public static CalculatorResult MaxDrawdownFromSeries(IReadOnlyList<decimal> equity)
     {
-        if (equity.Count < 2) throw new CalculatorInputException("Provide at least two equity points.");
-        if (equity.Any(value => value < 0))
-            throw new CalculatorInputException("Equity series values cannot be negative.");
+        if (equity.Count < 2)
+            throw new CalculatorInputException("Provide at least two equity points.");
+        if (equity.Any(value => value <= 0))
+            throw new CalculatorInputException("Equity series values must be greater than zero.");
 
-        decimal peak = equity[0];
-        decimal maxDd = 0;
-        decimal maxDdPct = 0;
-        var peakIndex = 0;
-        var maxPeakIndex = 0;
-        var maxTroughIndex = 0;
-        var recoveryIndex = 0;
+        var runningPeak = equity[0];
+        var runningPeakIndex = 0;
+
+        decimal maxAbsoluteDrawdown = 0m;
+        var absolutePeakIndex = 0;
+        var absoluteTroughIndex = 0;
+        var absolutePeakValue = 0m;
+        var absoluteRecoveryIndex = 0;
+
+        decimal maxDrawdownPct = 0m;
+        var percentPeakIndex = 0;
+        var percentTroughIndex = 0;
+        var percentPeakValue = 0m;
+        var percentRecoveryIndex = 0;
 
         for (var index = 0; index < equity.Count; index++)
         {
             var value = equity[index];
-            if (value >= peak && index > maxTroughIndex && maxTroughIndex > maxPeakIndex && recoveryIndex == 0)
-                recoveryIndex = index;
-
-            if (value > peak)
+            if (value > runningPeak)
             {
-                peak = value;
-                peakIndex = index;
+                runningPeak = value;
+                runningPeakIndex = index;
             }
 
-            var drawdown = peak - value;
-            var drawdownPct = peak == 0 ? 0 : drawdown / peak * 100m;
-            if (drawdown > maxDd)
-                maxDd = drawdown;
+            var drawdown = runningPeak - value;
+            var drawdownPct = drawdown / runningPeak * 100m;
 
-            if (drawdownPct > maxDdPct)
+            if (drawdown > maxAbsoluteDrawdown)
             {
-                maxDdPct = drawdownPct;
-                maxPeakIndex = peakIndex;
-                maxTroughIndex = index;
-                recoveryIndex = 0;
+                maxAbsoluteDrawdown = drawdown;
+                absolutePeakIndex = runningPeakIndex;
+                absoluteTroughIndex = index;
+                absolutePeakValue = runningPeak;
+                absoluteRecoveryIndex = 0;
+            }
+            else if (maxAbsoluteDrawdown > 0m
+                && absoluteRecoveryIndex == 0
+                && index > absoluteTroughIndex
+                && value >= absolutePeakValue)
+            {
+                absoluteRecoveryIndex = index;
+            }
+
+            if (drawdownPct > maxDrawdownPct)
+            {
+                maxDrawdownPct = drawdownPct;
+                percentPeakIndex = runningPeakIndex;
+                percentTroughIndex = index;
+                percentPeakValue = runningPeak;
+                percentRecoveryIndex = 0;
+            }
+            else if (maxDrawdownPct > 0m
+                && percentRecoveryIndex == 0
+                && index > percentTroughIndex
+                && value >= percentPeakValue)
+            {
+                percentRecoveryIndex = index;
             }
         }
 
-        var troughToRecovery = maxDd == 0
+        var absoluteRecoveryPeriods = maxAbsoluteDrawdown == 0m
             ? "0"
-            : recoveryIndex > 0
-                ? F(recoveryIndex - maxTroughIndex)
+            : absoluteRecoveryIndex > 0
+                ? F(absoluteRecoveryIndex - absoluteTroughIndex)
+                : "N/A";
+        var percentRecoveryPeriods = maxDrawdownPct == 0m
+            ? "0"
+            : percentRecoveryIndex > 0
+                ? F(percentRecoveryIndex - percentTroughIndex)
                 : "N/A";
 
         return new CalculatorResult(
             [
-                Line("Calc.Result.MaxDrawdown", maxDd),
-                Line("Calc.Result.MaxDrawdownPct", maxDdPct),
-                Line("Calc.Result.PeakToTroughPeriods", maxTroughIndex - maxPeakIndex),
-                new("Calc.Result.TroughToRecoveryPeriods", troughToRecovery)
+                Line("Calc.Result.MaxDrawdown", maxAbsoluteDrawdown),
+                Line("Calc.Result.MaxDrawdownPct", maxDrawdownPct),
+                Line("Calc.Result.AbsolutePeakToTroughPeriods", absoluteTroughIndex - absolutePeakIndex),
+                new("Calc.Result.AbsoluteTroughToRecoveryPeriods", absoluteRecoveryPeriods),
+                Line("Calc.Result.PeakToTroughPeriods", percentTroughIndex - percentPeakIndex),
+                new("Calc.Result.TroughToRecoveryPeriods", percentRecoveryPeriods)
             ],
-            "MDD = max(peak − equity); MDD% = MDD / peak × 100; recovery duration is measured in input periods",
+            "Absolute drawdown and percentage drawdown are tracked independently; recovery is measured against each drawdown's own peak",
             "Calc.Interp.MaxDrawdown",
-            [F(maxDdPct)]);
+            [F(maxDrawdownPct)]);
     }
 
     public static CalculatorResult MaxDrawdownFromPeakTrough(decimal peak, decimal trough)
