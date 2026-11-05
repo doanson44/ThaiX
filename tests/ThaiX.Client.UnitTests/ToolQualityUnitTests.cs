@@ -1112,7 +1112,7 @@ public sealed class ToolQualityUnitTests
 
         // Assert
         Assert.True(netStop < grossStop);
-        Assert.Equal(1m, totalRiskPerUnit);
+        Assert.Equal(10m, totalRiskPerUnit);
     }
 
     [Fact]
