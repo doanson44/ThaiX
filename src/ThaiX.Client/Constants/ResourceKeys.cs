@@ -1971,6 +1971,7 @@ public static class ResourceKeys
         public const string ImportSuccess = "Tools.Import.Success";
         public const string ImportFailed = "Tools.Import.Failed";
         public const string ExportSuccess = "Tools.Export.Success";
+        public const string ExportFailed = "Tools.Export.Failed";
         public const string HistoryCleared = "Tools.History.Cleared";
         public const string SavePending = "Tools.Save.Pending";
         public const string SaveSaved = "Tools.Save.Saved";
