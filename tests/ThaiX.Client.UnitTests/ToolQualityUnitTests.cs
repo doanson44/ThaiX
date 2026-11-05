@@ -235,6 +235,73 @@ public sealed class ToolQualityUnitTests
         Assert.Contains("public long P1stValue", output, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void JsonToCsharp_WithHeterogeneousArray_ShouldUseSafeObjectCollection()
+    {
+        // Arrange
+        const string json = "{\"items\":[{\"id\":1},{\"name\":\"ThaiX\"}]}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("List<object?> Items", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("List<Item>", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToTypescript_WithHeterogeneousPrimitiveArray_ShouldEmitUnionType()
+    {
+        // Arrange
+        const string json = "{\"values\":[1,\"two\",true]}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Contains("(number | string | boolean)[]", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToCsharp_WithDuplicateNestedPropertyNames_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string json = "{\"meta\":{\"id\":1,\"id\":2}}";
+
+        // Act
+        var act = () => ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void JsonToTypescript_WithDuplicateRootPropertyNames_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string json = "{\"id\":1,\"id\":2}";
+
+        // Act
+        var act = () => ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void PrettyPrint_WithMalformedJson_ShouldExposeLineAndColumn()
+    {
+        // Arrange
+        const string json = "{\n  \"value\": }";
+
+        // Act
+        var exception = Assert.Throws<System.Text.Json.JsonException>(() => JsonToolTransforms.PrettyPrint(json));
+
+        // Assert
+        Assert.NotNull(exception.LineNumber);
+        Assert.NotNull(exception.BytePositionInLine);
+    }
+
     [Theory]
     [InlineData("D")]
     [InlineData("N")]
