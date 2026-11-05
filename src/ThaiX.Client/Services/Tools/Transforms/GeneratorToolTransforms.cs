@@ -83,17 +83,16 @@ public static class GeneratorToolTransforms
         var dayOfWeek = ParseCronField(parts[4], 0, 7, normalizeSunday: true);
 
         var utc = fromUtc.ToUniversalTime();
-        var cursor = new DateTimeOffset(
-            utc.Year, utc.Month, utc.Day, utc.Hour, utc.Minute, 0, TimeSpan.Zero).AddMinutes(1);
+        var startDate = utc.UtcDateTime.Date;
+        var maxDays = Math.Min(400 * 366, (DateTime.MaxValue.Date - startDate).Days);
+        var hours = hour.Values.OrderBy(value => value).ToArray();
+        var minutes = minute.Values.OrderBy(value => value).ToArray();
         var occurrences = new List<DateTimeOffset>(count);
-        var maxMinutes = 5 * 366 * 24 * 60;
 
-        for (var index = 0; index < maxMinutes && occurrences.Count < count; index++, cursor = cursor.AddMinutes(1))
+        for (var dayIndex = 0; dayIndex <= maxDays && occurrences.Count < count; dayIndex++)
         {
-            var date = cursor.UtcDateTime;
-            if (!minute.Values.Contains(date.Minute)
-                || !hour.Values.Contains(date.Hour)
-                || !month.Values.Contains(date.Month))
+            var date = startDate.AddDays(dayIndex);
+            if (!month.Values.Contains(date.Month))
                 continue;
 
             var matchesDay = dayOfMonth.Values.Contains(date.Day);
@@ -103,12 +102,30 @@ public static class GeneratorToolTransforms
                 || dayOfWeek.IsWildcard && matchesDay
                 || !dayOfMonth.IsWildcard && !dayOfWeek.IsWildcard && (matchesDay || matchesWeekday);
 
-            if (matchesCalendarDay)
-                occurrences.Add(cursor);
+            if (!matchesCalendarDay)
+                continue;
+
+            foreach (var hourValue in hours)
+            {
+                foreach (var minuteValue in minutes)
+                {
+                    var candidate = new DateTimeOffset(
+                        date.Year, date.Month, date.Day, hourValue, minuteValue, 0, TimeSpan.Zero);
+                    if (candidate <= utc)
+                        continue;
+
+                    occurrences.Add(candidate);
+                    if (occurrences.Count == count)
+                        break;
+                }
+
+                if (occurrences.Count == count)
+                    break;
+            }
         }
 
-        if (occurrences.Count != count)
-            throw new FormatException("Cron expression has no upcoming occurrence within five years.");
+        if (occurrences.Count == 0)
+            throw new FormatException("Cron expression has no upcoming occurrence within 400 years.");
 
         return occurrences;
     }
