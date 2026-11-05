@@ -2027,6 +2027,8 @@ public static class ResourceKeys
             public const string Option = "Tools.FieldLabel.Option";
             public const string Format = "Tools.FieldLabel.Format";
             public const string IgnoreCase = "Tools.FieldLabel.IgnoreCase";
+            public const string ErrorCorrection = "Tools.FieldLabel.ErrorCorrection";
+            public const string QuietZone = "Tools.FieldLabel.QuietZone";
             public const string CronExpression = "Tools.FieldLabel.CronExpression";
             public const string GitignorePreset = "Tools.FieldLabel.GitignorePreset";
             public const string HttpMethod = "Tools.FieldLabel.HttpMethod";
