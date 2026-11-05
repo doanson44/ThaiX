@@ -1689,6 +1689,29 @@
   <data name="Calc.Reset" xml:space="preserve"><value>Reset</value></data>
   <data name="Calc.Results" xml:space="preserve"><value>Results</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Formula</value></data>
+  <data name="Calc.Formula.position-size" xml:space="preserve"><value>Risk per unit = adverse entry/stop distance + entry/stop fees; quantity = account risk amount / risk per unit. Fees and slippage apply per side.</value></data>
+  <data name="Calc.Formula.risk-reward" xml:space="preserve"><value>Net risk = adverse stop distance + entry/stop fees; net reward = adverse target distance - entry/target fees; net R:R = net reward / net risk.</value></data>
+  <data name="Calc.Formula.futures-pnl" xml:space="preserve"><value>Linear contract estimate: base quantity = contracts x contract size; gross PnL uses adjusted entry/exit; funding uses average open/close notional per period; net PnL = gross PnL - fees + side-adjusted funding.</value></data>
+  <data name="Calc.Formula.liquidation" xml:space="preserve"><value>Linear isolated estimate: Long = entry x (1 - 1/leverage) / (1 - MMR); Short = entry x (1 + 1/leverage) / (1 + MMR). Excludes tiered MMR, fees, funding, and cross margin.</value></data>
+  <data name="Calc.Formula.average-entry" xml:space="preserve"><value>Average entry = (sum of price x quantity + per-leg fees) / total quantity.</value></data>
+  <data name="Calc.Formula.dca" xml:space="preserve"><value>Quantity = sum(amount / price); fees = invested x fee%; average entry = (invested + fees) / quantity; current value = quantity x current price.</value></data>
+  <data name="Calc.Formula.break-even" xml:space="preserve"><value>Long break-even = entry x (1 + open fee) / (1 - close fee); Short break-even = entry x (1 - open fee) / (1 + close fee).</value></data>
+  <data name="Calc.Formula.trading-fee" xml:space="preserve"><value>Fee = notional x fee percentage.</value></data>
+  <data name="Calc.Formula.funding" xml:space="preserve"><value>Funding cashflow = notional x funding rate x period count. Positive rates mean longs pay shorts; negative rates mean shorts pay longs.</value></data>
+  <data name="Calc.Formula.leverage" xml:space="preserve"><value>Effective leverage = notional / margin; approximate adverse move to consume initial margin = 1 / leverage. Excludes maintenance margin, fees, funding, and cross margin.</value></data>
+  <data name="Calc.Formula.stop-loss" xml:space="preserve"><value>Stop price solves per-unit loss = adverse entry/stop distance + entry/stop fees for the configured risk budget. Fees and slippage apply per side.</value></data>
+  <data name="Calc.Formula.take-profit" xml:space="preserve"><value>Net profit = adverse target move x quantity - entry/target fees; optional net R:R compares net profit with adverse stop loss after fees.</value></data>
+  <data name="Calc.Formula.risk-of-ruin" xml:space="preserve"><value>Monte Carlo fixed-fractional paths: wins multiply equity by (1 + risk% x R:R), losses by (1 - risk%); ruin occurs at or below the configured fraction of initial equity. Assumes independent trades and excludes fees, slippage, and changing odds.</value></data>
+  <data name="Calc.Formula.max-drawdown" xml:space="preserve"><value>Absolute drawdown = peak - trough; drawdown percentage = drawdown / peak x 100. Series mode tracks absolute and percentage peaks independently; recovery is measured in input periods.</value></data>
+  <data name="Calc.Formula.loss-recovery" xml:space="preserve"><value>Required recovery percentage = 1 / (1 - loss percentage) - 1. Each loss percentage is an independent scenario.</value></data>
+  <data name="Calc.Formula.expectancy" xml:space="preserve"><value>Expectancy = win rate x average win - (1 - win rate) x average loss; expectancy in R = expectancy / average loss.</value></data>
+  <data name="Calc.Formula.kelly-criterion" xml:space="preserve"><value>Full Kelly fraction = (payoff ratio x win probability - loss probability) / payoff ratio; half and quarter Kelly scale the full fraction; capped Kelly = min(full Kelly, configured cap).</value></data>
+  <data name="Calc.Formula.consecutive-loss" xml:space="preserve"><value>Remaining equity after each loss = previous equity x (1 - risk percentage). Assumes fixed-fractional risk on current equity.</value></data>
+  <data name="Calc.Formula.market-cap" xml:space="preserve"><value>Market cap = price x circulating supply; total supply valuation = price x total supply; fully diluted valuation = price x maximum supply.</value></data>
+  <data name="Calc.Formula.market-cap-compare" xml:space="preserve"><value>Implied price = target market cap / circulating supply. Each target market cap is an independent scenario.</value></data>
+  <data name="Calc.Formula.ath-drawdown" xml:space="preserve"><value>Drawdown percentage = (all-time high - current price) / all-time high x 100; recovery percentage = all-time high / current price - 1.</value></data>
+  <data name="Tools.Valid" xml:space="preserve"><value>Valid</value></data>
+  <data name="Tools.Invalid" xml:space="preserve"><value>Invalid</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Interpretation</value></data>
   <data name="Calc.Validation.Input" xml:space="preserve"><value>Review the entered values and the calculator constraints.</value></data>
   <data name="Calc.Validation.Format" xml:space="preserve"><value>One or more values have an invalid number or list format.</value></data>
