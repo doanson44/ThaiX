@@ -7,42 +7,86 @@ public static class RiskCalculators
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
     /// <summary>
-    /// Heuristic fixed-fractional risk estimate. This is not a probability of ruin:
-    /// it does not model a finite horizon, return distribution, fees, or a ruin threshold.
+    /// Estimates the frequency of crossing a ruin threshold using reproducible fixed-fractional Monte Carlo paths.
+    /// Assumes independent trades with constant win probability and fixed win/loss multiples; excludes costs.
     /// </summary>
-    public static CalculatorResult RiskOfRuin(decimal winRatePct, decimal riskReward, decimal riskPerTradePct)
+    public static CalculatorResult RiskOfRuin(
+        decimal winRatePct,
+        decimal riskReward,
+        decimal riskPerTradePct,
+        decimal ruinThresholdPct = 50m,
+        int tradeHorizon = 100,
+        int simulationCount = 2000,
+        int randomSeed = 2026)
     {
         RequirePct(winRatePct, "Win rate %");
         RequirePositive(riskReward, "R:R");
         RequirePositive(riskPerTradePct, "Risk/trade %");
-        if (riskPerTradePct > 100) throw new CalculatorInputException("Risk/trade % cannot exceed 100.");
+        if (riskPerTradePct > 100)
+            throw new CalculatorInputException("Risk/trade % cannot exceed 100.");
+        if (ruinThresholdPct <= 0 || ruinThresholdPct >= 100)
+            throw new CalculatorInputException("Ruin threshold % must be greater than 0 and below 100.");
+        if (tradeHorizon is < 1 or > 1000)
+            throw new CalculatorInputException("Trade horizon must be between 1 and 1000.");
+        if (simulationCount is < 100 or > 10000)
+            throw new CalculatorInputException("Simulation count must be between 100 and 10000.");
+        if ((long)tradeHorizon * simulationCount > 2_000_000)
+            throw new CalculatorInputException("Trade horizon multiplied by simulation count cannot exceed 2000000.");
 
-        var p = winRatePct / 100m;
-        var q = 1m - p;
-        var b = riskReward;
-        // Edge ≈ p − q/b (normalized)
-        var edge = p - q / b;
-        decimal ror;
-        if (edge <= 0)
-            ror = 100m;
-        else
+        var winProbability = (double)(winRatePct / 100m);
+        var riskFraction = (double)(riskPerTradePct / 100m);
+        var winLogReturn = Math.Log(1d + riskFraction * (double)riskReward);
+        var lossLogReturn = riskFraction >= 1d ? double.NegativeInfinity : Math.Log(1d - riskFraction);
+        var ruinLogThreshold = Math.Log((double)(ruinThresholdPct / 100m));
+        var random = new Random(randomSeed);
+        var ruinedPaths = 0;
+
+        for (var simulation = 0; simulation < simulationCount; simulation++)
         {
-            var ratio = (1m - edge) / (1m + edge);
-            if (ratio < 0) ratio = 0;
-            var units = 100m / riskPerTradePct;
-            ror = (decimal)(Math.Pow((double)ratio, (double)units) * 100d);
-            if (ror > 100) ror = 100;
-            if (ror < 0) ror = 0;
+            var logEquity = 0d;
+            for (var trade = 0; trade < tradeHorizon; trade++)
+            {
+                logEquity += random.NextDouble() < winProbability ? winLogReturn : lossLogReturn;
+                if (logEquity <= ruinLogThreshold)
+                {
+                    ruinedPaths++;
+                    break;
+                }
+            }
         }
+
+        var probability = (decimal)ruinedPaths / simulationCount;
+        var probabilityPct = probability * 100m;
+        var (lowerBound, upperBound) = WilsonInterval(ruinedPaths, simulationCount);
+        var edge = winRatePct / 100m - (1m - winRatePct / 100m) / riskReward;
 
         return new CalculatorResult(
             [
                 Line("Calc.Result.Edge", edge),
-                Line("Calc.Result.RiskOfRuinPct", ror)
+                Line("Calc.Result.RiskOfRuinPct", probabilityPct),
+                Line("Calc.Result.RiskOfRuinConfidenceLow", lowerBound),
+                Line("Calc.Result.RiskOfRuinConfidenceHigh", upperBound),
+                Line("Calc.Result.RuinThresholdPct", ruinThresholdPct),
+                Line("Calc.Result.TradeHorizon", tradeHorizon),
+                Line("Calc.Result.SimulationCount", simulationCount),
+                Line("Calc.Result.RandomSeed", randomSeed)
             ],
-            "Heuristic score only; this output is not a calibrated probability of ruin.",
+            "Monte Carlo: win equity × (1 + risk% × R:R); loss equity × (1 − risk%); ruin when equity <= threshold% of initial; independent fixed-probability trades; excludes fees, slippage, and changing odds.",
             "Calc.Interp.RiskOfRuin",
-            [F(ror)]);
+            [F(probabilityPct), F(lowerBound), F(upperBound)]);
+    }
+
+    private static (decimal Lower, decimal Upper) WilsonInterval(int successes, int trials)
+    {
+        const double z = 1.959963984540054;
+        var n = (double)trials;
+        var p = successes / n;
+        var zSquared = z * z;
+        var denominator = 1d + zSquared / n;
+        var center = (p + zSquared / (2d * n)) / denominator;
+        var margin = z * Math.Sqrt((p * (1d - p) / n) + (zSquared / (4d * n * n))) / denominator;
+        return ((decimal)Math.Max(0d, center - margin) * 100m,
+            (decimal)Math.Min(1d, center + margin) * 100m);
     }
 
     public static CalculatorResult MaxDrawdownFromSeries(IReadOnlyList<decimal> equity)
