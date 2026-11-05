@@ -1688,6 +1688,29 @@
   <data name="Calc.Reset" xml:space="preserve"><value>Đặt lại</value></data>
   <data name="Calc.Results" xml:space="preserve"><value>Kết quả</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Công thức</value></data>
+  <data name="Calc.Formula.position-size" xml:space="preserve"><value>Rủi ro mỗi đơn vị = khoảng cách giá khớp vào/giá dừng lỗ bất lợi + phí vào/ra; khối lượng = ngân sách rủi ro tài khoản / rủi ro mỗi đơn vị. Phí và trượt giá áp dụng cho mỗi chiều.</value></data>
+  <data name="Calc.Formula.risk-reward" xml:space="preserve"><value>Rủi ro ròng = khoảng cách đến dừng lỗ bất lợi + phí vào/ra; lợi nhuận ròng = khoảng cách đến mục tiêu bất lợi - phí vào/ra; R:R ròng = lợi nhuận ròng / rủi ro ròng.</value></data>
+  <data name="Calc.Formula.futures-pnl" xml:space="preserve"><value>Ước tính hợp đồng tuyến tính: khối lượng cơ sở = số hợp đồng x quy mô hợp đồng; PnL gộp dùng giá vào/ra đã điều chỉnh; funding dùng notional trung bình vào/ra mỗi kỳ; PnL ròng = PnL gộp - phí + dòng tiền funding theo chiều vị thế.</value></data>
+  <data name="Calc.Formula.liquidation" xml:space="preserve"><value>Ước tính isolated tuyến tính: Long = giá vào x (1 - 1/đòn bẩy) / (1 - MMR); Short = giá vào x (1 + 1/đòn bẩy) / (1 + MMR). Không bao gồm MMR theo bậc, phí, funding hoặc cross margin.</value></data>
+  <data name="Calc.Formula.average-entry" xml:space="preserve"><value>Giá vốn trung bình = (tổng giá x khối lượng + phí từng lệnh) / tổng khối lượng.</value></data>
+  <data name="Calc.Formula.dca" xml:space="preserve"><value>Khối lượng = tổng(số tiền / giá); phí = vốn đầu tư x tỷ lệ phí; giá vốn trung bình = (vốn đầu tư + phí) / khối lượng; giá trị hiện tại = khối lượng x giá hiện tại.</value></data>
+  <data name="Calc.Formula.break-even" xml:space="preserve"><value>Hòa vốn Long = giá vào x (1 + phí mở) / (1 - phí đóng); hòa vốn Short = giá vào x (1 - phí mở) / (1 + phí đóng).</value></data>
+  <data name="Calc.Formula.trading-fee" xml:space="preserve"><value>Phí giao dịch = giá trị danh nghĩa x tỷ lệ phí.</value></data>
+  <data name="Calc.Formula.funding" xml:space="preserve"><value>Dòng tiền funding = giá trị danh nghĩa x tỷ lệ funding x số kỳ. Funding dương: Long trả Short; funding âm: Short trả Long.</value></data>
+  <data name="Calc.Formula.leverage" xml:space="preserve"><value>Đòn bẩy thực tế = giá trị danh nghĩa / ký quỹ; biến động bất lợi ước tính để tiêu hao ký quỹ ban đầu = 1 / đòn bẩy. Không bao gồm ký quỹ duy trì, phí, funding và cross margin.</value></data>
+  <data name="Calc.Formula.stop-loss" xml:space="preserve"><value>Giá dừng lỗ được tính sao cho mức lỗ mỗi đơn vị bằng khoảng cách vào/ra bất lợi cộng phí vào/ra theo ngân sách rủi ro. Phí và trượt giá áp dụng cho mỗi chiều.</value></data>
+  <data name="Calc.Formula.take-profit" xml:space="preserve"><value>Lợi nhuận ròng = biến động giá mục tiêu bất lợi x khối lượng - phí vào/ra; R:R ròng tùy chọn so sánh lợi nhuận ròng với khoản lỗ tại dừng lỗ sau phí.</value></data>
+  <data name="Calc.Formula.risk-of-ruin" xml:space="preserve"><value>Mô phỏng Monte Carlo fixed-fractional: lệnh thắng nhân vốn với (1 + rủi ro% x R:R), lệnh thua nhân với (1 - rủi ro%); phá sản khi vốn chạm hoặc thấp hơn tỷ lệ đã cấu hình của vốn ban đầu. Giả định các lệnh độc lập, không gồm phí, trượt giá và xác suất thay đổi.</value></data>
+  <data name="Calc.Formula.max-drawdown" xml:space="preserve"><value>Drawdown tuyệt đối = đỉnh - đáy; drawdown phần trăm = drawdown / đỉnh x 100. Chế độ chuỗi theo dõi đỉnh tuyệt đối và phần trăm độc lập; thời gian phục hồi tính theo số kỳ đầu vào.</value></data>
+  <data name="Calc.Formula.loss-recovery" xml:space="preserve"><value>Tỷ lệ phục hồi cần thiết = 1 / (1 - tỷ lệ thua lỗ) - 1. Mỗi tỷ lệ thua lỗ là một kịch bản độc lập.</value></data>
+  <data name="Calc.Formula.expectancy" xml:space="preserve"><value>Expectancy = tỷ lệ thắng x lãi trung bình - (1 - tỷ lệ thắng) x lỗ trung bình; expectancy theo R = expectancy / lỗ trung bình.</value></data>
+  <data name="Calc.Formula.kelly-criterion" xml:space="preserve"><value>Kelly toàn phần = (tỷ lệ lời/lỗ x xác suất thắng - xác suất thua) / tỷ lệ lời/lỗ; Kelly một nửa và một phần tư nhân tỷ lệ Kelly toàn phần; Kelly giới hạn = min(Kelly toàn phần, mức trần đã cấu hình).</value></data>
+  <data name="Calc.Formula.consecutive-loss" xml:space="preserve"><value>Vốn còn lại sau mỗi lệnh thua = vốn trước đó x (1 - tỷ lệ rủi ro). Giả định rủi ro fixed-fractional trên vốn hiện tại.</value></data>
+  <data name="Calc.Formula.market-cap" xml:space="preserve"><value>Vốn hóa = giá x nguồn cung lưu hành; định giá theo tổng cung = giá x tổng cung; FDV = giá x nguồn cung tối đa.</value></data>
+  <data name="Calc.Formula.market-cap-compare" xml:space="preserve"><value>Giá giả định = vốn hóa mục tiêu / nguồn cung lưu hành. Mỗi mức vốn hóa mục tiêu là một kịch bản độc lập.</value></data>
+  <data name="Calc.Formula.ath-drawdown" xml:space="preserve"><value>Drawdown = (đỉnh lịch sử - giá hiện tại) / đỉnh lịch sử x 100; tỷ lệ tăng để phục hồi = đỉnh lịch sử / giá hiện tại - 1.</value></data>
+  <data name="Tools.Valid" xml:space="preserve"><value>Hợp lệ</value></data>
+  <data name="Tools.Invalid" xml:space="preserve"><value>Không hợp lệ</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Diễn giải</value></data>
   <data name="Calc.Validation.Input" xml:space="preserve"><value>Vui lòng kiểm tra các giá trị đã nhập và điều kiện của công cụ tính.</value></data>
   <data name="Calc.Validation.Format" xml:space="preserve"><value>Một hoặc nhiều giá trị có định dạng số hoặc danh sách không hợp lệ.</value></data>
