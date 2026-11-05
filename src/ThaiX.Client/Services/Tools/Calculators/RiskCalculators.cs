@@ -48,8 +48,8 @@ public static class RiskCalculators
     public static CalculatorResult MaxDrawdownFromSeries(IReadOnlyList<decimal> equity)
     {
         if (equity.Count < 2) throw new CalculatorInputException("Provide at least two equity points.");
-        if (equity.Any(value => value <= 0))
-            throw new CalculatorInputException("Equity series values must be greater than zero.");
+        if (equity.Any(value => value < 0))
+            throw new CalculatorInputException("Equity series values cannot be negative.");
 
         decimal peak = equity[0];
         decimal maxDd = 0;
