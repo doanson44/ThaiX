@@ -125,7 +125,143 @@ public static class TextToolTransforms
         else sb.AppendLine(line);
     }
 
-    public static string FormatSql(string sql) => SimpleIndent(sql, new[] { "select", "from", "where", "join", "left", "right", "inner", "outer", "group", "order", "having", "union", "insert", "update", "delete", "values", "set" });
+    public static string FormatSql(string sql)
+    {
+        var text = sql ?? string.Empty;
+        var keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER",
+            "GROUP", "ORDER", "HAVING", "UNION", "INSERT", "UPDATE", "DELETE",
+            "VALUES", "SET", "ON", "LIMIT", "OFFSET", "RETURNING"
+        };
+        var output = new StringBuilder(text.Length + 32);
+        var pendingSpace = false;
+        var quote = '\0';
+        var lineComment = false;
+        var blockComment = false;
+
+        for (var index = 0; index < text.Length; index++)
+        {
+            var character = text[index];
+            var next = index + 1 < text.Length ? text[index + 1] : '\0';
+
+            if (lineComment)
+            {
+                output.Append(character);
+                if (character == '\n') lineComment = false;
+                continue;
+            }
+
+            if (blockComment)
+            {
+                output.Append(character);
+                if (character == '*' && next == '/')
+                {
+                    output.Append(next);
+                    index++;
+                    blockComment = false;
+                }
+                continue;
+            }
+
+            if (quote != '\0')
+            {
+                output.Append(character);
+                var closingCharacter = quote == '[' ? ']' : quote;
+                if (character == closingCharacter)
+                {
+                    if (next == closingCharacter)
+                    {
+                        output.Append(next);
+                        index++;
+                    }
+                    else
+                    {
+                        quote = '\0';
+                    }
+                }
+                continue;
+            }
+
+            if (character == '-' && next == '-')
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                output.Append("--");
+                index++;
+                lineComment = true;
+                continue;
+            }
+
+            if (character == '/' && next == '*')
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                output.Append("/*");
+                index++;
+                blockComment = true;
+                continue;
+            }
+
+            if (character is '\'' or '"' or '[' || character == (char)96)
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                quote = character;
+                output.Append(character);
+                continue;
+            }
+
+            if (char.IsWhiteSpace(character))
+            {
+                pendingSpace = true;
+                continue;
+            }
+
+            if (char.IsLetter(character) || character == '_')
+            {
+                var wordStart = index;
+                while (index + 1 < text.Length && (char.IsLetterOrDigit(text[index + 1]) || text[index + 1] == '_'))
+                    index++;
+
+                var word = text[wordStart..(index + 1)];
+                if (keywords.Contains(word))
+                {
+                    TrimTrailingSpaces(output);
+                    if (output.Length > 0 && output[^1] != '\n')
+                        output.AppendLine();
+                    output.Append(word.ToUpperInvariant());
+                }
+                else
+                {
+                    AppendPendingSpace(output, ref pendingSpace);
+                    output.Append(word);
+                }
+
+                continue;
+            }
+
+            AppendPendingSpace(output, ref pendingSpace);
+            output.Append(character);
+            if (character == ';')
+            {
+                output.AppendLine();
+                pendingSpace = false;
+            }
+        }
+
+        return output.ToString().Trim();
+    }
+
+    private static void AppendPendingSpace(StringBuilder output, ref bool pendingSpace)
+    {
+        if (pendingSpace && output.Length > 0 && output[^1] != '\n' && output[^1] != ' ')
+            output.Append(' ');
+        pendingSpace = false;
+    }
+
+    private static void TrimTrailingSpaces(StringBuilder output)
+    {
+        while (output.Length > 0 && output[^1] == ' ')
+            output.Length--;
+    }
 
     public static string Diff(string left, string right)
     {
@@ -194,11 +330,5 @@ public static class TextToolTransforms
         return text.Trim();
     }
 
-    private static string SimpleIndent(string text, string[] breakKeywords)
-    {
-        var compact = Regex.Replace(text ?? "", @"\s+", " ").Trim();
-        foreach (var kw in breakKeywords)
-            compact = Regex.Replace(compact, $@"\b{kw}\b", "\n" + kw.ToUpperInvariant(), RegexOptions.IgnoreCase);
-        return compact.Trim();
-    }
+
 }
