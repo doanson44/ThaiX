@@ -51,7 +51,7 @@ public static class GeneratorToolTransforms
             3 => "Good",
             _ => "Strong"
         };
-        return $"Score: {score}/5 — {label}\nLength: {p.Length}";
+        return $"Score: {score}/5 — {label}\nLength: {p.Length}\nHeuristic only; not an entropy or breach check.";
     }
 
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
