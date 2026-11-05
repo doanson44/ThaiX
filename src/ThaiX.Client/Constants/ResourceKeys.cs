@@ -2549,6 +2549,7 @@ public static class ResourceKeys
             public const string TotalSupply = "Calc.Field.TotalSupply";
             public const string MaxSupply = "Calc.Field.MaxSupply";
             public const string TargetMcap = "Calc.Field.TargetMcap";
+            public const string TargetMcapScenarios = "Calc.Field.TargetMcapScenarios";
             public const string Ath = "Calc.Field.Ath";
             public const string Current = "Calc.Field.Current";
         }
@@ -2561,6 +2562,7 @@ public static class ResourceKeys
             public const string TradeHorizon = "Calc.Result.TradeHorizon";
             public const string RuinThresholdPct = "Calc.Result.RuinThresholdPct";
             public const string RandomSeed = "Calc.Result.RandomSeed";
+            public const string TargetMarketCap = "Calc.Result.TargetMarketCap";
         }
 
         public static class Placeholder
@@ -2568,6 +2570,7 @@ public static class ResourceKeys
             public const string LegsPriceQty = "Calc.Placeholder.LegsPriceQty";
             public const string LegsPriceAmount = "Calc.Placeholder.LegsPriceAmount";
             public const string EquitySeries = "Calc.Placeholder.EquitySeries";
+            public const string TargetMcapScenarios = "Calc.Placeholder.TargetMcapScenarios";
         }
     }
 }
