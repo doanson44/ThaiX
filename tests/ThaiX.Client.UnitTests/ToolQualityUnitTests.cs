@@ -149,6 +149,19 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void CsvToJson_WithQuoteInsideUnquotedField_ShouldThrowFormatException()
+    {
+        // Arrange
+        const string csv = "name,note\nThaiX,unfinished\"quote";
+
+        // Act
+        var act = () => ConvertToolTransforms.CsvToJson(csv);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void CsvToJson_WithDuplicateHeaders_ShouldThrowFormatException()
     {
         // Arrange
