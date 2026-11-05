@@ -113,7 +113,8 @@ window.ThaiXCollectMermaidBlocks = function (container) {
     });
 
     // 2) Sanitized Markdig output may not retain the mermaid class attribute.
-    container.querySelectorAll('pre:not(:has(code))').forEach((pre) => {
+    container.querySelectorAll('pre').forEach((pre) => {
+        if (pre.querySelector('code')) return;
         const source = (pre.textContent || '').replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim();
         if (window.ThaiXIsMermaidSource(source)) found.push({ el: pre, source });
     });
