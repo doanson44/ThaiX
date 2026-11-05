@@ -295,6 +295,8 @@ public static class ToolSampleCatalog
             "qr" => new ToolWorkspaceState
             {
                 Input = "https://ThaiX.local/tools/sample",
+                Number = 4,
+                Option = "medium",
                 Output = "QR generated."
             },
 
