@@ -2477,6 +2477,7 @@ public static class ResourceKeys
             public const string AvgWin = "Calc.Field.AvgWin";
             public const string AvgLoss = "Calc.Field.AvgLoss";
             public const string PayoffRatio = "Calc.Field.PayoffRatio";
+            public const string KellyCapPct = "Calc.Field.KellyCapPct";
             public const string Equity = "Calc.Field.Equity";
             public const string Losses = "Calc.Field.Losses";
             public const string Price = "Calc.Field.Price";
