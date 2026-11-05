@@ -1784,6 +1784,7 @@
   <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
   <data name="Calc.Result.EffectiveLeverage" xml:space="preserve"><value>Effective leverage</value></data>
   <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Required margin</value></data>
+  <data name="Calc.Result.AdverseMovePct" xml:space="preserve"><value>Approx. adverse move to consume initial margin %</value></data>
   <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Stop-loss price</value></data>
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Take-profit price</value></data>
   <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Net profit after fees</value></data>
@@ -1816,7 +1817,7 @@
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Fees imply break-even around {0}.</value></data>
   <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Estimated fee {0}.</value></data>
   <data name="Calc.Interp.Funding" xml:space="preserve"><value>Net funding cashflow {0} (positive = received).</value></data>
-  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×.</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×. The {1}% adverse move is a simplified initial-margin estimate, not an exchange liquidation price.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Stop loss near {0} for the chosen risk.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
   <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Estimated threshold-crossing frequency: {0}% (95% Wilson interval: {1}%–{2}%). Conditional on the stated fixed-fractional assumptions; not a guarantee.</value></data>
