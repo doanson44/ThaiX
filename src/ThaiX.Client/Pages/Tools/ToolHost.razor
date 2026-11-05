@@ -148,6 +148,27 @@ else
         else if (IsQr())
         {
             <RadzenStack Gap="1rem">
+                <RadzenRow Gap="1rem" RowGap="0.5rem">
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="@L[RK.Tools.FieldLabel.ErrorCorrection]" Class="w-100">
+                            <RadzenDropDown TValue="string"
+                                            Data="@QrErrorCorrectionOptions"
+                                            Value="@(string.IsNullOrWhiteSpace(_state.Option) ? "medium" : _state.Option)"
+                                            ValueChanged="OnOptionChanged"
+                                            Class="w-100" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="4">
+                        <RadzenFormField Text="@L[RK.Tools.FieldLabel.QuietZone]" Class="w-100">
+                            <RadzenNumeric TValue="int"
+                                           Value="@_state.Number"
+                                           ValueChanged="@((int value) => OnNumberChanged(value))"
+                                           Min="0" Max="16"
+                                           Class="w-100"
+                                           aria-label="@L[RK.Tools.FieldLabel.QuietZone]" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                </RadzenRow>
                 <MonoTextArea Value="@_state.Input" ValueChanged="OnInputChanged"
                               Label="@L[RK.Tools.Input]" Rows="4" />
                 @if (!string.IsNullOrWhiteSpace(_qrSvg))
@@ -167,28 +188,6 @@ else
             @if (NeedsOptions())
             {
                 <RadzenRow Gap="1rem" RowGap="0.5rem" Class="mb-2">
-                    @if (SlugEquals("qr"))
-                    {
-                        <RadzenColumn Size="12" SizeMD="4">
-                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.ErrorCorrection]" Class="w-100">
-                                <RadzenDropDown TValue="string"
-                                                Data="@QrErrorCorrectionOptions"
-                                                Value="@(string.IsNullOrWhiteSpace(_state.Option) ? "medium" : _state.Option)"
-                                                ValueChanged="OnOptionChanged"
-                                                Class="w-100" />
-                            </RadzenFormField>
-                        </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="4">
-                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.QuietZone]" Class="w-100">
-                                <RadzenNumeric TValue="int"
-                                               Value="@_state.Number"
-                                               ValueChanged="@((int value) => OnNumberChanged(value))"
-                                               Min="0" Max="16"
-                                               Class="w-100"
-                                               aria-label="@L[RK.Tools.FieldLabel.QuietZone]" />
-                            </RadzenFormField>
-                        </RadzenColumn>
-                    }
                     @if (SlugEquals("regex"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
@@ -480,7 +479,7 @@ else
     private bool NeedsOptions() =>
         SlugEquals("uuid") || SlugEquals("password-generator")
         || SlugEquals("curl") || SlugEquals("conventional-commit")
-        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex") || SlugEquals("qr");
+        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex");
 
     private string LeftLabel() => Slug.ToLowerInvariant() switch
     {
