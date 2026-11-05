@@ -957,6 +957,39 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void PositionSize_WithFeesAndSlippage_ShouldReducePositionQuantity()
+    {
+        // Arrange
+        var gross = TradingCalculators.PositionSize(10000m, 1m, 100m, 90m, TradeSide.Long);
+        var net = TradingCalculators.PositionSize(10000m, 1m, 100m, 90m, TradeSide.Long, 0.1m, 0.2m);
+
+        // Act
+        var grossQuantity = decimal.Parse(gross.Breakdown[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var netQuantity = decimal.Parse(net.Breakdown[5].Value, System.Globalization.CultureInfo.InvariantCulture);
+
+        // Assert
+        Assert.True(netQuantity < grossQuantity);
+    }
+
+    [Fact]
+    public void RiskReward_WithFeesAndSlippage_ShouldReduceNetRewardRiskRatio()
+    {
+        // Arrange
+        var gross = TradingCalculators.RiskReward(100m, 90m, 120m, TradeSide.Long);
+        var net = TradingCalculators.RiskReward(100m, 90m, 120m, TradeSide.Long, 0.1m, 0.1m);
+
+        // Act
+        var grossRr = decimal.Parse(gross.Breakdown[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var netRr = decimal.Parse(net.Breakdown[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var grossBreakEven = decimal.Parse(gross.Breakdown[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+        var netBreakEven = decimal.Parse(net.Breakdown[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+
+        // Assert
+        Assert.True(netRr < grossRr);
+        Assert.True(netBreakEven > grossBreakEven);
+    }
+
+    [Fact]
     public void RiskReward_ShouldReportGrossBreakEvenWinRate()
     {
         // Arrange / Act
