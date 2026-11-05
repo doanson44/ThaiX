@@ -205,6 +205,7 @@ public static class ConvertToolTransforms
     public static string JsonToCsharp(string json, string rootName = "Root")
     {
         using var doc = JsonDocument.Parse(json);
+        EnsureUniquePropertyNames(doc.RootElement);
         var sb = new StringBuilder();
         EmitCsharp(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
@@ -213,6 +214,7 @@ public static class ConvertToolTransforms
     public static string JsonToTypescript(string json, string rootName = "Root")
     {
         using var doc = JsonDocument.Parse(json);
+        EnsureUniquePropertyNames(doc.RootElement);
         var sb = new StringBuilder();
         EmitTs(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
@@ -251,8 +253,7 @@ public static class ConvertToolTransforms
                 typeName = nestedTypeName + "?";
                 nested.Add((property.Value, nestedTypeName));
             }
-            else if (property.Value.ValueKind == JsonValueKind.Array
-                && property.Value.GetArrayLength() > 0
+            else if (IsHomogeneousArray(property.Value)
                 && property.Value[0].ValueKind == JsonValueKind.Object)
             {
                 nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
@@ -306,8 +307,7 @@ public static class ConvertToolTransforms
                 typeName = nestedTypeName;
                 nested.Add((property.Value, nestedTypeName));
             }
-            else if (property.Value.ValueKind == JsonValueKind.Array
-                && property.Value.GetArrayLength() > 0
+            else if (IsHomogeneousArray(property.Value)
                 && property.Value[0].ValueKind == JsonValueKind.Object)
             {
                 nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
@@ -329,29 +329,103 @@ public static class ConvertToolTransforms
             EmitTs(item.El, item.TypeName, sb, seen);
     }
 
-    private static string MapCsharp(JsonElement el, string objectName) => el.ValueKind switch
+    private static string MapCsharp(JsonElement el, string objectName)
     {
-        JsonValueKind.String => "string?",
-        JsonValueKind.Number => el.TryGetInt64(out _) ? "long" : "double",
-        JsonValueKind.True or JsonValueKind.False => "bool",
-        JsonValueKind.Null => "object?",
-        JsonValueKind.Object => objectName + "?",
-        JsonValueKind.Array when el.GetArrayLength() > 0 => $"List<{MapCsharp(el[0], objectName)}>",
-        JsonValueKind.Array => "List<object>?",
-        _ => "object?"
-    };
+        if (el.ValueKind == JsonValueKind.Array)
+        {
+            if (el.GetArrayLength() == 0 || !IsHomogeneousArray(el))
+                return "List<object?>";
 
-    private static string MapTs(JsonElement el, string objectName) => el.ValueKind switch
+            return $"List<{MapCsharp(el[0], objectName)}>";
+        }
+
+        return el.ValueKind switch
+        {
+            JsonValueKind.String => "string?",
+            JsonValueKind.Number => el.TryGetInt64(out _) ? "long" : "double",
+            JsonValueKind.True or JsonValueKind.False => "bool",
+            JsonValueKind.Null => "object?",
+            JsonValueKind.Object => objectName + "?",
+            _ => "object?"
+        };
+    }
+
+    private static string MapTs(JsonElement el, string objectName)
     {
+        if (el.ValueKind == JsonValueKind.Array)
+        {
+            if (el.GetArrayLength() == 0)
+                return "unknown[]";
+
+            var items = el.EnumerateArray().ToArray();
+            if (items.Select(GetJsonShape).Distinct(StringComparer.Ordinal).Count() == 1)
+                return $"{MapTs(items[0], objectName)}[]";
+
+            var unionTypes = items
+                .Select(item => item.ValueKind == JsonValueKind.Object
+                    ? "Record<string, unknown>"
+                    : item.ValueKind == JsonValueKind.Array
+                        ? "unknown[]"
+                        : MapTs(item, objectName))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            return $"({string.Join(" | ", unionTypes)})[]";
+        }
+
+        return el.ValueKind switch
+        {
+            JsonValueKind.String => "string",
+            JsonValueKind.Number => "number",
+            JsonValueKind.True or JsonValueKind.False => "boolean",
+            JsonValueKind.Null => "null",
+            JsonValueKind.Object => objectName,
+            _ => "unknown"
+        };
+    }
+
+    private static bool IsHomogeneousArray(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Array || element.GetArrayLength() == 0)
+            return false;
+
+        var items = element.EnumerateArray().ToArray();
+        var firstShape = GetJsonShape(items[0]);
+        return items.All(item => string.Equals(GetJsonShape(item), firstShape, StringComparison.Ordinal));
+    }
+
+    private static string GetJsonShape(JsonElement element) => element.ValueKind switch
+    {
+        JsonValueKind.Object => "object{" + string.Join(",", element.EnumerateObject()
+            .OrderBy(property => property.Name, StringComparer.Ordinal)
+            .Select(property => $"{JsonSerializer.Serialize(property.Name)}:{GetJsonShape(property.Value)}")) + "}",
+        JsonValueKind.Array => "array[" + string.Join(",", element.EnumerateArray()
+            .Select(GetJsonShape).Distinct(StringComparer.Ordinal).OrderBy(shape => shape, StringComparer.Ordinal)) + "]",
         JsonValueKind.String => "string",
         JsonValueKind.Number => "number",
         JsonValueKind.True or JsonValueKind.False => "boolean",
         JsonValueKind.Null => "null",
-        JsonValueKind.Object => objectName,
-        JsonValueKind.Array when el.GetArrayLength() > 0 => $"{MapTs(el[0], objectName)}[]",
-        JsonValueKind.Array => "unknown[]",
         _ => "unknown"
     };
+
+    private static void EnsureUniquePropertyNames(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in element.EnumerateObject())
+            {
+                if (!names.Add(property.Name))
+                    throw new FormatException($"Duplicate JSON property name: {property.Name}.");
+
+                EnsureUniquePropertyNames(property.Value);
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in element.EnumerateArray())
+                EnsureUniquePropertyNames(item);
+        }
+    }
 
     private static string ToPascal(string name)
     {
