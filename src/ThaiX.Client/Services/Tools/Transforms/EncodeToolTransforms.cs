@@ -12,32 +12,9 @@ public static class EncodeToolTransforms
     public static string Base64Decode(string text) =>
         Encoding.UTF8.GetString(Convert.FromBase64String(text.Trim()));
 
-    public static string Base64UrlEncode(string text) =>
-        Convert.ToBase64String(Encoding.UTF8.GetBytes(text ?? string.Empty))
-            .TrimEnd('=')
-            .Replace('+', '-')
-            .Replace('/', '_');
-
-    public static string Base64UrlDecodeText(string text) =>
-        Base64UrlDecode((text ?? string.Empty).Trim());
-
-    public static string UrlEncode(string text)
-    {
-        var value = text ?? string.Empty;
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri)
-            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
-            return uri.AbsoluteUri;
-
-        return Uri.EscapeDataString(value);
-    }
+    public static string UrlEncode(string text) => Uri.EscapeDataString(text);
 
     public static string UrlDecode(string text) => Uri.UnescapeDataString(text);
-
-    public static string UrlEncodeComponent(string text) =>
-        Uri.EscapeDataString(text ?? string.Empty);
-
-    public static string UrlDecodeComponent(string text) =>
-        Uri.UnescapeDataString(text ?? string.Empty);
 
     public static string Sha256Hex(string text)
     {
@@ -45,13 +22,7 @@ public static class EncodeToolTransforms
         return Convert.ToHexString(hash).ToLowerInvariant();
     }
 
-    public static string DecodeJwt(
-        string token,
-        string warning = "UNVERIFIED: signature is not checked. Treat all claims as untrusted.",
-        string headerLabel = "Header",
-        string payloadLabel = "Payload",
-        string signaturePresentLabel = "Signature present (not verified).",
-        string signatureMissingLabel = "Signature missing.")
+    public static string DecodeJwt(string token)
     {
         var parts = token.Trim().Split('.');
         if (parts.Length < 2)
@@ -59,53 +30,32 @@ public static class EncodeToolTransforms
 
         var header = PrettyJson(Base64UrlDecode(parts[0]));
         var payload = PrettyJson(Base64UrlDecode(parts[1]));
-        var signatureNote = parts.Length >= 3 && !string.IsNullOrWhiteSpace(parts[2])
-            ? signaturePresentLabel
-            : signatureMissingLabel;
+        var sigNote = parts.Length >= 3 && !string.IsNullOrWhiteSpace(parts[2])
+            ? "Signature present (not verified)."
+            : "Signature missing.";
 
-        return $"{warning}\n\n// {headerLabel}\n{header}\n\n// {payloadLabel}\n{payload}\n\n// {signatureNote}";
+        return $"// Header\n{header}\n\n// Payload\n{payload}\n\n// {sigNote}";
     }
 
-    public static string NewUuid(bool v7, string format = "D")
-    {
-        var normalizedFormat = string.IsNullOrWhiteSpace(format) ? "D" : format.Trim().ToUpperInvariant();
-        if (normalizedFormat is not ("D" or "N" or "B" or "P" or "X"))
-            throw new FormatException("UUID format must be D, N, B, P, or X.");
+    public static string NewUuid(bool v7) =>
+        v7 ? Guid.CreateVersion7().ToString() : Guid.NewGuid().ToString();
 
-        var value = v7 ? Guid.CreateVersion7() : Guid.NewGuid();
-        return value.ToString(normalizedFormat);
-    }
-
-    public static string UnixConvert(string input, bool toUnix, bool milliseconds = false)
+    public static string UnixConvert(string input, bool toUnix)
     {
         if (toUnix)
         {
-            if (!DateTimeOffset.TryParse(
-                    input.Trim(),
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
-                    out var dateTime))
+            if (!DateTimeOffset.TryParse(input.Trim(), out var dto))
                 throw new FormatException("Invalid date/time.");
-
-            return (milliseconds ? dateTime.ToUnixTimeMilliseconds() : dateTime.ToUnixTimeSeconds())
-                .ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return dto.ToUnixTimeSeconds().ToString();
         }
 
-        if (!long.TryParse(input.Trim(), System.Globalization.NumberStyles.Integer,
-                System.Globalization.CultureInfo.InvariantCulture, out var timestamp))
+        if (!long.TryParse(input.Trim(), out var seconds))
             throw new FormatException("Invalid Unix timestamp.");
-
-        try
-        {
-            var dateTime = milliseconds
-                ? DateTimeOffset.FromUnixTimeMilliseconds(timestamp)
-                : DateTimeOffset.FromUnixTimeSeconds(timestamp);
-            return dateTime.UtcDateTime.ToString("O", System.Globalization.CultureInfo.InvariantCulture) + " (UTC)";
-        }
-        catch (ArgumentOutOfRangeException)
-        {
-            throw new FormatException("Unix timestamp is outside the supported range.");
-        }
+        // support ms if looks like ms
+        var dto2 = seconds > 9_999_999_999
+            ? DateTimeOffset.FromUnixTimeMilliseconds(seconds)
+            : DateTimeOffset.FromUnixTimeSeconds(seconds);
+        return dto2.UtcDateTime.ToString("O") + " (UTC)";
     }
 
     private static string Base64UrlDecode(string segment)

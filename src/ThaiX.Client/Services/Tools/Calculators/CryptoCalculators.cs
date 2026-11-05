@@ -6,75 +6,28 @@ public static class CryptoCalculators
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    public static CalculatorResult MarketCap(
-        decimal price,
-        decimal circulatingSupply,
-        decimal? totalSupply = null,
-        decimal? maxSupply = null)
+    public static CalculatorResult MarketCap(decimal price, decimal circulatingSupply)
     {
         RequirePositive(price, "Price");
         RequirePositive(circulatingSupply, "Circulating supply");
-
-        if (totalSupply is decimal total)
-        {
-            RequirePositive(total, "Total supply");
-            if (total < circulatingSupply)
-                throw new CalculatorInputException("Total supply cannot be below circulating supply.");
-        }
-
-        if (maxSupply is decimal maximum)
-        {
-            RequirePositive(maximum, "Maximum supply");
-            var minimumMaximum = totalSupply ?? circulatingSupply;
-            if (maximum < minimumMaximum)
-                throw new CalculatorInputException("Maximum supply cannot be below total or circulating supply.");
-        }
-
-        var lines = new List<CalcLine>
-        {
-            Line("Calc.Result.MarketCap", price * circulatingSupply)
-        };
-
-        if (totalSupply is decimal totalValue)
-            lines.Add(Line("Calc.Result.TotalSupplyValue", price * totalValue));
-
-        if (maxSupply is decimal maxValue)
-            lines.Add(Line("Calc.Result.Fdv", price * maxValue));
-
+        var mcap = price * circulatingSupply;
         return new CalculatorResult(
-            lines,
-            "marketCap = price × circulatingSupply; total supply value = price × totalSupply; FDV = price × maxSupply",
+            [Line("Calc.Result.MarketCap", mcap)],
+            "marketCap = price × circulatingSupply",
             "Calc.Interp.MarketCap",
-            [F(price * circulatingSupply)]);
+            [F(mcap)]);
     }
 
-    public static CalculatorResult MarketCapCompare(decimal circulatingSupply, decimal targetMarketCap) =>
-        MarketCapCompare(circulatingSupply, [targetMarketCap]);
-
-    public static CalculatorResult MarketCapCompare(
-        decimal circulatingSupply,
-        IReadOnlyList<decimal> targetMarketCaps)
+    public static CalculatorResult MarketCapCompare(decimal circulatingSupply, decimal targetMarketCap)
     {
         RequirePositive(circulatingSupply, "Circulating supply");
-        if (targetMarketCaps.Count is < 1 or > 10)
-            throw new CalculatorInputException("Provide between 1 and 10 target market-cap scenarios.");
-
-        var lines = new List<CalcLine>();
-        var prices = new List<string>();
-        foreach (var targetMarketCap in targetMarketCaps)
-        {
-            RequirePositive(targetMarketCap, "Target market cap");
-            var implied = targetMarketCap / circulatingSupply;
-            lines.Add(Line("Calc.Result.TargetMarketCap", targetMarketCap));
-            lines.Add(Line("Calc.Result.ImpliedPrice", implied));
-            prices.Add(F(implied));
-        }
-
+        RequirePositive(targetMarketCap, "Target market cap");
+        var implied = targetMarketCap / circulatingSupply;
         return new CalculatorResult(
-            lines,
-            "impliedPrice = targetMarketCap / circulatingSupply; each target market cap is an independent scenario",
+            [Line("Calc.Result.ImpliedPrice", implied)],
+            "impliedPrice = targetMarketCap / circulatingSupply",
             "Calc.Interp.MarketCapCompare",
-            prices);
+            [F(implied)]);
     }
 
     public static CalculatorResult AthDrawdown(decimal ath, decimal current)

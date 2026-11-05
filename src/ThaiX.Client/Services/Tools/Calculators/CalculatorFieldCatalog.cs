@@ -49,13 +49,10 @@ public static class CalculatorFieldCatalog
             "position-size" =>
             [
                 Currency(),
-                Side(),
                 Num("account", RK.Calc.Field.Account),
                 Num("riskPct", RK.Calc.Field.RiskPct, "1"),
                 Num("entry", RK.Calc.Field.Entry),
-                Num("stopLoss", RK.Calc.Field.StopLoss),
-                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
+                Num("stopLoss", RK.Calc.Field.StopLoss)
             ],
             "risk-reward" =>
             [
@@ -63,9 +60,7 @@ public static class CalculatorFieldCatalog
                 Side(),
                 Num("entry", RK.Calc.Field.Entry),
                 Num("stopLoss", RK.Calc.Field.StopLoss),
-                Num("takeProfit", RK.Calc.Field.TakeProfit),
-                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
+                Num("takeProfit", RK.Calc.Field.TakeProfit)
             ],
             "futures-pnl" =>
             [
@@ -74,16 +69,12 @@ public static class CalculatorFieldCatalog
                 Num("entry", RK.Calc.Field.Entry),
                 Num("exit", RK.Calc.Field.Exit),
                 Num("size", RK.Calc.Field.Size),
-                Num("contractSize", RK.Calc.Field.ContractSize, "1"),
                 Num("leverage", RK.Calc.Field.Leverage, "10"),
                 FeeMode(),
                 Num("makerPct", RK.Calc.Field.MakerPct, "0.02", showWhenCustom: false),
                 Num("takerPct", RK.Calc.Field.TakerPct, "0.04", showWhenCustom: false),
                 Num("openFeePct", RK.Calc.Field.OpenFeePct, "0.04", showWhenCustom: true),
-                Num("closeFeePct", RK.Calc.Field.CloseFeePct, "0.04", showWhenCustom: true),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0"),
-                Num("fundingRatePct", RK.Calc.Field.FundingRatePct, "0"),
-                Num("fundingPeriods", RK.Calc.Field.Periods, "0")
+                Num("closeFeePct", RK.Calc.Field.CloseFeePct, "0.04", showWhenCustom: true)
             ],
             "liquidation" =>
             [
@@ -96,15 +87,12 @@ public static class CalculatorFieldCatalog
             "average-entry" =>
             [
                 Currency(),
-                Text("legs", RK.Calc.Field.LegsPriceQty, RK.Calc.Placeholder.LegsPriceQty),
-                Num("feePct", RK.Calc.Field.FeePerLegPct, "0")
+                Text("legs", RK.Calc.Field.LegsPriceQty, RK.Calc.Placeholder.LegsPriceQty)
             ],
             "dca" =>
             [
                 Currency(),
-                Text("legs", RK.Calc.Field.LegsPriceAmount, RK.Calc.Placeholder.LegsPriceAmount),
-                Num("feePct", RK.Calc.Field.FeePerLegPct, "0"),
-                Num("currentPrice", RK.Calc.Field.CurrentPrice)
+                Text("legs", RK.Calc.Field.LegsPriceAmount, RK.Calc.Placeholder.LegsPriceAmount)
             ],
             "break-even" =>
             [
@@ -147,9 +135,7 @@ public static class CalculatorFieldCatalog
                 Num("account", RK.Calc.Field.Account),
                 Num("riskPct", RK.Calc.Field.RiskPct, "1"),
                 Num("size", RK.Calc.Field.Size),
-                Num("entry", RK.Calc.Field.Entry),
-                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
+                Num("entry", RK.Calc.Field.Entry)
             ],
             "take-profit" =>
             [
@@ -159,19 +145,13 @@ public static class CalculatorFieldCatalog
                 Num("size", RK.Calc.Field.Size),
                 Num("targetPct", RK.Calc.Field.TargetPct),
                 Num("targetRr", RK.Calc.Field.TargetRr),
-                Num("stopLoss", RK.Calc.Field.StopLoss),
-                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
-                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
+                Num("stopLoss", RK.Calc.Field.StopLoss)
             ],
             "risk-of-ruin" =>
             [
                 Num("winRatePct", RK.Calc.Field.WinRatePct, "55"),
                 Num("riskReward", RK.Calc.Field.RiskReward, "1.5"),
-                Num("riskPerTradePct", RK.Calc.Field.RiskPerTradePct, "1"),
-                Num("ruinThresholdPct", RK.Calc.Field.RuinThresholdPct, "50"),
-                Num("tradeHorizon", RK.Calc.Field.TradeHorizon, "100"),
-                Num("simulationCount", RK.Calc.Field.SimulationCount, "2000"),
-                Num("randomSeed", RK.Calc.Field.RandomSeed, "2026")
+                Num("riskPerTradePct", RK.Calc.Field.RiskPerTradePct, "1")
             ],
             "max-drawdown" =>
             [
@@ -182,8 +162,7 @@ public static class CalculatorFieldCatalog
             ],
             "loss-recovery" =>
             [
-                Num("lossPct", RK.Calc.Field.LossPct, "20"),
-                Text("lossScenarios", RK.Calc.Field.LossScenarios, RK.Calc.Placeholder.LossScenarios)
+                Num("lossPct", RK.Calc.Field.LossPct, "20")
             ],
             "expectancy" =>
             [
@@ -195,8 +174,7 @@ public static class CalculatorFieldCatalog
             "kelly-criterion" =>
             [
                 Num("winRatePct", RK.Calc.Field.WinRatePct, "55"),
-                Num("payoffRatio", RK.Calc.Field.PayoffRatio, "1.5"),
-                Num("maxKellyPct", RK.Calc.Field.KellyCapPct, "25")
+                Num("payoffRatio", RK.Calc.Field.PayoffRatio, "1.5")
             ],
             "consecutive-loss" =>
             [
@@ -209,16 +187,13 @@ public static class CalculatorFieldCatalog
             [
                 Currency(),
                 Num("price", RK.Calc.Field.Price),
-                Num("supply", RK.Calc.Field.Supply),
-                Num("totalSupply", RK.Calc.Field.TotalSupply),
-                Num("maxSupply", RK.Calc.Field.MaxSupply)
+                Num("supply", RK.Calc.Field.Supply)
             ],
             "market-cap-compare" =>
             [
                 Currency(),
                 Num("supply", RK.Calc.Field.Supply),
-                Num("targetMcap", RK.Calc.Field.TargetMcap),
-                Text("targetMcaps", RK.Calc.Field.TargetMcapScenarios, RK.Calc.Placeholder.TargetMcapScenarios)
+                Num("targetMcap", RK.Calc.Field.TargetMcap)
             ],
             "ath-drawdown" =>
             [

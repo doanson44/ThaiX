@@ -8,9 +8,6 @@ public sealed class ToolWorkspaceState
     public string Output { get; set; } = string.Empty;
     public string Option { get; set; } = string.Empty;
     public bool Flag { get; set; }
-    public bool RegexMultiline { get; set; }
-    public bool RegexSingleline { get; set; }
-    public bool IgnoreWhitespace { get; set; } = true;
     public int Number { get; set; } = 16;
     public Dictionary<string, string> Fields { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

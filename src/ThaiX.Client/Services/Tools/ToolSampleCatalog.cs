@@ -11,7 +11,7 @@ public static class ToolSampleCatalog
         ArgumentNullException.ThrowIfNull(state);
 
         return tool.Kind == ToolKind.Calculator
-            ? state.Fields is null || state.Fields.Count == 0
+            ? MatchesCalculatorDefaults(tool.Slug, state)
             : IsTextToolEmpty(state);
     }
 
@@ -276,7 +276,9 @@ public static class ToolSampleCatalog
                 Output = GeneratorToolTransforms.GeneratePassword(20, true)
             },
 
-            "password-strength" => FromSingleInput("ThaiX-Demo#2026"),
+            "password-strength" => FromSingleInput(
+                "ThaiX-Demo#2026",
+                output: GeneratorToolTransforms.PasswordStrength("ThaiX-Demo#2026")),
 
             "uuid" => new ToolWorkspaceState
             {
@@ -287,15 +289,13 @@ public static class ToolSampleCatalog
             "cron" => new ToolWorkspaceState
             {
                 Option = "0 9 * * 1-5",
-                Output = string.Empty
+                Output = GeneratorToolTransforms.DescribeCron("0 9 * * 1-5")
             },
 
             "qr" => new ToolWorkspaceState
             {
                 Input = "https://ThaiX.local/tools/sample",
-                Number = 4,
-                Option = "medium",
-                Output = string.Empty
+                Output = "QR generated."
             },
 
             "curl" => new ToolWorkspaceState
@@ -343,7 +343,10 @@ public static class ToolSampleCatalog
                 Input = "BTCUSDT broke 65000 and ETHUSDT held 3500.",
                 Input2 = @"[A-Z]{3,10}USDT",
                 Option = "SYMBOL",
-                Output = string.Empty
+                Output = TextToolTransforms.RegexTest(
+                    @"[A-Z]{3,10}USDT",
+                    "BTCUSDT broke 65000 and ETHUSDT held 3500.",
+                    null)
             },
 
             "unix-timestamp" => FromSingleInput(
@@ -430,4 +433,21 @@ public static class ToolSampleCatalog
         && state.Number == 16
         && (state.Fields is null || state.Fields.Count == 0 || state.Fields.Values.All(string.IsNullOrWhiteSpace));
 
+    private static bool MatchesCalculatorDefaults(string slug, ToolWorkspaceState state)
+    {
+        state.Fields ??= new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var defaults = CalculatorFieldCatalog.DefaultFields(slug);
+
+        foreach (var field in CalculatorFieldCatalog.FieldsFor(slug))
+        {
+            var current = state.Fields.TryGetValue(field.Key, out var value) ? value ?? string.Empty : string.Empty;
+            var baseline = defaults.TryGetValue(field.Key, out var sample) ? sample ?? string.Empty : string.Empty;
+            if (!string.Equals(current, baseline, StringComparison.OrdinalIgnoreCase))
+                return false;
+        }
+
+        return state.Fields
+            .Where(x => !defaults.ContainsKey(x.Key))
+            .All(x => string.IsNullOrWhiteSpace(x.Value));
+    }
 }

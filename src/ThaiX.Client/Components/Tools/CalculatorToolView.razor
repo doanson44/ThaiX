@@ -116,7 +116,7 @@
 
                 <RadzenStack Gap="0.25rem">
                     <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0">@L[RK.Calc.Formula]</RadzenText>
-                    <div class="ThaiX-calc__formula font-monospace">@FormatFormula()</div>
+                    <div class="ThaiX-calc__formula font-monospace">@_result.Formula</div>
                 </RadzenStack>
 
                 <RadzenStack Gap="0.25rem">
@@ -197,20 +197,20 @@
             ApplyResolvedFees(fields);
             _result = CalculatorRunner.Run(Tool.Slug, fields);
         }
-        catch (CalculatorInputException)
+        catch (CalculatorInputException ex)
         {
             _result = null;
-            _warning = L[RK.Calc.ValidationInput];
+            _warning = ex.Message;
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
             _result = null;
-            _warning = L[RK.Calc.ValidationFormat];
+            _warning = ex.Message;
         }
-        catch
+        catch (Exception ex)
         {
             _result = null;
-            _warning = L[RK.Tools.ValidationGeneric];
+            _warning = string.IsNullOrWhiteSpace(ex.Message) ? L[RK.Tools.ValidationGeneric] : ex.Message;
         }
     }
 
@@ -243,15 +243,6 @@
             return n.ToString("N8", CultureInfo.CurrentCulture).TrimEnd('0').TrimEnd('.');
 
         return value;
-    }
-
-    private string FormatFormula()
-    {
-        if (_result is null)
-            return string.Empty;
-
-        var localized = L[RK.Calc.FormulaPrefix + Tool.Slug];
-        return localized.ResourceNotFound ? _result.Formula : localized.Value;
     }
 
     private string FormatInterp()

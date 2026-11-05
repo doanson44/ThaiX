@@ -11,10 +11,6 @@ namespace ThaiX.Client.Services.Tools;
 
 public sealed class ToolStateStore : IToolStateStore
 {
-    private const string LastUsedStorageKey = "ThaiX.tools.last-used";
-    private const string FavoritesStorageKey = "ThaiX.tools.favorites";
-    private const int LastUsedLimit = 10;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -36,86 +32,6 @@ public sealed class ToolStateStore : IToolStateStore
         _jsonBins = jsonBins;
         _authStateProvider = authStateProvider;
         _navigation = navigation;
-    }
-
-    public Task<IReadOnlyList<ToolDefinition>> GetLastUsedAsync(CancellationToken cancellationToken = default) =>
-        GetStoredToolsAsync(LastUsedStorageKey, LastUsedLimit, cancellationToken);
-
-    public Task<IReadOnlyList<ToolDefinition>> GetFavoriteToolsAsync(CancellationToken cancellationToken = default) =>
-        GetStoredToolsAsync(FavoritesStorageKey, ToolCatalog.All.Count, cancellationToken);
-
-    public async Task RecordLastUsedAsync(ToolDefinition tool, CancellationToken cancellationToken = default)
-    {
-        var recent = (await ReadStoredSlugsAsync(LastUsedStorageKey, cancellationToken))
-            .Where(slug => !slug.Equals(tool.Slug, StringComparison.OrdinalIgnoreCase))
-            .Prepend(tool.Slug)
-            .Take(LastUsedLimit);
-
-        await WriteStoredSlugsAsync(LastUsedStorageKey, recent, cancellationToken);
-    }
-
-    public Task ClearLastUsedAsync(CancellationToken cancellationToken = default) =>
-        _js.InvokeVoidAsync("localStorage.removeItem", cancellationToken, LastUsedStorageKey).AsTask();
-
-    public async Task<bool> ToggleFavoriteAsync(ToolDefinition tool, CancellationToken cancellationToken = default)
-    {
-        var favorites = (await ReadStoredSlugsAsync(FavoritesStorageKey, cancellationToken)).ToList();
-        var existingIndex = favorites.FindIndex(slug =>
-            slug.Equals(tool.Slug, StringComparison.OrdinalIgnoreCase));
-
-        var isFavorite = existingIndex < 0;
-        if (isFavorite)
-            favorites.Insert(0, tool.Slug);
-        else
-            favorites.RemoveAt(existingIndex);
-
-        await WriteStoredSlugsAsync(FavoritesStorageKey, favorites, cancellationToken);
-        return isFavorite;
-    }
-
-    private async Task<IReadOnlyList<ToolDefinition>> GetStoredToolsAsync(
-        string storageKey,
-        int limit,
-        CancellationToken cancellationToken)
-    {
-        var slugs = await ReadStoredSlugsAsync(storageKey, cancellationToken);
-        return slugs
-            .Select(ToolCatalog.Find)
-            .Where(tool => tool is not null)
-            .Cast<ToolDefinition>()
-            .Take(limit)
-            .ToArray();
-    }
-
-    private async Task<IReadOnlyList<string>> ReadStoredSlugsAsync(
-        string storageKey,
-        CancellationToken cancellationToken)
-    {
-        var json = await _js.InvokeAsync<string?>("localStorage.getItem", cancellationToken, storageKey);
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        try
-        {
-            return (JsonSerializer.Deserialize<string[]>(json, JsonOptions) ?? [])
-                .Where(slug => !string.IsNullOrWhiteSpace(slug))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Where(slug => ToolCatalog.Find(slug) is not null)
-                .ToArray();
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-    }
-
-    private Task WriteStoredSlugsAsync(
-        string storageKey,
-        IEnumerable<string> slugs,
-        CancellationToken cancellationToken)
-    {
-        var json = JsonSerializer.Serialize(slugs, JsonOptions);
-        return _js.InvokeVoidAsync("localStorage.setItem", cancellationToken, storageKey, json).AsTask();
     }
 
     public async Task<ToolStateEnvelope?> LoadAsync(ToolDefinition tool, CancellationToken cancellationToken = default)
@@ -156,7 +72,6 @@ public sealed class ToolStateStore : IToolStateStore
 
     public async Task SaveLocalAsync(ToolDefinition tool, string stateJson, CancellationToken cancellationToken = default)
     {
-        EnsureStateSize(stateJson);
         var envelope = CreateEnvelope(stateJson);
         var content = JsonSerializer.Serialize(envelope, JsonOptions);
 
@@ -208,7 +123,6 @@ public sealed class ToolStateStore : IToolStateStore
         if (!tool.AllowCloudSave)
             throw new InvalidOperationException("Cloud save is disabled for this tool.");
 
-        EnsureStateSize(stateJson);
         var userId = await RequireCloudUserIdAsync();
         await UpsertCloudAsync(tool, userId, CreateEnvelope(stateJson), cancellationToken, displayName);
     }
@@ -345,34 +259,13 @@ public sealed class ToolStateStore : IToolStateStore
 
     private static ToolStateEnvelope? DeserializeEnvelope(string json)
     {
-        EnsureStateSize(json);
-
         try
         {
-            using var document = JsonDocument.Parse(json);
-            var root = document.RootElement;
-            var hasStateJson = root.ValueKind == JsonValueKind.Object
-                && (root.TryGetProperty("stateJson", out _) || root.TryGetProperty("StateJson", out _));
-
-            if (!hasStateJson)
-                return new ToolStateEnvelope { StateJson = json, SavedAtUtc = DateTime.UtcNow };
-
-            var envelope = JsonSerializer.Deserialize<ToolStateEnvelope>(json, JsonOptions);
-            if (envelope is null || envelope.V != ToolCatalog.StateEnvelopeVersion)
-                throw new InvalidDataException("Unsupported tool workspace envelope version.");
-
-            EnsureStateSize(envelope.StateJson);
-            return envelope;
+            return JsonSerializer.Deserialize<ToolStateEnvelope>(json, JsonOptions);
         }
         catch (JsonException)
         {
             return new ToolStateEnvelope { StateJson = json, SavedAtUtc = DateTime.UtcNow };
         }
-    }
-
-    private static void EnsureStateSize(string stateJson)
-    {
-        if (System.Text.Encoding.UTF8.GetByteCount(stateJson ?? string.Empty) > ToolCatalog.MaxWorkspaceBytes)
-            throw new InvalidDataException("Tool workspace exceeds the maximum supported size.");
     }
 }

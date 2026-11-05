@@ -1505,28 +1505,6 @@
   <data name="Menu.Tools" xml:space="preserve"><value>Công cụ</value></data>
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Công cụ</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Tiện ích lập trình và máy tính giao dịch/rủi ro/crypto chạy trên trình duyệt. Bản nháp lưu cục bộ; một số công cụ có thể Lưu/Chia sẻ qua JSON Bin khi đăng nhập.</value></data>
-  <data name="Tools.LastUsed" xml:space="preserve"><value>Đã sử dụng gần đây</value></data>
-  <data name="Tools.Favorites" xml:space="preserve"><value>Yêu thích</value></data>
-  <data name="Tools.ClearHistory" xml:space="preserve"><value>Xóa lịch sử</value></data>
-  <data name="Tools.AddFavorite" xml:space="preserve"><value>Thêm vào yêu thích</value></data>
-  <data name="Tools.RemoveFavorite" xml:space="preserve"><value>Bỏ khỏi yêu thích</value></data>
-  <data name="Tools.ImportWorkspace" xml:space="preserve"><value>Nhập workspace</value></data>
-  <data name="Tools.ExportWorkspace" xml:space="preserve"><value>Xuất workspace</value></data>
-  <data name="Tools.Fullscreen" xml:space="preserve"><value>Toàn màn hình</value></data>
-  <data name="Tools.ExitFullscreen" xml:space="preserve"><value>Thoát toàn màn hình</value></data>
-  <data name="Tools.RunShortcutHint" xml:space="preserve"><value>Ctrl/⌘+Enter để chạy</value></data>
-  <data name="Tools.Import.Success" xml:space="preserve"><value>Đã nhập workspace.</value></data>
-  <data name="Tools.Import.Failed" xml:space="preserve"><value>Không thể nhập workspace.</value></data>
-  <data name="Tools.Export.Success" xml:space="preserve"><value>Đã xuất workspace.</value></data>
-  <data name="Tools.Export.Failed" xml:space="preserve"><value>Không thể xuất workspace.</value></data>
-  <data name="Tools.History.Cleared" xml:space="preserve"><value>Đã xóa lịch sử công cụ gần đây.</value></data>
-  <data name="Tools.Save.Pending" xml:space="preserve"><value>Đang lưu bản nháp…</value></data>
-  <data name="Tools.Save.Saved" xml:space="preserve"><value>Đã lưu bản nháp</value></data>
-  <data name="Tools.Save.StatusFailed" xml:space="preserve"><value>Không thể lưu bản nháp</value></data>
-  <data name="Tools.Workspace.WrongTool" xml:space="preserve"><value>Workspace này thuộc về một công cụ khác.</value></data>
-  <data name="Tools.Workspace.UnsupportedVersion" xml:space="preserve"><value>Phiên bản workspace này không được hỗ trợ.</value></data>
-  <data name="Tools.Workspace.Invalid" xml:space="preserve"><value>Tệp workspace không hợp lệ.</value></data>
-  <data name="Tools.Workspace.TooLarge" xml:space="preserve"><value>Tệp workspace không được vượt quá 1 MB.</value></data>
   <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Tìm công cụ…</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Lưu</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Chia sẻ</value></data>
@@ -1535,11 +1513,6 @@
   <data name="Tools.Input" xml:space="preserve"><value>Đầu vào</value></data>
   <data name="Tools.Validation.Title" xml:space="preserve"><value>Không xử lý được</value></data>
   <data name="Tools.Validation.Generic" xml:space="preserve"><value>Có lỗi khi xử lý. Kiểm tra đầu vào rồi thử lại.</value></data>
-  <data name="Tools.Validation.Format" xml:space="preserve"><value>Định dạng dữ liệu không hợp lệ. Vui lòng kiểm tra định dạng yêu cầu.</value></data>
-  <data name="Tools.Validation.Json" xml:space="preserve"><value>Dữ liệu JSON không hợp lệ.</value></data>
-  <data name="Tools.Validation.JsonPosition" xml:space="preserve"><value>JSON không hợp lệ tại dòng {0}, vị trí byte {1}.</value></data>
-  <data name="Tools.Validation.Operation" xml:space="preserve"><value>Không thể thực hiện thao tác với dữ liệu hiện tại.</value></data>
-  <data name="Tools.Validation.Browser" xml:space="preserve"><value>Thao tác trên trình duyệt thất bại. Vui lòng thử lại hoặc tải lại trang.</value></data>
   <data name="Tools.Output" xml:space="preserve"><value>Đầu ra</value></data>
   <data name="Tools.QrDownload" xml:space="preserve"><value>Tải xuống QR</value></data>
   <data name="Tools.NotFound" xml:space="preserve"><value>Không tìm thấy công cụ</value></data>
@@ -1667,7 +1640,7 @@
   <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Chốt lời</value></data>
   <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Chốt lời theo % mục tiêu hoặc R:R</value></data>
   <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Rủi ro phá sản</value></data>
-  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Ước tính Monte Carlo về khả năng chạm ngưỡng vốn theo giả định fixed-fractional</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Ước lượng RoR fixed-fractional đơn giản</value></data>
   <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Drawdown tối đa</value></data>
   <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>MDD từ đỉnh/đáy hoặc chuỗi vốn</value></data>
   <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Phục hồi thua lỗ</value></data>
@@ -1679,46 +1652,16 @@
   <data name="Tools.ConsecutiveLoss.Title" xml:space="preserve"><value>Thua liên tiếp</value></data>
   <data name="Tools.ConsecutiveLoss.Description" xml:space="preserve"><value>Vốn còn lại sau N lệnh thua với rủi ro cố định</value></data>
   <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Vốn hóa</value></data>
-  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Tính vốn hóa theo nguồn cung lưu hành, định giá theo tổng cung và FDV</value></data>
+  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Vốn hóa từ giá và nguồn cung</value></data>
   <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>So sánh vốn hóa</value></data>
-  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Ước tính giá tại vốn hóa mục tiêu dựa trên nguồn cung lưu hành</value></data>
+  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Giá ngụ ý theo vốn hóa mục tiêu</value></data>
   <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>Drawdown từ ATH</value></data>
   <data name="Tools.AthDrawdown.Description" xml:space="preserve"><value>Drawdown từ đỉnh lịch sử và % phục hồi</value></data>
   <data name="Calc.Calculate" xml:space="preserve"><value>Tính</value></data>
   <data name="Calc.Reset" xml:space="preserve"><value>Đặt lại</value></data>
   <data name="Calc.Results" xml:space="preserve"><value>Kết quả</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Công thức</value></data>
-  <data name="Calc.Result.AbsolutePeakToTroughPeriods" xml:space="preserve"><value>Số kỳ từ đỉnh tuyệt đối đến đáy</value></data>
-  <data name="Calc.Result.AbsoluteTroughToRecoveryPeriods" xml:space="preserve"><value>Số kỳ từ đáy tuyệt đối đến phục hồi</value></data>
-  <data name="Calc.Result.FundingPayer" xml:space="preserve"><value>Bên trả funding</value></data>
-  <data name="Calc.Result.FundingReceiver" xml:space="preserve"><value>Bên nhận funding</value></data>
-  <data name="Calc.Formula.position-size" xml:space="preserve"><value>Rủi ro mỗi đơn vị = khoảng cách giá khớp vào/giá dừng lỗ bất lợi + phí vào/ra; khối lượng = ngân sách rủi ro tài khoản / rủi ro mỗi đơn vị. Phí và trượt giá áp dụng cho mỗi chiều.</value></data>
-  <data name="Calc.Formula.risk-reward" xml:space="preserve"><value>Rủi ro ròng = khoảng cách đến dừng lỗ bất lợi + phí vào/ra; lợi nhuận ròng = khoảng cách đến mục tiêu bất lợi - phí vào/ra; R:R ròng = lợi nhuận ròng / rủi ro ròng.</value></data>
-  <data name="Calc.Formula.futures-pnl" xml:space="preserve"><value>Ước tính hợp đồng tuyến tính: khối lượng cơ sở = số hợp đồng x quy mô hợp đồng; PnL gộp dùng giá vào/ra đã điều chỉnh; funding dùng notional trung bình vào/ra mỗi kỳ; PnL ròng = PnL gộp - phí + dòng tiền funding theo chiều vị thế.</value></data>
-  <data name="Calc.Formula.liquidation" xml:space="preserve"><value>Ước tính isolated tuyến tính: Long = giá vào x (1 - 1/đòn bẩy) / (1 - MMR); Short = giá vào x (1 + 1/đòn bẩy) / (1 + MMR). Không bao gồm MMR theo bậc, phí, funding hoặc cross margin.</value></data>
-  <data name="Calc.Formula.average-entry" xml:space="preserve"><value>Giá vốn trung bình = (tổng giá x khối lượng + phí từng lệnh) / tổng khối lượng.</value></data>
-  <data name="Calc.Formula.dca" xml:space="preserve"><value>Khối lượng = tổng(số tiền / giá); phí = vốn đầu tư x tỷ lệ phí; giá vốn trung bình = (vốn đầu tư + phí) / khối lượng; giá trị hiện tại = khối lượng x giá hiện tại.</value></data>
-  <data name="Calc.Formula.break-even" xml:space="preserve"><value>Hòa vốn Long = giá vào x (1 + phí mở) / (1 - phí đóng); hòa vốn Short = giá vào x (1 - phí mở) / (1 + phí đóng).</value></data>
-  <data name="Calc.Formula.trading-fee" xml:space="preserve"><value>Phí giao dịch = giá trị danh nghĩa x tỷ lệ phí.</value></data>
-  <data name="Calc.Formula.funding" xml:space="preserve"><value>Dòng tiền funding = giá trị danh nghĩa x tỷ lệ funding x số kỳ. Funding dương: Long trả Short; funding âm: Short trả Long.</value></data>
-  <data name="Calc.Formula.leverage" xml:space="preserve"><value>Đòn bẩy thực tế = giá trị danh nghĩa / ký quỹ; biến động bất lợi ước tính để tiêu hao ký quỹ ban đầu = 1 / đòn bẩy. Không bao gồm ký quỹ duy trì, phí, funding và cross margin.</value></data>
-  <data name="Calc.Formula.stop-loss" xml:space="preserve"><value>Giá dừng lỗ được tính sao cho mức lỗ mỗi đơn vị bằng khoảng cách vào/ra bất lợi cộng phí vào/ra theo ngân sách rủi ro. Phí và trượt giá áp dụng cho mỗi chiều.</value></data>
-  <data name="Calc.Formula.take-profit" xml:space="preserve"><value>Lợi nhuận ròng = biến động giá mục tiêu bất lợi x khối lượng - phí vào/ra; R:R ròng tùy chọn so sánh lợi nhuận ròng với khoản lỗ tại dừng lỗ sau phí.</value></data>
-  <data name="Calc.Formula.risk-of-ruin" xml:space="preserve"><value>Mô phỏng Monte Carlo fixed-fractional: lệnh thắng nhân vốn với (1 + rủi ro% x R:R), lệnh thua nhân với (1 - rủi ro%); phá sản khi vốn chạm hoặc thấp hơn tỷ lệ đã cấu hình của vốn ban đầu. Giả định các lệnh độc lập, không gồm phí, trượt giá và xác suất thay đổi.</value></data>
-  <data name="Calc.Formula.max-drawdown" xml:space="preserve"><value>Drawdown tuyệt đối = đỉnh - đáy; drawdown phần trăm = drawdown / đỉnh x 100. Chế độ chuỗi theo dõi đỉnh tuyệt đối và phần trăm độc lập; thời gian phục hồi tính theo số kỳ đầu vào.</value></data>
-  <data name="Calc.Formula.loss-recovery" xml:space="preserve"><value>Tỷ lệ phục hồi cần thiết = 1 / (1 - tỷ lệ thua lỗ) - 1. Mỗi tỷ lệ thua lỗ là một kịch bản độc lập.</value></data>
-  <data name="Calc.Formula.expectancy" xml:space="preserve"><value>Expectancy = tỷ lệ thắng x lãi trung bình - (1 - tỷ lệ thắng) x lỗ trung bình; expectancy theo R = expectancy / lỗ trung bình.</value></data>
-  <data name="Calc.Formula.kelly-criterion" xml:space="preserve"><value>Kelly toàn phần = (tỷ lệ lời/lỗ x xác suất thắng - xác suất thua) / tỷ lệ lời/lỗ; Kelly một nửa và một phần tư nhân tỷ lệ Kelly toàn phần; Kelly giới hạn = min(Kelly toàn phần, mức trần đã cấu hình).</value></data>
-  <data name="Calc.Formula.consecutive-loss" xml:space="preserve"><value>Vốn còn lại sau mỗi lệnh thua = vốn trước đó x (1 - tỷ lệ rủi ro). Giả định rủi ro fixed-fractional trên vốn hiện tại.</value></data>
-  <data name="Calc.Formula.market-cap" xml:space="preserve"><value>Vốn hóa = giá x nguồn cung lưu hành; định giá theo tổng cung = giá x tổng cung; FDV = giá x nguồn cung tối đa.</value></data>
-  <data name="Calc.Formula.market-cap-compare" xml:space="preserve"><value>Giá giả định = vốn hóa mục tiêu / nguồn cung lưu hành. Mỗi mức vốn hóa mục tiêu là một kịch bản độc lập.</value></data>
-  <data name="Calc.Formula.ath-drawdown" xml:space="preserve"><value>Drawdown = (đỉnh lịch sử - giá hiện tại) / đỉnh lịch sử x 100; tỷ lệ tăng để phục hồi = đỉnh lịch sử / giá hiện tại - 1.</value></data>
-  <data name="Tools.Valid" xml:space="preserve"><value>Hợp lệ</value></data>
-  <data name="Tools.Invalid" xml:space="preserve"><value>Không hợp lệ</value></data>
-  <data name="Tools.EditorStats" xml:space="preserve"><value>{0} dòng · {1} ký tự</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Diễn giải</value></data>
-  <data name="Calc.Validation.Input" xml:space="preserve"><value>Vui lòng kiểm tra các giá trị đã nhập và điều kiện của công cụ tính.</value></data>
-  <data name="Calc.Validation.Format" xml:space="preserve"><value>Một hoặc nhiều giá trị có định dạng số hoặc danh sách không hợp lệ.</value></data>
   <data name="Calc.RiskDisclaimer" xml:space="preserve"><value>Chỉ mang tính giáo dục — không phải tư vấn tài chính. Kết quả quá khứ không đảm bảo tương lai.</value></data>
   <data name="Calc.Yes" xml:space="preserve"><value>Có</value></data>
   <data name="Calc.No" xml:space="preserve"><value>Không</value></data>
@@ -1741,14 +1684,13 @@
   <data name="Calc.Field.Exit" xml:space="preserve"><value>Giá thoát</value></data>
   <data name="Calc.Field.StopLoss" xml:space="preserve"><value>Dừng lỗ</value></data>
   <data name="Calc.Field.TakeProfit" xml:space="preserve"><value>Chốt lời</value></data>
-  <data name="Calc.Field.Size" xml:space="preserve"><value>Số lượng vị thế (qty)</value></data>
-  <data name="Calc.Field.ContractSize" xml:space="preserve"><value>Đơn vị tài sản cơ sở mỗi hợp đồng</value></data>
+  <data name="Calc.Field.Size" xml:space="preserve"><value>Khối lượng (qty)</value></data>
   <data name="Calc.Field.Leverage" xml:space="preserve"><value>Đòn bẩy</value></data>
   <data name="Calc.Field.MakerPct" xml:space="preserve"><value>Phí maker %</value></data>
   <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Phí taker %</value></data>
   <data name="Calc.Field.OpenFeePct" xml:space="preserve"><value>Phí mở %</value></data>
   <data name="Calc.Field.CloseFeePct" xml:space="preserve"><value>Phí đóng %</value></data>
-  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Phí mỗi chiều %</value></data>
+  <data name="Calc.Field.FeePct" xml:space="preserve"><value>Phí %</value></data>
   <data name="Calc.Field.MmrPct" xml:space="preserve"><value>Ký quỹ duy trì %</value></data>
   <data name="Calc.Field.Notional" xml:space="preserve"><value>Notional</value></data>
   <data name="Calc.Field.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
@@ -1761,16 +1703,10 @@
   <data name="Calc.Field.WinRatePct" xml:space="preserve"><value>Tỷ lệ thắng %</value></data>
   <data name="Calc.Field.RiskReward" xml:space="preserve"><value>Rủi ro:lợi nhuận</value></data>
   <data name="Calc.Field.RiskPerTradePct" xml:space="preserve"><value>Rủi ro mỗi lệnh %</value></data>
-  <data name="Calc.Field.RuinThresholdPct" xml:space="preserve"><value>Ngưỡng phá sản (% vốn ban đầu)</value></data>
-  <data name="Calc.Field.TradeHorizon" xml:space="preserve"><value>Chân trời mô phỏng (số lệnh)</value></data>
-  <data name="Calc.Field.SimulationCount" xml:space="preserve"><value>Số đường mô phỏng</value></data>
-  <data name="Calc.Field.RandomSeed" xml:space="preserve"><value>Seed ngẫu nhiên</value></data>
   <data name="Calc.Field.Peak" xml:space="preserve"><value>Vốn đỉnh</value></data>
   <data name="Calc.Field.Trough" xml:space="preserve"><value>Vốn đáy</value></data>
   <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Chuỗi vốn (tuỳ chọn)</value></data>
-  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Mức lỗ % (một kịch bản)</value></data>
-  <data name="Calc.Field.LossScenarios" xml:space="preserve"><value>Các kịch bản mức lỗ bổ sung (không bắt buộc)</value></data>
-  <data name="Calc.Placeholder.LossScenarios" xml:space="preserve"><value>vd: 10,20,30,50</value></data>
+  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Thua lỗ %</value></data>
   <data name="Calc.Field.AvgWin" xml:space="preserve"><value>Lãi trung bình</value></data>
   <data name="Calc.Field.AvgLoss" xml:space="preserve"><value>Lỗ trung bình</value></data>
   <data name="Calc.Field.PayoffRatio" xml:space="preserve"><value>Tỷ lệ payoff (b)</value></data>
@@ -1778,21 +1714,13 @@
   <data name="Calc.Field.Losses" xml:space="preserve"><value>Số lệnh thua liên tiếp (N)</value></data>
   <data name="Calc.Field.Price" xml:space="preserve"><value>Giá</value></data>
   <data name="Calc.Field.Supply" xml:space="preserve"><value>Nguồn cung lưu hành</value></data>
-  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Vốn hóa mục tiêu (một kịch bản)</value></data>
-  <data name="Calc.Field.TargetMcapScenarios" xml:space="preserve"><value>Các mức vốn hóa mục tiêu bổ sung (không bắt buộc)</value></data>
-  <data name="Calc.Placeholder.TargetMcapScenarios" xml:space="preserve"><value>vd: 500000000,1000000000,2000000000</value></data>
+  <data name="Calc.Field.TargetMcap" xml:space="preserve"><value>Vốn hóa mục tiêu</value></data>
   <data name="Calc.Field.Ath" xml:space="preserve"><value>Đỉnh lịch sử (ATH)</value></data>
   <data name="Calc.Field.Current" xml:space="preserve"><value>Giá hiện tại</value></data>
-  <data name="Calc.Field.CurrentPrice" xml:space="preserve"><value>Giá thị trường hiện tại (không bắt buộc)</value></data>
-  <data name="Calc.Field.FeePerLegPct" xml:space="preserve"><value>Phí mỗi lần mua/lệnh %</value></data>
   <data name="Calc.Placeholder.LegsPriceQty" xml:space="preserve"><value>vd: 100,1;102,2</value></data>
   <data name="Calc.Placeholder.LegsPriceAmount" xml:space="preserve"><value>vd: 100,50;90,50</value></data>
   <data name="Calc.Placeholder.EquitySeries" xml:space="preserve"><value>vd: 10000,9800,10200,9500</value></data>
   <data name="Calc.Result.RiskAmount" xml:space="preserve"><value>Số tiền rủi ro</value></data>
-  <data name="Calc.Result.PriceRiskPerUnit" xml:space="preserve"><value>Rủi ro giá trên mỗi đơn vị</value></data>
-  <data name="Calc.Result.FeesPerUnit" xml:space="preserve"><value>Tổng phí hai chiều trên mỗi đơn vị</value></data>
-  <data name="Calc.Result.SlippageCostPerUnit" xml:space="preserve"><value>Trượt giá hai chiều trên mỗi đơn vị</value></data>
-  <data name="Calc.Result.TotalRiskPerUnit" xml:space="preserve"><value>Tổng rủi ro trên mỗi đơn vị</value></data>
   <data name="Calc.Result.Quantity" xml:space="preserve"><value>Khối lượng</value></data>
   <data name="Calc.Result.Notional" xml:space="preserve"><value>Notional</value></data>
   <data name="Calc.Result.RiskDistance" xml:space="preserve"><value>Khoảng rủi ro</value></data>
@@ -1800,43 +1728,27 @@
   <data name="Calc.Result.RiskReward" xml:space="preserve"><value>Rủi ro:lợi nhuận</value></data>
   <data name="Calc.Result.LevelsAligned" xml:space="preserve"><value>Mức khớp với phía</value></data>
   <data name="Calc.Result.GrossPnl" xml:space="preserve"><value>PnL gộp</value></data>
-  <data name="Calc.Result.ContractSize" xml:space="preserve"><value>Đơn vị tài sản cơ sở mỗi hợp đồng</value></data>
-  <data name="Calc.Result.BaseQuantity" xml:space="preserve"><value>Tổng số lượng tài sản cơ sở</value></data>
   <data name="Calc.Result.Fees" xml:space="preserve"><value>Phí</value></data>
   <data name="Calc.Result.NetPnl" xml:space="preserve"><value>PnL ròng</value></data>
   <data name="Calc.Result.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
   <data name="Calc.Result.RoePct" xml:space="preserve"><value>ROE %</value></data>
   <data name="Calc.Result.LiquidationPrice" xml:space="preserve"><value>Giá thanh lý</value></data>
   <data name="Calc.Result.AverageEntry" xml:space="preserve"><value>Giá vào TB</value></data>
-  <data name="Calc.Result.Cost" xml:space="preserve"><value>Tổng chi phí gồm phí</value></data>
-  <data name="Calc.Result.Invested" xml:space="preserve"><value>Vốn đầu tư trước phí</value></data>
-  <data name="Calc.Result.TotalOutlay" xml:space="preserve"><value>Tổng chi phí gồm phí</value></data>
-  <data name="Calc.Result.MarketValue" xml:space="preserve"><value>Giá trị thị trường hiện tại</value></data>
-  <data name="Calc.Result.UnrealizedPnl" xml:space="preserve"><value>PnL chưa thực hiện</value></data>
-  <data name="Calc.Result.LossCount" xml:space="preserve"><value>Số lệnh thua liên tiếp</value></data>
-  <data name="Calc.Result.GrossProfit" xml:space="preserve"><value>Lợi nhuận gộp trước phí</value></data>
-  <data name="Calc.Result.NetRisk" xml:space="preserve"><value>Rủi ro ròng sau phí và trượt giá</value></data>
+  <data name="Calc.Result.Cost" xml:space="preserve"><value>Tổng chi phí</value></data>
+  <data name="Calc.Result.Invested" xml:space="preserve"><value>Đã đầu tư</value></data>
   <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Giá hòa vốn</value></data>
   <data name="Calc.Result.FundingCashflow" xml:space="preserve"><value>Dòng tiền funding</value></data>
   <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
   <data name="Calc.Result.EffectiveLeverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng</value></data>
   <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Ký quỹ cần thiết</value></data>
-  <data name="Calc.Result.AdverseMovePct" xml:space="preserve"><value>Biến động ngược chiều ước tính để dùng hết ký quỹ ban đầu %</value></data>
   <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Giá dừng lỗ</value></data>
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Giá chốt lời</value></data>
-  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lợi nhuận ròng sau phí</value></data>
+  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lãi kỳ vọng</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
-  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Tần suất chạm ngưỡng phá sản ước tính %</value></data>
-  <data name="Calc.Result.RiskOfRuinConfidenceLow" xml:space="preserve"><value>Cận dưới khoảng tin cậy 95% %</value></data>
-  <data name="Calc.Result.RiskOfRuinConfidenceHigh" xml:space="preserve"><value>Cận trên khoảng tin cậy 95% %</value></data>
-  <data name="Calc.Result.RuinThresholdPct" xml:space="preserve"><value>Ngưỡng phá sản %</value></data>
-  <data name="Calc.Result.TradeHorizon" xml:space="preserve"><value>Chân trời mô phỏng (số lệnh)</value></data>
-  <data name="Calc.Result.SimulationCount" xml:space="preserve"><value>Số đường mô phỏng</value></data>
-  <data name="Calc.Result.RandomSeed" xml:space="preserve"><value>Seed ngẫu nhiên</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Rủi ro phá sản %</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Drawdown tối đa %</value></data>
-  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Tỷ lệ phục hồi cần thiết %</value></data>
-  <data name="Calc.Result.LossPct" xml:space="preserve"><value>Kịch bản mức lỗ %</value></data>
+  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Phục hồi %</value></data>
   <data name="Calc.Result.Expectancy" xml:space="preserve"><value>Kỳ vọng</value></data>
   <data name="Calc.Result.KellyFull" xml:space="preserve"><value>Kelly đầy đủ %</value></data>
   <data name="Calc.Result.KellyHalf" xml:space="preserve"><value>Nửa Kelly %</value></data>
@@ -1844,26 +1756,25 @@
   <data name="Calc.Result.RemainingEquity" xml:space="preserve"><value>Vốn còn lại</value></data>
   <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Vốn hóa</value></data>
   <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Giá ngụ ý</value></data>
-  <data name="Calc.Result.TargetMarketCap" xml:space="preserve"><value>Kịch bản vốn hóa mục tiêu</value></data>
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Rủi ro {0}% gợi ý qty {1} (notional {2}).</value></data>
   <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Lợi nhuận gấp {0}× khoảng rủi ro.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>PnL ròng {0}; ROE {1}%.</value></data>
-  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Ước tính linear isolated quanh {0}; không gồm MMR theo bậc, phí, funding hoặc cross margin.</value></data>
+  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Ước thanh lý isolated quanh {0}.</value></data>
   <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Giá vào TB {0} với tổng qty {1}.</value></data>
   <data name="Calc.Interp.Dca" xml:space="preserve"><value>Giá vốn TB {0} sau khi đầu tư {1}.</value></data>
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Phí cho thấy hòa vốn quanh {0}.</value></data>
   <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Phí ước tính {0}.</value></data>
   <data name="Calc.Interp.Funding" xml:space="preserve"><value>Dòng tiền funding {0} (dương = nhận).</value></data>
-  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×. Mức biến động ngược chiều {1}% chỉ là ước tính theo ký quỹ ban đầu, không phải giá thanh lý của sàn.</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Dừng lỗ quanh {0} theo rủi ro đã chọn.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Chốt lời {0}; lãi kỳ vọng {1}.</value></data>
-  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Tần suất chạm ngưỡng ước tính: {0}% (khoảng Wilson 95%: {1}%–{2}%). Kết quả phụ thuộc giả định fixed-fractional; không phải bảo đảm.</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>RoR ước lượng ≈ {0}% (mô hình giáo dục).</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa khoảng {0}%.</value></data>
-  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Mỗi dòng cho biết tỷ lệ phục hồi cần thiết để quay lại vốn ban đầu sau mức lỗ tương ứng.</value></data>
+  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Cần khoảng {0}% lãi để phục hồi.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Kỳ vọng mỗi lệnh ≈ {0}.</value></data>
   <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Kelly đầy đủ ≈ {0}% vốn.</value></data>
   <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>Sau chuỗi thua, vốn ≈ {0} (drawdown {1}%).</value></data>
-  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Vốn hóa sử dụng nguồn cung lưu hành; định giá theo tổng cung và FDV hiển thị khi có dữ liệu.</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Vốn hóa ≈ {0}.</value></data>
   <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Giá ngụ ý ≈ {0}.</value></data>
   <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Giảm {0}% từ ATH; cần {1}% để hồi.</value></data>
   <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Theo dõi chi tiêu</value></data>
@@ -2164,89 +2075,4 @@
   <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Cho phép đăng nhập bằng mã dùng một lần được gửi đến địa chỉ email đã xác nhận.</value></data>
   <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Đã lưu cài đặt đăng nhập.</value></data>
   <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Không thể lưu cài đặt đăng nhập.</value></data>
-  <data name="Tools.Action.Pretty" xml:space="preserve"><value>Định dạng đẹp</value></data>
-  <data name="Tools.Action.Minify" xml:space="preserve"><value>Thu gọn</value></data>
-  <data name="Tools.Action.Validate" xml:space="preserve"><value>Kiểm tra</value></data>
-  <data name="Tools.Action.Compare" xml:space="preserve"><value>So sánh</value></data>
-  <data name="Tools.Action.Decode" xml:space="preserve"><value>Giải mã</value></data>
-  <data name="Tools.Action.Encode" xml:space="preserve"><value>Mã hóa</value></data>
-  <data name="Tools.Action.Hash" xml:space="preserve"><value>Băm</value></data>
-  <data name="Tools.Action.Generate" xml:space="preserve"><value>Tạo</value></data>
-  <data name="Tools.Action.ToUnix" xml:space="preserve"><value>Sang Unix (giây)</value></data>
-  <data name="Tools.Action.FromUnix" xml:space="preserve"><value>Từ Unix (giây)</value></data>
-  <data name="Tools.Action.Format" xml:space="preserve"><value>Định dạng</value></data>
-  <data name="Tools.Action.YamlToJson" xml:space="preserve"><value>YAML → JSON</value></data>
-  <data name="Tools.Action.JsonToYaml" xml:space="preserve"><value>JSON → YAML</value></data>
-  <data name="Tools.Action.CsvToJson" xml:space="preserve"><value>CSV → JSON</value></data>
-  <data name="Tools.Action.JsonToCsv" xml:space="preserve"><value>JSON → CSV</value></data>
-  <data name="Tools.Action.GenerateCsharp" xml:space="preserve"><value>Tạo mã C#</value></data>
-  <data name="Tools.Action.GenerateTypescript" xml:space="preserve"><value>Tạo mã TypeScript</value></data>
-  <data name="Tools.Action.Preview" xml:space="preserve"><value>Xem trước</value></data>
-  <data name="Tools.Action.HtmlToMarkdown" xml:space="preserve"><value>HTML → Markdown</value></data>
-  <data name="Tools.Action.MarkdownToHtml" xml:space="preserve"><value>Markdown → HTML</value></data>
-  <data name="Tools.Action.Test" xml:space="preserve"><value>Kiểm thử</value></data>
-  <data name="Tools.Action.Replace" xml:space="preserve"><value>Thay thế</value></data>
-  <data name="Tools.Action.Build" xml:space="preserve"><value>Tạo biểu thức</value></data>
-  <data name="Tools.FieldLabel.InputText" xml:space="preserve"><value>Văn bản đầu vào</value></data>
-  <data name="Tools.FieldLabel.Url" xml:space="preserve"><value>URL</value></data>
-  <data name="Tools.FieldLabel.Subject" xml:space="preserve"><value>Tiêu đề</value></data>
-  <data name="Tools.FieldLabel.Pattern" xml:space="preserve"><value>Biểu thức</value></data>
-  <data name="Tools.FieldLabel.Headers" xml:space="preserve"><value>Headers (Tên: giá trị)</value></data>
-  <data name="Tools.FieldLabel.Body" xml:space="preserve"><value>Nội dung</value></data>
-  <data name="Tools.FieldLabel.Length" xml:space="preserve"><value>Độ dài</value></data>
-  <data name="Tools.FieldLabel.Symbols" xml:space="preserve"><value>Ký tự đặc biệt</value></data>
-  <data name="Tools.FieldLabel.Breaking" xml:space="preserve"><value>Thay đổi không tương thích</value></data>
-  <data name="Tools.FieldLabel.Option" xml:space="preserve"><value>Tùy chọn</value></data>
-  <data name="Tools.FieldLabel.CronExpression" xml:space="preserve"><value>Biểu thức cron 5 trường</value></data>
-  <data name="Tools.FieldLabel.GitignorePreset" xml:space="preserve"><value>Mẫu: dotnet, node, vs, rider</value></data>
-  <data name="Tools.FieldLabel.HttpMethod" xml:space="preserve"><value>HTTP method: GET, POST, PUT, DELETE</value></data>
-  <data name="Tools.FieldLabel.CommitScope" xml:space="preserve"><value>Loại/phạm vi, ví dụ feat/tools</value></data>
-  <data name="Tools.Action.FromUnixMilliseconds" xml:space="preserve"><value>Từ Unix (mili giây)</value></data>
-  <data name="Tools.Action.EncodeBase64Url" xml:space="preserve"><value>Mã hóa Base64URL</value></data>
-  <data name="Tools.Action.DecodeBase64Url" xml:space="preserve"><value>Giải mã Base64URL</value></data>
-  <data name="Tools.FieldLabel.Format" xml:space="preserve"><value>Định dạng UUID</value></data>
-  <data name="Tools.FieldLabel.IgnoreCase" xml:space="preserve"><value>Không phân biệt hoa thường</value></data>
-  <data name="Tools.FieldLabel.ErrorCorrection" xml:space="preserve"><value>Mức sửa lỗi</value></data>
-  <data name="Tools.FieldLabel.QuietZone" xml:space="preserve"><value>Vùng trống (module)</value></data>
-  <data name="Calc.Field.TotalSupply" xml:space="preserve"><value>Tổng cung (không bắt buộc)</value></data>
-  <data name="Calc.Field.MaxSupply" xml:space="preserve"><value>Nguồn cung tối đa (không bắt buộc)</value></data>
-  <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Định giá theo tổng cung</value></data>
-  <data name="Calc.Result.Fdv" xml:space="preserve"><value>Định giá pha loãng hoàn toàn (FDV)</value></data>
-  <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>Sang Unix (mili giây)</value></data>
-  <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
-  <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Số kỳ đến đáy</value></data>
-  <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Số kỳ phục hồi</value></data>
-  <data name="Calc.Result.ExpectancyR" xml:space="preserve"><value>Kỳ vọng (R)</value></data>
-  <data name="Calc.Field.SlippagePct" xml:space="preserve"><value>Trượt giá mỗi chiều %</value></data>
-  <data name="Calc.Result.SlippageCost" xml:space="preserve"><value>Chi phí trượt giá</value></data>
-  <data name="Calc.Result.BreakEvenWinRatePct" xml:space="preserve"><value>Tỷ lệ thắng hòa vốn (chưa tính phí) %</value></data>
-  <data name="Calc.Field.KellyCapPct" xml:space="preserve"><value>Giới hạn tỷ trọng Kelly tối đa %</value></data>
-  <data name="Calc.Result.KellyCapped" xml:space="preserve"><value>Kelly sau giới hạn %</value></data>
-  <data name="Tools.PasswordStrength.Score" xml:space="preserve"><value>Điểm</value></data>
-  <data name="Tools.PasswordStrength.Weak" xml:space="preserve"><value>Yếu</value></data>
-  <data name="Tools.PasswordStrength.Fair" xml:space="preserve"><value>Trung bình</value></data>
-  <data name="Tools.PasswordStrength.Good" xml:space="preserve"><value>Tốt</value></data>
-  <data name="Tools.PasswordStrength.Strong" xml:space="preserve"><value>Mạnh</value></data>
-  <data name="Tools.PasswordStrength.Length" xml:space="preserve"><value>Độ dài</value></data>
-  <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Chỉ là đánh giá heuristic; không đo entropy hoặc kiểm tra dữ liệu rò rỉ.</value></data>
-  <data name="Tools.Cron.ExpressionLabel" xml:space="preserve"><value>Cron</value></data>
-  <data name="Tools.Cron.NextRunsUtc" xml:space="preserve"><value>Các lần chạy tiếp theo (UTC)</value></data>
-  <data name="Tools.Regex.Matches" xml:space="preserve"><value>Số kết quả</value></data>
-  <data name="Tools.Regex.Group" xml:space="preserve"><value>Nhóm</value></data>
-  <data name="Tools.Regex.Replace" xml:space="preserve"><value>Thay thế</value></data>
-  <data name="Tools.Qr.Generated" xml:space="preserve"><value>Đã tạo mã QR.</value></data>
-  <data name="Tools.FieldLabel.Replacement" xml:space="preserve"><value>Văn bản thay thế</value></data>
-  <data name="Tools.JwtDecoder.Header" xml:space="preserve"><value>Header</value></data>
-  <data name="Tools.JwtDecoder.Payload" xml:space="preserve"><value>Payload</value></data>
-  <data name="Tools.JwtDecoder.UnverifiedWarning" xml:space="preserve"><value>CHƯA XÁC MINH: chữ ký chưa được kiểm tra. Không tin cậy các claims.</value></data>
-  <data name="Tools.JwtDecoder.SignaturePresent" xml:space="preserve"><value>Có chữ ký (chưa xác minh).</value></data>
-  <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Không có chữ ký.</value></data>
-  <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Mã hóa thành phần URL</value></data>
-  <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Giải mã thành phần URL</value></data>
-  <data name="Tools.FieldLabel.SideBySide" xml:space="preserve"><value>So sánh song song</value></data>
-  <data name="Tools.FieldLabel.IgnoreWhitespace" xml:space="preserve"><value>Bỏ qua khoảng trắng</value></data>
-  <data name="Tools.FieldLabel.Multiline" xml:space="preserve"><value>Nhiều dòng</value></data>
-  <data name="Tools.FieldLabel.Singleline" xml:space="preserve"><value>Một dòng</value></data>
-  <data name="Tools.FieldHelp.Multiline" xml:space="preserve"><value>^ và $ khớp với đầu và cuối của từng dòng.</value></data>
-  <data name="Tools.FieldHelp.Singleline" xml:space="preserve"><value>Dấu chấm (.) cũng khớp với ký tự xuống dòng.</value></data>
 </root>

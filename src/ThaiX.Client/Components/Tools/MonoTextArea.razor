@@ -1,5 +1,3 @@
-@using RK = ThaiX.Client.Constants.ResourceKeys
-@inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
@@ -18,11 +16,11 @@
                 }
                 @if (IsValid == true)
                 {
-                    <RadzenIcon Icon="check_circle" Class="text-success" Style="font-size: 1.15rem;" title="@L[RK.Tools.Valid]" />
+                    <RadzenIcon Icon="check_circle" Class="text-success" Style="font-size: 1.15rem;" title="Valid" />
                 }
                 else if (IsValid == false)
                 {
-                    <RadzenIcon Icon="cancel" Class="text-danger" Style="font-size: 1.15rem;" title="@L[RK.Tools.Invalid]" />
+                    <RadzenIcon Icon="cancel" Class="text-danger" Style="font-size: 1.15rem;" title="Invalid" />
                 }
             </RadzenStack>
             @if (ShowStats)
@@ -143,6 +141,11 @@
         return lines;
     }
 
-    private string FormatStats(string? value) =>
-        L[RK.Tools.EditorStats, CountLines(value), value?.Length ?? 0];
+    private static string FormatStats(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "0 lines · 0 chars";
+
+        return $"{CountLines(value)} lines · {value.Length} chars";
+    }
 }

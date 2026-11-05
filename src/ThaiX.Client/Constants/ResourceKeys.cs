@@ -1961,28 +1961,6 @@ public static class ResourceKeys
         public const string HubTitle = "Tools.Hub.Title";
         public const string HubDescription = "Tools.Hub.Description";
         public const string SearchPlaceholder = "Tools.Search.Placeholder";
-        public const string LastUsed = "Tools.LastUsed";
-        public const string Favorites = "Tools.Favorites";
-        public const string ClearHistory = "Tools.ClearHistory";
-        public const string AddFavorite = "Tools.AddFavorite";
-        public const string RemoveFavorite = "Tools.RemoveFavorite";
-        public const string ImportWorkspace = "Tools.ImportWorkspace";
-        public const string ExportWorkspace = "Tools.ExportWorkspace";
-        public const string Fullscreen = "Tools.Fullscreen";
-        public const string ExitFullscreen = "Tools.ExitFullscreen";
-        public const string RunShortcutHint = "Tools.RunShortcutHint";
-        public const string ImportSuccess = "Tools.Import.Success";
-        public const string ImportFailed = "Tools.Import.Failed";
-        public const string ExportSuccess = "Tools.Export.Success";
-        public const string ExportFailed = "Tools.Export.Failed";
-        public const string HistoryCleared = "Tools.History.Cleared";
-        public const string SavePending = "Tools.Save.Pending";
-        public const string SaveSaved = "Tools.Save.Saved";
-        public const string SaveStatusFailed = "Tools.Save.StatusFailed";
-        public const string WorkspaceWrongTool = "Tools.Workspace.WrongTool";
-        public const string WorkspaceUnsupportedVersion = "Tools.Workspace.UnsupportedVersion";
-        public const string WorkspaceInvalid = "Tools.Workspace.Invalid";
-        public const string WorkspaceTooLarge = "Tools.Workspace.TooLarge";
         public const string Save = "Tools.Save";
         public const string Share = "Tools.Share";
         public const string ClearDraft = "Tools.ClearDraft";
@@ -2003,129 +1981,6 @@ public static class ResourceKeys
         public const string PrivacyCloudSync = "Tools.Privacy.CloudSync";
         public const string ValidationTitle = "Tools.Validation.Title";
         public const string ValidationGeneric = "Tools.Validation.Generic";
-        public const string ValidationFormat = "Tools.Validation.Format";
-        public const string ValidationJson = "Tools.Validation.Json";
-        public const string ValidationJsonPosition = "Tools.Validation.JsonPosition";
-        public const string ValidationOperation = "Tools.Validation.Operation";
-        public const string ValidationBrowser = "Tools.Validation.Browser";
-        public const string Valid = "Tools.Valid";
-        public const string Invalid = "Tools.Invalid";
-        public const string EditorStats = "Tools.EditorStats";
-
-        public static class Action
-        {
-            public const string Pretty = "Tools.Action.Pretty";
-            public const string Minify = "Tools.Action.Minify";
-            public const string Validate = "Tools.Action.Validate";
-            public const string Compare = "Tools.Action.Compare";
-            public const string Decode = "Tools.Action.Decode";
-            public const string EncodeBase64Url = "Tools.Action.EncodeBase64Url";
-            public const string DecodeBase64Url = "Tools.Action.DecodeBase64Url";
-            public const string Encode = "Tools.Action.Encode";
-            public const string EncodeComponent = "Tools.Action.EncodeComponent";
-            public const string DecodeComponent = "Tools.Action.DecodeComponent";
-            public const string Hash = "Tools.Action.Hash";
-            public const string Generate = "Tools.Action.Generate";
-            public const string ToUnix = "Tools.Action.ToUnix";
-            public const string ToUnixMilliseconds = "Tools.Action.ToUnixMilliseconds";
-            public const string FromUnix = "Tools.Action.FromUnix";
-            public const string FromUnixMilliseconds = "Tools.Action.FromUnixMilliseconds";
-            public const string Format = "Tools.Action.Format";
-            public const string YamlToJson = "Tools.Action.YamlToJson";
-            public const string JsonToYaml = "Tools.Action.JsonToYaml";
-            public const string CsvToJson = "Tools.Action.CsvToJson";
-            public const string JsonToCsv = "Tools.Action.JsonToCsv";
-            public const string GenerateCsharp = "Tools.Action.GenerateCsharp";
-            public const string GenerateTypescript = "Tools.Action.GenerateTypescript";
-            public const string Preview = "Tools.Action.Preview";
-            public const string HtmlToMarkdown = "Tools.Action.HtmlToMarkdown";
-            public const string MarkdownToHtml = "Tools.Action.MarkdownToHtml";
-            public const string Test = "Tools.Action.Test";
-            public const string Replace = "Tools.Action.Replace";
-            public const string Build = "Tools.Action.Build";
-        }
-
-        public static class JwtDecoder
-        {
-            public const string Title = "Tools.JwtDecoder.Title";
-            public const string Description = "Tools.JwtDecoder.Description";
-            public const string Header = "Tools.JwtDecoder.Header";
-            public const string Payload = "Tools.JwtDecoder.Payload";
-            public const string UnverifiedWarning = "Tools.JwtDecoder.UnverifiedWarning";
-            public const string SignaturePresent = "Tools.JwtDecoder.SignaturePresent";
-            public const string SignatureMissing = "Tools.JwtDecoder.SignatureMissing";
-        }
-
-        public static class Qr
-        {
-            public const string Title = "Tools.Qr.Title";
-            public const string Description = "Tools.Qr.Description";
-            public const string Generated = "Tools.Qr.Generated";
-        }
-
-        public static class Regex
-        {
-            public const string Title = "Tools.Regex.Title";
-            public const string Description = "Tools.Regex.Description";
-            public const string Matches = "Tools.Regex.Matches";
-            public const string Group = "Tools.Regex.Group";
-            public const string Replace = "Tools.Regex.Replace";
-        }
-
-        public static class Cron
-        {
-            public const string Title = "Tools.Cron.Title";
-            public const string Description = "Tools.Cron.Description";
-            public const string ExpressionLabel = "Tools.Cron.ExpressionLabel";
-            public const string NextRunsUtc = "Tools.Cron.NextRunsUtc";
-        }
-
-        public static class PasswordStrength
-        {
-            public const string Title = "Tools.PasswordStrength.Title";
-            public const string Description = "Tools.PasswordStrength.Description";
-            public const string Score = "Tools.PasswordStrength.Score";
-            public const string Weak = "Tools.PasswordStrength.Weak";
-            public const string Fair = "Tools.PasswordStrength.Fair";
-            public const string Good = "Tools.PasswordStrength.Good";
-            public const string Strong = "Tools.PasswordStrength.Strong";
-            public const string Length = "Tools.PasswordStrength.Length";
-            public const string Disclaimer = "Tools.PasswordStrength.Disclaimer";
-        }
-
-        public static class FieldLabel
-        {
-            public const string InputText = "Tools.FieldLabel.InputText";
-            public const string Url = "Tools.FieldLabel.Url";
-            public const string Subject = "Tools.FieldLabel.Subject";
-            public const string Pattern = "Tools.FieldLabel.Pattern";
-            public const string Replacement = "Tools.FieldLabel.Replacement";
-            public const string SideBySide = "Tools.FieldLabel.SideBySide";
-            public const string IgnoreWhitespace = "Tools.FieldLabel.IgnoreWhitespace";
-            public const string Multiline = "Tools.FieldLabel.Multiline";
-            public const string Singleline = "Tools.FieldLabel.Singleline";
-            public const string Headers = "Tools.FieldLabel.Headers";
-            public const string Body = "Tools.FieldLabel.Body";
-            public const string Length = "Tools.FieldLabel.Length";
-            public const string Symbols = "Tools.FieldLabel.Symbols";
-            public const string Breaking = "Tools.FieldLabel.Breaking";
-            public const string Option = "Tools.FieldLabel.Option";
-            public const string Format = "Tools.FieldLabel.Format";
-            public const string IgnoreCase = "Tools.FieldLabel.IgnoreCase";
-            public const string UuidV7 = "Tools.FieldLabel.UuidV7";
-            public const string ErrorCorrection = "Tools.FieldLabel.ErrorCorrection";
-            public const string QuietZone = "Tools.FieldLabel.QuietZone";
-            public const string CronExpression = "Tools.FieldLabel.CronExpression";
-            public const string GitignorePreset = "Tools.FieldLabel.GitignorePreset";
-            public const string HttpMethod = "Tools.FieldLabel.HttpMethod";
-            public const string CommitScope = "Tools.FieldLabel.CommitScope";
-        }
-
-        public static class FieldHelp
-        {
-            public const string Multiline = "Tools.FieldHelp.Multiline";
-            public const string Singleline = "Tools.FieldHelp.Singleline";
-        }
 
         public static class Category
         {
@@ -2390,6 +2245,11 @@ public static class ResourceKeys
             public const string Description = "Tools.Sha256.Description";
         }
 
+        public static class JwtDecoder
+        {
+            public const string Title = "Tools.JwtDecoder.Title";
+            public const string Description = "Tools.JwtDecoder.Description";
+        }
 
         public static class PasswordGenerator
         {
@@ -2397,10 +2257,28 @@ public static class ResourceKeys
             public const string Description = "Tools.PasswordGenerator.Description";
         }
 
+        public static class PasswordStrength
+        {
+            public const string Title = "Tools.PasswordStrength.Title";
+            public const string Description = "Tools.PasswordStrength.Description";
+        }
+
         public static class Uuid
         {
             public const string Title = "Tools.Uuid.Title";
             public const string Description = "Tools.Uuid.Description";
+        }
+
+        public static class Cron
+        {
+            public const string Title = "Tools.Cron.Title";
+            public const string Description = "Tools.Cron.Description";
+        }
+
+        public static class Qr
+        {
+            public const string Title = "Tools.Qr.Title";
+            public const string Description = "Tools.Qr.Description";
         }
 
         public static class Curl
@@ -2419,6 +2297,12 @@ public static class ResourceKeys
         {
             public const string Title = "Tools.ConventionalCommit.Title";
             public const string Description = "Tools.ConventionalCommit.Description";
+        }
+
+        public static class Regex
+        {
+            public const string Title = "Tools.Regex.Title";
+            public const string Description = "Tools.Regex.Description";
         }
 
         public static class UnixTimestamp
@@ -2485,11 +2369,8 @@ public static class ResourceKeys
         public const string Reset = "Calc.Reset";
         public const string Results = "Calc.Results";
         public const string Formula = "Calc.Formula";
-        public const string FormulaPrefix = "Calc.Formula.";
         public const string Interpretation = "Calc.Interpretation";
         public const string RiskDisclaimer = "Calc.RiskDisclaimer";
-        public const string ValidationInput = "Calc.Validation.Input";
-        public const string ValidationFormat = "Calc.Validation.Format";
         public const string Yes = "Calc.Yes";
         public const string No = "Calc.No";
         public const string SideLong = "Calc.Side.Long";
@@ -2515,16 +2396,12 @@ public static class ResourceKeys
             public const string StopLoss = "Calc.Field.StopLoss";
             public const string TakeProfit = "Calc.Field.TakeProfit";
             public const string Size = "Calc.Field.Size";
-            public const string ContractSize = "Calc.Field.ContractSize";
             public const string Leverage = "Calc.Field.Leverage";
             public const string MakerPct = "Calc.Field.MakerPct";
             public const string TakerPct = "Calc.Field.TakerPct";
             public const string OpenFeePct = "Calc.Field.OpenFeePct";
-            public const string SlippagePct = "Calc.Field.SlippagePct";
             public const string CloseFeePct = "Calc.Field.CloseFeePct";
             public const string FeePct = "Calc.Field.FeePct";
-            public const string FeePerLegPct = "Calc.Field.FeePerLegPct";
-            public const string CurrentPrice = "Calc.Field.CurrentPrice";
             public const string MmrPct = "Calc.Field.MmrPct";
             public const string Notional = "Calc.Field.Notional";
             public const string Margin = "Calc.Field.Margin";
@@ -2537,54 +2414,20 @@ public static class ResourceKeys
             public const string WinRatePct = "Calc.Field.WinRatePct";
             public const string RiskReward = "Calc.Field.RiskReward";
             public const string RiskPerTradePct = "Calc.Field.RiskPerTradePct";
-            public const string RuinThresholdPct = "Calc.Field.RuinThresholdPct";
-            public const string TradeHorizon = "Calc.Field.TradeHorizon";
-            public const string SimulationCount = "Calc.Field.SimulationCount";
-            public const string RandomSeed = "Calc.Field.RandomSeed";
             public const string Peak = "Calc.Field.Peak";
             public const string Trough = "Calc.Field.Trough";
             public const string EquitySeries = "Calc.Field.EquitySeries";
             public const string LossPct = "Calc.Field.LossPct";
-            public const string LossScenarios = "Calc.Field.LossScenarios";
             public const string AvgWin = "Calc.Field.AvgWin";
             public const string AvgLoss = "Calc.Field.AvgLoss";
             public const string PayoffRatio = "Calc.Field.PayoffRatio";
-            public const string KellyCapPct = "Calc.Field.KellyCapPct";
             public const string Equity = "Calc.Field.Equity";
             public const string Losses = "Calc.Field.Losses";
             public const string Price = "Calc.Field.Price";
             public const string Supply = "Calc.Field.Supply";
-            public const string TotalSupply = "Calc.Field.TotalSupply";
-            public const string MaxSupply = "Calc.Field.MaxSupply";
             public const string TargetMcap = "Calc.Field.TargetMcap";
-            public const string TargetMcapScenarios = "Calc.Field.TargetMcapScenarios";
             public const string Ath = "Calc.Field.Ath";
             public const string Current = "Calc.Field.Current";
-        }
-
-        public static class Result
-        {
-            public const string RiskOfRuinConfidenceLow = "Calc.Result.RiskOfRuinConfidenceLow";
-            public const string RiskOfRuinConfidenceHigh = "Calc.Result.RiskOfRuinConfidenceHigh";
-            public const string SimulationCount = "Calc.Result.SimulationCount";
-            public const string TradeHorizon = "Calc.Result.TradeHorizon";
-            public const string RuinThresholdPct = "Calc.Result.RuinThresholdPct";
-            public const string RandomSeed = "Calc.Result.RandomSeed";
-            public const string TargetMarketCap = "Calc.Result.TargetMarketCap";
-            public const string ContractSize = "Calc.Result.ContractSize";
-            public const string BaseQuantity = "Calc.Result.BaseQuantity";
-            public const string TotalOutlay = "Calc.Result.TotalOutlay";
-            public const string MarketValue = "Calc.Result.MarketValue";
-            public const string UnrealizedPnl = "Calc.Result.UnrealizedPnl";
-            public const string GrossProfit = "Calc.Result.GrossProfit";
-            public const string NetRisk = "Calc.Result.NetRisk";
-            public const string LossPct = "Calc.Result.LossPct";
-            public const string LossCount = "Calc.Result.LossCount";
-            public const string FundingPayer = "Calc.Result.FundingPayer";
-            public const string FundingReceiver = "Calc.Result.FundingReceiver";
-            public const string AbsolutePeakToTroughPeriods = "Calc.Result.AbsolutePeakToTroughPeriods";
-            public const string AbsoluteTroughToRecoveryPeriods = "Calc.Result.AbsoluteTroughToRecoveryPeriods";
-            public const string AdverseMovePct = "Calc.Result.AdverseMovePct";
         }
 
         public static class Placeholder
@@ -2592,8 +2435,6 @@ public static class ResourceKeys
             public const string LegsPriceQty = "Calc.Placeholder.LegsPriceQty";
             public const string LegsPriceAmount = "Calc.Placeholder.LegsPriceAmount";
             public const string EquitySeries = "Calc.Placeholder.EquitySeries";
-            public const string LossScenarios = "Calc.Placeholder.LossScenarios";
-            public const string TargetMcapScenarios = "Calc.Placeholder.TargetMcapScenarios";
         }
     }
 }
