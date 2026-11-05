@@ -1996,6 +1996,7 @@ public static class ResourceKeys
             public const string Hash = "Tools.Action.Hash";
             public const string Generate = "Tools.Action.Generate";
             public const string ToUnix = "Tools.Action.ToUnix";
+            public const string ToUnixMilliseconds = "Tools.Action.ToUnixMilliseconds";
             public const string FromUnix = "Tools.Action.FromUnix";
             public const string FromUnixMilliseconds = "Tools.Action.FromUnixMilliseconds";
             public const string Format = "Tools.Action.Format";
