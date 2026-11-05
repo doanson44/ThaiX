@@ -105,12 +105,13 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 The `ToolQualityUnitTests` suite covers:
 
-1. CSV quoted comma and escaped quote preservation.
+1. CSV quoted commas and escaped quotes.
 2. CSV multiline fields and BOM handling.
-3. CSV unterminated quote and duplicate header rejection.
-4. HTML heading/link/emphasis/list conversion.
-5. cURL URL shell escaping and HTTP method validation.
-6. Password length and selected character-class inclusion.
+3. CSV unterminated quotes and duplicate-header rejection.
+4. SQL keywords inside string literals, quoted identifiers, and comments.
+5. HTML headings, links, emphasis, inline code, and list conversion.
+6. cURL URL shell escaping and HTTP method validation.
+7. Password length and selected character-class inclusion.
 8. Calculator sample seeding for new versus initialized workspaces.
 9. Position-size risk percentage upper bound.
 10. Liquidation maintenance-margin upper bound.
