@@ -197,20 +197,20 @@
             ApplyResolvedFees(fields);
             _result = CalculatorRunner.Run(Tool.Slug, fields);
         }
-        catch (CalculatorInputException ex)
+        catch (CalculatorInputException)
         {
             _result = null;
-            _warning = ex.Message;
+            _warning = L[RK.Calc.ValidationInput];
         }
-        catch (FormatException ex)
+        catch (FormatException)
         {
             _result = null;
-            _warning = ex.Message;
+            _warning = L[RK.Calc.ValidationFormat];
         }
-        catch (Exception ex)
+        catch
         {
             _result = null;
-            _warning = string.IsNullOrWhiteSpace(ex.Message) ? L[RK.Tools.ValidationGeneric] : ex.Message;
+            _warning = L[RK.Tools.ValidationGeneric];
         }
     }
 
