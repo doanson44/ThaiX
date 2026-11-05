@@ -6,16 +6,46 @@ public static class CryptoCalculators
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    public static CalculatorResult MarketCap(decimal price, decimal circulatingSupply)
+    public static CalculatorResult MarketCap(
+        decimal price,
+        decimal circulatingSupply,
+        decimal? totalSupply = null,
+        decimal? maxSupply = null)
     {
         RequirePositive(price, "Price");
         RequirePositive(circulatingSupply, "Circulating supply");
-        var mcap = price * circulatingSupply;
+
+        if (totalSupply is decimal total)
+        {
+            RequirePositive(total, "Total supply");
+            if (total < circulatingSupply)
+                throw new CalculatorInputException("Total supply cannot be below circulating supply.");
+        }
+
+        if (maxSupply is decimal maximum)
+        {
+            RequirePositive(maximum, "Maximum supply");
+            var minimumMaximum = totalSupply ?? circulatingSupply;
+            if (maximum < minimumMaximum)
+                throw new CalculatorInputException("Maximum supply cannot be below total or circulating supply.");
+        }
+
+        var lines = new List<CalcLine>
+        {
+            Line("Calc.Result.MarketCap", price * circulatingSupply)
+        };
+
+        if (totalSupply is decimal totalValue)
+            lines.Add(Line("Calc.Result.TotalSupplyValue", price * totalValue));
+
+        if (maxSupply is decimal maxValue)
+            lines.Add(Line("Calc.Result.Fdv", price * maxValue));
+
         return new CalculatorResult(
-            [Line("Calc.Result.MarketCap", mcap)],
-            "marketCap = price × circulatingSupply",
+            lines,
+            "marketCap = price × circulatingSupply; total supply value = price × totalSupply; FDV = price × maxSupply",
             "Calc.Interp.MarketCap",
-            [F(mcap)]);
+            [F(price * circulatingSupply)]);
     }
 
     public static CalculatorResult MarketCapCompare(decimal circulatingSupply, decimal targetMarketCap)
