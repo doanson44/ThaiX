@@ -86,6 +86,38 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void JsonCompare_WithNullRoots_ShouldReturnEqual()
+    {
+        // Arrange / Act
+        var result = JsonToolTransforms.Compare("null", "null");
+
+        // Assert
+        Assert.Equal("Documents are equal (canonical form).", result);
+    }
+
+    [Fact]
+    public void JsonCompare_WithMissingVersusNullProperty_ShouldReportPath()
+    {
+        // Arrange / Act
+        var result = JsonToolTransforms.Compare("{}", "{\"missing\":null}");
+
+        // Assert
+        Assert.Contains("$[\"missing\"]", result, StringComparison.Ordinal);
+        Assert.Contains("<missing>", result, StringComparison.Ordinal);
+        Assert.Contains("null", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonCompare_WithPropertyNameContainingDot_ShouldUseQuotedPath()
+    {
+        // Arrange / Act
+        var result = JsonToolTransforms.Compare("{\"a.b\":1}", "{\"a.b\":2}");
+
+        // Assert
+        Assert.Contains("$[\"a.b\"]", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void JsonToTypescript_WithSpecialPropertyName_ShouldQuoteProperty()
     {
         // Arrange
