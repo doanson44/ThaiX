@@ -1703,7 +1703,8 @@
   <data name="Calc.Field.Exit" xml:space="preserve"><value>Giá thoát</value></data>
   <data name="Calc.Field.StopLoss" xml:space="preserve"><value>Dừng lỗ</value></data>
   <data name="Calc.Field.TakeProfit" xml:space="preserve"><value>Chốt lời</value></data>
-  <data name="Calc.Field.Size" xml:space="preserve"><value>Khối lượng (qty)</value></data>
+  <data name="Calc.Field.Size" xml:space="preserve"><value>Số lượng vị thế (qty)</value></data>
+  <data name="Calc.Field.ContractSize" xml:space="preserve"><value>Đơn vị tài sản cơ sở mỗi hợp đồng</value></data>
   <data name="Calc.Field.Leverage" xml:space="preserve"><value>Đòn bẩy</value></data>
   <data name="Calc.Field.MakerPct" xml:space="preserve"><value>Phí maker %</value></data>
   <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Phí taker %</value></data>
@@ -1757,6 +1758,8 @@
   <data name="Calc.Result.RiskReward" xml:space="preserve"><value>Rủi ro:lợi nhuận</value></data>
   <data name="Calc.Result.LevelsAligned" xml:space="preserve"><value>Mức khớp với phía</value></data>
   <data name="Calc.Result.GrossPnl" xml:space="preserve"><value>PnL gộp</value></data>
+  <data name="Calc.Result.ContractSize" xml:space="preserve"><value>Đơn vị tài sản cơ sở mỗi hợp đồng</value></data>
+  <data name="Calc.Result.BaseQuantity" xml:space="preserve"><value>Tổng số lượng tài sản cơ sở</value></data>
   <data name="Calc.Result.Fees" xml:space="preserve"><value>Phí</value></data>
   <data name="Calc.Result.NetPnl" xml:space="preserve"><value>PnL ròng</value></data>
   <data name="Calc.Result.Margin" xml:space="preserve"><value>Ký quỹ</value></data>
@@ -1795,7 +1798,7 @@
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Rủi ro {0}% gợi ý qty {1} (notional {2}).</value></data>
   <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Lợi nhuận gấp {0}× khoảng rủi ro.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>PnL ròng {0}; ROE {1}%.</value></data>
-  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Ước thanh lý isolated quanh {0}.</value></data>
+  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Ước tính linear isolated quanh {0}; không gồm MMR theo bậc, phí, funding hoặc cross margin.</value></data>
   <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Giá vào TB {0} với tổng qty {1}.</value></data>
   <data name="Calc.Interp.Dca" xml:space="preserve"><value>Giá vốn TB {0} sau khi đầu tư {1}.</value></data>
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Phí cho thấy hòa vốn quanh {0}.</value></data>
