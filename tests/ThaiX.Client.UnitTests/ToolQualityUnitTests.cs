@@ -1288,6 +1288,23 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MaxDrawdownFromSeries_WithDifferentAbsoluteAndPercentagePeaks_ShouldReportSeparateDurations()
+    {
+        // Arrange
+        decimal[] equity = [100m, 80m, 200m, 170m];
+
+        // Act
+        var result = RiskCalculators.MaxDrawdownFromSeries(equity);
+
+        // Assert
+        Assert.Equal("30", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.MaxDrawdown").Value);
+        Assert.Equal("20", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.MaxDrawdownPct").Value);
+        Assert.Equal("1", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.AbsolutePeakToTroughPeriods").Value);
+        Assert.Equal("N/A", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.AbsoluteTroughToRecoveryPeriods").Value);
+        Assert.Equal("1", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.TroughToRecoveryPeriods").Value);
+    }
+
+    [Fact]
     public void MaxDrawdownFromSeries_WithRecoveredTrough_ShouldReportRecoveryPeriods()
     {
         // Arrange
