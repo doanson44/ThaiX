@@ -1534,6 +1534,7 @@
   <data name="Tools.Validation.Generic" xml:space="preserve"><value>Có lỗi khi xử lý. Kiểm tra đầu vào rồi thử lại.</value></data>
   <data name="Tools.Validation.Format" xml:space="preserve"><value>Định dạng dữ liệu không hợp lệ. Vui lòng kiểm tra định dạng yêu cầu.</value></data>
   <data name="Tools.Validation.Json" xml:space="preserve"><value>Dữ liệu JSON không hợp lệ.</value></data>
+  <data name="Tools.Validation.JsonPosition" xml:space="preserve"><value>JSON không hợp lệ tại dòng {0}, cột {1}.</value></data>
   <data name="Tools.Validation.Operation" xml:space="preserve"><value>Không thể thực hiện thao tác với dữ liệu hiện tại.</value></data>
   <data name="Tools.Validation.Browser" xml:space="preserve"><value>Thao tác trên trình duyệt thất bại. Vui lòng thử lại hoặc tải lại trang.</value></data>
   <data name="Tools.Output" xml:space="preserve"><value>Đầu ra</value></data>
