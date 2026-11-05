@@ -949,7 +949,7 @@ else
             if (!ok) throw new InvalidOperationException("Clipboard copy returned false.");
             NotificationService.NotifySuccess(successMessage);
         }
-        catch (Exception ex)
+        catch
         {
             NotificationService.NotifyError(L[RK.Tools.MarkdownPreview.CopyFailed], L[RK.Tools.ValidationBrowser]);
         }
