@@ -2148,4 +2148,9 @@
   <data name="Tools.Regex.Replace" xml:space="preserve"><value>Thay thế</value></data>
   <data name="Tools.Qr.Generated" xml:space="preserve"><value>Đã tạo mã QR.</value></data>
   <data name="Tools.FieldLabel.Replacement" xml:space="preserve"><value>Văn bản thay thế</value></data>
+  <data name="Tools.JwtDecoder.Header" xml:space="preserve"><value>Header</value></data>
+  <data name="Tools.JwtDecoder.Payload" xml:space="preserve"><value>Payload</value></data>
+  <data name="Tools.JwtDecoder.UnverifiedWarning" xml:space="preserve"><value>CHƯA XÁC MINH: chữ ký chưa được kiểm tra. Không tin cậy các claims.</value></data>
+  <data name="Tools.JwtDecoder.SignaturePresent" xml:space="preserve"><value>Có chữ ký (chưa xác minh).</value></data>
+  <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Không có chữ ký.</value></data>
 </root>
