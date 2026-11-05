@@ -24,7 +24,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Password generator | Use `RandomNumberGenerator.GetInt32` to avoid modulo bias; ensure each selected character class appears at least once; cryptographically shuffle the result | Length and selected character class tests |
 | Trading calculators | Bound risk percentages, constrain maintenance margin, reject ambiguous simultaneous take-profit modes, validate stop-loss direction for R:R mode, and prevent invalid short target prices | Boundary and mutually-exclusive-mode tests |
 | Risk calculators | Reject non-positive equity-series points; document risk-of-ruin as a heuristic rather than a calibrated probability | Equity-series validation test |
-| cURL generator | Validate the HTTP method and shell-quote the URL, headers, and body to prevent argument injection through single quotes | Invalid method and quoted URL tests |\n| JSON code generators | Sanitize generated type/property identifiers and quote non-identifier TypeScript property names | Special property-name tests for C# and TypeScript output |
+| cURL generator | Validate the HTTP method and shell-quote the URL, headers, and body to prevent argument injection through single quotes | Invalid method and quoted URL tests |
+| JSON code generators | Sanitize generated type/property identifiers and quote non-identifier TypeScript property names | Special property-name tests for C# and TypeScript output |
 | HTML to Markdown | Preserve common heading, paragraph, link, emphasis, inline-code, and list structure instead of stripping all tags | Structural conversion test |
 
 ## Findings and follow-up backlog
@@ -38,7 +39,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Cron | The current output is a textual preview, not expression validation or a next-run calculation | Add a parser and next-occurrence preview with an explicit scheduler dialect |
 | URL Codec | Absolute HTTP(S) URLs are now normalized with delimiters preserved and spaces escaped; non-URL input remains component-encoded | Add explicit query-component mode and safe component-wise decoding for reserved escape sequences |
 | Password Strength | The result now explicitly states that its score is heuristic and is not entropy or breach screening | Add common-password screening only with a vetted local dataset |
-| JSON to C# / TypeScript | Property and type names derived from arbitrary JSON keys can collide or produce language keywords/invalid identifiers | Sanitize identifiers, escape reserved words, detect collisions, and cover arrays/nulls/nested schemas |
+| JSON to C# / TypeScript | Property names are sanitized, but generated identifiers can still collide or nested type names can be invalid | Sanitize identifiers, escape reserved words, detect collisions, and cover arrays/nulls/nested schemas |
 | JWT Decoder | The decoder displays decoded claims and already states that signatures are not verified | Keep the unverified warning prominent; do not describe decoded claims as authenticated |
 | JSON Formatter / Validator | Large documents and parse failures need better line/column context | Surface structured parser diagnostics and test large payload behavior |
 | JSON Compare / Diff | Current text diff output is linear and not path-oriented | Add JSON-path summaries and side-by-side line context |
