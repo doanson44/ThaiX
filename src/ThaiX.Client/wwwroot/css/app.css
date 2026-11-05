@@ -899,7 +899,7 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
 .ThaiX-tools--fullscreen {
     position: fixed;
     inset: 0;
-    z-index: 1080;
+    z-index: 1040;
     max-width: none;
     overflow-x: clip;
     overflow-y: auto;
