@@ -176,7 +176,8 @@ public static class CalculatorFieldCatalog
             "kelly-criterion" =>
             [
                 Num("winRatePct", RK.Calc.Field.WinRatePct, "55"),
-                Num("payoffRatio", RK.Calc.Field.PayoffRatio, "1.5")
+                Num("payoffRatio", RK.Calc.Field.PayoffRatio, "1.5"),
+                Num("maxKellyPct", RK.Calc.Field.KellyCapPct, "25")
             ],
             "consecutive-loss" =>
             [
