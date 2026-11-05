@@ -103,7 +103,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test cases added
 
-The `ToolQualityUnitTests` suite covers:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite covers:
 
 1. CSV quoted commas and escaped quotes.
 2. CSV multiline fields and BOM handling.
@@ -127,7 +127,7 @@ claimed. Run the following from a checkout of this branch before merge:
 
 ```bash
 dotnet build ThaiX.slnx
-dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --no-restore
+dotnet test tests/ThaiX.Client.UnitTests/ThaiX.Client.UnitTests.csproj --no-restore
 dotnet test ThaiX.slnx --no-restore
 ```
 
