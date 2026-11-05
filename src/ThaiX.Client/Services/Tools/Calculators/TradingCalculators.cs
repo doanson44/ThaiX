@@ -304,15 +304,18 @@ public static class TradingCalculators
         RequireNonNegative(periods, "Periods");
         // Positive rate: longs pay shorts. Sign: Long pays when rate > 0.
         var raw = notional * (ratePct / 100m) * periods;
-        var paidByLong = raw;
-        var userCashflow = side == TradeSide.Long ? -paidByLong : paidByLong;
+        var userCashflow = side == TradeSide.Long ? -raw : raw;
+        var payerKey = raw == 0m ? "N/A" : raw > 0m ? "Calc.Side.Long" : "Calc.Side.Short";
+        var receiverKey = raw == 0m ? "N/A" : raw > 0m ? "Calc.Side.Short" : "Calc.Side.Long";
 
         return new CalculatorResult(
             [
                 Line("Calc.Result.FundingCashflow", userCashflow),
-                Line("Calc.Result.FundingAbs", Math.Abs(userCashflow))
+                Line("Calc.Result.FundingAbs", Math.Abs(userCashflow)),
+                new("Calc.Result.FundingPayer", payerKey),
+                new("Calc.Result.FundingReceiver", receiverKey)
             ],
-            "cashflow = notional × rate% × periods × (short:+1 / long:−1) when rate>0 means longs pay",
+            "positive funding rate: longs pay shorts; negative funding rate: shorts pay longs; cashflow sign is from the selected side perspective",
             "Calc.Interp.Funding",
             [F(userCashflow)]);
     }
