@@ -594,6 +594,30 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void DiffSideBySide_WithChangedLine_ShouldAlignOldAndNewValues()
+    {
+        // Arrange / Act
+        var result = TextToolTransforms.DiffSideBySide("one\ntwo", "one\nthree");
+
+        // Assert
+        Assert.Contains("OLD", result, StringComparison.Ordinal);
+        Assert.Contains("NEW", result, StringComparison.Ordinal);
+        Assert.Contains("- two", result, StringComparison.Ordinal);
+        Assert.Contains("+ three", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void DiffSideBySide_WithEmptyInputs_ShouldReturnHeaders()
+    {
+        // Arrange / Act
+        var result = TextToolTransforms.DiffSideBySide(string.Empty, string.Empty);
+
+        // Assert
+        Assert.Contains("OLD", result, StringComparison.Ordinal);
+        Assert.Contains("NEW", result, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void RegexTest_WithIgnoreCase_ShouldMatchDifferentCasing()
     {
         // Arrange
