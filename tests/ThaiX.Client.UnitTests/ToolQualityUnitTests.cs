@@ -39,7 +39,7 @@ public sealed class ToolQualityUnitTests
     public void FormatSql_WithKeywordsInsideLiteralsAndComments_ShouldPreserveThem()
     {
         // Arrange
-        const string sql = "select 'from where', [order] from trades where note = 'order by'; -- from\nselect 1";
+        const string sql = "select 'from where', [order] from trades /* where group */ where note = 'order by'; -- from\nselect 1";
 
         // Act
         var formatted = TextToolTransforms.FormatSql(sql);
@@ -48,6 +48,7 @@ public sealed class ToolQualityUnitTests
         Assert.Contains("'from where'", formatted, StringComparison.Ordinal);
         Assert.Contains("[order]", formatted, StringComparison.Ordinal);
         Assert.Contains("'order by'", formatted, StringComparison.Ordinal);
+        Assert.Contains("/* where group */", formatted, StringComparison.Ordinal);
         Assert.Contains("-- from", formatted, StringComparison.Ordinal);
         Assert.Contains("SELECT", formatted, StringComparison.Ordinal);
     }
