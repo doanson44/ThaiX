@@ -253,7 +253,7 @@ public sealed class ToolQualityUnitTests
     {
         // Arrange / Act
         var act = () => GeneratorToolTransforms.ConventionalCommit(
-            "feature", "tools", "add tool", false, string.Empty);
+            "feature type", "tools", "add tool", false, string.Empty);
 
         // Assert
         Assert.Throws<FormatException>(act);
