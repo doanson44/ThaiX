@@ -4,6 +4,8 @@
 @using System.Text.Json
 @using System.Text.RegularExpressions
 @using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Forms
+@using ThaiX.Client.Services.Ui
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @using ThaiX.Client.Services.Tools
 @using ThaiX.Client.Services.Tools.Calculators
@@ -12,6 +14,7 @@
 @inject IToolStateStore ToolStateStore
 @inject NotificationService NotificationService
 @inject IJSRuntime JS
+@inject IFileDownloadService FileDownloadService
 @inherits ThaiXPageBase
 
 <PageTitle>@(_tool is null ? L[RK.Tools.HubTitle] : L[_tool.TitleKey]) - ThaiX</PageTitle>
@@ -32,6 +35,19 @@ else
                    GetStateJson="SerializeState"
                    OnDraftCleared="OnDraftCleared">
         <ActionButtons>
+            @if (_saveStatusKey is not null)
+            {
+                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted align-self-center">@L[_saveStatusKey]</RadzenText>
+            }
+            <ResponsiveIconButton Text="@L[RK.Tools.ExportWorkspace]"
+                                  Icon="download"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Disabled="@_busy"
+                                  Click="ExportWorkspaceAsync" />
+            <InputFile OnChange="ImportWorkspaceAsync"
+                       accept=".json,application/json"
+                       class="form-control form-control-sm"
+                       aria-label="@L[RK.Tools.ImportWorkspace]" />
             @if (!IsCalculator())
             {
                 @foreach (var action in GetActions())
@@ -341,6 +357,7 @@ else
     private ErrorBoundary? _toolErrorBoundary;
     private string? _lastBoundaryErrorId;
     private bool? _inputValid;
+    private string? _saveStatusKey;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -400,6 +417,112 @@ else
         }
 
         _loaded = true;
+    }
+
+    private sealed class WorkspaceImportException(string resourceKey) : Exception
+    {
+        public string ResourceKey { get; } = resourceKey;
+    }
+
+    private async Task ExportWorkspaceAsync()
+    {
+        if (_tool is null) return;
+
+        _busy = true;
+        try
+        {
+            var export = new ToolWorkspaceExport
+            {
+                ToolSlug = _tool.Slug,
+                State = _state
+            };
+            var content = JsonSerializer.SerializeToUtf8Bytes(export, JsonOptions);
+            if (content.Length > ToolCatalog.MaxWorkspaceBytes)
+                throw new WorkspaceImportException(RK.Tools.WorkspaceTooLarge);
+
+            await FileDownloadService.DownloadAsync(
+                $"{_tool.Slug}-workspace.json",
+                "application/json",
+                content);
+            NotificationService.NotifySuccess(L[RK.Tools.ExportSuccess]);
+        }
+        catch (WorkspaceImportException ex)
+        {
+            NotificationService.NotifyWarning(L[RK.Tools.ValidationTitle], L[ex.ResourceKey]);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.NotifyError(L[RK.Tools.ExportFailed], ex.Message);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ImportWorkspaceAsync(InputFileChangeEventArgs args)
+    {
+        if (_tool is null) return;
+
+        _busy = true;
+        _warning = null;
+        try
+        {
+            var file = args.File;
+            if (file.Size > ToolCatalog.MaxWorkspaceBytes)
+                throw new WorkspaceImportException(RK.Tools.WorkspaceTooLarge);
+
+            await using var stream = file.OpenReadStream(ToolCatalog.MaxWorkspaceBytes);
+            var export = await JsonSerializer.DeserializeAsync<ToolWorkspaceExport>(stream, JsonOptions);
+            if (export is null || export.State is null)
+                throw new WorkspaceImportException(RK.Tools.WorkspaceInvalid);
+            if (export.Version != ToolCatalog.WorkspaceExportVersion)
+                throw new WorkspaceImportException(RK.Tools.WorkspaceUnsupportedVersion);
+            if (!export.ToolSlug.Equals(_tool.Slug, StringComparison.OrdinalIgnoreCase))
+                throw new WorkspaceImportException(RK.Tools.WorkspaceWrongTool);
+
+            _state = export.State;
+            _state.Fields = _state.Fields is null
+                ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                : new Dictionary<string, string>(_state.Fields, StringComparer.OrdinalIgnoreCase);
+
+            if (IsCalculator())
+            {
+                CalculatorFieldCatalog.EnsureDefaults(_tool.Slug, _state.Fields);
+                _calculatorAutoCalculateToken = Guid.NewGuid().ToString("N");
+            }
+
+            _previewHtml = string.Empty;
+            _previewEpoch++;
+            _previewDirty = false;
+            _mdPreviewMode = false;
+            _qrSvg = null;
+
+            if (IsMarkdownPreview() && !string.IsNullOrWhiteSpace(_state.Input))
+                await RefreshMarkdownAsync();
+            if (IsQr() && !string.IsNullOrWhiteSpace(_state.Input))
+                _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input, _state.Number, _state.Option);
+
+            await ToolStateStore.SaveLocalAsync(_tool, SerializeState());
+            _saveStatusKey = RK.Tools.SaveSaved;
+            NotificationService.NotifySuccess(L[RK.Tools.ImportSuccess]);
+        }
+        catch (WorkspaceImportException ex)
+        {
+            _warning = L[ex.ResourceKey];
+        }
+        catch (JsonException)
+        {
+            _warning = L[RK.Tools.WorkspaceInvalid];
+        }
+        catch (Exception ex)
+        {
+            ReportToolIssue(ex);
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private bool IsCalculator() => _tool?.Kind == ToolKind.Calculator;
@@ -849,13 +972,25 @@ else
         _debounceCts?.Dispose();
         _debounceCts = new CancellationTokenSource();
         var token = _debounceCts.Token;
+        _saveStatusKey = RK.Tools.SavePending;
         try
         {
+            await InvokeAsync(StateHasChanged);
             await Task.Delay(400, token);
             await ToolStateStore.SaveLocalAsync(_tool, SerializeState(), token);
+            _saveStatusKey = RK.Tools.SaveSaved;
         }
         catch (OperationCanceledException) { }
-        catch { }
+        catch
+        {
+            _saveStatusKey = RK.Tools.SaveStatusFailed;
+        }
+
+        if (!token.IsCancellationRequested)
+        {
+            try { await InvokeAsync(StateHasChanged); }
+            catch { /* component is being disposed */ }
+        }
     }
 
     public void Dispose()
