@@ -13,11 +13,24 @@ public static class GeneratorToolTransforms
         const string lower = "abcdefghijkmnopqrstuvwxyz";
         const string digits = "23456789";
         const string syms = "!@#$%^&*-_=+?";
-        var alphabet = upper + lower + digits + (symbols ? syms : "");
-        var bytes = RandomNumberGenerator.GetBytes(length);
+        var groups = symbols
+            ? new[] { upper, lower, digits, syms }
+            : new[] { upper, lower, digits };
+        var alphabet = string.Concat(groups);
         var chars = new char[length];
-        for (var i = 0; i < length; i++)
-            chars[i] = alphabet[bytes[i] % alphabet.Length];
+
+        for (var i = 0; i < groups.Length; i++)
+            chars[i] = groups[i][RandomNumberGenerator.GetInt32(groups[i].Length)];
+
+        for (var i = groups.Length; i < chars.Length; i++)
+            chars[i] = alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
+
+        for (var i = chars.Length - 1; i > 0; i--)
+        {
+            var swapIndex = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[swapIndex]) = (chars[swapIndex], chars[i]);
+        }
+
         return new string(chars);
     }
 
