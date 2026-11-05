@@ -2511,6 +2511,7 @@ public static class ResourceKeys
             public const string StopLoss = "Calc.Field.StopLoss";
             public const string TakeProfit = "Calc.Field.TakeProfit";
             public const string Size = "Calc.Field.Size";
+            public const string ContractSize = "Calc.Field.ContractSize";
             public const string Leverage = "Calc.Field.Leverage";
             public const string MakerPct = "Calc.Field.MakerPct";
             public const string TakerPct = "Calc.Field.TakerPct";
@@ -2563,6 +2564,8 @@ public static class ResourceKeys
             public const string RuinThresholdPct = "Calc.Result.RuinThresholdPct";
             public const string RandomSeed = "Calc.Result.RandomSeed";
             public const string TargetMarketCap = "Calc.Result.TargetMarketCap";
+            public const string ContractSize = "Calc.Result.ContractSize";
+            public const string BaseQuantity = "Calc.Result.BaseQuantity";
         }
 
         public static class Placeholder
