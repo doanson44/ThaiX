@@ -2214,4 +2214,7 @@
   <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Encode component</value></data>
   <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Decode component</value></data>
   <data name="Tools.FieldLabel.SideBySide" xml:space="preserve"><value>Side by side</value></data>
+  <data name="Tools.FieldLabel.IgnoreWhitespace" xml:space="preserve"><value>Ignore whitespace</value></data>
+  <data name="Tools.FieldLabel.Multiline" xml:space="preserve"><value>Multiline</value></data>
+  <data name="Tools.FieldLabel.Singleline" xml:space="preserve"><value>Singleline</value></data>
 </root>
