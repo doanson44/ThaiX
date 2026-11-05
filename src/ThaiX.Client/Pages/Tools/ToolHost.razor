@@ -188,6 +188,13 @@ else
             @if (NeedsOptions())
             {
                 <RadzenRow Gap="1rem" RowGap="0.5rem" Class="mb-2">
+                    @if (SlugEquals("diff"))
+                    {
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="sideBySide" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.SideBySide]" Component="sideBySide" Class="rz-ms-2" />
+                        </RadzenColumn>
+                    }
                     @if (SlugEquals("regex"))
                     {
                         <RadzenColumn Size="12" SizeMD="4">
@@ -486,7 +493,7 @@ else
     private bool NeedsOptions() =>
         SlugEquals("uuid") || SlugEquals("password-generator")
         || SlugEquals("curl") || SlugEquals("conventional-commit")
-        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex");
+        || SlugEquals("gitignore") || SlugEquals("cron") || SlugEquals("regex") || SlugEquals("diff");
 
     private string LeftLabel() => Slug.ToLowerInvariant() switch
     {
@@ -607,7 +614,11 @@ else
                     break;
                 case "h2m": _state.Output = TextToolTransforms.HtmlToMarkdownRough(_state.Input); break;
                 case "m2h": _state.Output = TextToolTransforms.MarkdownToHtml(_state.Input); break;
-                case "diff": _state.Output = TextToolTransforms.Diff(_state.Input, _state.Input2); break;
+                case "diff":
+                    _state.Output = _state.Flag
+                        ? TextToolTransforms.DiffSideBySide(_state.Input, _state.Input2)
+                        : TextToolTransforms.Diff(_state.Input, _state.Input2);
+                    break;
                 case "re":
                     _state.Output = TextToolTransforms.RegexTest(
                         _state.Input2,
