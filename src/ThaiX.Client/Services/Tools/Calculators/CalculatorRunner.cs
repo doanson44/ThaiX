@@ -32,7 +32,13 @@ public static class CalculatorRunner
                 D(fields, "entry"), Side(fields), D(fields, "size"),
                 OptionalD(fields, "stopLoss"), OptionalD(fields, "targetRr"), OptionalD(fields, "targetPct")),
             "risk-of-ruin" => RiskCalculators.RiskOfRuin(
-                D(fields, "winRatePct"), D(fields, "riskReward"), D(fields, "riskPerTradePct")),
+                D(fields, "winRatePct"),
+                D(fields, "riskReward"),
+                D(fields, "riskPerTradePct"),
+                D(fields, "ruinThresholdPct", 50m),
+                Int(fields, "tradeHorizon"),
+                Int(fields, "simulationCount"),
+                Int(fields, "randomSeed")),
             "max-drawdown" => MaxDrawdown(fields),
             "loss-recovery" => RiskCalculators.LossRecovery(D(fields, "lossPct")),
             "expectancy" => RiskCalculators.Expectancy(
