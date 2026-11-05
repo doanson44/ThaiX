@@ -1191,6 +1191,47 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void RiskReward_WithStopAndTargetOnWrongSides_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.RiskReward(100m, 110m, 90m, TradeSide.Long);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void FuturesPnl_WhenLeverageIsBelowOne_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.FuturesPnl(
+            100m, 110m, 1m, 0.5m, TradeSide.Long, 0m, 0m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void Funding_WithUndefinedTradeSide_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.Funding(1000m, 0.01m, 1, (TradeSide)99);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
+    public void StopLoss_WithUndefinedTradeSide_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.StopLoss(10000m, 1m, 10m, 100m, (TradeSide)99);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void PositionSize_WithFeesAndSlippage_ShouldReducePositionQuantity()
     {
         // Arrange
