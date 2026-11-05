@@ -47,7 +47,7 @@ public static class CalculatorRunner
                 Int(fields, "simulationCount"),
                 Int(fields, "randomSeed")),
             "max-drawdown" => MaxDrawdown(fields),
-            "loss-recovery" => RiskCalculators.LossRecovery(D(fields, "lossPct")),
+            "loss-recovery" => RiskCalculators.LossRecovery(LossScenarios(fields)),
             "expectancy" => RiskCalculators.Expectancy(
                 D(fields, "winRatePct"), D(fields, "avgWin"), D(fields, "avgLoss")),
             "kelly-criterion" => RiskCalculators.Kelly(
@@ -101,20 +101,33 @@ public static class CalculatorRunner
         if (!fields.TryGetValue("targetMcaps", out var raw) || string.IsNullOrWhiteSpace(raw))
             return [D(fields, "targetMcap")];
 
-        var values = raw.Split([',', ';', '\r', '\n', ' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
-        if (values.Length is < 1 or > 10)
-            throw new CalculatorInputException("Provide between 1 and 10 target market-cap scenarios.");
+        return ParseDecimalList(raw, "target market cap", 10);
+    }
 
-        var targets = new List<decimal>(values.Length);
+    private static IReadOnlyList<decimal> LossScenarios(IReadOnlyDictionary<string, string> fields)
+    {
+        if (!fields.TryGetValue("lossScenarios", out var raw) || string.IsNullOrWhiteSpace(raw))
+            return [D(fields, "lossPct")];
+
+        return ParseDecimalList(raw, "loss percentage", 10);
+    }
+
+    private static IReadOnlyList<decimal> ParseDecimalList(string raw, string label, int maxCount)
+    {
+        var values = raw.Split([',', ';', '\r', '\n', ' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
+        if (values.Length is < 1 || values.Length > maxCount)
+            throw new CalculatorInputException($"Provide between 1 and {maxCount} {label} scenarios.");
+
+        var parsed = new List<decimal>(values.Length);
         foreach (var value in values)
         {
-            if (!decimal.TryParse(value, NumberStyles.Number, Inv, out var target)
-                && !decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out target))
-                throw new CalculatorInputException($"Invalid target market cap: {value}.");
-            targets.Add(target);
+            if (!decimal.TryParse(value, NumberStyles.Number, Inv, out var number)
+                && !decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out number))
+                throw new CalculatorInputException($"Invalid {label}: {value}.");
+            parsed.Add(number);
         }
 
-        return targets;
+        return parsed;
     }
 
     private static TradeSide Side(IReadOnlyDictionary<string, string> fields) =>
