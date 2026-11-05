@@ -315,6 +315,7 @@ public static class TradingCalculators
     public static CalculatorResult Funding(decimal notional, decimal ratePct, int periods, TradeSide side)
     {
         RequirePositive(notional, "Notional");
+        RequireTradeSide(side);
         RequireNonNegative(periods, "Periods");
         // Positive rate: longs pay shorts. Sign: Long pays when rate > 0.
         var raw = notional * (ratePct / 100m) * periods;
@@ -365,6 +366,7 @@ public static class TradingCalculators
         if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(positionQty, "Position size");
         RequirePositive(entry, "Entry");
+        RequireTradeSide(side);
         RequireFeePct(feePct, "Fee per side %");
         RequireFeePct(slippagePct, "Slippage per side %");
 
