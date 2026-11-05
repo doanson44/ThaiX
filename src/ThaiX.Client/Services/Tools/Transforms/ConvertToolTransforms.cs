@@ -247,7 +247,7 @@ public static class ConvertToolTransforms
 
             if (property.Value.ValueKind == JsonValueKind.Object)
             {
-                nestedTypeName = UniqueName(nestedTypeName, nestedNames);
+                nestedTypeName = UniqueNestedTypeName(nestedTypeName, nestedNames, seen);
                 typeName = nestedTypeName + "?";
                 nested.Add((property.Value, nestedTypeName));
             }
@@ -255,7 +255,7 @@ public static class ConvertToolTransforms
                 && property.Value.GetArrayLength() > 0
                 && property.Value[0].ValueKind == JsonValueKind.Object)
             {
-                nestedTypeName = UniqueName(ToPascal(property.Name.TrimEnd('s')), nestedNames);
+                nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
                 typeName = $"List<{nestedTypeName}>";
                 nested.Add((property.Value[0], nestedTypeName));
             }
@@ -302,7 +302,7 @@ public static class ConvertToolTransforms
 
             if (property.Value.ValueKind == JsonValueKind.Object)
             {
-                nestedTypeName = UniqueName(nestedTypeName, nestedNames);
+                nestedTypeName = UniqueNestedTypeName(nestedTypeName, nestedNames, seen);
                 typeName = nestedTypeName;
                 nested.Add((property.Value, nestedTypeName));
             }
@@ -380,6 +380,18 @@ public static class ConvertToolTransforms
         var candidate = name;
         var suffix = 2;
         while (!usedNames.Add(candidate))
+            candidate = name + suffix++;
+        return candidate;
+    }
+
+    private static string UniqueNestedTypeName(
+        string name,
+        HashSet<string> nestedNames,
+        HashSet<string> emittedTypeNames)
+    {
+        var candidate = name;
+        var suffix = 2;
+        while (emittedTypeNames.Contains(candidate) || !nestedNames.Add(candidate))
             candidate = name + suffix++;
         return candidate;
     }
