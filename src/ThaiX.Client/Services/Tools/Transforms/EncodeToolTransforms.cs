@@ -12,6 +12,15 @@ public static class EncodeToolTransforms
     public static string Base64Decode(string text) =>
         Encoding.UTF8.GetString(Convert.FromBase64String(text.Trim()));
 
+    public static string Base64UrlEncode(string text) =>
+        Convert.ToBase64String(Encoding.UTF8.GetBytes(text ?? string.Empty))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+
+    public static string Base64UrlDecodeText(string text) =>
+        Base64UrlDecode((text ?? string.Empty).Trim());
+
     public static string UrlEncode(string text)
     {
         var value = text ?? string.Empty;
