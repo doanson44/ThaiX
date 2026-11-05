@@ -7,7 +7,6 @@ public static class RiskCalculators
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
     /// <summary>
-    /// <summary>
     /// Heuristic fixed-fractional risk estimate. This is not a probability of ruin:
     /// it does not model a finite horizon, return distribution, fees, or a ruin threshold.
     /// </summary>
