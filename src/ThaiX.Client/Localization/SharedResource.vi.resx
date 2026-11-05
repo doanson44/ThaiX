@@ -2141,4 +2141,6 @@
   <data name="Tools.PasswordStrength.Strong" xml:space="preserve"><value>Mạnh</value></data>
   <data name="Tools.PasswordStrength.Length" xml:space="preserve"><value>Độ dài</value></data>
   <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Chỉ là đánh giá heuristic; không đo entropy hoặc kiểm tra dữ liệu rò rỉ.</value></data>
+  <data name="Tools.Cron.ExpressionLabel" xml:space="preserve"><value>Cron</value></data>
+  <data name="Tools.Cron.NextRunsUtc" xml:space="preserve"><value>Các lần chạy tiếp theo (UTC)</value></data>
 </root>
