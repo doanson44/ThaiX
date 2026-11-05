@@ -1516,6 +1516,7 @@
   <data name="Tools.Import.Success" xml:space="preserve"><value>Workspace imported.</value></data>
   <data name="Tools.Import.Failed" xml:space="preserve"><value>Could not import workspace.</value></data>
   <data name="Tools.Export.Success" xml:space="preserve"><value>Workspace exported.</value></data>
+  <data name="Tools.Export.Failed" xml:space="preserve"><value>Could not export workspace.</value></data>
   <data name="Tools.History.Cleared" xml:space="preserve"><value>Recent tools history cleared.</value></data>
   <data name="Tools.Save.Pending" xml:space="preserve"><value>Saving draft…</value></data>
   <data name="Tools.Save.Saved" xml:space="preserve"><value>Draft saved</value></data>
