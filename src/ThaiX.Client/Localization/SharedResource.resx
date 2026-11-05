@@ -1660,7 +1660,7 @@
   <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Take Profit</value></data>
   <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Take-profit from target % or R:R</value></data>
   <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Risk of Ruin</value></data>
-  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Heuristic risk estimate only; not a calibrated probability of ruin</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Monte Carlo estimate of crossing a configurable equity threshold under fixed-fractional assumptions</value></data>
   <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Max Drawdown</value></data>
   <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>Maximum drawdown from peak/trough or equity series</value></data>
   <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Loss Recovery</value></data>
@@ -1723,6 +1723,10 @@
   <data name="Calc.Field.WinRatePct" xml:space="preserve"><value>Win rate %</value></data>
   <data name="Calc.Field.RiskReward" xml:space="preserve"><value>Risk:reward</value></data>
   <data name="Calc.Field.RiskPerTradePct" xml:space="preserve"><value>Risk per trade %</value></data>
+  <data name="Calc.Field.RuinThresholdPct" xml:space="preserve"><value>Ruin threshold (% of initial equity)</value></data>
+  <data name="Calc.Field.TradeHorizon" xml:space="preserve"><value>Trade horizon (trades)</value></data>
+  <data name="Calc.Field.SimulationCount" xml:space="preserve"><value>Simulation paths</value></data>
+  <data name="Calc.Field.RandomSeed" xml:space="preserve"><value>Random seed</value></data>
   <data name="Calc.Field.Peak" xml:space="preserve"><value>Peak equity</value></data>
   <data name="Calc.Field.Trough" xml:space="preserve"><value>Trough equity</value></data>
   <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Equity series (optional)</value></data>
@@ -1765,7 +1769,13 @@
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Take-profit price</value></data>
   <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Expected profit</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
-  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Heuristic risk estimate %</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Estimated ruin frequency %</value></data>
+  <data name="Calc.Result.RiskOfRuinConfidenceLow" xml:space="preserve"><value>95% confidence interval lower bound %</value></data>
+  <data name="Calc.Result.RiskOfRuinConfidenceHigh" xml:space="preserve"><value>95% confidence interval upper bound %</value></data>
+  <data name="Calc.Result.RuinThresholdPct" xml:space="preserve"><value>Ruin threshold %</value></data>
+  <data name="Calc.Result.TradeHorizon" xml:space="preserve"><value>Trade horizon (trades)</value></data>
+  <data name="Calc.Result.SimulationCount" xml:space="preserve"><value>Simulation paths</value></data>
+  <data name="Calc.Result.RandomSeed" xml:space="preserve"><value>Random seed</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Max drawdown</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Max drawdown %</value></data>
   <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Recovery %</value></data>
@@ -1788,7 +1798,7 @@
   <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Stop loss near {0} for the chosen risk.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
-  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Heuristic estimate ≈ {0}%; this is not a calibrated probability of ruin.</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Estimated threshold-crossing frequency: {0}% (95% Wilson interval: {1}%–{2}%). Conditional on the stated fixed-fractional assumptions; not a guarantee.</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Maximum drawdown about {0}%.</value></data>
   <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Need about {0}% gain to recover.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
