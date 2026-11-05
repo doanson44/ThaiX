@@ -808,10 +808,21 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
-    public void MaxDrawdownFromSeries_WhenEquityIsNonPositive_ShouldThrow()
+    public void MaxDrawdownFromSeries_WithZeroEquity_ShouldReportFullDrawdown()
     {
         // Arrange / Act
-        var act = () => RiskCalculators.MaxDrawdownFromSeries([100m, 0m, 90m]);
+        var result = RiskCalculators.MaxDrawdownFromSeries([100m, 0m, 90m]);
+
+        // Assert
+        Assert.Equal("100", result.Breakdown[1].Value);
+        Assert.Equal("N/A", result.Breakdown[3].Value);
+    }
+
+    [Fact]
+    public void MaxDrawdownFromSeries_WhenEquityIsNegative_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => RiskCalculators.MaxDrawdownFromSeries([100m, -1m, 90m]);
 
         // Assert
         Assert.Throws<CalculatorInputException>(act);
