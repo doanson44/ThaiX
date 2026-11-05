@@ -2008,6 +2008,8 @@ public static class ResourceKeys
         public const string ValidationJsonPosition = "Tools.Validation.JsonPosition";
         public const string ValidationOperation = "Tools.Validation.Operation";
         public const string ValidationBrowser = "Tools.Validation.Browser";
+        public const string Valid = "Tools.Valid";
+        public const string Invalid = "Tools.Invalid";
 
         public static class Action
         {
@@ -2495,6 +2497,7 @@ public static class ResourceKeys
         public const string Reset = "Calc.Reset";
         public const string Results = "Calc.Results";
         public const string Formula = "Calc.Formula";
+        public const string FormulaPrefix = "Calc.Formula.";
         public const string Interpretation = "Calc.Interpretation";
         public const string RiskDisclaimer = "Calc.RiskDisclaimer";
         public const string ValidationInput = "Calc.Validation.Input";
