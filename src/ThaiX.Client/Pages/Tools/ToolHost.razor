@@ -366,6 +366,7 @@ else
     private CancellationTokenSource? _debounceCts;
     private bool _loaded;
     private bool _busy;
+    private bool _isFullscreen;
     private string? _warning;
     private string _previewHtml = string.Empty;
     private string? _qrSvg;
@@ -385,6 +386,7 @@ else
         _warning = null;
         _inputValid = null;
         _saveStatusKey = null;
+        _isFullscreen = false;
         _qrSvg = null;
         _previewHtml = string.Empty;
         _mdPreviewMode = false;
@@ -544,6 +546,26 @@ else
         {
             _busy = false;
         }
+    }
+
+    private void ToggleFullscreen() => _isFullscreen = !_isFullscreen;
+
+    private Task ExitFullscreenAsync()
+    {
+        _isFullscreen = false;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task RunPrimaryActionAsync()
+    {
+        if (IsCalculator())
+        {
+            _calculatorAutoCalculateToken = Guid.NewGuid().ToString("N");
+            return InvokeAsync(StateHasChanged);
+        }
+
+        var action = GetActions().FirstOrDefault();
+        return string.IsNullOrWhiteSpace(action.Id) ? Task.CompletedTask : RunAsync(action.Id);
     }
 
     private bool IsCalculator() => _tool?.Kind == ToolKind.Calculator;
