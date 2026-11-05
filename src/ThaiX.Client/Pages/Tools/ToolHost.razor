@@ -755,7 +755,7 @@ else
                 case "m2h": _state.Output = TextToolTransforms.MarkdownToHtml(_state.Input); break;
                 case "diff":
                     _state.Output = _state.Flag
-                        ? TextToolTransforms.DiffSideBySide(_state.Input, _state.Input2)
+                        ? TextToolTransforms.DiffSideBySide(_state.Input, _state.Input2, _state.IgnoreWhitespace)
                         : TextToolTransforms.Diff(_state.Input, _state.Input2);
                     break;
                 case "re":
