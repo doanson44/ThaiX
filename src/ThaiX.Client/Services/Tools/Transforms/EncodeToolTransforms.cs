@@ -54,8 +54,15 @@ public static class EncodeToolTransforms
         return $"// Header\n{header}\n\n// Payload\n{payload}\n\n// {sigNote}";
     }
 
-    public static string NewUuid(bool v7) =>
-        v7 ? Guid.CreateVersion7().ToString() : Guid.NewGuid().ToString();
+    public static string NewUuid(bool v7, string format = "D")
+    {
+        var normalizedFormat = (format ?? "D").Trim().ToUpperInvariant();
+        if (normalizedFormat is not ("D" or "N" or "B" or "P" or "X"))
+            throw new FormatException("UUID format must be D, N, B, P, or X.");
+
+        var value = v7 ? Guid.CreateVersion7() : Guid.NewGuid();
+        return value.ToString(normalizedFormat);
+    }
 
     public static string UnixConvert(string input, bool toUnix, bool milliseconds = false)
     {
