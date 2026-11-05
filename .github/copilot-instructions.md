@@ -83,8 +83,8 @@ You are working on the ThaiX solution.
 - Focus exclusively on code implementation.
 - Use XML documentation comments `///` for public APIs.
 - `docs/` is for project/product documentation only.
-- AI agent documentation, workflows, prompts, and maintenance docs must be created/updated under `.github/` only.
-- If any shared agent asset under `.agents/`, `.github/`, `.cursor/`, `.trae/`, or `.continue/` is changed, apply the equivalent change to every relevant runtime folder in the same turn.
+- Canonical Codex/shared agent skills and rules live under `.agents/`; GitHub Copilot-specific instructions, prompts, and mirrors live under `.github/`.
+- If a shared agent asset under `.agents/` is changed, synchronize the corresponding assets in runtime folders that are actually present in this checkout, currently `.github/` and `.cursor/`. Do not create absent runtime directories merely to mirror assets.
 - Before changing a skill, prompt, instruction, or rule, read the corresponding agent asset in each runtime folder and preserve runtime-specific conventions.
 
 ## Architectural Audit (After Every Change)
@@ -95,6 +95,18 @@ You are working on the ThaiX solution.
 4. **Data Access**: EF in Infrastructure only. AsNoTracking in reads. No client-side filtering.
 5. **Package Governance**: Versions in `Directory.Packages.props`. No unmanaged version drift.
 6. **Internationalization**: Localization in boundary layers only. Stable error codes.
+
+## Verified Runtime Facts
+
+- The current EF Core application database and presentation integration-test fixture use MariaDB/MySQL; the integration fixture uses Testcontainers.MariaDb 11.4.
+- MediatR pipeline order: LoggingBehavior -> ValidationBehavior -> TransactionBehavior -> QueryCachingBehavior -> CommandCacheInvalidationBehavior -> Handler.
+- Identity permission claims use `permission`; JWT validation copies each `scope` value into a `permission` claim. The Blazor client currently reads `scope` claims. See `.agents/rules/repository-facts.md` before changing this contract.
+
+## Agent Delivery Workflow
+
+- Create a new branch from `master` before repository changes.
+- If the user requests a PR, commit the completed changes on that branch and open the PR against `master`; do not merge unless requested.
+- Do not ask for confirmation when the task is clear; ask only for blocking ambiguity or required destructive actions.
 
 ## Feature Development Workflow
 

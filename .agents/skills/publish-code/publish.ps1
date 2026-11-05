@@ -1,6 +1,6 @@
 param(
     [ValidateSet('Package', 'WebDeploy')]
-    [string]$Mode = 'WebDeploy',
+    [string]$Mode = 'Package',
     [string]$Project = 'src/ThaiX.Presentation/ThaiX.Presentation.csproj',
     [string]$Configuration = 'Release',
     [string]$PublishDir = 'publish',
@@ -8,7 +8,7 @@ param(
     [string]$ZipName = 'publish.zip',
     [string]$Runtime = '',
     [bool]$SelfContained = $false,
-    [string]$PublishSettingsPath = 'docs/app.example.invalid-WebDeploy.publishSettings',
+    [string]$PublishSettingsPath = '',
     [string]$PublishProfileName = ''
 )
 
@@ -28,11 +28,7 @@ if (Test-Path $PublishDir) {
     Remove-Item -LiteralPath $PublishDir -Recurse -Force
 }
 
-if (Test-Path $DeployDir) {
-    Write-Host "Clearing existing deploy folder: $DeployDir"
-    Get-ChildItem -Path $DeployDir -Force | Remove-Item -Recurse -Force
-}
-else {
+if (-not (Test-Path $DeployDir)) {
     Write-Host "Creating deploy folder: $DeployDir"
     New-Item -ItemType Directory -Path $DeployDir | Out-Null
 }
@@ -77,6 +73,11 @@ if ($Mode -eq 'Package') {
 
     Write-Host "Publish and zip complete. Copy $ZipPath to hosting or extract it on the server."
     exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($PublishSettingsPath)) {
+    Write-Error "WebDeploy requires an explicit -PublishSettingsPath. Use -Mode Package for local packaging."
+    exit 1
 }
 
 $publishSettingsAbsolute = Resolve-Path -Path $PublishSettingsPath -ErrorAction SilentlyContinue
@@ -126,21 +127,32 @@ Write-Host "MSDeploy site: $msdeploySite"
 Write-Host "MSDeploy user: $userName"
 Write-Host "Starting WebDeploy publish..."
 
-dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
-    /p:WebPublishMethod=MSDeploy `
-    /p:PublishProvider=WebDeploy `
-    /p:MSDeployPublishMethod=WMSVC `
-    /p:MSDeployServiceURL=$publishUrl `
-    /p:PublishUrl=$publishUrl `
-    /p:DeployIisAppPath=$msdeploySite `
-    /p:UserName=$userName `
-    /p:Password=$password `
-    /p:AllowUntrustedCertificate=true `
-    /p:SkipExtraFilesOnServer=true
+$previousPassword = $env:Password
+try {
+    $env:Password = $password
+    dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
+        /p:WebPublishMethod=MSDeploy `
+        /p:PublishProvider=WebDeploy `
+        /p:MSDeployPublishMethod=WMSVC `
+        /p:MSDeployServiceURL=$publishUrl `
+        /p:PublishUrl=$publishUrl `
+        /p:DeployIisAppPath=$msdeploySite `
+        /p:UserName=$userName `
+        /p:SkipExtraFilesOnServer=true
+    $publishExitCode = $LASTEXITCODE
+}
+finally {
+    if ($null -eq $previousPassword) {
+        Remove-Item Env:Password -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:Password = $previousPassword
+    }
+}
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "WebDeploy publish failed with exit code $LASTEXITCODE"
-    exit $LASTEXITCODE
+if ($publishExitCode -ne 0) {
+    Write-Error "WebDeploy publish failed with exit code $publishExitCode"
+    exit $publishExitCode
 }
 
 Write-Host "WebDeploy publish complete. Verify result at destination URL from the publish profile."

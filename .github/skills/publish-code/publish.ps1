@@ -1,14 +1,14 @@
 param(
     [ValidateSet('Package', 'WebDeploy')]
-    [string]$Mode = 'WebDeploy',
+    [string]$Mode = 'Package',
     [string]$Project = 'src/ThaiX.Presentation/ThaiX.Presentation.csproj',
     [string]$Configuration = 'Release',
     [string]$PublishDir = 'publish',
     [string]$DeployDir = 'deploy',
     [string]$ZipName = 'publish.zip',
     [string]$Runtime = '',
-    [AllowNull()][object]$SelfContained = $false,
-    [string]$PublishSettingsPath = 'docs/app.example.invalid-WebDeploy.publishSettings',
+    [bool]$SelfContained = $false,
+    [string]$PublishSettingsPath = '',
     [string]$PublishProfileName = ''
 )
 
@@ -16,41 +16,8 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Resolve-Path (Join-Path $scriptDir '..\..\..')
 Set-Location -Path $repoRoot
 
-function Convert-ToBoolean {
-    param([object]$Value)
-
-    if ($Value -is [System.Management.Automation.SwitchParameter]) {
-        return $Value.IsPresent
-    }
-
-    if ($Value -is [bool]) {
-        return $Value
-    }
-
-    if ($Value -is [int]) {
-        return [bool]$Value
-    }
-
-    if ($Value -is [string]) {
-        $text = $Value.Trim().ToLowerInvariant()
-        if ($text -in @('true', 't', 'yes', 'y', '1')) {
-            return $true
-        }
-
-        if ($text -in @('false', 'f', 'no', 'n', '0')) {
-            return $false
-        }
-
-        throw "Invalid boolean value for SelfContained: '$Value'"
-    }
-
-    return [bool]$Value
-}
-
 $projectPath = Resolve-Path -Path $Project -ErrorAction Stop
 $ZipPath = Join-Path $DeployDir $ZipName
-
-$IsSelfContained = Convert-ToBoolean $SelfContained
 
 Write-Host "Mode: $Mode"
 Write-Host "Project: $projectPath"
@@ -61,11 +28,7 @@ if (Test-Path $PublishDir) {
     Remove-Item -LiteralPath $PublishDir -Recurse -Force
 }
 
-if (Test-Path $DeployDir) {
-    Write-Host "Clearing existing deploy folder: $DeployDir"
-    Get-ChildItem -Path $DeployDir -Force | Remove-Item -Recurse -Force
-}
-else {
+if (-not (Test-Path $DeployDir)) {
     Write-Host "Creating deploy folder: $DeployDir"
     New-Item -ItemType Directory -Path $DeployDir | Out-Null
 }
@@ -88,13 +51,13 @@ if ($Mode -eq 'Package') {
     Write-Host "Zip file: $ZipPath"
     if (-not [string]::IsNullOrWhiteSpace($Runtime)) {
         Write-Host "Runtime: $Runtime"
-        Write-Host "Self-contained: $IsSelfContained"
+        Write-Host "Self-contained: $SelfContained"
     }
 
     $publishArgs = @('publish', $projectPath, '-c', $Configuration, '-o', $PublishDir)
     if (-not [string]::IsNullOrWhiteSpace($Runtime)) {
         $publishArgs += @('--runtime', $Runtime)
-        if ($IsSelfContained) {
+        if ($SelfContained) {
             $publishArgs += '--self-contained'
         }
     }
@@ -110,6 +73,11 @@ if ($Mode -eq 'Package') {
 
     Write-Host "Publish and zip complete. Copy $ZipPath to hosting or extract it on the server."
     exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($PublishSettingsPath)) {
+    Write-Error "WebDeploy requires an explicit -PublishSettingsPath. Use -Mode Package for local packaging."
+    exit 1
 }
 
 $publishSettingsAbsolute = Resolve-Path -Path $PublishSettingsPath -ErrorAction SilentlyContinue
@@ -159,21 +127,32 @@ Write-Host "MSDeploy site: $msdeploySite"
 Write-Host "MSDeploy user: $userName"
 Write-Host "Starting WebDeploy publish..."
 
-dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
-    /p:WebPublishMethod=MSDeploy `
-    /p:PublishProvider=WebDeploy `
-    /p:MSDeployPublishMethod=WMSVC `
-    /p:MSDeployServiceURL=$publishUrl `
-    /p:PublishUrl=$publishUrl `
-    /p:DeployIisAppPath=$msdeploySite `
-    /p:UserName=$userName `
-    /p:Password=$password `
-    /p:AllowUntrustedCertificate=true `
-    /p:SkipExtraFilesOnServer=true
+$previousPassword = $env:Password
+try {
+    $env:Password = $password
+    dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
+        /p:WebPublishMethod=MSDeploy `
+        /p:PublishProvider=WebDeploy `
+        /p:MSDeployPublishMethod=WMSVC `
+        /p:MSDeployServiceURL=$publishUrl `
+        /p:PublishUrl=$publishUrl `
+        /p:DeployIisAppPath=$msdeploySite `
+        /p:UserName=$userName `
+        /p:SkipExtraFilesOnServer=true
+    $publishExitCode = $LASTEXITCODE
+}
+finally {
+    if ($null -eq $previousPassword) {
+        Remove-Item Env:Password -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:Password = $previousPassword
+    }
+}
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "WebDeploy publish failed with exit code $LASTEXITCODE"
-    exit $LASTEXITCODE
+if ($publishExitCode -ne 0) {
+    Write-Error "WebDeploy publish failed with exit code $publishExitCode"
+    exit $publishExitCode
 }
 
 Write-Host "WebDeploy publish complete. Verify result at destination URL from the publish profile."

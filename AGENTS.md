@@ -114,6 +114,14 @@ dotnet watch run --non-interactive             # Run Presentation (cd src/ThaiX.
 - Keep error `code` values stable and machine-readable.
 
 
+## Agent Delivery Workflow
+
+- For every implementation or repository-maintenance task, create and switch to a new branch from the current `master` before changing files.
+- Inspect the affected source and applicable instructions before editing; keep the diff focused.
+- Run the narrowest relevant verification and report commands and results accurately. Do not claim checks that were not run.
+- When the user requests a pull request, commit the completed changes on the task branch and open a PR targeting `master`. Do not merge the PR unless explicitly requested.
+- Do not ask for confirmation when the requested scope and implementation path are clear. Ask only when a genuinely blocking ambiguity or destructive external action requires it.
+
 ## Git Commit Message Policy
 
 # Git Commit Message Rules

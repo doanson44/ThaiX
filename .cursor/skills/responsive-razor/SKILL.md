@@ -1,6 +1,6 @@
 ---
 name: responsive-razor
-description: "Audit and refactor Blazor Razor components for correct rendering across mobile, tablet, and desktop breakpoints using viewport-aware patterns. Use when UI feels broken, cramped, or non-responsive."
+description: "Audit and update a Blazor Razor component to display correctly on all viewports (mobile 375px, tablet 768px, desktop 1280px+). Fixes layout anti-patterns, adds IViewportService lifecycle, converts fixed widths to responsive grids, and adapts text sizes. Use when a component looks broken or cramped on phone/tablet."
 argument-hint: "Path to the .razor file to make responsive, e.g. 'Components/Dashboard/MyWidget.razor'"
 ---
 
@@ -195,20 +195,29 @@ Do not mix Bootstrap column classes (`col-*`) with Radzen grid inside the same r
 
 ---
 
-### Fix AP-11: DataGrid with Mobile Card Fallback
+### Fix AP-11: DataGrid with Mobile Card Fallback & Virtualize
+
+When replacing a `RadzenDataGrid` with mobile cards, avoid rendering a large list using a simple `@foreach` as it causes extreme lag. Use `Virtualize` only when the loaded collection is large enough to benefit from DOM virtualization. For remote/large datasets, use an `ItemsProvider` or preserve the existing server-side paging contract; `Virtualize Items="..."` does not fetch additional pages by itself. Consider `ClientSortBar` only when client sorting is correct for the loaded dataset.
 
 ```razor
 @if (Viewport.IsMobile)
 {
-    @foreach (var item in _items)
-    {
-        <RadzenCard Class="mb-2 p-3">
-            <RadzenStack Gap="0.25rem">
-                <RadzenText TextStyle="TextStyle.Body2"><strong>@item.Name</strong></RadzenText>
-                <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@item.SecondaryField</RadzenText>
-            </RadzenStack>
-        </RadzenCard>
-    }
+    <RadzenStack Gap="1rem">
+        <!-- Optional: add sorting capabilities -->
+        <ClientSortBar TItem="MyDto" Options="@SortOptions" ... />
+        
+        <!-- Use Virtualize for infinite scroll and DOM reuse -->
+        <Virtualize Items="@_items" Context="item" OverscanCount="5">
+            <div class="mb-3">
+                <RadzenCard Class="p-3 m-0">
+                    <RadzenStack Gap="0.25rem">
+                        <RadzenText TextStyle="TextStyle.Body2"><strong>@item.Name</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Caption" Class="text-muted">@item.SecondaryField</RadzenText>
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+        </Virtualize>
+    </RadzenStack>
 }
 else
 {
@@ -348,10 +357,10 @@ Before closing, verify each breakpoint mentally:
 After all changes, run:
 
 ```powershell
-dotnet build src/ThaiX.Client/ThaiX.Client.csproj /consoleloggerparameters:NoSummary;ForceNoAlign 2>&1 | Select-String -Pattern "error CS"
+dotnet build src/ThaiX.Client/ThaiX.Client.csproj
 ```
 
-Zero `error CS` lines required. Pre-existing warnings are acceptable.
+The command must exit successfully. Review all build errors; do not pipe away or mask the `dotnet build` exit code.
 
 ---
 

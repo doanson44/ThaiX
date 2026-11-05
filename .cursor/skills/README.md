@@ -1,10 +1,10 @@
 ---
-title: ThaiX Cursor Skills Index
+title: ThaiX Agent Skills Index
 ---
 
-# ThaiX Cursor Skills
+# ThaiX Agent Skills
 
-Quick index for available project skills in `.cursor/skills/`.
+Quick index for available project skills in `.agents/skills/`.
 
 ## Usage
 
@@ -43,12 +43,18 @@ Quick index for available project skills in `.cursor/skills/`.
 | `ui-styling` | Build accessible React UI with shadcn/ui and Tailwind | shadcn, Tailwind, theming, dark mode, component styling |
 | `ui-ux-pro-max` | Plan and review UI/UX quality across products and screens | UX review, hierarchy, accessibility, interaction design |
 
-## Rule Pairing (Recommended)
+## Rule Pairing
 
-- Backend CQRS: pair with `.cursor/rules/application-layer.mdc`
-- Infrastructure data work: pair with `.cursor/rules/data-access.mdc`
-- Domain modeling: pair with `.cursor/rules/domain-layer.mdc`
-- External integration: pair with `.cursor/rules/external-api.mdc` and `.cursor/rules/external-api-application.mdc`
-- Security/auth: pair with `.cursor/rules/security-auth.mdc` and `.cursor/rules/security-identity-infra.mdc`
-- Client UI: pair with `.cursor/rules/blazor-ui.mdc`
-- Tests: pair with `.cursor/rules/testing.mdc`
+Read `AGENTS.md` first; it is the repository-wide source of truth. Then apply the relevant files in `.agents/rules/`:
+
+- Every task: `.agents/rules/ponytail.md`
+- Git and commit workflow: `.agents/rules/commit-message.md`
+- Verified repository facts (database provider, test infrastructure, pipeline, and claims): `.agents/rules/repository-facts.md`
+
+Do not reference rule files under `.trae/rules/` unless they exist in the current checkout. Do not invent or assume an additional rules directory.
+
+## ThaiX vs Generic Skills
+
+For code changes in this repository, ThaiX architecture and UI rules take precedence over generic design guidance. In particular, `ThaiX.Client` uses Blazor WebAssembly, Radzen, Bootstrap 5.3, and the ThaiX localization/viewport services. Generic React, shadcn/ui, and Tailwind examples are reference material only and must not be introduced into ThaiX.Client unless the user explicitly requests a separate technology migration.
+
+Use `thaix-frontend-design` as the entry point for ThaiX.Client work.

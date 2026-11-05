@@ -1,6 +1,6 @@
 ---
 name: add-widget
-description: "Build a dashboard or market widget end-to-end across backend query flow, client DTO/service, localization keys, and Blazor component UI. Use when creating new data widgets."
+description: "Add a new dashboard/market widget end-to-end: backend Query+Handler+Endpoint, client DTO, service method, ResourceKeys, resx entries, and self-fetching Blazor component. Use when building any new data widget."
 argument-hint: "Widget name and data source, e.g. 'VIX from Yahoo Finance' or 'Gold Price from CafeF'"
 ---
 
@@ -41,13 +41,13 @@ public sealed record {QueryName}Query : IRequest<{QueryName}Response>;
 
 public sealed record {QueryName}Response
 {
-    public bool Success { get; init; }
-    public string? Message { get; init; }
+    // Business data only; API status and errors belong to the standard ApiResponse<T> envelope.
     // All domain fields here
 }
 ```
 
-- Keep `Success` and `Message` on every response for error propagation.
+- Keep query DTOs limited to business data. Do not duplicate `Success`, `Message`, or error fields from the standard API envelope.
+- Follow the existing external-service error and exception-mapping contract for upstream failures; do not return hardcoded user-facing messages from Application.
 - Use `decimal?` for numeric values that may be missing.
 
 ### 1.2 Query Handler
@@ -70,10 +70,13 @@ public sealed class {QueryName}QueryHandler
             .Get{Source}Async<InternalResponse>(cancellationToken);
 
         if (apiResponse is null)
-            return new {QueryName}Response { Success = false, Message = "No data." };
+        {
+            // Treat absence according to the feature contract: nullable data when expected,
+            // or the existing mapped application exception when it represents an upstream failure.
+        }
 
-        // Project from internal → response (manual, no AutoMapper)
-        return new {QueryName}Response { Success = true, ... };
+        // Project from internal → response (manual, no AutoMapper).
+        return new {QueryName}Response { ... };
     }
 
     // Internal deserialization records (private, in same file)
@@ -133,9 +136,7 @@ Add to `ThaiX.Client/Models/ExternalData/ExternalDataContracts.cs`:
 /// </summary>
 public sealed record {Feature}ResponseDto
 {
-    public bool Success { get; init; }
-    public string? Message { get; init; }
-    // Mirror all fields from server response
+    // Mirror business data fields only; transport status/errors remain in ApiResponse<T>.
 }
 ```
 
@@ -159,7 +160,7 @@ private const string {Feature}Endpoint = "{route-segment}";
 
 public async Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken cancellationToken = default)
 {
-    var path = $"{ExternalDataBase}/{Feature}Endpoint}";
+    var path = $"{ExternalDataBase}/{Feature}Endpoint";
     var response = await _httpClient.GetAsync(path, cancellationToken);
 
     if (!response.IsSuccessStatusCode)
@@ -225,6 +226,7 @@ Rules:
 @using Microsoft.Extensions.Localization
 @using static ThaiX.Client.Constants.ResourceKeys
 @inject IExternalDataService ExternalDataService
+@inject ILogger<{Feature}Widget> Logger
 @inject ThaiX.Client.Services.Ui.IViewportService Viewport
 @inject IStringLocalizer<SharedResource> L
 @implements IDisposable
@@ -236,10 +238,10 @@ Rules:
             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
         </div>
     }
-    else if (_data is null || !_data.Success)
+    else if (_hasError || _data is null)
     {
         <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
-            @(_data?.Message ?? L[{Feature}.LoadFailed])
+            @L[{Feature}.LoadFailed]
         </RadzenAlert>
     }
     else
@@ -261,6 +263,7 @@ Rules:
 @code {
     private {Feature}ResponseDto? _data;
     private bool _isLoading;
+    private bool _hasError;
 
     protected override void OnInitialized()
     {
@@ -276,9 +279,10 @@ Rules:
             if (response is { Data: not null })
                 _data = response.Data;
         }
-        catch
+        catch (Exception exception)
         {
-            // _data stays null; widget shows error state
+            Logger.LogWarning(exception, "Failed to load {Feature} widget data.");
+            _hasError = true;
         }
         finally
         {

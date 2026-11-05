@@ -41,8 +41,11 @@ Rule: if the handler calls `SaveChangesAsync`, it MUST be `IAppCommand`. If it o
 
 1. LoggingBehavior
 2. ValidationBehavior (FluentValidation)
-3. QueryCachingBehavior (queries only, cache-aside pattern)
-4. CommandCacheInvalidationBehavior (commands only, reads `[InvalidateCache]` attributes)
+3. TransactionBehavior
+4. QueryCachingBehavior
+5. CommandCacheInvalidationBehavior
+
+The order is the registration order in `src/ThaiX.Application/DependencyInjection.cs`; preserve it. Query caching and command invalidation apply according to request type/behavior implementation.
 
 ## No Repository Pattern
 

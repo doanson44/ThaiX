@@ -197,7 +197,7 @@ Do not mix Bootstrap column classes (`col-*`) with Radzen grid inside the same r
 
 ### Fix AP-11: DataGrid with Mobile Card Fallback & Virtualize
 
-When replacing a `RadzenDataGrid` with mobile cards, avoid rendering a large list using a simple `@foreach` as it causes extreme lag. Always wrap the list in a `<Virtualize>` component and consider adding a `<ClientSortBar>` if the grid allowed sorting.
+When replacing a `RadzenDataGrid` with mobile cards, avoid rendering a large list using a simple `@foreach` as it causes extreme lag. Use `Virtualize` only when the loaded collection is large enough to benefit from DOM virtualization. For remote/large datasets, use an `ItemsProvider` or preserve the existing server-side paging contract; `Virtualize Items="..."` does not fetch additional pages by itself. Consider `ClientSortBar` only when client sorting is correct for the loaded dataset.
 
 ```razor
 @if (Viewport.IsMobile)
@@ -357,10 +357,10 @@ Before closing, verify each breakpoint mentally:
 After all changes, run:
 
 ```powershell
-dotnet build src/ThaiX.Client/ThaiX.Client.csproj /consoleloggerparameters:NoSummary;ForceNoAlign 2>&1 | Select-String -Pattern "error CS"
+dotnet build src/ThaiX.Client/ThaiX.Client.csproj
 ```
 
-Zero `error CS` lines required. Pre-existing warnings are acceptable.
+The command must exit successfully. Review all build errors; do not pipe away or mask the `dotnet build` exit code.
 
 ---
 

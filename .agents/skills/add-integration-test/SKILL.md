@@ -10,7 +10,7 @@ Add complete integration test coverage for a Minimal API endpoint in `ThaiX.Pres
 
 ## Infrastructure Reference
 
-- Factory: `ThaiXWebApplicationFactory` -- spins up a real MariaDB container via Testcontainers
+- Factory: `ThaiXWebApplicationFactory` -- spins up MariaDB 11.4 via Testcontainers.MariaDb
 - Base class: `IntegrationTestBase` (must inherit, must annotate `[Collection(IntegrationTestCollection.Name)]`)
 - Test file location: `tests/ThaiX.Presentation.IntegrationTests/Endpoints/{Feature}EndpointsTests.cs`
 - Pattern: xUnit `[Fact]` methods, AAA with `// Arrange`, `// Act`, `// Assert` comments
@@ -189,7 +189,7 @@ public async Task Get{Entity}ById_WithUnknownId_ShouldReturnNotFound()
 
 Run tests to confirm they pass (or fail for expected reasons):
 ```bash
-dotnet test tests/ThaiX.Presentation.IntegrationTests --filter "FullyQualifiedName~{Feature}EndpointsTests"
+dotnet test tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj --filter "FullyQualifiedName~{Feature}EndpointsTests"
 ```
 
 If a test fails unexpectedly, inspect the response body to diagnose the issue before modifying test assertions.
@@ -199,6 +199,7 @@ If a test fails unexpectedly, inspect the response body to diagnose the issue be
 - Each test must be independent: user emails use `Guid.NewGuid():N` to avoid collisions
 - Never hardcode credential strings; use `"Test@Pass123"` or `"Admin@Pass123"` constants only
 - Use `Permissions.*` constants, never raw strings
+- The integration-test database is MariaDB 11.4 (Testcontainers.MariaDb), configured with `UseMySQL()` and `MariaDbHistoryRepository`; do not substitute SQL Server/Testcontainers.MsSql unless the test factory itself is intentionally changed.
 - Reset `Client.DefaultRequestHeaders.Authorization = null` for 401 tests
 - Use `#region` blocks to group tests by endpoint route
 - Do NOT use `[Theory]` unless the endpoint has a documented parameterized contract

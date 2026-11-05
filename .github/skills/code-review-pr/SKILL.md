@@ -11,7 +11,9 @@ Review all changed files against ThaiX conventions.
 ## Procedure
 
 ### Step 1 -- Gather Changes
-- Run `git diff --staged` (or `git diff main...HEAD` for PR)
+
+- Determine the PR base branch from the actual repository configuration; ThaiX currently targets `master`.
+- Run `git diff --staged` for staged changes. For a PR, compare against `master` (for example, `git diff origin/master...HEAD`) after confirming the base branch exists.
 - List all changed files
 
 ### Step 2 -- Review Each File
@@ -35,4 +37,4 @@ Format findings as:
 - **GOOD**: Patterns done correctly
 
 Overall score: X/10
-Actionable recommendations with code patches.
+Actionable recommendations with file/line references and minimal patches. Report only findings supported by the diff and repository source.

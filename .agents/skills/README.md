@@ -43,12 +43,18 @@ Quick index for available project skills in `.agents/skills/`.
 | `ui-styling` | Build accessible React UI with shadcn/ui and Tailwind | shadcn, Tailwind, theming, dark mode, component styling |
 | `ui-ux-pro-max` | Plan and review UI/UX quality across products and screens | UX review, hierarchy, accessibility, interaction design |
 
-## Rule Pairing (Recommended)
+## Rule Pairing
 
-- Backend CQRS: pair with `.trae/rules/application-layer.md`
-- Infrastructure data work: pair with `.trae/rules/data-access.md`
-- Domain modeling: pair with `.trae/rules/domain-layer.md`
-- External integration: pair with `.trae/rules/external-api.md`
-- Security/auth: pair with `.trae/rules/security-auth.md`
-- Client UI: pair with `.trae/rules/blazor-ui.md`
-- Tests: pair with `.trae/rules/testing.md`
+Read `AGENTS.md` first; it is the repository-wide source of truth. Then apply the relevant files in `.agents/rules/`:
+
+- Every task: `.agents/rules/ponytail.md`
+- Git and commit workflow: `.agents/rules/commit-message.md`
+- Verified repository facts (database provider, test infrastructure, pipeline, and claims): `.agents/rules/repository-facts.md`
+
+Do not reference rule files under `.trae/rules/` unless they exist in the current checkout. Do not invent or assume an additional rules directory.
+
+## ThaiX vs Generic Skills
+
+For code changes in this repository, ThaiX architecture and UI rules take precedence over generic design guidance. In particular, `ThaiX.Client` uses Blazor WebAssembly, Radzen, Bootstrap 5.3, and the ThaiX localization/viewport services. Generic React, shadcn/ui, and Tailwind examples are reference material only and must not be introduced into ThaiX.Client unless the user explicitly requests a separate technology migration.
+
+Use `thaix-frontend-design` as the entry point for ThaiX.Client work.

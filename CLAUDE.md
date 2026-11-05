@@ -133,3 +133,12 @@ When rungs conflict with ThaiX project rules, ThaiX wins on structure:
 - Keep package versions centralized in `Directory.Packages.props`; do not add per-project versions.
 - Keep source identifiers/comments English-only and user-facing text localized through `.resx`.
 - Keep `.resx` as the only Unicode exception; all other files stay ASCII-only.
+
+
+## Agent Delivery Workflow
+
+- For every implementation or repository-maintenance task, create and switch to a new branch from the current `master` before changing files.
+- Inspect affected source and applicable instructions before editing; keep the diff focused.
+- Run the narrowest relevant verification and report actual commands/results.
+- When the user requests a pull request, commit the completed changes on the task branch and open a PR targeting `master`. Do not merge unless explicitly requested.
+- Do not ask for confirmation when scope and implementation path are clear; ask only for a genuinely blocking ambiguity or required destructive external action.

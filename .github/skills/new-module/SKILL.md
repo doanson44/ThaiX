@@ -1,6 +1,6 @@
 ---
 name: new-module
-description: "Create a full module across all layers: Domain, Application, Infrastructure, Presentation, Client UI, and Tests. Multi-step flow with confirmation between steps. Use for creating an entirely new business feature or module."
+description: "Create a full ThaiX business module across Domain, Application, Infrastructure, Presentation, Client, and tests. Use when the feature does not already exist."
 argument-hint: "Module name, e.g. 'Invoice' or 'Inventory'"
 ---
 
@@ -11,10 +11,10 @@ Create a complete module across all architectural layers with verification betwe
 ## Procedure
 
 ### Step 1 -- Design
-- Read current schema from `knowledge-docs/03-db-schema.md`
-- Propose: entity fields, relationships, permissions needed
+- Inspect the current EF model, entity configurations, migrations, and relevant domain/application code; do not assume a separate schema document exists.
+- Identify existing aggregates, entity fields, relationships, permissions, cache groups, and API contracts before proposing additions.
 - Output: entity diagram + field list
-- **Wait for user confirmation**
+- Ask for a decision only when a material business rule, public contract, or architectural choice is genuinely ambiguous; otherwise proceed with the smallest consistent implementation.
 
 ### Step 2 -- Domain Layer
 - Create entity in `Domain/Aggregates/{Module}/`
@@ -47,7 +47,7 @@ Create a complete module across all architectural layers with verification betwe
 ### Step 6 -- Client (Blazor WASM)
 - Create API service class
 - Create list page with `RadzenDataGrid` (server-side paging)
-- For mobile list/card view, add `DebouncedSearchBox` (300ms) and render from filtered collection
+- For mobile list/card view, preserve the same server-side paging/filtering/sorting contract; use `DebouncedSearchBox` (300ms) to submit search terms to the API.
 - Create create/edit form (side panel or dialog)
 - Add route and navigation
 - Update `Layout/NavMenu.razor` to include new module pages with localized labels
@@ -61,6 +61,5 @@ Create a complete module across all architectural layers with verification betwe
 - **Wait for confirmation**
 
 ### Step 8 -- Documentation
-- Update `knowledge-docs/03-db-schema.md` with new tables
-- Update `knowledge-docs/05-domain-glossary.md` with new terms
-- Report status -- DO NOT auto-commit
+- Update maintained schema/domain documentation when it exists. Do not reference or create `knowledge-docs/` files unless that documentation structure has been added to the repository.
+- Run relevant builds and tests, report actual results, and follow the repository Git workflow when a commit or PR is requested.
