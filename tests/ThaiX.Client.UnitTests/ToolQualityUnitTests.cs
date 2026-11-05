@@ -70,6 +70,34 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void JsonToTypescript_WithSpecialPropertyName_ShouldQuoteProperty()
+    {
+        // Arrange
+        const string json = "{\"first-name\":\"ThaiX\",\"1st-value\":2}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Contains("\"first-name\": string;", output, StringComparison.Ordinal);
+        Assert.Contains("\"1st-value\": number;", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToCsharp_WithNonIdentifierPropertyName_ShouldGenerateValidProperty()
+    {
+        // Arrange
+        const string json = "{\"first-name\":\"ThaiX\",\"1st-value\":2}";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("public string? FirstName", output, StringComparison.Ordinal);
+        Assert.Contains("public long P1stValue", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void UrlEncode_WithAbsoluteUrl_ShouldPreserveUrlSeparators()
     {
         // Arrange
