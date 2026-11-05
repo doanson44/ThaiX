@@ -325,14 +325,16 @@ public static class TradingCalculators
         RequirePositive(notional, "Notional");
         RequirePositive(margin, "Margin");
         var lev = notional / margin;
+        var adverseMovePct = 100m / lev;
         return new CalculatorResult(
             [
                 Line("Calc.Result.EffectiveLeverage", lev),
-                Line("Calc.Result.RequiredMargin", notional / lev) // same as margin
+                Line("Calc.Result.RequiredMargin", notional / lev),
+                Line("Calc.Result.AdverseMovePct", adverseMovePct)
             ],
-            "leverage = notional / margin; margin = notional / leverage",
+            "leverage = notional / margin; approximate adverse move to consume initial margin = 1 / leverage; excludes maintenance margin, fees, funding, and cross-margin effects",
             "Calc.Interp.Leverage",
-            [F(lev)]);
+            [F(lev), F(adverseMovePct)]);
     }
 
     public static CalculatorResult StopLoss(
