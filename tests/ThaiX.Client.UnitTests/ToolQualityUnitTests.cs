@@ -150,7 +150,7 @@ public sealed class ToolQualityUnitTests
     public void NewUuid_WithSupportedFormat_ShouldParse(string format)
     {
         // Arrange / Act
-        var value = EncodeToolTransforms.NewUuid(v7: true, format);
+        var value = EncodeToolTransforms.NewUuid(v7: true, format: format);
 
         // Assert
         Assert.True(Guid.TryParseExact(value, format, out _));
