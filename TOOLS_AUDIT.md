@@ -21,7 +21,7 @@ an exchange-specific financial model validation, or a performance benchmark.
 
 | Area | Implemented behavior |
 |---|---|
-| JSON Formatter / Validator | Invalid JSON diagnostics include localized line and column. Large-input formatting has a regression test. |
+| JSON Formatter / Validator | Invalid JSON diagnostics include localized line and byte-column positions. Large-input formatting has a regression test. |
 | JSON Compare | Compares canonical JSON and reports JSON paths, missing-versus-null values, and quoted paths for special property names. |
 | JSON to C# / TypeScript | Sanitizes identifiers, quotes invalid TypeScript property names, resolves nested type/property collisions, rejects duplicate object keys recursively, and uses safe collection types for heterogeneous arrays. |
 | CSV to JSON | Parses quoted fields, escaped quotes, multiline records, CRLF/LF/CR, and UTF-8 BOM. Rejects empty/duplicate headers, malformed quote placement, unterminated quotes, and excess columns. |
@@ -34,9 +34,9 @@ an exchange-specific financial model validation, or a performance benchmark.
 | URL Codec | Preserves absolute HTTP(S) URL delimiters and offers separate component encode/decode operations. |
 | Unix Timestamp | Seconds and milliseconds are explicit actions; output is labeled UTC. |
 | Base64 / UUID | Supports Base64URL and UUID D/N/B/P/X formats. |
-| Regex | Supports Ignore Case, Multiline, Singleline, and replacement mode with execution timeout. |
+| Regex | Supports Ignore Case, Multiline, Singleline, and replacement mode with execution timeout; tooltips explain anchor and dot behavior. |
 | Text Diff | Supports side-by-side output and configurable whitespace-ignore behavior. |
-| cURL | Validates method tokens, URL control characters, header names/values, and shell-quotes URL, headers, and body. |
+| cURL | Validates RFC HTTP method tokens, URL control characters, header names/values, rejects NUL in request bodies, and shell-quotes URL, headers, and body. |
 | Password generator | Uses `RandomNumberGenerator.GetInt32`, includes every selected character class, and cryptographically shuffles output. |
 | Password strength | Explicitly labels its score as heuristic; it is not entropy measurement or breach screening. |
 | QR | Exposes four error-correction levels and a configurable quiet zone (0-16 modules). |
@@ -79,8 +79,8 @@ an exchange-specific financial model validation, or a performance benchmark.
 - Workspace envelopes are versioned; legacy raw workspace JSON is wrapped as the current envelope.
 - Save status is shown for pending/saved/failed operations; local fallback is retained when cloud save fails.
 - Clearing a draft persists an explicitly empty workspace so first-run samples do not reappear after reload.
-- Tool host supports Ctrl+Enter to run the primary action, fullscreen mode, and Escape to exit fullscreen.
-- Regex, diff, calculator formulas, validation status, and JSON parse positions have English/Vietnamese resources.
+- Tool host supports Ctrl/Command+Enter to run the primary action, fullscreen mode, and Escape to exit fullscreen.
+- Regex, diff, calculator formulas, editor statistics/status, validation status, and JSON parse positions have English/Vietnamese resources.
 - Raw exception messages are not displayed in tool notifications.
 - Responsive smoke coverage checks 375px, 768px, and 1280px viewports.
 - CI builds the solution, runs application unit tests, runs the dedicated client unit-test project, and includes DevTools browser smoke tests in the client visual workflow.
@@ -107,10 +107,10 @@ These are deliberately not implemented without the missing product constraints o
 
 ## Test coverage
 
-- `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs`: 116 `[Fact]` tests and 3 `[Theory]` methods with 11 inline cases (127 test cases).
-- `tests/ThaiX.Client.VisualTests/DevToolsSmokeTests.cs`: 8 `[Fact]` tests and 1 `[Theory]` with 3 viewport cases (11 browser test cases).
+- `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs`: 121 `[Fact]` tests and 3 `[Theory]` methods with 11 inline cases (132 test cases).
+- `tests/ThaiX.Client.VisualTests/DevToolsSmokeTests.cs`: 9 `[Fact]` tests and 1 `[Theory]` with 3 viewport cases (12 browser test cases).
 
-Coverage includes CSV/JSON conversion, JSON generator edge cases, large JSON formatting, SQL literals/comments, Markdown sanitization, URL/Base64URL/UUID, Cron, regex flags, diff whitespace, cURL shell quoting, password generation, calculator boundaries, funding, drawdown recovery, responsive widths, clear-draft persistence, keyboard shortcuts, and fullscreen exit.
+Coverage includes CSV/JSON conversion, heterogeneous root/nested JSON arrays, duplicate keys, large JSON formatting, SQL literals/comments/CR line endings, Markdown sanitization, URL/Base64URL/UUID, Cron aliases, regex flags, diff whitespace, cURL token/shell/control-character handling, password generation, calculator boundaries and funding, drawdown recovery, responsive widths, clear-draft persistence, keyboard shortcuts, and fullscreen exit.
 
 ## Verification status
 
