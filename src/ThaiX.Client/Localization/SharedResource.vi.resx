@@ -2213,4 +2213,7 @@
   <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Mã hóa thành phần URL</value></data>
   <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Giải mã thành phần URL</value></data>
   <data name="Tools.FieldLabel.SideBySide" xml:space="preserve"><value>So sánh song song</value></data>
+  <data name="Tools.FieldLabel.IgnoreWhitespace" xml:space="preserve"><value>Bỏ qua khoảng trắng</value></data>
+  <data name="Tools.FieldLabel.Multiline" xml:space="preserve"><value>Nhiều dòng</value></data>
+  <data name="Tools.FieldLabel.Singleline" xml:space="preserve"><value>Một dòng</value></data>
 </root>
