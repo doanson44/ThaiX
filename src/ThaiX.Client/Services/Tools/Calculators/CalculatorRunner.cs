@@ -21,8 +21,10 @@ public static class CalculatorRunner
                 D(fields, "contractSize", 1m)),
             "liquidation" => TradingCalculators.Liquidation(
                 D(fields, "entry"), D(fields, "leverage"), Side(fields), D(fields, "mmrPct")),
-            "average-entry" => TradingCalculators.AverageEntry(ParsePairs(fields, "legs")),
-            "dca" => TradingCalculators.Dca(ParsePairs(fields, "legs")),
+            "average-entry" => TradingCalculators.AverageEntry(
+                ParsePairs(fields, "legs"), D(fields, "feePct", 0m)),
+            "dca" => TradingCalculators.Dca(
+                ParsePairs(fields, "legs"), D(fields, "feePct", 0m), OptionalD(fields, "currentPrice")),
             "break-even" => TradingCalculators.BreakEven(
                 D(fields, "entry"), Side(fields), FeePct(fields, "openFeePct"), FeePct(fields, "closeFeePct")),
             "trading-fee" => TradingCalculators.TradingFee(D(fields, "notional"), FeePct(fields, "feePct")),
@@ -30,10 +32,12 @@ public static class CalculatorRunner
                 D(fields, "notional"), D(fields, "ratePct"), Int(fields, "periods"), Side(fields)),
             "leverage" => TradingCalculators.Leverage(D(fields, "notional"), D(fields, "margin")),
             "stop-loss" => TradingCalculators.StopLoss(
-                D(fields, "account"), D(fields, "riskPct"), D(fields, "size"), D(fields, "entry"), Side(fields)),
+                D(fields, "account"), D(fields, "riskPct"), D(fields, "size"), D(fields, "entry"), Side(fields),
+                D(fields, "feePct", 0m), D(fields, "slippagePct", 0m)),
             "take-profit" => TradingCalculators.TakeProfit(
                 D(fields, "entry"), Side(fields), D(fields, "size"),
-                OptionalD(fields, "stopLoss"), OptionalD(fields, "targetRr"), OptionalD(fields, "targetPct")),
+                OptionalD(fields, "stopLoss"), OptionalD(fields, "targetRr"), OptionalD(fields, "targetPct"),
+                D(fields, "feePct", 0m), D(fields, "slippagePct", 0m)),
             "risk-of-ruin" => RiskCalculators.RiskOfRuin(
                 D(fields, "winRatePct"),
                 D(fields, "riskReward"),
