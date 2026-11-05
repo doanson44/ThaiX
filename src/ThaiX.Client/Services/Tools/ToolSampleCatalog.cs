@@ -276,9 +276,7 @@ public static class ToolSampleCatalog
                 Output = GeneratorToolTransforms.GeneratePassword(20, true)
             },
 
-            "password-strength" => FromSingleInput(
-                "ThaiX-Demo#2026",
-                output: GeneratorToolTransforms.PasswordStrength("ThaiX-Demo#2026")),
+            "password-strength" => FromSingleInput("ThaiX-Demo#2026"),
 
             "uuid" => new ToolWorkspaceState
             {
