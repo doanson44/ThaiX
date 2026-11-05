@@ -10,8 +10,12 @@ public sealed class TcbsTop10PortfolioConfiguration : IEntityTypeConfiguration<T
     {
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.SourceContentId).IsRequired();
+        builder.Property(x => x.Source).IsRequired()
+            .HasConversion<string>().HasMaxLength(32)
+            .HasDefaultValue(TcbsPortfolioSource.IWealthClub);
+        builder.Property(x => x.SourceContentId);
         builder.HasIndex(x => x.SourceContentId).IsUnique();
+        builder.HasIndex(x => new { x.Source, x.PostedAt });
 
         builder.Property(x => x.PostedAt).IsRequired();
         builder.Property(x => x.EffectiveDate).IsRequired();
@@ -21,7 +25,7 @@ public sealed class TcbsTop10PortfolioConfiguration : IEntityTypeConfiguration<T
             .HasForeignKey(x => x.PortfolioId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(x => x.Images)
+        builder.HasMany(x => x.Attachments)
             .WithOne(x => x.Portfolio)
             .HasForeignKey(x => x.PortfolioId)
             .OnDelete(DeleteBehavior.Cascade);

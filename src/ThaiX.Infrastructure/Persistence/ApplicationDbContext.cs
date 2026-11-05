@@ -92,7 +92,7 @@ public class ApplicationDbContext : IdentityDbContext<Identity.ApplicationUser, 
     // TCBS Top 10 portfolio data
     public DbSet<TcbsTop10Portfolio> TcbsTop10Portfolios => Set<TcbsTop10Portfolio>();
     public DbSet<TcbsTop10Ticker> TcbsTop10Tickers => Set<TcbsTop10Ticker>();
-    public DbSet<TcbsTop10Image> TcbsTop10Images => Set<TcbsTop10Image>();
+    public DbSet<TcbsTop10Attachment> TcbsTop10Attachments => Set<TcbsTop10Attachment>();
     public DbSet<WeeklySuggestionReport> WeeklySuggestionReports => Set<WeeklySuggestionReport>();
     public DbSet<WeeklySuggestionReportItem> WeeklySuggestionReportItems => Set<WeeklySuggestionReportItem>();
 

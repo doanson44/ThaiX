@@ -58,6 +58,8 @@ sudo mkdir -p /srv/thaix/{storage,logs,keys}
 echo "Starting new container..."
 docker run -d --name "${CONTAINER_NAME}" --restart unless-stopped \
   --network "${NETWORK_NAME}" \
+  --init \
+  --ipc=host \
   -p 8080:8080 \
   -e ASPNETCORE_ENVIRONMENT=Production \
   -v /srv/thaix/appsettings.Production.json:/app/appsettings.Production.json:ro,z \

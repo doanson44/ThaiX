@@ -40,6 +40,15 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "ThaiX.Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+USER root
 WORKDIR /app
+
+# Chromium (headless shell only) + its OS dependencies, installed with the Playwright driver that ships
+# in the NuGet package, so no extra base image is needed. --only-shell requires Headless=true.
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+COPY --from=build /app/build/.playwright /opt/pw-driver
+RUN /opt/pw-driver/node/linux-x64/node /opt/pw-driver/package/cli.js install --with-deps --only-shell chromium \
+    && rm -rf /opt/pw-driver /var/lib/apt/lists/* /ms-playwright/ffmpeg-*
+
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "ThaiX.Presentation.dll"]

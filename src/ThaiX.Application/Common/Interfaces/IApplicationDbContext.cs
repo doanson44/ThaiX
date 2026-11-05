@@ -151,7 +151,7 @@ public interface IApplicationDbContext
     // TCBS Top 10 portfolio data
     DbSet<TcbsTop10Portfolio> TcbsTop10Portfolios { get; }
     DbSet<TcbsTop10Ticker> TcbsTop10Tickers { get; }
-    DbSet<TcbsTop10Image> TcbsTop10Images { get; }
+    DbSet<TcbsTop10Attachment> TcbsTop10Attachments { get; }
     DbSet<WeeklySuggestionReport> WeeklySuggestionReports { get; }
     DbSet<WeeklySuggestionReportItem> WeeklySuggestionReportItems { get; }
 

@@ -7,19 +7,23 @@ using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Domain.Aggregates.TcbsTop10;
+using ThaiX.Infrastructure.ExternalApis.Parsing;
 using ThaiX.Infrastructure.ExternalApis.Providers;
 using ThaiX.Infrastructure.Persistence;
 
 namespace ThaiX.Infrastructure.BackgroundJobs;
 
 /// <summary>
-/// Hangfire recurring job that syncs TCBS Top 10 portfolio updates from iWealth Club daily at 05:00 VNT.
-/// Paginates via lastContentId cursor until a known contentId is found in the database.
-/// Parses each HTML output to extract postedAt, effectiveDate, added/removed tickers, and image GUIDs.
+/// Hangfire recurring job that syncs the TCBS portfolio data daily.
+/// The configured source (ExternalApis:Providers:IWealthClub:Source) decides the flow:
+/// Stream paginates iWealth Club posts until a known contentId is found and parses added/removed tickers and images;
+/// PotentialStocks renders the TCBS page in a browser, diffs the ticker list and stores PDF links.
 /// Insert-only: existing records are never modified.
 /// </summary>
 public sealed class IWealthClubTop10SyncJob : HangfireJobBase
 {
+    private static readonly TimeSpan VietnamOffset = TimeSpan.FromHours(7);
+
     // Matches: +) Thêm mới: **[CTG](...)**  or  +) Thêm mới: **[CTG](...)**, **[NLG](...)**
     private static readonly Regex AddedTickersRegex =
         new(@"Thêm mới\s*:\s*((?:\*\*\[([A-Z0-9]+)\][^\*]*\*\*[,\s]*)+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -81,7 +85,9 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
 
         try
         {
-            var result = await SyncAsync(cancellationToken);
+            var result = _provider.IsPotentialStocksSource
+                ? await SyncPotentialStocksAsync(cancellationToken)
+                : await SyncStreamAsync(cancellationToken);
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
             _logger.LogInformation("IWealthClubTop10SyncJob completed in {Elapsed}s: {Count} new records", elapsed, result.InsertedCount);
 
@@ -131,7 +137,7 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
         }
     }
 
-    private async Task<SyncResult> SyncAsync(CancellationToken ct)
+    private async Task<SyncResult> SyncStreamAsync(CancellationToken ct)
     {
         // Load all existing contentIds from DB upfront to avoid per-item round trips
         await using var initialScope = _scopeFactory.CreateAsyncScope();
@@ -251,6 +257,79 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
         await db.SaveChangesAsync(ct);
         _logger.LogInformation("IWealthClubTop10SyncJob: inserted {Count} new portfolios", newItems.Count);
         return new SyncResult(newItems.Count, addedTickers.OrderBy(x => x).ToArray(), removedTickers.OrderBy(x => x).ToArray());
+    }
+
+    /// <summary>
+    /// Renders the potential stock page in the browser, diffs the ticker list against the current
+    /// holdings derived from previous pulls, and stores only the changes (plus one PDF per listed ticker).
+    /// Posted/effective date is the day the job detects the change.
+    /// </summary>
+    private async Task<SyncResult> SyncPotentialStocksAsync(CancellationToken ct)
+    {
+        var html = await _provider.GetPotentialStocksAsync<string>(ct).ConfigureAwait(false);
+
+        if (string.IsNullOrWhiteSpace(html))
+        {
+            throw new InvalidOperationException("TCBS potential stock page returned no content.");
+        }
+
+        var fetched = TcbsPotentialStocksParser.Parse(html);
+        if (fetched.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "TCBS potential stock page contained no ticker links; the page layout may have changed.");
+        }
+
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var history = await db.TcbsTop10Portfolios
+            .AsNoTracking()
+            .Where(p => p.Source == TcbsPortfolioSource.TcbsPotentialStocks)
+            .Include(p => p.Tickers)
+            .OrderByDescending(p => p.PostedAt)
+            .ThenByDescending(p => p.CreatedAt)
+            .ToListAsync(ct);
+
+        var current = TcbsTop10Portfolio.DeriveCurrentHoldings(history, int.MaxValue)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var fetchedTickers = fetched.Select(x => x.Ticker).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var added = fetchedTickers.Where(t => !current.Contains(t)).OrderBy(t => t, StringComparer.Ordinal).ToList();
+        var removed = current.Where(t => !fetchedTickers.Contains(t)).OrderBy(t => t, StringComparer.Ordinal).ToList();
+
+        if (added.Count == 0 && removed.Count == 0)
+        {
+            _logger.LogInformation("IWealthClubTop10SyncJob: potential stock list unchanged ({Count} tickers)", fetchedTickers.Count);
+            return new SyncResult(0, [], []);
+        }
+
+        var detectedOn = DateOnly.FromDateTime(DateTimeOffset.UtcNow.ToOffset(VietnamOffset).DateTime);
+        var portfolio = TcbsTop10Portfolio.Create(null, detectedOn, detectedOn, TcbsPortfolioSource.TcbsPotentialStocks);
+
+        foreach (var ticker in added)
+        {
+            portfolio.AddTicker(ticker, TcbsPortfolioChangeType.Added);
+        }
+
+        foreach (var ticker in removed)
+        {
+            portfolio.AddTicker(ticker, TcbsPortfolioChangeType.Removed);
+        }
+
+        foreach (var stock in fetched)
+        {
+            portfolio.AddPdf(stock.Url);
+        }
+
+        db.TcbsTop10Portfolios.Add(portfolio);
+        await db.SaveChangesAsync(ct);
+
+        _logger.LogInformation(
+            "IWealthClubTop10SyncJob: potential stock changes saved (added {Added}, removed {Removed}, attachments {Attachments})",
+            added.Count, removed.Count, fetched.Count);
+
+        return new SyncResult(1, added, removed);
     }
 
     private static string BuildTickerSummaryText(IReadOnlyCollection<string> addedTickers, IReadOnlyCollection<string> removedTickers)

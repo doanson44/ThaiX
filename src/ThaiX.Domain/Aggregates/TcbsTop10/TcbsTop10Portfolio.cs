@@ -3,21 +3,25 @@ using ThaiX.Domain.Common.Entities;
 namespace ThaiX.Domain.Aggregates.TcbsTop10;
 
 /// <summary>
-/// Aggregate root representing a monthly TCBS Top 10 portfolio update.
-/// Tracks which tickers were added or removed and the associated images.
+/// Aggregate root representing a TCBS portfolio update, from either the iWealth Club stream
+/// (monthly Analyst Top 10) or the TCBS potential stock list page.
+/// Tracks which tickers were added or removed and the attached files.
 /// </summary>
 public sealed class TcbsTop10Portfolio : BaseEntity
 {
     private readonly List<TcbsTop10Ticker> _tickers = new();
-    private readonly List<TcbsTop10Image> _images = new();
+    private readonly List<TcbsTop10Attachment> _attachments = new();
 
     // Private constructor for EF Core
     private TcbsTop10Portfolio() { }
 
-    /// <summary>Content ID from the iwealthclub platform (used as dedup key and pagination cursor).</summary>
-    public long SourceContentId { get; private set; }
+    /// <summary>Source that produced this row. Distinguishes iWealth Club posts from potential stock pulls.</summary>
+    public TcbsPortfolioSource Source { get; private set; }
 
-    /// <summary>Date the portfolio update was posted on iwealthclub.</summary>
+    /// <summary>Content ID from the iwealthclub platform (dedup key and pagination cursor). Null for other sources.</summary>
+    public long? SourceContentId { get; private set; }
+
+    /// <summary>Date the update was posted, or the date the change was detected for non-iwealthclub sources.</summary>
     public DateOnly PostedAt { get; private set; }
 
     /// <summary>Date from which the updated portfolio is effective.</summary>
@@ -26,15 +30,20 @@ public sealed class TcbsTop10Portfolio : BaseEntity
     /// <summary>Tickers added or removed in this update.</summary>
     public IReadOnlyCollection<TcbsTop10Ticker> Tickers => _tickers.AsReadOnly();
 
-    /// <summary>Images attached to this portfolio update.</summary>
-    public IReadOnlyCollection<TcbsTop10Image> Images => _images.AsReadOnly();
+    /// <summary>Images and PDFs attached to this portfolio update.</summary>
+    public IReadOnlyCollection<TcbsTop10Attachment> Attachments => _attachments.AsReadOnly();
 
     /// <summary>Creates a new portfolio update record.</summary>
-    public static TcbsTop10Portfolio Create(long sourceContentId, DateOnly postedAt, DateOnly effectiveDate)
+    public static TcbsTop10Portfolio Create(
+        long? sourceContentId,
+        DateOnly postedAt,
+        DateOnly effectiveDate,
+        TcbsPortfolioSource source = TcbsPortfolioSource.IWealthClub)
     {
         return new TcbsTop10Portfolio
         {
             Id = Guid.NewGuid(),
+            Source = source,
             SourceContentId = sourceContentId,
             PostedAt = postedAt,
             EffectiveDate = effectiveDate
@@ -48,9 +57,56 @@ public sealed class TcbsTop10Portfolio : BaseEntity
         _tickers.Add(TcbsTop10Ticker.Create(Id, ticker, changeType));
     }
 
-    /// <summary>Attaches an image to this portfolio update.</summary>
+    /// <summary>Attaches an iwealthclub image to this portfolio update.</summary>
     public void AddImage(TcbsPortfolioImageType imageType, Guid fileGuid)
     {
-        _images.Add(TcbsTop10Image.Create(Id, imageType, fileGuid));
+        _attachments.Add(TcbsTop10Attachment.CreateImage(Id, imageType, fileGuid));
+    }
+
+    /// <summary>Attaches a PDF research file to this portfolio update.</summary>
+    public void AddPdf(string url)
+    {
+        _attachments.Add(TcbsTop10Attachment.CreatePdf(Id, url));
+    }
+
+    /// <summary>
+    /// Replays the add/remove events of the given rows, newest first, and returns the tickers still held.
+    /// A ticker is held when its most recent event in the series is an add; the source of the row does not matter.
+    /// Stops once <paramref name="maxHoldings"/> tickers are confirmed, which keeps the portfolio at its top-10 size.
+    /// </summary>
+    public static IReadOnlyList<string> DeriveCurrentHoldings(
+        IEnumerable<TcbsTop10Portfolio> orderedByNewestFirst,
+        int maxHoldings = 10)
+    {
+        var held = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var removed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var portfolio in orderedByNewestFirst)
+        {
+            foreach (var ticker in portfolio.Tickers)
+            {
+                if (ticker.ChangeType == TcbsPortfolioChangeType.Removed)
+                {
+                    removed.Add(ticker.Ticker);
+                }
+            }
+
+            foreach (var ticker in portfolio.Tickers)
+            {
+                if (ticker.ChangeType != TcbsPortfolioChangeType.Added || removed.Contains(ticker.Ticker))
+                {
+                    continue;
+                }
+
+                held.Add(ticker.Ticker);
+
+                if (held.Count >= maxHoldings)
+                {
+                    return [.. held.OrderBy(t => t, StringComparer.Ordinal)];
+                }
+            }
+        }
+
+        return [.. held.OrderBy(t => t, StringComparer.Ordinal)];
     }
 }
