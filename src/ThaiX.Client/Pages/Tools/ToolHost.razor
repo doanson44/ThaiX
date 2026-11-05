@@ -33,7 +33,10 @@ else
                    Title="@L[_tool.TitleKey]"
                    Description="@L[_tool.DescriptionKey]"
                    GetStateJson="SerializeState"
-                   OnDraftCleared="OnDraftCleared">
+                   OnDraftCleared="OnDraftCleared"
+                   OnRunShortcut="RunPrimaryActionAsync"
+                   OnExitFullscreen="ExitFullscreenAsync"
+                   IsFullscreen="_isFullscreen">
         <ActionButtons>
             @if (_saveStatusKey is not null)
             {
