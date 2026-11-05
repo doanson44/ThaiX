@@ -8,6 +8,8 @@ argument-hint: "Module name, e.g. 'Invoice' or 'Inventory'"
 
 Create a complete module across all architectural layers with verification between steps.
 
+Do not pause for confirmation after each layer. Complete the end-to-end workflow when the scope is clear. Ask only when a material business rule, public contract, destructive database operation, or architectural decision is genuinely ambiguous. Never run `dotnet ef database update` unless explicitly requested.
+
 ## Procedure
 
 ### Step 1 -- Design
@@ -21,7 +23,6 @@ Create a complete module across all architectural layers with verification betwe
 - `BaseAuditableEntity`, private setters, factory `Create()`, aggregate methods
 - Add domain events if needed
 - Add permission constants to `Permissions.cs`
-- **Wait for confirmation**
 
 ### Step 3 -- Application Layer
 - Create Commands (Create, Update, Delete) + Handlers + Validators
@@ -30,19 +31,16 @@ Create a complete module across all architectural layers with verification betwe
 - Add `CacheKeys` and `CacheGroups` constants
 - Add DTOs (sealed records)
 - Update `IApplicationDbContext` with new DbSet
-- **Wait for confirmation**
 
 ### Step 4 -- Infrastructure Layer
 - Create EF Core entity configuration
 - Add DbSet to `ApplicationDbContext`
 - Register any new services in `DependencyInjection.cs`
-- **Wait for confirmation**
 
 ### Step 5 -- Presentation Layer
 - Create Minimal API endpoint class
 - Register endpoints in `MapApiEndpoints()`
 - Authorization with `Permissions.*` constants
-- **Wait for confirmation**
 
 ### Step 6 -- Client (Blazor WASM)
 - Create API service class
@@ -52,13 +50,11 @@ Create a complete module across all architectural layers with verification betwe
 - Add route and navigation
 - Update `Layout/NavMenu.razor` to include new module pages with localized labels
 - Update breadcrumb: `RouteSegments`, `ResourceKeys`, `GetSegmentLabel()`
-- **Wait for confirmation**
 
 ### Step 7 -- Tests
 - Unit tests for command handlers
 - Unit tests for query handlers
 - Run `dotnet test tests/ThaiX.Application.UnitTests`
-- **Wait for confirmation**
 
 ### Step 8 -- Documentation
 - Update maintained schema/domain documentation when it exists. Do not reference or create `knowledge-docs/` files unless that documentation structure has been added to the repository.

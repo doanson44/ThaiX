@@ -206,7 +206,7 @@ When replacing a `RadzenDataGrid` with mobile cards, avoid rendering a large lis
         <!-- Optional: add sorting capabilities -->
         <ClientSortBar TItem="MyDto" Options="@SortOptions" ... />
         
-        <!-- Use Virtualize for infinite scroll and DOM reuse -->
+        <!-- Virtualize the already-loaded items; use ItemsProvider for remote data loading. -->
         <Virtualize Items="@_items" Context="item" OverscanCount="5">
             <div class="mb-3">
                 <RadzenCard Class="p-3 m-0">
