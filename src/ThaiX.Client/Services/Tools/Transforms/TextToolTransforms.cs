@@ -1,4 +1,5 @@
 using DiffPlex;
+using Ganss.Xss;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Markdig;
@@ -11,7 +12,10 @@ public static class TextToolTransforms
 {
     private static readonly MarkdownPipeline MdPipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
+        .DisableHtml()
         .Build();
+
+    private static readonly HtmlSanitizer PreviewSanitizer = new();
 
     private static readonly Regex MermaidStartLine = new(
         @"^\s*(erDiagram|flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|pie|gantt|mindmap|timeline|journey)\b",
@@ -26,7 +30,7 @@ public static class TextToolTransforms
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     public static string MarkdownToHtml(string markdown) =>
-        Markdown.ToHtml(AutoFenceBareMermaid(markdown ?? string.Empty), MdPipeline);
+        PreviewSanitizer.Sanitize(Markdown.ToHtml(AutoFenceBareMermaid(markdown ?? string.Empty), MdPipeline));
 
     /// <summary>
     /// Bare Mermaid mid-document (after titles/lists) is plain text to Markdig — wrap each block in ```mermaid.
