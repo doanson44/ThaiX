@@ -364,6 +364,7 @@ else
         _loaded = false;
         _warning = null;
         _inputValid = null;
+        _saveStatusKey = null;
         _qrSvg = null;
         _previewHtml = string.Empty;
         _mdPreviewMode = false;
@@ -407,7 +408,7 @@ else
                 await RefreshMarkdownAsync();
             if (IsQr() && !string.IsNullOrWhiteSpace(_state.Input))
             {
-                try { _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input); }
+                try { _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input, _state.Number, _state.Option); }
                 catch (Exception ex) { ReportToolIssue(ex); }
             }
         }
