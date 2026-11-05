@@ -574,7 +574,7 @@ else
     private string FormatToolIssue(Exception ex) => ex switch
     {
         JsonException => L[RK.Tools.ValidationJson],
-        FormatException or ArgumentException or RegexParseException => L[RK.Tools.ValidationFormat],
+        FormatException or ArgumentException => L[RK.Tools.ValidationFormat],
         JSException => L[RK.Tools.ValidationBrowser],
         InvalidOperationException or NotSupportedException => L[RK.Tools.ValidationOperation],
         _ => L[RK.Tools.ValidationGeneric]
