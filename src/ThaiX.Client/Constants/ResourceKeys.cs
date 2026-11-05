@@ -2014,6 +2014,13 @@ public static class ResourceKeys
             public const string Build = "Tools.Action.Build";
         }
 
+        public static class Regex
+        {
+            public const string Matches = "Tools.Regex.Matches";
+            public const string Group = "Tools.Regex.Group";
+            public const string Replace = "Tools.Regex.Replace";
+        }
+
         public static class Cron
         {
             public const string ExpressionLabel = "Tools.Cron.ExpressionLabel";
