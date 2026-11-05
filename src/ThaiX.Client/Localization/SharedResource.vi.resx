@@ -2155,4 +2155,5 @@
   <data name="Tools.JwtDecoder.SignatureMissing" xml:space="preserve"><value>Không có chữ ký.</value></data>
   <data name="Tools.Action.EncodeComponent" xml:space="preserve"><value>Mã hóa thành phần URL</value></data>
   <data name="Tools.Action.DecodeComponent" xml:space="preserve"><value>Giải mã thành phần URL</value></data>
+  <data name="Tools.FieldLabel.SideBySide" xml:space="preserve"><value>So sánh song song</value></data>
 </root>
