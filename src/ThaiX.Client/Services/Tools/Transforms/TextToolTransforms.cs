@@ -170,6 +170,14 @@ public static class TextToolTransforms
 
             if (quote != '\0')
             {
+                if (quote == '\'' && character == '\\\\')
+                {
+                    output.Append(character);
+                    if (index + 1 < text.Length)
+                        output.Append(text[++index]);
+                    continue;
+                }
+
                 output.Append(character);
                 var closingCharacter = quote == '[' ? ']' : quote;
                 if (character == closingCharacter)
