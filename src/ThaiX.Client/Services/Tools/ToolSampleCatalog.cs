@@ -287,7 +287,7 @@ public static class ToolSampleCatalog
             "cron" => new ToolWorkspaceState
             {
                 Option = "0 9 * * 1-5",
-                Output = GeneratorToolTransforms.DescribeCron("0 9 * * 1-5")
+                Output = string.Empty
             },
 
             "qr" => new ToolWorkspaceState
