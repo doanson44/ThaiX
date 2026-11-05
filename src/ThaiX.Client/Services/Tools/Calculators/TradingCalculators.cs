@@ -121,17 +121,19 @@ public static class TradingCalculators
 
     public static CalculatorResult FuturesPnl(
         decimal entry, decimal exit, decimal size, decimal leverage, TradeSide side,
-        decimal openFeePct, decimal closeFeePct, decimal slippagePct = 0m)
+        decimal openFeePct, decimal closeFeePct, decimal slippagePct = 0m, decimal contractSize = 1m)
     {
         RequirePositive(entry, "Entry");
         RequirePositive(exit, "Exit");
-        RequirePositive(size, "Size");
+        RequirePositive(size, "Contracts");
+        RequirePositive(contractSize, "Contract size");
         RequirePositive(leverage, "Leverage");
         RequireFeePct(openFeePct, "Open fee %");
         RequireFeePct(closeFeePct, "Close fee %");
 
         RequireFeePct(slippagePct, "Slippage %");
 
+        var quantity = size * contractSize;
         var direction = side == TradeSide.Long ? 1m : -1m;
         var slippage = slippagePct / 100m;
         var effectiveEntry = side == TradeSide.Long
@@ -140,11 +142,11 @@ public static class TradingCalculators
         var effectiveExit = side == TradeSide.Long
             ? exit * (1m - slippage)
             : exit * (1m + slippage);
-        var grossBeforeSlippage = (exit - entry) * size * direction;
-        var gross = (effectiveExit - effectiveEntry) * size * direction;
+        var grossBeforeSlippage = (exit - entry) * quantity * direction;
+        var gross = (effectiveExit - effectiveEntry) * quantity * direction;
         var slippageCost = grossBeforeSlippage - gross;
-        var notionalOpen = effectiveEntry * size;
-        var notionalClose = effectiveExit * size;
+        var notionalOpen = effectiveEntry * quantity;
+        var notionalClose = effectiveExit * quantity;
         var fees = notionalOpen * (openFeePct / 100m) + notionalClose * (closeFeePct / 100m);
         var net = gross - fees;
         var margin = notionalOpen / leverage;
@@ -153,13 +155,15 @@ public static class TradingCalculators
         return new CalculatorResult(
             [
                 Line("Calc.Result.GrossPnl", gross),
+                Line("Calc.Result.ContractSize", contractSize),
+                Line("Calc.Result.BaseQuantity", quantity),
                 Line("Calc.Result.SlippageCost", slippageCost),
                 Line("Calc.Result.Fees", fees),
                 Line("Calc.Result.NetPnl", net),
                 Line("Calc.Result.Margin", margin),
                 Line("Calc.Result.RoePct", roe)
             ],
-            "gross = adjustedExit - adjustedEntry; slippage is applied on both entry and exit; net = gross - fees; ROE% = net / margin × 100",
+            "Linear contract model: base quantity = contracts × contract size; gross = adjustedExit - adjustedEntry × base quantity; slippage is applied on both sides; net = gross - fees; ROE% = net / margin × 100",
             "Calc.Interp.FuturesPnl",
             [F(net), F(roe)]);
     }
@@ -172,15 +176,15 @@ public static class TradingCalculators
         RequireNonNegative(mmrPct, "MMR %");
         if (mmrPct >= 100) throw new CalculatorInputException("MMR % must be below 100.");
         var mmr = mmrPct / 100m;
-        // Isolated estimate (no cross / wallet extras).
+        // Linear isolated model: equity at liquidation equals maintenance margin.
         var liq = side == TradeSide.Long
-            ? entry * (1m - (1m / leverage) + mmr)
-            : entry * (1m + (1m / leverage) - mmr);
+            ? entry * (1m - (1m / leverage)) / (1m - mmr)
+            : entry * (1m + (1m / leverage)) / (1m + mmr);
         if (liq < 0) liq = 0;
 
         return new CalculatorResult(
             [Line("Calc.Result.LiquidationPrice", liq)],
-            "Long: entry×(1 − 1/lev + MMR); Short: entry×(1 + 1/lev − MMR) [isolated estimate]",
+            "Linear isolated estimate: Long = entry×(1 − 1/lev)/(1 − MMR); Short = entry×(1 + 1/lev)/(1 + MMR); excludes tiered MMR, fees, funding, and cross margin.",
             "Calc.Interp.Liquidation",
             [F(liq)]);
     }
