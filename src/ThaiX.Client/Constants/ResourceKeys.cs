@@ -2575,6 +2575,7 @@ public static class ResourceKeys
             public const string GrossProfit = "Calc.Result.GrossProfit";
             public const string NetRisk = "Calc.Result.NetRisk";
             public const string LossPct = "Calc.Result.LossPct";
+            public const string LossCount = "Calc.Result.LossCount";
         }
 
         public static class Placeholder
