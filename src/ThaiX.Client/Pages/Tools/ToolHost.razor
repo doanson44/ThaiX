@@ -453,7 +453,7 @@ else
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyError(L[RK.Tools.ExportFailed], ex.Message);
+            NotificationService.NotifyError(L[RK.Tools.ExportFailed], L[RK.Tools.ValidationGeneric]);
         }
         finally
         {
@@ -571,27 +571,14 @@ else
         _warning = FormatToolIssue(ex);
     }
 
-    private string FormatToolIssue(Exception ex)
+    private string FormatToolIssue(Exception ex) => ex switch
     {
-        if (ex is FormatException or ArgumentException or JsonException or RegexParseException
-            or InvalidOperationException or NotSupportedException)
-        {
-            return string.IsNullOrWhiteSpace(ex.Message)
-                ? L[RK.Tools.ValidationGeneric]
-                : ex.Message;
-        }
-
-        if (ex is JSException)
-        {
-            return string.IsNullOrWhiteSpace(ex.Message)
-                ? L[RK.Tools.ValidationGeneric]
-                : ex.Message;
-        }
-
-        return string.IsNullOrWhiteSpace(ex.Message)
-            ? L[RK.Tools.ValidationGeneric]
-            : $"{L[RK.Tools.ValidationGeneric]} ({ex.Message})";
-    }
+        JsonException => L[RK.Tools.ValidationJson],
+        FormatException or ArgumentException or RegexParseException => L[RK.Tools.ValidationFormat],
+        JSException => L[RK.Tools.ValidationBrowser],
+        InvalidOperationException or NotSupportedException => L[RK.Tools.ValidationOperation],
+        _ => L[RK.Tools.ValidationGeneric]
+    };
 
     private void OnToolRenderError(Exception ex)
     {
@@ -902,7 +889,7 @@ else
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyError(L[RK.Tools.MarkdownPreview.CopyFailed], ex.Message);
+            NotificationService.NotifyError(L[RK.Tools.MarkdownPreview.CopyFailed], L[RK.Tools.ValidationBrowser]);
         }
     }
 
