@@ -40,7 +40,11 @@ public static class CalculatorRunner
             "kelly-criterion" => RiskCalculators.Kelly(D(fields, "winRatePct"), D(fields, "payoffRatio")),
             "consecutive-loss" => RiskCalculators.ConsecutiveLoss(
                 D(fields, "equity"), D(fields, "riskPct"), Int(fields, "losses")),
-            "market-cap" => CryptoCalculators.MarketCap(D(fields, "price"), D(fields, "supply")),
+            "market-cap" => CryptoCalculators.MarketCap(
+                D(fields, "price"),
+                D(fields, "supply"),
+                OptionalD(fields, "totalSupply"),
+                OptionalD(fields, "maxSupply")),
             "market-cap-compare" => CryptoCalculators.MarketCapCompare(D(fields, "supply"), D(fields, "targetMcap")),
             "ath-drawdown" => CryptoCalculators.AthDrawdown(D(fields, "ath"), D(fields, "current")),
             _ => throw new CalculatorInputException($"Unknown calculator '{slug}'.")
