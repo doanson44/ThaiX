@@ -120,15 +120,19 @@ public static class GeneratorToolTransforms
         if (string.IsNullOrWhiteSpace(expression))
             throw new FormatException("Cron fields cannot be empty.");
 
+        var items = expression.Split(',');
+        if (items.Any(string.IsNullOrWhiteSpace))
+            throw new FormatException($"Invalid cron list: {expression}");
+
         var values = new HashSet<int>();
-        foreach (var item in expression.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        foreach (var item in items)
         {
             var stepParts = item.Split('/');
             if (stepParts.Length > 2)
                 throw new FormatException($"Invalid cron field: {expression}");
 
             var step = stepParts.Length == 2
-                ? ParseCronNumber(stepParts[1], 1, maximum - minimum + 1)
+                ? ParseCronNumber(stepParts[1], 1, 100000)
                 : 1;
             var range = stepParts[0];
             int start;
