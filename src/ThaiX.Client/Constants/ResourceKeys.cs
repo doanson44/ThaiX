@@ -1990,6 +1990,8 @@ public static class ResourceKeys
             public const string Validate = "Tools.Action.Validate";
             public const string Compare = "Tools.Action.Compare";
             public const string Decode = "Tools.Action.Decode";
+            public const string EncodeBase64Url = "Tools.Action.EncodeBase64Url";
+            public const string DecodeBase64Url = "Tools.Action.DecodeBase64Url";
             public const string Encode = "Tools.Action.Encode";
             public const string Hash = "Tools.Action.Hash";
             public const string Generate = "Tools.Action.Generate";
