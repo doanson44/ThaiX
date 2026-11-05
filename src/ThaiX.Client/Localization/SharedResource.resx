@@ -1507,6 +1507,23 @@
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Tools</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Client-side developer utilities and trading/risk/crypto calculators. Drafts restore from this browser; some tools can Save/Share via JSON Bin when signed in.</value></data>
   <data name="Tools.LastUsed" xml:space="preserve"><value>Last used</value></data>
+  <data name="Tools.Favorites" xml:space="preserve"><value>Favorites</value></data>
+  <data name="Tools.ClearHistory" xml:space="preserve"><value>Clear history</value></data>
+  <data name="Tools.AddFavorite" xml:space="preserve"><value>Add to favorites</value></data>
+  <data name="Tools.RemoveFavorite" xml:space="preserve"><value>Remove from favorites</value></data>
+  <data name="Tools.ImportWorkspace" xml:space="preserve"><value>Import workspace</value></data>
+  <data name="Tools.ExportWorkspace" xml:space="preserve"><value>Export workspace</value></data>
+  <data name="Tools.Import.Success" xml:space="preserve"><value>Workspace imported.</value></data>
+  <data name="Tools.Import.Failed" xml:space="preserve"><value>Could not import workspace.</value></data>
+  <data name="Tools.Export.Success" xml:space="preserve"><value>Workspace exported.</value></data>
+  <data name="Tools.History.Cleared" xml:space="preserve"><value>Recent tools history cleared.</value></data>
+  <data name="Tools.Save.Pending" xml:space="preserve"><value>Saving draft…</value></data>
+  <data name="Tools.Save.Saved" xml:space="preserve"><value>Draft saved</value></data>
+  <data name="Tools.Save.StatusFailed" xml:space="preserve"><value>Draft could not be saved</value></data>
+  <data name="Tools.Workspace.WrongTool" xml:space="preserve"><value>This workspace belongs to a different tool.</value></data>
+  <data name="Tools.Workspace.UnsupportedVersion" xml:space="preserve"><value>This workspace version is not supported.</value></data>
+  <data name="Tools.Workspace.Invalid" xml:space="preserve"><value>The workspace file is invalid.</value></data>
+  <data name="Tools.Workspace.TooLarge" xml:space="preserve"><value>Workspace files must be 1 MB or smaller.</value></data>
   <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Search tools…</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Save</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Share</value></data>
