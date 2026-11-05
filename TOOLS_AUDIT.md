@@ -111,8 +111,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 48 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (59 test cases total). Coverage includes:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 50 `[Fact]` tests and
+three parameterized `[Theory]` methods with 11 inline cases (61 test cases total). Coverage includes:
 
 - CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
 - SQL literals/comments, HTML conversion, and Markdown raw-HTML/unsafe-link payloads.
