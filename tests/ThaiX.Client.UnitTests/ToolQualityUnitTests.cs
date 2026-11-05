@@ -595,6 +595,26 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void PositionSize_ForShortTrade_ShouldAcceptStopAboveEntry()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.PositionSize(1000m, 1m, 100m, 110m, TradeSide.Short);
+
+        // Assert
+        Assert.Equal("10", result.Breakdown[1].Value);
+    }
+
+    [Fact]
+    public void PositionSize_ForShortTradeWithStopBelowEntry_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.PositionSize(1000m, 1m, 100m, 90m, TradeSide.Short);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void PositionSize_WhenRiskExceedsOneHundredPercent_ShouldThrow()
     {
         // Arrange / Act
