@@ -343,10 +343,7 @@ public static class ToolSampleCatalog
                 Input = "BTCUSDT broke 65000 and ETHUSDT held 3500.",
                 Input2 = @"[A-Z]{3,10}USDT",
                 Option = "SYMBOL",
-                Output = TextToolTransforms.RegexTest(
-                    @"[A-Z]{3,10}USDT",
-                    "BTCUSDT broke 65000 and ETHUSDT held 3500.",
-                    null)
+                Output = string.Empty
             },
 
             "unix-timestamp" => FromSingleInput(
