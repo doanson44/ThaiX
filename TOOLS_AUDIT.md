@@ -108,10 +108,12 @@ The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite covers:
 1. CSV quoted commas and escaped quotes.
 2. CSV multiline fields and BOM handling.
 3. CSV unterminated quotes and duplicate-header rejection.
-4. SQL keywords inside string literals, quoted identifiers, and comments.
+4. SQL keywords inside string literals, quoted identifiers, and line/block comments.
 5. HTML headings, links, emphasis, inline code, and list conversion.
-6. cURL URL shell escaping and HTTP method validation.
-9. Password length and selected character-class inclusion.
+6. Absolute URL encoding preserves URL separators.
+7. JSON-to-C# and JSON-to-TypeScript generators handle special property names.
+8. cURL URL shell escaping and HTTP method validation.
+9. Password length, selected character-class inclusion, and heuristic disclaimer.
 10. Calculator sample seeding for new versus initialized workspaces.
 11. Position-size risk percentage upper bound.
 12. Liquidation maintenance-margin upper bound.
