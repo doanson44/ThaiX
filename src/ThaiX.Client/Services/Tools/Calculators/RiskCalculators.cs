@@ -140,9 +140,13 @@ public static class RiskCalculators
         RequirePositive(avgLoss, "Average loss");
         var p = winRatePct / 100m;
         var exp = p * avgWin - (1m - p) * avgLoss;
+        var expectancyR = exp / avgLoss;
         return new CalculatorResult(
-            [Line("Calc.Result.Expectancy", exp)],
-            "E = winRate×avgWin − (1−winRate)×avgLoss",
+            [
+                Line("Calc.Result.Expectancy", exp),
+                Line("Calc.Result.ExpectancyR", expectancyR)
+            ],
+            "E = winRate×avgWin − (1−winRate)×avgLoss; E_R = E / avgLoss",
             "Calc.Interp.Expectancy",
             [F(exp)]);
     }
