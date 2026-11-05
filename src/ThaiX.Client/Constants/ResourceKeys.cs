@@ -2061,6 +2061,7 @@ public static class ResourceKeys
             public const string Subject = "Tools.FieldLabel.Subject";
             public const string Pattern = "Tools.FieldLabel.Pattern";
             public const string Replacement = "Tools.FieldLabel.Replacement";
+            public const string SideBySide = "Tools.FieldLabel.SideBySide";
             public const string Headers = "Tools.FieldLabel.Headers";
             public const string Body = "Tools.FieldLabel.Body";
             public const string Length = "Tools.FieldLabel.Length";
