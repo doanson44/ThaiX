@@ -202,7 +202,8 @@ public static class CalculatorFieldCatalog
             [
                 Currency(),
                 Num("supply", RK.Calc.Field.Supply),
-                Num("targetMcap", RK.Calc.Field.TargetMcap)
+                Num("targetMcap", RK.Calc.Field.TargetMcap),
+                Text("targetMcaps", RK.Calc.Field.TargetMcapScenarios, RK.Calc.Placeholder.TargetMcapScenarios)
             ],
             "ath-drawdown" =>
             [
