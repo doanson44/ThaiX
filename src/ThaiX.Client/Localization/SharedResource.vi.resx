@@ -1515,6 +1515,7 @@
   <data name="Tools.Import.Success" xml:space="preserve"><value>Đã nhập workspace.</value></data>
   <data name="Tools.Import.Failed" xml:space="preserve"><value>Không thể nhập workspace.</value></data>
   <data name="Tools.Export.Success" xml:space="preserve"><value>Đã xuất workspace.</value></data>
+  <data name="Tools.Export.Failed" xml:space="preserve"><value>Không thể xuất workspace.</value></data>
   <data name="Tools.History.Cleared" xml:space="preserve"><value>Đã xóa lịch sử công cụ gần đây.</value></data>
   <data name="Tools.Save.Pending" xml:space="preserve"><value>Đang lưu bản nháp…</value></data>
   <data name="Tools.Save.Saved" xml:space="preserve"><value>Đã lưu bản nháp</value></data>
