@@ -1656,7 +1656,7 @@
   <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Market Cap</value></data>
   <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Calculate circulating market cap, total supply valuation, and fully diluted valuation</value></data>
   <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>Market Cap Compare</value></data>
-  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Implied price for a target market cap</value></data>
+  <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Estimate price at a target market cap using circulating supply</value></data>
   <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>ATH Drawdown</value></data>
   <data name="Tools.AthDrawdown.Description" xml:space="preserve"><value>Drawdown from all-time high and recovery needed</value></data>
   <data name="Calc.Calculate" xml:space="preserve"><value>Calculate</value></data>
