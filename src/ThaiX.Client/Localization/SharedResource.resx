@@ -2127,4 +2127,6 @@
   <data name="Calc.Result.Fdv" xml:space="preserve"><value>Fully diluted valuation (FDV)</value></data>
   <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>To Unix milliseconds</value></data>
   <data name="Tools.FieldLabel.UuidV7" xml:space="preserve"><value>UUID v7</value></data>
+  <data name="Calc.Result.PeakToTroughPeriods" xml:space="preserve"><value>Periods to trough</value></data>
+  <data name="Calc.Result.TroughToRecoveryPeriods" xml:space="preserve"><value>Periods to recovery</value></data>
 </root>
