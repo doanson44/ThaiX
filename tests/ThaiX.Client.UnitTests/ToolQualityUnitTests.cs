@@ -233,6 +233,39 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void DecodeJwt_WithSignature_ShouldWarnThatClaimsAreUnverified()
+    {
+        // Arrange
+        var header = EncodeToolTransforms.Base64UrlEncode("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        var payload = EncodeToolTransforms.Base64UrlEncode("{\"sub\":\"user-1\",\"role\":\"admin\"}");
+        var token = $"{header}.{payload}.signature";
+
+        // Act
+        var output = EncodeToolTransforms.DecodeJwt(token);
+
+        // Assert
+        Assert.Contains("UNVERIFIED", output, StringComparison.Ordinal);
+        Assert.Contains("Signature present (not verified).", output, StringComparison.Ordinal);
+        Assert.Contains("\"role\": \"admin\"", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void DecodeJwt_WithoutSignature_ShouldReportMissingSignatureAndUnverifiedClaims()
+    {
+        // Arrange
+        var header = EncodeToolTransforms.Base64UrlEncode("{\"alg\":\"none\"}");
+        var payload = EncodeToolTransforms.Base64UrlEncode("{\"sub\":\"user-1\"}");
+        var token = $"{header}.{payload}";
+
+        // Act
+        var output = EncodeToolTransforms.DecodeJwt(token);
+
+        // Assert
+        Assert.Contains("UNVERIFIED", output, StringComparison.Ordinal);
+        Assert.Contains("Signature missing.", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Base64UrlEncodeAndDecode_ShouldRoundTripWithoutPadding()
     {
         // Arrange
