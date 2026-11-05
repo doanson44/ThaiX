@@ -1968,6 +1968,9 @@ public static class ResourceKeys
         public const string RemoveFavorite = "Tools.RemoveFavorite";
         public const string ImportWorkspace = "Tools.ImportWorkspace";
         public const string ExportWorkspace = "Tools.ExportWorkspace";
+        public const string Fullscreen = "Tools.Fullscreen";
+        public const string ExitFullscreen = "Tools.ExitFullscreen";
+        public const string RunShortcutHint = "Tools.RunShortcutHint";
         public const string ImportSuccess = "Tools.Import.Success";
         public const string ImportFailed = "Tools.Import.Failed";
         public const string ExportSuccess = "Tools.Export.Success";
