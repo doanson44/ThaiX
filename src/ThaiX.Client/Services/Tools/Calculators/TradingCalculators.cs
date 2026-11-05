@@ -163,7 +163,7 @@ public static class TradingCalculators
                 Line("Calc.Result.Margin", margin),
                 Line("Calc.Result.RoePct", roe)
             ],
-            "Linear contract model: base quantity = contracts × contract size; gross = adjustedExit - adjustedEntry × base quantity; slippage is applied on both sides; net = gross - fees; ROE% = net / margin × 100",
+            "Linear contract model: base quantity = contracts × contract size; gross = (adjustedExit - adjustedEntry) × base quantity × direction; slippage is applied on both sides; net = gross - fees; ROE% = net / margin × 100",
             "Calc.Interp.FuturesPnl",
             [F(net), F(roe)]);
     }
