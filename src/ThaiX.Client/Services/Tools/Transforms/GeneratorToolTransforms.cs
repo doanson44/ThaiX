@@ -65,18 +65,28 @@ public static class GeneratorToolTransforms
 
     public static string BuildCurl(string method, string url, string headers, string body)
     {
+        var normalizedMethod = (method ?? string.Empty).Trim().ToUpperInvariant();
+        if (normalizedMethod.Length == 0 || normalizedMethod.Any(character => character is < 'A' or > 'Z'))
+            throw new FormatException("HTTP method must contain ASCII letters only.");
+        if (string.IsNullOrWhiteSpace(url))
+            throw new FormatException("URL is required.");
+
         var sb = new StringBuilder();
-        sb.Append("curl -X ").Append(method.Trim().ToUpperInvariant()).Append(" ");
-        sb.Append('\'').Append(url.Trim()).Append('\'');
+        sb.Append("curl -X ").Append(normalizedMethod).Append(" ");
+        sb.Append(ShellQuote(url.Trim()));
         foreach (var line in (headers ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var idx = line.IndexOf(':');
             if (idx <= 0) continue;
-            sb.Append(" \\\n  -H '").Append(line.Replace("'", "'\\''")).Append('\'');
+            sb.Append(" \\\n  -H ").Append(ShellQuote(line));
         }
         if (!string.IsNullOrWhiteSpace(body))
-            sb.Append(" \\\n  -d '").Append(body.Replace("'", "'\\''")).Append('\'');
+            sb.Append(" \\\n  -d ").Append(ShellQuote(body));
         return sb.ToString();
+    }
+
+    private static string ShellQuote(string value) =>
+        "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
     }
 
     public static string GitignorePreset(string preset) => preset.ToLowerInvariant() switch
