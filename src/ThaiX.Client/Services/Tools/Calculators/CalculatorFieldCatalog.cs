@@ -74,6 +74,7 @@ public static class CalculatorFieldCatalog
                 Num("entry", RK.Calc.Field.Entry),
                 Num("exit", RK.Calc.Field.Exit),
                 Num("size", RK.Calc.Field.Size),
+                Num("contractSize", RK.Calc.Field.ContractSize, "1"),
                 Num("leverage", RK.Calc.Field.Leverage, "10"),
                 FeeMode(),
                 Num("makerPct", RK.Calc.Field.MakerPct, "0.02", showWhenCustom: false),
