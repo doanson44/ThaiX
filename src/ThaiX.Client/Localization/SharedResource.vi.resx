@@ -1773,6 +1773,7 @@
   <data name="Calc.Result.TotalOutlay" xml:space="preserve"><value>Tổng chi phí gồm phí</value></data>
   <data name="Calc.Result.MarketValue" xml:space="preserve"><value>Giá trị thị trường hiện tại</value></data>
   <data name="Calc.Result.UnrealizedPnl" xml:space="preserve"><value>PnL chưa thực hiện</value></data>
+  <data name="Calc.Result.LossCount" xml:space="preserve"><value>Số lệnh thua liên tiếp</value></data>
   <data name="Calc.Result.GrossProfit" xml:space="preserve"><value>Lợi nhuận gộp trước phí</value></data>
   <data name="Calc.Result.NetRisk" xml:space="preserve"><value>Rủi ro ròng sau phí và trượt giá</value></data>
   <data name="Calc.Result.BreakEvenPrice" xml:space="preserve"><value>Giá hòa vốn</value></data>
