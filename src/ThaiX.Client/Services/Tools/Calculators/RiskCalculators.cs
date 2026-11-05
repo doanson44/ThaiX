@@ -76,16 +76,20 @@ public static class RiskCalculators
             if (drawdown > maxDd)
             {
                 maxDd = drawdown;
-                maxDdPct = drawdownPct;
                 maxPeakIndex = peakIndex;
                 maxTroughIndex = index;
                 recoveryIndex = 0;
             }
+
+            if (drawdownPct > maxDdPct)
+                maxDdPct = drawdownPct;
         }
 
-        var troughToRecovery = recoveryIndex > 0
-            ? F(recoveryIndex - maxTroughIndex)
-            : "N/A";
+        var troughToRecovery = maxDd == 0
+            ? "0"
+            : recoveryIndex > 0
+                ? F(recoveryIndex - maxTroughIndex)
+                : "N/A";
 
         return new CalculatorResult(
             [
