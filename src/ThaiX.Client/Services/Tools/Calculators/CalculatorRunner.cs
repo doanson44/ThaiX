@@ -18,13 +18,13 @@ public static class CalculatorRunner
                 FeePct(fields, "openFeePct"), FeePct(fields, "closeFeePct"), D(fields, "slippagePct", 0m)),
             "liquidation" => TradingCalculators.Liquidation(
                 D(fields, "entry"), D(fields, "leverage"), Side(fields), D(fields, "mmrPct")),
-            "average-entry" => TradingCalculators.AverageEntry(ParsePairs(fields, "legs", priceKey: true)),
-            "dca" => TradingCalculators.Dca(ParsePairs(fields, "legs", priceKey: false)),
+            "average-entry" => TradingCalculators.AverageEntry(ParsePairs(fields, "legs")),
+            "dca" => TradingCalculators.Dca(ParsePairs(fields, "legs")),
             "break-even" => TradingCalculators.BreakEven(
                 D(fields, "entry"), Side(fields), FeePct(fields, "openFeePct"), FeePct(fields, "closeFeePct")),
             "trading-fee" => TradingCalculators.TradingFee(D(fields, "notional"), FeePct(fields, "feePct")),
             "funding" => TradingCalculators.Funding(
-                D(fields, "notional"), D(fields, "ratePct"), (int)D(fields, "periods"), Side(fields)),
+                D(fields, "notional"), D(fields, "ratePct"), Int(fields, "periods"), Side(fields)),
             "leverage" => TradingCalculators.Leverage(D(fields, "notional"), D(fields, "margin")),
             "stop-loss" => TradingCalculators.StopLoss(
                 D(fields, "account"), D(fields, "riskPct"), D(fields, "size"), D(fields, "entry"), Side(fields)),
@@ -65,7 +65,7 @@ public static class CalculatorRunner
     }
 
     private static List<(decimal, decimal)> ParsePairs(
-        IReadOnlyDictionary<string, string> fields, string key, bool priceKey)
+        IReadOnlyDictionary<string, string> fields, string key)
     {
         // Format: price,qty;price,qty  OR price,amount;...
         if (!fields.TryGetValue(key, out var raw) || string.IsNullOrWhiteSpace(raw))
