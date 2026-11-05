@@ -7,8 +7,9 @@ public static class RiskCalculators
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
     /// <summary>
-    /// Simplified fixed-fractional risk-of-ruin estimate:
-    /// RoR ≈ ((1 − edge)/(1 + edge))^units where edge from win rate &amp; R:R, units = 1/risk%.
+    /// <summary>
+    /// Heuristic fixed-fractional risk estimate. This is not a probability of ruin:
+    /// it does not model a finite horizon, return distribution, fees, or a ruin threshold.
     /// </summary>
     public static CalculatorResult RiskOfRuin(decimal winRatePct, decimal riskReward, decimal riskPerTradePct)
     {
@@ -48,6 +49,9 @@ public static class RiskCalculators
     public static CalculatorResult MaxDrawdownFromSeries(IReadOnlyList<decimal> equity)
     {
         if (equity.Count < 2) throw new CalculatorInputException("Provide at least two equity points.");
+        if (equity.Any(value => value <= 0))
+            throw new CalculatorInputException("Equity series values must be greater than zero.");
+
         decimal peak = equity[0];
         decimal maxDd = 0;
         decimal maxDdPct = 0;
