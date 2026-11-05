@@ -606,7 +606,10 @@ else
                         L[RK.Tools.PasswordStrength.Disclaimer].Value);
                     break;
                 case "cron":
-                    _state.Output = GeneratorToolTransforms.DescribeCron(_state.Option);
+                    _state.Output = GeneratorToolTransforms.DescribeCron(
+                        _state.Option,
+                        cronLabel: L[RK.Tools.Cron.ExpressionLabel].Value,
+                        nextRunsLabel: L[RK.Tools.Cron.NextRunsUtc].Value);
                     break;
                 case "qr":
                     _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input, _state.Number, _state.Option);
