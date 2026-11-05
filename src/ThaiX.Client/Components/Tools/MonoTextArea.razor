@@ -1,3 +1,5 @@
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime JS
 @implements IAsyncDisposable
 
@@ -16,11 +18,11 @@
                 }
                 @if (IsValid == true)
                 {
-                    <RadzenIcon Icon="check_circle" Class="text-success" Style="font-size: 1.15rem;" title="Valid" />
+                    <RadzenIcon Icon="check_circle" Class="text-success" Style="font-size: 1.15rem;" title="@L[RK.Tools.Valid]" />
                 }
                 else if (IsValid == false)
                 {
-                    <RadzenIcon Icon="cancel" Class="text-danger" Style="font-size: 1.15rem;" title="Invalid" />
+                    <RadzenIcon Icon="cancel" Class="text-danger" Style="font-size: 1.15rem;" title="@L[RK.Tools.Invalid]" />
                 }
             </RadzenStack>
             @if (ShowStats)
