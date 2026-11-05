@@ -189,6 +189,8 @@ public static class GeneratorToolTransforms
             throw new FormatException("HTTP method must contain ASCII letters only.");
         if (string.IsNullOrWhiteSpace(url))
             throw new FormatException("URL is required.");
+        if (url.Any(character => char.IsControl(character)))
+            throw new FormatException("URL cannot contain control characters.");
 
         var sb = new StringBuilder();
         sb.Append("curl -X ").Append(normalizedMethod).Append(" ");
@@ -196,13 +198,27 @@ public static class GeneratorToolTransforms
         foreach (var line in (headers ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var idx = line.IndexOf(':');
-            if (idx <= 0) continue;
-            sb.Append(" \\\n  -H ").Append(ShellQuote(line));
+            if (idx <= 0)
+                throw new FormatException("Each header must use the format 'Name: value'.");
+
+            var name = line[..idx].Trim();
+            var value = line[(idx + 1)..].Trim();
+            if (name.Length == 0 || name.Any(character => !IsHttpTokenCharacter(character)))
+                throw new FormatException("Header name contains invalid characters.");
+            if (value.Any(character => char.IsControl(character) && character != '\t'))
+                throw new FormatException("Header value contains invalid control characters.");
+
+            sb.Append(" \\\n  -H ").Append(ShellQuote($"{name}: {value}"));
         }
         if (!string.IsNullOrWhiteSpace(body))
             sb.Append(" \\\n  -d ").Append(ShellQuote(body));
         return sb.ToString();
     }
+
+    private static bool IsHttpTokenCharacter(char character) =>
+        char.IsAsciiLetterOrDigit(character)
+        || "!#$%&'*+-.^_|~".Contains(character)
+        || character == (char)96;
 
     private static string ShellQuote(string value) =>
         "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
