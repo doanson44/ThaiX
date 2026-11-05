@@ -70,6 +70,20 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void UrlEncode_WithAbsoluteUrl_ShouldPreserveUrlSeparators()
+    {
+        // Arrange
+        const string url = "https://example.com/tools?q=btc usdt&tab=preview";
+
+        // Act
+        var encoded = EncodeToolTransforms.UrlEncode(url);
+
+        // Assert
+        Assert.StartsWith("https://example.com/tools?", encoded, StringComparison.Ordinal);
+        Assert.Contains("q=btc%20usdt&tab=preview", encoded, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void BuildCurl_WithSingleQuoteInUrl_ShouldEscapeShellArgument()
     {
         // Arrange
