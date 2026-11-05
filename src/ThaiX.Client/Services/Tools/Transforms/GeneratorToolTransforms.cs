@@ -244,14 +244,38 @@ public static class GeneratorToolTransforms
 
     public static string ConventionalCommit(string type, string scope, string subject, bool breaking, string body)
     {
-        var scopePart = string.IsNullOrWhiteSpace(scope) ? "" : $"({scope.Trim()})";
-        var bang = breaking ? "!" : "";
-        var sb = new StringBuilder();
-        sb.Append(type.Trim().ToLowerInvariant()).Append(scopePart).Append(bang).Append(": ").Append(subject.Trim());
-        if (!string.IsNullOrWhiteSpace(body))
-            sb.Append("\n\n").Append(body.Trim());
+        var normalizedType = (type ?? string.Empty).Trim().ToLowerInvariant();
+        string[] allowedTypes = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"];
+        if (!allowedTypes.Contains(normalizedType, StringComparer.Ordinal))
+            throw new FormatException("Type must be a supported Conventional Commit type.");
+
+        var normalizedScope = (scope ?? string.Empty).Trim();
+        if (normalizedScope.Any(character => char.IsWhiteSpace(character) || character is '(' or ')'))
+            throw new FormatException("Scope cannot contain whitespace or parentheses.");
+
+        var normalizedSubject = (subject ?? string.Empty).Trim();
+        if (normalizedSubject.Length == 0)
+            throw new FormatException("Subject is required.");
+        if (normalizedSubject.Contains('\n') || normalizedSubject.Contains('\r'))
+            throw new FormatException("Subject must be a single line.");
+        if (normalizedSubject.EndsWith(".", StringComparison.Ordinal))
+            throw new FormatException("Subject must not end with a period.");
+
+        var scopePart = normalizedScope.Length == 0 ? string.Empty : $"({normalizedScope})";
+        var bang = breaking ? "!" : string.Empty;
+        var header = $"{normalizedType}{scopePart}{bang}: {normalizedSubject}";
+        if (header.Length > 72)
+            throw new FormatException("Conventional Commit header must not exceed 72 characters.");
+
+        var normalizedBody = (body ?? string.Empty).Trim();
+        if (breaking && normalizedBody.Length == 0)
+            throw new FormatException("A breaking change description is required.");
+
         if (breaking)
-            sb.Append("\n\nBREAKING CHANGE: ").Append(subject.Trim());
-        return sb.ToString();
+            return $"{header}\n\nBREAKING CHANGE: {normalizedBody}";
+
+        return normalizedBody.Length == 0
+            ? header
+            : $"{header}\n\n{normalizedBody}";
     }
 }
