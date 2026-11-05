@@ -289,6 +289,51 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void RegexTest_WithMultilineOption_ShouldMatchLineAnchors()
+    {
+        // Arrange
+        const string input = "header\\nBTCUSDT\\nfooter";
+
+        // Act
+        var withoutMultiline = TextToolTransforms.RegexTest("^BTC", input, null);
+        var withMultiline = TextToolTransforms.RegexTest("^BTC", input, null, multiline: true);
+
+        // Assert
+        Assert.Contains("Matches: 0", withoutMultiline, StringComparison.Ordinal);
+        Assert.Contains("Matches: 1", withMultiline, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void RegexTest_WithSinglelineOption_ShouldMatchAcrossNewlines()
+    {
+        // Arrange
+        const string input = "start\\nend";
+
+        // Act
+        var withoutSingleline = TextToolTransforms.RegexTest("^start.*end$", input, null);
+        var withSingleline = TextToolTransforms.RegexTest("^start.*end$", input, null, singleline: true);
+
+        // Assert
+        Assert.Contains("Matches: 0", withoutSingleline, StringComparison.Ordinal);
+        Assert.Contains("Matches: 1", withSingleline, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void DiffSideBySide_WithWhitespaceOption_ShouldChangeComparison()
+    {
+        // Arrange
+        const string left = "alpha beta";
+        const string right = "alphabeta";
+
+        // Act
+        var strict = TextToolTransforms.DiffSideBySide(left, right, ignoreWhitespace: false);
+        var relaxed = TextToolTransforms.DiffSideBySide(left, right, ignoreWhitespace: true);
+
+        // Assert
+        Assert.NotEqual(strict, relaxed);
+    }
+
+    [Fact]
     public void PrettyPrint_WithMalformedJson_ShouldExposeLineAndColumn()
     {
         // Arrange
