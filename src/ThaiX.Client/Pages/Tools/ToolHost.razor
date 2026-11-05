@@ -552,10 +552,7 @@ else
                 case "pw": _state.Output = GeneratorToolTransforms.GeneratePassword(_state.Number, _state.Flag); break;
                 case "pws": _state.Output = GeneratorToolTransforms.PasswordStrength(_state.Input); break;
                 case "cron":
-                    var parts = (_state.Option ?? "* * * * *").Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList();
-                    while (parts.Count < 5) parts.Add("*");
-                    _state.Output = GeneratorToolTransforms.DescribeCron(
-                        GeneratorToolTransforms.BuildCron(parts[0], parts[1], parts[2], parts[3], parts[4]));
+                    _state.Output = GeneratorToolTransforms.DescribeCron(_state.Option);
                     break;
                 case "qr":
                     _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input);
