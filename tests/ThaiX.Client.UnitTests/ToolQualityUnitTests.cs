@@ -893,7 +893,7 @@ public sealed class ToolQualityUnitTests
             .Where(line => line.LabelKey == "Calc.Result.RemainingEquity")
             .Select(line => line.Value)
             .ToArray();
-        Assert.Equal(["729", "900", "810", "729"], equityPath);
+        Assert.Equal(new[] { "729", "900", "810", "729" }, equityPath);
         Assert.Contains(result.Breakdown, line =>
             line.LabelKey == "Calc.Result.LossCount" && line.Value == "3");
     }
