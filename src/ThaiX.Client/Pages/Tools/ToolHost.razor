@@ -631,7 +631,7 @@ else
                     break;
                 case "qr":
                     _qrSvg = GeneratorToolTransforms.QrSvg(_state.Input, _state.Number, _state.Option);
-                    _state.Output = "QR generated.";
+                    _state.Output = L[RK.Tools.Qr.Generated].Value;
                     break;
                 case "curl":
                     _state.Output = GeneratorToolTransforms.BuildCurl(
