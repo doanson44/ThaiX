@@ -56,7 +56,7 @@ public static class EncodeToolTransforms
 
     public static string NewUuid(bool v7, string format = "D")
     {
-        var normalizedFormat = (format ?? "D").Trim().ToUpperInvariant();
+        var normalizedFormat = string.IsNullOrWhiteSpace(format) ? "D" : format.Trim().ToUpperInvariant();
         if (normalizedFormat is not ("D" or "N" or "B" or "P" or "X"))
             throw new FormatException("UUID format must be D, N, B, P, or X.");
 
