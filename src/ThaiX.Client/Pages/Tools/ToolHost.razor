@@ -173,6 +173,15 @@ else
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="v7" />
                             <RadzenLabel Text="UUID v7" Component="v7" Class="rz-ms-2" />
                         </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="4">
+                            <RadzenFormField Text="@L[RK.Tools.FieldLabel.Format]" Class="w-100">
+                                <RadzenDropDown TValue="string"
+                                                Data="@UuidFormats"
+                                                Value="@(string.IsNullOrWhiteSpace(_state.Option) ? "D" : _state.Option)"
+                                                ValueChanged="OnOptionChanged"
+                                                Class="w-100" />
+                            </RadzenFormField>
+                        </RadzenColumn>
                     }
                     @if (SlugEquals("password-generator"))
                     {
@@ -267,6 +276,8 @@ else
 }
 
 @code {
+    private static readonly string[] UuidFormats = ["D", "N", "B", "P", "X"];
+
     [Parameter] public string Slug { get; set; } = string.Empty;
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -517,7 +528,7 @@ else
                 case "urle": _state.Output = EncodeToolTransforms.UrlEncode(_state.Input); break;
                 case "urld": _state.Output = EncodeToolTransforms.UrlDecode(_state.Input); break;
                 case "sha": _state.Output = EncodeToolTransforms.Sha256Hex(_state.Input); break;
-                case "uuid": _state.Output = EncodeToolTransforms.NewUuid(_state.Flag); break;
+                case "uuid": _state.Output = EncodeToolTransforms.NewUuid(_state.Flag, _state.Option); break;
                 case "toUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: true); break;
                 case "fromUnix": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false, milliseconds: false); break;
                 case "fromUnixMs": _state.Output = EncodeToolTransforms.UnixConvert(_state.Input, toUnix: false, milliseconds: true); break;
