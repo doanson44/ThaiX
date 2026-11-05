@@ -443,51 +443,51 @@ else
 
     private string LeftLabel() => Slug.ToLowerInvariant() switch
     {
-        "regex" => "Input text",
-        "curl" => "URL",
-        "conventional-commit" => "Subject",
-        _ => "A"
+        "regex" => L[RK.Tools.FieldLabel.InputText].Value,
+        "curl" => L[RK.Tools.FieldLabel.Url].Value,
+        "conventional-commit" => L[RK.Tools.FieldLabel.Subject].Value,
+        _ => L[RK.Tools.Input].Value
     };
 
     private string RightLabel() => Slug.ToLowerInvariant() switch
     {
-        "regex" => "Pattern",
-        "curl" => "Headers (Header: value)",
-        "conventional-commit" => "Body",
-        _ => "B"
+        "regex" => L[RK.Tools.FieldLabel.Pattern].Value,
+        "curl" => L[RK.Tools.FieldLabel.Headers].Value,
+        "conventional-commit" => L[RK.Tools.FieldLabel.Body].Value,
+        _ => L[RK.Tools.Output].Value
     };
 
     private IEnumerable<(string Id, string Label, string Icon)> GetActions() => Slug.ToLowerInvariant() switch
     {
-        "json-formatter" => [("pretty", "Pretty", "auto_fix"), ("minify", "Minify", "compress"), ("validate", "Validate", "check")],
-        "json-compare" => [("compare", "Compare", "compare")],
-        "jwt-decoder" => [("decode", "Decode", "key")],
-        "base64" => [("b64e", "Encode", "lock"), ("b64d", "Decode", "lock_open")],
-        "url-codec" => [("urle", "Encode", "link"), ("urld", "Decode", "link_off")],
-        "sha256" => [("sha", "Hash", "fingerprint")],
-        "uuid" => [("uuid", "Generate", "add")],
-        "unix-timestamp" => [("toUnix", "To Unix", "schedule"), ("fromUnix", "From Unix", "event")],
-        "yaml-validator" => [("yamlVal", "Validate", "fact_check")],
-        "yaml-json" => [("y2j", "YAML → JSON", "swap_horiz"), ("j2y", "JSON → YAML", "swap_horiz")],
-        "xml-formatter" => [("xml", "Format", "code")],
-        "csv-json" => [("c2j", "CSV → JSON", "table"), ("j2c", "JSON → CSV", "table")],
-        "json-to-csharp" => [("cs", "Generate C#", "terminal")],
-        "json-to-typescript" => [("ts", "Generate TS", "javascript")],
-        "sql-formatter" => [("sql", "Format", "storage")],
-        "html-formatter" => [("html", "Format", "html")],
-        "css-formatter" => [("css", "Format", "css")],
-        "js-formatter" => [("js", "Format", "javascript")],
-        "markdown-preview" => [("md", "Preview", "preview")],
-        "html-markdown" => [("h2m", "HTML → MD", "swap_horiz"), ("m2h", "MD → HTML", "swap_horiz")],
-        "diff" => [("diff", "Diff", "difference")],
-        "regex" => [("re", "Test", "regular_expression"), ("reReplace", "Replace", "find_replace")],
-        "password-generator" => [("pw", "Generate", "password")],
-        "password-strength" => [("pws", "Check", "security")],
-        "cron" => [("cron", "Build", "schedule")],
-        "qr" => [("qr", "Generate", "qr_code")],
-        "curl" => [("curl", "Generate", "http")],
-        "gitignore" => [("gi", "Generate", "folder_off")],
-        "conventional-commit" => [("cc", "Generate", "commit")],
+        "json-formatter" => [("pretty", L[RK.Tools.Action.Pretty].Value, "auto_fix"), ("minify", L[RK.Tools.Action.Minify].Value, "compress"), ("validate", L[RK.Tools.Action.Validate].Value, "check")],
+        "json-compare" => [("compare", L[RK.Tools.Action.Compare].Value, "compare")],
+        "jwt-decoder" => [("decode", L[RK.Tools.Action.Decode].Value, "key")],
+        "base64" => [("b64e", L[RK.Tools.Action.Encode].Value, "lock"), ("b64d", L[RK.Tools.Action.Decode].Value, "lock_open")],
+        "url-codec" => [("urle", L[RK.Tools.Action.Encode].Value, "link"), ("urld", L[RK.Tools.Action.Decode].Value, "link_off")],
+        "sha256" => [("sha", L[RK.Tools.Action.Hash].Value, "fingerprint")],
+        "uuid" => [("uuid", L[RK.Tools.Action.Generate].Value, "add")],
+        "unix-timestamp" => [("toUnix", L[RK.Tools.Action.ToUnix].Value, "schedule"), ("fromUnix", L[RK.Tools.Action.FromUnix].Value, "event")],
+        "yaml-validator" => [("yamlVal", L[RK.Tools.Action.Validate].Value, "fact_check")],
+        "yaml-json" => [("y2j", L[RK.Tools.Action.YamlToJson].Value, "swap_horiz"), ("j2y", L[RK.Tools.Action.JsonToYaml].Value, "swap_horiz")],
+        "xml-formatter" => [("xml", L[RK.Tools.Action.Format].Value, "code")],
+        "csv-json" => [("c2j", L[RK.Tools.Action.CsvToJson].Value, "table"), ("j2c", L[RK.Tools.Action.JsonToCsv].Value, "table")],
+        "json-to-csharp" => [("cs", L[RK.Tools.Action.GenerateCsharp].Value, "terminal")],
+        "json-to-typescript" => [("ts", L[RK.Tools.Action.GenerateTypescript].Value, "javascript")],
+        "sql-formatter" => [("sql", L[RK.Tools.Action.Format].Value, "storage")],
+        "html-formatter" => [("html", L[RK.Tools.Action.Format].Value, "html")],
+        "css-formatter" => [("css", L[RK.Tools.Action.Format].Value, "css")],
+        "js-formatter" => [("js", L[RK.Tools.Action.Format].Value, "javascript")],
+        "markdown-preview" => [("md", L[RK.Tools.Action.Preview].Value, "preview")],
+        "html-markdown" => [("h2m", L[RK.Tools.Action.HtmlToMarkdown].Value, "swap_horiz"), ("m2h", L[RK.Tools.Action.MarkdownToHtml].Value, "swap_horiz")],
+        "diff" => [("diff", L[RK.Tools.Action.Compare].Value, "difference")],
+        "regex" => [("re", L[RK.Tools.Action.Test].Value, "regular_expression"), ("reReplace", L[RK.Tools.Action.Replace].Value, "find_replace")],
+        "password-generator" => [("pw", L[RK.Tools.Action.Generate].Value, "password")],
+        "password-strength" => [("pws", L[RK.Tools.Action.Test].Value, "security")],
+        "cron" => [("cron", L[RK.Tools.Action.Build].Value, "schedule")],
+        "qr" => [("qr", L[RK.Tools.Action.Generate].Value, "qr_code")],
+        "curl" => [("curl", L[RK.Tools.Action.Generate].Value, "http")],
+        "gitignore" => [("gi", L[RK.Tools.Action.Generate].Value, "folder_off")],
+        "conventional-commit" => [("cc", L[RK.Tools.Action.Generate].Value, "commit")],
         _ => []
     };
 
