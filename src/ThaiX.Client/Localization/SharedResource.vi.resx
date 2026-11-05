@@ -1715,6 +1715,7 @@
   <data name="Calc.Formula.ath-drawdown" xml:space="preserve"><value>Drawdown = (đỉnh lịch sử - giá hiện tại) / đỉnh lịch sử x 100; tỷ lệ tăng để phục hồi = đỉnh lịch sử / giá hiện tại - 1.</value></data>
   <data name="Tools.Valid" xml:space="preserve"><value>Hợp lệ</value></data>
   <data name="Tools.Invalid" xml:space="preserve"><value>Không hợp lệ</value></data>
+  <data name="Tools.EditorStats" xml:space="preserve"><value>{0} dòng · {1} ký tự</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Diễn giải</value></data>
   <data name="Calc.Validation.Input" xml:space="preserve"><value>Vui lòng kiểm tra các giá trị đã nhập và điều kiện của công cụ tính.</value></data>
   <data name="Calc.Validation.Format" xml:space="preserve"><value>Một hoặc nhiều giá trị có định dạng số hoặc danh sách không hợp lệ.</value></data>
