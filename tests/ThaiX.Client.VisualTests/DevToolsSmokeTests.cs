@@ -118,6 +118,42 @@ public sealed class DevToolsSmokeTests
     }
 
     [Fact]
+    public async Task ToolHost_JsonFormatter_CtrlEnter_ShouldRunPrimaryAction()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/tools/json-formatter", 1280, 800);
+
+            var editors = page.Locator(".ThaiX-mono-editor__input");
+            await editors.First.WaitForAsync(Visible(15000));
+            await editors.First.FillAsync("{\"ok\":true}");
+            await editors.First.PressAsync("Control+Enter");
+
+            await page.WaitForTimeoutAsync(300);
+            Assert.Contains("\"ok\": true", await editors.Nth(1).InputValueAsync(), StringComparison.Ordinal);
+        }
+    }
+
+    [Fact]
+    public async Task ToolHost_Fullscreen_ShouldExitWithEscape()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/tools/json-formatter", 1280, 800);
+
+            await page.GetByRole(AriaRole.Button, new() { Name = "Fullscreen" }).WaitForAsync(Visible(15000));
+            await page.GetByRole(AriaRole.Button, new() { Name = "Fullscreen" }).ClickAsync();
+            await page.Locator(".ThaiX-tools--fullscreen").WaitForAsync(Visible(5000));
+
+            await page.Keyboard.PressAsync("Escape");
+            await page.Locator(".ThaiX-tools--fullscreen").WaitForAsync(
+                new() { State = WaitForSelectorState.Hidden, Timeout = 5000 });
+        }
+    }
+
+    [Fact]
     public async Task ToolHost_MarkdownPreview_ShowsPreviewPane()
     {
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
