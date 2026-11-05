@@ -1705,6 +1705,7 @@
   <data name="Calc.Field.StopLoss" xml:space="preserve"><value>Stop loss</value></data>
   <data name="Calc.Field.TakeProfit" xml:space="preserve"><value>Take profit</value></data>
   <data name="Calc.Field.Size" xml:space="preserve"><value>Position size (qty)</value></data>
+  <data name="Calc.Field.ContractSize" xml:space="preserve"><value>Base units per contract</value></data>
   <data name="Calc.Field.Leverage" xml:space="preserve"><value>Leverage</value></data>
   <data name="Calc.Field.MakerPct" xml:space="preserve"><value>Maker fee %</value></data>
   <data name="Calc.Field.TakerPct" xml:space="preserve"><value>Taker fee %</value></data>
@@ -1758,6 +1759,8 @@
   <data name="Calc.Result.RiskReward" xml:space="preserve"><value>Risk:reward</value></data>
   <data name="Calc.Result.LevelsAligned" xml:space="preserve"><value>Levels aligned with side</value></data>
   <data name="Calc.Result.GrossPnl" xml:space="preserve"><value>Gross PnL</value></data>
+  <data name="Calc.Result.ContractSize" xml:space="preserve"><value>Base units per contract</value></data>
+  <data name="Calc.Result.BaseQuantity" xml:space="preserve"><value>Total base quantity</value></data>
   <data name="Calc.Result.Fees" xml:space="preserve"><value>Fees</value></data>
   <data name="Calc.Result.NetPnl" xml:space="preserve"><value>Net PnL</value></data>
   <data name="Calc.Result.Margin" xml:space="preserve"><value>Margin</value></data>
@@ -1796,7 +1799,7 @@
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Risking {0}% suggests qty {1} (notional {2}).</value></data>
   <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Reward is {0}× the risk distance.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>Net PnL {0}; ROE {1}%.</value></data>
-  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Estimated isolated liquidation near {0}.</value></data>
+  <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Linear isolated estimate near {0}; excludes tiered maintenance margin, fees, funding, and cross margin.</value></data>
   <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Weighted average entry {0} on total qty {1}.</value></data>
   <data name="Calc.Interp.Dca" xml:space="preserve"><value>Average cost {0} after investing {1}.</value></data>
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Fees imply break-even around {0}.</value></data>
