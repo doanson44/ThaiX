@@ -46,19 +46,19 @@ powershell -ExecutionPolicy Bypass -File .agents/skills/publish-code/publish.ps1
 Package mode:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .codex/skills/publish-code/publish.ps1 -Mode Package -Project 'src/ThaiX.Presentation/ThaiX.Presentation.csproj' -Configuration Release -PublishDir publish -DeployDir deploy -ZipName publish.zip
+powershell -ExecutionPolicy Bypass -File .agents/skills/publish-code/publish.ps1 -Mode Package -Project 'src/ThaiX.Presentation/ThaiX.Presentation.csproj' -Configuration Release -PublishDir publish -DeployDir deploy -ZipName publish.zip
 ```
 
 WebDeploy mode using publishSettings:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .codex/skills/publish-code/publish.ps1 -Mode WebDeploy -Project 'src/ThaiX.Presentation/ThaiX.Presentation.csproj' -Configuration Release -PublishSettingsPath '<path-to-secret-publishSettings>'
+powershell -ExecutionPolicy Bypass -File .agents/skills/publish-code/publish.ps1 -Mode WebDeploy -Project 'src/ThaiX.Presentation/ThaiX.Presentation.csproj' -Configuration Release -PublishSettingsPath '<path-to-secret-publishSettings>'
 ```
 
 WebDeploy mode with explicit profile selection:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .codex/skills/publish-code/publish.ps1 -Mode WebDeploy -PublishSettingsPath '<path-to-secret-publishSettings>' -PublishProfileName '<profile-name>'
+powershell -ExecutionPolicy Bypass -File .agents/skills/publish-code/publish.ps1 -Mode WebDeploy -PublishSettingsPath '<path-to-secret-publishSettings>' -PublishProfileName '<profile-name>'
 ```
 
 ## Notes

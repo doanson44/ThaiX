@@ -37,7 +37,7 @@ Create in `Application/Features/ExternalData/{Feature}/Queries/{QueryName}/`:
 
 ```csharp
 // {QueryName}Query.cs
-public sealed record {QueryName}Query : IRequest<{QueryName}Response>;
+public sealed record {QueryName}Query : IRequest<{QueryName}Response?>;
 
 public sealed record {QueryName}Response
 {
@@ -55,14 +55,14 @@ public sealed record {QueryName}Response
 ```csharp
 // {QueryName}QueryHandler.cs
 public sealed class {QueryName}QueryHandler
-    : IRequestHandler<{QueryName}Query, {QueryName}Response>
+     : IRequestHandler<{QueryName}Query, {QueryName}Response?>
 {
     private readonly IExternalDataService _externalDataService;
 
     public {QueryName}QueryHandler(IExternalDataService externalDataService)
         => _externalDataService = externalDataService;
 
-    public async Task<{QueryName}Response> Handle(
+    public async Task<{QueryName}Response?> Handle(
         {QueryName}Query request,
         CancellationToken cancellationToken)
     {
@@ -70,10 +70,7 @@ public sealed class {QueryName}QueryHandler
             .Get{Source}Async<InternalResponse>(cancellationToken);
 
         if (apiResponse is null)
-        {
-            // Treat absence according to the feature contract: nullable data when expected,
-            // or the existing mapped application exception when it represents an upstream failure.
-        }
+            return null;
 
         // Project from internal → response (manual, no AutoMapper).
         return new {QueryName}Response { ... };
@@ -113,7 +110,7 @@ Add to `Presentation/Endpoints/ExternalDataEndpoints.cs`:
 group.MapGet("{route}", async (IMediator mediator, HttpContext ctx, CancellationToken ct) =>
 {
     var result = await mediator.Send(new {QueryName}Query(), ct);
-    var response = ApiResponse<{QueryName}Response>.SuccessResult(result);
+    var response = ApiResponse<{QueryName}Response?>.SuccessResult(result);
     response.Metadata.CorrelationId = ctx.GetCorrelationId();
     return Results.Ok(response);
 })

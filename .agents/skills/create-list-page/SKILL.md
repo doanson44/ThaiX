@@ -268,8 +268,7 @@ Do NOT skip any of the 4 steps above. If omitted, the breadcrumb will show raw s
 
 ### 9. NavMenu permission guard (MANDATORY)
 
-Every page that requires a permission MUST be hidden in the NavMenu when the user lacks that permission.
-Use `auth.User.HasClaim("scope", PermissionNames.XxxRead)` — the same permission constant used in `[Authorize(Policy = ...)]`.
+Every page that requires a permission MUST be hidden in the NavMenu when the user lacks that permission. The current Blazor client checks `scope` claims with `auth.User.HasClaim("scope", PermissionNames.XxxRead)`. Server-side JWT validation also maps each token `scope` value to a `permission` claim for the permission authorization requirement. Keep the claim types distinct and aligned with the current token contract; see `.agents/rules/repository-facts.md`. NavMenu visibility is not a security boundary: the API endpoint must enforce `.RequireAuthorization(Permissions.X)`.
 
 **Pattern — single page:**
 ```razor
