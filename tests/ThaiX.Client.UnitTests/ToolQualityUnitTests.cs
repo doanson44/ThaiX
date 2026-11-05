@@ -270,6 +270,28 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void BuildCurl_WithHeaderWithoutColon_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl(
+            "GET", "https://example.com", "Authorization Bearer token", string.Empty);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void BuildCurl_WithInvalidHeaderName_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl(
+            "GET", "https://example.com", "Bad Header: value", string.Empty);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void BuildCurl_WithInvalidMethod_ShouldThrowFormatException()
     {
         // Arrange / Act
