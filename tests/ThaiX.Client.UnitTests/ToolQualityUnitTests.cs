@@ -114,6 +114,23 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void Base64UrlEncodeAndDecode_ShouldRoundTripWithoutPadding()
+    {
+        // Arrange
+        const string input = "{\"sub\":\"thaix-user\",\"role\":\"admin\"}";
+
+        // Act
+        var encoded = EncodeToolTransforms.Base64UrlEncode(input);
+        var decoded = EncodeToolTransforms.Base64UrlDecodeText(encoded);
+
+        // Assert
+        Assert.DoesNotContain("=", encoded, StringComparison.Ordinal);
+        Assert.DoesNotContain("+", encoded, StringComparison.Ordinal);
+        Assert.DoesNotContain("/", encoded, StringComparison.Ordinal);
+        Assert.Equal(input, decoded);
+    }
+
+    [Fact]
     public void UnixConvert_FromSeconds_ShouldNotInferMilliseconds()
     {
         // Arrange
