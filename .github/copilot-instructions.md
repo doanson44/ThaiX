@@ -83,8 +83,8 @@ You are working on the ThaiX solution.
 - Focus exclusively on code implementation.
 - Use XML documentation comments `///` for public APIs.
 - `docs/` is for project/product documentation only.
-- AI agent documentation, workflows, prompts, and maintenance docs must be created/updated under `.github/` only.
-- If any shared agent asset under `.agents/`, `.github/`, `.cursor/`, `.trae/`, or `.continue/` is changed, apply the equivalent change to every relevant runtime folder in the same turn.
+- Canonical Codex/shared agent skills and rules live under `.agents/`; GitHub Copilot-specific instructions, prompts, and mirrors live under `.github/`.
+- If a shared agent asset under `.agents/` is changed, synchronize the corresponding assets in runtime folders that are actually present in this checkout, currently `.github/` and `.cursor/`. Do not create absent runtime directories merely to mirror assets.
 - Before changing a skill, prompt, instruction, or rule, read the corresponding agent asset in each runtime folder and preserve runtime-specific conventions.
 
 ## Architectural Audit (After Every Change)
@@ -95,6 +95,18 @@ You are working on the ThaiX solution.
 4. **Data Access**: EF in Infrastructure only. AsNoTracking in reads. No client-side filtering.
 5. **Package Governance**: Versions in `Directory.Packages.props`. No unmanaged version drift.
 6. **Internationalization**: Localization in boundary layers only. Stable error codes.
+
+## Verified Runtime Facts
+
+- The current EF Core application database and presentation integration-test fixture use MariaDB/MySQL; the integration fixture uses Testcontainers.MariaDb 11.4.
+- MediatR pipeline order: LoggingBehavior -> ValidationBehavior -> TransactionBehavior -> QueryCachingBehavior -> CommandCacheInvalidationBehavior -> Handler.
+- Identity permission claims use `permission`; JWT validation copies each `scope` value into a `permission` claim. The Blazor client currently reads `scope` claims. See `.agents/rules/repository-facts.md` before changing this contract.
+
+## Agent Delivery Workflow
+
+- Create a new branch from `master` before repository changes.
+- If the user requests a PR, commit the completed changes on that branch and open the PR against `master`; do not merge unless requested.
+- Do not ask for confirmation when the task is clear; ask only for blocking ambiguity or required destructive actions.
 
 ## Feature Development Workflow
 
@@ -197,7 +209,9 @@ Do not add trailers that are unsupported by the repository workflow.
 
 ## Agent behavior
 
-- Never create a commit automatically. Commit only when the user explicitly asks for a commit.
+- Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
+- Create a new branch from `master` before implementation.
+- When a PR is requested, commit the finished changes and open the PR against `master`; do not merge unless requested.
 - Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
 - Prefer one focused commit over a mixed commit containing unrelated changes.
 - Do not use `git commit --amend`, `--no-verify`, or history rewriting unless explicitly requested.
@@ -206,12 +220,13 @@ Do not add trailers that are unsupported by the repository workflow.
 - For reverts, use `revert: <original subject>` and preserve the standard revert metadata.
 - Commit messages MUST be English and ASCII-only, consistent with the repository encoding policy.
 
-## Git Commit Policy (STRICT)
+## Git Commit Policy
 
-- **NEVER automatically commit changes**.
-- **NEVER stage files (git add) without explicit user instruction**.
-- **NEVER run git commit unless explicitly requested by the user**.
-- Git operations are the user's responsibility, not the AI's.
+- Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
+- Stage and commit changes when the user delegates a PR workflow.
+- Create a new branch from `master` before implementation.
+- When a PR is requested, open it against `master`; do not merge unless requested.
+- Do not treat Git operations as the user's responsibility when the user explicitly delegates them.
 
 <!-- AGENT_SHARED_RULES:START -->
 # Shared Agent Rules (Canonical)
@@ -219,7 +234,7 @@ Do not add trailers that are unsupported by the repository workflow.
 These rules are single-source and must be synchronized to all agent runtimes.
 
 - `docs/` is reserved for project/product documentation only.
-- AI agent docs, workflows, prompts, and maintenance guides must live under `.github/` only.
+- Canonical shared agent skills and rules live under `.agents/`; Copilot-specific instructions, prompts, and runtime mirrors live under `.github/`.
 - Agent asset changes must follow `.github/AGENT_SYNC_POLICY.md` and keep `.agents`, `.github`, `.cursor`, `.trae`, and `.continue` synchronized where the asset type exists.
 - Never create/update agent-operation documents under `docs/`.
 <!-- AGENT_SHARED_RULES:END -->

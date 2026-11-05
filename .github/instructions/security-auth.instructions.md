@@ -17,7 +17,9 @@ description: "Use when implementing authentication, authorization, JWT tokens, p
 ## Authorization
 
 - Policy-based with permission claims only.
-- Claim type: `permission` (`ClaimTypeConstants.Permission`).
+- Identity permission claim type: `permission` (`ClaimTypeConstants.Permission`).
+- JWT tokens carry `scope` values. During JWT validation, the Presentation layer copies each non-empty `scope` value into a `permission` claim if that permission claim is not already present.
+- The Blazor client currently checks `scope` claims. Keep token `scope`, server `permission`, and client policy behavior distinct; inspect token issuance, validation, authorization handlers, client policy registration, and tests before changing any claim type.
 - Claim value format: `Feature.Action` (e.g., `Contact.Read`, `Contact.Write`).
 - Use `Permissions.*` constants -- NEVER hardcode strings.
 - Endpoints use `.RequireAuthorization(Permissions.X)`.

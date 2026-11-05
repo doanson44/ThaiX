@@ -6,6 +6,20 @@ namespace ThaiX.Client.Services.Tools.Transforms;
 
 public static class GeneratorToolTransforms
 {
+    private static readonly IReadOnlyDictionary<string, int> CronMonthAliases =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["JAN"] = 1, ["FEB"] = 2, ["MAR"] = 3, ["APR"] = 4,
+            ["MAY"] = 5, ["JUN"] = 6, ["JUL"] = 7, ["AUG"] = 8,
+            ["SEP"] = 9, ["OCT"] = 10, ["NOV"] = 11, ["DEC"] = 12
+        };
+
+    private static readonly IReadOnlyDictionary<string, int> CronWeekdayAliases =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["SUN"] = 0, ["MON"] = 1, ["TUE"] = 2, ["WED"] = 3,
+            ["THU"] = 4, ["FRI"] = 5, ["SAT"] = 6
+        };
     public static string GeneratePassword(int length, bool symbols)
     {
         length = Math.Clamp(length, 4, 128);
@@ -13,15 +27,36 @@ public static class GeneratorToolTransforms
         const string lower = "abcdefghijkmnopqrstuvwxyz";
         const string digits = "23456789";
         const string syms = "!@#$%^&*-_=+?";
-        var alphabet = upper + lower + digits + (symbols ? syms : "");
-        var bytes = RandomNumberGenerator.GetBytes(length);
+        var groups = symbols
+            ? new[] { upper, lower, digits, syms }
+            : new[] { upper, lower, digits };
+        var alphabet = string.Concat(groups);
         var chars = new char[length];
-        for (var i = 0; i < length; i++)
-            chars[i] = alphabet[bytes[i] % alphabet.Length];
+
+        for (var i = 0; i < groups.Length; i++)
+            chars[i] = groups[i][RandomNumberGenerator.GetInt32(groups[i].Length)];
+
+        for (var i = groups.Length; i < chars.Length; i++)
+            chars[i] = alphabet[RandomNumberGenerator.GetInt32(alphabet.Length)];
+
+        for (var i = chars.Length - 1; i > 0; i--)
+        {
+            var swapIndex = RandomNumberGenerator.GetInt32(i + 1);
+            (chars[i], chars[swapIndex]) = (chars[swapIndex], chars[i]);
+        }
+
         return new string(chars);
     }
 
-    public static string PasswordStrength(string password)
+    public static string PasswordStrength(
+        string password,
+        string scoreLabel = "Score",
+        string weakLabel = "Weak",
+        string fairLabel = "Fair",
+        string goodLabel = "Good",
+        string strongLabel = "Strong",
+        string lengthLabel = "Length",
+        string disclaimer = "Heuristic only; not an entropy or breach check.")
     {
         var p = password ?? "";
         var score = 0;
@@ -33,38 +68,238 @@ public static class GeneratorToolTransforms
         if (p.Length > 0 && p.Distinct().Count() <= 3) score = Math.Max(0, score - 2);
         var label = score switch
         {
-            <= 1 => "Weak",
-            2 => "Fair",
-            3 => "Good",
-            _ => "Strong"
+            <= 1 => weakLabel,
+            2 => fairLabel,
+            3 => goodLabel,
+            _ => strongLabel
         };
-        return $"Score: {score}/5 — {label}\nLength: {p.Length}";
+        return $"{scoreLabel}: {score}/5 - {label}\n{lengthLabel}: {p.Length}\n{disclaimer}";
     }
 
     public static string BuildCron(string minute, string hour, string dayOfMonth, string month, string dayOfWeek) =>
         $"{minute} {hour} {dayOfMonth} {month} {dayOfWeek}";
 
-    public static string DescribeCron(string expression) =>
-        $"Cron: {expression}\n(Preview only — validate in your scheduler.)";
+    public static string DescribeCron(
+        string expression,
+        DateTimeOffset? fromUtc = null,
+        string cronLabel = "Cron",
+        string nextRunsLabel = "Next runs (UTC)")
+    {
+        var occurrences = GetNextCronOccurrences(expression, fromUtc ?? DateTimeOffset.UtcNow);
+        var lines = occurrences.Select(value => value.ToString("yyyy-MM-dd HH:mm 'UTC'", System.Globalization.CultureInfo.InvariantCulture));
+        return $"{cronLabel}: {expression}\n{nextRunsLabel}:\n{string.Join("\n", lines)}";
+    }
 
-    public static string QrSvg(string text, int border = 2) =>
-        QrCode.EncodeText(text ?? "", QrCode.Ecc.Medium).ToSvgString(border);
+    public static IReadOnlyList<DateTimeOffset> GetNextCronOccurrences(
+        string expression,
+        DateTimeOffset fromUtc,
+        int count = 5)
+    {
+        if (count is < 1 or > 100)
+            throw new ArgumentOutOfRangeException(nameof(count));
+
+        var parts = (expression ?? string.Empty).Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 5)
+            throw new FormatException("Cron expression must contain exactly five fields.");
+
+        var minute = ParseCronField(parts[0], 0, 59);
+        var hour = ParseCronField(parts[1], 0, 23);
+        var dayOfMonth = ParseCronField(parts[2], 1, 31);
+        var month = ParseCronField(parts[3], 1, 12, aliases: CronMonthAliases);
+        var dayOfWeek = ParseCronField(parts[4], 0, 7, normalizeSunday: true, aliases: CronWeekdayAliases);
+
+        var utc = fromUtc.ToUniversalTime();
+        var startDate = utc.UtcDateTime.Date;
+        var maxDays = Math.Min(400 * 366, (DateTime.MaxValue.Date - startDate).Days);
+        var hours = hour.Values.OrderBy(value => value).ToArray();
+        var minutes = minute.Values.OrderBy(value => value).ToArray();
+        var occurrences = new List<DateTimeOffset>(count);
+
+        for (var dayIndex = 0; dayIndex <= maxDays && occurrences.Count < count; dayIndex++)
+        {
+            var date = startDate.AddDays(dayIndex);
+            if (!month.Values.Contains(date.Month))
+                continue;
+
+            var matchesDay = dayOfMonth.Values.Contains(date.Day);
+            var matchesWeekday = dayOfWeek.Values.Contains((int)date.DayOfWeek);
+            var matchesCalendarDay = dayOfMonth.IsWildcard && dayOfWeek.IsWildcard
+                || dayOfMonth.IsWildcard && matchesWeekday
+                || dayOfWeek.IsWildcard && matchesDay
+                || !dayOfMonth.IsWildcard && !dayOfWeek.IsWildcard && (matchesDay || matchesWeekday);
+
+            if (!matchesCalendarDay)
+                continue;
+
+            foreach (var hourValue in hours)
+            {
+                foreach (var minuteValue in minutes)
+                {
+                    var candidate = new DateTimeOffset(
+                        date.Year, date.Month, date.Day, hourValue, minuteValue, 0, TimeSpan.Zero);
+                    if (candidate <= utc)
+                        continue;
+
+                    occurrences.Add(candidate);
+                    if (occurrences.Count == count)
+                        break;
+                }
+
+                if (occurrences.Count == count)
+                    break;
+            }
+        }
+
+        if (occurrences.Count == 0)
+            throw new FormatException("Cron expression has no upcoming occurrence within 400 years.");
+
+        return occurrences;
+    }
+
+    private sealed record CronField(HashSet<int> Values, bool IsWildcard);
+
+    private static CronField ParseCronField(
+        string expression,
+        int minimum,
+        int maximum,
+        bool normalizeSunday = false,
+        IReadOnlyDictionary<string, int>? aliases = null)
+    {
+        if (string.IsNullOrWhiteSpace(expression))
+            throw new FormatException("Cron fields cannot be empty.");
+
+        var items = expression.Split(',');
+        if (items.Any(string.IsNullOrWhiteSpace))
+            throw new FormatException($"Invalid cron list: {expression}");
+
+        var values = new HashSet<int>();
+        foreach (var item in items)
+        {
+            var stepParts = item.Split('/');
+            if (stepParts.Length > 2)
+                throw new FormatException($"Invalid cron field: {expression}");
+
+            var step = stepParts.Length == 2
+                ? ParseCronNumber(stepParts[1], 1, 100000)
+                : 1;
+            var range = stepParts[0];
+            int start;
+            int end;
+
+            if (range == "*")
+            {
+                start = minimum;
+                end = maximum;
+            }
+            else if (range.Contains('-'))
+            {
+                var bounds = range.Split('-');
+                if (bounds.Length != 2)
+                    throw new FormatException($"Invalid cron range: {range}");
+                start = ParseCronNumber(bounds[0], minimum, maximum, aliases);
+                end = ParseCronNumber(bounds[1], minimum, maximum, aliases);
+                if (start > end)
+                    throw new FormatException($"Cron range start exceeds end: {range}");
+            }
+            else
+            {
+                start = ParseCronNumber(range, minimum, maximum, aliases);
+                end = stepParts.Length == 2 ? maximum : start;
+            }
+
+            for (var value = start; value <= end; value += step)
+                values.Add(normalizeSunday && value == 7 ? 0 : value);
+        }
+
+        if (values.Count == 0)
+            throw new FormatException($"Cron field has no values: {expression}");
+
+        return new CronField(values, expression == "*");
+    }
+
+    private static int ParseCronNumber(
+        string value,
+        int minimum,
+        int maximum,
+        IReadOnlyDictionary<string, int>? aliases = null)
+    {
+        var parsed = aliases is not null && aliases.TryGetValue(value, out var alias)
+            ? alias
+            : int.TryParse(value, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var number)
+                ? number
+                : -1;
+
+        if (parsed < minimum || parsed > maximum)
+            throw new FormatException($"Cron value '{value}' must be between {minimum} and {maximum}.");
+
+        return parsed;
+    }
+
+    public static string QrSvg(string text, int border = 4, string errorCorrection = "medium")
+    {
+        if (border is < 0 or > 16)
+            throw new FormatException("QR quiet zone must be between 0 and 16 modules.");
+
+        var normalizedErrorCorrection = string.IsNullOrWhiteSpace(errorCorrection) ? "medium" : errorCorrection.Trim().ToLowerInvariant();
+        var level = normalizedErrorCorrection switch
+        {
+            "low" => QrCode.Ecc.Low,
+            "medium" => QrCode.Ecc.Medium,
+            "quartile" => QrCode.Ecc.Quartile,
+            "high" => QrCode.Ecc.High,
+            _ => throw new FormatException("QR error correction must be low, medium, quartile, or high.")
+        };
+
+        return QrCode.EncodeTextAdvanced(text ?? string.Empty, level, boostEcl: false)
+            .ToSvgString(border);
+    }
 
     public static string BuildCurl(string method, string url, string headers, string body)
     {
+        var normalizedMethod = (method ?? string.Empty).Trim().ToUpperInvariant();
+        if (normalizedMethod.Length == 0 || normalizedMethod.Any(character => !IsHttpTokenCharacter(character)))
+            throw new FormatException("HTTP method must be a valid HTTP token.");
+        if (string.IsNullOrWhiteSpace(url))
+            throw new FormatException("URL is required.");
+        if (url.Any(character => char.IsControl(character)))
+            throw new FormatException("URL cannot contain control characters.");
+
         var sb = new StringBuilder();
-        sb.Append("curl -X ").Append(method.Trim().ToUpperInvariant()).Append(" ");
-        sb.Append('\'').Append(url.Trim()).Append('\'');
+        sb.Append("curl -X ").Append(normalizedMethod).Append(" ");
+        sb.Append(ShellQuote(url.Trim()));
         foreach (var line in (headers ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var idx = line.IndexOf(':');
-            if (idx <= 0) continue;
-            sb.Append(" \\\n  -H '").Append(line.Replace("'", "'\\''")).Append('\'');
+            if (idx <= 0)
+                throw new FormatException("Each header must use the format 'Name: value'.");
+
+            var name = line[..idx].Trim();
+            var value = line[(idx + 1)..].Trim();
+            if (name.Length == 0 || name.Any(character => !IsHttpTokenCharacter(character)))
+                throw new FormatException("Header name contains invalid characters.");
+            if (value.Any(character => char.IsControl(character) && character != '\t'))
+                throw new FormatException("Header value contains invalid control characters.");
+
+            sb.Append(" \\\n  -H ").Append(ShellQuote($"{name}: {value}"));
         }
         if (!string.IsNullOrWhiteSpace(body))
-            sb.Append(" \\\n  -d '").Append(body.Replace("'", "'\\''")).Append('\'');
+        {
+            if (body.Contains((char)0))
+                throw new FormatException("Request body cannot contain a null character.");
+
+            sb.Append(" \\\n  -d ").Append(ShellQuote(body));
+        }
         return sb.ToString();
     }
+
+    private static bool IsHttpTokenCharacter(char character) =>
+        char.IsAsciiLetterOrDigit(character)
+        || "!#$%&'*+-.^_|~".Contains(character)
+        || character == (char)96;
+
+    private static string ShellQuote(string value) =>
+        "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
 
     public static string GitignorePreset(string preset) => preset.ToLowerInvariant() switch
     {
@@ -103,14 +338,39 @@ public static class GeneratorToolTransforms
 
     public static string ConventionalCommit(string type, string scope, string subject, bool breaking, string body)
     {
-        var scopePart = string.IsNullOrWhiteSpace(scope) ? "" : $"({scope.Trim()})";
-        var bang = breaking ? "!" : "";
-        var sb = new StringBuilder();
-        sb.Append(type.Trim().ToLowerInvariant()).Append(scopePart).Append(bang).Append(": ").Append(subject.Trim());
-        if (!string.IsNullOrWhiteSpace(body))
-            sb.Append("\n\n").Append(body.Trim());
+        var normalizedType = (type ?? string.Empty).Trim().ToLowerInvariant();
+        if (normalizedType.Length == 0
+            || !char.IsAsciiLetter(normalizedType[0])
+            || normalizedType.Any(character => !char.IsAsciiLetterOrDigit(character) && character != '-'))
+            throw new FormatException("Type must start with a letter and contain only letters, digits, or hyphens.");
+
+        var normalizedScope = (scope ?? string.Empty).Trim();
+        if (normalizedScope.Any(character => char.IsWhiteSpace(character) || character is '(' or ')'))
+            throw new FormatException("Scope cannot contain whitespace or parentheses.");
+
+        var normalizedSubject = (subject ?? string.Empty).Trim();
+        if (normalizedSubject.Length == 0)
+            throw new FormatException("Subject is required.");
+        if (normalizedSubject.Contains('\n') || normalizedSubject.Contains('\r'))
+            throw new FormatException("Subject must be a single line.");
+        if (normalizedSubject.EndsWith(".", StringComparison.Ordinal))
+            throw new FormatException("Subject must not end with a period.");
+
+        var scopePart = normalizedScope.Length == 0 ? string.Empty : $"({normalizedScope})";
+        var bang = breaking ? "!" : string.Empty;
+        var header = $"{normalizedType}{scopePart}{bang}: {normalizedSubject}";
+        if (header.Length > 72)
+            throw new FormatException("Conventional Commit header must not exceed 72 characters.");
+
+        var normalizedBody = (body ?? string.Empty).Trim();
+        if (breaking && normalizedBody.Length == 0)
+            throw new FormatException("A breaking change description is required.");
+
         if (breaking)
-            sb.Append("\n\nBREAKING CHANGE: ").Append(subject.Trim());
-        return sb.ToString();
+            return $"{header}\n\nBREAKING CHANGE: {normalizedBody}";
+
+        return normalizedBody.Length == 0
+            ? header
+            : $"{header}\n\n{normalizedBody}";
     }
 }

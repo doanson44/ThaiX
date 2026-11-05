@@ -49,9 +49,7 @@ Generate a Blazor WASM admin list page following ThaiX conventions.
   - `AsyncSearchSelect`: `_selectedItemValue`, `OnSelectedItemChanged`.
   - `DebouncedSearchBox`: `_mobileSearchTerm`, `OnMobileSearchChanged`.
 - Use `SearchPlaceholder` and `Paging` in `AsyncSearchSelect` for large datasets.
-- Keep page data sync:
-  - `Selected` filter updates `FilteredMobileItems`.
-  - `All` reset when empty.
+- Distinguish local filtering from global search. Local filtering is valid only when the complete, bounded dataset is already loaded. For paged/server-loaded datasets, submit the search term to the API and refresh the server result/count; never filter only the current page and present it as a global search..
 
 AsyncSearchSelect example:
 ```razor
@@ -84,7 +82,7 @@ private Task OnSelectedEntityChanged(string? value)
 
 private Task<(IReadOnlyList<EntityDto>, int)> LoadEntitiesAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
 {
-    // Implement server-side filtering/paging, or local filter on _items.
+    // Use server-side filtering/paging for global search. Local filtering is valid only when _items contains the complete bounded dataset.
     // Return items + total count.
 }
 ```
@@ -113,9 +111,9 @@ private Task OnMobileSearchChanged(string value)
 }
 ```
 
-### 4.2 Mobile Client-Side Sorting & Virtualize (Large Lists)
-- For mobile list views containing hundreds of items, iterating via `@foreach` will cause performance lag.
-- Use the `<Virtualize>` component from `Microsoft.AspNetCore.Components.Web.Virtualization` to render only visible elements.
+### 4.2 Mobile Sorting & Virtualize (Large Lists)
+- Use `Virtualize` when the loaded mobile collection is large enough to create meaningful DOM/rendering cost. It virtualizes already-loaded items; it does not provide server paging by itself.
+- For remote/large datasets, prefer a server-backed `ItemsProvider` or the existing API paging flow rather than loading every record into `_items`.
 - Use `<ClientSortBar>` to provide dropdown sorting capabilities based on `SortOption<T>`.
 
 Example implementation:
@@ -178,11 +176,11 @@ private void ApplyFilter()
 ```
 
 ### 4.3 Full DTO Columns + Mobile Card Details
-- Desktop grid must show all DTO fields via `RadzenDataGridColumn`.
-- For each field in DTO, add:
+- Desktop grid should show the fields needed for the list task, prioritizing identifiers, status, and common search/sort fields. Do not expose every DTO field by default; use a detail dialog/page for secondary or sensitive fields.
+- For each selected list field, add:
   - `RadzenDataGridColumn TItem="EntityDto" Property="FieldName" Title="@L[ResourceKeys.{Feature}.FieldName]"`
   - If needed, use visible binding for large field sets: `Visible="@(Viewport.IsDesktop || Viewport.IsTablet)"`.
-- In mobile card mode, render same fields using `RadzenCard`:
+- In mobile card mode, render the same key list fields using `RadzenCard`; keep secondary details in a dialog/detail view:
   - `@L[ResourceKeys.{Feature}.FieldName]: @item.FieldName` (or formatted string for numerics/dates)
 -    Format recommendations:
   - currency/price: `@item.Price.ToString("N2")`
@@ -270,8 +268,7 @@ Do NOT skip any of the 4 steps above. If omitted, the breadcrumb will show raw s
 
 ### 9. NavMenu permission guard (MANDATORY)
 
-Every page that requires a permission MUST be hidden in the NavMenu when the user lacks that permission.
-Use `auth.User.HasClaim("scope", PermissionNames.XxxRead)` — the same permission constant used in `[Authorize(Policy = ...)]`.
+Every page that requires a permission MUST be hidden in the NavMenu when the user lacks that permission. The current Blazor client checks `scope` claims with `auth.User.HasClaim("scope", PermissionNames.XxxRead)`. Server-side JWT validation also maps each token `scope` value to a `permission` claim for the permission authorization requirement. Keep the claim types distinct and aligned with the current token contract; see `.agents/rules/repository-facts.md`. NavMenu visibility is not a security boundary: the API endpoint must enforce `.RequireAuthorization(Permissions.X)`.
 
 **Pattern — single page:**
 ```razor

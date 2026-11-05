@@ -19,12 +19,12 @@ The site commits to a specific design direction — brutalist, editorial, dark-l
 
 ## 02 · Typography That Does Work
 
-A paired display + body face, neither of them Inter or Roboto. Scale and weight carry hierarchy. The headlines feel chosen, not defaulted.
+A deliberate display + body pairing. Prefer brand-approved fonts, verify glyph coverage for supported languages, and prioritize readability, performance, and licensing. Scale and weight carry hierarchy.
 
 **Check:**
 - [ ] Display font is distinctive and memorable
 - [ ] Body font is readable and pairs well with display
-- [ ] No Inter, Roboto, Arial, or system-font defaults
+- [ ] Font choices follow the brand system and are readable, performant, licensed, and complete for required languages
 - [ ] Scale and weight alone communicate hierarchy
 
 ---

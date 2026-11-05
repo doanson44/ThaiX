@@ -1,6 +1,6 @@
 param(
     [ValidateSet('Package', 'WebDeploy')]
-    [string]$Mode = 'WebDeploy',
+    [string]$Mode = 'Package',
     [string]$Project = 'src/ThaiX.Presentation/ThaiX.Presentation.csproj',
     [string]$Configuration = 'Release',
     [string]$PublishDir = 'publish',
@@ -8,7 +8,7 @@ param(
     [string]$ZipName = 'publish.zip',
     [string]$Runtime = '',
     [bool]$SelfContained = $false,
-    [string]$PublishSettingsPath = 'docs/app.example.invalid-WebDeploy.publishSettings',
+    [string]$PublishSettingsPath = '',
     [string]$PublishProfileName = ''
 )
 
@@ -23,20 +23,6 @@ Write-Host "Mode: $Mode"
 Write-Host "Project: $projectPath"
 Write-Host "Configuration: $Configuration"
 
-if (Test-Path $PublishDir) {
-    Write-Host "Removing existing publish folder: $PublishDir"
-    Remove-Item -LiteralPath $PublishDir -Recurse -Force
-}
-
-if (Test-Path $DeployDir) {
-    Write-Host "Clearing existing deploy folder: $DeployDir"
-    Get-ChildItem -Path $DeployDir -Force | Remove-Item -Recurse -Force
-}
-else {
-    Write-Host "Creating deploy folder: $DeployDir"
-    New-Item -ItemType Directory -Path $DeployDir | Out-Null
-}
-
 # Restore client libraries (libman) so wwwroot/lib content is included in publish output
 Write-Host "Restoring client libraries (libman) for ThaiX.Client..."
 Push-Location -Path (Join-Path $repoRoot 'src/ThaiX.Client')
@@ -50,6 +36,24 @@ if ($libmanExitCode -ne 0) {
 }
 
 if ($Mode -eq 'Package') {
+    $repoRootPath = (Resolve-Path -Path '.').Path
+    $publishOutputPath = [System.IO.Path]::GetFullPath((Join-Path $repoRootPath $PublishDir))
+    $repoRootPrefix = $repoRootPath.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+    if ($publishOutputPath.Equals($repoRootPath, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not $publishOutputPath.StartsWith($repoRootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        Write-Error "PublishDir must be a dedicated output directory inside the repository; refusing to clean '$PublishDir'."
+        exit 1
+    }
+
+    if (Test-Path $publishOutputPath) {
+        Write-Host "Removing existing publish output folder: $PublishDir"
+        Remove-Item -LiteralPath $publishOutputPath -Recurse -Force
+    }
+
+    if (-not (Test-Path $DeployDir)) {
+        Write-Host "Creating deploy folder: $DeployDir"
+        New-Item -ItemType Directory -Path $DeployDir | Out-Null
+    }
     Write-Host "Publish output: $PublishDir"
     Write-Host "Deploy folder: $DeployDir"
     Write-Host "Zip file: $ZipPath"
@@ -77,6 +81,11 @@ if ($Mode -eq 'Package') {
 
     Write-Host "Publish and zip complete. Copy $ZipPath to hosting or extract it on the server."
     exit 0
+}
+
+if ([string]::IsNullOrWhiteSpace($PublishSettingsPath)) {
+    Write-Error "WebDeploy requires an explicit -PublishSettingsPath. Use -Mode Package for local packaging."
+    exit 1
 }
 
 $publishSettingsAbsolute = Resolve-Path -Path $PublishSettingsPath -ErrorAction SilentlyContinue
@@ -108,10 +117,9 @@ if (-not $selectedProfile) {
 $publishUrl = $selectedProfile.publishUrl
 $msdeploySite = $selectedProfile.msdeploySite
 $userName = $selectedProfile.userName
-$password = $selectedProfile.userPWD
-
-if ([string]::IsNullOrWhiteSpace($password) -and -not [string]::IsNullOrWhiteSpace($env:MONSTERASP_WEBDEPLOY_PASSWORD)) {
-    $password = $env:MONSTERASP_WEBDEPLOY_PASSWORD
+$password = $env:MONSTERASP_WEBDEPLOY_PASSWORD
+if ([string]::IsNullOrWhiteSpace($password)) {
+    $password = $selectedProfile.userPWD
 }
 
 if ([string]::IsNullOrWhiteSpace($publishUrl) -or [string]::IsNullOrWhiteSpace($msdeploySite) -or [string]::IsNullOrWhiteSpace($userName) -or [string]::IsNullOrWhiteSpace($password)) {
@@ -126,21 +134,32 @@ Write-Host "MSDeploy site: $msdeploySite"
 Write-Host "MSDeploy user: $userName"
 Write-Host "Starting WebDeploy publish..."
 
-dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
-    /p:WebPublishMethod=MSDeploy `
-    /p:PublishProvider=WebDeploy `
-    /p:MSDeployPublishMethod=WMSVC `
-    /p:MSDeployServiceURL=$publishUrl `
-    /p:PublishUrl=$publishUrl `
-    /p:DeployIisAppPath=$msdeploySite `
-    /p:UserName=$userName `
-    /p:Password=$password `
-    /p:AllowUntrustedCertificate=true `
-    /p:SkipExtraFilesOnServer=true
+$previousPassword = $env:Password
+try {
+    $env:Password = $password
+    dotnet msbuild $projectPath /t:Publish /p:Configuration=$Configuration `
+        /p:WebPublishMethod=MSDeploy `
+        /p:PublishProvider=WebDeploy `
+        /p:MSDeployPublishMethod=WMSVC `
+        /p:MSDeployServiceURL=$publishUrl `
+        /p:PublishUrl=$publishUrl `
+        /p:DeployIisAppPath=$msdeploySite `
+        /p:UserName=$userName `
+        /p:SkipExtraFilesOnServer=true
+    $publishExitCode = $LASTEXITCODE
+}
+finally {
+    if ($null -eq $previousPassword) {
+        Remove-Item Env:Password -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:Password = $previousPassword
+    }
+}
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "WebDeploy publish failed with exit code $LASTEXITCODE"
-    exit $LASTEXITCODE
+if ($publishExitCode -ne 0) {
+    Write-Error "WebDeploy publish failed with exit code $publishExitCode"
+    exit $publishExitCode
 }
 
 Write-Host "WebDeploy publish complete. Verify result at destination URL from the publish profile."

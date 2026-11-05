@@ -1,6 +1,6 @@
 ---
 name: add-widget
-description: "Build a dashboard or market widget end-to-end across backend query flow, client DTO/service, localization keys, and Blazor component UI. Use when creating new data widgets."
+description: "Add a new dashboard/market widget end-to-end: backend Query+Handler+Endpoint, client DTO, service method, ResourceKeys, resx entries, and self-fetching Blazor component. Use when building any new data widget."
 argument-hint: "Widget name and data source, e.g. 'VIX from Yahoo Finance' or 'Gold Price from CafeF'"
 ---
 
@@ -37,25 +37,33 @@ Create in `Application/Features/ExternalData/{Feature}/Queries/{QueryName}/`:
 
 ```csharp
 // {QueryName}Query.cs
-public sealed record {QueryName}Query : IRequest<{QueryName}Response>;
+using ThaiX.Application.Common.Interfaces.Messaging;
+
+public sealed record {QueryName}Query : IAppQuery<{QueryName}Response>;
 
 public sealed record {QueryName}Response
 {
+    // These fields describe upstream data availability, not HTTP/API envelope success.
     public bool Success { get; init; }
     public string? Message { get; init; }
     // All domain fields here
 }
 ```
 
-- Keep `Success` and `Message` on every response for error propagation.
+- Use `IAppQuery<T>` for read-only requests, following the current Application messaging contract.
+- `ApiResponse<T>` is the outer API envelope. The payload `Success`/`Message` fields describe upstream provider/data availability, not HTTP/API envelope success. Keep the two meanings distinct.
+- Follow the existing external-service error and exception-mapping contract for transport/provider failures. Do not put localized UI text in Application.
 - Use `decimal?` for numeric values that may be missing.
 
 ### 1.2 Query Handler
 
 ```csharp
 // {QueryName}QueryHandler.cs
+using MediatR;
+using ThaiX.Application.Common.Interfaces;
+
 public sealed class {QueryName}QueryHandler
-    : IRequestHandler<{QueryName}Query, {QueryName}Response>
+     : IRequestHandler<{QueryName}Query, {QueryName}Response>
 {
     private readonly IExternalDataService _externalDataService;
 
@@ -70,10 +78,13 @@ public sealed class {QueryName}QueryHandler
             .Get{Source}Async<InternalResponse>(cancellationToken);
 
         if (apiResponse is null)
-            return new {QueryName}Response { Success = false, Message = "No data." };
+        {
+            // Return a non-null provider-unavailable payload matching this feature's contract.
+            return new {QueryName}Response { ... };
+        }
 
-        // Project from internal → response (manual, no AutoMapper)
-        return new {QueryName}Response { Success = true, ... };
+        // Project from internal → response (manual, no AutoMapper).
+        return new {QueryName}Response { ... };
     }
 
     // Internal deserialization records (private, in same file)
@@ -114,7 +125,7 @@ group.MapGet("{route}", async (IMediator mediator, HttpContext ctx, Cancellation
     response.Metadata.CorrelationId = ctx.GetCorrelationId();
     return Results.Ok(response);
 })
-.RequireAuthorization(Permissions.MasterDataRead)
+.RequireAuthorization(Permissions.XxxRead) // or AllowAnonymous only when the endpoint is intentionally public
 .WithName("{QueryName}")
 .WithTags("ExternalData");
 ```
@@ -135,12 +146,13 @@ public sealed record {Feature}ResponseDto
 {
     public bool Success { get; init; }
     public string? Message { get; init; }
-    // Mirror all fields from server response
+    // Mirror the remaining business data fields from the server payload.
 }
 ```
 
 - One DTO per feature. Never reuse server-side types in the client.
 - `decimal?` for nullable numerics, `string?` for nullable strings.
+- Do not display a provider's raw technical `Message` directly to users; use localized `ResourceKeys` for the widget's failure state.
 
 ### 2.2 Client Service Interface
 
@@ -155,22 +167,14 @@ Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken canc
 Add to `ExternalDataService.cs`:
 
 ```csharp
-private const string {Feature}Endpoint = "{route-segment}";
+private const string FeatureEndpoint = "{route-segment}";
 
-public async Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken cancellationToken = default)
-{
-    var path = $"{ExternalDataBase}/{Feature}Endpoint}";
-    var response = await _httpClient.GetAsync(path, cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-        throw new ApiException("EXTERNAL_API_ERROR", $"API call failed: {response.StatusCode}", response.StatusCode);
-
-    var envelope = await response.Content.ReadFromJsonAsync<ApiResponse<{Feature}ResponseDto>>(cancellationToken: cancellationToken);
-    if (envelope is null)
-        throw new ApiException("CLIENT_INVALID_RESPONSE", "Invalid response from external API.", HttpStatusCode.InternalServerError);
-
-    return envelope;
-}
+public Task<ApiResponse<{Feature}ResponseDto>> Get{Feature}Async(CancellationToken cancellationToken = default)
+    => GetEnvelopeCachedAsync<{Feature}ResponseDto>(
+        CacheGroups.{ExistingCacheGroup},
+        FeatureEndpoint,
+        ClientCacheTtl.{ExistingTtl},
+        cancellationToken);
 ```
 
 ---
@@ -225,6 +229,7 @@ Rules:
 @using Microsoft.Extensions.Localization
 @using static ThaiX.Client.Constants.ResourceKeys
 @inject IExternalDataService ExternalDataService
+@inject ILogger<{Feature}Widget> Logger
 @inject ThaiX.Client.Services.Ui.IViewportService Viewport
 @inject IStringLocalizer<SharedResource> L
 @implements IDisposable
@@ -236,10 +241,10 @@ Rules:
             <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
         </div>
     }
-    else if (_data is null || !_data.Success)
+    else if (_hasError || _data is null || !_data.Success)
     {
         <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
-            @(_data?.Message ?? L[{Feature}.LoadFailed])
+            @L[{Feature}.LoadFailed]
         </RadzenAlert>
     }
     else
@@ -249,7 +254,7 @@ Rules:
             <RadzenStack Orientation="Orientation.Horizontal"
                          AlignItems="AlignItems.Center"
                          JustifyContent="JustifyContent.SpaceBetween">
-                <RadzenText TextStyle="TextStyle.H6" TagName="TagName.H2" Class="mb-0">@L[{Feature}.Title]</RadzenText>
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" TagName="TagName.H2" Class="mb-0">@L[{Feature}.Title]</RadzenText>
                 @* right-side value / timestamp *@
             </RadzenStack>
 
@@ -261,6 +266,7 @@ Rules:
 @code {
     private {Feature}ResponseDto? _data;
     private bool _isLoading;
+    private bool _hasError;
 
     protected override void OnInitialized()
     {
@@ -275,10 +281,13 @@ Rules:
             var response = await ExternalDataService.Get{Feature}Async();
             if (response is { Data: not null })
                 _data = response.Data;
+            else
+                _hasError = true;
         }
-        catch
+        catch (Exception exception)
         {
-            // _data stays null; widget shows error state
+            Logger.LogWarning(exception, "Failed to load {Feature} widget data.");
+            _hasError = true;
         }
         finally
         {
@@ -352,6 +361,7 @@ In markup:
 
 - **Prefer self-fetch** (inject + call in `OnInitializedAsync`) — simpler usage, no caller plumbing.
 - Use `[Parameter] public Data` only when the parent page already owns the data and must share it across multiple components.
+- Reuse the existing client `GetEnvelopeAsync` / `GetEnvelopeCachedAsync` helpers and existing cache group/TTL constants; do not create a second envelope parser or manual cache implementation.
 - Never mix both patterns in the same widget.
 
 ---

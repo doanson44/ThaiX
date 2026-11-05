@@ -9,7 +9,7 @@ applyTo: "tests/**"
 
 - Feature-based test organization.
 - Unit: `tests/ThaiX.Application.UnitTests/` -- xUnit + Moq + FluentAssertions.
-- Integration: `tests/ThaiX.Presentation.IntegrationTests/` -- WebApplicationFactory + Testcontainers.MsSql.
+- Integration: `tests/ThaiX.Presentation.IntegrationTests/` -- WebApplicationFactory + Testcontainers.MariaDb (MariaDB 11.4, `UseMySQL()`, `MariaDbHistoryRepository`).
 
 ## Naming
 
