@@ -143,11 +143,6 @@
         return lines;
     }
 
-    private static string FormatStats(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return "0 lines · 0 chars";
-
-        return $"{CountLines(value)} lines · {value.Length} chars";
-    }
+    private string FormatStats(string? value) =>
+        L[RK.Tools.EditorStats, CountLines(value), value?.Length ?? 0];
 }
