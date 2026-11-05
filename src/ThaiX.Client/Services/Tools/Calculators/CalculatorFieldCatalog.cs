@@ -187,7 +187,9 @@ public static class CalculatorFieldCatalog
             [
                 Currency(),
                 Num("price", RK.Calc.Field.Price),
-                Num("supply", RK.Calc.Field.Supply)
+                Num("supply", RK.Calc.Field.Supply),
+                Num("totalSupply", RK.Calc.Field.TotalSupply),
+                Num("maxSupply", RK.Calc.Field.MaxSupply)
             ],
             "market-cap-compare" =>
             [
