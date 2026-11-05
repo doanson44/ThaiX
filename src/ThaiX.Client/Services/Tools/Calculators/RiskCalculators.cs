@@ -54,21 +54,47 @@ public static class RiskCalculators
         decimal peak = equity[0];
         decimal maxDd = 0;
         decimal maxDdPct = 0;
-        foreach (var e in equity)
+        var peakIndex = 0;
+        var maxPeakIndex = 0;
+        var maxTroughIndex = 0;
+        var recoveryIndex = 0;
+
+        for (var index = 0; index < equity.Count; index++)
         {
-            if (e > peak) peak = e;
-            var dd = peak - e;
-            var ddPct = peak == 0 ? 0 : dd / peak * 100m;
-            if (dd > maxDd) maxDd = dd;
-            if (ddPct > maxDdPct) maxDdPct = ddPct;
+            var value = equity[index];
+            if (value >= peak && index > maxTroughIndex && maxTroughIndex > maxPeakIndex && recoveryIndex == 0)
+                recoveryIndex = index;
+
+            if (value > peak)
+            {
+                peak = value;
+                peakIndex = index;
+            }
+
+            var drawdown = peak - value;
+            var drawdownPct = drawdown / peak * 100m;
+            if (drawdown > maxDd)
+            {
+                maxDd = drawdown;
+                maxDdPct = drawdownPct;
+                maxPeakIndex = peakIndex;
+                maxTroughIndex = index;
+                recoveryIndex = 0;
+            }
         }
+
+        var troughToRecovery = recoveryIndex > 0
+            ? F(recoveryIndex - maxTroughIndex)
+            : "N/A";
 
         return new CalculatorResult(
             [
                 Line("Calc.Result.MaxDrawdown", maxDd),
-                Line("Calc.Result.MaxDrawdownPct", maxDdPct)
+                Line("Calc.Result.MaxDrawdownPct", maxDdPct),
+                Line("Calc.Result.PeakToTroughPeriods", maxTroughIndex - maxPeakIndex),
+                new("Calc.Result.TroughToRecoveryPeriods", troughToRecovery)
             ],
-            "MDD = max(peak − equity); MDD% = MDD / peak × 100",
+            "MDD = max(peak − equity); MDD% = MDD / peak × 100; recovery duration is measured in input periods",
             "Calc.Interp.MaxDrawdown",
             [F(maxDdPct)]);
     }
