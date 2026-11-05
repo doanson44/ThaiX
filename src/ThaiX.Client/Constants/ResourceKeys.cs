@@ -2530,6 +2530,10 @@ public static class ResourceKeys
             public const string WinRatePct = "Calc.Field.WinRatePct";
             public const string RiskReward = "Calc.Field.RiskReward";
             public const string RiskPerTradePct = "Calc.Field.RiskPerTradePct";
+            public const string RuinThresholdPct = "Calc.Field.RuinThresholdPct";
+            public const string TradeHorizon = "Calc.Field.TradeHorizon";
+            public const string SimulationCount = "Calc.Field.SimulationCount";
+            public const string RandomSeed = "Calc.Field.RandomSeed";
             public const string Peak = "Calc.Field.Peak";
             public const string Trough = "Calc.Field.Trough";
             public const string EquitySeries = "Calc.Field.EquitySeries";
@@ -2547,6 +2551,16 @@ public static class ResourceKeys
             public const string TargetMcap = "Calc.Field.TargetMcap";
             public const string Ath = "Calc.Field.Ath";
             public const string Current = "Calc.Field.Current";
+        }
+
+        public static class Result
+        {
+            public const string RiskOfRuinConfidenceLow = "Calc.Result.RiskOfRuinConfidenceLow";
+            public const string RiskOfRuinConfidenceHigh = "Calc.Result.RiskOfRuinConfidenceHigh";
+            public const string SimulationCount = "Calc.Result.SimulationCount";
+            public const string TradeHorizon = "Calc.Result.TradeHorizon";
+            public const string RuinThresholdPct = "Calc.Result.RuinThresholdPct";
+            public const string RandomSeed = "Calc.Result.RandomSeed";
         }
 
         public static class Placeholder
