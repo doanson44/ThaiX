@@ -417,7 +417,7 @@ public static class ConvertToolTransforms
 
     private static string EscapeCsv(string value)
     {
-        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
             return "\"" + value.Replace("\"", "\"\"") + "\"";
         return value;
     }
