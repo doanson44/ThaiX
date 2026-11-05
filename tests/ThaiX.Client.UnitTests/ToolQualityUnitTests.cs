@@ -785,6 +785,29 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void Kelly_WithConfiguredCap_ShouldLimitFullKellyAllocation()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.Kelly(60m, 2m, 15m);
+
+        // Assert
+        Assert.Equal("40", result.Breakdown[0].Value);
+        Assert.Equal("20", result.Breakdown[1].Value);
+        Assert.Equal("10", result.Breakdown[2].Value);
+        Assert.Equal("15", result.Breakdown[3].Value);
+    }
+
+    [Fact]
+    public void Kelly_WhenCapExceedsOneHundredPercent_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => RiskCalculators.Kelly(60m, 2m, 101m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void Expectancy_ShouldReportAbsoluteAndRMultipleValues()
     {
         // Arrange / Act
