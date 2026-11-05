@@ -94,12 +94,15 @@ public static class CalculatorFieldCatalog
             "average-entry" =>
             [
                 Currency(),
-                Text("legs", RK.Calc.Field.LegsPriceQty, RK.Calc.Placeholder.LegsPriceQty)
+                Text("legs", RK.Calc.Field.LegsPriceQty, RK.Calc.Placeholder.LegsPriceQty),
+                Num("feePct", RK.Calc.Field.FeePerLegPct, "0")
             ],
             "dca" =>
             [
                 Currency(),
-                Text("legs", RK.Calc.Field.LegsPriceAmount, RK.Calc.Placeholder.LegsPriceAmount)
+                Text("legs", RK.Calc.Field.LegsPriceAmount, RK.Calc.Placeholder.LegsPriceAmount),
+                Num("feePct", RK.Calc.Field.FeePerLegPct, "0"),
+                Num("currentPrice", RK.Calc.Field.CurrentPrice)
             ],
             "break-even" =>
             [
@@ -142,7 +145,9 @@ public static class CalculatorFieldCatalog
                 Num("account", RK.Calc.Field.Account),
                 Num("riskPct", RK.Calc.Field.RiskPct, "1"),
                 Num("size", RK.Calc.Field.Size),
-                Num("entry", RK.Calc.Field.Entry)
+                Num("entry", RK.Calc.Field.Entry),
+                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
+                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
             ],
             "take-profit" =>
             [
@@ -152,7 +157,9 @@ public static class CalculatorFieldCatalog
                 Num("size", RK.Calc.Field.Size),
                 Num("targetPct", RK.Calc.Field.TargetPct),
                 Num("targetRr", RK.Calc.Field.TargetRr),
-                Num("stopLoss", RK.Calc.Field.StopLoss)
+                Num("stopLoss", RK.Calc.Field.StopLoss),
+                Num("feePct", RK.Calc.Field.FeePct, "0.04"),
+                Num("slippagePct", RK.Calc.Field.SlippagePct, "0")
             ],
             "risk-of-ruin" =>
             [
