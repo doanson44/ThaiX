@@ -1730,7 +1730,9 @@
   <data name="Calc.Field.Peak" xml:space="preserve"><value>Vốn đỉnh</value></data>
   <data name="Calc.Field.Trough" xml:space="preserve"><value>Vốn đáy</value></data>
   <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Chuỗi vốn (tuỳ chọn)</value></data>
-  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Thua lỗ %</value></data>
+  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Mức lỗ % (một kịch bản)</value></data>
+  <data name="Calc.Field.LossScenarios" xml:space="preserve"><value>Các kịch bản mức lỗ bổ sung (không bắt buộc)</value></data>
+  <data name="Calc.Placeholder.LossScenarios" xml:space="preserve"><value>vd: 10,20,30,50</value></data>
   <data name="Calc.Field.AvgWin" xml:space="preserve"><value>Lãi trung bình</value></data>
   <data name="Calc.Field.AvgLoss" xml:space="preserve"><value>Lỗ trung bình</value></data>
   <data name="Calc.Field.PayoffRatio" xml:space="preserve"><value>Tỷ lệ payoff (b)</value></data>
@@ -1819,7 +1821,7 @@
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Chốt lời {0}; lãi kỳ vọng {1}.</value></data>
   <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Tần suất chạm ngưỡng ước tính: {0}% (khoảng Wilson 95%: {1}%–{2}%). Kết quả phụ thuộc giả định fixed-fractional; không phải bảo đảm.</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa khoảng {0}%.</value></data>
-  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Cần khoảng {0}% lãi để phục hồi.</value></data>
+  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Mỗi dòng cho biết tỷ lệ phục hồi cần thiết để quay lại vốn ban đầu sau mức lỗ tương ứng.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Kỳ vọng mỗi lệnh ≈ {0}.</value></data>
   <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Kelly đầy đủ ≈ {0}% vốn.</value></data>
   <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>Sau chuỗi thua, vốn ≈ {0} (drawdown {1}%).</value></data>
