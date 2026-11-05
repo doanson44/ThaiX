@@ -617,6 +617,26 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void BuildCurl_WithCustomHttpTokenMethod_ShouldAcceptMethod()
+    {
+        // Arrange / Act
+        var command = GeneratorToolTransforms.BuildCurl("M-SEARCH", "https://example.com", "", "");
+
+        // Assert
+        Assert.StartsWith("curl -X M-SEARCH ", command, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void BuildCurl_WithNullCharacterInBody_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.BuildCurl("POST", "https://example.com", "", "a\\0b");
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void BuildCurl_WithInvalidMethod_ShouldThrowFormatException()
     {
         // Arrange / Act
