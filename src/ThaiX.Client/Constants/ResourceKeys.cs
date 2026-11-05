@@ -2519,6 +2519,8 @@ public static class ResourceKeys
             public const string SlippagePct = "Calc.Field.SlippagePct";
             public const string CloseFeePct = "Calc.Field.CloseFeePct";
             public const string FeePct = "Calc.Field.FeePct";
+            public const string FeePerLegPct = "Calc.Field.FeePerLegPct";
+            public const string CurrentPrice = "Calc.Field.CurrentPrice";
             public const string MmrPct = "Calc.Field.MmrPct";
             public const string Notional = "Calc.Field.Notional";
             public const string Margin = "Calc.Field.Margin";
@@ -2566,6 +2568,11 @@ public static class ResourceKeys
             public const string TargetMarketCap = "Calc.Result.TargetMarketCap";
             public const string ContractSize = "Calc.Result.ContractSize";
             public const string BaseQuantity = "Calc.Result.BaseQuantity";
+            public const string TotalOutlay = "Calc.Result.TotalOutlay";
+            public const string MarketValue = "Calc.Result.MarketValue";
+            public const string UnrealizedPnl = "Calc.Result.UnrealizedPnl";
+            public const string GrossProfit = "Calc.Result.GrossProfit";
+            public const string NetRisk = "Calc.Result.NetRisk";
         }
 
         public static class Placeholder
