@@ -1822,7 +1822,7 @@
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
   <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Estimated threshold-crossing frequency: {0}% (95% Wilson interval: {1}%–{2}%). Conditional on the stated fixed-fractional assumptions; not a guarantee.</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Maximum drawdown about {0}%.</value></data>
-  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Need about {0}% gain to recover.</value></data>
+  <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Each row shows the recovery percentage required to return to starting equity after that loss.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
   <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Full Kelly ≈ {0}% of bankroll.</value></data>
   <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>After losses, equity ≈ {0} (drawdown {1}%).</value></data>
