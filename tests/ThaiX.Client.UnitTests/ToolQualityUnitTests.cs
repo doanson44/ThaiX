@@ -173,9 +173,9 @@ public sealed class ToolQualityUnitTests
 
         // Assert
         Assert.Equal(length, password.Length);
-        Assert.Contains(password, char.IsUpper);
-        Assert.Contains(password, char.IsLower);
-        Assert.Contains(password, char.IsDigit);
+        Assert.True(password.Any(char.IsUpper));
+        Assert.True(password.Any(char.IsLower));
+        Assert.True(password.Any(char.IsDigit));
         Assert.Equal(symbols, password.Any(character => "!@#$%^&*-_=+?".Contains(character)));
     }
 
