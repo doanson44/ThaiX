@@ -310,7 +310,7 @@ public static class ConvertToolTransforms
                 && property.Value.GetArrayLength() > 0
                 && property.Value[0].ValueKind == JsonValueKind.Object)
             {
-                nestedTypeName = UniqueName(ToPascal(property.Name.TrimEnd('s')), nestedNames);
+                nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
                 typeName = $"{nestedTypeName}[]";
                 nested.Add((property.Value[0], nestedTypeName));
             }
