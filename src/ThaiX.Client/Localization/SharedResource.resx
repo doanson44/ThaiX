@@ -2135,4 +2135,11 @@
   <data name="Calc.Result.BreakEvenWinRatePct" xml:space="preserve"><value>Gross break-even win rate %</value></data>
   <data name="Calc.Field.KellyCapPct" xml:space="preserve"><value>Maximum Kelly allocation %</value></data>
   <data name="Calc.Result.KellyCapped" xml:space="preserve"><value>Capped Kelly %</value></data>
+  <data name="Tools.PasswordStrength.Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Tools.PasswordStrength.Weak" xml:space="preserve"><value>Weak</value></data>
+  <data name="Tools.PasswordStrength.Fair" xml:space="preserve"><value>Fair</value></data>
+  <data name="Tools.PasswordStrength.Good" xml:space="preserve"><value>Good</value></data>
+  <data name="Tools.PasswordStrength.Strong" xml:space="preserve"><value>Strong</value></data>
+  <data name="Tools.PasswordStrength.Length" xml:space="preserve"><value>Length</value></data>
+  <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Heuristic only; not an entropy or breach check.</value></data>
 </root>
