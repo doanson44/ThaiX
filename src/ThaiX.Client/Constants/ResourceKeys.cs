@@ -2014,6 +2014,11 @@ public static class ResourceKeys
             public const string Build = "Tools.Action.Build";
         }
 
+        public static class Qr
+        {
+            public const string Generated = "Tools.Qr.Generated";
+        }
+
         public static class Regex
         {
             public const string Matches = "Tools.Regex.Matches";
