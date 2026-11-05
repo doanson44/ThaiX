@@ -36,7 +36,7 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | SQL Formatter | Keyword formatting now scans quoted literals, bracket/backtick identifiers, and line/block comments before placing keyword breaks; it is still not a dialect-aware parser | Add dialect-specific formatting and nested-query indentation after selecting supported SQL dialects |
 | HTML to Markdown | The converter now preserves common headings, links, emphasis, inline code, paragraphs, and lists; regex conversion is not a full HTML5 parser and nested structures can still be lossy | Adopt an already-approved HTML parser if one exists in the dependency set, or keep the tool labelled as a best-effort converter |
 | Cron | The current output is a textual preview, not expression validation or a next-run calculation | Add a parser and next-occurrence preview with an explicit scheduler dialect |
-| URL Codec | Encoding the entire input as a component changes URL delimiters | Separate full-URL normalization from query-value/component encoding and decoding |
+| URL Codec | Absolute HTTP(S) URLs are now normalized with delimiters preserved and spaces escaped; non-URL input remains component-encoded | Add explicit query-component mode and safe component-wise decoding for reserved escape sequences |
 | Password Strength | The score is a heuristic, not entropy or breach-database analysis | Label it as heuristic; add common-password screening only with a vetted local dataset |
 | JSON to C# / TypeScript | Property and type names derived from arbitrary JSON keys can collide or produce language keywords/invalid identifiers | Sanitize identifiers, escape reserved words, detect collisions, and cover arrays/nulls/nested schemas |
 | JWT Decoder | The decoder displays decoded claims and already states that signatures are not verified | Keep the unverified warning prominent; do not describe decoded claims as authenticated |
@@ -111,13 +111,13 @@ The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite covers:
 4. SQL keywords inside string literals, quoted identifiers, and comments.
 5. HTML headings, links, emphasis, inline code, and list conversion.
 6. cURL URL shell escaping and HTTP method validation.
-7. Password length and selected character-class inclusion.
-8. Calculator sample seeding for new versus initialized workspaces.
-9. Position-size risk percentage upper bound.
-10. Liquidation maintenance-margin upper bound.
-11. Mutually exclusive take-profit target modes.
-12. Positive equity-series requirement for max drawdown.
-13. Signed funding cashflow with a negative rate.
+8. Password length and selected character-class inclusion.
+9. Calculator sample seeding for new versus initialized workspaces.
+10. Position-size risk percentage upper bound.
+11. Liquidation maintenance-margin upper bound.
+12. Mutually exclusive take-profit target modes.
+13. Positive equity-series requirement for max drawdown.
+14. Signed funding cashflow with a negative rate.
 
 ## Verification status
 
