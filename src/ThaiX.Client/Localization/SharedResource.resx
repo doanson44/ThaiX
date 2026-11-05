@@ -1783,7 +1783,7 @@
   <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Required margin</value></data>
   <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Stop-loss price</value></data>
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Take-profit price</value></data>
-  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Expected profit</value></data>
+  <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Net profit after fees</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
   <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Estimated ruin frequency %</value></data>
   <data name="Calc.Result.RiskOfRuinConfidenceLow" xml:space="preserve"><value>95% confidence interval lower bound %</value></data>
