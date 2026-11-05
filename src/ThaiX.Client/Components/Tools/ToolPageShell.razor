@@ -139,7 +139,7 @@
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyError(L[RK.Tools.ShareFailed], ex.Message);
+            NotificationService.NotifyError(L[RK.Tools.ShareFailed], L[RK.Tools.ValidationGeneric]);
         }
         finally
         {
@@ -159,7 +159,7 @@
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyWarning(L[RK.Tools.ValidationTitle], ex.Message);
+            NotificationService.NotifyWarning(L[RK.Tools.ValidationTitle], L[RK.Tools.ValidationGeneric]);
         }
         finally
         {
@@ -178,7 +178,7 @@
         }
         catch (Exception ex)
         {
-            NotificationService.NotifyError(L[RK.JsonBins.CopyFailed], ex.Message);
+            NotificationService.NotifyError(L[RK.JsonBins.CopyFailed], L[RK.Tools.ValidationBrowser]);
         }
     }
 }
