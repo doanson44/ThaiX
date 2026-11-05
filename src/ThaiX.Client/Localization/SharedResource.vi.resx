@@ -2124,4 +2124,5 @@
   <data name="Calc.Field.MaxSupply" xml:space="preserve"><value>Nguồn cung tối đa (không bắt buộc)</value></data>
   <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Định giá theo tổng cung</value></data>
   <data name="Calc.Result.Fdv" xml:space="preserve"><value>Định giá pha loãng hoàn toàn (FDV)</value></data>
+  <data name="Tools.Action.ToUnixMilliseconds" xml:space="preserve"><value>Sang Unix (mili giây)</value></data>
 </root>
