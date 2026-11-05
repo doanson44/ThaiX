@@ -883,6 +883,28 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void LossRecovery_WithMultipleScenarios_ShouldReturnEachRequiredRecovery()
+    {
+        // Arrange
+        var fields = new Dictionary<string, string>
+        {
+            ["lossScenarios"] = "10,20,50"
+        };
+
+        // Act
+        var result = CalculatorRunner.Run("loss-recovery", fields);
+
+        // Assert
+        Assert.Equal(6, result.Breakdown.Count);
+        Assert.Equal("10", result.Breakdown[0].Value);
+        Assert.Equal("11.11111111", result.Breakdown[1].Value);
+        Assert.Equal("20", result.Breakdown[2].Value);
+        Assert.Equal("25", result.Breakdown[3].Value);
+        Assert.Equal("50", result.Breakdown[4].Value);
+        Assert.Equal("100", result.Breakdown[5].Value);
+    }
+
+    [Fact]
     public void RiskOfRuin_ShouldReportMonteCarloAssumptionsAndConfidenceInterval()
     {
         // Arrange / Act
