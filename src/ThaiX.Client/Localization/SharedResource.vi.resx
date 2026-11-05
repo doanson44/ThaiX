@@ -1653,7 +1653,7 @@
   <data name="Tools.ConsecutiveLoss.Title" xml:space="preserve"><value>Thua liên tiếp</value></data>
   <data name="Tools.ConsecutiveLoss.Description" xml:space="preserve"><value>Vốn còn lại sau N lệnh thua với rủi ro cố định</value></data>
   <data name="Tools.MarketCap.Title" xml:space="preserve"><value>Vốn hóa</value></data>
-  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Vốn hóa từ giá và nguồn cung</value></data>
+  <data name="Tools.MarketCap.Description" xml:space="preserve"><value>Tính vốn hóa theo nguồn cung lưu hành, định giá theo tổng cung và FDV</value></data>
   <data name="Tools.MarketCapCompare.Title" xml:space="preserve"><value>So sánh vốn hóa</value></data>
   <data name="Tools.MarketCapCompare.Description" xml:space="preserve"><value>Giá ngụ ý theo vốn hóa mục tiêu</value></data>
   <data name="Tools.AthDrawdown.Title" xml:space="preserve"><value>Drawdown từ ATH</value></data>
@@ -1775,7 +1775,7 @@
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Kỳ vọng mỗi lệnh ≈ {0}.</value></data>
   <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Kelly đầy đủ ≈ {0}% vốn.</value></data>
   <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>Sau chuỗi thua, vốn ≈ {0} (drawdown {1}%).</value></data>
-  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Vốn hóa ≈ {0}.</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Vốn hóa sử dụng nguồn cung lưu hành; định giá theo tổng cung và FDV hiển thị khi có dữ liệu.</value></data>
   <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Giá ngụ ý ≈ {0}.</value></data>
   <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Giảm {0}% từ ATH; cần {1}% để hồi.</value></data>
   <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Theo dõi chi tiêu</value></data>
@@ -2120,4 +2120,8 @@
   <data name="Tools.FieldLabel.IgnoreCase" xml:space="preserve"><value>Không phân biệt hoa thường</value></data>
   <data name="Tools.FieldLabel.ErrorCorrection" xml:space="preserve"><value>Mức sửa lỗi</value></data>
   <data name="Tools.FieldLabel.QuietZone" xml:space="preserve"><value>Vùng trống (module)</value></data>
+  <data name="Calc.Field.TotalSupply" xml:space="preserve"><value>Tổng cung (không bắt buộc)</value></data>
+  <data name="Calc.Field.MaxSupply" xml:space="preserve"><value>Nguồn cung tối đa (không bắt buộc)</value></data>
+  <data name="Calc.Result.TotalSupplyValue" xml:space="preserve"><value>Định giá theo tổng cung</value></data>
+  <data name="Calc.Result.Fdv" xml:space="preserve"><value>Định giá pha loãng hoàn toàn (FDV)</value></data>
 </root>
