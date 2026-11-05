@@ -290,7 +290,9 @@ public static class TextToolTransforms
     {
         var model = new SideBySideDiffBuilder(new Differ())
             .BuildDiffModel(left ?? string.Empty, right ?? string.Empty, ignoreWhitespace);
-        var leftWidth = model.OldText.Lines.Max(line => line.Text?.Length ?? 0);
+        var leftWidth = model.OldText.Lines.Count == 0
+            ? 0
+            : model.OldText.Lines.Max(line => line.Text?.Length ?? 0);
         var lineNumberWidth = Math.Max(1, model.OldText.Lines.Count.ToString().Length);
         var builder = new StringBuilder();
         builder.Append("OLD".PadRight(lineNumberWidth + leftWidth + 3))
