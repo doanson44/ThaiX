@@ -54,6 +54,21 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void MarkdownToHtml_WithRawHtmlAndUnsafeLinks_ShouldNotEmitExecutableMarkup()
+    {
+        // Arrange
+        const string markdown = "<img src=x onerror=alert(1)>\n\n[run](javascript:alert(1))";
+
+        // Act
+        var html = TextToolTransforms.MarkdownToHtml(markdown);
+
+        // Assert
+        Assert.DoesNotContain("<img", html, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("onerror=", html, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("href=\"javascript:", html, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public void HtmlToMarkdownRough_WithHeadingsLinksAndLists_ShouldPreserveStructure()
     {
         // Arrange
