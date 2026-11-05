@@ -35,7 +35,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | Base64 | Adds unpadded Base64URL encode/decode actions alongside standard Base64. |
 | UUID | Adds D, N, B, P, and X output formats for UUID v4/v7. |
 | Regex | Adds Ignore Case and replacement input options, localized result labels, and retains the existing execution timeout. |
-| QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |\n| Text Diff | Adds a side-by-side aligned text output mode using the existing DiffPlex dependency. |
+| QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |
+| Text Diff | Adds a side-by-side aligned text output mode using the existing DiffPlex dependency. |
 | Conventional Commit | Validates type syntax, scope, subject, 72-character header limit, and breaking-change description. Custom lowercase types are allowed. |
 | Trading calculators | Adds Long/Short direction and stop-loss-side validation to Position Size; models per-side Futures PnL slippage; reports gross Risk/Reward break-even win rate; validates fee percentages, maintenance margin, leverage minimum, mutually exclusive Take Profit modes, and whole-number period/loss counts. |
 | Risk calculators | Rejects negative equity while treating zero equity as a 100% drawdown; reports peak-to-trough and recovery periods; adds Expectancy in R multiples and a configurable Kelly cap; labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
