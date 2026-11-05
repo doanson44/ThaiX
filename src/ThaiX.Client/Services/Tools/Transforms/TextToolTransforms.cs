@@ -173,13 +173,25 @@ public static class TextToolTransforms
 
     public static string HtmlToMarkdownRough(string html)
     {
-        // Minimal: strip tags for wave deliverable; Markdig is MD→HTML. Keep reversible-ish plain text.
-        var text = Regex.Replace(html ?? "", "<script[\\s\\S]*?</script>", "", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "<style[\\s\\S]*?</style>", "", RegexOptions.IgnoreCase);
+        var text = Regex.Replace(html ?? string.Empty, "<(script|style)\\b[^>]*>[\\s\\S]*?</\\1\\s*>", string.Empty, RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<!--[\\s\\S]*?-->", string.Empty);
+        text = Regex.Replace(text, "<h([1-6])\\b[^>]*>([\\s\\S]*?)</h\\1\\s*>", match =>
+            $"{new string('#', int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture))} {match.Groups[2].Value.Trim()}\n\n",
+            RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<a\\b[^>]*href=[\\\"']([^\\\"']+)[\\\"'][^>]*>([\\s\\S]*?)</a>", "[$2]($1)", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(strong|b)\\b[^>]*>([\\s\\S]*?)</\\1\\s*>", "**$2**", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(em|i)\\b[^>]*>([\\s\\S]*?)</\\1\\s*>", "*$2*", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<code\\b[^>]*>([\\s\\S]*?)</code>", "\u0060$1\u0060", RegexOptions.IgnoreCase);
         text = Regex.Replace(text, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "</p>", "\n\n", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "<[^>]+>", "");
-        return System.Net.WebUtility.HtmlDecode(text).Trim();
+        text = Regex.Replace(text, "<li\\b[^>]*>", "- ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "</li>", "\n", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "</(p|div|section|ul|ol|blockquote|pre)>", "\n\n", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(p|div|section|ul|ol|blockquote|pre)\\b[^>]*>", string.Empty, RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<[^>]+>", string.Empty);
+        text = System.Net.WebUtility.HtmlDecode(text).Replace("\r\n", "\n");
+        text = Regex.Replace(text, @"[ \t]+\n", "\n");
+        text = Regex.Replace(text, @"\n{3,}", "\n\n");
+        return text.Trim();
     }
 
     private static string SimpleIndent(string text, string[] breakKeywords)
