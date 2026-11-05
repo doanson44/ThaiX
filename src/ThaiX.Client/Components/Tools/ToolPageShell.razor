@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Components.Web
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @using ThaiX.Client.Services.Tools
 @inject IStringLocalizer<SharedResource> L
@@ -6,7 +7,7 @@
 @inject IJSRuntime JS
 @inherits ThaiXPageBase
 
-<div class="container-fluid py-2 ThaiX-tools">
+<div class="container-fluid py-2 ThaiX-tools @(IsFullscreen ? "ThaiX-tools--fullscreen" : null)" @onkeydown="HandleKeyDown" tabindex="-1">
     <RadzenStack Gap="1rem" Class="ThaiX-tools__stack">
         <RadzenStack Orientation="Orientation.Horizontal"
                      JustifyContent="JustifyContent.SpaceBetween"
@@ -49,6 +50,10 @@
                                       ButtonStyle="ButtonStyle.Light"
                                       Disabled="@_busy"
                                       Click="ClearDraftAsync" />
+                @if (OnRunShortcut.HasDelegate)
+                {
+                    <RadzenText TextStyle="TextStyle.Caption" Class="text-muted align-self-center">@L[RK.Tools.RunShortcutHint]</RadzenText>
+                }
                 @ActionButtons
             </RadzenStack>
         </RadzenStack>
@@ -91,6 +96,9 @@
     [Parameter] public RenderFragment? ActionButtons { get; set; }
     [Parameter] public Func<string>? GetStateJson { get; set; }
     [Parameter] public EventCallback OnDraftCleared { get; set; }
+    [Parameter] public EventCallback OnRunShortcut { get; set; }
+    [Parameter] public EventCallback OnExitFullscreen { get; set; }
+    [Parameter] public bool IsFullscreen { get; set; }
 
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
@@ -105,6 +113,18 @@
         _privacyMessageKey = _canCloudWrite && Tool.AllowCloudSave
             ? RK.Tools.PrivacyCloudSync
             : RK.Tools.PrivacyLocalOnly;
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.CtrlKey && args.Key.Equals("Enter", StringComparison.OrdinalIgnoreCase))
+        {
+            await OnRunShortcut.InvokeAsync();
+            return;
+        }
+
+        if (IsFullscreen && args.Key.Equals("Escape", StringComparison.OrdinalIgnoreCase))
+            await OnExitFullscreen.InvokeAsync();
     }
 
     private async Task ShareAsync()
