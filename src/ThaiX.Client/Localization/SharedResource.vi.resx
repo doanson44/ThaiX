@@ -2147,4 +2147,5 @@
   <data name="Tools.Regex.Group" xml:space="preserve"><value>Nhóm</value></data>
   <data name="Tools.Regex.Replace" xml:space="preserve"><value>Thay thế</value></data>
   <data name="Tools.Qr.Generated" xml:space="preserve"><value>Đã tạo mã QR.</value></data>
+  <data name="Tools.FieldLabel.Replacement" xml:space="preserve"><value>Văn bản thay thế</value></data>
 </root>
