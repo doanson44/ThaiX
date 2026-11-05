@@ -723,6 +723,18 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void RiskReward_ShouldReportGrossBreakEvenWinRate()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.RiskReward(100m, 90m, 120m, TradeSide.Long);
+
+        // Assert
+        Assert.Equal("2", result.Breakdown[2].Value);
+        Assert.Equal("33.33333333", result.Breakdown[3].Value);
+        Assert.Equal("Calc.Result.BreakEvenWinRatePct", result.Breakdown[3].LabelKey);
+    }
+
+    [Fact]
     public void PositionSize_ForShortTrade_ShouldAcceptStopAboveEntry()
     {
         // Arrange / Act
