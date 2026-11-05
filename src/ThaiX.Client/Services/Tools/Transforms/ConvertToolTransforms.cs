@@ -206,7 +206,7 @@ public static class ConvertToolTransforms
     {
         using var doc = JsonDocument.Parse(json);
         var sb = new StringBuilder();
-        EmitCsharp(doc.RootElement, rootName, sb, new HashSet<string>(StringComparer.Ordinal));
+        EmitCsharp(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
     }
 
@@ -214,7 +214,7 @@ public static class ConvertToolTransforms
     {
         using var doc = JsonDocument.Parse(json);
         var sb = new StringBuilder();
-        EmitTs(doc.RootElement, rootName, sb, new HashSet<string>(StringComparer.Ordinal));
+        EmitTs(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
     }
 
@@ -230,26 +230,48 @@ public static class ConvertToolTransforms
             return;
         }
 
-        if (el.ValueKind != JsonValueKind.Object) return;
-        if (!seen.Add(name)) return;
+        if (el.ValueKind != JsonValueKind.Object || !seen.Add(name))
+            return;
 
-        var nested = new List<(string Prop, JsonElement El, string TypeName)>();
+        var nested = new List<(JsonElement El, string TypeName)>();
+        var propertyNames = new HashSet<string>(StringComparer.Ordinal);
+        var nestedNames = new HashSet<string>(StringComparer.Ordinal);
         sb.AppendLine($"public class {name}");
         sb.AppendLine("{");
-        foreach (var p in el.EnumerateObject())
-        {
-            var typeName = MapCsharp(p.Value, ToPascal(p.Name));
-            if (p.Value.ValueKind == JsonValueKind.Object)
-                nested.Add((p.Name, p.Value, ToPascal(p.Name)));
-            else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
-                nested.Add((p.Name, p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
 
-            sb.AppendLine($"    public {typeName} {CsharpIdentifier(ToPascal(p.Name))} {{ get; set; }}");
+        foreach (var property in el.EnumerateObject())
+        {
+            var propertyName = UniqueName(ToPascal(property.Name), propertyNames);
+            var nestedTypeName = ToPascal(property.Name);
+            string typeName;
+
+            if (property.Value.ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueName(nestedTypeName, nestedNames);
+                typeName = nestedTypeName + "?";
+                nested.Add((property.Value, nestedTypeName));
+            }
+            else if (property.Value.ValueKind == JsonValueKind.Array
+                && property.Value.GetArrayLength() > 0
+                && property.Value[0].ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueName(ToPascal(property.Name.TrimEnd('s')), nestedNames);
+                typeName = $"List<{nestedTypeName}>";
+                nested.Add((property.Value[0], nestedTypeName));
+            }
+            else
+            {
+                typeName = MapCsharp(property.Value, nestedTypeName);
+            }
+
+            sb.AppendLine($"    public {typeName} {CsharpIdentifier(propertyName)} {{ get; set; }}");
         }
+
         sb.AppendLine("}");
         sb.AppendLine();
-        foreach (var n in nested)
-            EmitCsharp(n.El, n.TypeName, sb, seen);
+
+        foreach (var item in nested)
+            EmitCsharp(item.El, item.TypeName, sb, seen);
     }
 
     private static void EmitTs(JsonElement el, string name, StringBuilder sb, HashSet<string> seen)
@@ -264,24 +286,47 @@ public static class ConvertToolTransforms
             return;
         }
 
-        if (el.ValueKind != JsonValueKind.Object) return;
-        if (!seen.Add(name)) return;
+        if (el.ValueKind != JsonValueKind.Object || !seen.Add(name))
+            return;
 
         var nested = new List<(JsonElement El, string TypeName)>();
+        var propertyNames = new HashSet<string>(StringComparer.Ordinal);
+        var nestedNames = new HashSet<string>(StringComparer.Ordinal);
         sb.AppendLine($"export interface {name} {{");
-        foreach (var p in el.EnumerateObject())
+
+        foreach (var property in el.EnumerateObject())
         {
-            var typeName = MapTs(p.Value, ToPascal(p.Name));
-            if (p.Value.ValueKind == JsonValueKind.Object)
-                nested.Add((p.Value, ToPascal(p.Name)));
-            else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
-                nested.Add((p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
-            sb.AppendLine($"  {TypeScriptPropertyName(p.Name)}: {typeName};");
+            var propertyName = UniqueName(property.Name, propertyNames);
+            var nestedTypeName = ToPascal(property.Name);
+            string typeName;
+
+            if (property.Value.ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueName(nestedTypeName, nestedNames);
+                typeName = nestedTypeName;
+                nested.Add((property.Value, nestedTypeName));
+            }
+            else if (property.Value.ValueKind == JsonValueKind.Array
+                && property.Value.GetArrayLength() > 0
+                && property.Value[0].ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueName(ToPascal(property.Name.TrimEnd('s')), nestedNames);
+                typeName = $"{nestedTypeName}[]";
+                nested.Add((property.Value[0], nestedTypeName));
+            }
+            else
+            {
+                typeName = MapTs(property.Value, nestedTypeName);
+            }
+
+            sb.AppendLine($"  {TypeScriptPropertyName(propertyName)}: {typeName};");
         }
+
         sb.AppendLine("}");
         sb.AppendLine();
-        foreach (var n in nested)
-            EmitTs(n.El, n.TypeName, sb, seen);
+
+        foreach (var item in nested)
+            EmitTs(item.El, item.TypeName, sb, seen);
     }
 
     private static string MapCsharp(JsonElement el, string objectName) => el.ValueKind switch
@@ -328,6 +373,15 @@ public static class ConvertToolTransforms
         }
 
         return sb.Length == 0 ? "Property" : sb.ToString();
+    }
+
+    private static string UniqueName(string name, HashSet<string> usedNames)
+    {
+        var candidate = name;
+        var suffix = 2;
+        while (!usedNames.Add(candidate))
+            candidate = name + suffix++;
+        return candidate;
     }
 
     private static string CsharpIdentifier(string name)
