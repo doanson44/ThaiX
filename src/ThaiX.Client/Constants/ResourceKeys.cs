@@ -1983,6 +1983,43 @@ public static class ResourceKeys
         public const string ValidationTitle = "Tools.Validation.Title";
         public const string ValidationGeneric = "Tools.Validation.Generic";
 
+        public static class Action
+        {
+            public const string Pretty = "Tools.Action.Pretty";
+            public const string Minify = "Tools.Action.Minify";
+            public const string Validate = "Tools.Action.Validate";
+            public const string Compare = "Tools.Action.Compare";
+            public const string Decode = "Tools.Action.Decode";
+            public const string Encode = "Tools.Action.Encode";
+            public const string Hash = "Tools.Action.Hash";
+            public const string Generate = "Tools.Action.Generate";
+            public const string ToUnix = "Tools.Action.ToUnix";
+            public const string FromUnix = "Tools.Action.FromUnix";
+            public const string Format = "Tools.Action.Format";
+            public const string YamlToJson = "Tools.Action.YamlToJson";
+            public const string JsonToYaml = "Tools.Action.JsonToYaml";
+            public const string CsvToJson = "Tools.Action.CsvToJson";
+            public const string JsonToCsv = "Tools.Action.JsonToCsv";
+            public const string GenerateCsharp = "Tools.Action.GenerateCsharp";
+            public const string GenerateTypescript = "Tools.Action.GenerateTypescript";
+            public const string Preview = "Tools.Action.Preview";
+            public const string HtmlToMarkdown = "Tools.Action.HtmlToMarkdown";
+            public const string MarkdownToHtml = "Tools.Action.MarkdownToHtml";
+            public const string Test = "Tools.Action.Test";
+            public const string Replace = "Tools.Action.Replace";
+            public const string Build = "Tools.Action.Build";
+        }
+
+        public static class FieldLabel
+        {
+            public const string InputText = "Tools.FieldLabel.InputText";
+            public const string Url = "Tools.FieldLabel.Url";
+            public const string Subject = "Tools.FieldLabel.Subject";
+            public const string Pattern = "Tools.FieldLabel.Pattern";
+            public const string Headers = "Tools.FieldLabel.Headers";
+            public const string Body = "Tools.FieldLabel.Body";
+        }
+
         public static class Category
         {
             public const string Developer = "Tools.Category.Developer";
