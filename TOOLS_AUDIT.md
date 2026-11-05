@@ -27,14 +27,14 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | cURL generator | Validates method tokens, URL control characters, header names and values; shell-quotes URL, headers, and body. |
 | SQL formatter | Scans strings, quoted identifiers, bracket/backtick identifiers, and line/block comments before formatting keywords. It remains a lightweight formatter, not a dialect parser. |
 | HTML to Markdown | Preserves common headings, links, emphasis, inline code, paragraphs, and lists. It remains a best-effort regex converter, not a full HTML5 parser. |
-| Markdown preview security | Disables raw HTML parsing in Markdig and sanitizes generated HTML with HtmlSanitizer. Mermaid rendering now uses `securityLevel: strict`; diagram source detection does not depend on sanitized class attributes. |
+| Markdown preview security | Disables raw HTML parsing in Markdig and sanitizes generated HTML with HtmlSanitizer. Mermaid rendering now uses `securityLevel: strict`; diagram source detection does not depend on sanitized class attributes. |\n| JWT decoder | Puts a localized UNVERIFIED warning before decoded header/payload and keeps the signature-present/missing state explicit. Decoding never claims signature verification. |
 | Cron | Validates five numeric fields and supports wildcards, steps, lists, and ranges. Shows the next five occurrences in UTC, searching a 400-year Gregorian cycle so rare schedules such as leap day are handled. Day-of-week accepts 0 or 7 for Sunday. Named months/days and Quartz extensions are not supported. |
-| URL Codec | Preserves delimiters for absolute HTTP(S) URLs while escaping spaces. Non-URL inputs continue to use component encoding. |
+| URL Codec | Preserves delimiters for absolute HTTP(S) URLs while escaping spaces, and exposes separate component encode/decode actions. |
 | Unix Timestamp | Seconds and milliseconds are explicit actions; input magnitude is no longer used to guess the unit. Date-only values are interpreted as UTC and output is labeled UTC. |
 | Base64 | Adds unpadded Base64URL encode/decode actions alongside standard Base64. |
 | UUID | Adds D, N, B, P, and X output formats for UUID v4/v7. |
-| Regex | Adds an Ignore Case option while retaining the existing execution timeout. |
-| QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |
+| Regex | Adds Ignore Case and replacement input options, localized result labels, and retains the existing execution timeout. |
+| QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |\n| Text Diff | Adds a side-by-side aligned text output mode using the existing DiffPlex dependency. |
 | Conventional Commit | Validates type syntax, scope, subject, 72-character header limit, and breaking-change description. Custom lowercase types are allowed. |
 | Trading calculators | Adds Long/Short direction and stop-loss-side validation to Position Size; models per-side Futures PnL slippage; reports gross Risk/Reward break-even win rate; validates fee percentages, maintenance margin, leverage minimum, mutually exclusive Take Profit modes, and whole-number period/loss counts. |
 | Risk calculators | Rejects negative equity while treating zero equity as a 100% drawdown; reports peak-to-trough and recovery periods; adds Expectancy in R multiples and a configurable Kelly cap; labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
@@ -55,8 +55,8 @@ exchange-specific financial model validation, benchmark, or runtime verification
 | JSON generators | Handle heterogeneous arrays and all duplicate JSON object-key cases; validate generated output by compiling representative fixtures. |
 | JWT Decoder | Keep decoded claims clearly marked unverified. Signature verification requires an explicit algorithm/key input workflow and must not be implied by decoding. |
 | JSON Formatter / Validator | Add structured line/column diagnostics and large-payload tests. |
-| JSON Compare / Diff | JSON Compare now reports JSON paths, missing-vs-null values, and quoted paths for special property names; add a side-by-side line view for text diff. |
-| YAML / XML | Add malformed-input diagnostics and explicit XML whitespace-preservation tests. |
+| JSON Compare / Diff | JSON Compare now reports JSON paths, missing-vs-null values, and quoted paths for special property names. Text Diff has a side-by-side output mode. |
+| YAML / XML | YAML parser source positions and significant XML text whitespace are now covered by tests; add more malformed-input and whitespace-preservation cases. |
 | SHA-256 | Add file hashing only if a browser file-input workflow is required. |
 | QR | Add fixed version/size controls only if print-layout requirements justify them. |
 | cURL | Add broader multiline-header, control-character, and special-shell-character tests. |
@@ -111,15 +111,15 @@ exchange-specific financial model validation, benchmark, or runtime verification
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 68 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (79 test cases total). Coverage includes:
+The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 76 `[Fact]` tests and
+three parameterized `[Theory]` methods with 11 inline cases (87 test cases total). Coverage includes:
 
 - CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
-- SQL literals/comments, HTML conversion, and Markdown raw-HTML/unsafe-link payloads.
+- SQL literals/comments, HTML conversion, Markdown raw-HTML/unsafe-link payloads, and JWT unverified warnings.
 - C#/TypeScript identifier sanitization and nested type collisions.
 - URL normalization, Base64URL, Unix seconds/milliseconds, and UUID formats.
-- cURL shell quoting, method/header validation, Cron parsing, Conventional Commit validation, QR settings, and password generation.
-- Calculator sample initialization, Position Size direction, Futures slippage, Risk/Reward break-even, trading boundaries, Risk of Ruin wording, Max Drawdown recovery, Expectancy R, Kelly caps, Funding signs, and Market Cap/FDV supply rules.
+- cURL shell quoting, method/header validation, Cron parsing, Conventional Commit validation, QR settings, password generation, and last-used history normalization.
+- Calculator sample initialization, Position Size direction, Futures slippage, Risk/Reward break-even, trading boundaries, Risk of Ruin wording, Max Drawdown recovery, Expectancy R, Kelly caps, Funding signs, Market Cap/FDV supply rules, YAML positions, and XML whitespace.
 
 ## Verification status
 
