@@ -66,8 +66,8 @@ public static class TradingCalculators
         RequirePositive(exit, "Exit");
         RequirePositive(size, "Size");
         RequirePositive(leverage, "Leverage");
-        RequireNonNegative(openFeePct, "Open fee %");
-        RequireNonNegative(closeFeePct, "Close fee %");
+        RequireFeePct(openFeePct, "Open fee %");
+        RequireFeePct(closeFeePct, "Close fee %");
 
         var direction = side == TradeSide.Long ? 1m : -1m;
         var gross = (exit - entry) * size * direction;
@@ -95,6 +95,7 @@ public static class TradingCalculators
     {
         RequirePositive(entry, "Entry");
         RequirePositive(leverage, "Leverage");
+        if (leverage < 1) throw new CalculatorInputException("Leverage must be at least 1x.");
         RequireNonNegative(mmrPct, "MMR %");
         if (mmrPct >= 100) throw new CalculatorInputException("MMR % must be below 100.");
         var mmr = mmrPct / 100m;
@@ -162,9 +163,8 @@ public static class TradingCalculators
     public static CalculatorResult BreakEven(decimal entry, TradeSide side, decimal openFeePct, decimal closeFeePct)
     {
         RequirePositive(entry, "Entry");
-        RequireNonNegative(openFeePct, "Open fee %");
-        RequireNonNegative(closeFeePct, "Close fee %");
-        if (closeFeePct >= 100) throw new CalculatorInputException("Close fee % must be below 100.");
+        RequireFeePct(openFeePct, "Open fee %");
+        RequireFeePct(closeFeePct, "Close fee %");
         var fOpen = openFeePct / 100m;
         var fClose = closeFeePct / 100m;
         // Round-trip BE so net ≈ 0 after fees on notional.
@@ -182,7 +182,7 @@ public static class TradingCalculators
     public static CalculatorResult TradingFee(decimal notional, decimal feePct)
     {
         RequirePositive(notional, "Notional");
-        RequireNonNegative(feePct, "Fee %");
+        RequireFeePct(feePct, "Fee %");
         var fee = notional * (feePct / 100m);
         return new CalculatorResult(
             [Line("Calc.Result.Fees", fee)],
@@ -315,6 +315,13 @@ public static class TradingCalculators
     private static void RequirePositive(decimal v, string name)
     {
         if (v <= 0) throw new CalculatorInputException($"{name} must be greater than zero.");
+    }
+
+    private static void RequireFeePct(decimal value, string name)
+    {
+        RequireNonNegative(value, name);
+        if (value >= 100)
+            throw new CalculatorInputException($"{name} must be below 100.");
     }
 
     private static void RequireNonNegative(decimal v, string name)
