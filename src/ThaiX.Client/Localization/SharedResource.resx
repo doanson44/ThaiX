@@ -1731,7 +1731,9 @@
   <data name="Calc.Field.Peak" xml:space="preserve"><value>Peak equity</value></data>
   <data name="Calc.Field.Trough" xml:space="preserve"><value>Trough equity</value></data>
   <data name="Calc.Field.EquitySeries" xml:space="preserve"><value>Equity series (optional)</value></data>
-  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Loss %</value></data>
+  <data name="Calc.Field.LossPct" xml:space="preserve"><value>Loss % (single scenario)</value></data>
+  <data name="Calc.Field.LossScenarios" xml:space="preserve"><value>Additional loss scenarios (optional)</value></data>
+  <data name="Calc.Placeholder.LossScenarios" xml:space="preserve"><value>e.g. 10,20,30,50</value></data>
   <data name="Calc.Field.AvgWin" xml:space="preserve"><value>Average win</value></data>
   <data name="Calc.Field.AvgLoss" xml:space="preserve"><value>Average loss</value></data>
   <data name="Calc.Field.PayoffRatio" xml:space="preserve"><value>Payoff ratio (b)</value></data>
@@ -1794,7 +1796,8 @@
   <data name="Calc.Result.RandomSeed" xml:space="preserve"><value>Random seed</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Max drawdown</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Max drawdown %</value></data>
-  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Recovery %</value></data>
+  <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Required recovery %</value></data>
+  <data name="Calc.Result.LossPct" xml:space="preserve"><value>Loss scenario %</value></data>
   <data name="Calc.Result.Expectancy" xml:space="preserve"><value>Expectancy</value></data>
   <data name="Calc.Result.KellyFull" xml:space="preserve"><value>Full Kelly %</value></data>
   <data name="Calc.Result.KellyHalf" xml:space="preserve"><value>Half Kelly %</value></data>
