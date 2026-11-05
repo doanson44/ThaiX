@@ -168,8 +168,11 @@ public static class CalculatorRunner
         return v;
     }
 
-    private static int Int(IReadOnlyDictionary<string, string> fields, string key)
+    private static int Int(IReadOnlyDictionary<string, string> fields, string key, int? fallback = null)
     {
+        if ((!fields.TryGetValue(key, out var raw) || string.IsNullOrWhiteSpace(raw)) && fallback.HasValue)
+            return fallback.Value;
+
         var value = D(fields, key);
         if (value != decimal.Truncate(value) || value < int.MinValue || value > int.MaxValue)
             throw new CalculatorInputException($"{key} must be a whole number.");

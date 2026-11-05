@@ -110,7 +110,7 @@ public sealed class ToolStateStoreTests
 
     private sealed class AnonymousAuthenticationStateProvider : AuthenticationStateProvider
     {
-        protected override Task<AuthenticationState> GetAuthenticationStateAsync() =>
+        public override Task<AuthenticationState> GetAuthenticationStateAsync() =>
             Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
     }
 
