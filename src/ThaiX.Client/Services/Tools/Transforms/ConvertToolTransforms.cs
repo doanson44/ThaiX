@@ -244,7 +244,7 @@ public static class ConvertToolTransforms
             else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
                 nested.Add((p.Name, p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
 
-            sb.AppendLine($"    public {typeName} {ToPascal(p.Name)} {{ get; set; }}");
+            sb.AppendLine($"    public {typeName} {CsharpIdentifier(ToPascal(p.Name))} {{ get; set; }}");
         }
         sb.AppendLine("}");
         sb.AppendLine();
@@ -328,6 +328,24 @@ public static class ConvertToolTransforms
         }
 
         return sb.Length == 0 ? "Property" : sb.ToString();
+    }
+
+    private static string CsharpIdentifier(string name)
+    {
+        string[] keywords =
+        [
+            "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
+            "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
+            "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
+            "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
+            "long", "namespace", "new", "null", "object", "operator", "out", "override", "params",
+            "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
+            "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this",
+            "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
+            "using", "virtual", "void", "volatile", "while"
+        ];
+
+        return keywords.Contains(name, StringComparer.Ordinal) ? "@" + name : name;
     }
 
     private static string TypeScriptPropertyName(string name)
