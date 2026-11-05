@@ -123,13 +123,16 @@ public static class ConvertToolTransforms
             if (quoteClosed && character is not (',' or '\r' or '\n' or ' ' or '\t'))
                 throw new FormatException("Unexpected character after a quoted CSV field.");
 
-            if (character == '"' && field.Length == 0 && !quoteClosed)
+            if (character == '"')
             {
+                if (field.Length > 0 || quoteClosed)
+                    throw new FormatException("A quoted CSV field must begin with a quote.");
+
                 inQuotes = true;
                 continue;
             }
 
-            if (character == ',' )
+            if (character == ',')
             {
                 record.Add(field.ToString());
                 field.Clear();
