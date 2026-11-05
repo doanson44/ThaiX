@@ -33,6 +33,12 @@ public static class EncodeToolTransforms
 
     public static string UrlDecode(string text) => Uri.UnescapeDataString(text);
 
+    public static string UrlEncodeComponent(string text) =>
+        Uri.EscapeDataString(text ?? string.Empty);
+
+    public static string UrlDecodeComponent(string text) =>
+        Uri.UnescapeDataString(text ?? string.Empty);
+
     public static string Sha256Hex(string text)
     {
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(text));
