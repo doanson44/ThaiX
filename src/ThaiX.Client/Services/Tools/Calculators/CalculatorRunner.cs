@@ -97,7 +97,7 @@ public static class CalculatorRunner
         if (!fields.TryGetValue("targetMcaps", out var raw) || string.IsNullOrWhiteSpace(raw))
             return [D(fields, "targetMcap")];
 
-        var values = raw.Split([',', ';', '\\r', '\\n', ' ', '\\t'], StringSplitOptions.RemoveEmptyEntries);
+        var values = raw.Split([',', ';', '\r', '\n', ' ', '\t'], StringSplitOptions.RemoveEmptyEntries);
         if (values.Length is < 1 or > 10)
             throw new CalculatorInputException("Provide between 1 and 10 target market-cap scenarios.");
 
