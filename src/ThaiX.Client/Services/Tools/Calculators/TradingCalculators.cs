@@ -20,6 +20,7 @@ public static class TradingCalculators
         if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
+        RequireTradeSide(side);
         RequireFeePct(feePct, "Fee per side %");
         RequireFeePct(slippagePct, "Slippage per side %");
 
@@ -72,8 +73,15 @@ public static class TradingCalculators
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
         RequirePositive(takeProfit, "Take profit");
+        RequireTradeSide(side);
         RequireFeePct(feePct, "Fee per side %");
         RequireFeePct(slippagePct, "Slippage per side %");
+
+        var levelsAligned = side == TradeSide.Long
+            ? stopLoss < entry && takeProfit > entry
+            : stopLoss > entry && takeProfit < entry;
+        if (!levelsAligned)
+            throw new CalculatorInputException("Stop loss and take profit must be on the correct sides of entry.");
 
         var slippage = slippagePct / 100m;
         var fee = feePct / 100m;
@@ -100,17 +108,13 @@ public static class TradingCalculators
 
         var rr = reward / risk;
         var breakEvenWinRatePct = risk / (risk + reward) * 100m;
-        var aligned = side == TradeSide.Long
-            ? takeProfit > entry && stopLoss < entry
-            : takeProfit < entry && stopLoss > entry;
-
         return new CalculatorResult(
             [
                 Line("Calc.Result.RiskDistance", risk),
                 Line("Calc.Result.RewardDistance", reward),
                 Line("Calc.Result.RiskReward", rr),
                 Line("Calc.Result.BreakEvenWinRatePct", breakEvenWinRatePct),
-                new("Calc.Result.LevelsAligned", aligned ? "Calc.Yes" : "Calc.No"),
+                new("Calc.Result.LevelsAligned", "Calc.Yes"),
                 Line("Calc.Result.Fees", riskFees),
                 Line("Calc.Result.Fees", rewardFees)
             ],
@@ -129,6 +133,8 @@ public static class TradingCalculators
         RequirePositive(size, "Contracts");
         RequirePositive(contractSize, "Contract size");
         RequirePositive(leverage, "Leverage");
+        if (leverage < 1m) throw new CalculatorInputException("Leverage must be at least 1x.");
+        RequireTradeSide(side);
         RequireFeePct(openFeePct, "Open fee %");
         RequireFeePct(closeFeePct, "Close fee %");
 
@@ -178,6 +184,7 @@ public static class TradingCalculators
     {
         RequirePositive(entry, "Entry");
         RequirePositive(leverage, "Leverage");
+        RequireTradeSide(side);
         if (leverage < 1) throw new CalculatorInputException("Leverage must be at least 1x.");
         RequireNonNegative(mmrPct, "MMR %");
         if (mmrPct >= 100) throw new CalculatorInputException("MMR % must be below 100.");
@@ -276,6 +283,7 @@ public static class TradingCalculators
     public static CalculatorResult BreakEven(decimal entry, TradeSide side, decimal openFeePct, decimal closeFeePct)
     {
         RequirePositive(entry, "Entry");
+        RequireTradeSide(side);
         RequireFeePct(openFeePct, "Open fee %");
         RequireFeePct(closeFeePct, "Close fee %");
         var fOpen = openFeePct / 100m;
@@ -413,6 +421,7 @@ public static class TradingCalculators
     {
         RequirePositive(entry, "Entry");
         RequirePositive(positionQty, "Position size");
+        RequireTradeSide(side);
         RequireFeePct(feePct, "Fee per side %");
         RequireFeePct(slippagePct, "Slippage per side %");
 
@@ -495,6 +504,12 @@ public static class TradingCalculators
             "net profit = adverse target move × quantity − entry/target fees; optional net R:R compares net profit with adverse stop loss after fees",
             "Calc.Interp.TakeProfit",
             [F(targetPrice), F(netProfit)]);
+    }
+
+    private static void RequireTradeSide(TradeSide side)
+    {
+        if (!Enum.IsDefined(side))
+            throw new CalculatorInputException("Trade side must be long or short.");
     }
 
     private static CalcLine Line(string key, decimal value) => new(key, F(value));
