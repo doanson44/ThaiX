@@ -1506,6 +1506,7 @@
   <data name="Menu.Tools" xml:space="preserve"><value>Tools</value></data>
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Tools</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Client-side developer utilities and trading/risk/crypto calculators. Drafts restore from this browser; some tools can Save/Share via JSON Bin when signed in.</value></data>
+  <data name="Tools.LastUsed" xml:space="preserve"><value>Last used</value></data>
   <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Search tools…</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Save</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Share</value></data>
