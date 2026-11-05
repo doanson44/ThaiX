@@ -883,6 +883,22 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void ConsecutiveLoss_ShouldReturnEquityAfterEachLoss()
+    {
+        // Arrange / Act
+        var result = RiskCalculators.ConsecutiveLoss(1000m, 10m, 3);
+
+        // Assert
+        var equityPath = result.Breakdown
+            .Where(line => line.LabelKey == "Calc.Result.RemainingEquity")
+            .Select(line => line.Value)
+            .ToArray();
+        Assert.Equal(["729", "900", "810", "729"], equityPath);
+        Assert.Contains(result.Breakdown, line =>
+            line.LabelKey == "Calc.Result.LossCount" && line.Value == "3");
+    }
+
+    [Fact]
     public void LossRecovery_WithMultipleScenarios_ShouldReturnEachRequiredRecovery()
     {
         // Arrange
