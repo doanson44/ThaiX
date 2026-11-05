@@ -121,7 +121,8 @@ public static class TradingCalculators
 
     public static CalculatorResult FuturesPnl(
         decimal entry, decimal exit, decimal size, decimal leverage, TradeSide side,
-        decimal openFeePct, decimal closeFeePct, decimal slippagePct = 0m, decimal contractSize = 1m)
+        decimal openFeePct, decimal closeFeePct, decimal slippagePct = 0m, decimal contractSize = 1m,
+        decimal fundingRatePct = 0m, int fundingPeriods = 0)
     {
         RequirePositive(entry, "Entry");
         RequirePositive(exit, "Exit");
@@ -132,6 +133,7 @@ public static class TradingCalculators
         RequireFeePct(closeFeePct, "Close fee %");
 
         RequireFeePct(slippagePct, "Slippage %");
+        RequireNonNegative(fundingPeriods, "Funding periods");
 
         var quantity = size * contractSize;
         var direction = side == TradeSide.Long ? 1m : -1m;
@@ -148,7 +150,10 @@ public static class TradingCalculators
         var notionalOpen = effectiveEntry * quantity;
         var notionalClose = effectiveExit * quantity;
         var fees = notionalOpen * (openFeePct / 100m) + notionalClose * (closeFeePct / 100m);
-        var net = gross - fees;
+        var fundingNotional = (notionalOpen + notionalClose) / 2m;
+        var fundingAmount = fundingNotional * (fundingRatePct / 100m) * fundingPeriods;
+        var fundingCashflow = side == TradeSide.Long ? -fundingAmount : fundingAmount;
+        var net = gross - fees + fundingCashflow;
         var margin = notionalOpen / leverage;
         var roe = margin == 0 ? 0 : net / margin * 100m;
 
@@ -159,11 +164,12 @@ public static class TradingCalculators
                 Line("Calc.Result.BaseQuantity", quantity),
                 Line("Calc.Result.SlippageCost", slippageCost),
                 Line("Calc.Result.Fees", fees),
+                Line("Calc.Result.FundingCashflow", fundingCashflow),
                 Line("Calc.Result.NetPnl", net),
                 Line("Calc.Result.Margin", margin),
                 Line("Calc.Result.RoePct", roe)
             ],
-            "Linear contract model: base quantity = contracts × contract size; gross = (adjustedExit - adjustedEntry) × base quantity × direction; slippage is applied on both sides; net = gross - fees; ROE% = net / margin × 100",
+            "Linear contract estimate: base quantity = contracts × contract size; gross = (adjustedExit - adjustedEntry) × base quantity × direction; funding uses average open/close notional per period; net = gross - fees + side-adjusted funding; excludes exchange-specific contract and margin tiers",
             "Calc.Interp.FuturesPnl",
             [F(net), F(roe)]);
     }
