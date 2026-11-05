@@ -152,6 +152,54 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void ConventionalCommit_WithBreakingChange_ShouldRequireAndRenderDescription()
+    {
+        // Arrange / Act
+        var output = GeneratorToolTransforms.ConventionalCommit(
+            "feat", "tools", "remove legacy tool state", true, "Existing saved drafts require migration.");
+
+        // Assert
+        Assert.StartsWith("feat(tools)!: remove legacy tool state", output, StringComparison.Ordinal);
+        Assert.Contains("BREAKING CHANGE: Existing saved drafts require migration.", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void ConventionalCommit_WithUnsupportedType_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.ConventionalCommit(
+            "feature", "tools", "add tool", false, string.Empty);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void ConventionalCommit_WithHeaderLongerThanSeventyTwoCharacters_ShouldThrowFormatException()
+    {
+        // Arrange
+        var subject = new string('a', 70);
+
+        // Act
+        var act = () => GeneratorToolTransforms.ConventionalCommit(
+            "feat", "tools", subject, false, string.Empty);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
+    public void ConventionalCommit_WithBreakingChangeAndNoDescription_ShouldThrowFormatException()
+    {
+        // Arrange / Act
+        var act = () => GeneratorToolTransforms.ConventionalCommit(
+            "fix", "tools", "remove old behavior", true, string.Empty);
+
+        // Assert
+        Assert.Throws<FormatException>(act);
+    }
+
+    [Fact]
     public void BuildCurl_WithSingleQuoteInUrl_ShouldEscapeShellArgument()
     {
         // Arrange
