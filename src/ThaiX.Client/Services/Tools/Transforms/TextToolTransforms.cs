@@ -201,7 +201,7 @@ public static class TextToolTransforms
                 continue;
             }
 
-            if (character is '\'' or '"' or '[' || character == (char)96)
+            if (character == '\'' || character == '"' || character == '[' || character == (char)96)
             {
                 AppendPendingSpace(output, ref pendingSpace);
                 quote = character;
