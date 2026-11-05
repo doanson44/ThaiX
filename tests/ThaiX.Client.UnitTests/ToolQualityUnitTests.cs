@@ -146,6 +146,19 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void FormatSql_WithCarriageReturnComment_ShouldFormatFollowingStatement()
+    {
+        // Arrange
+        const string sql = "select 1 -- comment\\rselect 2";
+
+        // Act
+        var formatted = TextToolTransforms.FormatSql(sql);
+
+        // Assert
+        Assert.Contains("SELECT 2", formatted, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void HtmlToMarkdownRough_WithHeadingsLinksAndLists_ShouldPreserveStructure()
     {
         // Arrange
