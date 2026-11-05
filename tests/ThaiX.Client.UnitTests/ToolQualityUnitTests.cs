@@ -1302,6 +1302,40 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void Funding_WithNegativeRate_ShouldIdentifyShortAsPayer()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Funding(1000m, -0.01m, 1, TradeSide.Long);
+
+        // Assert
+        Assert.Equal("Calc.Side.Short", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingPayer").Value);
+        Assert.Equal("Calc.Side.Long", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingReceiver").Value);
+    }
+
+    [Fact]
+    public void Funding_WithPositiveRate_ShouldIdentifyLongAsPayer()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Funding(1000m, 0.01m, 1, TradeSide.Short);
+
+        // Assert
+        Assert.Equal("Calc.Side.Long", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingPayer").Value);
+        Assert.Equal("Calc.Side.Short", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.FundingReceiver").Value);
+    }
+
+    [Fact]
+    public void Leverage_ShouldReportApproximateAdverseMove()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.Leverage(1000m, 100m);
+
+        // Assert
+        Assert.Equal("10", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.EffectiveLeverage").Value);
+        Assert.Equal("10", result.Breakdown.Single(line => line.LabelKey == "Calc.Result.AdverseMovePct").Value);
+        Assert.Contains("not an exchange liquidation price", result.Formula, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Funding_WithNegativeRate_ShouldReverseLongCashflowSign()
     {
         // Arrange / Act
