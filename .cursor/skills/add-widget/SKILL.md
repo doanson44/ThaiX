@@ -41,13 +41,15 @@ public sealed record {QueryName}Query : IAppQuery<{QueryName}Response>;
 
 public sealed record {QueryName}Response
 {
-    // Add upstream-provider status fields only when the feature contract needs them.
+    // These fields describe upstream data availability, not HTTP/API envelope success.
+    public bool Success { get; init; }
+    public string? Message { get; init; }
     // All domain fields here
 }
 ```
 
 - Use `IAppQuery<T>` for read-only requests, following the current Application messaging contract.
-- `ApiResponse<T>` is the outer API envelope. For external-data features that already model upstream provider availability with payload `Success`/`Message` fields, preserve that distinction: the outer envelope represents API processing, while the payload fields represent the provider/data result. Do not add these payload fields automatically when the feature does not need them.
+- `ApiResponse<T>` is the outer API envelope. The payload `Success`/`Message` fields describe upstream provider/data availability, not HTTP/API envelope success. Keep the two meanings distinct.
 - Follow the existing external-service error and exception-mapping contract for transport/provider failures. Do not put localized UI text in Application.
 - Use `decimal?` for numeric values that may be missing.
 
@@ -137,7 +139,9 @@ Add to `ThaiX.Client/Models/ExternalData/ExternalDataContracts.cs`:
 /// </summary>
 public sealed record {Feature}ResponseDto
 {
-    // Mirror the server payload contract. Keep upstream Success/Message only when that feature uses them.
+    public bool Success { get; init; }
+    public string? Message { get; init; }
+    // Mirror the remaining business data fields from the server payload.
 }
 ```
 
