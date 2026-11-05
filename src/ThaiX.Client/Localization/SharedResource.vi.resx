@@ -2134,4 +2134,11 @@
   <data name="Calc.Result.BreakEvenWinRatePct" xml:space="preserve"><value>Tỷ lệ thắng hòa vốn (chưa tính phí) %</value></data>
   <data name="Calc.Field.KellyCapPct" xml:space="preserve"><value>Giới hạn tỷ trọng Kelly tối đa %</value></data>
   <data name="Calc.Result.KellyCapped" xml:space="preserve"><value>Kelly sau giới hạn %</value></data>
+  <data name="Tools.PasswordStrength.Score" xml:space="preserve"><value>Điểm</value></data>
+  <data name="Tools.PasswordStrength.Weak" xml:space="preserve"><value>Yếu</value></data>
+  <data name="Tools.PasswordStrength.Fair" xml:space="preserve"><value>Trung bình</value></data>
+  <data name="Tools.PasswordStrength.Good" xml:space="preserve"><value>Tốt</value></data>
+  <data name="Tools.PasswordStrength.Strong" xml:space="preserve"><value>Mạnh</value></data>
+  <data name="Tools.PasswordStrength.Length" xml:space="preserve"><value>Độ dài</value></data>
+  <data name="Tools.PasswordStrength.Disclaimer" xml:space="preserve"><value>Chỉ là đánh giá heuristic; không đo entropy hoặc kiểm tra dữ liệu rò rỉ.</value></data>
 </root>
