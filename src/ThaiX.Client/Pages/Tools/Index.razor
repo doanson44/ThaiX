@@ -4,6 +4,7 @@
 @using ThaiX.Client.Services.Tools
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Navigation
+@inject IToolStateStore ToolStateStore
 @inherits ThaiXPageBase
 
 <PageTitle>@L[RK.Tools.HubTitle] - ThaiX</PageTitle>
@@ -22,6 +23,33 @@
                        Class="w-100 ThaiX-tools-hub__search"
                        aria-label="@L[RK.Tools.SearchPlaceholder]" />
 
+        @if (FilteredLastUsed().Any())
+        {
+            <RadzenStack Gap="0.75rem" Class="ThaiX-tools-hub__recent">
+                <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">
+                    @L[RK.Tools.LastUsed]
+                </RadzenText>
+                <RadzenRow Gap="0.75rem" RowGap="0.75rem">
+                    @foreach (var tool in FilteredLastUsed())
+                    {
+                        <RadzenColumn Size="12" SizeSM="6" SizeLG="4">
+                            <RadzenCard Class="h-100 ThaiX-tools-hub__card"
+                                        Style="cursor: pointer;"
+                                        @onclick="@(() => NavigateToTool(tool))">
+                                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" AlignItems="AlignItems.Start" Class="ThaiX-tools-hub__card-inner">
+                                    <RadzenIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
+                                    <RadzenStack Gap="0.25rem" Class="ThaiX-tools-hub__card-text">
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">@L[tool.TitleKey]</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[tool.DescriptionKey]</RadzenText>
+                                    </RadzenStack>
+                                </RadzenStack>
+                            </RadzenCard>
+                        </RadzenColumn>
+                    }
+                </RadzenRow>
+            </RadzenStack>
+        }
+
         @foreach (var group in FilteredGroups())
         {
             <RadzenStack Gap="0.75rem">
@@ -34,7 +62,7 @@
                         <RadzenColumn Size="12" SizeSM="6" SizeLG="4">
                             <RadzenCard Class="h-100 ThaiX-tools-hub__card"
                                         Style="cursor: pointer;"
-                                        @onclick="@(() => Navigation.NavigateTo($"/tools/{tool.Slug}"))">
+                                        @onclick="@(() => NavigateToTool(tool))">
                                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" AlignItems="AlignItems.Start" Class="ThaiX-tools-hub__card-inner">
                                     <RadzenIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
                                     <RadzenStack Gap="0.25rem" Class="ThaiX-tools-hub__card-text">
@@ -53,6 +81,32 @@
 
 @code {
     private string? _filter;
+    private IReadOnlyList<ToolDefinition> _lastUsedTools = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _lastUsedTools = await ToolStateStore.GetLastUsedAsync();
+        }
+        catch
+        {
+            _lastUsedTools = [];
+        }
+    }
+
+    private IEnumerable<ToolDefinition> FilteredLastUsed()
+    {
+        var q = _filter?.Trim();
+        return string.IsNullOrEmpty(q)
+            ? _lastUsedTools
+            : _lastUsedTools.Where(t =>
+                t.Slug.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.TitleKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || L[t.DescriptionKey].Value.Contains(q, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private void NavigateToTool(ToolDefinition tool) => Navigation.NavigateTo($"/tools/{tool.Slug}");
 
     private IEnumerable<IGrouping<ToolCategory, ToolDefinition>> FilteredGroups()
     {
