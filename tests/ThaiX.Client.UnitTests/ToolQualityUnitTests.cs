@@ -99,6 +99,45 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void UnixConvert_FromSeconds_ShouldNotInferMilliseconds()
+    {
+        // Arrange
+        const string timestamp = "1735689600";
+
+        // Act
+        var result = EncodeToolTransforms.UnixConvert(timestamp, toUnix: false);
+
+        // Assert
+        Assert.Equal("2025-01-01T00:00:00.0000000Z (UTC)", result);
+    }
+
+    [Fact]
+    public void UnixConvert_FromMilliseconds_ShouldUseExplicitMillisecondMode()
+    {
+        // Arrange
+        const string timestamp = "1735689600000";
+
+        // Act
+        var result = EncodeToolTransforms.UnixConvert(timestamp, toUnix: false, milliseconds: true);
+
+        // Assert
+        Assert.Equal("2025-01-01T00:00:00.0000000Z (UTC)", result);
+    }
+
+    [Fact]
+    public void UnixConvert_ToMilliseconds_ShouldReturnMillisecondTimestamp()
+    {
+        // Arrange
+        const string dateTime = "2025-01-01T00:00:00Z";
+
+        // Act
+        var result = EncodeToolTransforms.UnixConvert(dateTime, toUnix: true, milliseconds: true);
+
+        // Assert
+        Assert.Equal("1735689600000", result);
+    }
+
+    [Fact]
     public void UrlEncode_WithAbsoluteUrl_ShouldPreserveUrlSeparators()
     {
         // Arrange
