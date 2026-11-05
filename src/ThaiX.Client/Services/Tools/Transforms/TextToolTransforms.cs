@@ -336,11 +336,17 @@ public static class TextToolTransforms
         bool ignoreCase = false,
         string matchesLabel = "Matches",
         string groupLabel = "Group",
-        string replaceLabel = "Replace")
+        string replaceLabel = "Replace",
+        bool multiline = false,
+        bool singleline = false)
     {
         var options = RegexOptions.CultureInvariant;
         if (ignoreCase)
             options |= RegexOptions.IgnoreCase;
+        if (multiline)
+            options |= RegexOptions.Multiline;
+        if (singleline)
+            options |= RegexOptions.Singleline;
         var regex = new Regex(pattern, options, TimeSpan.FromMilliseconds(timeoutMs));
         var matches = regex.Matches(input ?? "");
         var sb = new StringBuilder();
