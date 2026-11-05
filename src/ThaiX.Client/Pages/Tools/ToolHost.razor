@@ -199,7 +199,7 @@ else
                     {
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenCheckBox TValue="bool" Value="@_state.Flag" ValueChanged="@((bool value) => OnFlagChanged(value))" Name="v7" />
-                            <RadzenLabel Text="UUID v7" Component="v7" Class="rz-ms-2" />
+                            <RadzenLabel Text="@L[RK.Tools.FieldLabel.UuidV7]" Component="v7" Class="rz-ms-2" />
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="4">
                             <RadzenFormField Text="@L[RK.Tools.FieldLabel.Format]" Class="w-100">
