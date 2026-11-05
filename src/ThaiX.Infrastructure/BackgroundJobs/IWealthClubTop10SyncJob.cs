@@ -287,23 +287,12 @@ public sealed class IWealthClubTop10SyncJob : HangfireJobBase
             .AsNoTracking()
             .Where(p => p.Source == TcbsPortfolioSource.TcbsPotentialStocks)
             .Include(p => p.Tickers)
-            .OrderBy(p => p.PostedAt)
-            .ThenBy(p => p.CreatedAt)
+            .OrderByDescending(p => p.PostedAt)
+            .ThenByDescending(p => p.CreatedAt)
             .ToListAsync(ct);
 
-        var current = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var row in history)
-        {
-            foreach (var ticker in row.Tickers.Where(t => t.ChangeType == TcbsPortfolioChangeType.Removed))
-            {
-                current.Remove(ticker.Ticker);
-            }
-
-            foreach (var ticker in row.Tickers.Where(t => t.ChangeType == TcbsPortfolioChangeType.Added))
-            {
-                current.Add(ticker.Ticker);
-            }
-        }
+        var current = TcbsTop10Portfolio.DeriveCurrentHoldings(history, int.MaxValue)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var fetchedTickers = fetched.Select(x => x.Ticker).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var added = fetchedTickers.Where(t => !current.Contains(t)).OrderBy(t => t, StringComparer.Ordinal).ToList();

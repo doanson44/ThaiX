@@ -68,4 +68,45 @@ public sealed class TcbsTop10Portfolio : BaseEntity
     {
         _attachments.Add(TcbsTop10Attachment.CreatePdf(Id, url));
     }
+
+    /// <summary>
+    /// Replays the add/remove events of the given rows, newest first, and returns the tickers still held.
+    /// A ticker is held when its most recent event in the series is an add; the source of the row does not matter.
+    /// Stops once <paramref name="maxHoldings"/> tickers are confirmed, which keeps the portfolio at its top-10 size.
+    /// </summary>
+    public static IReadOnlyList<string> DeriveCurrentHoldings(
+        IEnumerable<TcbsTop10Portfolio> orderedByNewestFirst,
+        int maxHoldings = 10)
+    {
+        var held = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var removed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var portfolio in orderedByNewestFirst)
+        {
+            foreach (var ticker in portfolio.Tickers)
+            {
+                if (ticker.ChangeType == TcbsPortfolioChangeType.Removed)
+                {
+                    removed.Add(ticker.Ticker);
+                }
+            }
+
+            foreach (var ticker in portfolio.Tickers)
+            {
+                if (ticker.ChangeType != TcbsPortfolioChangeType.Added || removed.Contains(ticker.Ticker))
+                {
+                    continue;
+                }
+
+                held.Add(ticker.Ticker);
+
+                if (held.Count >= maxHoldings)
+                {
+                    return [.. held.OrderBy(t => t, StringComparer.Ordinal)];
+                }
+            }
+        }
+
+        return [.. held.OrderBy(t => t, StringComparer.Ordinal)];
+    }
 }
