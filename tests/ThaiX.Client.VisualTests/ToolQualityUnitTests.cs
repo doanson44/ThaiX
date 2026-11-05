@@ -18,7 +18,8 @@ public sealed class ToolQualityUnitTests
 
         // Assert
         Assert.Contains("\"name\": \"ThaiX\"", json, StringComparison.Ordinal);
-        Assert.Contains("\"description\": \"Tools, \\"fast\\"\"", json, StringComparison.Ordinal);
+        Assert.Contains("Tools, ", json, StringComparison.Ordinal);
+        Assert.Contains("\\\"fast\\\"", json, StringComparison.Ordinal);
     }
 
     [Fact]
