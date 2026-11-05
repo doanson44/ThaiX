@@ -1641,7 +1641,7 @@
   <data name="Tools.TakeProfit.Title" xml:space="preserve"><value>Chốt lời</value></data>
   <data name="Tools.TakeProfit.Description" xml:space="preserve"><value>Chốt lời theo % mục tiêu hoặc R:R</value></data>
   <data name="Tools.RiskOfRuin.Title" xml:space="preserve"><value>Rủi ro phá sản</value></data>
-  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Ước lượng RoR fixed-fractional đơn giản</value></data>
+  <data name="Tools.RiskOfRuin.Description" xml:space="preserve"><value>Chỉ là ước tính rủi ro heuristic, không phải xác suất phá sản đã hiệu chuẩn</value></data>
   <data name="Tools.MaxDrawdown.Title" xml:space="preserve"><value>Drawdown tối đa</value></data>
   <data name="Tools.MaxDrawdown.Description" xml:space="preserve"><value>MDD từ đỉnh/đáy hoặc chuỗi vốn</value></data>
   <data name="Tools.LossRecovery.Title" xml:space="preserve"><value>Phục hồi thua lỗ</value></data>
@@ -1746,7 +1746,7 @@
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Giá chốt lời</value></data>
   <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lãi kỳ vọng</value></data>
   <data name="Calc.Result.Edge" xml:space="preserve"><value>Edge</value></data>
-  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Rủi ro phá sản %</value></data>
+  <data name="Calc.Result.RiskOfRuinPct" xml:space="preserve"><value>Ước tính rủi ro heuristic %</value></data>
   <data name="Calc.Result.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa</value></data>
   <data name="Calc.Result.MaxDrawdownPct" xml:space="preserve"><value>Drawdown tối đa %</value></data>
   <data name="Calc.Result.RecoveryPct" xml:space="preserve"><value>Phục hồi %</value></data>
@@ -1769,7 +1769,7 @@
   <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Dừng lỗ quanh {0} theo rủi ro đã chọn.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Chốt lời {0}; lãi kỳ vọng {1}.</value></data>
-  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>RoR ước lượng ≈ {0}% (mô hình giáo dục).</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Ước tính heuristic ≈ {0}%; đây không phải xác suất phá sản đã hiệu chuẩn.</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Drawdown tối đa khoảng {0}%.</value></data>
   <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Cần khoảng {0}% lãi để phục hồi.</value></data>
   <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Kỳ vọng mỗi lệnh ≈ {0}.</value></data>
