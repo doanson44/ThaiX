@@ -2247,4 +2247,6 @@
   <data name="Tools.FieldLabel.IgnoreWhitespace" xml:space="preserve"><value>Bỏ qua khoảng trắng</value></data>
   <data name="Tools.FieldLabel.Multiline" xml:space="preserve"><value>Nhiều dòng</value></data>
   <data name="Tools.FieldLabel.Singleline" xml:space="preserve"><value>Một dòng</value></data>
+  <data name="Tools.FieldHelp.Multiline" xml:space="preserve"><value>^ và $ khớp với đầu và cuối của từng dòng.</value></data>
+  <data name="Tools.FieldHelp.Singleline" xml:space="preserve"><value>Dấu chấm (.) cũng khớp với ký tự xuống dòng.</value></data>
 </root>
