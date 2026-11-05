@@ -1781,6 +1781,7 @@
   <data name="Calc.Result.FundingAbs" xml:space="preserve"><value>|Funding|</value></data>
   <data name="Calc.Result.EffectiveLeverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng</value></data>
   <data name="Calc.Result.RequiredMargin" xml:space="preserve"><value>Ký quỹ cần thiết</value></data>
+  <data name="Calc.Result.AdverseMovePct" xml:space="preserve"><value>Biến động ngược chiều ước tính để dùng hết ký quỹ ban đầu %</value></data>
   <data name="Calc.Result.StopLossPrice" xml:space="preserve"><value>Giá dừng lỗ</value></data>
   <data name="Calc.Result.TakeProfitPrice" xml:space="preserve"><value>Giá chốt lời</value></data>
   <data name="Calc.Result.ExpectedProfit" xml:space="preserve"><value>Lợi nhuận ròng sau phí</value></data>
@@ -1813,7 +1814,7 @@
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Phí cho thấy hòa vốn quanh {0}.</value></data>
   <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Phí ước tính {0}.</value></data>
   <data name="Calc.Interp.Funding" xml:space="preserve"><value>Dòng tiền funding {0} (dương = nhận).</value></data>
-  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×.</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Đòn bẩy hiệu dụng {0}×. Mức biến động ngược chiều {1}% chỉ là ước tính theo ký quỹ ban đầu, không phải giá thanh lý của sàn.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Dừng lỗ quanh {0} theo rủi ro đã chọn.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Chốt lời {0}; lãi kỳ vọng {1}.</value></data>
   <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Tần suất chạm ngưỡng ước tính: {0}% (khoảng Wilson 95%: {1}%–{2}%). Kết quả phụ thuộc giả định fixed-fractional; không phải bảo đảm.</value></data>
