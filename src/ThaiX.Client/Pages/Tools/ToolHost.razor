@@ -605,10 +605,10 @@ else
                 await ToolStateStore.SaveLocalAsync(_tool, SerializeState());
                 _saveStatusKey = RK.Tools.SaveSaved;
             }
-            catch (Exception ex)
+            catch
             {
                 _saveStatusKey = RK.Tools.SaveStatusFailed;
-                ReportToolIssue(ex);
+                throw;
             }
         }
     }
