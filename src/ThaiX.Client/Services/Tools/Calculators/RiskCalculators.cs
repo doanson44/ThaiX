@@ -72,7 +72,7 @@ public static class RiskCalculators
             }
 
             var drawdown = peak - value;
-            var drawdownPct = drawdown / peak * 100m;
+            var drawdownPct = peak == 0 ? 0 : drawdown / peak * 100m;
             if (drawdown > maxDd)
                 maxDd = drawdown;
 
