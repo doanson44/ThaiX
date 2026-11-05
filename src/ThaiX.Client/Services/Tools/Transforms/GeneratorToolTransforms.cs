@@ -258,8 +258,8 @@ public static class GeneratorToolTransforms
     public static string BuildCurl(string method, string url, string headers, string body)
     {
         var normalizedMethod = (method ?? string.Empty).Trim().ToUpperInvariant();
-        if (normalizedMethod.Length == 0 || normalizedMethod.Any(character => character is < 'A' or > 'Z'))
-            throw new FormatException("HTTP method must contain ASCII letters only.");
+        if (normalizedMethod.Length == 0 || normalizedMethod.Any(character => !IsHttpTokenCharacter(character)))
+            throw new FormatException("HTTP method must be a valid HTTP token.");
         if (string.IsNullOrWhiteSpace(url))
             throw new FormatException("URL is required.");
         if (url.Any(character => char.IsControl(character)))
@@ -284,7 +284,12 @@ public static class GeneratorToolTransforms
             sb.Append(" \\\n  -H ").Append(ShellQuote($"{name}: {value}"));
         }
         if (!string.IsNullOrWhiteSpace(body))
+        {
+            if (body.Contains((char)0))
+                throw new FormatException("Request body cannot contain a null character.");
+
             sb.Append(" \\\n  -d ").Append(ShellQuote(body));
+        }
         return sb.ToString();
     }
 
