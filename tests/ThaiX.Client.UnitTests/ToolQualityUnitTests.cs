@@ -638,6 +638,41 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void FuturesPnl_ForLong_ShouldApplySlippageToBothSides()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.FuturesPnl(
+            100m, 110m, 1m, 10m, TradeSide.Long, 0m, 0m, 1m);
+
+        // Assert
+        Assert.Equal("7.9", result.Breakdown[0].Value);
+        Assert.Equal("2.1", result.Breakdown[1].Value);
+    }
+
+    [Fact]
+    public void FuturesPnl_ForShort_ShouldApplyAdverseSlippageToBothSides()
+    {
+        // Arrange / Act
+        var result = TradingCalculators.FuturesPnl(
+            100m, 90m, 1m, 10m, TradeSide.Short, 0m, 0m, 1m);
+
+        // Assert
+        Assert.Equal("8.1", result.Breakdown[0].Value);
+        Assert.Equal("1.9", result.Breakdown[1].Value);
+    }
+
+    [Fact]
+    public void FuturesPnl_WhenSlippageIsOneHundredPercent_ShouldThrow()
+    {
+        // Arrange / Act
+        var act = () => TradingCalculators.FuturesPnl(
+            100m, 110m, 1m, 10m, TradeSide.Long, 0m, 0m, 100m);
+
+        // Assert
+        Assert.Throws<CalculatorInputException>(act);
+    }
+
+    [Fact]
     public void FuturesPnl_WhenFeeReachesOneHundredPercent_ShouldThrow()
     {
         // Arrange / Act
