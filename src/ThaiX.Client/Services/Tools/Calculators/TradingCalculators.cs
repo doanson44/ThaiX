@@ -6,13 +6,16 @@ public static class TradingCalculators
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
-    public static CalculatorResult PositionSize(decimal account, decimal riskPct, decimal entry, decimal stopLoss)
+    public static CalculatorResult PositionSize(decimal account, decimal riskPct, decimal entry, decimal stopLoss, TradeSide side = TradeSide.Long)
     {
         RequirePositive(account, "Account");
         RequirePositive(riskPct, "Risk %");
         if (riskPct > 100) throw new CalculatorInputException("Risk % cannot exceed 100.");
         RequirePositive(entry, "Entry");
         RequirePositive(stopLoss, "Stop loss");
+        var stopIsAligned = side == TradeSide.Long ? stopLoss < entry : stopLoss > entry;
+        if (!stopIsAligned)
+            throw new CalculatorInputException("Stop loss must be below entry for long or above entry for short.");
         var riskDist = Math.Abs(entry - stopLoss);
         if (riskDist == 0) throw new CalculatorInputException("Entry and stop loss must differ.");
 
