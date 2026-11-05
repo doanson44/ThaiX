@@ -2118,4 +2118,6 @@
   <data name="Tools.Action.DecodeBase64Url" xml:space="preserve"><value>Giải mã Base64URL</value></data>
   <data name="Tools.FieldLabel.Format" xml:space="preserve"><value>Định dạng UUID</value></data>
   <data name="Tools.FieldLabel.IgnoreCase" xml:space="preserve"><value>Không phân biệt hoa thường</value></data>
+  <data name="Tools.FieldLabel.ErrorCorrection" xml:space="preserve"><value>Mức sửa lỗi</value></data>
+  <data name="Tools.FieldLabel.QuietZone" xml:space="preserve"><value>Vùng trống (module)</value></data>
 </root>
