@@ -291,6 +291,34 @@ public sealed class ToolQualityUnitTests
     }
 
     [Fact]
+    public void JsonToCsharp_WithHeterogeneousRootArray_ShouldUseSafeRootCollection()
+    {
+        // Arrange
+        const string json = "[{\"id\":1},{\"name\":\"ThaiX\"}]";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToCsharp(json);
+
+        // Assert
+        Assert.Contains("Root array type: List<object?>", output, StringComparison.Ordinal);
+        Assert.DoesNotContain("class RootItem", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void JsonToTypescript_WithHeterogeneousRootArray_ShouldUseSafeRecordType()
+    {
+        // Arrange
+        const string json = "[{\"id\":1},{\"name\":\"ThaiX\"}]";
+
+        // Act
+        var output = ConvertToolTransforms.JsonToTypescript(json);
+
+        // Assert
+        Assert.Contains("export type Root", output, StringComparison.Ordinal);
+        Assert.Contains("Record<string, unknown>", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void JsonToCsharp_WithDuplicateNestedPropertyNames_ShouldThrowFormatException()
     {
         // Arrange
