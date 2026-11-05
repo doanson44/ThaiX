@@ -12,139 +12,127 @@ Reviewed the 50 entries in `ToolCatalog` on `feat/tools-last-used`.
 | Crypto calculators | 3 |
 | **Total** | **50** |
 
-This is a source-level audit of the Blazor client implementation. It is not a penetration test,
-exchange-specific financial model validation, benchmark, or runtime verification.
+This is a source-level audit with focused unit and browser test coverage. It is not a penetration test,
+an exchange-specific financial model validation, or a performance benchmark.
 
 ## Implemented improvements
 
-| Area | Change |
-|---|---|
-| Calculator sample initialization | Calculator samples seed only when there is no persisted workspace envelope. Empty calculator field bags no longer suppress first-run samples. |
-| CSV to JSON | Parses quoted fields, escaped quotes, multiline records, CRLF/LF/CR, and UTF-8 BOM. Rejects empty/duplicate headers, malformed quote placement, unterminated quotes, and excess columns. |
-| JSON to C# / TypeScript | Sanitizes generated identifiers, quotes invalid TypeScript property names, avoids property-name collisions after normalization, and assigns unique nested type names. |
-| Password generator | Uses `RandomNumberGenerator.GetInt32` rather than modulo reduction, guarantees each selected character class, and cryptographically shuffles the output. |
-| Password strength | Explicitly labels the score as heuristic; it is not entropy measurement or breach screening. |
-| cURL generator | Validates method tokens, URL control characters, header names and values; shell-quotes URL, headers, and body. |
-| SQL formatter | Scans strings, quoted identifiers, bracket/backtick identifiers, and line/block comments before formatting keywords. It remains a lightweight formatter, not a dialect parser. |
-| HTML to Markdown | Preserves common headings, links, emphasis, inline code, paragraphs, and lists. It remains a best-effort regex converter, not a full HTML5 parser. |
-| Markdown preview security | Disables raw HTML parsing in Markdig and sanitizes generated HTML with HtmlSanitizer. Mermaid rendering now uses `securityLevel: strict`; diagram source detection does not depend on sanitized class attributes. |
-| JWT decoder | Puts a localized UNVERIFIED warning before decoded header/payload and keeps the signature-present/missing state explicit. Decoding never claims signature verification. |
-| Cron | Validates five numeric fields and supports wildcards, steps, lists, and ranges. Shows the next five occurrences in UTC, searching a 400-year Gregorian cycle so rare schedules such as leap day are handled. Day-of-week accepts 0 or 7 for Sunday. Named months/days and Quartz extensions are not supported. |
-| URL Codec | Preserves delimiters for absolute HTTP(S) URLs while escaping spaces, and exposes separate component encode/decode actions. |
-| Unix Timestamp | Seconds and milliseconds are explicit actions; input magnitude is no longer used to guess the unit. Date-only values are interpreted as UTC and output is labeled UTC. |
-| Base64 | Adds unpadded Base64URL encode/decode actions alongside standard Base64. |
-| UUID | Adds D, N, B, P, and X output formats for UUID v4/v7. |
-| Regex | Adds Ignore Case and replacement input options, localized result labels, and retains the existing execution timeout. |
-| QR | Exposes all four error-correction levels and a configurable quiet zone (0-16 modules); default quiet zone is four modules. |
-| Text Diff | Adds a side-by-side aligned text output mode using the existing DiffPlex dependency. |
-| Conventional Commit | Validates type syntax, scope, subject, 72-character header limit, and breaking-change description. Custom lowercase types are allowed. |
-| Trading calculators | Adds Long/Short direction and stop-loss-side validation to Position Size; models per-side Futures PnL slippage; reports gross Risk/Reward break-even win rate; validates fee percentages, maintenance margin, leverage minimum, mutually exclusive Take Profit modes, and whole-number period/loss counts. |
-| Risk calculators | Rejects negative equity while treating zero equity as a 100% drawdown; reports peak-to-trough and recovery periods; adds Expectancy in R multiples and a configurable Kelly cap; labels Risk of Ruin as a heuristic estimate, not a calibrated probability. |
-| Crypto calculators | Market Cap distinguishes circulating supply market cap, total-supply valuation, and maximum-supply FDV, with supply-order validation. |
-| Localization | Localizes ToolHost action labels, input labels, and generator options in English and Vietnamese. |
-| Last Used | Deduplicates persisted slugs case-insensitively and filters unknown tools before rendering the recent-tools list. |
-
-## Remaining backlog
-
 ### Developer tools
 
-| Tool / area | Remaining work |
+| Area | Implemented behavior |
 |---|---|
-| SQL Formatter | Add dialect-aware parsing and nested-query indentation if multiple SQL dialects are required. |
-| HTML to Markdown | Replace regex conversion with an approved HTML5 parser if nested tables, ordered lists, and malformed markup must be preserved. |
-| Cron | Add named month/day aliases, timezone selection, and Quartz dialect only if those scheduler formats are required. |
-| URL Codec | Add explicit query-component mode and component-wise decoding; current full-URL mode normalizes absolute HTTP(S) URLs. |
-| Password Strength | Add common-password screening only with a vetted, maintained local dataset; do not present the current heuristic as entropy. |
-| JSON generators | Handle heterogeneous arrays and all duplicate JSON object-key cases; validate generated output by compiling representative fixtures. |
-| JWT Decoder | Keep decoded claims clearly marked unverified. Signature verification requires an explicit algorithm/key input workflow and must not be implied by decoding. |
-| JSON Formatter / Validator | Add structured line/column diagnostics and large-payload tests. |
-| JSON Compare / Diff | JSON Compare now reports JSON paths, missing-vs-null values, and quoted paths for special property names. Text Diff has a side-by-side output mode. |
-| YAML / XML | YAML parser source positions and significant XML text whitespace are now covered by tests; add more malformed-input and whitespace-preservation cases. |
-| SHA-256 | Add file hashing only if a browser file-input workflow is required. |
-| QR | Add fixed version/size controls only if print-layout requirements justify them. |
-| cURL | Add broader multiline-header, control-character, and special-shell-character tests. |
-| Regex | Ignore Case and replacement input are now available. Add multiline/singleline/dotall flags and richer replacement ergonomics. |
-| Text Diff | Add side-by-side output and whitespace-ignore mode. |
+| JSON Formatter / Validator | Invalid JSON diagnostics include localized line and column. Large-input formatting has a regression test. |
+| JSON Compare | Compares canonical JSON and reports JSON paths, missing-versus-null values, and quoted paths for special property names. |
+| JSON to C# / TypeScript | Sanitizes identifiers, quotes invalid TypeScript property names, resolves nested type/property collisions, rejects duplicate object keys recursively, and uses safe collection types for heterogeneous arrays. |
+| CSV to JSON | Parses quoted fields, escaped quotes, multiline records, CRLF/LF/CR, and UTF-8 BOM. Rejects empty/duplicate headers, malformed quote placement, unterminated quotes, and excess columns. |
+| YAML / XML | YAML parser diagnostics retain source positions; XML formatting preserves significant text whitespace. |
+| SQL Formatter | Scans strings, quoted identifiers, bracket/backtick identifiers, and line/block comments before formatting keywords. Remains a lightweight formatter, not a dialect parser. |
+| HTML to Markdown | Preserves common headings, links, emphasis, inline code, paragraphs, and lists. Remains a best-effort regex converter, not a full HTML5 parser. |
+| Markdown preview security | Disables raw HTML parsing in Markdig and sanitizes generated HTML with HtmlSanitizer. Mermaid uses strict security mode. |
+| JWT decoder | Shows a localized UNVERIFIED warning and explicit signature-present/missing state. Decoding does not imply signature verification. |
+| Cron | Validates five fields, wildcards, steps, lists, ranges, numeric values, named months, and named weekdays. Computes upcoming UTC occurrences over a 400-year Gregorian cycle. |
+| URL Codec | Preserves absolute HTTP(S) URL delimiters and offers separate component encode/decode operations. |
+| Unix Timestamp | Seconds and milliseconds are explicit actions; output is labeled UTC. |
+| Base64 / UUID | Supports Base64URL and UUID D/N/B/P/X formats. |
+| Regex | Supports Ignore Case, Multiline, Singleline, and replacement mode with execution timeout. |
+| Text Diff | Supports side-by-side output and configurable whitespace-ignore behavior. |
+| cURL | Validates method tokens, URL control characters, header names/values, and shell-quotes URL, headers, and body. |
+| Password generator | Uses `RandomNumberGenerator.GetInt32`, includes every selected character class, and cryptographically shuffles output. |
+| Password strength | Explicitly labels its score as heuristic; it is not entropy measurement or breach screening. |
+| QR | Exposes four error-correction levels and a configurable quiet zone (0-16 modules). |
+| Conventional Commit | Validates type syntax, scope, subject length, and breaking-change description. |
 
 ### Trading calculators
 
-| Calculator | Remaining work |
+| Calculator | Implemented behavior and boundary |
 |---|---|
-| Position Size | Add fee/slippage assumptions and report risk after costs. |
-| Risk/Reward | Add fee-adjusted net R:R and break-even win rate. |
-| Futures PnL | Add contract size, funding, and explicit exchange/contract models. Per-side slippage is now configurable. |
-| Liquidation | Add tiered maintenance margin and exchange-specific fee/funding assumptions before presenting it as exchange liquidation. |
-| Average Entry | Include per-leg fees and net cost basis. |
-| DCA | Add schedule planning and current market-value scenarios. |
-| Break-even | Add contract mode and additional fee assumptions. |
-| Trading Fee | Add exchange/tier presets and fee-token discounts only with maintained source data. |
-| Funding | Add explicit payer/receiver labels and interval semantics. |
-| Leverage | Add adverse-price and liquidation context. |
-| Stop Loss | Include fees and slippage in the risk amount. |
-| Take Profit | Add fee-adjusted net profit and break-even comparison. |
+| Position Size | Long/Short direction, stop-loss-side validation, per-side fees and slippage, risk-after-costs quantity. |
+| Risk/Reward | Fee/slippage-adjusted net R:R and break-even win rate; invalid stop/target direction is rejected. |
+| Futures PnL | Linear contract size, per-side slippage/fees, configurable funding rate and whole funding-period count. Uses average open/close notional for funding. |
+| Liquidation | Linear isolated estimate with leverage/MMR validation. Explicitly excludes exchange tiers, fees, funding, and cross margin. |
+| Average Entry | Per-leg fee-adjusted cost basis. |
+| DCA | Fees, average cost, and optional current-market-value/unrealized-PnL scenario. |
+| Break-even | Round-trip open/close fee model. |
+| Trading Fee | Notional-based fee calculation; exchange presets are intentionally not hardcoded. |
+| Funding | Signed funding cashflow with localized payer/receiver labels. |
+| Leverage | Effective leverage and approximate adverse move to consume initial margin. |
+| Stop Loss | Fee/slippage-adjusted stop price and risk breakdown. |
+| Take Profit | Mutually exclusive target modes, net profit, optional net R:R and break-even comparison. |
 
-### Risk calculators
+### Risk and crypto calculators
 
-| Calculator | Remaining work |
-|---|---|
-| Risk of Ruin | A statistically defensible model needs a ruin threshold, finite horizon, return distribution, and cost assumptions. Monte Carlo requires reproducible seeds and documented assumptions. |
-| Max Drawdown | Recovery duration is now measured in input periods. Add an underwater curve and actual time-based recovery only when dated equity observations are available. |
-| Loss Recovery | Add multi-scenario recovery tables. |
-| Expectancy | R-multiple output is now included. Add sample size and uncertainty intervals only when trade-level variance is available. |
-| Kelly Criterion | Add configurable caps and stronger warnings about unstable input estimates. |
-| Consecutive Loss | Add equity curve and risk-per-trade comparison. |
+- Risk of Ruin uses deterministic fixed-fractional Monte Carlo paths, configurable ruin threshold/horizon/simulation count/seed, and a Wilson confidence interval. Assumptions and excluded costs are stated.
+- Max Drawdown rejects negative equity, permits zero equity, handles an all-zero series, and reports independent absolute/percentage peak-to-trough and recovery periods.
+- Loss Recovery supports multiple independent scenarios.
+- Expectancy includes R-multiple output.
+- Kelly includes full/half/quarter and configurable capped allocation.
+- Consecutive Loss reports the remaining-equity path.
+- Market Cap distinguishes circulating market cap, total-supply valuation, and maximum-supply FDV.
+- Market Cap Compare supports multiple target scenarios.
+- ATH Drawdown includes recovery percentage.
 
-### Crypto calculators
+### Shared UX, persistence, localization, and CI
 
-| Calculator | Remaining work |
-|---|---|
-| Market Cap | Circulating, total, and maximum supply valuation are now distinct. |
-| Market Cap Compare | Add multiple target-market-cap scenarios and explicit circulating-vs-fully-diluted assumptions. |
-| ATH Drawdown | Add recovery ROI and optional historical drawdown context. |
-| New tool candidate | Token valuation simulator with unlock schedule, dilution, and supply scenarios. |
+- Last Used is deduplicated, filters unknown slugs, and is capped at 10 tools.
+- Favorites and clear-history controls are persisted in browser storage.
+- Workspace import/export validates tool slug, version, and size.
+- Workspace envelopes are versioned; legacy raw workspace JSON is wrapped as the current envelope.
+- Save status is shown for pending/saved/failed operations; local fallback is retained when cloud save fails.
+- Clearing a draft persists an explicitly empty workspace so first-run samples do not reappear after reload.
+- Tool host supports Ctrl+Enter to run the primary action, fullscreen mode, and Escape to exit fullscreen.
+- Regex, diff, calculator formulas, validation status, and JSON parse positions have English/Vietnamese resources.
+- Raw exception messages are not displayed in tool notifications.
+- Responsive smoke coverage checks 375px, 768px, and 1280px viewports.
+- CI builds the solution, runs application unit tests, runs the dedicated client unit-test project, and includes DevTools browser smoke tests in the client visual workflow.
 
-### Shared UX, persistence, and localization
+## Remaining items requiring product or domain decisions
 
-- Add Favorites, clear-history controls, workspace import/export, save status, keyboard shortcuts, and fullscreen workspace.
-- Validate mobile layouts at 375/768/1280px and add visual coverage for the new tool controls.
-- Add versioned workspace-state migration before changing the persisted envelope schema.
-- Standardize calculator precision, overflow handling, and localized validation errors.
-- Dynamic ToolHost action/input labels are localized; transform exception messages and some remaining static labels still need localization.
-- Review draft size limits and cloud/local save behavior before expanding persistence features.
+These are deliberately not implemented without the missing product constraints or maintained reference data.
+
+| Area | Why it remains open | Required decision/input |
+|---|---|---|
+| SQL Formatter | A correct dialect-aware parser/formatter differs between SQL Server, MariaDB/MySQL, PostgreSQL, etc. | Select supported SQL dialects and formatting rules. |
+| HTML to Markdown | Regex conversion cannot fully preserve arbitrary malformed HTML, nested tables, and browser parsing behavior. | Approve an HTML5 parser dependency and define table/list conversion rules. |
+| Cron | Current semantics are five-field UTC cron; Quartz has different fields and special tokens, and local timezone evaluation must handle DST gaps/overlaps. | Specify scheduler dialect and timezone/DST policy. |
+| Password Strength | Common-password screening requires a maintained, licensed dataset and update process. | Approve a local dataset and refresh cadence. |
+| JWT verification | Verification is a different workflow from decoding and requires algorithm/key material. | Define supported algorithms, key input UX, and safe key handling. |
+| SHA-256 file hashing | Current tool hashes text. File hashing requires file-picker UX and a maximum file size. | Confirm file hashing is required and set size limits. |
+| QR fixed version/print sizing | Current output exposes error correction and quiet zone; fixed version affects capacity and print requirements. | Define target print dimensions and maximum payload expectations. |
+| Exchange-specific futures/liquidation | Current Futures PnL is linear; liquidation is isolated linear. Exchange tiers, inverse contracts, maintenance brackets, funding mark prices, and fee schedules differ. | Select exchange/product types and use maintained official exchange specifications. |
+| Trading fee presets | Presets/discounts change by exchange, tier, region, and fee-token policy. | Select exchanges and data ownership/update cadence. |
+| DCA schedule | Current DCA is based on entered purchase legs, not a calendar schedule. | Define cadence, timezone, and date-range semantics. |
+| Max Drawdown underwater curve | Input is an ordered equity series without timestamps. | Add dated equity observations and define sampling interval. |
+| Expectancy confidence interval | Current inputs are aggregate win rate/average win/average loss; no sample variance is available. | Accept trade-level observations or add sample size and variance inputs. |
+| Token valuation simulator | This is a new tool beyond the current 50; unlock/dilution assumptions need a product model. | Confirm scope and define vesting/unlock input model. |
 
 ## Test coverage
 
-The `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs` suite contains 76 `[Fact]` tests and
-three parameterized `[Theory]` methods with 11 inline cases (87 test cases total). Coverage includes:
+- `tests/ThaiX.Client.UnitTests/ToolQualityUnitTests.cs`: 116 `[Fact]` tests and 3 `[Theory]` methods with 11 inline cases (127 test cases).
+- `tests/ThaiX.Client.VisualTests/DevToolsSmokeTests.cs`: 8 `[Fact]` tests and 1 `[Theory]` with 3 viewport cases (11 browser test cases).
 
-- CSV quoting, multiline fields, BOM, malformed quotes, and duplicate headers.
-- SQL literals/comments, HTML conversion, Markdown raw-HTML/unsafe-link payloads, and JWT unverified warnings.
-- C#/TypeScript identifier sanitization and nested type collisions.
-- URL normalization, Base64URL, Unix seconds/milliseconds, and UUID formats.
-- cURL shell quoting, method/header validation, Cron parsing, Conventional Commit validation, QR settings, password generation, and last-used history normalization.
-- Calculator sample initialization, Position Size direction, Futures slippage, Risk/Reward break-even, trading boundaries, Risk of Ruin wording, Max Drawdown recovery, Expectancy R, Kelly caps, Funding signs, Market Cap/FDV supply rules, YAML positions, and XML whitespace.
+Coverage includes CSV/JSON conversion, JSON generator edge cases, large JSON formatting, SQL literals/comments, Markdown sanitization, URL/Base64URL/UUID, Cron, regex flags, diff whitespace, cURL shell quoting, password generation, calculator boundaries, funding, drawdown recovery, responsive widths, clear-draft persistence, keyboard shortcuts, and fullscreen exit.
 
 ## Verification status
 
-The repository was updated through the GitHub integration. The execution environment has no .NET SDK
-(`dotnet --info` returns `command not found`), so no build or test result is claimed. No passing
-GitHub Actions status was available for the current branch head during this work.
+The GitHub integration can update and inspect repository files, but this workflow does not provide a local .NET SDK.
+No build or test result is claimed unless it is reported by a successful CI run. The branch-specific workflows
+are configured for pull requests to the protected branches; they do not run on every feature-branch push.
 
-Run these commands from a checkout before merge:
+Run locally before merge:
 
 ```bash
 dotnet build ThaiX.slnx
 dotnet test tests/ThaiX.Client.UnitTests/ThaiX.Client.UnitTests.csproj --no-restore
+dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --no-restore --filter FullyQualifiedName~DevToolsSmokeTests
 dotnet test ThaiX.slnx --no-restore
 ```
 
-The CSV parser, regex-based HTML conversion, SQL formatter, generated model code, cron dialect
-semantics, and financial formulas still require runtime review. Financial outputs are estimates and
-must not be represented as exchange guarantees or investment advice.
+Financial outputs remain estimates, not exchange guarantees or investment advice. The CSV parser, regex-based
+HTML conversion, SQL formatter, cron dialect semantics, and financial models still require runtime review.
 
 ## Primary references
 
 - Markdig `DisableHtml`: https://github.com/xoofx/markdig/blob/main/src/Markdig/MarkdownExtensions.cs
 - HtmlSanitizer usage and default URI schemes: https://github.com/mganss/HtmlSanitizer
-- Mermaid `securityLevel` behavior: https://mermaid.js.org/config/usage#securitylevel
-- QR Code Generator 3.2.1 error-correction and SVG API: https://www.nuget.org/packages/Net.Codecrete.QrCodeGenerator/3.2.1
+- Mermaid `securityLevel`: https://mermaid.js.org/config/usage#securitylevel
+- QR Code Generator 3.2.1: https://www.nuget.org/packages/Net.Codecrete.QrCodeGenerator/3.2.1
