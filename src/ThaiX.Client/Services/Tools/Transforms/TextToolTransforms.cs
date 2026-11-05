@@ -1,4 +1,5 @@
 using DiffPlex;
+using Ganss.Xss;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using Markdig;
@@ -11,7 +12,10 @@ public static class TextToolTransforms
 {
     private static readonly MarkdownPipeline MdPipeline = new MarkdownPipelineBuilder()
         .UseAdvancedExtensions()
+        .DisableHtml()
         .Build();
+
+    private static readonly HtmlSanitizer PreviewSanitizer = new();
 
     private static readonly Regex MermaidStartLine = new(
         @"^\s*(erDiagram|flowchart|graph|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|pie|gantt|mindmap|timeline|journey)\b",
@@ -26,7 +30,7 @@ public static class TextToolTransforms
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     public static string MarkdownToHtml(string markdown) =>
-        Markdown.ToHtml(AutoFenceBareMermaid(markdown ?? string.Empty), MdPipeline);
+        PreviewSanitizer.Sanitize(Markdown.ToHtml(AutoFenceBareMermaid(markdown ?? string.Empty), MdPipeline));
 
     /// <summary>
     /// Bare Mermaid mid-document (after titles/lists) is plain text to Markdig — wrap each block in ```mermaid.
@@ -125,7 +129,151 @@ public static class TextToolTransforms
         else sb.AppendLine(line);
     }
 
-    public static string FormatSql(string sql) => SimpleIndent(sql, new[] { "select", "from", "where", "join", "left", "right", "inner", "outer", "group", "order", "having", "union", "insert", "update", "delete", "values", "set" });
+    public static string FormatSql(string sql)
+    {
+        var text = sql ?? string.Empty;
+        var keywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "SELECT", "FROM", "WHERE", "JOIN", "LEFT", "RIGHT", "INNER", "OUTER",
+            "GROUP", "ORDER", "HAVING", "UNION", "INSERT", "UPDATE", "DELETE",
+            "VALUES", "SET", "ON", "LIMIT", "OFFSET", "RETURNING"
+        };
+        var output = new StringBuilder(text.Length + 32);
+        var pendingSpace = false;
+        var quote = '\0';
+        var lineComment = false;
+        var blockComment = false;
+
+        for (var index = 0; index < text.Length; index++)
+        {
+            var character = text[index];
+            var next = index + 1 < text.Length ? text[index + 1] : '\0';
+
+            if (lineComment)
+            {
+                output.Append(character);
+                if (character is '\n' or '\r') lineComment = false;
+                continue;
+            }
+
+            if (blockComment)
+            {
+                output.Append(character);
+                if (character == '*' && next == '/')
+                {
+                    output.Append(next);
+                    index++;
+                    blockComment = false;
+                }
+                continue;
+            }
+
+            if (quote != '\0')
+            {
+                if (quote == '\'' && character == '\\')
+                {
+                    output.Append(character);
+                    if (index + 1 < text.Length)
+                        output.Append(text[++index]);
+                    continue;
+                }
+
+                output.Append(character);
+                var closingCharacter = quote == '[' ? ']' : quote;
+                if (character == closingCharacter)
+                {
+                    if (next == closingCharacter)
+                    {
+                        output.Append(next);
+                        index++;
+                    }
+                    else
+                    {
+                        quote = '\0';
+                    }
+                }
+                continue;
+            }
+
+            if (character == '-' && next == '-')
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                output.Append("--");
+                index++;
+                lineComment = true;
+                continue;
+            }
+
+            if (character == '/' && next == '*')
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                output.Append("/*");
+                index++;
+                blockComment = true;
+                continue;
+            }
+
+            if (character == '\'' || character == '"' || character == '[' || character == (char)96)
+            {
+                AppendPendingSpace(output, ref pendingSpace);
+                quote = character;
+                output.Append(character);
+                continue;
+            }
+
+            if (char.IsWhiteSpace(character))
+            {
+                pendingSpace = true;
+                continue;
+            }
+
+            if (char.IsLetter(character) || character == '_')
+            {
+                var wordStart = index;
+                while (index + 1 < text.Length && (char.IsLetterOrDigit(text[index + 1]) || text[index + 1] == '_'))
+                    index++;
+
+                var word = text[wordStart..(index + 1)];
+                if (keywords.Contains(word))
+                {
+                    TrimTrailingSpaces(output);
+                    if (output.Length > 0 && output[^1] != '\n')
+                        output.AppendLine();
+                    output.Append(word.ToUpperInvariant());
+                }
+                else
+                {
+                    AppendPendingSpace(output, ref pendingSpace);
+                    output.Append(word);
+                }
+
+                continue;
+            }
+
+            AppendPendingSpace(output, ref pendingSpace);
+            output.Append(character);
+            if (character == ';')
+            {
+                output.AppendLine();
+                pendingSpace = false;
+            }
+        }
+
+        return output.ToString().Trim();
+    }
+
+    private static void AppendPendingSpace(StringBuilder output, ref bool pendingSpace)
+    {
+        if (pendingSpace && output.Length > 0 && output[^1] != '\n' && output[^1] != ' ')
+            output.Append(' ');
+        pendingSpace = false;
+    }
+
+    private static void TrimTrailingSpaces(StringBuilder output)
+    {
+        while (output.Length > 0 && output[^1] == ' ')
+            output.Length--;
+    }
 
     public static string Diff(string left, string right)
     {
@@ -146,25 +294,84 @@ public static class TextToolTransforms
         return sb.ToString();
     }
 
-    public static string RegexTest(string pattern, string input, string? replacement, int timeoutMs = 200)
+    public static string DiffSideBySide(string left, string right, bool ignoreWhitespace = true)
     {
-        var regex = new Regex(pattern, RegexOptions.None, TimeSpan.FromMilliseconds(timeoutMs));
+        var model = new SideBySideDiffBuilder(new Differ())
+            .BuildDiffModel(left ?? string.Empty, right ?? string.Empty, ignoreWhitespace);
+        var leftWidth = model.OldText.Lines.Count == 0
+            ? 0
+            : model.OldText.Lines.Max(line => line.Text?.Length ?? 0);
+        var lineNumberWidth = Math.Max(1, model.OldText.Lines.Count.ToString().Length);
+        var builder = new StringBuilder();
+        builder.Append("OLD".PadRight(lineNumberWidth + leftWidth + 3))
+            .Append(" | NEW")
+            .AppendLine();
+
+        for (var index = 0; index < model.OldText.Lines.Count; index++)
+        {
+            var oldLine = model.OldText.Lines[index];
+            var newLine = model.NewText.Lines[index];
+            var oldText = oldLine.Text ?? string.Empty;
+            var newText = newLine.Text ?? string.Empty;
+            var oldCell = $"{DiffPrefix(oldLine.Type)} {oldText}".PadRight(leftWidth + 2);
+            var newCell = $"{DiffPrefix(newLine.Type)} {newText}";
+
+            builder.Append((index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(lineNumberWidth))
+                .Append(' ')
+                .Append(oldCell)
+                .Append(" | ")
+                .Append((index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture).PadLeft(lineNumberWidth))
+                .Append(' ')
+                .AppendLine(newCell);
+        }
+
+        return builder.ToString();
+    }
+
+    private static string DiffPrefix(ChangeType type) => type switch
+    {
+        ChangeType.Deleted => "-",
+        ChangeType.Inserted => "+",
+        ChangeType.Modified => "~",
+        _ => " "
+    };
+
+    public static string RegexTest(
+        string pattern,
+        string input,
+        string? replacement,
+        int timeoutMs = 200,
+        bool ignoreCase = false,
+        string matchesLabel = "Matches",
+        string groupLabel = "Group",
+        string replaceLabel = "Replace",
+        bool multiline = false,
+        bool singleline = false)
+    {
+        var options = RegexOptions.CultureInvariant;
+        if (ignoreCase)
+            options |= RegexOptions.IgnoreCase;
+        if (multiline)
+            options |= RegexOptions.Multiline;
+        if (singleline)
+            options |= RegexOptions.Singleline;
+        var regex = new Regex(pattern, options, TimeSpan.FromMilliseconds(timeoutMs));
         var matches = regex.Matches(input ?? "");
         var sb = new StringBuilder();
-        sb.AppendLine($"Matches: {matches.Count}");
+        sb.AppendLine($"{matchesLabel}: {matches.Count}");
         var i = 0;
         foreach (Match m in matches)
         {
             sb.AppendLine($"[{i}] index={m.Index} length={m.Length} value={m.Value}");
             for (var g = 1; g < m.Groups.Count; g++)
-                sb.AppendLine($"  group {g}: {m.Groups[g].Value}");
+                sb.AppendLine($"  {groupLabel} {g}: {m.Groups[g].Value}");
             i++;
         }
 
         if (replacement is not null)
         {
             sb.AppendLine();
-            sb.AppendLine("Replace:");
+            sb.AppendLine($"{replaceLabel}:");
             sb.AppendLine(regex.Replace(input ?? "", replacement));
         }
 
@@ -173,20 +380,26 @@ public static class TextToolTransforms
 
     public static string HtmlToMarkdownRough(string html)
     {
-        // Minimal: strip tags for wave deliverable; Markdig is MD→HTML. Keep reversible-ish plain text.
-        var text = Regex.Replace(html ?? "", "<script[\\s\\S]*?</script>", "", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "<style[\\s\\S]*?</style>", "", RegexOptions.IgnoreCase);
+        var text = Regex.Replace(html ?? string.Empty, "<(script|style)\\b[^>]*>[\\s\\S]*?</\\1\\s*>", string.Empty, RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<!--[\\s\\S]*?-->", string.Empty);
+        text = Regex.Replace(text, "<h([1-6])\\b[^>]*>([\\s\\S]*?)</h\\1\\s*>", match =>
+            $"{new string('#', int.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture))} {match.Groups[2].Value.Trim()}\n\n",
+            RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<a\\b[^>]*href=[\\\"']([^\\\"']+)[\\\"'][^>]*>([\\s\\S]*?)</a>", "[$2]($1)", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(strong|b)\\b[^>]*>([\\s\\S]*?)</\\1\\s*>", "**$2**", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(em|i)\\b[^>]*>([\\s\\S]*?)</\\1\\s*>", "*$2*", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<code\\b[^>]*>([\\s\\S]*?)</code>", "\u0060$1\u0060", RegexOptions.IgnoreCase);
         text = Regex.Replace(text, "<br\\s*/?>", "\n", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "</p>", "\n\n", RegexOptions.IgnoreCase);
-        text = Regex.Replace(text, "<[^>]+>", "");
-        return System.Net.WebUtility.HtmlDecode(text).Trim();
+        text = Regex.Replace(text, "<li\\b[^>]*>", "- ", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "</li>", "\n", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "</(p|div|section|ul|ol|blockquote|pre)>", "\n\n", RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<(p|div|section|ul|ol|blockquote|pre)\\b[^>]*>", string.Empty, RegexOptions.IgnoreCase);
+        text = Regex.Replace(text, "<[^>]+>", string.Empty);
+        text = System.Net.WebUtility.HtmlDecode(text).Replace("\r\n", "\n");
+        text = Regex.Replace(text, @"[ \t]+\n", "\n");
+        text = Regex.Replace(text, @"\n{3,}", "\n\n");
+        return text.Trim();
     }
 
-    private static string SimpleIndent(string text, string[] breakKeywords)
-    {
-        var compact = Regex.Replace(text ?? "", @"\s+", " ").Trim();
-        foreach (var kw in breakKeywords)
-            compact = Regex.Replace(compact, $@"\b{kw}\b", "\n" + kw.ToUpperInvariant(), RegexOptions.IgnoreCase);
-        return compact.Trim();
-    }
+
 }

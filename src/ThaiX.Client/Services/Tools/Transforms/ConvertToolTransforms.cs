@@ -56,19 +56,118 @@ public static class ConvertToolTransforms
 
     public static string CsvToJson(string csv)
     {
-        var lines = csv.Replace("\r\n", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        if (lines.Length == 0) return "[]";
-        var headers = SplitCsvLine(lines[0]);
+        if (string.IsNullOrEmpty(csv))
+            return "[]";
+
+        var records = ParseCsvRecords(csv.TrimStart('\uFEFF'));
+        if (records.Count == 0)
+            return "[]";
+
+        var headers = records[0].Select(value => value.Trim()).ToArray();
+        if (headers.Any(string.IsNullOrWhiteSpace))
+            throw new FormatException("CSV headers cannot be empty.");
+        if (headers.Distinct(StringComparer.Ordinal).Count() != headers.Length)
+            throw new FormatException("CSV headers must be unique.");
+
         var rows = new JsonArray();
-        for (var i = 1; i < lines.Length; i++)
+        for (var rowIndex = 1; rowIndex < records.Count; rowIndex++)
         {
-            var cols = SplitCsvLine(lines[i]);
+            var values = records[rowIndex];
+            if (values.Count > headers.Length)
+                throw new FormatException($"CSV record {rowIndex + 1} has more values than the header.");
+
             var obj = new JsonObject();
-            for (var c = 0; c < headers.Count; c++)
-                obj[headers[c]] = c < cols.Count ? cols[c] : "";
+            for (var columnIndex = 0; columnIndex < headers.Length; columnIndex++)
+                obj[headers[columnIndex]] = columnIndex < values.Count ? values[columnIndex] : string.Empty;
             rows.Add(obj);
         }
+
         return rows.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private static List<List<string>> ParseCsvRecords(string csv)
+    {
+        var records = new List<List<string>>();
+        var record = new List<string>();
+        var field = new StringBuilder();
+        var inQuotes = false;
+        var quoteClosed = false;
+
+        for (var index = 0; index < csv.Length; index++)
+        {
+            var character = csv[index];
+
+            if (inQuotes)
+            {
+                if (character == '"')
+                {
+                    if (index + 1 < csv.Length && csv[index + 1] == '"')
+                    {
+                        field.Append('"');
+                        index++;
+                    }
+                    else
+                    {
+                        inQuotes = false;
+                        quoteClosed = true;
+                    }
+                }
+                else
+                {
+                    field.Append(character);
+                }
+
+                continue;
+            }
+
+            if (quoteClosed && character is not (',' or '\r' or '\n' or ' ' or '\t'))
+                throw new FormatException("Unexpected character after a quoted CSV field.");
+
+            if (character == '"')
+            {
+                if (field.Length > 0 || quoteClosed)
+                    throw new FormatException("A quoted CSV field must begin with a quote.");
+
+                inQuotes = true;
+                continue;
+            }
+
+            if (character == ',')
+            {
+                record.Add(field.ToString());
+                field.Clear();
+                quoteClosed = false;
+                continue;
+            }
+
+            if (character is '\r' or '\n')
+            {
+                if (character == '\r' && index + 1 < csv.Length && csv[index + 1] == '\n')
+                    index++;
+
+                record.Add(field.ToString());
+                field.Clear();
+                quoteClosed = false;
+                if (record.Any(value => value.Length > 0) || record.Count > 1)
+                    records.Add(record);
+                record = [];
+                continue;
+            }
+
+            if (!quoteClosed)
+                field.Append(character);
+        }
+
+        if (inQuotes)
+            throw new FormatException("CSV contains an unterminated quoted field.");
+
+        if (field.Length > 0 || record.Count > 0 || quoteClosed)
+        {
+            record.Add(field.ToString());
+            records.Add(record);
+        }
+
+        return records;
     }
 
     public static string JsonToCsv(string json)
@@ -106,16 +205,18 @@ public static class ConvertToolTransforms
     public static string JsonToCsharp(string json, string rootName = "Root")
     {
         using var doc = JsonDocument.Parse(json);
+        EnsureUniquePropertyNames(doc.RootElement);
         var sb = new StringBuilder();
-        EmitCsharp(doc.RootElement, rootName, sb, new HashSet<string>(StringComparer.Ordinal));
+        EmitCsharp(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
     }
 
     public static string JsonToTypescript(string json, string rootName = "Root")
     {
         using var doc = JsonDocument.Parse(json);
+        EnsureUniquePropertyNames(doc.RootElement);
         var sb = new StringBuilder();
-        EmitTs(doc.RootElement, rootName, sb, new HashSet<string>(StringComparer.Ordinal));
+        EmitTs(doc.RootElement, ToPascal(rootName), sb, new HashSet<string>(StringComparer.Ordinal));
         return sb.ToString();
     }
 
@@ -125,32 +226,53 @@ public static class ConvertToolTransforms
         {
             var item = el.GetArrayLength() > 0 ? el[0] : default;
             var itemName = name.EndsWith("s", StringComparison.Ordinal) ? name[..^1] : name + "Item";
-            if (item.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            if (IsHomogeneousArray(el) && (item.ValueKind == JsonValueKind.Object || item.ValueKind == JsonValueKind.Array))
                 EmitCsharp(item, itemName, sb, seen);
-            sb.AppendLine($"// Use List<{MapCsharp(item, itemName)}> for root array.");
+            sb.AppendLine($"// Root array type: {MapCsharp(el, itemName)}.");
             return;
         }
 
-        if (el.ValueKind != JsonValueKind.Object) return;
-        if (!seen.Add(name)) return;
+        if (el.ValueKind != JsonValueKind.Object || !seen.Add(name))
+            return;
 
-        var nested = new List<(string Prop, JsonElement El, string TypeName)>();
+        var nested = new List<(JsonElement El, string TypeName)>();
+        var propertyNames = new HashSet<string>(StringComparer.Ordinal);
+        var nestedNames = new HashSet<string>(StringComparer.Ordinal);
         sb.AppendLine($"public class {name}");
         sb.AppendLine("{");
-        foreach (var p in el.EnumerateObject())
-        {
-            var typeName = MapCsharp(p.Value, ToPascal(p.Name));
-            if (p.Value.ValueKind == JsonValueKind.Object)
-                nested.Add((p.Name, p.Value, ToPascal(p.Name)));
-            else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
-                nested.Add((p.Name, p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
 
-            sb.AppendLine($"    public {typeName} {ToPascal(p.Name)} {{ get; set; }}");
+        foreach (var property in el.EnumerateObject())
+        {
+            var propertyName = UniqueName(ToPascal(property.Name), propertyNames);
+            var nestedTypeName = ToPascal(property.Name);
+            string typeName;
+
+            if (property.Value.ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueNestedTypeName(nestedTypeName, nestedNames, seen);
+                typeName = nestedTypeName + "?";
+                nested.Add((property.Value, nestedTypeName));
+            }
+            else if (IsHomogeneousArray(property.Value)
+                && property.Value[0].ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
+                typeName = $"List<{nestedTypeName}>";
+                nested.Add((property.Value[0], nestedTypeName));
+            }
+            else
+            {
+                typeName = MapCsharp(property.Value, nestedTypeName);
+            }
+
+            sb.AppendLine($"    public {typeName} {CsharpIdentifier(propertyName)} {{ get; set; }}");
         }
+
         sb.AppendLine("}");
         sb.AppendLine();
-        foreach (var n in nested)
-            EmitCsharp(n.El, n.TypeName, sb, seen);
+
+        foreach (var item in nested)
+            EmitCsharp(item.El, item.TypeName, sb, seen);
     }
 
     private static void EmitTs(JsonElement el, string name, StringBuilder sb, HashSet<string> seen)
@@ -159,98 +281,229 @@ public static class ConvertToolTransforms
         {
             var item = el.GetArrayLength() > 0 ? el[0] : default;
             var itemName = name.EndsWith("s", StringComparison.Ordinal) ? name[..^1] : name + "Item";
-            if (item.ValueKind is JsonValueKind.Object or JsonValueKind.Array)
+            if (IsHomogeneousArray(el) && (item.ValueKind == JsonValueKind.Object || item.ValueKind == JsonValueKind.Array))
                 EmitTs(item, itemName, sb, seen);
-            sb.AppendLine($"export type {name} = {MapTs(item, itemName)}[];");
+            sb.AppendLine($"export type {name} = {MapTs(el, itemName)};");
             return;
         }
 
-        if (el.ValueKind != JsonValueKind.Object) return;
-        if (!seen.Add(name)) return;
+        if (el.ValueKind != JsonValueKind.Object || !seen.Add(name))
+            return;
 
         var nested = new List<(JsonElement El, string TypeName)>();
+        var propertyNames = new HashSet<string>(StringComparer.Ordinal);
+        var nestedNames = new HashSet<string>(StringComparer.Ordinal);
         sb.AppendLine($"export interface {name} {{");
-        foreach (var p in el.EnumerateObject())
+
+        foreach (var property in el.EnumerateObject())
         {
-            var typeName = MapTs(p.Value, ToPascal(p.Name));
-            if (p.Value.ValueKind == JsonValueKind.Object)
-                nested.Add((p.Value, ToPascal(p.Name)));
-            else if (p.Value.ValueKind == JsonValueKind.Array && p.Value.GetArrayLength() > 0 && p.Value[0].ValueKind == JsonValueKind.Object)
-                nested.Add((p.Value[0], ToPascal(p.Name.TrimEnd('s'))));
-            sb.AppendLine($"  {p.Name}: {typeName};");
+            var propertyName = UniqueName(property.Name, propertyNames);
+            var nestedTypeName = ToPascal(property.Name);
+            string typeName;
+
+            if (property.Value.ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueNestedTypeName(nestedTypeName, nestedNames, seen);
+                typeName = nestedTypeName;
+                nested.Add((property.Value, nestedTypeName));
+            }
+            else if (IsHomogeneousArray(property.Value)
+                && property.Value[0].ValueKind == JsonValueKind.Object)
+            {
+                nestedTypeName = UniqueNestedTypeName(ToPascal(property.Name.TrimEnd('s')), nestedNames, seen);
+                typeName = $"{nestedTypeName}[]";
+                nested.Add((property.Value[0], nestedTypeName));
+            }
+            else
+            {
+                typeName = MapTs(property.Value, nestedTypeName);
+            }
+
+            sb.AppendLine($"  {TypeScriptPropertyName(propertyName)}: {typeName};");
         }
+
         sb.AppendLine("}");
         sb.AppendLine();
-        foreach (var n in nested)
-            EmitTs(n.El, n.TypeName, sb, seen);
+
+        foreach (var item in nested)
+            EmitTs(item.El, item.TypeName, sb, seen);
     }
 
-    private static string MapCsharp(JsonElement el, string objectName) => el.ValueKind switch
+    private static string MapCsharp(JsonElement el, string objectName)
     {
-        JsonValueKind.String => "string?",
-        JsonValueKind.Number => el.TryGetInt64(out _) ? "long" : "double",
-        JsonValueKind.True or JsonValueKind.False => "bool",
-        JsonValueKind.Null => "object?",
-        JsonValueKind.Object => objectName + "?",
-        JsonValueKind.Array when el.GetArrayLength() > 0 => $"List<{MapCsharp(el[0], objectName)}>",
-        JsonValueKind.Array => "List<object>?",
-        _ => "object?"
-    };
+        if (el.ValueKind == JsonValueKind.Array)
+        {
+            if (el.GetArrayLength() == 0 || !IsHomogeneousArray(el))
+                return "List<object?>";
 
-    private static string MapTs(JsonElement el, string objectName) => el.ValueKind switch
+            return $"List<{MapCsharp(el[0], objectName)}>";
+        }
+
+        return el.ValueKind switch
+        {
+            JsonValueKind.String => "string?",
+            JsonValueKind.Number => el.TryGetInt64(out _) ? "long" : "double",
+            JsonValueKind.True or JsonValueKind.False => "bool",
+            JsonValueKind.Null => "object?",
+            JsonValueKind.Object => objectName + "?",
+            _ => "object?"
+        };
+    }
+
+    private static string MapTs(JsonElement el, string objectName)
     {
+        if (el.ValueKind == JsonValueKind.Array)
+        {
+            if (el.GetArrayLength() == 0)
+                return "unknown[]";
+
+            var items = el.EnumerateArray().ToArray();
+            if (items.Select(GetJsonShape).Distinct(StringComparer.Ordinal).Count() == 1)
+                return $"{MapTs(items[0], objectName)}[]";
+
+            var unionTypes = items
+                .Select(item => item.ValueKind == JsonValueKind.Object
+                    ? "Record<string, unknown>"
+                    : item.ValueKind == JsonValueKind.Array
+                        ? "unknown[]"
+                        : MapTs(item, objectName))
+                .Distinct(StringComparer.Ordinal)
+                .ToArray();
+            return $"({string.Join(" | ", unionTypes)})[]";
+        }
+
+        return el.ValueKind switch
+        {
+            JsonValueKind.String => "string",
+            JsonValueKind.Number => "number",
+            JsonValueKind.True or JsonValueKind.False => "boolean",
+            JsonValueKind.Null => "null",
+            JsonValueKind.Object => objectName,
+            _ => "unknown"
+        };
+    }
+
+    private static bool IsHomogeneousArray(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Array || element.GetArrayLength() == 0)
+            return false;
+
+        var items = element.EnumerateArray().ToArray();
+        var firstShape = GetJsonShape(items[0]);
+        return items.All(item => string.Equals(GetJsonShape(item), firstShape, StringComparison.Ordinal));
+    }
+
+    private static string GetJsonShape(JsonElement element) => element.ValueKind switch
+    {
+        JsonValueKind.Object => "object{" + string.Join(",", element.EnumerateObject()
+            .OrderBy(property => property.Name, StringComparer.Ordinal)
+            .Select(property => $"{JsonSerializer.Serialize(property.Name)}:{GetJsonShape(property.Value)}")) + "}",
+        JsonValueKind.Array => "array[" + string.Join(",", element.EnumerateArray()
+            .Select(GetJsonShape).Distinct(StringComparer.Ordinal).OrderBy(shape => shape, StringComparer.Ordinal)) + "]",
         JsonValueKind.String => "string",
         JsonValueKind.Number => "number",
         JsonValueKind.True or JsonValueKind.False => "boolean",
         JsonValueKind.Null => "null",
-        JsonValueKind.Object => objectName,
-        JsonValueKind.Array when el.GetArrayLength() > 0 => $"{MapTs(el[0], objectName)}[]",
-        JsonValueKind.Array => "unknown[]",
         _ => "unknown"
     };
 
-    private static string ToPascal(string name)
+    private static void EnsureUniquePropertyNames(JsonElement element)
     {
-        if (string.IsNullOrWhiteSpace(name)) return "Property";
-        var parts = name.Split([' ', '-', '_', '.'], StringSplitOptions.RemoveEmptyEntries);
-        var sb = new StringBuilder();
-        foreach (var p in parts)
-            sb.Append(char.ToUpperInvariant(p[0])).Append(p.AsSpan(1));
-        var s = sb.ToString();
-        return char.IsLetter(s[0]) ? s : "P" + s;
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in element.EnumerateObject())
+            {
+                if (!names.Add(property.Name))
+                    throw new FormatException($"Duplicate JSON property name: {property.Name}.");
+
+                EnsureUniquePropertyNames(property.Value);
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in element.EnumerateArray())
+                EnsureUniquePropertyNames(item);
+        }
     }
 
-    private static List<string> SplitCsvLine(string line)
+    private static string ToPascal(string name)
     {
-        var result = new List<string>();
         var sb = new StringBuilder();
-        var inQuotes = false;
-        for (var i = 0; i < line.Length; i++)
+        var capitalizeNext = true;
+        foreach (var character in name ?? string.Empty)
         {
-            var ch = line[i];
-            if (ch == '"')
+            if (!char.IsLetterOrDigit(character))
             {
-                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
-                {
-                    sb.Append('"');
-                    i++;
-                }
-                else inQuotes = !inQuotes;
+                capitalizeNext = true;
+                continue;
             }
-            else if (ch == ',' && !inQuotes)
-            {
-                result.Add(sb.ToString());
-                sb.Clear();
-            }
-            else sb.Append(ch);
+
+            if (sb.Length == 0 && char.IsDigit(character))
+                sb.Append('P');
+
+            sb.Append(capitalizeNext ? char.ToUpperInvariant(character) : character);
+            capitalizeNext = false;
         }
-        result.Add(sb.ToString());
-        return result;
+
+        return sb.Length == 0 ? "Property" : sb.ToString();
+    }
+
+    private static string UniqueName(string name, HashSet<string> usedNames)
+    {
+        var candidate = name;
+        var suffix = 2;
+        while (!usedNames.Add(candidate))
+            candidate = name + suffix++;
+        return candidate;
+    }
+
+    private static string UniqueNestedTypeName(
+        string name,
+        HashSet<string> nestedNames,
+        HashSet<string> emittedTypeNames)
+    {
+        var candidate = name;
+        var suffix = 2;
+        while (emittedTypeNames.Contains(candidate) || !nestedNames.Add(candidate))
+            candidate = name + suffix++;
+        return candidate;
+    }
+
+    private static string CsharpIdentifier(string name)
+    {
+        string[] keywords =
+        [
+            "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
+            "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
+            "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
+            "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
+            "long", "namespace", "new", "null", "object", "operator", "out", "override", "params",
+            "private", "protected", "public", "readonly", "ref", "return", "sbyte", "sealed",
+            "short", "sizeof", "stackalloc", "static", "string", "struct", "switch", "this",
+            "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort",
+            "using", "virtual", "void", "volatile", "while"
+        ];
+
+        return keywords.Contains(name, StringComparer.Ordinal) ? "@" + name : name;
+    }
+
+    private static string TypeScriptPropertyName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return JsonSerializer.Serialize("property");
+
+        var isDollar = (char)36;
+        var validStart = char.IsLetter(name[0]) || name[0] == '_' || name[0] == isDollar;
+        var validTail = name.Skip(1).All(character =>
+            char.IsLetterOrDigit(character) || character == '_' || character == isDollar);
+
+        return validStart && validTail ? name : JsonSerializer.Serialize(name);
     }
 
     private static string EscapeCsv(string value)
     {
-        if (value.Contains('"') || value.Contains(',') || value.Contains('\n'))
+        if (value.Contains('"') || value.Contains(',') || value.Contains('\n') || value.Contains('\r'))
             return "\"" + value.Replace("\"", "\"\"") + "\"";
         return value;
     }

@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="Bogus" />
     <PackageReference Include="DiffPlex" />
+    <PackageReference Include="HtmlSanitizer" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />

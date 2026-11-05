@@ -38,23 +38,26 @@ public static class JsonToolTransforms
             : diffs.ToString();
     }
 
-    private static string Canonical(JsonElement el) =>
-        JsonSerializer.Serialize(Sort(JsonNode.Parse(el.GetRawText())!), Minified);
+    private static string Canonical(JsonElement element)
+    {
+        var node = JsonNode.Parse(element.GetRawText());
+        return JsonSerializer.Serialize(node is null ? null : Sort(node), Minified);
+    }
 
     private static JsonNode Sort(JsonNode node)
     {
         if (node is JsonObject obj)
         {
             var ordered = new JsonObject();
-            foreach (var prop in obj.OrderBy(p => p.Key, StringComparer.Ordinal))
-                ordered[prop.Key] = prop.Value is null ? null : Sort(prop.Value.DeepClone());
+            foreach (var property in obj.OrderBy(property => property.Key, StringComparer.Ordinal))
+                ordered[property.Key] = property.Value is null ? null : Sort(property.Value.DeepClone());
             return ordered;
         }
 
-        if (node is JsonArray arr)
+        if (node is JsonArray array)
         {
             var next = new JsonArray();
-            foreach (var item in arr)
+            foreach (var item in array)
                 next.Add(item is null ? null : Sort(item.DeepClone()));
             return next;
         }
@@ -62,40 +65,94 @@ public static class JsonToolTransforms
         return node.DeepClone();
     }
 
-    private static void DiffNodes(JsonNode? a, JsonNode? b, string path, StringBuilder sb)
+    private static void DiffNodes(
+        JsonNode? left,
+        JsonNode? right,
+        string path,
+        StringBuilder output,
+        bool hasLeft = true,
+        bool hasRight = true)
     {
-        if (a is null && b is null) return;
-        if (a is null || b is null || a.GetType() != b.GetType())
+        if (!hasLeft || !hasRight)
         {
-            sb.AppendLine($"{path}: type/value mismatch");
-            sb.AppendLine($"  left:  {a}");
-            sb.AppendLine($"  right: {b}");
+            output.AppendLine($"{path}: value mismatch");
+            output.AppendLine($"  left:  {(hasLeft ? FormatNode(left) : "<missing>")}");
+            output.AppendLine($"  right: {(hasRight ? FormatNode(right) : "<missing>")}");
             return;
         }
 
-        if (a is JsonValue)
+        if (left is null && right is null)
+            return;
+
+        if (left is null || right is null || left.GetType() != right.GetType())
         {
-            if (!string.Equals(a.ToJsonString(), b.ToJsonString(), StringComparison.Ordinal))
+            output.AppendLine($"{path}: type/value mismatch");
+            output.AppendLine($"  left:  {FormatNode(left)}");
+            output.AppendLine($"  right: {FormatNode(right)}");
+            return;
+        }
+
+        if (left is JsonValue)
+        {
+            if (!string.Equals(left.ToJsonString(), right!.ToJsonString(), StringComparison.Ordinal))
             {
-                sb.AppendLine($"{path}:");
-                sb.AppendLine($"  left:  {a}");
-                sb.AppendLine($"  right: {b}");
+                output.AppendLine($"{path}:");
+                output.AppendLine($"  left:  {FormatNode(left)}");
+                output.AppendLine($"  right: {FormatNode(right)}");
             }
+
             return;
         }
 
-        if (a is JsonObject ao && b is JsonObject bo)
+        if (left is JsonObject leftObject && right is JsonObject rightObject)
         {
-            foreach (var key in ao.Select(p => p.Key).Union(bo.Select(p => p.Key)).OrderBy(k => k))
-                DiffNodes(ao[key], bo[key], $"{path}.{key}", sb);
+            foreach (var key in leftObject.Select(property => property.Key)
+                         .Union(rightObject.Select(property => property.Key), StringComparer.Ordinal)
+                         .OrderBy(key => key, StringComparer.Ordinal))
+            {
+                var hasLeftProperty = leftObject.ContainsKey(key);
+                var hasRightProperty = rightObject.ContainsKey(key);
+                DiffNodes(
+                    hasLeftProperty ? leftObject[key] : null,
+                    hasRightProperty ? rightObject[key] : null,
+                    AppendPropertyPath(path, key),
+                    output,
+                    hasLeftProperty,
+                    hasRightProperty);
+            }
+
             return;
         }
 
-        if (a is JsonArray aa && b is JsonArray ba)
+        if (left is JsonArray leftArray && right is JsonArray rightArray)
         {
-            var len = Math.Max(aa.Count, ba.Count);
-            for (var i = 0; i < len; i++)
-                DiffNodes(i < aa.Count ? aa[i] : null, i < ba.Count ? ba[i] : null, $"{path}[{i}]", sb);
+            var length = Math.Max(leftArray.Count, rightArray.Count);
+            for (var index = 0; index < length; index++)
+            {
+                var hasLeftItem = index < leftArray.Count;
+                var hasRightItem = index < rightArray.Count;
+                DiffNodes(
+                    hasLeftItem ? leftArray[index] : null,
+                    hasRightItem ? rightArray[index] : null,
+                    $"{path}[{index}]",
+                    output,
+                    hasLeftItem,
+                    hasRightItem);
+            }
         }
     }
+
+    private static string AppendPropertyPath(string path, string propertyName)
+    {
+        var isIdentifier = propertyName.Length > 0
+            && (char.IsLetter(propertyName[0]) || propertyName[0] == '_')
+            && propertyName.Skip(1).All(character => char.IsLetterOrDigit(character) || character == '_');
+
+        return isIdentifier
+            ? $"{path}.{propertyName}"
+            : $"{path}[{JsonSerializer.Serialize(propertyName)}]";
+    }
+
+    private static string FormatNode(JsonNode? node) => node?.ToJsonString() ?? "null";
+
 }
