@@ -535,9 +535,9 @@ else
 
     private string SerializeState() => JsonSerializer.Serialize(_state, JsonOptions);
 
-    private Task OnDraftCleared()
+    private async Task OnDraftCleared()
     {
-        // Clear means empty workspace — do not re-seed ToolSampleCatalog samples.
+        // Clear means an explicitly saved empty workspace; do not re-seed samples after reload.
         _state = new ToolWorkspaceState();
         _previewHtml = string.Empty;
         _previewEpoch++;
@@ -555,7 +555,20 @@ else
             _calculatorAutoCalculateToken = Guid.NewGuid().ToString("N");
         }
 
-        return Task.CompletedTask;
+        if (_tool is not null)
+        {
+            _saveStatusKey = RK.Tools.SavePending;
+            try
+            {
+                await ToolStateStore.SaveLocalAsync(_tool, SerializeState());
+                _saveStatusKey = RK.Tools.SaveSaved;
+            }
+            catch (Exception ex)
+            {
+                _saveStatusKey = RK.Tools.SaveStatusFailed;
+                ReportToolIssue(ex);
+            }
+        }
     }
 
     private void ShowMarkdownEditor()
