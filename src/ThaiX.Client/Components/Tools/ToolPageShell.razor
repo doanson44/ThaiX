@@ -137,7 +137,7 @@
             _shareUrl = await ToolStateStore.ShareAsync(Tool, GetStateJson(), name);
             NotificationService.NotifySuccess(L[RK.Tools.ShareSuccess]);
         }
-        catch (Exception ex)
+        catch
         {
             NotificationService.NotifyError(L[RK.Tools.ShareFailed], L[RK.Tools.ValidationGeneric]);
         }
@@ -157,7 +157,7 @@
             await OnDraftCleared.InvokeAsync();
             NotificationService.NotifySuccess(L[RK.Tools.ClearSuccess]);
         }
-        catch (Exception ex)
+        catch
         {
             NotificationService.NotifyWarning(L[RK.Tools.ValidationTitle], L[RK.Tools.ValidationGeneric]);
         }
@@ -176,7 +176,7 @@
             if (!copied) throw new InvalidOperationException("Clipboard copy command failed.");
             NotificationService.NotifySuccess(L[RK.JsonBins.CopySuccess]);
         }
-        catch (Exception ex)
+        catch
         {
             NotificationService.NotifyError(L[RK.JsonBins.CopyFailed], L[RK.Tools.ValidationBrowser]);
         }
