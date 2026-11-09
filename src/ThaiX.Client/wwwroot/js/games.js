@@ -669,7 +669,14 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
 
     return {
         restart: reset,
-        pause(value) {state.paused=value;render();},
+        pause(value) {
+            if(value&&!state.paused)state.pausedAt=Date.now();
+            else if(!value&&state.paused&&state.pausedAt){
+                if(state.startedAt)state.startedAt+=Date.now()-state.pausedAt;
+                state.pausedAt=0;
+            }
+            state.paused=value;render();
+        },
         dispose() {
             disposed=true;clearInterval(timer);cancelAnimationFrame(animationFrame);
             canvas.removeEventListener("pointerdown",onPointerDown);
