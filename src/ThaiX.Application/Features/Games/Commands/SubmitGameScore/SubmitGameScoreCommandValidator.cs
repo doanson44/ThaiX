@@ -35,7 +35,9 @@ public sealed class SubmitGameScoreCommandValidator : AbstractValidator<SubmitGa
             .WithErrorCode(ErrorCodes.INVALID_LENGTH)
             .MaximumLength(64)
             .WithErrorCode(ErrorCodes.INVALID_LENGTH)
-            .Matches(@"^[\p{L}\p{N} @._+-]+$")
+            .Must(name => name.Trim().Length >= 2)
+            .WithErrorCode(ErrorCodes.INVALID_LENGTH)
+            .Must(name => name.All(character => !char.IsControl(character)))
             .WithErrorCode(ErrorCodes.INVALID_FORMAT);
 
         RuleFor(command => command.Score)
