@@ -781,9 +781,12 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         else if(gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")typingField.addEventListener("keydown",onKeyDown);
     }
     canvas.addEventListener("contextmenu",onContextMenu);
-    if(gameId==="minesweeper"&&typeof ResizeObserver!=="undefined"){
-        minesResizeObserver=new ResizeObserver(updateMinesCanvasSize);
-        minesResizeObserver.observe(canvas);
+    if(gameId==="minesweeper"){
+        updateMinesCanvasSize();
+        if(typeof ResizeObserver!=="undefined"){
+            minesResizeObserver=new ResizeObserver(updateMinesCanvasSize);
+            minesResizeObserver.observe(canvas);
+        }
     }
     reset();
 
