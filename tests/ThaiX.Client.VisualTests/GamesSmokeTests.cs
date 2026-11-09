@@ -79,6 +79,54 @@ public sealed class GamesSmokeTests
         }
     }
 
+    [Theory]
+    [InlineData(375, 812, 800, 72)]
+    [InlineData(390, 844, 800, 72)]
+    [InlineData(768, 1024, 480, 40)]
+    [InlineData(1280, 800, 480, 40)]
+    [InlineData(844, 390, 480, 40)]
+    public async Task Minesweeper_RendersAndAcceptsInputAtResponsiveViewports(
+        int viewportWidth,
+        int viewportHeight,
+        int expectedCanvasHeight,
+        int expectedCellSize)
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, viewportWidth, viewportHeight);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/minesweeper", viewportWidth, viewportHeight);
+            var canvas = page.Locator(".game-canvas");
+            await canvas.WaitForAsync(Visible(30000));
+
+            var box = await canvas.BoundingBoxAsync();
+            Assert.NotNull(box);
+            Assert.True(box.Width <= viewportWidth);
+            Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= viewportWidth);
+
+            var initialPixels = await canvas.EvaluateAsync<int[]>(
+                "(element) => { const ctx = element.getContext('2d'); const mobile = element.height === 800; const size = mobile ? 72 : 40; const left = (720 - size * 9) / 2; const top = mobile ? 105 : 70; const pixel = ctx.getImageData(left + 8, top + 8, 1, 1).data; return [element.width, element.height, pixel[0], pixel[1], pixel[2]]; }");
+
+            Assert.Equal(720, initialPixels[0]);
+            Assert.Equal(expectedCanvasHeight, initialPixels[1]);
+            Assert.Equal(new[] { 51, 65, 85 }, initialPixels[2..5]);
+            Assert.True(expectedCellSize * box.Width / 720 >= (viewportWidth < 560 ? 32 : 20));
+
+            await canvas.ClickAsync(new LocatorClickOptions
+            {
+                Position = new Position
+                {
+                    X = (int)((((720 - expectedCellSize * 9) / 2) + expectedCellSize / 2) * box.Width / 720),
+                    Y = (int)((((viewportWidth < 560 ? 105 : 70) + expectedCellSize / 2) * box.Height / expectedCanvasHeight))
+                }
+            });
+
+            var openedPixel = await canvas.EvaluateAsync<int[]>(
+                "(element) => { const ctx = element.getContext('2d'); const mobile = element.height === 800; const size = mobile ? 72 : 40; const left = (720 - size * 9) / 2; const top = mobile ? 105 : 70; const pixel = ctx.getImageData(left + 8, top + 8, 1, 1).data; return [pixel[0], pixel[1], pixel[2]]; }");
+
+            Assert.Equal(new[] { 203, 213, 225 }, openedPixel);
+        }
+    }
+
     public static IEnumerable<object[]> GameRouteData() =>
         GameIds.Select(gameId => new object[] { gameId });
 
