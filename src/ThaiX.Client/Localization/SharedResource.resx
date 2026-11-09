@@ -2173,7 +2173,6 @@
   <data name="Games.TypingPassage" xml:space="preserve"><value>The best way to learn a new skill is to practice a little every day. Stay focused, keep a steady pace, and improve one step at a time.</value></data>
   <data name="Games.Flags" xml:space="preserve"><value>Flags</value></data>
   <data name="Games.RetrySync" xml:space="preserve"><value>Retry sync</value></data>
-  <data name="Games.Rank" xml:space="preserve"><value>Rank</value></data>
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>View full history</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Show recent runs</value></data>
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Score saved on this device.</value></data>
