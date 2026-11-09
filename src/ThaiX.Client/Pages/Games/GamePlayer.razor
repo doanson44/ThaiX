@@ -53,7 +53,7 @@ else
             {
                 <RadzenButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
                               Icon="flag" ButtonStyle="@(_flagMode ? ButtonStyle.Primary : ButtonStyle.Light)"
-                              Click="ToggleFlagModeAsync" Class="mt-2" />
+                              Click="ToggleFlagModeAsync" Class="mt-2 minesweeper-flag-button" />
             }
             @if (!string.IsNullOrWhiteSpace(_gameStatusMessage))
             {
