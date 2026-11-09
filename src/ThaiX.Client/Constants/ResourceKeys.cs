@@ -76,6 +76,8 @@ public static class ResourceKeys
         public const string Paused = "Games.Paused";
         public const string RestartHint = "Games.RestartHint";
         public const string Flags = "Games.Flags";
+        public const string FlagModeOn = "Games.FlagModeOn";
+        public const string FlagModeOff = "Games.FlagModeOff";
         public const string Passed = "Games.Passed";
         public const string WrongGuesses = "Games.WrongGuesses";
         public const string Time = "Games.Time";
