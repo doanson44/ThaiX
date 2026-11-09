@@ -650,11 +650,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         if(gameId==="sudoku"&&y>438){if(x>=615)sudokuInput(0);else{const value=Math.floor((x-104)/57)+1;if(value>=1&&value<=9)sudokuInput(value);}return;}
         if(gameId==="wordle"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length){state.current=(state.current+key).slice(0,5);render();}else if(y>=421&&x>=545&&x<610){state.current=state.current.slice(0,-1);render();}else if(y>=421&&x>=615){submitWordle();}return;}
         if(gameId==="hangman"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length)guessHangman(key);return;}
-        if(gameId==="minesweeper"){
-            const cx=Math.floor((x-180)/40),cy=Math.floor((y-70)/40);
-            if(cx>=0&&cy>=0&&cx<9&&cy<9)state.cursor=[cx,cy];
-            if(event.button===2||state.flagMode)flagMine(cx,cy);else revealMine(cx,cy);
-        } else if(gameId==="memory-cards"){
+        if(gameId==="memory-cards"){
             const cx=Math.floor((x-150)/116),cy=Math.floor((y-70)/116);if(cx>=0&&cy>=0&&cx<4&&cy<3){state.cursor=cy*4+cx;flipMemory(state.cursor);}
         } else if(gameId==="15-puzzle"){
             const cx=Math.floor((x-160)/104),cy=Math.floor((y-65)/104);if(cx>=0&&cy>=0&&cx<4&&cy<4){state.cursor=cy*4+cx;moveFifteen(state.cursor);}
