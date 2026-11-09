@@ -2177,4 +2177,6 @@
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>View full history</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Show recent runs</value></data>
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Score saved on this device.</value></data>
+  <data name="Games.FlagModeOn" xml:space="preserve"><value>Flag mode: on</value></data>
+  <data name="Games.FlagModeOff" xml:space="preserve"><value>Flag mode: off</value></data>
 </root>
