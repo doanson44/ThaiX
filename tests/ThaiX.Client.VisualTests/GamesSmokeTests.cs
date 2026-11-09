@@ -79,6 +79,43 @@ public sealed class GamesSmokeTests
         }
     }
 
+    [Fact]
+    public async Task Minesweeper_LongPressOnTouch_FlagsCell()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/minesweeper", 1280, 800);
+            var canvas = page.Locator(".game-canvas");
+            await canvas.WaitForAsync(Visible(30000));
+
+            var flagPixels = await canvas.EvaluateAsync<int>(
+                @"async element => {
+                    const rect = element.getBoundingClientRect();
+                    const x = rect.left + 200 * rect.width / 720;
+                    const y = rect.top + 90 * rect.height / 480;
+                    element.dispatchEvent(new PointerEvent('pointerdown', {
+                        bubbles: true, cancelable: true, pointerId: 7,
+                        pointerType: 'touch', button: 0, clientX: x, clientY: y
+                    }));
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    element.dispatchEvent(new PointerEvent('pointerup', {
+                        bubbles: true, cancelable: true, pointerId: 7,
+                        pointerType: 'touch', button: 0, clientX: x, clientY: y
+                    }));
+                    const pixels = element.getContext('2d').getImageData(180, 70, 40, 40).data;
+                    let count = 0;
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        if (pixels[i] === 245 && pixels[i + 1] === 158 && pixels[i + 2] === 11)
+                            count++;
+                    }
+                    return count;
+                }");
+
+            Assert.True(flagPixels > 0, "A touch long press should draw the mine flag.");
+        }
+    }
+
     public static IEnumerable<object[]> GameRouteData() =>
         GameIds.Select(gameId => new object[] { gameId });
 
