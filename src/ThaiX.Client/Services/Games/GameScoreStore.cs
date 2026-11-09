@@ -102,6 +102,9 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
 
     private static string GetScoreKey(string gameId) => $"ThaiX.Games.Scores.{gameId}";
 
+    private static bool IsCumulativeWinGame(string gameId) =>
+        gameId is "pong" or "tic-tac-toe" or "connect-four";
+
     private static bool IsBetter(string gameId, decimal candidate, decimal current) =>
         gameId is "minesweeper" or "sudoku" or "memory-cards" or "15-puzzle" or "lights-out" or "wordle"
             ? candidate < current
