@@ -689,7 +689,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             return;
         }
         const key=event.key.toLowerCase();
-        if((gameId==="wordle"||gameId==="hangman")&&event.currentTarget===typingField){
+        if((gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")&&event.currentTarget===typingField){
             event.preventDefault();
             typingField.value="";
         }
@@ -720,7 +720,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     canvas.addEventListener("keydown",onKeyDown);
     if(typeof typingField?.addEventListener === "function"){
         if(gameId==="typing-speed")typingField.addEventListener("input",onTypingFieldInput);
-        else if(gameId==="wordle"||gameId==="hangman")typingField.addEventListener("keydown",onKeyDown);
+        else if(gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")typingField.addEventListener("keydown",onKeyDown);
     }
     canvas.addEventListener("contextmenu",onContextMenu);
     reset();
@@ -742,7 +742,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             canvas.removeEventListener("keydown",onKeyDown);
             if(typeof typingField?.removeEventListener === "function"){
                 if(gameId==="typing-speed")typingField.removeEventListener("input",onTypingFieldInput);
-                else if(gameId==="wordle"||gameId==="hangman")typingField.removeEventListener("keydown",onKeyDown);
+                else if(gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")typingField.removeEventListener("keydown",onKeyDown);
             }
             canvas.removeEventListener("contextmenu",onContextMenu);
         }
