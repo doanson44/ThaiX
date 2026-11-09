@@ -40,12 +40,20 @@
 }
 
 
-.minesweeper-flag-button {
+.minesweeper-flag-control {
+    width: fit-content;
+}
+
+::deep .minesweeper-flag-button {
     min-height: 2.75rem;
 }
 
 @media (max-width: 575.98px) {
-    .minesweeper-flag-button {
+    .minesweeper-flag-control {
+        width: 100%;
+    }
+
+    ::deep .minesweeper-flag-button {
         width: 100%;
     }
 }
