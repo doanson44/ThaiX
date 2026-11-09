@@ -2175,4 +2175,5 @@
   <data name="Games.Rank" xml:space="preserve"><value>Thứ hạng</value></data>
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>Xem toàn bộ lịch sử</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Chỉ xem lượt gần đây</value></data>
+  <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Điểm đã được lưu trên thiết bị này.</value></data>
 </root>
