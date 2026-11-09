@@ -532,7 +532,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         state.snake.forEach((p,i)=>{ctx.fillStyle=i?"#16a34a":"#86efac";ctx.fillRect(left+p[0]*size+1,top+p[1]*size+1,size-2,size-2);});
         ctx.fillStyle=COLORS.bad;ctx.fillRect(left+state.food[0]*size+4,top+state.food[1]*size+4,size-8,size-8);
         drawText(`${T.score}: ${state.score}`,W/2,465,18,COLORS.muted);
-        [["U",650,345],["L",615,385],["D",650,425],["R",685,385]].forEach(([label,x,y])=>{rounded(x-15,y-15,30,30,6,COLORS.tile);drawText(label,x,y+6,18);});
+        [["^",650,345],["<",615,385],["v",650,425],[">",685,385]].forEach(([label,x,y])=>{rounded(x-15,y-15,30,30,6,COLORS.tile);drawText(label,x,y+6,18);});
     }
     function drawTetris(){
         frame(T.title);const size=20,left=230,top=42;
@@ -540,7 +540,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         state.board.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+x*size+1,top+y*size+1,size-2,size-2,3,"#38bdf8");}));
         state.piece.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+(state.pieceX+x)*size+1,top+(state.pieceY+y)*size+1,size-2,size-2,3,"#f59e0b");}));
         drawText(`${T.score}: ${state.score}`,W/2,465,18,COLORS.muted);
-        [["L",245],["ROT",315],["R",385],["DROP",455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
+        [["<",245],["ROT",315],[">",385],["DROP",455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
     }
     function drawFlappy(){
         frame(T.title);ctx.fillStyle="#0c4a6e";ctx.fillRect(0,45,W,H-45);
