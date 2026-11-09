@@ -534,8 +534,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     function drawMines(){
         const layout=getMinesLayout();
         const {size,left,top}=layout;
-        const centerY=top+size/2;
-
         ctx.clearRect(0,0,W,canvas.height);
         ctx.fillStyle=COLORS.bg;
         ctx.fillRect(0,0,W,canvas.height);
