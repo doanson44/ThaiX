@@ -55,8 +55,9 @@ else
             }
             @if (Game.Id == "typing-speed")
             {
-                <input @ref="_typingInput" class="form-control mt-3" type="text" autocomplete="off"
-                       aria-label="@L[ResourceKeys.Games.NameTyping]" placeholder="@L[ResourceKeys.Games.InstructionsTyping]" />
+                <input @ref="_typingInput" class="form-control mt-3" type="text" autocomplete="off" autocapitalize="off"
+                       autocorrect="off" spellcheck="false" aria-label="@L[ResourceKeys.Games.NameTyping]"
+                       placeholder="@L[ResourceKeys.Games.InstructionsTyping]" />
             }
             @if (!string.IsNullOrWhiteSpace(_statusMessage))
             {
