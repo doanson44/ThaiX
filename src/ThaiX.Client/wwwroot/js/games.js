@@ -23,6 +23,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     const ctx = canvas.getContext("2d");
     let state;
     let timer = 0;
+    let mismatchTimeout = 0;
     let animationFrame = 0;
     let lastFrame = 0;
     let pointerStart = null;
@@ -48,6 +49,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
 
     function reset() {
         clearInterval(timer);
+        clearTimeout(mismatchTimeout);
+        mismatchTimeout = 0;
         cancelAnimationFrame(animationFrame);
         state = baseState();
         if (typeof typingField?.addEventListener === "function") typingField.value = "";
@@ -190,7 +193,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             if(first.value===card.value){first.matched=true;card.matched=true;state.pairs++;state.first=-1;if(state.pairs===6)finish(state.moves);}
             else{
                 state.locked=true;
-                setTimeout(()=>{first.open=false;card.open=false;state.first=-1;state.locked=false;render();},700);
+                mismatchTimeout=setTimeout(()=>{first.open=false;card.open=false;state.first=-1;state.locked=false;mismatchTimeout=0;render();},700);
             }
         }
         render();
@@ -678,7 +681,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             state.paused=value;render();
         },
         dispose() {
-            disposed=true;clearInterval(timer);cancelAnimationFrame(animationFrame);
+            disposed=true;clearInterval(timer);clearTimeout(mismatchTimeout);mismatchTimeout=0;cancelAnimationFrame(animationFrame);
             canvas.removeEventListener("pointerdown",onPointerDown);
             canvas.removeEventListener("pointerup",onPointerUp);
             canvas.removeEventListener("keydown",onKeyDown);
