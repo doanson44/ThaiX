@@ -38,3 +38,14 @@
         border-radius: 0.5rem;
     }
 }
+
+
+.minesweeper-flag-button {
+    min-height: 2.75rem;
+}
+
+@media (max-width: 575.98px) {
+    .minesweeper-flag-button {
+        width: 100%;
+    }
+}
