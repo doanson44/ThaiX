@@ -2176,4 +2176,6 @@
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>Xem toàn bộ lịch sử</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Chỉ xem lượt gần đây</value></data>
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Điểm đã được lưu trên thiết bị này.</value></data>
+  <data name="Games.FlagModeOn" xml:space="preserve"><value>Đang bật chế độ đánh dấu mìn</value></data>
+  <data name="Games.FlagModeOff" xml:space="preserve"><value>Đang tắt chế độ đánh dấu mìn</value></data>
 </root>
