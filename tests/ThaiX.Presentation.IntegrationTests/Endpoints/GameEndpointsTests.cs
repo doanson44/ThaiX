@@ -169,13 +169,13 @@ public sealed class GameEndpointsTests : IntegrationTestBase
                 {
                     UserId = userId,
                     ContactId = Guid.NewGuid(),
-                    FullName = "Games Player",
+                    FullName = "Games O'Player",
                     UpdatedAt = DateTime.UtcNow
                 });
             }
             else
             {
-                profile.FullName = "Games Player";
+                profile.FullName = "Games O'Player";
             }
 
             await dbContext.SaveChangesAsync();
@@ -202,7 +202,7 @@ public sealed class GameEndpointsTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         envelope!.Data!.Rank.Should().BeGreaterThan(0);
-        leaderboard!.Data!.Entries.Should().Contain(entry => entry.PlayerName == "Games Player");
+        leaderboard!.Data!.Entries.Should().Contain(entry => entry.PlayerName == "Games O'Player");
     }
 
     [Fact]
