@@ -206,6 +206,36 @@ public sealed class GameEndpointsTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task SubmitScore_ShouldUseAccountName_WhenProfileIsMissing()
+    {
+        // Arrange
+        var email = $"leaderboard-player-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email);
+        await AuthenticateAsync(email);
+        var request = new
+        {
+            GameId = "2048",
+            RunId = Guid.NewGuid(),
+            Score = 128,
+            DurationSeconds = 30,
+            Mode = (string?)null,
+            GuestPlayerId = (string?)null,
+            GuestToken = (string?)null,
+            GuestPlayerName = (string?)null
+        };
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/games/scores", request);
+        var leaderboardResponse = await Client.GetAsync("/api/games/leaderboards/2048");
+        var leaderboard = await leaderboardResponse.Content.ReadFromJsonAsync<ApiResponse<GameLeaderboardDto>>(JsonOptions);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        leaderboard!.Data!.Entries.Should().Contain(entry =>
+            entry.PlayerName == email.Split('@')[0]);
+    }
+
+    [Fact]
     public async Task SubmitScore_ShouldReturnBadRequest_WhenGameIdUnsupported()
     {
         // Arrange
