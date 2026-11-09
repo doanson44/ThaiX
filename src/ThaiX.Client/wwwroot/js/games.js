@@ -243,9 +243,11 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             if(state.paused||state.finished)return;
             state.dir=state.nextDir;
             const head=[state.snake[0][0]+state.dir[0],state.snake[0][1]+state.dir[1]];
-            if(head[0]<0||head[0]>=20||head[1]<0||head[1]>=15||state.snake.some(p=>p[0]===head[0]&&p[1]===head[1])){finish(state.score);return;}
+            const eating=head[0]===state.food[0]&&head[1]===state.food[1];
+            const collisionBody=eating?state.snake:state.snake.slice(0,-1);
+            if(head[0]<0||head[0]>=20||head[1]<0||head[1]>=15||collisionBody.some(p=>p[0]===head[0]&&p[1]===head[1])){finish(state.score);return;}
             state.snake.unshift(head);
-            if(head[0]===state.food[0]&&head[1]===state.food[1]){
+            if(eating){
                 state.score+=10;
                 do { state.food=[Math.floor(Math.random()*20),Math.floor(Math.random()*15)]; }
                 while(state.snake.some(p=>p[0]===state.food[0]&&p[1]===state.food[1]));
@@ -291,7 +293,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             state.pipes=state.pipes.filter(p=>p.x>-60);
             for(const p of state.pipes){
                 if(!p.passed&&p.x<115){p.passed=true;state.score++;}
-                if(105>p.x-20&&105<p.x+55&&(state.birdY< p.gap-85||state.birdY>p.gap+85))finish(state.score);
+                if(105+15>p.x&&105-15<p.x+55&&(state.birdY-15<p.gap-85||state.birdY+15>p.gap+85))finish(state.score);
             }
             if(state.birdY<0||state.birdY>H)finish(state.score);
             render();
@@ -322,7 +324,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             if(state.paused||state.finished)return;
             const b=state.ball;b.x+=b.dx;b.y+=b.dy;
             if(b.y<8||b.y>H-8)b.dy*=-1;
-            state.aiY+=(b.y-60-state.aiY)*0.055;
+            state.aiY=Math.max(0,Math.min(H-100,state.aiY+(b.y-60-state.aiY)*0.055));
             if(b.x<55&&b.x>35&&b.y>state.paddleY&&b.y<state.paddleY+100)b.dx=Math.abs(b.dx);
             if(b.x>W-55&&b.x<W-35&&b.y>state.aiY&&b.y<state.aiY+100)b.dx=-Math.abs(b.dx);
             if(b.x<0){state.ai++;resetPongBall();}
