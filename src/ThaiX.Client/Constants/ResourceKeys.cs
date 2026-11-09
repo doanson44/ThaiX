@@ -61,6 +61,7 @@ public static class ResourceKeys
         public const string LocalOnly = "Games.LocalOnly";
         public const string GuestSaved = "Games.GuestSaved";
         public const string ScoreSaved = "Games.ScoreSaved";
+        public const string LocalScoreSaved = "Games.LocalScoreSaved";
         public const string ScoreSyncFailed = "Games.ScoreSyncFailed";
         public const string RetrySync = "Games.RetrySync";
         public const string Rank = "Games.Rank";
