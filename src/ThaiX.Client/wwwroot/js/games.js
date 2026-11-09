@@ -249,6 +249,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             state.snake.unshift(head);
             if(eating){
                 state.score+=10;
+                if(state.snake.length===300){finish(state.score);return;}
                 do { state.food=[Math.floor(Math.random()*20),Math.floor(Math.random()*15)]; }
                 while(state.snake.some(p=>p[0]===state.food[0]&&p[1]===state.food[1]));
             }else state.snake.pop();
