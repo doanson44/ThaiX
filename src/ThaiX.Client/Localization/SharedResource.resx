@@ -2179,4 +2179,8 @@
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Score saved on this device.</value></data>
   <data name="Games.FlagModeOn" xml:space="preserve"><value>Flag mode: on</value></data>
   <data name="Games.FlagModeOff" xml:space="preserve"><value>Flag mode: off</value></data>
+  <data name="Games.KeyDelete" xml:space="preserve"><value>DEL</value></data>
+  <data name="Games.KeyEnter" xml:space="preserve"><value>ENTER</value></data>
+  <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
+  <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
 </root>
