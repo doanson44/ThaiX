@@ -365,6 +365,7 @@ else
         if (_controller is not null)
             await _controller.InvokeVoidAsync("restart");
         _isPaused = false;
+        _syncFailed = false;
         _statusMessage = null;
         _gameStatusMessage = null;
     }
