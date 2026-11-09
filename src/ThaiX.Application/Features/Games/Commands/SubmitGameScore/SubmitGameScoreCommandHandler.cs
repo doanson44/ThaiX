@@ -42,7 +42,10 @@ public sealed class SubmitGameScoreCommandHandler(IApplicationDbContext context)
                 .Where(profile => profile.UserId == request.UserId.Value)
                 .Select(profile => profile.FullName)
                 .FirstOrDefaultAsync(cancellationToken);
-            playerName = string.IsNullOrWhiteSpace(fullName) ? request.PlayerName : fullName.Trim();
+            var normalizedFullName = fullName?.Trim();
+            playerName = string.IsNullOrWhiteSpace(normalizedFullName) || normalizedFullName.Length < 2
+                ? request.PlayerName
+                : normalizedFullName;
             if (playerName.Length > 64)
                 playerName = playerName[..64];
         }
