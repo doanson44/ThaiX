@@ -59,9 +59,11 @@ else
                        autocorrect="off" spellcheck="false" aria-label="@L[ResourceKeys.Games.NameTyping]"
                        placeholder="@L[ResourceKeys.Games.InstructionsTyping]" />
             }
-            else if (Game.Id is "wordle" or "hangman")
+            else if (Game.Id is "wordle" or "hangman" or "sudoku")
             {
-                <input @ref="_typingInput" class="form-control mt-3" type="text" autocomplete="off" autocapitalize="characters"
+                <input @ref="_typingInput" class="form-control mt-3" type="text" autocomplete="off"
+                       inputmode="@(Game.Id == "sudoku" ? "numeric" : "text")"
+                       autocapitalize="@(Game.Id == "sudoku" ? "off" : "characters")"
                        autocorrect="off" spellcheck="false" maxlength="@(Game.Id == "wordle" ? 5 : 1)"
                        aria-label="@L[Game.TitleKey]" placeholder="@L[Game.InstructionsKey]" />
             }
