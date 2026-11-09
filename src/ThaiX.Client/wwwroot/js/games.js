@@ -513,6 +513,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         for(let y=0;y<9;y++)for(let x=0;x<9;x++){const px=left+x*size,py=top+y*size;ctx.fillStyle=state.selected[0]===x&&state.selected[1]===y?"#075985":(Math.floor(x/3)+Math.floor(y/3))%2?"#1e293b":"#273449";ctx.fillRect(px,py,size,size);ctx.strokeStyle="#64748b";ctx.strokeRect(px,py,size,size);if(state.grid[y][x])drawText(String(state.grid[y][x]),px+21,py+28,19,state.fixed[y][x]?"#f8fafc":"#7dd3fc");}
         ctx.strokeStyle="#e2e8f0";ctx.lineWidth=3;for(let i=0;i<=9;i+=3){ctx.strokeRect(left+i*size,top,1,9*size);ctx.strokeRect(left,top+i*size,9*size,1);}ctx.lineWidth=1;
         for(let i=1;i<=9;i++){const x=104+(i-1)*57;rounded(x,440,50,30,5,COLORS.tile);drawText(String(i),x+25,462,16);}
+        rounded(615,440,50,30,5,COLORS.tile);drawText("DEL",640,462,12);
     }
     function drawMemory(){
         frame(T.title);const size=104,gap=12,left=150,top=70;
@@ -613,7 +614,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         if(gameId==="tetris"&&y>430){if(x<310)movePiece(-1,0);else if(x<380)rotatePiece();else if(x<450)movePiece(1,0);else{while(movePiece(0,1)){}lockPiece();}render();return;}
         if(gameId==="breakout"){state.paddleX=Math.max(0,Math.min(W-120,x-60));render();return;}
         if(gameId==="pong"){state.paddleY=Math.max(0,Math.min(H-100,y-50));return;}
-        if(gameId==="sudoku"&&y>438){const value=Math.floor((x-104)/57)+1;if(value>=1&&value<=9)sudokuInput(value);return;}
+        if(gameId==="sudoku"&&y>438){if(x>=615)sudokuInput(0);else{const value=Math.floor((x-104)/57)+1;if(value>=1&&value<=9)sudokuInput(value);}return;}
         if(gameId==="wordle"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length){state.current=(state.current+key).slice(0,5);render();}else if(y>=421&&x>=545&&x<610){state.current=state.current.slice(0,-1);render();}else if(y>=421&&x>=615){submitWordle();}return;}
         if(gameId==="hangman"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length)guessHangman(key);return;}
         if(gameId==="minesweeper"){
