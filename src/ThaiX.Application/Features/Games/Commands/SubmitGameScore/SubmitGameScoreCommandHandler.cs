@@ -97,7 +97,6 @@ public sealed class SubmitGameScoreCommandHandler(IApplicationDbContext context)
                 ? -entry.Score
                 : entry.Score)
             .ThenBy(entry => entry.AchievedAtUtc)
-            .Take(100)
             .ToList();
 
         var payload = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
