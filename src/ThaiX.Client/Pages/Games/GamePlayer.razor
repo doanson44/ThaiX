@@ -49,6 +49,12 @@ else
             </div>
             <canvas @ref="_canvas" class="game-canvas" tabindex="0" role="application"
                     aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"></canvas>
+            @if (Game.Id == "minesweeper")
+            {
+                <RadzenButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
+                              Icon="flag" ButtonStyle="@(_flagMode ? ButtonStyle.Primary : ButtonStyle.Light)"
+                              Click="ToggleFlagModeAsync" Class="mt-2" />
+            }
             @if (!string.IsNullOrWhiteSpace(_gameStatusMessage))
             {
                 <p class="text-muted mt-2 mb-0" role="status" aria-live="polite">@_gameStatusMessage</p>
@@ -190,6 +196,7 @@ else
         && _guestName.Trim().Length is >= 2 and <= 24
         && _guestName.Trim().All(character => char.IsLetterOrDigit(character) || " @._+-".Contains(character));
     private bool _isPaused;
+    private bool _flagMode;
     private bool _syncFailed;
     private bool _pendingAuthenticated;
     private bool IsCumulativeWinGame => Game?.Id is "pong" or "tic-tac-toe" or "connect-four";
@@ -219,6 +226,7 @@ else
         _showGuestPrompt = false;
         _showAllHistory = false;
         _isPaused = false;
+        _flagMode = false;
 
         if (Game is null)
         {
@@ -415,6 +423,13 @@ else
         _syncFailed = false;
         _statusMessage = null;
         _gameStatusMessage = null;
+        _flagMode = false;
+    }
+
+    private async Task ToggleFlagModeAsync()
+    {
+        if (_controller is not null)
+            _flagMode = await _controller.InvokeAsync<bool>("toggleFlagMode");
     }
 
     private async Task TogglePauseAsync()
