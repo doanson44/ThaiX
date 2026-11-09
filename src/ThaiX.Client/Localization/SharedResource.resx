@@ -2131,10 +2131,10 @@
   <data name="Games.LightsOut.Instructions" xml:space="preserve"><value>Use arrow keys and Enter, or tap a light. It toggles itself and its neighbors. Turn all lights off.</value></data>
   <data name="Games.Snake.Name" xml:space="preserve"><value>Snake</value></data>
   <data name="Games.Snake.Description" xml:space="preserve"><value>Eat food, grow, and avoid collisions.</value></data>
-  <data name="Games.Snake.Instructions" xml:space="preserve"><value>Use arrow keys or WASD, or tap the on-screen arrows. Avoid walls and your own tail.</value></data>
+  <data name="Games.Snake.Instructions" xml:space="preserve"><value>Use arrow keys or WASD, tap the on-screen arrows, or swipe to steer. Avoid walls and your own tail.</value></data>
   <data name="Games.Tetris.Name" xml:space="preserve"><value>Tetris</value></data>
   <data name="Games.Tetris.Description" xml:space="preserve"><value>Fit falling blocks and clear complete lines.</value></data>
-  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Left/right move, up rotates, down soft-drops, and space hard-drops. Use on-screen buttons on touch devices.</value></data>
+  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Left/right move, up rotates, down soft-drops, and space hard-drops. On touch devices, use the buttons or swipe.</value></data>
   <data name="Games.Flappy.Name" xml:space="preserve"><value>Flappy</value></data>
   <data name="Games.Flappy.Description" xml:space="preserve"><value>Fly through gaps without hitting obstacles.</value></data>
   <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Tap, click, or press Space to flap upward. Pass through the gaps.</value></data>
@@ -2146,10 +2146,10 @@
   <data name="Games.Pong.Instructions" xml:space="preserve"><value>Move your paddle with up/down or W/S. On touch devices, tap to set paddle height. First to five points wins.</value></data>
   <data name="Games.Wordle.Name" xml:space="preserve"><value>Wordle</value></data>
   <data name="Games.Wordle.Description" xml:space="preserve"><value>Guess the hidden five-letter word.</value></data>
-  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Enter a five-letter word and press Enter, or use the on-screen keyboard. Green means correct position, yellow means the letter exists elsewhere.</value></data>
+  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Enter a five-letter word and press Enter, or use the on-screen keyboard or text field. Green means correct position, yellow means the letter exists elsewhere.</value></data>
   <data name="Games.Hangman.Name" xml:space="preserve"><value>Hangman</value></data>
   <data name="Games.Hangman.Description" xml:space="preserve"><value>Guess the hidden word before the drawing is complete.</value></data>
-  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Choose letters using your keyboard or the on-screen keyboard. You have six incorrect guesses.</value></data>
+  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Choose letters using your keyboard, the on-screen keyboard, or the text field. You have six incorrect guesses.</value></data>
   <data name="Games.Typing.Name" xml:space="preserve"><value>Typing Speed</value></data>
   <data name="Games.Typing.Description" xml:space="preserve"><value>Measure your typing speed and accuracy.</value></data>
   <data name="Games.Typing.Instructions" xml:space="preserve"><value>Type the displayed passage accurately. The test ends after 30 seconds.</value></data>
