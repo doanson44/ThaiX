@@ -43,12 +43,12 @@ else
         </div>
 
         <RadzenCard Class="game-stage">
-            <div class="game-instructions mb-3">
+            <div id="game-instructions" class="game-instructions mb-3">
                 <strong>@L[ResourceKeys.Games.Instructions]:</strong>
                 <span>@L[Game.InstructionsKey]</span>
             </div>
             <canvas @ref="_canvas" class="game-canvas" tabindex="0" role="application"
-                    aria-label="@L[Game.TitleKey]"></canvas>
+                    aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"></canvas>
             @if (!string.IsNullOrWhiteSpace(_gameStatusMessage))
             {
                 <p class="text-muted mt-2 mb-0" role="status" aria-live="polite">@_gameStatusMessage</p>
