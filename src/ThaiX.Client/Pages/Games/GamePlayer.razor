@@ -121,7 +121,14 @@ else
         }
 
         <RadzenCard>
-            <h2 class="h6">@L[ResourceKeys.Games.History]</h2>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <h2 class="h6 mb-0">@L[ResourceKeys.Games.History]</h2>
+                @if (_localScores.History.Count > 10)
+                {
+                    <RadzenButton Text="@(_showAllHistory ? L[ResourceKeys.Games.ShowRecentHistory] : L[ResourceKeys.Games.ViewAllHistory])"
+                                  ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="ToggleHistory" />
+                }
+            </div>
             @if (_localScores.History.Count == 0)
             {
                 <p class="text-muted mb-0">@L[ResourceKeys.Games.NoScores]</p>
@@ -132,7 +139,7 @@ else
                     <table class="table table-sm mb-0">
                         <thead><tr><th>@L[ResourceKeys.Games.Date]</th><th>@L[Game.ScoreKey]</th><th>@L[ResourceKeys.Games.TimeSeconds]</th></tr></thead>
                         <tbody>
-                            @foreach (var run in _localScores.History.Take(10))
+                            @foreach (var run in _localScores.History.Take(_showAllHistory ? _localScores.History.Count : 10))
                             {
                                 <tr><td>@run.AchievedAtUtc.ToLocalTime().ToString("g")</td><td>@run.Score.ToString("N0")</td><td>@run.DurationSeconds</td></tr>
                             }
@@ -165,6 +172,7 @@ else
     private string? _statusMessage;
     private string? _gameStatusMessage;
     private bool _showGuestPrompt;
+    private bool _showAllHistory;
     private bool IsGuestNameValid => !string.IsNullOrWhiteSpace(_guestName) && _guestName.Trim().Length >= 2;
     private bool _isPaused;
     private bool _syncFailed;
@@ -193,6 +201,7 @@ else
         _gameStatusMessage = null;
         _syncFailed = false;
         _showGuestPrompt = false;
+        _showAllHistory = false;
         _isPaused = false;
 
         if (Game is null)
@@ -372,6 +381,8 @@ else
             _leaderboard = [];
         }
     }
+
+    private void ToggleHistory() => _showAllHistory = !_showAllHistory;
 
     private void BackToGames() => Navigation.NavigateTo("/games");
 
