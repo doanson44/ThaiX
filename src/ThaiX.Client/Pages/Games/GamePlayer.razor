@@ -76,7 +76,10 @@ else
                 <RadzenCard Class="h-100">
                     <div class="text-muted small">@L[IsCumulativeWinGame ? ResourceKeys.Games.Wins : ResourceKeys.Games.Best]</div>
                     <div class="fs-3 fw-semibold">@(IsCumulativeWinGame ? _localScores.TotalWins.ToString("N0") : _localScores.BestScore?.ToString("N0") ?? "-")</div>
-                    <div class="small text-muted">@L[Game.ScoreKey]</div>
+                    @if (!IsCumulativeWinGame)
+                    {
+                        <div class="small text-muted">@L[Game.ScoreKey]</div>
+                    }
                 </RadzenCard>
             </RadzenColumn>
             <RadzenColumn Size="12" SizeMD="8">
