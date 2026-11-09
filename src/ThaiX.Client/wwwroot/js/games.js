@@ -638,6 +638,17 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         }
         pointerStart=null;
     }
+    function onTypingFieldInput() {
+        if(!typingField)return;
+        if(state.paused||state.finished){typingField.value=state.typed;return;}
+        state.typed=Array.from(typingField.value).slice(0,Array.from(state.text).length).join("");
+        typingField.value=state.typed;
+        if(state.typed.length&&!state.started){state.started=true;state.startedAt=Date.now();}
+        updateTypingStats();
+        if(Array.from(state.typed).length===Array.from(state.text).length)finish(calculateTypingWpm(),"30s");
+        render();
+    }
+
     function onKeyDown(event) {
         if(state.paused||state.finished)return;
         const key=event.key.toLowerCase();
@@ -666,7 +677,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     canvas.addEventListener("pointerdown",onPointerDown);
     canvas.addEventListener("pointerup",onPointerUp);
     canvas.addEventListener("keydown",onKeyDown);
-    if(typeof typingField?.addEventListener === "function")typingField.addEventListener("keydown",onKeyDown);
+    if(typeof typingField?.addEventListener === "function")typingField.addEventListener("input",onTypingFieldInput);
     canvas.addEventListener("contextmenu",onContextMenu);
     reset();
 
@@ -685,7 +696,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             canvas.removeEventListener("pointerdown",onPointerDown);
             canvas.removeEventListener("pointerup",onPointerUp);
             canvas.removeEventListener("keydown",onKeyDown);
-            if(typeof typingField?.removeEventListener === "function")typingField.removeEventListener("keydown",onKeyDown);
+            if(typeof typingField?.removeEventListener === "function")typingField.removeEventListener("input",onTypingFieldInput);
             canvas.removeEventListener("contextmenu",onContextMenu);
         }
     };
