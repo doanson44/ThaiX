@@ -2176,4 +2176,5 @@
   <data name="Games.Rank" xml:space="preserve"><value>Rank</value></data>
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>View full history</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Show recent runs</value></data>
+  <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Score saved on this device.</value></data>
 </root>
