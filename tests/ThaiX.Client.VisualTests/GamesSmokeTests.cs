@@ -52,19 +52,23 @@ public sealed class GamesSmokeTests
         }
     }
 
-    [Fact]
-    public async Task GamePlayer_FitsMobileViewport()
+    [Theory]
+    [InlineData(375, 812)]
+    [InlineData(768, 1024)]
+    [InlineData(1280, 800)]
+    public async Task GamePlayer_FitsResponsiveViewport(int viewportWidth, int viewportHeight)
     {
-        const int viewportWidth = 375;
-        var (context, page) = await _auth.CreatePageAsync(authenticated: false, viewportWidth, 812);
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, viewportWidth, viewportHeight);
         await using (context)
         {
-            await _auth.GotoAsync(page, "/games/2048", viewportWidth, 812);
+            await _auth.GotoAsync(page, "/games/2048", viewportWidth, viewportHeight);
             var canvas = page.Locator(".game-canvas");
             await canvas.WaitForAsync(Visible(30000));
             var box = await canvas.BoundingBoxAsync();
             Assert.NotNull(box);
             Assert.True(box.Width <= viewportWidth, $"Canvas width {box.Width}px exceeds viewport {viewportWidth}px.");
+            Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= viewportWidth,
+                $"Page content exceeds viewport {viewportWidth}px.");
         }
     }
 
