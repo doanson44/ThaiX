@@ -179,13 +179,27 @@ public sealed class AuthFixture : IAsyncLifetime
             await page.SetViewportSizeAsync(width, height);
         }
 
+        var pageErrors = new List<string>();
+        var failedRequests = new List<string>();
+        page.PageError += (_, error) => pageErrors.Add(error);
+        page.RequestFailed += (_, request) =>
+            failedRequests.Add($"{request.Method} {request.Url}: {request.Failure}");
+
         await page.GotoAsync($"{BaseUrl}{route}", new PageGotoOptions
         {
             WaitUntil = WaitUntilState.DOMContentLoaded,
             Timeout = 120000
         });
 
-        await WaitForPageReadyAsync(page, route);
+        try
+        {
+            await WaitForPageReadyAsync(page, route);
+        }
+        catch (TimeoutException ex)
+        {
+            var diagnostics = await GetStartupDiagnosticsAsync(page, pageErrors, failedRequests);
+            throw new TimeoutException($"{ex.Message}{Environment.NewLine}{diagnostics}", ex);
+        }
 
         if (settleMs > 0)
         {
@@ -231,6 +245,33 @@ public sealed class AuthFixture : IAsyncLifetime
         {
             // Some pages keep websockets/polling; content wait above is enough.
         }
+    }
+
+    private static async Task<string> GetStartupDiagnosticsAsync(
+        IPage page,
+        IReadOnlyCollection<string> pageErrors,
+        IReadOnlyCollection<string> failedRequests)
+    {
+        var browserState = await page.EvaluateAsync<string>(
+            """
+            () => JSON.stringify({
+                title: document.title,
+                readyState: document.readyState,
+                loadingVisible: !!document.querySelector("svg.loading-progress"),
+                errorUi: document.querySelector("#blazor-error-ui")?.textContent?.trim() ?? null,
+                scripts: Array.from(document.scripts).map(script => ({
+                    src: script.src,
+                    loaded: script.readyState ?? "unknown"
+                }))
+            })
+            """);
+
+        return string.Join(
+            Environment.NewLine,
+            "Browser startup diagnostics:",
+            $"State: {browserState}",
+            $"Page errors: {(pageErrors.Count == 0 ? "none" : string.Join(" | ", pageErrors))}",
+            $"Failed requests: {(failedRequests.Count == 0 ? "none" : string.Join(" | ", failedRequests))}");
     }
 
     private static async Task WaitForRouteContentAsync(IPage page, string route)
