@@ -75,7 +75,7 @@ else
             <RadzenColumn Size="12" SizeMD="4">
                 <RadzenCard Class="h-100">
                     <div class="text-muted small">@L[ResourceKeys.Games.Best]</div>
-                    <div class="fs-3 fw-semibold">@(_localScores.BestScore?.ToString("N0") ?? "—")</div>
+                    <div class="fs-3 fw-semibold">@(_localScores.BestScore?.ToString("N0") ?? "-")</div>
                     <div class="small text-muted">@L[Game.ScoreKey]</div>
                 </RadzenCard>
             </RadzenColumn>
