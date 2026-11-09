@@ -45,10 +45,17 @@ public sealed class GamesSmokeTests
             await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800);
             await page.Locator(".game-canvas").WaitForAsync(Visible(30000));
             await page.GetByText("How to play").First.WaitForAsync(Visible(30000));
+            var pageErrors = new List<string>();
+            page.PageError += (_, error) => pageErrors.Add(error);
             var canvas = page.Locator(".game-canvas");
             var box = await canvas.BoundingBoxAsync();
             Assert.NotNull(box);
             Assert.True(box.Width > 100, $"Game canvas for '{gameId}' did not render.");
+            await canvas.FocusAsync();
+            await page.Keyboard.PressAsync("ArrowLeft");
+            await page.Keyboard.PressAsync("ArrowRight");
+            await page.Keyboard.PressAsync("Enter");
+            Assert.Empty(pageErrors);
         }
     }
 
