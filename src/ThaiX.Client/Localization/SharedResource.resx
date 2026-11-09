@@ -2174,4 +2174,6 @@
   <data name="Games.Flags" xml:space="preserve"><value>Flags</value></data>
   <data name="Games.RetrySync" xml:space="preserve"><value>Retry sync</value></data>
   <data name="Games.Rank" xml:space="preserve"><value>Rank</value></data>
+  <data name="Games.ViewAllHistory" xml:space="preserve"><value>View full history</value></data>
+  <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Show recent runs</value></data>
 </root>
