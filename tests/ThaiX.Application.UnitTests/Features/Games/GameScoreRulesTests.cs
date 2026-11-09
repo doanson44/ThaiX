@@ -101,6 +101,22 @@ public sealed class GameScoreRulesTests
     }
 
     [Theory]
+    [InlineData("2048", 2048.5)]
+    [InlineData("minesweeper", 12.5)]
+    [InlineData("memory-cards", 8.5)]
+    [InlineData("typing-speed", 75.5)]
+    public void IsValidScore_ShouldRejectFractionalMetrics(string gameId, decimal score)
+    {
+        // Arrange
+
+        // Act
+        var result = GameScoreRules.IsValidScore(gameId, score);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("pong")]
     [InlineData("TIC-TAC-TOE")]
     [InlineData("Connect-Four")]
