@@ -21,7 +21,7 @@ public static class GameScoreRules
     
     public static bool IsValidScore(string gameId, decimal score)
     {
-        if (string.IsNullOrWhiteSpace(gameId))
+        if (string.IsNullOrWhiteSpace(gameId) || score != decimal.Truncate(score))
             return false;
 
         return gameId.ToLowerInvariant() switch
