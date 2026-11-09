@@ -2075,4 +2075,110 @@
   <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Cho phép đăng nhập bằng mã dùng một lần được gửi đến địa chỉ email đã xác nhận.</value></data>
   <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Đã lưu cài đặt đăng nhập.</value></data>
   <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Không thể lưu cài đặt đăng nhập.</value></data>
+  <data name="Games.Title" xml:space="preserve"><value>Trò chơi</value></data>
+  <data name="Games.Description" xml:space="preserve"><value>Giải trí với 16 trò chơi một người chơi. Kỷ lục và các lượt chơi gần đây được lưu trên trình duyệt này.</value></data>
+  <data name="Games.SearchPlaceholder" xml:space="preserve"><value>Tìm trò chơi...</value></data>
+  <data name="Games.All" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="Games.Category.Puzzle" xml:space="preserve"><value>Giải đố</value></data>
+  <data name="Games.Category.Arcade" xml:space="preserve"><value>Arcade</value></data>
+  <data name="Games.Category.WordSkill" xml:space="preserve"><value>Từ vựng &amp; Kỹ năng</value></data>
+  <data name="Games.Category.Strategy" xml:space="preserve"><value>Chiến thuật</value></data>
+  <data name="Games.Instructions" xml:space="preserve"><value>Hướng dẫn chơi</value></data>
+  <data name="Games.Score" xml:space="preserve"><value>Điểm</value></data>
+  <data name="Games.TimeSeconds" xml:space="preserve"><value>Thời gian (giây)</value></data>
+  <data name="Games.Moves" xml:space="preserve"><value>Số nước</value></data>
+  <data name="Games.Wins" xml:space="preserve"><value>Số trận thắng</value></data>
+  <data name="Games.Guesses" xml:space="preserve"><value>Số lượt đoán</value></data>
+  <data name="Games.Wpm" xml:space="preserve"><value>Từ mỗi phút</value></data>
+  <data name="Games.Best" xml:space="preserve"><value>Kỷ lục cá nhân</value></data>
+  <data name="Games.History" xml:space="preserve"><value>Các lượt gần đây</value></data>
+  <data name="Games.Leaderboard" xml:space="preserve"><value>Bảng xếp hạng toàn cầu</value></data>
+  <data name="Games.NoScores" xml:space="preserve"><value>Chưa có điểm số.</value></data>
+  <data name="Games.Play" xml:space="preserve"><value>Chơi</value></data>
+  <data name="Games.Restart" xml:space="preserve"><value>Chơi lại</value></data>
+  <data name="Games.Pause" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="Games.Resume" xml:space="preserve"><value>Tiếp tục</value></data>
+  <data name="Games.GuestPrompt" xml:space="preserve"><value>Bạn có muốn dùng biệt danh để tham gia bảng xếp hạng toàn cầu không? Lịch sử vẫn được lưu trên thiết bị.</value></data>
+  <data name="Games.GuestNickname" xml:space="preserve"><value>Biệt danh</value></data>
+  <data name="Games.JoinLeaderboard" xml:space="preserve"><value>Tham gia bảng xếp hạng</value></data>
+  <data name="Games.LocalOnly" xml:space="preserve"><value>Chỉ lưu điểm trên thiết bị này</value></data>
+  <data name="Games.GuestSaved" xml:space="preserve"><value>Điểm đã được gửi lên bảng xếp hạng toàn cầu.</value></data>
+  <data name="Games.ScoreSaved" xml:space="preserve"><value>Điểm đã lưu cục bộ và đồng bộ.</value></data>
+  <data name="Games.ScoreSyncFailed" xml:space="preserve"><value>Điểm đã lưu cục bộ nhưng đồng bộ bảng xếp hạng thất bại.</value></data>
+  <data name="Games.Loading" xml:space="preserve"><value>Đang tải...</value></data>
+  <data name="Games.BackToGames" xml:space="preserve"><value>Quay lại trò chơi</value></data>
+  <data name="Games.Rank" xml:space="preserve"><value>Hạng</value></data>
+  <data name="Games.Player" xml:space="preserve"><value>Người chơi</value></data>
+  <data name="Games.Date" xml:space="preserve"><value>Ngày</value></data>
+  <data name="Games.2048.Name" xml:space="preserve"><value>2048</value></data>
+  <data name="Games.2048.Description" xml:space="preserve"><value>Ghép các ô cùng giá trị để đạt 2048.</value></data>
+  <data name="Games.2048.Instructions" xml:space="preserve"><value>Dùng phím mũi tên hoặc vuốt để di chuyển các ô. Hai ô bằng nhau chỉ ghép một lần mỗi lượt.</value></data>
+  <data name="Games.Minesweeper.Name" xml:space="preserve"><value>Dò mìn</value></data>
+  <data name="Games.Minesweeper.Description" xml:space="preserve"><value>Mở các ô an toàn và tránh mìn ẩn.</value></data>
+  <data name="Games.Minesweeper.Instructions" xml:space="preserve"><value>Chọn ô để mở. Nhấp chuột phải hoặc chạm nút cờ để đánh dấu mìn. Mở hết ô an toàn để thắng.</value></data>
+  <data name="Games.Sudoku.Name" xml:space="preserve"><value>Sudoku</value></data>
+  <data name="Games.Sudoku.Description" xml:space="preserve"><value>Hoàn thành bảng số 9 x 9.</value></data>
+  <data name="Games.Sudoku.Instructions" xml:space="preserve"><value>Chọn ô trống và nhập số 1-9 bằng bàn phím hoặc bàn phím số trên màn hình. Dùng phím mũi tên để di chuyển giữa các ô.</value></data>
+  <data name="Games.Memory.Name" xml:space="preserve"><value>Lật thẻ ghi nhớ</value></data>
+  <data name="Games.Memory.Description" xml:space="preserve"><value>Tìm tất cả các cặp thẻ giống nhau.</value></data>
+  <data name="Games.Memory.Instructions" xml:space="preserve"><value>Dùng phím mũi tên và Enter hoặc chạm vào thẻ. Ghép tất cả các cặp với số lượt ít nhất.</value></data>
+  <data name="Games.15Puzzle.Name" xml:space="preserve"><value>Xếp hình 15 ô</value></data>
+  <data name="Games.15Puzzle.Description" xml:space="preserve"><value>Sắp xếp các ô số theo thứ tự.</value></data>
+  <data name="Games.15Puzzle.Instructions" xml:space="preserve"><value>Dùng phím mũi tên hoặc chọn ô nằm cạnh khoảng trống để trượt. Sắp xếp các số từ 1 đến 15.</value></data>
+  <data name="Games.LightsOut.Name" xml:space="preserve"><value>Tắt đèn</value></data>
+  <data name="Games.LightsOut.Description" xml:space="preserve"><value>Tắt toàn bộ đèn trên bảng.</value></data>
+  <data name="Games.LightsOut.Instructions" xml:space="preserve"><value>Dùng phím mũi tên và Enter hoặc chạm vào một đèn. Đèn đó và các đèn liền kề sẽ bật/tắt. Hãy tắt tất cả đèn.</value></data>
+  <data name="Games.Snake.Name" xml:space="preserve"><value>Rắn săn mồi</value></data>
+  <data name="Games.Snake.Description" xml:space="preserve"><value>Ăn thức ăn, dài ra và tránh va chạm.</value></data>
+  <data name="Games.Snake.Instructions" xml:space="preserve"><value>Dùng phím mũi tên hoặc WASD, chạm các nút mũi tên hoặc vuốt để điều khiển. Tránh tường và thân mình.</value></data>
+  <data name="Games.Tetris.Name" xml:space="preserve"><value>Xếp gạch Tetris</value></data>
+  <data name="Games.Tetris.Description" xml:space="preserve"><value>Xếp các khối rơi và xóa hàng đầy.</value></data>
+  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Trái/phải để di chuyển, lên để xoay, xuống để rơi chậm, Space để thả nhanh. Khi dùng cảm ứng, hãy chạm nút hoặc vuốt.</value></data>
+  <data name="Games.Flappy.Name" xml:space="preserve"><value>Flappy</value></data>
+  <data name="Games.Flappy.Description" xml:space="preserve"><value>Bay qua các khe hở và tránh chướng ngại vật.</value></data>
+  <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Chạm, nhấp chuột hoặc nhấn Space để vỗ cánh. Bay qua các khe hở.</value></data>
+  <data name="Games.Breakout.Name" xml:space="preserve"><value>Đập gạch</value></data>
+  <data name="Games.Breakout.Description" xml:space="preserve"><value>Nảy bóng để phá hết các viên gạch.</value></data>
+  <data name="Games.Breakout.Instructions" xml:space="preserve"><value>Di chuyển bằng trái/phải hoặc A/D, hoặc chạm để đặt thanh đỡ. Giữ bóng không rơi khỏi thanh đỡ và phá hết gạch.</value></data>
+  <data name="Games.Pong.Name" xml:space="preserve"><value>Pong đấu máy</value></data>
+  <data name="Games.Pong.Description" xml:space="preserve"><value>Đánh bại máy tính trong trận đấu ngắn.</value></data>
+  <data name="Games.Pong.Instructions" xml:space="preserve"><value>Di chuyển thanh đỡ bằng lên/xuống hoặc W/S. Trên thiết bị cảm ứng, chạm để đặt độ cao thanh đỡ. Ai đạt năm điểm trước sẽ thắng.</value></data>
+  <data name="Games.Wordle.Name" xml:space="preserve"><value>Wordle</value></data>
+  <data name="Games.Wordle.Description" xml:space="preserve"><value>Đoán từ bí mật gồm năm chữ cái.</value></data>
+  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Nhập từ gồm năm chữ cái không dấu rồi nhấn Enter, hoặc dùng bàn phím trên màn hình hay ô nhập liệu. Màu xanh là đúng vị trí, vàng là có chữ đó nhưng ở vị trí khác.</value></data>
+  <data name="Games.Hangman.Name" xml:space="preserve"><value>Đoán chữ Hangman</value></data>
+  <data name="Games.Hangman.Description" xml:space="preserve"><value>Đoán từ bí mật trước khi hình vẽ hoàn tất.</value></data>
+  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Dùng bàn phím vật lý, bàn phím trên màn hình hoặc ô nhập liệu để chọn chữ cái không dấu. Bạn có sáu lần đoán sai.</value></data>
+  <data name="Games.Typing.Name" xml:space="preserve"><value>Tốc độ gõ</value></data>
+  <data name="Games.Typing.Description" xml:space="preserve"><value>Đo tốc độ và độ chính xác khi gõ.</value></data>
+  <data name="Games.Typing.Instructions" xml:space="preserve"><value>Gõ chính xác đoạn văn hiển thị. Bài kiểm tra kết thúc sau 30 giây.</value></data>
+  <data name="Games.TicTacToe.Name" xml:space="preserve"><value>Cờ ca-rô đấu máy</value></data>
+  <data name="Games.TicTacToe.Description" xml:space="preserve"><value>Tạo ba dấu liên tiếp để thắng máy tính.</value></data>
+  <data name="Games.TicTacToe.Instructions" xml:space="preserve"><value>Bạn là X. Dùng phím mũi tên và Enter hoặc chọn một ô. Máy tính đánh O.</value></data>
+  <data name="Games.ConnectFour.Name" xml:space="preserve"><value>Bốn quân liên tiếp</value></data>
+  <data name="Games.ConnectFour.Description" xml:space="preserve"><value>Xếp bốn quân trước khi máy tính làm được.</value></data>
+  <data name="Games.ConnectFour.Instructions" xml:space="preserve"><value>Dùng phím trái/phải và Enter hoặc chọn một cột. Nối bốn quân theo hàng ngang, dọc hoặc chéo.</value></data>
+  <data name="Games.GameOver" xml:space="preserve"><value>Kết thúc</value></data>
+  <data name="Games.Paused" xml:space="preserve"><value>Đã tạm dừng</value></data>
+  <data name="Games.RestartHint" xml:space="preserve"><value>Chơi lại để bắt đầu ván mới</value></data>
+  <data name="Games.Passed" xml:space="preserve"><value>Đã vượt qua</value></data>
+  <data name="Games.WrongGuesses" xml:space="preserve"><value>Lượt đoán sai</value></data>
+  <data name="Games.Time" xml:space="preserve"><value>Thời gian</value></data>
+  <data name="Games.TypingStart" xml:space="preserve"><value>Bắt đầu gõ để chạy bài kiểm tra 30 giây</value></data>
+  <data name="Games.YouAreX" xml:space="preserve"><value>Bạn là X</value></data>
+  <data name="Games.YouAreYellow" xml:space="preserve"><value>Bạn là quân vàng</value></data>
+  <data name="Games.WordleWords" xml:space="preserve"><value>THUOC,DUONG,TRANG,NHANH,CHUOT,CHUNG,TRUOC,NHIEU,NGUOI,TRONG,KHOAI,GIANG,TIENG,CHIEU,MUONG,NGOAI,PHONG,THANG,DUNG,BANBE</value></data>
+  <data name="Games.HangmanWords" xml:space="preserve"><value>THUOC,DUONG,TRANG,NHANH,CHUOT</value></data>
+  <data name="Games.TypingPassage" xml:space="preserve"><value>Cách tốt nhất để học một kỹ năng mới là luyện tập một chút mỗi ngày. Hãy tập trung, giữ nhịp độ ổn định và tiến bộ từng bước.</value></data>
+  <data name="Games.Flags" xml:space="preserve"><value>Cờ</value></data>
+  <data name="Games.RetrySync" xml:space="preserve"><value>Thử đồng bộ lại</value></data>
+  <data name="Games.ViewAllHistory" xml:space="preserve"><value>Xem toàn bộ lịch sử</value></data>
+  <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Chỉ xem lượt gần đây</value></data>
+  <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Điểm đã được lưu trên thiết bị này.</value></data>
+  <data name="Games.FlagModeOn" xml:space="preserve"><value>Đang bật chế độ đánh dấu mìn</value></data>
+  <data name="Games.FlagModeOff" xml:space="preserve"><value>Đang tắt chế độ đánh dấu mìn</value></data>
+  <data name="Games.KeyDelete" xml:space="preserve"><value>XÓA</value></data>
+  <data name="Games.KeyEnter" xml:space="preserve"><value>NHẬP</value></data>
+  <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
+  <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
 </root>
