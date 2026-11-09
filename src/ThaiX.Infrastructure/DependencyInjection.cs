@@ -32,6 +32,7 @@ using ThaiX.Infrastructure.Services;
 using ThaiX.Infrastructure.Services.Ai;
 using ThaiX.Infrastructure.Services.BotCommands;
 using ThaiX.Infrastructure.Services.Indicators;
+using ThaiX.Infrastructure.Services.Games;
 using ThaiX.Infrastructure.Services.MarketData;
 using ThaiX.Infrastructure.Services.MarketScanner;
 using ThaiX.Infrastructure.Services.MarketScanner.Detectors;
@@ -136,6 +137,7 @@ public static class DependencyInjection
             .AddSingleton<ICredentialPasswordEncryptionService, CredentialPasswordEncryptionService>()
             .AddSingleton<IDateTimeProvider, DateTimeProviderService>()
             .AddScoped<ICurrentUserService, CurrentUserService>()
+            .AddScoped<IGuestIdentityTokenService, GuestIdentityTokenService>()
             .AddScoped<IAuthenticationService, Authentication.AuthenticationService>()
             .AddScoped<IEmailOtpService, Authentication.EmailOtpService>()
             .AddScoped<IIdentityUserService, Services.IdentityUserService>()

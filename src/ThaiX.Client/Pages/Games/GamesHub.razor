@@ -1,0 +1,148 @@
+@page "/games"
+@using ThaiX.Client.Layout
+@using ThaiX.Client.Services.Games
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject GameScoreStore ScoreStore
+@inherits ThaiXPageBase
+@implements IDisposable
+
+<PageTitle>@L[ResourceKeys.Games.Title] - ThaiX</PageTitle>
+
+<RadzenStack Gap="1rem" Class="games-hub">
+    @if (_showGuestSettings)
+    {
+        <RadzenCard>
+            <p class="mb-2">@L[ResourceKeys.Games.GuestPrompt]</p>
+            <div class="d-flex flex-wrap gap-2">
+                <RadzenTextBox @bind-Value="_guestName" Placeholder="@L[ResourceKeys.Games.GuestNickname]"
+                               MaxLength="24" />
+                <RadzenButton Text="@L[ResourceKeys.Games.JoinLeaderboard]" Icon="leaderboard"
+                              ButtonStyle="ButtonStyle.Primary" Disabled="@(!IsGuestNameValid)"
+                              Click="EnableGuestLeaderboardAsync" />
+            </div>
+        </RadzenCard>
+    }
+
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+        <div>
+            <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : Viewport.IsTablet ? TextStyle.H4 : TextStyle.H3)" TagName="TagName.H1" Class="mb-1">
+                @L[ResourceKeys.Games.Title]
+            </RadzenText>
+            <p class="text-muted mb-0">@L[ResourceKeys.Games.Description]</p>
+        </div>
+        <RadzenTextBox @bind-Value="_search" Placeholder="@L[ResourceKeys.Games.SearchPlaceholder]" Style="max-width: 100%; min-width: min(100%, 16rem);" />
+    </div>
+
+    <div class="d-flex flex-wrap gap-2" role="group" aria-label="@L[ResourceKeys.Games.Title]">
+        @foreach (var category in _categories)
+        {
+            <RadzenButton Text="@L[category.Key]" ButtonStyle="@(_selectedCategory == category.Id ? ButtonStyle.Primary : ButtonStyle.Light)"
+                          Size="ButtonSize.Small" Click="@(() => _selectedCategory = category.Id)" />
+        }
+    </div>
+
+    @foreach (var category in VisibleCategories)
+    {
+        var games = VisibleGames.Where(game => game.CategoryKey == category.Key).ToArray();
+        if (games.Length == 0)
+        {
+            continue;
+        }
+
+        <section aria-label="@L[category.Key]">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H2" Class="mb-3">@L[category.Key]</RadzenText>
+            <RadzenRow Gap="1rem">
+                @foreach (var game in games)
+                {
+                    <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+                        <RadzenCard Class="h-100 game-card">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="game-icon" aria-hidden="true"><RadzenIcon Icon="@game.Icon" /></div>
+                                <div class="flex-grow-1 min-w-0">
+                                    <h3 class="h5 mb-1">@L[game.TitleKey]</h3>
+                                    <p class="text-muted small mb-3">@L[game.DescriptionKey]</p>
+                                    <RadzenButton Text="@L[ResourceKeys.Games.Play]" Icon="play_arrow"
+                                                  ButtonStyle="ButtonStyle.Primary" Click="@(() => OpenGame(game.Id))" />
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </RadzenColumn>
+                }
+            </RadzenRow>
+        </section>
+    }
+</RadzenStack>
+
+@code {
+    private string _search = string.Empty;
+    private string _guestName = string.Empty;
+    private bool _showGuestSettings;
+    private bool IsGuestNameValid => !string.IsNullOrWhiteSpace(_guestName) && _guestName.Trim().Length >= 2;
+
+    protected override void OnInitialized()
+    {
+        Viewport.OnBreakpointChanged += StateHasChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (auth.User.Identity?.IsAuthenticated != true
+            && await ScoreStore.GetGuestChoiceAsync() == "declined")
+        {
+            _showGuestSettings = true;
+            _guestName = await ScoreStore.GetGuestNameAsync() ?? string.Empty;
+        }
+    }
+
+    private async Task EnableGuestLeaderboardAsync()
+    {
+        if (!IsGuestNameValid)
+            return;
+
+        await ScoreStore.SetGuestNameAsync(_guestName.Trim());
+        await ScoreStore.SetGuestChoiceAsync(true);
+        _showGuestSettings = false;
+    }
+    private string _selectedCategory = "all";
+
+    private readonly (string Id, string Key)[] _categories =
+    [
+        ("all", ResourceKeys.Games.All),
+        ("puzzle", ResourceKeys.Games.Puzzle),
+        ("arcade", ResourceKeys.Games.Arcade),
+        ("word", ResourceKeys.Games.WordSkill),
+        ("strategy", ResourceKeys.Games.Strategy)
+    ];
+
+    private IEnumerable<(string Id, string Key)> VisibleCategories =>
+        _selectedCategory == "all"
+            ? _categories.Skip(1)
+            : _categories.Where(category => category.Id == _selectedCategory);
+
+    private IEnumerable<GameDefinition> VisibleGames =>
+        GameCatalog.All.Where(game =>
+            (_selectedCategory == "all"
+                || (_selectedCategory == "puzzle" && game.CategoryKey == ResourceKeys.Games.Puzzle)
+                || (_selectedCategory == "arcade" && game.CategoryKey == ResourceKeys.Games.Arcade)
+                || (_selectedCategory == "word" && game.CategoryKey == ResourceKeys.Games.WordSkill)
+                || (_selectedCategory == "strategy" && game.CategoryKey == ResourceKeys.Games.Strategy))
+            && (string.IsNullOrWhiteSpace(_search)
+                || L[game.TitleKey].Value.Contains(_search, StringComparison.CurrentCultureIgnoreCase)
+                || L[game.DescriptionKey].Value.Contains(_search, StringComparison.CurrentCultureIgnoreCase)));
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Viewport.InitializeAsync();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose() => Viewport.OnBreakpointChanged -= StateHasChanged;
+
+    private void OpenGame(string gameId) => Navigation.NavigateTo($"/games/{gameId}");
+}

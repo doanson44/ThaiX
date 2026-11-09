@@ -1,0 +1,42 @@
+.games-hub {
+    max-width: 90rem;
+    margin-inline: auto;
+}
+
+.game-card {
+    border: 1px solid var(--rz-base-300);
+    transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.game-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--rz-primary);
+}
+
+.game-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 3rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--rz-primary) 12%, transparent);
+    color: var(--rz-primary);
+    font-size: 1.5rem;
+}
+
+@media (max-width: 575.98px) {
+    .games-hub {
+        padding-inline: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .game-card {
+        transition: none;
+    }
+
+    .game-card:hover {
+        transform: none;
+    }
+}

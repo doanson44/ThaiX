@@ -85,6 +85,13 @@ public class VisualRegressionTests
 
         foreach (var route in RouteCatalog.PublicRoutes)
         {
+            // Game canvases are covered by route smoke and responsive style tests; their
+            // interactive state is intentionally excluded from pixel baselines.
+            if (route.StartsWith("/games", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             if (!RouteMatchesFilter(route, filter))
             {
                 continue;

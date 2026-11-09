@@ -1,4 +1,5 @@
-﻿using MediatR;
+using System.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore.Storage;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Interfaces.Messaging;
@@ -26,8 +27,9 @@ public sealed class TransactionBehavior<TRequest, TResponse>
             return await next();
         }
 
-        await using IDbContextTransaction transaction =
-            await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        await using IDbContextTransaction transaction = request is IAppSerializableCommand<TResponse>
+            ? await _dbContext.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken)
+            : await _dbContext.Database.BeginTransactionAsync(cancellationToken);
 
         try
         {
