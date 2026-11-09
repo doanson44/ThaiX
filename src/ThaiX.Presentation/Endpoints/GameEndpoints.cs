@@ -23,6 +23,7 @@ public static class GameEndpoints
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
+            httpContext.Response.Headers["Cache-Control"] = "no-store";
             var result = await mediator.Send(
                 new GetGameLeaderboardQuery(gameId, mode),
                 cancellationToken);
@@ -54,6 +55,7 @@ public static class GameEndpoints
             HttpContext httpContext,
             CancellationToken cancellationToken) =>
         {
+            httpContext.Response.Headers["Cache-Control"] = "no-store";
             var authenticated = user.Identity?.IsAuthenticated == true;
             string playerId;
             string playerName;
