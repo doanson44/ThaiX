@@ -64,6 +64,8 @@ public static class ResourceKeys
         public const string ScoreSyncFailed = "Games.ScoreSyncFailed";
         public const string RetrySync = "Games.RetrySync";
         public const string Rank = "Games.Rank";
+        public const string ViewAllHistory = "Games.ViewAllHistory";
+        public const string ShowRecentHistory = "Games.ShowRecentHistory";
         public const string Loading = "Games.Loading";
         public const string BackToGames = "Games.BackToGames";
         public const string Rank = "Games.Rank";
