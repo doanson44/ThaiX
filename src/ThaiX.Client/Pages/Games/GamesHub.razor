@@ -79,7 +79,10 @@
     private string _search = string.Empty;
     private string _guestName = string.Empty;
     private bool _showGuestSettings;
-    private bool IsGuestNameValid => !string.IsNullOrWhiteSpace(_guestName) && _guestName.Trim().Length >= 2;
+    private bool IsGuestNameValid =>
+        !string.IsNullOrWhiteSpace(_guestName)
+        && _guestName.Trim().Length is >= 2 and <= 24
+        && _guestName.Trim().All(character => char.IsLetterOrDigit(character) || " @._+-".Contains(character));
 
     protected override void OnInitialized()
     {
