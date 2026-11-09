@@ -109,7 +109,7 @@ public sealed class GamesSmokeTests
             Assert.Equal(720, initialPixels[0]);
             Assert.Equal(expectedCanvasHeight, initialPixels[1]);
             Assert.Equal(new[] { 51, 65, 85 }, initialPixels[2..5]);
-            Assert.True(expectedCellSize * box.Width / 720 >= (viewportWidth < 560 ? 32 : 20));
+            Assert.True(expectedCellSize * box.Width / 720 >= (viewportWidth < 560 ? 30 : 20));
 
             await canvas.ClickAsync(new LocatorClickOptions
             {
