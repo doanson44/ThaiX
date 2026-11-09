@@ -59,6 +59,12 @@ else
                        autocorrect="off" spellcheck="false" aria-label="@L[ResourceKeys.Games.NameTyping]"
                        placeholder="@L[ResourceKeys.Games.InstructionsTyping]" />
             }
+            else if (Game.Id is "wordle" or "hangman")
+            {
+                <input @ref="_typingInput" class="form-control mt-3" type="text" autocomplete="off" autocapitalize="characters"
+                       autocorrect="off" spellcheck="false" maxlength="@(Game.Id == "wordle" ? 5 : 1)"
+                       aria-label="@L[Game.TitleKey]" placeholder="@L[Game.InstructionsKey]" />
+            }
             @if (!string.IsNullOrWhiteSpace(_statusMessage))
             {
                 <RadzenAlert AlertStyle="@(_syncFailed ? AlertStyle.Warning : AlertStyle.Info)" Variant="Variant.Flat" Class="mt-3 mb-0">
