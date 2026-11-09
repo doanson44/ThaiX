@@ -68,7 +68,9 @@ public static class GameEndpoints
 
                 accountUserId = userId;
                 playerId = $"user:{userId:N}";
-                playerName = "Player";
+                var accountEmail = user.FindFirstValue(ClaimTypes.Email) ?? user.FindFirstValue("email");
+                var accountName = accountEmail?.Split('@', 2)[0].Trim();
+                playerName = accountName?.Length >= 2 ? accountName[..Math.Min(accountName.Length, 64)] : "Player";
             }
             else
             {
