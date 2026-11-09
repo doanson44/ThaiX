@@ -35,9 +35,9 @@ public sealed class SubmitGameScoreCommandValidator : AbstractValidator<SubmitGa
             .WithErrorCode(ErrorCodes.INVALID_LENGTH)
             .MaximumLength(64)
             .WithErrorCode(ErrorCodes.INVALID_LENGTH)
-            .Must(name => name.Trim().Length >= 2)
+            .Must(name => !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= 2)
             .WithErrorCode(ErrorCodes.INVALID_LENGTH)
-            .Must(name => name.All(character => !char.IsControl(character)))
+            .Must(name => name is not null && name.All(character => !char.IsControl(character)))
             .WithErrorCode(ErrorCodes.INVALID_FORMAT);
 
         RuleFor(command => command.Score)
