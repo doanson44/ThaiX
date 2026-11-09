@@ -27,6 +27,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     let animationFrame = 0;
     let lastFrame = 0;
     let pointerStart = null;
+    let minePressTimeout = 0;
+    let minePress = null;
     let disposed = false;
     let minesResizeObserver = null;
     let minesMobileLayout = false;
@@ -75,6 +77,9 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     function reset() {
         clearInterval(timer);
         clearTimeout(mismatchTimeout);
+        clearTimeout(minePressTimeout);
+        minePressTimeout = 0;
+        minePress = null;
         mismatchTimeout = 0;
         cancelAnimationFrame(animationFrame);
         state = baseState();
@@ -692,8 +697,20 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             const cy=Math.floor((y-layout.top)/layout.size);
             if(cx<0||cy<0||cx>=9||cy>=9)return;
             state.cursor=[cx,cy];
-            if(event.button===2||state.flagMode)flagMine(cx,cy);else revealMine(cx,cy);
-        } else if(gameId==="memory-cards"){
+            if(event.pointerType==="touch"||event.pointerType==="pen"){
+                clearTimeout(minePressTimeout);
+                minePress={pointerId:event.pointerId,clientX:event.clientX,clientY:event.clientY,x:cx,y:cy,cancelled:false,triggered:false};
+                minePressTimeout=setTimeout(()=>{
+                    if(!minePress||minePress.cancelled||state.paused||state.finished)return;
+                    minePress.triggered=true;
+                    minePressTimeout=0;
+                    flagMine(minePress.x,minePress.y);
+                },450);
+            }else if(event.button===2||state.flagMode)flagMine(cx,cy);
+            else revealMine(cx,cy);
+            return;
+        }
+        if(gameId==="memory-cards"){
             const cx=Math.floor((x-150)/116),cy=Math.floor((y-70)/116);if(cx>=0&&cy>=0&&cx<4&&cy<3){state.cursor=cy*4+cx;flipMemory(state.cursor);}
         } else if(gameId==="15-puzzle"){
             const cx=Math.floor((x-160)/104),cy=Math.floor((y-65)/104);if(cx>=0&&cy>=0&&cx<4&&cy<4){state.cursor=cy*4+cx;moveFifteen(state.cursor);}
@@ -706,7 +723,32 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         else if(gameId==="connect-four"){const col=Math.round((x-158)/67);if(col>=0&&col<7){state.cursor=col;dropConnectFour(col);}}
         else if(gameId==="tic-tac-toe"){const col=Math.floor((x-192)/112),row=Math.floor((y-65)/112);if(col>=0&&col<3&&row>=0&&row<3){state.cursor=row*3+col;ticMove(state.cursor);}}
     }
+    function onPointerMove(event) {
+        if(!minePress||minePress.pointerId!==event.pointerId)return;
+        if(Math.hypot(event.clientX-minePress.clientX,event.clientY-minePress.clientY)>12){
+            minePress.cancelled=true;
+            clearTimeout(minePressTimeout);
+            minePressTimeout=0;
+        }
+    }
+    function onPointerCancel(event) {
+        if(!minePress||minePress.pointerId!==event.pointerId)return;
+        clearTimeout(minePressTimeout);
+        minePressTimeout=0;
+        minePress=null;
+        pointerStart=null;
+    }
     function onPointerUp(event) {
+        if(minePress&&minePress.pointerId===event.pointerId){
+            const press=minePress;
+            clearTimeout(minePressTimeout);
+            minePressTimeout=0;
+            minePress=null;
+            if(!press.cancelled&&!press.triggered&&!state.paused&&!state.finished){
+                if(state.flagMode)flagMine(press.x,press.y);
+                else revealMine(press.x,press.y);
+            }
+        }
         if(pointerStart&&!state.paused&&!state.finished){
             const [sx,sy]=pointerStart,[x,y]=point(event),dx=x-sx,dy=y-sy;
             if(Math.max(Math.abs(dx),Math.abs(dy))>25){
@@ -774,7 +816,9 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     }
     function onContextMenu(event){if(gameId==="minesweeper")event.preventDefault();}
     canvas.addEventListener("pointerdown",onPointerDown);
+    canvas.addEventListener("pointermove",onPointerMove);
     canvas.addEventListener("pointerup",onPointerUp);
+    canvas.addEventListener("pointercancel",onPointerCancel);
     canvas.addEventListener("keydown",onKeyDown);
     if(typeof typingField?.addEventListener === "function"){
         if(gameId==="typing-speed")typingField.addEventListener("input",onTypingFieldInput);
@@ -803,8 +847,13 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         },
         dispose() {
             disposed=true;clearInterval(timer);clearTimeout(mismatchTimeout);mismatchTimeout=0;cancelAnimationFrame(animationFrame);
+            clearTimeout(minePressTimeout);
+            minePressTimeout=0;
+            minePress=null;
             canvas.removeEventListener("pointerdown",onPointerDown);
+            canvas.removeEventListener("pointermove",onPointerMove);
             canvas.removeEventListener("pointerup",onPointerUp);
+            canvas.removeEventListener("pointercancel",onPointerCancel);
             canvas.removeEventListener("keydown",onKeyDown);
             if(typeof typingField?.removeEventListener === "function"){
                 if(gameId==="typing-speed")typingField.removeEventListener("input",onTypingFieldInput);
