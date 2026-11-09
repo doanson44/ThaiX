@@ -52,7 +52,9 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
         if (state.History.Count > HistoryLimit)
             state.History.RemoveRange(HistoryLimit, state.History.Count - HistoryLimit);
 
-        if (!state.BestScore.HasValue || IsBetter(gameId, score, state.BestScore.Value))
+        if (IsCumulativeWinGame(gameId))
+            state.TotalWins += score;
+        else if (!state.BestScore.HasValue || IsBetter(gameId, score, state.BestScore.Value))
             state.BestScore = score;
 
         await jsRuntime.InvokeVoidAsync(
