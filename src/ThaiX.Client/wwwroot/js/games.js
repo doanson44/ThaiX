@@ -505,8 +505,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         frame(T.title);const size=40,left=180,top=70;
         state.cells.forEach((row,y)=>row.forEach((c,x)=>{const px=left+x*size,py=top+y*size;rounded(px+1,py+1,size-3,size-3,c.open?"#cbd5e1":COLORS.tile, "#64748b");if(c.open){if(c.mine)drawText("*",px+20,py+28,23,COLORS.bad);else if(c.count)drawText(String(c.count),px+20,py+27,18,["", "#2563eb","#16a34a","#dc2626","#7c3aed"][c.count]||"#0f172a");}else if(c.flag)drawText("F",px+20,py+27,18,COLORS.warn);if(state.cursor[0]===x&&state.cursor[1]===y){ctx.strokeStyle=COLORS.accent;ctx.lineWidth=3;ctx.strokeRect(px+3,py+3,size-6,size-6);ctx.lineWidth=1;}}));
         drawText(`${T.flags}: ${state.flags}/10`,W/2,465,17,COLORS.muted);
-        rounded(575,442,115,28,5,state.flagMode?"#854d0e":COLORS.tile);
-        drawText(T.flags,632,461,13);
     }
     function drawSudoku(){
         frame(T.title);const size=42,left=171,top=55;
@@ -631,7 +629,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         if(gameId==="wordle"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length){state.current=(state.current+key).slice(0,5);render();}else if(y>=421&&x>=545&&x<610){state.current=state.current.slice(0,-1);render();}else if(y>=421&&x>=615){submitWordle();}return;}
         if(gameId==="hangman"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length)guessHangman(key);return;}
         if(gameId==="minesweeper"){
-            if(x>570&&y>435){state.flagMode=!state.flagMode;render();return;}
             const cx=Math.floor((x-180)/40),cy=Math.floor((y-70)/40);
             if(cx>=0&&cy>=0&&cx<9&&cy<9)state.cursor=[cx,cy];
             if(event.button===2||state.flagMode)flagMine(cx,cy);else revealMine(cx,cy);
@@ -727,6 +724,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
 
     return {
         restart: reset,
+        toggleFlagMode() {state.flagMode=!state.flagMode;render();return state.flagMode;},
         pause(value) {
             if(value&&!state.paused)state.pausedAt=Date.now();
             else if(!value&&state.paused&&state.pausedAt){
