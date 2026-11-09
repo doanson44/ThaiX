@@ -283,10 +283,14 @@ else
             _guestName = await ScoreStore.GetGuestNameAsync() ?? "Guest";
             await SubmitPendingScoreAsync(false);
         }
+        else if (choice == "declined")
+        {
+            _statusMessage = L[ResourceKeys.Games.LocalScoreSaved];
+        }
         else if (choice is null)
         {
             _showGuestPrompt = true;
-            _statusMessage = null;
+            _statusMessage = L[ResourceKeys.Games.LocalScoreSaved];
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -306,7 +310,7 @@ else
     {
         await ScoreStore.SetGuestChoiceAsync(false);
         _showGuestPrompt = false;
-        _statusMessage = null;
+        _statusMessage = L[ResourceKeys.Games.LocalScoreSaved];
     }
 
     private async Task RetrySyncAsync() => await SubmitPendingScoreAsync(_pendingAuthenticated);
