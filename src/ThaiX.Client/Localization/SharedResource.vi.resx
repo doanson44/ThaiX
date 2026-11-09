@@ -2172,7 +2172,6 @@
   <data name="Games.TypingPassage" xml:space="preserve"><value>Cách tốt nhất để học một kỹ năng mới là luyện tập một chút mỗi ngày. Hãy tập trung, giữ nhịp độ ổn định và tiến bộ từng bước.</value></data>
   <data name="Games.Flags" xml:space="preserve"><value>Cờ</value></data>
   <data name="Games.RetrySync" xml:space="preserve"><value>Thử đồng bộ lại</value></data>
-  <data name="Games.Rank" xml:space="preserve"><value>Thứ hạng</value></data>
   <data name="Games.ViewAllHistory" xml:space="preserve"><value>Xem toàn bộ lịch sử</value></data>
   <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Chỉ xem lượt gần đây</value></data>
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Điểm đã được lưu trên thiết bị này.</value></data>
