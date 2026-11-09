@@ -176,7 +176,10 @@ else
     private string? _gameStatusMessage;
     private bool _showGuestPrompt;
     private bool _showAllHistory;
-    private bool IsGuestNameValid => !string.IsNullOrWhiteSpace(_guestName) && _guestName.Trim().Length >= 2;
+    private bool IsGuestNameValid =>
+        !string.IsNullOrWhiteSpace(_guestName)
+        && _guestName.Trim().Length is >= 2 and <= 24
+        && _guestName.Trim().All(character => char.IsLetterOrDigit(character) || " @._+-".Contains(character));
     private bool _isPaused;
     private bool _syncFailed;
     private bool _pendingAuthenticated;
