@@ -1,5 +1,6 @@
 using System.Data;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Interfaces.Messaging;
