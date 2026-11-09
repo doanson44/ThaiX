@@ -39,6 +39,7 @@ public sealed class GameRunRecord
 public sealed class GameLocalScoreState
 {
     public decimal? BestScore { get; set; }
+    public decimal TotalWins { get; set; }
     public List<GameRunRecord> History { get; set; } = [];
 }
 
