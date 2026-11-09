@@ -28,11 +28,36 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     let lastFrame = 0;
     let pointerStart = null;
     let disposed = false;
+    let minesResizeObserver = null;
+    let minesMobileLayout = false;
 
     canvas.width = W;
     canvas.height = H;
     canvas.style.touchAction = "none";
     canvas.focus();
+
+    function getMinesLayout() {
+        const size = minesMobileLayout ? 72 : 40;
+        const gridSize = size * 9;
+
+        return {
+            size,
+            left: (W - gridSize) / 2,
+            top: minesMobileLayout ? 105 : 70,
+            gridSize
+        };
+    }
+
+    function updateMinesCanvasSize() {
+        if (gameId !== "minesweeper") return;
+
+        const nextMobileLayout = canvas.getBoundingClientRect().width < 560;
+        if (nextMobileLayout === minesMobileLayout) return;
+
+        minesMobileLayout = nextMobileLayout;
+        canvas.height = minesMobileLayout ? 800 : H;
+        render();
+    }
 
     function baseState() {
         return { startedAt: Date.now(), finished: false, paused: false, score: 0, moves: 0, mode: null };
@@ -159,8 +184,12 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         render();
     }
     function flagMine(x,y) {
-        const cell=state.cells[y]?.[x];if(!cell||cell.open||state.finished)return;
-        cell.flag=!cell.flag;state.flags+=cell.flag?1:-1;render();
+        const cell=state.cells[y]?.[x];
+        if(!cell||cell.open||state.finished)return;
+        if(!cell.flag&&state.flags>=10)return;
+        cell.flag=!cell.flag;
+        state.flags+=cell.flag?1:-1;
+        render();
     }
 
     function initSudoku() {
@@ -492,8 +521,9 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             case "hangman":drawHangman();break;case "typing-speed":drawTyping();break;case "tic-tac-toe":drawTicTacToe();break;
             case "connect-four":drawConnectFour();break;
         }
-        if(state.paused&&!state.finished){rounded(220,190,280,90,16,"#0b1220");drawText(T.paused,W/2,245,28);}
-        if(state.finished){rounded(190,180,340,115,16,"#0b1220",COLORS.accent);drawText(T.gameOver,W/2,220,26);drawText(`${T.score}: ${state.score}`,W/2,260,22,COLORS.good);drawText(T.restartHint,W/2,320,15,COLORS.muted);}
+        const overlayCenterY=gameId==="minesweeper"?canvas.height/2:H/2;
+        if(state.paused&&!state.finished){rounded(220,overlayCenterY-45,280,90,16,"#0b1220");drawText(T.paused,W/2,overlayCenterY+10,28);}
+        if(state.finished){rounded(190,overlayCenterY-58,340,115,16,"#0b1220",COLORS.accent);drawText(T.gameOver,W/2,overlayCenterY-18,26);drawText(`${T.score}: ${state.score}`,W/2,overlayCenterY+22,22,COLORS.good);drawText(T.restartHint,W/2,overlayCenterY+82,15,COLORS.muted);}
     }
     function draw2048(){
         frame(T.title);const size=92,gap=10,left=134,top=70;
@@ -502,9 +532,38 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     }
     function tileColor(v){return ({2:"#64748b",4:"#0e7490",8:"#0284c7",16:"#2563eb",32:"#7c3aed",64:"#9333ea",128:"#c026d3",256:"#db2777",512:"#ea580c",1024:"#ca8a04",2048:"#16a34a"})[v]||"#15803d";}
     function drawMines(){
-        frame(T.title);const size=40,left=180,top=70;
-        state.cells.forEach((row,y)=>row.forEach((c,x)=>{const px=left+x*size,py=top+y*size;rounded(px+1,py+1,size-3,size-3,c.open?"#cbd5e1":COLORS.tile, "#64748b");if(c.open){if(c.mine)drawText("*",px+20,py+28,23,COLORS.bad);else if(c.count)drawText(String(c.count),px+20,py+27,18,["", "#2563eb","#16a34a","#dc2626","#7c3aed"][c.count]||"#0f172a");}else if(c.flag)drawText("F",px+20,py+27,18,COLORS.warn);if(state.cursor[0]===x&&state.cursor[1]===y){ctx.strokeStyle=COLORS.accent;ctx.lineWidth=3;ctx.strokeRect(px+3,py+3,size-6,size-6);ctx.lineWidth=1;}}));
-        drawText(`${T.flags}: ${state.flags}/10`,W/2,465,17,COLORS.muted);
+        const layout=getMinesLayout();
+        const {size,left,top}=layout;
+        const centerY=top+size/2;
+
+        ctx.clearRect(0,0,W,canvas.height);
+        ctx.fillStyle=COLORS.bg;
+        ctx.fillRect(0,0,W,canvas.height);
+        drawText(T.title,W/2,minesMobileLayout?44:34,minesMobileLayout?30:22);
+
+        state.cells.forEach((row,y)=>row.forEach((cell,x)=>{
+            const px=left+x*size,py=top+y*size;
+            ctx.fillStyle=cell.open?"#cbd5e1":COLORS.tile;
+            ctx.fillRect(px+1,py+1,size-2,size-2);
+            ctx.strokeStyle="#64748b";
+            ctx.strokeRect(px+1,py+1,size-2,size-2);
+
+            if(cell.open){
+                if(cell.mine)drawText("*",px+size/2,py+size*0.68,minesMobileLayout?40:23,COLORS.bad);
+                else if(cell.count)drawText(String(cell.count),px+size/2,py+size*0.68,minesMobileLayout?30:18,["", "#2563eb","#16a34a","#dc2626","#7c3aed"][cell.count]||"#0f172a");
+            }else if(cell.flag){
+                drawText("F",px+size/2,py+size*0.68,minesMobileLayout?30:18,COLORS.warn);
+            }
+
+            if(state.cursor[0]===x&&state.cursor[1]===y){
+                ctx.strokeStyle=COLORS.accent;
+                ctx.lineWidth=minesMobileLayout?5:3;
+                ctx.strokeRect(px+3,py+3,size-6,size-6);
+                ctx.lineWidth=1;
+            }
+        }));
+
+        drawText(`${T.flags}: ${state.flags}/10`,W/2,minesMobileLayout?770:465,minesMobileLayout?26:17,COLORS.muted);
     }
     function drawSudoku(){
         frame(T.title);const size=42,left=171,top=55;
@@ -616,7 +675,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
 
     function point(event) {
         const rect=canvas.getBoundingClientRect();
-        return [(event.clientX-rect.left)*W/rect.width,(event.clientY-rect.top)*H/rect.height];
+        const logicalHeight=gameId==="minesweeper"?canvas.height:H;
+        return [(event.clientX-rect.left)*W/rect.width,(event.clientY-rect.top)*logicalHeight/rect.height];
     }
     function onPointerDown(event) {
         event.preventDefault();canvas.focus();const [x,y]=point(event);pointerStart=[x,y];
@@ -629,8 +689,11 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         if(gameId==="wordle"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length){state.current=(state.current+key).slice(0,5);render();}else if(y>=421&&x>=545&&x<610){state.current=state.current.slice(0,-1);render();}else if(y>=421&&x>=615){submitWordle();}return;}
         if(gameId==="hangman"&&y>=345){const row=y<380?0:y<418?1:2;const keyRows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];const offset=row===0?185:row===1?203:239;const index=Math.floor((x-offset)/36);const key=keyRows[row][index];if(key&&index>=0&&index<keyRows[row].length)guessHangman(key);return;}
         if(gameId==="minesweeper"){
-            const cx=Math.floor((x-180)/40),cy=Math.floor((y-70)/40);
-            if(cx>=0&&cy>=0&&cx<9&&cy<9)state.cursor=[cx,cy];
+            const layout=getMinesLayout();
+            const cx=Math.floor((x-layout.left)/layout.size);
+            const cy=Math.floor((y-layout.top)/layout.size);
+            if(cx<0||cy<0||cx>=9||cy>=9)return;
+            state.cursor=[cx,cy];
             if(event.button===2||state.flagMode)flagMine(cx,cy);else revealMine(cx,cy);
         } else if(gameId==="memory-cards"){
             const cx=Math.floor((x-150)/116),cy=Math.floor((y-70)/116);if(cx>=0&&cy>=0&&cx<4&&cy<3){state.cursor=cy*4+cx;flipMemory(state.cursor);}
@@ -720,6 +783,10 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         else if(gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")typingField.addEventListener("keydown",onKeyDown);
     }
     canvas.addEventListener("contextmenu",onContextMenu);
+    if(gameId==="minesweeper"&&typeof ResizeObserver!=="undefined"){
+        minesResizeObserver=new ResizeObserver(updateMinesCanvasSize);
+        minesResizeObserver.observe(canvas);
+    }
     reset();
 
     return {
@@ -743,6 +810,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
                 else if(gameId==="wordle"||gameId==="hangman"||gameId==="sudoku")typingField.removeEventListener("keydown",onKeyDown);
             }
             canvas.removeEventListener("contextmenu",onContextMenu);
+            minesResizeObserver?.disconnect();
+            minesResizeObserver=null;
         }
     };
 }
