@@ -357,24 +357,30 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         render();
     }
     function initTyping() {
-        state.text=T.typingPassage||"The best way to learn a new skill is to practice a little every day.";state.typed="";state.seconds=30;state.started=false;state.correct=0;state.message="Typing Speed";
+        state.text=T.typingPassage||"The best way to learn a new skill is to practice a little every day.";state.typed="";state.seconds=30;state.started=false;state.startedAt=0;state.correct=0;state.message="Typing Speed";
         timer=setInterval(()=>{
             if(!state.started||state.paused||state.finished)return;
             state.seconds--;
-            if(state.seconds<=0){const words=state.correct/5;finish(Math.round(words*2),"30s");}
+            if(state.seconds<=0)finish(calculateTypingWpm(),"30s");
             render();
         },1000);
     }
+    function calculateTypingWpm() {
+        const elapsedSeconds=Math.max(1,(Date.now()-state.startedAt)/1000);
+        return Math.round(state.correct/5*60/elapsedSeconds);
+    }
+    function updateTypingStats() {
+        const expected=Array.from(state.text),typed=Array.from(state.typed);
+        state.correct=typed.reduce((total,char,index)=>total+(char===expected[index]?1:0),0);
+    }
     function typingInput(key) {
         if(state.finished||state.seconds<=0)return;
-        if(key==="Backspace"){state.typed=state.typed.slice(0,-1);return;}
+        if(key==="Backspace"){state.typed=state.typed.slice(0,-1);updateTypingStats();render();return;}
         if(key.length!==1)return;
-        state.started=true;
-        if(state.typed.length<state.text.length) {
-            if(key===state.text[state.typed.length])state.correct++;
-            state.typed+=key;
-        }
-        if(state.typed.length===state.text.length)finish(Math.round(state.correct/5*2),"30s");
+        if(!state.started){state.started=true;state.startedAt=Date.now();}
+        if(state.typed.length<state.text.length)state.typed+=key;
+        updateTypingStats();
+        if(state.typed.length===state.text.length)finish(calculateTypingWpm(),"30s");
         render();
     }
 
@@ -629,14 +635,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         }
         pointerStart=null;
     }
-    function onTypingFieldInput() {
-        if(state.finished||state.paused||!typingField)return;
-        state.typed=Array.from(typingField.value).slice(0,state.text.length).join("");
-        typingField.value=state.typed;
-        state.correct=Array.from(state.typed).reduce((total,char,index)=>total+(char===Array.from(state.text)[index]?1:0),0);
-        if(state.typed.length===state.text.length)finish(Math.round(state.correct/5*2),"30s");
-        render();
-    }
     function onKeyDown(event) {
         if(state.paused||state.finished)return;
         const key=event.key.toLowerCase();
@@ -651,7 +649,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             case "tic-tac-toe": if(key.startsWith("arrow")){let row=Math.floor(state.cursor/3),col=state.cursor%3;if(key==="arrowright"&&col<2)col++;if(key==="arrowleft"&&col>0)col--;if(key==="arrowdown"&&row<2)row++;if(key==="arrowup"&&row>0)row--;state.cursor=row*3+col;render();}else if(key==="enter"||key===" ")ticMove(state.cursor);break;
             case "connect-four": if(key==="arrowleft")state.cursor=Math.max(0,state.cursor-1);else if(key==="arrowright")state.cursor=Math.min(6,state.cursor+1);else if(key==="enter"||key===" ")dropConnectFour(state.cursor);render();break;
             case "sudoku": if(key.startsWith("arrow")){const [x,y]=state.selected;state.selected=[Math.max(0,Math.min(8,x+(key==="arrowright"?1:key==="arrowleft"?-1:0))),Math.max(0,Math.min(8,y+(key==="arrowdown"?1:key==="arrowup"?-1:0)))];render();}else if(/^[1-9]$/.test(key))sudokuInput(Number(key));else if(key==="backspace"||key==="delete"){const [x,y]=state.selected;if(!state.fixed[y][x]){state.grid[y][x]=0;render();}}break;
-            case "sudoku": if(/^[1-9]$/.test(key))sudokuInput(Number(key));else if(key==="backspace"||key==="delete")sudokuInput(0);else if(key.startsWith("arrow")){const [x,y]=state.selected;state.selected=[Math.max(0,Math.min(8,x+(key==="arrowright"?1:key==="arrowleft"?-1:0))),Math.max(0,Math.min(8,y+(key==="arrowdown"?1:key==="arrowup"?-1:0)))];render();}break;
             case "snake": if(key==="arrowup"||key==="w"){if(state.dir[1]!==1)state.nextDir=[0,-1];}if(key==="arrowdown"||key==="s"){if(state.dir[1]!==-1)state.nextDir=[0,1];}if(key==="arrowleft"||key==="a"){if(state.dir[0]!==1)state.nextDir=[-1,0];}if(key==="arrowright"||key==="d"){if(state.dir[0]!==-1)state.nextDir=[1,0];}break;
             case "tetris": if(key==="arrowleft"||key==="a")movePiece(-1,0);if(key==="arrowright"||key==="d")movePiece(1,0);if(key==="arrowup"||key==="w")rotatePiece();if(key==="arrowdown")movePiece(0,1);if(key===" "){while(movePiece(0,1)){}lockPiece();}render();break;
             case "flappy": if(key===" "||key==="arrowup")flap();break;
@@ -678,7 +675,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             canvas.removeEventListener("pointerdown",onPointerDown);
             canvas.removeEventListener("pointerup",onPointerUp);
             canvas.removeEventListener("keydown",onKeyDown);
-            if(typeof typingField?.removeEventListener === "function")typingField.removeEventListener("input",onTypingFieldInput);
+            if(typeof typingField?.removeEventListener === "function")typingField.removeEventListener("keydown",onKeyDown);
             canvas.removeEventListener("contextmenu",onContextMenu);
         }
     };
