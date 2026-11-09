@@ -649,9 +649,26 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         else if(gameId==="tic-tac-toe"){const col=Math.floor((x-192)/112),row=Math.floor((y-65)/112);if(col>=0&&col<3&&row>=0&&row<3){state.cursor=row*3+col;ticMove(state.cursor);}}
     }
     function onPointerUp(event) {
-        if(gameId==="2048"&&pointerStart&&!state.paused&&!state.finished){
+        if(pointerStart&&!state.paused&&!state.finished){
             const [sx,sy]=pointerStart,[x,y]=point(event),dx=x-sx,dy=y-sy;
-            if(Math.max(Math.abs(dx),Math.abs(dy))>25)move2048(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"));
+            if(Math.max(Math.abs(dx),Math.abs(dy))>25){
+                if(gameId==="2048")move2048(Math.abs(dx)>Math.abs(dy)?(dx>0?"right":"left"):(dy>0?"down":"up"));
+                else if(gameId==="snake"){
+                    if(Math.abs(dx)>Math.abs(dy)){
+                        if(dx>0&&state.dir[0]!==-1)state.nextDir=[1,0];
+                        else if(dx<0&&state.dir[0]!==1)state.nextDir=[-1,0];
+                    }else{
+                        if(dy>0&&state.dir[1]!==-1)state.nextDir=[0,1];
+                        else if(dy<0&&state.dir[1]!==1)state.nextDir=[0,-1];
+                    }
+                }else if(gameId==="tetris"){
+                    if(Math.abs(dx)>Math.abs(dy))movePiece(dx>0?1:-1,0);
+                    else if(dy>80){while(movePiece(0,1)){}lockPiece();}
+                    else if(dy>25)movePiece(0,1);
+                    else if(dy<-25)rotatePiece();
+                    render();
+                }
+            }
         }
         pointerStart=null;
     }
@@ -667,8 +684,15 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     }
 
     function onKeyDown(event) {
-        if(state.paused||state.finished)return;
+        if(state.paused||state.finished){
+            if(event.currentTarget===typingField)event.preventDefault();
+            return;
+        }
         const key=event.key.toLowerCase();
+        if((gameId==="wordle"||gameId==="hangman")&&event.currentTarget===typingField){
+            event.preventDefault();
+            typingField.value="";
+        }
         if(gameId==="typing-speed"){event.preventDefault();typingInput(event.key);if(typeof typingField?.addEventListener === "function")typingField.value=state.typed;return;}
         if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))event.preventDefault();
         switch(gameId){
@@ -694,7 +718,10 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     canvas.addEventListener("pointerdown",onPointerDown);
     canvas.addEventListener("pointerup",onPointerUp);
     canvas.addEventListener("keydown",onKeyDown);
-    if(typeof typingField?.addEventListener === "function")typingField.addEventListener("input",onTypingFieldInput);
+    if(typeof typingField?.addEventListener === "function"){
+        if(gameId==="typing-speed")typingField.addEventListener("input",onTypingFieldInput);
+        else if(gameId==="wordle"||gameId==="hangman")typingField.addEventListener("keydown",onKeyDown);
+    }
     canvas.addEventListener("contextmenu",onContextMenu);
     reset();
 
@@ -713,7 +740,10 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             canvas.removeEventListener("pointerdown",onPointerDown);
             canvas.removeEventListener("pointerup",onPointerUp);
             canvas.removeEventListener("keydown",onKeyDown);
-            if(typeof typingField?.removeEventListener === "function")typingField.removeEventListener("input",onTypingFieldInput);
+            if(typeof typingField?.removeEventListener === "function"){
+                if(gameId==="typing-speed")typingField.removeEventListener("input",onTypingFieldInput);
+                else if(gameId==="wordle"||gameId==="hangman")typingField.removeEventListener("keydown",onKeyDown);
+            }
             canvas.removeEventListener("contextmenu",onContextMenu);
         }
     };
