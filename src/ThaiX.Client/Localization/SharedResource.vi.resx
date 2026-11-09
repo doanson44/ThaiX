@@ -2145,10 +2145,10 @@
   <data name="Games.Pong.Instructions" xml:space="preserve"><value>Di chuyển thanh đỡ bằng lên/xuống hoặc W/S. Trên thiết bị cảm ứng, chạm để đặt độ cao thanh đỡ. Ai đạt năm điểm trước sẽ thắng.</value></data>
   <data name="Games.Wordle.Name" xml:space="preserve"><value>Wordle</value></data>
   <data name="Games.Wordle.Description" xml:space="preserve"><value>Đoán từ bí mật gồm năm chữ cái.</value></data>
-  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Nhập từ gồm năm chữ cái rồi nhấn Enter, hoặc dùng bàn phím trên màn hình hay ô nhập liệu. Màu xanh là đúng vị trí, vàng là có chữ đó nhưng ở vị trí khác.</value></data>
+  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Nhập từ gồm năm chữ cái không dấu rồi nhấn Enter, hoặc dùng bàn phím trên màn hình hay ô nhập liệu. Màu xanh là đúng vị trí, vàng là có chữ đó nhưng ở vị trí khác.</value></data>
   <data name="Games.Hangman.Name" xml:space="preserve"><value>Đoán chữ Hangman</value></data>
   <data name="Games.Hangman.Description" xml:space="preserve"><value>Đoán từ bí mật trước khi hình vẽ hoàn tất.</value></data>
-  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Dùng bàn phím vật lý, bàn phím trên màn hình hoặc ô nhập liệu để chọn chữ cái. Bạn có sáu lần đoán sai.</value></data>
+  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Dùng bàn phím vật lý, bàn phím trên màn hình hoặc ô nhập liệu để chọn chữ cái không dấu. Bạn có sáu lần đoán sai.</value></data>
   <data name="Games.Typing.Name" xml:space="preserve"><value>Tốc độ gõ</value></data>
   <data name="Games.Typing.Description" xml:space="preserve"><value>Đo tốc độ và độ chính xác khi gõ.</value></data>
   <data name="Games.Typing.Instructions" xml:space="preserve"><value>Gõ chính xác đoạn văn hiển thị. Bài kiểm tra kết thúc sau 30 giây.</value></data>
@@ -2167,7 +2167,7 @@
   <data name="Games.TypingStart" xml:space="preserve"><value>Bắt đầu gõ để chạy bài kiểm tra 30 giây</value></data>
   <data name="Games.YouAreX" xml:space="preserve"><value>Bạn là X</value></data>
   <data name="Games.YouAreYellow" xml:space="preserve"><value>Bạn là quân vàng</value></data>
-  <data name="Games.WordleWords" xml:space="preserve"><value>THUOC,DUONG,TRANG,NHANH,CHUOT</value></data>
+  <data name="Games.WordleWords" xml:space="preserve"><value>THUOC,DUONG,TRANG,NHANH,CHUOT,CHUNG,TRUOC,NHIEU,NGUOI,TRONG,KHOAI,GIANG,TIENG,CHIEU,MUONG,NGOAI,PHONG,THANG,DUNG,BANBE</value></data>
   <data name="Games.HangmanWords" xml:space="preserve"><value>THUOC,DUONG,TRANG,NHANH,CHUOT</value></data>
   <data name="Games.TypingPassage" xml:space="preserve"><value>Cách tốt nhất để học một kỹ năng mới là luyện tập một chút mỗi ngày. Hãy tập trung, giữ nhịp độ ổn định và tiến bộ từng bước.</value></data>
   <data name="Games.Flags" xml:space="preserve"><value>Cờ</value></data>
