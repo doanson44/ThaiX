@@ -563,12 +563,25 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         ctx.fillStyle="#facc15";ctx.beginPath();ctx.arc(state.ball.x,state.ball.y,9,0,Math.PI*2);ctx.fill();
         drawText(`${state.player} : ${state.ai}`,W/2,70,28);
     }
+    function getWordleStatuses(guess) {
+        const statuses=Array(5).fill("absent"),remaining={};
+        for(let i=0;i<5;i++){
+            if(guess[i]===state.word[i])statuses[i]="correct";
+            else remaining[state.word[i]]=(remaining[state.word[i]]||0)+1;
+        }
+        for(let i=0;i<5;i++){
+            if(statuses[i]==="correct")continue;
+            if(remaining[guess[i]]>0){statuses[i]="present";remaining[guess[i]]--;}
+        }
+        return statuses;
+    }
+
     function drawWordle(){
         frame(T.title);const size=40,gap=6,left=220,top=45;
         for(let y=0;y<6;y++)for(let x=0;x<5;x++){
             const px=left+x*(size+gap),py=top+y*(size+gap),guess=state.guesses[y]||"",ch=guess[x]|| (y===state.guesses.length?state.current[x]||"":"");
             let fill=COLORS.panel;
-            if(guess){fill=guess[x]===state.word[x]?"#15803d":state.word.includes(guess[x])?"#a16207":"#475569";}
+            if(guess){const status=getWordleStatuses(guess)[x];fill=status==="correct"?"#15803d":status==="present"?"#a16207":"#475569";}
             rounded(px,py,size,size,6,fill,COLORS.line);if(ch)drawText(ch,px+size/2,py+36,23);
         }
         const rows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
