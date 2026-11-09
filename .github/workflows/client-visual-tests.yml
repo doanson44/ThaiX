@@ -39,3 +39,9 @@ jobs:
         env:
           VISUAL_TEST_PARALLELISM: "2"
           VISUAL_SKIP_AUTH_LOGIN: "true"
+
+      - name: Run Minesweeper touch interaction checks
+        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~Minesweeper_LongPressOnTouch_FlagsCell
+        env:
+          VISUAL_TEST_PARALLELISM: "1"
+          VISUAL_SKIP_AUTH_LOGIN: "true"
