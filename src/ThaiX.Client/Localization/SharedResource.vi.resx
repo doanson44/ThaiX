@@ -2173,4 +2173,6 @@
   <data name="Games.Flags" xml:space="preserve"><value>Cờ</value></data>
   <data name="Games.RetrySync" xml:space="preserve"><value>Thử đồng bộ lại</value></data>
   <data name="Games.Rank" xml:space="preserve"><value>Thứ hạng</value></data>
+  <data name="Games.ViewAllHistory" xml:space="preserve"><value>Xem toàn bộ lịch sử</value></data>
+  <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Chỉ xem lượt gần đây</value></data>
 </root>
