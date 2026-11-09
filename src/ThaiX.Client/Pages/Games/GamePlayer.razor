@@ -286,6 +286,7 @@ else
         else if (choice == "declined")
         {
             _statusMessage = L[ResourceKeys.Games.LocalScoreSaved];
+            await InvokeAsync(StateHasChanged);
         }
         else if (choice is null)
         {
