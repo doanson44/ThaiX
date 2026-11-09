@@ -2168,8 +2168,8 @@
   <data name="Games.TypingStart" xml:space="preserve"><value>Start typing to begin the 30-second test</value></data>
   <data name="Games.YouAreX" xml:space="preserve"><value>You are X</value></data>
   <data name="Games.YouAreYellow" xml:space="preserve"><value>You are yellow</value></data>
-  <data name="Games.WordleWords" xml:space="preserve"><value>CRANE,PLANT,BRICK,SOUND,MANGO</value></data>
-  <data name="Games.HangmanWords" xml:space="preserve"><value>THAIX,BRICK,PLANT,SOUND,MANGO</value></data>
+  <data name="Games.WordleWords" xml:space="preserve"><value>CRANE,PLANT,BRICK,SOUND,MANGO,STONE,GRAPE,LIGHT,BRAIN,HOUSE,WATER,CLOUD,FLAME,TRAIN,MOUSE,CHAIR,BEACH,MUSIC,PAPER,CANDY,DREAM,HEART,WORLD,PEACH,FROST,TIGER,ZEBRA,APPLE,LEMON,SUGAR,ROAST,CHESS,CROWN,SPICE,BLEND,STORM,GRASS,SMILE,NIGHT,PLATE,GREEN,RADIO,SHINE,BREAD,SPACE,FRAME,ALBUM,TRACE,SHARE</value></data>
+  <data name="Games.HangmanWords" xml:space="preserve"><value>THAIX,BRICK,PLANT,SOUND,MANGO,GARDEN,PLANET,PUZZLE,ORANGE,KEYBOARD,THUNDER,RAINBOW,JOURNEY,CAPTURE,DIAMOND,LIBRARY,HORIZON,COMPASS,FOREST,ROCKET,CASTLE,WINTER,MARKET,POCKET,STREAM</value></data>
   <data name="Games.TypingPassage" xml:space="preserve"><value>The best way to learn a new skill is to practice a little every day. Stay focused, keep a steady pace, and improve one step at a time.</value></data>
   <data name="Games.Flags" xml:space="preserve"><value>Flags</value></data>
   <data name="Games.RetrySync" xml:space="preserve"><value>Retry sync</value></data>
