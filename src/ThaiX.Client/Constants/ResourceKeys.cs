@@ -69,7 +69,6 @@ public static class ResourceKeys
         public const string ShowRecentHistory = "Games.ShowRecentHistory";
         public const string Loading = "Games.Loading";
         public const string BackToGames = "Games.BackToGames";
-        public const string Rank = "Games.Rank";
         public const string Player = "Games.Player";
         public const string Date = "Games.Date";
         public const string GameOver = "Games.GameOver";
