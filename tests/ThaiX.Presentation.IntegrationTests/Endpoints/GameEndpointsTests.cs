@@ -236,6 +236,32 @@ public sealed class GameEndpointsTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task SubmitScore_ShouldReturnBadRequest_WhenScoreIsInvalidForGame()
+    {
+        // Arrange
+        Client.DefaultRequestHeaders.Authorization = null;
+        var sessionResponse = await Client.PostAsync("/api/games/guest-session", content: null);
+        var session = await sessionResponse.Content.ReadFromJsonAsync<ApiResponse<GuestIdentityToken>>(JsonOptions);
+        var request = new
+        {
+            GameId = "snake",
+            RunId = Guid.NewGuid(),
+            Score = 11,
+            DurationSeconds = 10,
+            Mode = (string?)null,
+            GuestPlayerId = session!.Data!.PlayerId.ToString("D"),
+            GuestToken = session.Data.Token,
+            GuestPlayerName = "Invalid Score Guest"
+        };
+
+        // Act
+        var response = await Client.PostAsJsonAsync("/api/games/scores", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task SubmitScore_ShouldReturnBadRequest_WhenGameIdUnsupported()
     {
         // Arrange
