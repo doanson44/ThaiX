@@ -511,7 +511,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         for(let y=0;y<9;y++)for(let x=0;x<9;x++){const px=left+x*size,py=top+y*size;ctx.fillStyle=state.selected[0]===x&&state.selected[1]===y?"#075985":(Math.floor(x/3)+Math.floor(y/3))%2?"#1e293b":"#273449";ctx.fillRect(px,py,size,size);ctx.strokeStyle="#64748b";ctx.strokeRect(px,py,size,size);if(state.grid[y][x])drawText(String(state.grid[y][x]),px+21,py+28,19,state.fixed[y][x]?"#f8fafc":"#7dd3fc");}
         ctx.strokeStyle="#e2e8f0";ctx.lineWidth=3;for(let i=0;i<=9;i+=3){ctx.strokeRect(left+i*size,top,1,9*size);ctx.strokeRect(left,top+i*size,9*size,1);}ctx.lineWidth=1;
         for(let i=1;i<=9;i++){const x=104+(i-1)*57;rounded(x,440,50,30,5,COLORS.tile);drawText(String(i),x+25,462,16);}
-        rounded(615,440,50,30,5,COLORS.tile);drawText("DEL",640,462,12);
+        rounded(615,440,50,30,5,COLORS.tile);drawText(T.deleteKey,640,462,12);
     }
     function drawMemory(){
         frame(T.title);const size=104,gap=12,left=150,top=70;
