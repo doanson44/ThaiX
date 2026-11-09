@@ -2178,4 +2178,8 @@
   <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Điểm đã được lưu trên thiết bị này.</value></data>
   <data name="Games.FlagModeOn" xml:space="preserve"><value>Đang bật chế độ đánh dấu mìn</value></data>
   <data name="Games.FlagModeOff" xml:space="preserve"><value>Đang tắt chế độ đánh dấu mìn</value></data>
+  <data name="Games.KeyDelete" xml:space="preserve"><value>XÓA</value></data>
+  <data name="Games.KeyEnter" xml:space="preserve"><value>NHẬP</value></data>
+  <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
+  <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
 </root>
