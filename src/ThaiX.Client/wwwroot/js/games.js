@@ -542,7 +542,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         state.board.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+x*size+1,top+y*size+1,size-2,size-2,3,"#38bdf8");}));
         state.piece.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+(state.pieceX+x)*size+1,top+(state.pieceY+y)*size+1,size-2,size-2,3,"#f59e0b");}));
         drawText(`${T.score}: ${state.score}`,W/2,465,18,COLORS.muted);
-        [["<",245],["ROT",315],[">",385],["DROP",455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
+        [["<",245],[T.rotateKey,315],[">",385],[T.dropKey,455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
     }
     function drawFlappy(){
         frame(T.title);ctx.fillStyle="#0c4a6e";ctx.fillRect(0,45,W,H-45);
@@ -584,8 +584,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         }
         const rows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
         rows.forEach((row,ri)=>[...row].forEach((letter,i)=>{const keyW=34,x=185+i*36+(ri===1?18:ri===2?54:0),y=345+ri*38;rounded(x,y,keyW,30,4,COLORS.tile);drawText(letter,x+keyW/2,y+21,14);}));
-        rounded(545,421,65,28,4,COLORS.tile);drawText("DEL",577,440,12);
-        rounded(615,421,65,28,4,COLORS.tile);drawText("ENTER",647,440,11);
+        rounded(545,421,65,28,4,COLORS.tile);drawText(T.deleteKey,577,440,12);
+        rounded(615,421,65,28,4,COLORS.tile);drawText(T.enterKey,647,440,11);
     }
     function drawHangman(){
         frame(T.title);drawText([...state.word].map(ch=>state.guessed.includes(ch)?ch:"_").join(" "),W/2,190,40);
