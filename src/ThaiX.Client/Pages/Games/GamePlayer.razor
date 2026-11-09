@@ -304,7 +304,14 @@ else
         var choice = await ScoreStore.GetGuestChoiceAsync();
         if (choice == "joined")
         {
-            _guestName = await ScoreStore.GetGuestNameAsync() ?? "Guest";
+            _guestName = await ScoreStore.GetGuestNameAsync() ?? string.Empty;
+            if (!IsGuestNameValid)
+            {
+                _showGuestPrompt = true;
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
             await SubmitPendingScoreAsync(false);
         }
         else if (choice == "declined")
