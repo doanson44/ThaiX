@@ -78,6 +78,9 @@ public static class RouteSegments
     public const string ApiClients = "security/api-clients";
     public const string CredentialAccounts = "security/credential-accounts";
 
+    // Games
+    public const string Games = "games";
+
     // Administration
     public const string Admin = "admin";
     public const string Users = "admin/users";

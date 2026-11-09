@@ -39,7 +39,9 @@ public static class RouteCatalog
         "/tools",
         "/tools/json-formatter",
         "/tools/markdown-preview",
-        "/tools/position-size"
+        "/tools/position-size",
+        "/games",
+        "/games/2048"
     ];
 
     // Rendered under MainLayout, requires the admin session established by AuthFixture.
@@ -105,6 +107,7 @@ public static class RouteCatalog
     [
         ("/", true),
         ("/blog", false),
+        ("/games", false),
         ("/master-data/countries", true),
         ("/portfolio/list", true),
         ("/portfolio/expense-tracker", true),

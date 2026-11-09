@@ -363,6 +363,12 @@
             return SegmentToTitle(segment);
         }
 
+        if (parent == "games")
+        {
+            var game = ThaiX.Client.Services.Games.GameCatalog.Find(segment);
+            return game is null ? L[RK.Games.Title] : L[game.TitleKey];
+        }
+
         if (parent == "tools")
         {
             var tool = ToolCatalog.Find(segment);

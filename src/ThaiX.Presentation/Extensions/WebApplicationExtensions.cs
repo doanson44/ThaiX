@@ -274,6 +274,7 @@ public static class WebApplicationExtensions
         app.MapLotteryEndpoints();
         app.MapJsonBinEndpoints();
         app.MapJsonBinPublicEndpoints();
+        app.MapGameEndpoints();
         app.MapPublicHtmlEndpoints();
         app.MapExpenseTrackerEndpoints();
         app.MapAgentDiscoveryEndpoints();

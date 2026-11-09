@@ -2076,4 +2076,110 @@
   <data name="Profile.EmailOtpLoginDescription" xml:space="preserve"><value>Allow signing in with a one-time code sent to your confirmed email address.</value></data>
   <data name="Profile.LoginSettingsSaved" xml:space="preserve"><value>Login settings saved.</value></data>
   <data name="Profile.LoginSettingsSaveFailed" xml:space="preserve"><value>Unable to save login settings.</value></data>
+  <data name="Games.Title" xml:space="preserve"><value>Games</value></data>
+  <data name="Games.Description" xml:space="preserve"><value>Take a break with 16 single-player games. Your best scores and recent runs are saved in this browser.</value></data>
+  <data name="Games.SearchPlaceholder" xml:space="preserve"><value>Search games...</value></data>
+  <data name="Games.All" xml:space="preserve"><value>All games</value></data>
+  <data name="Games.Category.Puzzle" xml:space="preserve"><value>Puzzle</value></data>
+  <data name="Games.Category.Arcade" xml:space="preserve"><value>Arcade</value></data>
+  <data name="Games.Category.WordSkill" xml:space="preserve"><value>Word &amp; Skill</value></data>
+  <data name="Games.Category.Strategy" xml:space="preserve"><value>Strategy</value></data>
+  <data name="Games.Instructions" xml:space="preserve"><value>How to play</value></data>
+  <data name="Games.Score" xml:space="preserve"><value>Score</value></data>
+  <data name="Games.TimeSeconds" xml:space="preserve"><value>Time (seconds)</value></data>
+  <data name="Games.Moves" xml:space="preserve"><value>Moves</value></data>
+  <data name="Games.Wins" xml:space="preserve"><value>Wins</value></data>
+  <data name="Games.Guesses" xml:space="preserve"><value>Guesses</value></data>
+  <data name="Games.Wpm" xml:space="preserve"><value>Words per minute</value></data>
+  <data name="Games.Best" xml:space="preserve"><value>Personal best</value></data>
+  <data name="Games.History" xml:space="preserve"><value>Recent runs</value></data>
+  <data name="Games.Leaderboard" xml:space="preserve"><value>Global leaderboard</value></data>
+  <data name="Games.NoScores" xml:space="preserve"><value>No scores yet.</value></data>
+  <data name="Games.Play" xml:space="preserve"><value>Play</value></data>
+  <data name="Games.Restart" xml:space="preserve"><value>Restart</value></data>
+  <data name="Games.Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Games.Resume" xml:space="preserve"><value>Resume</value></data>
+  <data name="Games.GuestPrompt" xml:space="preserve"><value>Join the global leaderboard with a nickname? Your local history is saved either way.</value></data>
+  <data name="Games.GuestNickname" xml:space="preserve"><value>Nickname</value></data>
+  <data name="Games.JoinLeaderboard" xml:space="preserve"><value>Join leaderboard</value></data>
+  <data name="Games.LocalOnly" xml:space="preserve"><value>Keep scores on this device</value></data>
+  <data name="Games.GuestSaved" xml:space="preserve"><value>Your score was submitted to the global leaderboard.</value></data>
+  <data name="Games.ScoreSaved" xml:space="preserve"><value>Score saved locally and synced.</value></data>
+  <data name="Games.ScoreSyncFailed" xml:space="preserve"><value>Your score is saved locally, but leaderboard sync failed.</value></data>
+  <data name="Games.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Games.BackToGames" xml:space="preserve"><value>Back to games</value></data>
+  <data name="Games.Rank" xml:space="preserve"><value>Rank</value></data>
+  <data name="Games.Player" xml:space="preserve"><value>Player</value></data>
+  <data name="Games.Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Games.2048.Name" xml:space="preserve"><value>2048</value></data>
+  <data name="Games.2048.Description" xml:space="preserve"><value>Combine matching tiles to reach 2048.</value></data>
+  <data name="Games.2048.Instructions" xml:space="preserve"><value>Use arrow keys or swipe to slide all tiles. Equal values merge once per move.</value></data>
+  <data name="Games.Minesweeper.Name" xml:space="preserve"><value>Minesweeper</value></data>
+  <data name="Games.Minesweeper.Description" xml:space="preserve"><value>Reveal safe cells and avoid hidden mines.</value></data>
+  <data name="Games.Minesweeper.Instructions" xml:space="preserve"><value>Select a cell to reveal it. Right-click or tap the flag button to mark a mine. Reveal every safe cell to win.</value></data>
+  <data name="Games.Sudoku.Name" xml:space="preserve"><value>Sudoku</value></data>
+  <data name="Games.Sudoku.Description" xml:space="preserve"><value>Complete the 9 by 9 number grid.</value></data>
+  <data name="Games.Sudoku.Instructions" xml:space="preserve"><value>Select an empty cell and enter 1-9 with the keyboard or keypad. Use arrow keys to move between cells.</value></data>
+  <data name="Games.Memory.Name" xml:space="preserve"><value>Memory Cards</value></data>
+  <data name="Games.Memory.Description" xml:space="preserve"><value>Find all matching pairs.</value></data>
+  <data name="Games.Memory.Instructions" xml:space="preserve"><value>Use arrow keys and Enter, or tap cards. Match every pair using as few moves as possible.</value></data>
+  <data name="Games.15Puzzle.Name" xml:space="preserve"><value>15 Puzzle</value></data>
+  <data name="Games.15Puzzle.Description" xml:space="preserve"><value>Arrange numbered tiles in order.</value></data>
+  <data name="Games.15Puzzle.Instructions" xml:space="preserve"><value>Use arrow keys or select a tile next to the empty space. Arrange 1 through 15 in order.</value></data>
+  <data name="Games.LightsOut.Name" xml:space="preserve"><value>Lights Out</value></data>
+  <data name="Games.LightsOut.Description" xml:space="preserve"><value>Turn off every light on the board.</value></data>
+  <data name="Games.LightsOut.Instructions" xml:space="preserve"><value>Use arrow keys and Enter, or tap a light. It toggles itself and its neighbors. Turn all lights off.</value></data>
+  <data name="Games.Snake.Name" xml:space="preserve"><value>Snake</value></data>
+  <data name="Games.Snake.Description" xml:space="preserve"><value>Eat food, grow, and avoid collisions.</value></data>
+  <data name="Games.Snake.Instructions" xml:space="preserve"><value>Use arrow keys or WASD, tap the on-screen arrows, or swipe to steer. Avoid walls and your own tail.</value></data>
+  <data name="Games.Tetris.Name" xml:space="preserve"><value>Tetris</value></data>
+  <data name="Games.Tetris.Description" xml:space="preserve"><value>Fit falling blocks and clear complete lines.</value></data>
+  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Left/right move, up rotates, down soft-drops, and space hard-drops. On touch devices, use the buttons or swipe.</value></data>
+  <data name="Games.Flappy.Name" xml:space="preserve"><value>Flappy</value></data>
+  <data name="Games.Flappy.Description" xml:space="preserve"><value>Fly through gaps without hitting obstacles.</value></data>
+  <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Tap, click, or press Space to flap upward. Pass through the gaps.</value></data>
+  <data name="Games.Breakout.Name" xml:space="preserve"><value>Breakout</value></data>
+  <data name="Games.Breakout.Description" xml:space="preserve"><value>Bounce the ball to clear every brick.</value></data>
+  <data name="Games.Breakout.Instructions" xml:space="preserve"><value>Move with left/right or A/D, or tap to position the paddle. Keep the ball above your paddle and clear the bricks.</value></data>
+  <data name="Games.Pong.Name" xml:space="preserve"><value>Pong vs AI</value></data>
+  <data name="Games.Pong.Description" xml:space="preserve"><value>Beat the computer in a short match.</value></data>
+  <data name="Games.Pong.Instructions" xml:space="preserve"><value>Move your paddle with up/down or W/S. On touch devices, tap to set paddle height. First to five points wins.</value></data>
+  <data name="Games.Wordle.Name" xml:space="preserve"><value>Wordle</value></data>
+  <data name="Games.Wordle.Description" xml:space="preserve"><value>Guess the hidden five-letter word.</value></data>
+  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Enter a five-letter word and press Enter, or use the on-screen keyboard or text field. Green means correct position, yellow means the letter exists elsewhere.</value></data>
+  <data name="Games.Hangman.Name" xml:space="preserve"><value>Hangman</value></data>
+  <data name="Games.Hangman.Description" xml:space="preserve"><value>Guess the hidden word before the drawing is complete.</value></data>
+  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Choose letters using your keyboard, the on-screen keyboard, or the text field. You have six incorrect guesses.</value></data>
+  <data name="Games.Typing.Name" xml:space="preserve"><value>Typing Speed</value></data>
+  <data name="Games.Typing.Description" xml:space="preserve"><value>Measure your typing speed and accuracy.</value></data>
+  <data name="Games.Typing.Instructions" xml:space="preserve"><value>Type the displayed passage accurately. The test ends after 30 seconds.</value></data>
+  <data name="Games.TicTacToe.Name" xml:space="preserve"><value>Tic-Tac-Toe vs AI</value></data>
+  <data name="Games.TicTacToe.Description" xml:space="preserve"><value>Get three in a row against the computer.</value></data>
+  <data name="Games.TicTacToe.Instructions" xml:space="preserve"><value>You are X. Use arrow keys and Enter, or select a square. The computer plays O.</value></data>
+  <data name="Games.ConnectFour.Name" xml:space="preserve"><value>Connect Four vs AI</value></data>
+  <data name="Games.ConnectFour.Description" xml:space="preserve"><value>Connect four discs before the computer does.</value></data>
+  <data name="Games.ConnectFour.Instructions" xml:space="preserve"><value>Use left/right and Enter, or select a column. Connect four horizontally, vertically, or diagonally.</value></data>
+  <data name="Games.GameOver" xml:space="preserve"><value>Game over</value></data>
+  <data name="Games.Paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="Games.RestartHint" xml:space="preserve"><value>Restart to play again</value></data>
+  <data name="Games.Passed" xml:space="preserve"><value>Passed</value></data>
+  <data name="Games.WrongGuesses" xml:space="preserve"><value>Wrong guesses</value></data>
+  <data name="Games.Time" xml:space="preserve"><value>Time</value></data>
+  <data name="Games.TypingStart" xml:space="preserve"><value>Start typing to begin the 30-second test</value></data>
+  <data name="Games.YouAreX" xml:space="preserve"><value>You are X</value></data>
+  <data name="Games.YouAreYellow" xml:space="preserve"><value>You are yellow</value></data>
+  <data name="Games.WordleWords" xml:space="preserve"><value>CRANE,PLANT,BRICK,SOUND,MANGO,STONE,GRAPE,LIGHT,BRAIN,HOUSE,WATER,CLOUD,FLAME,TRAIN,MOUSE,CHAIR,BEACH,MUSIC,PAPER,CANDY,DREAM,HEART,WORLD,PEACH,FROST,TIGER,ZEBRA,APPLE,LEMON,SUGAR,ROAST,CHESS,CROWN,SPICE,BLEND,STORM,GRASS,SMILE,NIGHT,PLATE,GREEN,RADIO,SHINE,BREAD,SPACE,FRAME,ALBUM,TRACE,SHARE</value></data>
+  <data name="Games.HangmanWords" xml:space="preserve"><value>THAIX,BRICK,PLANT,SOUND,MANGO,GARDEN,PLANET,PUZZLE,ORANGE,KEYBOARD,THUNDER,RAINBOW,JOURNEY,CAPTURE,DIAMOND,LIBRARY,HORIZON,COMPASS,FOREST,ROCKET,CASTLE,WINTER,MARKET,POCKET,STREAM</value></data>
+  <data name="Games.TypingPassage" xml:space="preserve"><value>The best way to learn a new skill is to practice a little every day. Stay focused, keep a steady pace, and improve one step at a time.</value></data>
+  <data name="Games.Flags" xml:space="preserve"><value>Flags</value></data>
+  <data name="Games.RetrySync" xml:space="preserve"><value>Retry sync</value></data>
+  <data name="Games.ViewAllHistory" xml:space="preserve"><value>View full history</value></data>
+  <data name="Games.ShowRecentHistory" xml:space="preserve"><value>Show recent runs</value></data>
+  <data name="Games.LocalScoreSaved" xml:space="preserve"><value>Score saved on this device.</value></data>
+  <data name="Games.FlagModeOn" xml:space="preserve"><value>Flag mode: on</value></data>
+  <data name="Games.FlagModeOff" xml:space="preserve"><value>Flag mode: off</value></data>
+  <data name="Games.KeyDelete" xml:space="preserve"><value>DEL</value></data>
+  <data name="Games.KeyEnter" xml:space="preserve"><value>ENTER</value></data>
+  <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
+  <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
 </root>

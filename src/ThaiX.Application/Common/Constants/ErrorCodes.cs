@@ -55,6 +55,9 @@ public static class ErrorCodes
     public const string INVALID_STATE = "BIZ_INVALID_STATE";
     public const string CONCURRENCY_CONFLICT = "BIZ_CONCURRENCY_CONFLICT";
 
+    // Games
+    public const string GAMES_GUEST_SESSION_INVALID = "GAMES_GUEST_SESSION_INVALID";
+
     // File Errors (FILE_*)
     public const string FILE_NOT_FOUND = "FILE_NOT_FOUND";
     public const string FILE_TOO_LARGE = "FILE_TOO_LARGE";

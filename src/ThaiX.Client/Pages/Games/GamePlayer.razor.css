@@ -1,0 +1,40 @@
+.game-player {
+    max-width: 76rem;
+    margin-inline: auto;
+}
+
+.game-stage {
+    min-width: 0;
+}
+
+.game-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--rz-text-color);
+}
+
+.game-canvas {
+    display: block;
+    width: min(100%, 45rem);
+    height: auto;
+    margin-inline: auto;
+    border-radius: 0.75rem;
+    outline-offset: 0.25rem;
+    background: #101827;
+    touch-action: none;
+}
+
+.game-canvas:focus-visible {
+    outline: 3px solid var(--rz-primary);
+}
+
+@media (max-width: 575.98px) {
+    .game-player {
+        padding-inline: 0;
+    }
+
+    .game-canvas {
+        border-radius: 0.5rem;
+    }
+}
