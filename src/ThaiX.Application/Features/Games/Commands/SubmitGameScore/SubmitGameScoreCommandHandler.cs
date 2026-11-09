@@ -47,6 +47,8 @@ public sealed class SubmitGameScoreCommandHandler(IApplicationDbContext context)
                 playerName = playerName[..64];
         }
 
+        // ponytail: one JSONBin per game keeps this feature self-contained, but writes scan and serialize all players.
+        // Move to indexed per-player rows if leaderboard volume outgrows this document model.
         var existing = document.Entries.FirstOrDefault(entry =>
             entry.PlayerId == request.PlayerId
             && string.Equals(entry.Mode, request.Mode, StringComparison.OrdinalIgnoreCase));
@@ -88,6 +90,7 @@ public sealed class SubmitGameScoreCommandHandler(IApplicationDbContext context)
         }
 
         document.ProcessedRunIds.Add(request.RunId);
+        // ponytail: retain a 5,000-run idempotency window to bound JSONBin growth; older retries may be counted again.
         if (document.ProcessedRunIds.Count > 5_000)
             document.ProcessedRunIds.RemoveRange(0, document.ProcessedRunIds.Count - 5_000);
 
