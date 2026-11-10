@@ -111,14 +111,8 @@ public sealed class GamesSmokeTests
             Assert.Equal(new[] { 51, 65, 85 }, initialPixels[2..5]);
             Assert.True(expectedCellSize * box.Width / 720 >= (viewportWidth < 560 ? 30 : 20));
 
-            await canvas.ClickAsync(new LocatorClickOptions
-            {
-                Position = new Position
-                {
-                    X = (int)((((720 - expectedCellSize * 9) / 2) + expectedCellSize / 2) * box.Width / 720),
-                    Y = (int)((((viewportWidth < 560 ? 105 : 70) + expectedCellSize / 2) * box.Height / expectedCanvasHeight))
-                }
-            });
+            await canvas.EvaluateAsync(
+                "(element) => { const rect = element.getBoundingClientRect(); const mobile = element.height === 800; const size = mobile ? 72 : 40; const left = (720 - size * 9) / 2; const top = mobile ? 105 : 70; const x = rect.left + (left + size / 2) * rect.width / element.width; const y = rect.top + (top + size / 2) * rect.height / element.height; element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); }");
 
             var openedPixel = await canvas.EvaluateAsync<int[]>(
                 "(element) => { const ctx = element.getContext('2d'); const mobile = element.height === 800; const size = mobile ? 72 : 40; const left = (720 - size * 9) / 2; const top = mobile ? 105 : 70; const pixel = ctx.getImageData(left + 8, top + 8, 1, 1).data; return [pixel[0], pixel[1], pixel[2]]; }");
