@@ -51,9 +51,11 @@ else
                     aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"></canvas>
             @if (Game.Id == "minesweeper")
             {
-                <RadzenButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
-                              Icon="flag" ButtonStyle="@(_flagMode ? ButtonStyle.Primary : ButtonStyle.Light)"
-                              Click="ToggleFlagModeAsync" Class="mt-2" />
+                <div class="minesweeper-flag-control">
+                    <RadzenButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
+                                  Icon="flag" ButtonStyle="@(_flagMode ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                  Click="ToggleFlagModeAsync" Class="minesweeper-flag-button" />
+                </div>
             }
             @if (!string.IsNullOrWhiteSpace(_gameStatusMessage))
             {
