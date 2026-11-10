@@ -104,7 +104,7 @@ public sealed class GamesSmokeTests
 
             foreach (var viewport in viewports)
             {
-                if (page.ViewportSize?.Width != viewport.Width || page.ViewportSize.Height != viewport.Height)
+                if (page.ViewportSize is null || page.ViewportSize.Width != viewport.Width || page.ViewportSize.Height != viewport.Height)
                 {
                     await page.SetViewportSizeAsync(viewport.Width, viewport.Height);
                 }
@@ -132,7 +132,7 @@ public sealed class GamesSmokeTests
                         "(element) => { const rect = element.getBoundingClientRect(); const size = 72; const left = (720 - size * 9) / 2; const top = 105; const x = rect.left + (left + size / 2) * rect.width / element.width; const y = rect.top + (top + size / 2) * rect.height / element.height; element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); }");
 
                     var openedPixel = await canvas.EvaluateAsync<int[]>(
-                        "(element) => { const ctx = element.getContext('2d'); const pixel = ctx.getImageData(80, 113, 1, 1).data; return [pixel[0], pixel[1], pixel[2]]; }");
+                        "(element) => { const ctx = element.getContext('2d'); const pixel = ctx.getImageData(44, 113, 1, 1).data; return [pixel[0], pixel[1], pixel[2]]; }");
 
                     Assert.Equal(new[] { 203, 213, 225 }, openedPixel);
                 }
