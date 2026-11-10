@@ -39,11 +39,12 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
     function tileColor(v){return ({2:"#64748b",4:"#0e7490",8:"#0284c7",16:"#2563eb",32:"#7c3aed",64:"#9333ea",128:"#c026d3",256:"#db2777",512:"#ea580c",1024:"#ca8a04",2048:"#16a34a"})[v]||"#15803d";}
     function drawMines(){
         const layout=getMinesLayout();
+        const mobileLayout=mobileLayout;
         const {size,left,top}=layout;
         ctx.clearRect(0,0,W,canvas.height);
         ctx.fillStyle=COLORS.bg;
         ctx.fillRect(0,0,W,canvas.height);
-        drawText(T.title,W/2,isMinesMobileLayout()?44:34,isMinesMobileLayout()?30:22);
+        drawText(T.title,W/2,mobileLayout?44:34,mobileLayout?30:22);
 
         state.cells.forEach((row,y)=>row.forEach((cell,x)=>{
             const px=left+x*size,py=top+y*size;
@@ -53,21 +54,21 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
             ctx.strokeRect(px+1,py+1,size-2,size-2);
 
             if(cell.open){
-                if(cell.mine)drawText("*",px+size/2,py+size*0.68,isMinesMobileLayout()?40:23,COLORS.bad);
-                else if(cell.count)drawText(String(cell.count),px+size/2,py+size*0.68,isMinesMobileLayout()?30:18,["", "#2563eb","#16a34a","#dc2626","#7c3aed"][cell.count]||"#0f172a");
+                if(cell.mine)drawText("*",px+size/2,py+size*0.68,mobileLayout?40:23,COLORS.bad);
+                else if(cell.count)drawText(String(cell.count),px+size/2,py+size*0.68,mobileLayout?30:18,["", "#2563eb","#16a34a","#dc2626","#7c3aed"][cell.count]||"#0f172a");
             }else if(cell.flag){
-                drawText("F",px+size/2,py+size*0.68,isMinesMobileLayout()?30:18,COLORS.warn);
+                drawText("F",px+size/2,py+size*0.68,mobileLayout?30:18,COLORS.warn);
             }
 
             if(state.cursor[0]===x&&state.cursor[1]===y){
                 ctx.strokeStyle=COLORS.accent;
-                ctx.lineWidth=isMinesMobileLayout()?5:3;
+                ctx.lineWidth=mobileLayout?5:3;
                 ctx.strokeRect(px+3,py+3,size-6,size-6);
                 ctx.lineWidth=1;
             }
         }));
 
-        drawText(`${T.flags}: ${state.flags}/10`,W/2,isMinesMobileLayout()?770:465,isMinesMobileLayout()?26:17,COLORS.muted);
+        drawText(`${T.flags}: ${state.flags}/10`,W/2,mobileLayout?770:465,mobileLayout?26:17,COLORS.muted);
     }
     function drawSudoku(){
         frame(T.title);const size=42,left=171,top=55;
