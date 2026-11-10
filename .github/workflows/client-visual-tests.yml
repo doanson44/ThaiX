@@ -12,8 +12,8 @@ on:
       - ".github/workflows/client-visual-tests.yml"
 
 jobs:
-  login-responsive:
-    name: Email OTP Login Responsive UI
+  client-responsive:
+    name: Client Responsive UI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,43 +34,8 @@ jobs:
       - name: Install Playwright Chromium
         run: pwsh tests/ThaiX.Client.VisualTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
-      - name: Run email OTP responsive checks
-        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~LoginEmailOtpVisualTests
+      - name: Run responsive visual checks
+        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter "FullyQualifiedName~LoginEmailOtpVisualTests|FullyQualifiedName~Minesweeper_RendersAndAcceptsInputAtResponsiveViewports|FullyQualifiedName~Minesweeper_LongPressOnTouch_FlagsCell"
         env:
           VISUAL_TEST_PARALLELISM: "2"
-          VISUAL_SKIP_AUTH_LOGIN: "true"
-
-  minesweeper-responsive:
-    name: Minesweeper Responsive UI
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "10.0.x"
-          dotnet-quality: "preview"
-
-      - name: Restore visual test project
-        run: dotnet restore tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj
-
-      - name: Build visual test project
-        run: dotnet build tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-restore
-
-      - name: Install Playwright Chromium
-        run: pwsh tests/ThaiX.Client.VisualTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
-
-      - name: Run Minesweeper responsive checks
-        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~Minesweeper_RendersAndAcceptsInputAtResponsiveViewports
-        env:
-          VISUAL_TEST_PARALLELISM: "1"
-          VISUAL_SKIP_AUTH_LOGIN: "true"
-
-      - name: Run Minesweeper long-press checks
-        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter FullyQualifiedName~Minesweeper_LongPressOnTouch_FlagsCell
-        env:
-          VISUAL_TEST_PARALLELISM: "1"
           VISUAL_SKIP_AUTH_LOGIN: "true"
