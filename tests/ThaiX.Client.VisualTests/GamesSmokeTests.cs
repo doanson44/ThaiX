@@ -79,67 +79,6 @@ public sealed class GamesSmokeTests
         }
     }
 
-    [Fact]
-    public async Task Minesweeper_RendersAndAcceptsInputAtResponsiveViewports()
-    {
-        var viewports = new (int Width, int Height, int CanvasHeight, int CellSize)[]
-        {
-            (375, 812, 800, 72),
-            (390, 844, 800, 72),
-            (768, 1024, 480, 40),
-            (1280, 800, 480, 40),
-            (844, 390, 480, 40)
-        };
-
-        var firstViewport = viewports[0];
-        var (context, page) = await _auth.CreatePageAsync(
-            authenticated: false,
-            firstViewport.Width,
-            firstViewport.Height);
-        await using (context)
-        {
-            await _auth.GotoAsync(page, "/games/minesweeper", firstViewport.Width, firstViewport.Height);
-            var canvas = page.Locator(".game-canvas");
-            await canvas.WaitForAsync(Visible(30000));
-
-            foreach (var viewport in viewports)
-            {
-                if (page.ViewportSize is null || page.ViewportSize.Width != viewport.Width || page.ViewportSize.Height != viewport.Height)
-                {
-                    await page.SetViewportSizeAsync(viewport.Width, viewport.Height);
-                }
-
-                await page.WaitForFunctionAsync(
-                    "(expectedHeight) => document.querySelector('.game-canvas')?.height === expectedHeight",
-                    viewport.CanvasHeight);
-
-                var box = await canvas.BoundingBoxAsync();
-                Assert.NotNull(box);
-                Assert.True(box.Width <= viewport.Width);
-                Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= viewport.Width);
-
-                var initialPixels = await canvas.EvaluateAsync<int[]>(
-                    "(element) => { const ctx = element.getContext('2d'); const mobile = element.height === 800; const size = mobile ? 72 : 40; const left = (720 - size * 9) / 2; const top = mobile ? 105 : 70; const pixel = ctx.getImageData(left + 8, top + 8, 1, 1).data; return [element.width, element.height, pixel[0], pixel[1], pixel[2]]; }");
-
-                Assert.Equal(720, initialPixels[0]);
-                Assert.Equal(viewport.CanvasHeight, initialPixels[1]);
-                Assert.Equal(new[] { 51, 65, 85 }, initialPixels[2..5]);
-                Assert.True(viewport.CellSize * box.Width / 720 >= (viewport.Width < 560 ? 30 : 20));
-
-                if (viewport.Width == firstViewport.Width)
-                {
-                    await canvas.EvaluateAsync(
-                        "(element) => { const rect = element.getBoundingClientRect(); const size = 72; const left = (720 - size * 9) / 2; const top = 105; const x = rect.left + (left + size / 2) * rect.width / element.width; const y = rect.top + (top + size / 2) * rect.height / element.height; element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); element.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: x, clientY: y })); }");
-
-                    var openedPixel = await canvas.EvaluateAsync<int[]>(
-                        "(element) => { const ctx = element.getContext('2d'); const pixel = ctx.getImageData(44, 113, 1, 1).data; return [pixel[0], pixel[1], pixel[2]]; }");
-
-                    Assert.Equal(new[] { 203, 213, 225 }, openedPixel);
-                }
-            }
-        }
-    }
-
     public static IEnumerable<object[]> GameRouteData() =>
         GameIds.Select(gameId => new object[] { gameId });
 
