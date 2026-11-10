@@ -15,6 +15,7 @@ jobs:
   client-responsive:
     name: Client Responsive UI
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +36,21 @@ jobs:
         run: pwsh tests/ThaiX.Client.VisualTests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
       - name: Run responsive visual checks
-        run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter "FullyQualifiedName~LoginEmailOtpVisualTests|FullyQualifiedName~GamesSmokeTests|FullyQualifiedName~GamesHubCoverageTests"
+        run: >
+          dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj
+          --configuration Release --no-build
+          --results-directory TestResults
+          --logger "trx;LogFileName=client-visual.trx"
+          --blame-hang-timeout 5m
+          --filter "FullyQualifiedName~LoginEmailOtpVisualTests|FullyQualifiedName~GamesSmokeTests|FullyQualifiedName~GamesHubCoverageTests"
         env:
           VISUAL_TEST_PARALLELISM: "2"
           VISUAL_SKIP_AUTH_LOGIN: "true"
+
+      - name: Upload visual test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-visual-test-results
+          path: TestResults
+          if-no-files-found: ignore

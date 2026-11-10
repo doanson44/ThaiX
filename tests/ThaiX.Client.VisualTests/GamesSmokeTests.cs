@@ -35,65 +35,58 @@ public sealed class GamesSmokeTests
         }
     }
 
+    private static readonly (int Width, int Height)[] Viewports =
+    [
+        (375, 812),
+        (768, 1024),
+        (1280, 800)
+    ];
+
     [Theory]
     [MemberData(nameof(GameRouteData))]
-    public async Task GameRoute_LoadsCanvasAndInstructions_AsGuest(string gameId)
+    public async Task GamePlayer_LoadsCanvasAndFitsEveryViewport_AsGuest(string gameId)
     {
+        // One navigation per game: every full page load re-boots the WASM app in Docker,
+        // so the viewport checks resize the already loaded page instead of reloading it.
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
         await using (context)
         {
             var pageErrors = new List<string>();
             page.PageError += (_, error) => pageErrors.Add(error);
 
-            await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800);
-            await page.Locator(".game-canvas").WaitForAsync(Visible(30000));
-            await page.GetByText("How to play").First.WaitForAsync(Visible(30000));
-
+            await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800, networkIdleTimeoutMs: 0);
             var canvas = page.Locator(".game-canvas");
-            var box = await canvas.BoundingBoxAsync();
-            Assert.NotNull(box);
-            Assert.True(box.Width > 100, $"Game canvas for '{gameId}' did not render.");
+            await canvas.WaitForAsync(Visible());
+            await page.GetByText("How to play").First.WaitForAsync(Visible());
+
+            var desktopBox = await canvas.BoundingBoxAsync();
+            Assert.NotNull(desktopBox);
+            Assert.True(desktopBox.Width > 100, $"Game canvas for '{gameId}' did not render.");
+
             await canvas.FocusAsync();
             await page.Keyboard.PressAsync("ArrowLeft");
             await page.Keyboard.PressAsync("ArrowRight");
             await page.Keyboard.PressAsync("Enter");
-            Assert.Empty(pageErrors);
-        }
-    }
 
-    [Theory]
-    [MemberData(nameof(GameViewportData))]
-    public async Task GamePlayer_FitsResponsiveViewport(string gameId, int viewportWidth, int viewportHeight)
-    {
-        var (context, page) = await _auth.CreatePageAsync(authenticated: false, viewportWidth, viewportHeight);
-        await using (context)
-        {
-            var pageErrors = new List<string>();
-            page.PageError += (_, error) => pageErrors.Add(error);
+            foreach (var (width, height) in Viewports)
+            {
+                await page.SetViewportSizeAsync(width, height);
+                await page.WaitForTimeoutAsync(150);
 
-            await _auth.GotoAsync(page, $"/games/{gameId}", viewportWidth, viewportHeight);
-            var canvas = page.Locator(".game-canvas");
-            await canvas.WaitForAsync(Visible(30000));
-            await page.GetByText("How to play").First.WaitForAsync(Visible(30000));
+                var box = await canvas.BoundingBoxAsync();
+                Assert.NotNull(box);
+                Assert.True(box.Width > 100, $"Game canvas for '{gameId}' is too narrow at {width}px.");
+                Assert.True(box.Width <= width, $"Canvas width {box.Width}px exceeds viewport {width}px.");
+                Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= width,
+                    $"Page content exceeds viewport {width}px for '{gameId}'.");
+            }
 
-            var box = await canvas.BoundingBoxAsync();
-            Assert.NotNull(box);
-            Assert.True(box.Width > 100, $"Game canvas for '{gameId}' is too narrow at {viewportWidth}px.");
-            Assert.True(box.Width <= viewportWidth,
-                $"Canvas width {box.Width}px exceeds viewport {viewportWidth}px.");
-            Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= viewportWidth,
-                $"Page content exceeds viewport {viewportWidth}px for '{gameId}'.");
             Assert.Empty(pageErrors);
         }
     }
 
     public static IEnumerable<object[]> GameRouteData() =>
         GameIds.Select(gameId => new object[] { gameId });
-
-    public static IEnumerable<object[]> GameViewportData() =>
-        from gameId in GameIds
-        from viewport in new[] { (Width: 375, Height: 812), (Width: 768, Height: 1024), (Width: 1280, Height: 800) }
-        select new object[] { gameId, viewport.Width, viewport.Height };
 
     private static LocatorWaitForOptions Visible(float timeout = 30000) => new()
     {
