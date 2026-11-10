@@ -121,7 +121,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         state.grid[y][x] = Math.random() < 0.9 ? 2 : 4;
     }
     function move2048(direction) {
-        const before = JSON.stringify(state.grid);
+        let moved = false;
         for (let i=0;i<4;i++) {
             let line = [];
             for (let j=0;j<4;j++) line.push(direction === "left" || direction === "right" ? state.grid[i][j] : state.grid[j][i]);
@@ -137,11 +137,15 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             while (merged.length < 4) merged.push(0);
             if (direction === "right" || direction === "down") merged.reverse();
             for (let j=0;j<4;j++) {
+                const current = direction === "left" || direction === "right"
+                    ? state.grid[i][j]
+                    : state.grid[j][i];
+                if (current !== merged[j]) moved = true;
                 if (direction === "left" || direction === "right") state.grid[i][j] = merged[j];
                 else state.grid[j][i] = merged[j];
             }
         }
-        if (before !== JSON.stringify(state.grid)) {
+        if (moved) {
             state.moves++; spawn2048();
             if (state.grid.some(row => row.includes(2048))) finish(state.score);
             else if (!canMove2048()) finish(state.score);
@@ -397,7 +401,10 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         render();
     }
     function initTyping() {
-        state.text=T.typingPassage||"The best way to learn a new skill is to practice a little every day.";state.typed="";state.seconds=30;state.started=false;state.startedAt=0;state.correct=0;state.message="Typing Speed";
+        state.text=T.typingPassage||"The best way to learn a new skill is to practice a little every day.";
+        state.words=state.text.split(" ");
+        state.expectedCharacters=Array.from(state.text);
+        state.typed="";state.seconds=30;state.started=false;state.startedAt=0;state.correct=0;state.message="Typing Speed";
         timer=setInterval(()=>{
             if(!state.started||state.paused||state.finished)return;
             state.seconds--;
@@ -410,8 +417,8 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         return Math.round(state.correct/5*60/elapsedSeconds);
     }
     function updateTypingStats() {
-        const expected=Array.from(state.text),typed=Array.from(state.typed);
-        state.correct=typed.reduce((total,char,index)=>total+(char===expected[index]?1:0),0);
+        const typed=Array.from(state.typed);
+        state.correct=typed.reduce((total,char,index)=>total+(char===state.expectedCharacters[index]?1:0),0);
     }
     function typingInput(key) {
         if(state.finished||state.seconds<=0)return;
@@ -638,11 +645,15 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
 
     function drawWordle(){
         frame(T.title);const size=40,gap=6,left=220,top=45;
-        for(let y=0;y<6;y++)for(let x=0;x<5;x++){
-            const px=left+x*(size+gap),py=top+y*(size+gap),guess=state.guesses[y]||"",ch=guess[x]|| (y===state.guesses.length?state.current[x]||"":"");
-            let fill=COLORS.panel;
-            if(guess){const status=getWordleStatuses(guess)[x];fill=status==="correct"?"#15803d":status==="present"?"#a16207":"#475569";}
-            rounded(px,py,size,size,6,fill,COLORS.line);if(ch)drawText(ch,px+size/2,py+36,23);
+        for(let y=0;y<6;y++){
+            const guess=state.guesses[y]||"";
+            const statuses=guess?getWordleStatuses(guess):null;
+            for(let x=0;x<5;x++){
+                const px=left+x*(size+gap),py=top+y*(size+gap),ch=guess[x]|| (y===state.guesses.length?state.current[x]||"":"");
+                let fill=COLORS.panel;
+                if(statuses){const status=statuses[x];fill=status==="correct"?"#15803d":status==="present"?"#a16207":"#475569";}
+                rounded(px,py,size,size,6,fill,COLORS.line);if(ch)drawText(ch,px+size/2,py+36,23);
+            }
         }
         const rows=["QWERTYUIOP","ASDFGHJKL","ZXCVBNM"];
         rows.forEach((row,ri)=>[...row].forEach((letter,i)=>{const keyW=34,x=185+i*36+(ri===1?18:ri===2?54:0),y=345+ri*38;rounded(x,y,keyW,30,4,COLORS.tile);drawText(letter,x+keyW/2,y+21,14);}));
@@ -659,7 +670,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     function drawTyping(){
         frame(T.title);drawText(`${T.time}: ${state.seconds}s`,W/2,80,24,COLORS.warn);
         ctx.fillStyle=COLORS.text;ctx.font="20px system-ui";ctx.textAlign="left";
-        const words=state.text.split(" ");let y=145,x=75;ctx.fillStyle=COLORS.muted;
+        const words=state.words;let y=145,x=75;ctx.fillStyle=COLORS.muted;
         words.forEach(word=>{const width=ctx.measureText(word+" ").width;if(x+width>W-75){x=75;y+=34;}ctx.fillStyle=state.typed.length>=state.text.indexOf(word)?COLORS.good:COLORS.muted;ctx.fillText(word,x,y);x+=width;});
         rounded(65,335,590,55,8,"#1e293b");ctx.fillStyle=COLORS.text;ctx.font="18px monospace";ctx.fillText(state.typed.slice(-65),80,368);
         drawText(T.typingStart,W/2,440,16,COLORS.muted);
