@@ -39,7 +39,7 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
     function tileColor(v){return ({2:"#64748b",4:"#0e7490",8:"#0284c7",16:"#2563eb",32:"#7c3aed",64:"#9333ea",128:"#c026d3",256:"#db2777",512:"#ea580c",1024:"#ca8a04",2048:"#16a34a"})[v]||"#15803d";}
     function drawMines(){
         const layout=getMinesLayout();
-        const mobileLayout=mobileLayout;
+        const mobileLayout=isMinesMobileLayout();
         const {size,left,top}=layout;
         ctx.clearRect(0,0,W,canvas.height);
         ctx.fillStyle=COLORS.bg;
