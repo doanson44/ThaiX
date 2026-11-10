@@ -172,7 +172,8 @@ public sealed class AuthFixture : IAsyncLifetime
     /// <summary>
     /// Navigates and waits until Blazor has replaced the boot splash and route UI is interactive.
     /// </summary>
-    public async Task GotoAsync(IPage page, string route, int width, int height, int settleMs = 300)
+    public async Task GotoAsync(
+        IPage page, string route, int width, int height, int settleMs = 300, int networkIdleTimeoutMs = 30000)
     {
         if (page.ViewportSize is null || page.ViewportSize.Width != width || page.ViewportSize.Height != height)
         {
@@ -193,7 +194,7 @@ public sealed class AuthFixture : IAsyncLifetime
 
         try
         {
-            await WaitForPageReadyAsync(page, route);
+            await WaitForPageReadyAsync(page, route, networkIdleTimeoutMs);
         }
         catch (TimeoutException ex)
         {
@@ -211,7 +212,7 @@ public sealed class AuthFixture : IAsyncLifetime
     /// Boot splash (.loading-progress) must be gone; then wait for route-specific UI.
     /// Full page reloads re-download WASM — this often takes tens of seconds in Docker.
     /// </summary>
-    public static async Task WaitForPageReadyAsync(IPage page, string route)
+    public static async Task WaitForPageReadyAsync(IPage page, string route, int networkIdleTimeoutMs = 30000)
     {
         var loading = page.Locator("svg.loading-progress");
         try
@@ -237,9 +238,16 @@ public sealed class AuthFixture : IAsyncLifetime
 
         await WaitForRouteContentAsync(page, route);
 
+        if (networkIdleTimeoutMs <= 0)
+        {
+            return;
+        }
+
         try
         {
-            await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new PageWaitForLoadStateOptions { Timeout = 30000 });
+            await page.WaitForLoadStateAsync(
+                LoadState.NetworkIdle,
+                new PageWaitForLoadStateOptions { Timeout = networkIdleTimeoutMs });
         }
         catch (TimeoutException)
         {

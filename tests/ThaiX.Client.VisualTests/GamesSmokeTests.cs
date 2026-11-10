@@ -35,47 +35,53 @@ public sealed class GamesSmokeTests
         }
     }
 
+    private static readonly (int Width, int Height)[] Viewports =
+    [
+        (375, 812),
+        (768, 1024),
+        (1280, 800)
+    ];
+
     [Theory]
     [MemberData(nameof(GameRouteData))]
-    public async Task GameRoute_LoadsCanvasAndInstructions_AsGuest(string gameId)
+    public async Task GamePlayer_LoadsCanvasAndFitsEveryViewport_AsGuest(string gameId)
     {
+        // One navigation per game: every full page load re-boots the WASM app in Docker,
+        // so the viewport checks resize the already loaded page instead of reloading it.
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
         await using (context)
         {
-            await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800);
-            await page.Locator(".game-canvas").WaitForAsync(Visible(30000));
-            await page.GetByText("How to play").First.WaitForAsync(Visible(30000));
             var pageErrors = new List<string>();
             page.PageError += (_, error) => pageErrors.Add(error);
+
+            await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800, networkIdleTimeoutMs: 0);
             var canvas = page.Locator(".game-canvas");
-            var box = await canvas.BoundingBoxAsync();
-            Assert.NotNull(box);
-            Assert.True(box.Width > 100, $"Game canvas for '{gameId}' did not render.");
+            await canvas.WaitForAsync(Visible());
+            await page.GetByText("How to play").First.WaitForAsync(Visible());
+
+            var desktopBox = await canvas.BoundingBoxAsync();
+            Assert.NotNull(desktopBox);
+            Assert.True(desktopBox.Width > 100, $"Game canvas for '{gameId}' did not render.");
+
             await canvas.FocusAsync();
             await page.Keyboard.PressAsync("ArrowLeft");
             await page.Keyboard.PressAsync("ArrowRight");
             await page.Keyboard.PressAsync("Enter");
-            Assert.Empty(pageErrors);
-        }
-    }
 
-    [Theory]
-    [InlineData(375, 812)]
-    [InlineData(768, 1024)]
-    [InlineData(1280, 800)]
-    public async Task GamePlayer_FitsResponsiveViewport(int viewportWidth, int viewportHeight)
-    {
-        var (context, page) = await _auth.CreatePageAsync(authenticated: false, viewportWidth, viewportHeight);
-        await using (context)
-        {
-            await _auth.GotoAsync(page, "/games/2048", viewportWidth, viewportHeight);
-            var canvas = page.Locator(".game-canvas");
-            await canvas.WaitForAsync(Visible(30000));
-            var box = await canvas.BoundingBoxAsync();
-            Assert.NotNull(box);
-            Assert.True(box.Width <= viewportWidth, $"Canvas width {box.Width}px exceeds viewport {viewportWidth}px.");
-            Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= viewportWidth,
-                $"Page content exceeds viewport {viewportWidth}px.");
+            foreach (var (width, height) in Viewports)
+            {
+                await page.SetViewportSizeAsync(width, height);
+                await page.WaitForTimeoutAsync(150);
+
+                var box = await canvas.BoundingBoxAsync();
+                Assert.NotNull(box);
+                Assert.True(box.Width > 100, $"Game canvas for '{gameId}' is too narrow at {width}px.");
+                Assert.True(box.Width <= width, $"Canvas width {box.Width}px exceeds viewport {width}px.");
+                Assert.True(await page.EvaluateAsync<int>("document.documentElement.scrollWidth") <= width,
+                    $"Page content exceeds viewport {width}px for '{gameId}'.");
+            }
+
+            Assert.Empty(pageErrors);
         }
     }
 
