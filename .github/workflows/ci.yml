@@ -68,6 +68,7 @@ jobs:
           dotnet test "${{ env.CLIENT_UNIT_TEST_PROJECT }}"
           --configuration ${{ env.BUILD_CONFIGURATION }}
           --no-build
+          --results-directory "${{ runner.temp }}/client-unit-tests"
           --logger "trx;LogFileName=client-unit-tests.trx"
 
       - name: Run integration tests
@@ -83,7 +84,7 @@ jobs:
         if: success() || failure()
         with:
           name: Automated Tests
-          path: '${{ runner.temp }}/coverage/**/*.trx,${{ runner.temp }}/integration-tests/**/*.trx'
+          path: '${{ runner.temp }}/coverage/**/*.trx,${{ runner.temp }}/client-unit-tests/**/*.trx,${{ runner.temp }}/integration-tests/**/*.trx'
           reporter: dotnet-trx
 
       - name: Enforce coverage threshold
