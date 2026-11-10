@@ -37,5 +37,5 @@ jobs:
       - name: Run responsive visual checks
         run: dotnet test tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj --configuration Release --no-build --filter "FullyQualifiedName~LoginEmailOtpVisualTests|FullyQualifiedName~Minesweeper_RendersAndAcceptsInputAtResponsiveViewports"
         env:
-          VISUAL_TEST_PARALLELISM: "1"
+          VISUAL_TEST_PARALLELISM: "2"
           VISUAL_SKIP_AUTH_LOGIN: "true"
