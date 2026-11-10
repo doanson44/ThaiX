@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="ToolQualityUnitTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="FluentAssertions" />
   </ItemGroup>
