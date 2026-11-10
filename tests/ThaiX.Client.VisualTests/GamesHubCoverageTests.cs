@@ -51,6 +51,25 @@ public sealed class GamesHubCoverageTests
     }
 
     [Fact]
+    public void GameRenderer_ShouldHaveAnImplementationForEveryCatalogEntry()
+    {
+        // Arrange
+        var root = RepoRoot.Resolve();
+        var rendererPath = Path.Combine(root, "src", "ThaiX.Client", "wwwroot", "js", "game-renderers.js");
+
+        // Act
+        var source = File.ReadAllText(rendererPath);
+        var actual = Regex.Matches(source, @"case ""([^""]+)""")
+            .Select(match => match.Groups[1].Value)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(value => value)
+            .ToArray();
+
+        // Assert
+        Assert.Equal(ExpectedGameIds.OrderBy(value => value), actual);
+    }
+
+    [Fact]
     public void GamesNavigation_ShouldBePublicAndHaveAHubRoute()
     {
         // Arrange

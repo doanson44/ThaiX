@@ -23,6 +23,7 @@ env:
   SOLUTION_PATH: 'ThaiX.slnx'
   PRESENTATION_PROJECT: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
   UNIT_TEST_PROJECT: 'tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj'
+  CLIENT_UNIT_TEST_PROJECT: 'tests/ThaiX.Client.UnitTests/ThaiX.Client.UnitTests.csproj'
   INTEGRATION_TEST_PROJECT: 'tests/ThaiX.Presentation.IntegrationTests/ThaiX.Presentation.IntegrationTests.csproj'
   COVERAGE_THRESHOLD: 10
   PUBLISH_RUNTIME: 'win-x86'
@@ -62,6 +63,14 @@ jobs:
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include="[ThaiX.Application]*,[ThaiX.Domain]*"
           DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude="[*.Tests]*,[*.IntegrationTests]*"
 
+      - name: Run client unit tests
+        run: >
+          dotnet test "${{ env.CLIENT_UNIT_TEST_PROJECT }}"
+          --configuration ${{ env.BUILD_CONFIGURATION }}
+          --no-build
+          --results-directory "${{ runner.temp }}/client-unit-tests"
+          --logger "trx;LogFileName=client-unit-tests.trx"
+
       - name: Run integration tests
         run: >
           dotnet test "${{ env.INTEGRATION_TEST_PROJECT }}"
@@ -75,7 +84,7 @@ jobs:
         if: success() || failure()
         with:
           name: Automated Tests
-          path: '${{ runner.temp }}/coverage/**/*.trx,${{ runner.temp }}/integration-tests/**/*.trx'
+          path: '${{ runner.temp }}/coverage/**/*.trx,${{ runner.temp }}/client-unit-tests/**/*.trx,${{ runner.temp }}/integration-tests/**/*.trx'
           reporter: dotnet-trx
 
       - name: Enforce coverage threshold
