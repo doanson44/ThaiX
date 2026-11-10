@@ -450,17 +450,21 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
     function checkTic(player) {
         return [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]].some(line=>line.every(i=>state.cells[i]===player));
     }
-    function minimaxTic(depth, maximizing) {
+    function minimaxTic(depth, maximizing, alpha = -Infinity, beta = Infinity) {
         if(checkTic("O"))return 10-depth;
         if(checkTic("X"))return depth-10;
         if(state.cells.every(Boolean))return 0;
+
         let best=maximizing?-Infinity:Infinity;
         for(let i=0;i<state.cells.length;i++){
             if(state.cells[i])continue;
             state.cells[i]=maximizing?"O":"X";
-            const score=minimaxTic(depth+1,!maximizing);
+            const score=minimaxTic(depth+1,!maximizing,alpha,beta);
             state.cells[i]="";
             best=maximizing?Math.max(best,score):Math.min(best,score);
+            if(maximizing)alpha=Math.max(alpha,best);
+            else beta=Math.min(beta,best);
+            if(beta<=alpha)break;
         }
         return best;
     }
