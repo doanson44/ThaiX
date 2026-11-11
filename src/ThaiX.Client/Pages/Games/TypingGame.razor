@@ -52,12 +52,7 @@
             _recentPassages[Difficulty] = recent;
         }
 
-        var passages = TypingPassageCatalog.GetPassageKeys(Difficulty)
-            .Select(key => L[key].Value)
-            .ToArray();
-        var available = passages.Where(passage => !recent.Contains(passage, StringComparer.Ordinal)).ToArray();
-        var candidates = available.Length > 0 ? available : passages;
-        _text = candidates[Random.Shared.Next(candidates.Length)];
+        _text = TypingPassageCatalog.SelectPassage(Difficulty, key => L[key].Value, recent);
 
         recent.Enqueue(_text);
         while (recent.Count > RecentPassageLimit)

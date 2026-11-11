@@ -34,4 +34,19 @@ public static class TypingPassageCatalog
 
     public static IReadOnlyList<string> GetPassageKeys(TypingDifficulty difficulty) =>
         PassageKeys[difficulty];
+
+    public static string SelectPassage(
+        TypingDifficulty difficulty,
+        Func<string, string> resolve,
+        IReadOnlyCollection<string> recentPassages,
+        Random? random = null)
+    {
+        var passages = GetPassageKeys(difficulty).Select(resolve).ToArray();
+        var available = passages
+            .Where(passage => !recentPassages.Contains(passage, StringComparer.Ordinal))
+            .ToArray();
+        var candidates = available.Length > 0 ? available : passages;
+
+        return candidates[(random ?? Random.Shared).Next(candidates.Length)];
+    }
 }
