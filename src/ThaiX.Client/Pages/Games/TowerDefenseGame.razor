@@ -1,0 +1,326 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 480 416">
+    <text class="g-muted" x="60" y="20">@L[ResourceKeys.Games.Wave]: @_wave</text>
+    <text class="g-muted" x="180" y="20">@L[ResourceKeys.Games.Lives]: @_lives</text>
+    <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @_gold</text>
+    <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @_score</text>
+
+    <polyline points="@RoadPoints" fill="none" stroke="#334155" stroke-width="36" stroke-linejoin="round" />
+    @for (var i = 0; i < Columns * Rows; i++)
+    {
+        if (!RoadCells.Contains(i))
+        {
+            <rect class="g-hit" x="@(CellX(i) - 22)" y="@(CellY(i) - 22)" width="44" height="44" rx="6" fill="#17223a"
+                  @onclick="_cellClicks[i]" />
+        }
+    }
+
+    <g pointer-events="none">
+        @foreach (var tower in _towers)
+        {
+            <circle cx="@CellX(tower.Cell)" cy="@CellY(tower.Cell)" r="17" fill="@Types[tower.Type].Color" stroke="#0b1220" stroke-width="3" />
+            <g><text x="@CellX(tower.Cell)" y="@CellY(tower.Cell)" fill="#0b1220">@tower.Level</text></g>
+        }
+        @foreach (var enemy in _enemies)
+        {
+            var radius = enemy.Boss ? 14 : 9;
+            <circle cx="@Px(enemy.X)" cy="@Px(enemy.Y)" r="@radius"
+                    fill="@(enemy.SlowTicks > 0 ? "#7dd3fc" : enemy.Boss ? "#a855f7" : "#ef4444")" />
+            <rect x="@Px(enemy.X - 10)" y="@Px(enemy.Y - radius - 6)" width="@Px(20 * enemy.Health / enemy.MaxHealth)" height="3" fill="#22c55e" />
+        }
+        @foreach (var shot in _shots)
+        {
+            <line x1="@Px(shot.X1)" y1="@Px(shot.Y1)" x2="@Px(shot.X2)" y2="@Px(shot.Y2)" stroke="@shot.Color" stroke-width="3" stroke-linecap="round" />
+        }
+        <rect class="g-cursor" x="@(CellX(_cursor) - 22)" y="@(CellY(_cursor) - 22)" width="44" height="44" rx="6" />
+        @if (!RoadCells.Contains(_cursor))
+        {
+            <circle cx="@CellX(_cursor)" cy="@CellY(_cursor)" r="@Px(CursorRange)" fill="none" stroke="#38bdf8" stroke-opacity="0.4" stroke-dasharray="4 4" />
+        }
+    </g>
+
+    @for (var i = 0; i < Types.Length; i++)
+    {
+        var type = i;
+        <g class="g-hit" @onclick="() => _selected = type">
+            <rect x="@(i * 160 + 4)" y="380" width="152" height="32" rx="8" fill="@(i == _selected ? Types[i].Color : "#1e293b")" />
+            <text x="@(i * 160 + 80)" y="396" font-size="14" fill="@(i == _selected ? "#0b1220" : "#f8fafc")">@(i + 1). @L[Types[i].NameKey] (@Types[i].Cost)</text>
+        </g>
+    }
+</svg>
+
+@code {
+    private const int Columns = 10;
+    private const int Rows = 7;
+    private const int CellSize = 48;
+    private const int Top = 40;
+    private const int TickMilliseconds = 33;
+    private const int FirstWaveTicks = 150;
+    private const int WaveBreakTicks = 90;
+    private const int SpawnTicks = 22;
+    private const int ShotTicks = 3;
+    private const int ChillTicks = 30;
+    private const int MaxLevel = 3;
+    private const int RangePerLevel = 12;
+    private const int SplashRadius = 36;
+    private const int StartLives = 10;
+    private const int StartGold = 150;
+    private const int MaxScore = 100_000;
+    private const int Cannon = 1;
+    private const int Frost = 2;
+
+    private static readonly TowerType[] Types =
+    [
+        new(ResourceKeys.Games.TowerArrow, 50, 105, 8, 12, "#22c55e"),
+        new(ResourceKeys.Games.TowerCannon, 100, 90, 20, 36, "#f97316"),
+        new(ResourceKeys.Games.TowerFrost, 75, 90, 2, 20, "#38bdf8")
+    ];
+
+    // The road in cell coordinates; it enters and leaves one cell outside the board.
+    private static readonly (int Column, int Row)[] Route = [(-1, 1), (7, 1), (7, 3), (2, 3), (2, 5), (10, 5)];
+
+    private static readonly (double X, double Y)[] Road =
+        [.. Route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0))];
+
+    private static readonly double RoadLength =
+        Road.Zip(Road.Skip(1), (from, to) => double.Hypot(to.X - from.X, to.Y - from.Y)).Sum();
+
+    private static readonly string RoadPoints = string.Join(' ', Road.Select(point => $"{Px(point.X)},{Px(point.Y)}"));
+
+    private static readonly HashSet<int> RoadCells = BuildRoadCells();
+
+    private readonly List<Tower> _towers = [];
+    private readonly List<Enemy> _enemies = [];
+    private readonly List<Shot> _shots = [];
+    private Action[] _cellClicks = [];
+    private int _cursor;
+    private int _selected;
+    private int _wave;
+    private int _toSpawn;
+    private int _timer;
+    private int _tick;
+    private int _lives;
+    private int _gold;
+    private int _score;
+
+    private double CursorRange =>
+        _towers.Find(candidate => candidate.Cell == _cursor) is { } tower ? Range(tower) : Types[_selected].Range;
+
+    protected override void Reset()
+    {
+        // Cached so the per-tick render does not hand the renderer a new handler for every cell.
+        if (_cellClicks.Length == 0)
+            _cellClicks = [.. Enumerable.Range(0, Columns * Rows).Select(cell => (Action)(() => Build(cell)))];
+
+        _towers.Clear();
+        _enemies.Clear();
+        _shots.Clear();
+        _cursor = 2 * Columns + 4;
+        _selected = 0;
+        _wave = 0;
+        _tick = 0;
+        _lives = StartLives;
+        _gold = StartGold;
+        _score = 0;
+        StartWave(FirstWaveTicks);
+        StartLoop(TickMilliseconds, Tick);
+    }
+
+    protected override void OnKey(string key)
+    {
+        var (column, row) = (_cursor % Columns, _cursor / Columns);
+        switch (key)
+        {
+            case "arrowleft": column = Math.Max(0, column - 1); break;
+            case "arrowright": column = Math.Min(Columns - 1, column + 1); break;
+            case "arrowup": row = Math.Max(0, row - 1); break;
+            case "arrowdown": row = Math.Min(Rows - 1, row + 1); break;
+            case "1" or "2" or "3": _selected = key[0] - '1'; break;
+            case "enter" or " ": Build(_cursor); break;
+        }
+
+        _cursor = row * Columns + column;
+    }
+
+    // Builds the selected tower on an empty cell, or upgrades the tower already standing there.
+    private void Build(int cell)
+    {
+        if (!CanPlay)
+            return;
+
+        _cursor = cell;
+        if (RoadCells.Contains(cell))
+            return;
+
+        var tower = _towers.Find(candidate => candidate.Cell == cell);
+        var cost = tower is null ? Types[_selected].Cost : Types[tower.Type].Cost * tower.Level;
+        if (_gold < cost || tower?.Level == MaxLevel)
+            return;
+
+        _gold -= cost;
+        if (tower is null)
+            _towers.Add(new Tower { Cell = cell, Type = _selected });
+        else
+            tower.Level++;
+    }
+
+    private void Tick()
+    {
+        _tick++;
+        _shots.RemoveAll(shot => shot.ExpiresAt <= _tick);
+        Spawn();
+
+        foreach (var enemy in _enemies)
+        {
+            enemy.Distance += enemy.Speed * (enemy.SlowTicks > 0 ? 0.5 : 1);
+            enemy.SlowTicks = Math.Max(0, enemy.SlowTicks - 1);
+            (enemy.X, enemy.Y) = GameLogic.PointOnPath(Road, enemy.Distance);
+        }
+
+        _lives = Math.Max(0, _lives - _enemies.RemoveAll(enemy => enemy.Distance >= RoadLength));
+        if (_lives == 0)
+        {
+            Finish(Math.Min(_score, MaxScore));
+            return;
+        }
+
+        foreach (var tower in _towers)
+            Fire(tower);
+
+        foreach (var enemy in _enemies)
+        {
+            if (enemy.Health > 0)
+                continue;
+
+            _gold += (5 + _wave) * (enemy.Boss ? 5 : 1);
+            _score += enemy.Boss ? 100 : 10;
+        }
+
+        _enemies.RemoveAll(enemy => enemy.Health <= 0);
+    }
+
+    // Enemies of a wave enter one by one; the next wave starts once the board is clear.
+    private void Spawn()
+    {
+        if (_toSpawn == 0)
+        {
+            if (_enemies.Count == 0 && --_timer <= 0)
+                StartWave(0);
+
+            return;
+        }
+
+        if (--_timer > 0)
+            return;
+
+        _toSpawn--;
+        _timer = _toSpawn > 0 ? SpawnTicks : WaveBreakTicks;
+        var boss = _wave % 5 == 0 && _toSpawn == 0;
+        var health = 40 * Math.Pow(1.18, _wave - 1) * (boss ? 6 : 1);
+        _enemies.Add(new Enemy
+        {
+            Health = health,
+            MaxHealth = health,
+            Speed = 1.3 + Math.Min(_wave, 20) * 0.04,
+            Boss = boss
+        });
+    }
+
+    private void StartWave(int delayTicks)
+    {
+        _wave++;
+        _toSpawn = 6 + _wave;
+        _timer = delayTicks;
+    }
+
+    private void Fire(Tower tower)
+    {
+        if (tower.Cooldown > 0)
+        {
+            tower.Cooldown--;
+            return;
+        }
+
+        var type = Types[tower.Type];
+        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        var range = Range(tower);
+        var target = _enemies
+            .Where(enemy => enemy.Health > 0 && double.Hypot(enemy.X - x, enemy.Y - y) <= range)
+            .MaxBy(enemy => enemy.Distance);
+        if (target is null)
+            return;
+
+        tower.Cooldown = type.Cooldown;
+        _shots.Add(new Shot(x, y, target.X, target.Y, type.Color, _tick + ShotTicks));
+
+        // Arrow hits its target only, Cannon splashes around the target, Frost chills its whole range.
+        var (centerX, centerY, radius) = tower.Type switch
+        {
+            Cannon => (target.X, target.Y, SplashRadius),
+            Frost => (x, y, range),
+            _ => (target.X, target.Y, 0d)
+        };
+        foreach (var enemy in _enemies)
+        {
+            if (double.Hypot(enemy.X - centerX, enemy.Y - centerY) > radius)
+                continue;
+
+            enemy.Health -= type.Damage * tower.Level;
+            if (tower.Type == Frost)
+                enemy.SlowTicks = ChillTicks;
+        }
+    }
+
+    private static double Range(Tower tower) => Types[tower.Type].Range + (tower.Level - 1) * RangePerLevel;
+
+    private static int CellX(int cell) => cell % Columns * CellSize + CellSize / 2;
+
+    private static int CellY(int cell) => Top + cell / Columns * CellSize + CellSize / 2;
+
+    private static HashSet<int> BuildRoadCells()
+    {
+        var cells = new HashSet<int>();
+        for (var i = 1; i < Route.Length; i++)
+        {
+            var (column, row) = Route[i - 1];
+            var (endColumn, endRow) = Route[i];
+            while (true)
+            {
+                if (column is >= 0 and < Columns)
+                    cells.Add(row * Columns + column);
+                if ((column, row) == (endColumn, endRow))
+                    break;
+
+                column += Math.Sign(endColumn - column);
+                row += Math.Sign(endRow - row);
+            }
+        }
+
+        return cells;
+    }
+
+    private sealed record TowerType(string NameKey, int Cost, double Range, double Damage, int Cooldown, string Color);
+
+    private readonly record struct Shot(double X1, double Y1, double X2, double Y2, string Color, int ExpiresAt);
+
+    private sealed class Tower
+    {
+        public int Cell { get; init; }
+        public int Type { get; init; }
+        public int Level { get; set; } = 1;
+        public int Cooldown { get; set; }
+    }
+
+    private sealed class Enemy
+    {
+        public double Distance { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Health { get; set; }
+        public double MaxHealth { get; init; }
+        public double Speed { get; init; }
+        public int SlowTicks { get; set; }
+        public bool Boss { get; init; }
+    }
+}

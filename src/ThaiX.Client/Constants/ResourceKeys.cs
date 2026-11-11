@@ -151,6 +151,15 @@ public static class ResourceKeys
         public const string NameConnectFour = "Games.ConnectFour.Name";
         public const string DescriptionConnectFour = "Games.ConnectFour.Description";
         public const string InstructionsConnectFour = "Games.ConnectFour.Instructions";
+        public const string NameTowerDefense = "Games.TowerDefense.Name";
+        public const string DescriptionTowerDefense = "Games.TowerDefense.Description";
+        public const string InstructionsTowerDefense = "Games.TowerDefense.Instructions";
+        public const string Wave = "Games.Wave";
+        public const string Lives = "Games.Lives";
+        public const string Gold = "Games.Gold";
+        public const string TowerArrow = "Games.TowerArrow";
+        public const string TowerCannon = "Games.TowerCannon";
+        public const string TowerFrost = "Games.TowerFrost";
     }
 
     public static class Menu
