@@ -544,7 +544,7 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             render();
         } else if(gameId==="sudoku"){
             const cx=Math.floor((x-171)/42),cy=Math.floor((y-55)/42);if(cx>=0&&cy>=0&&cx<9&&cy<9)state.selected=[cx,cy];render();
-        else if(gameId==="connect-four"){const col=Math.round((x-158)/67);if(col>=0&&col<7){state.cursor=col;dropConnectFour(col);}}
+        } else if(gameId==="connect-four"){const col=Math.round((x-158)/67);if(col>=0&&col<7){state.cursor=col;dropConnectFour(col);}}
         else if(gameId==="tic-tac-toe"){const col=Math.floor((x-192)/112),row=Math.floor((y-65)/112);if(col>=0&&col<3&&row>=0&&row<3){state.cursor=row*3+col;ticMove(state.cursor);}}
     }
     function onPointerMove(event) {
