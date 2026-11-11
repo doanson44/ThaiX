@@ -1,8 +1,7 @@
 <div class="flappy-game">
     <button type="button" class="flappy-playfield"
-            aria-label="@Title"
-            @onclick="Flap"
-            @onkeydown="HandleKeyDown">
+            aria-label="@($"{Title}. {ScoreLabel}: {_score}")"
+            @onclick="Flap">
         <svg class="flappy-canvas" viewBox="0 0 720 480" role="img" aria-label="@Title">
             <defs>
                 <linearGradient id="flappy-sky" x1="0" y1="0" x2="0" y2="1">
@@ -150,12 +149,6 @@
         StateHasChanged();
     }
 
-    private void HandleKeyDown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args)
-    {
-        if (args.Key == "ArrowUp")
-            Flap();
-    }
-
     private void Flap()
     {
         if (IsPaused || _finished)
@@ -207,7 +200,7 @@
 
         foreach (var pipe in _pipes)
         {
-            if (!pipe.Passed && pipe.X + PipeWidth < BirdX)
+            if (!pipe.Passed && pipe.X + PipeWidth + 4 < BirdX)
             {
                 pipe.Passed = true;
                 _score++;
