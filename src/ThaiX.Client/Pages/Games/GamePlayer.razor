@@ -47,8 +47,22 @@ else
                 <strong>@L[ResourceKeys.Games.Instructions]:</strong>
                 <span>@L[Game.InstructionsKey]</span>
             </div>
-            <canvas @ref="_canvas" class="game-canvas" tabindex="0" role="application"
-                    aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"></canvas>
+            @if (Game.Id == "flappy")
+            {
+                <FlappyGame @ref="_flappyGame"
+                            Title="@L[Game.TitleKey].Value"
+                            ScoreLabel="@L[ResourceKeys.Games.Score].Value"
+                            PausedLabel="@L[ResourceKeys.Games.Paused].Value"
+                            GameOverLabel="@L[ResourceKeys.Games.GameOver].Value"
+                            RestartHintLabel="@L[ResourceKeys.Games.RestartHint].Value"
+                            IsPaused="_isPaused"
+                            OnCompleted="HandleFlappyCompletedAsync" />
+            }
+            else
+            {
+                <canvas @ref="_canvas" class="game-canvas" tabindex="0" role="application"
+                        aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"></canvas>
+            }
             @if (Game.Id == "minesweeper")
             {
                 <div class="minesweeper-flag-control">
@@ -175,6 +189,7 @@ else
     [Parameter] public string GameId { get; set; } = string.Empty;
 
     private ElementReference _canvas;
+    private FlappyGame? _flappyGame;
     private ElementReference _typingInput;
     private IJSObjectReference? _module;
     private IJSObjectReference? _controller;
@@ -252,6 +267,12 @@ else
             return;
 
         await DisposeControllerAsync();
+        if (Game.Id == "flappy")
+        {
+            _mountedGameId = Game.Id;
+            return;
+        }
+
         _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/games.js");
         _dotNetReference ??= DotNetObjectReference.Create(this);
         var canvasText = new
@@ -430,7 +451,9 @@ else
 
     private async Task RestartAsync()
     {
-        if (_controller is not null)
+        if (Game?.Id == "flappy")
+            _flappyGame?.Restart();
+        else if (_controller is not null)
             await _controller.InvokeVoidAsync("restart");
         _isPaused = false;
         _syncFailed = false;
@@ -447,12 +470,21 @@ else
 
     private async Task TogglePauseAsync()
     {
+        if (Game?.Id == "flappy")
+        {
+            _isPaused = !_isPaused;
+            return;
+        }
+
         if (_controller is null)
             return;
 
         _isPaused = !_isPaused;
         await _controller.InvokeVoidAsync("pause", _isPaused);
     }
+
+    private Task HandleFlappyCompletedAsync((double Score, int DurationSeconds) result) =>
+        OnGameCompleted(result.Score, result.DurationSeconds, null);
 
     public void Dispose() => Viewport.OnBreakpointChanged -= StateHasChanged;
 
