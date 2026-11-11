@@ -103,6 +103,7 @@
     private int _frame;
     private int _score;
     private bool _finished;
+    private bool _hasStarted;
     private bool _wasPaused;
 
     [Parameter] public string Title { get; set; } = string.Empty;
@@ -142,6 +143,7 @@
         _frame = 0;
         _score = 0;
         _finished = false;
+        _hasStarted = false;
         _startedAt = DateTimeOffset.UtcNow;
         _pausedAt = null;
         _wasPaused = false;
@@ -155,6 +157,12 @@
         if (IsPaused || _finished)
             return;
 
+        if (!_hasStarted)
+        {
+            _hasStarted = true;
+            _startedAt = DateTimeOffset.UtcNow;
+        }
+
         _velocity = -6.5;
     }
 
@@ -166,7 +174,7 @@
         {
             while (await timer.WaitForNextTickAsync(cancellationToken))
             {
-                if (IsPaused || _finished)
+                if (IsPaused || !_hasStarted || _finished)
                     continue;
 
                 if (UpdateGame())
@@ -216,18 +224,24 @@
 
             if (overlapsPipe && outsideGap)
             {
-                _finished = true;
+                FinishGame();
                 return true;
             }
         }
 
         if (_birdY - BirdRadius < PlayTop || _birdY + BirdRadius > FloorY)
         {
-            _finished = true;
+            FinishGame();
             return true;
         }
 
         return false;
+    }
+
+    private void FinishGame()
+    {
+        _birdY = Math.Clamp(_birdY, PlayTop + BirdRadius, FloorY - BirdRadius);
+        _finished = true;
     }
 
     public async ValueTask DisposeAsync()
