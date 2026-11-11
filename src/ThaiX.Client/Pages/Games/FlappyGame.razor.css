@@ -46,30 +46,6 @@
     filter: drop-shadow(0 3px 3px rgb(2 6 23 / 20%));
 }
 
-.flappy-overlay rect {
-    fill: #0b1220;
-    stroke: #38bdf8;
-    stroke-width: 1.5;
-    opacity: 0.96;
-}
-
-.flappy-overlay text {
-    fill: #f8fafc;
-    font: 700 27px system-ui, sans-serif;
-    text-anchor: middle;
-}
-
-.flappy-overlay .flappy-final-score {
-    fill: #22c55e;
-    font-size: 20px;
-}
-
-.flappy-overlay .flappy-restart-hint {
-    fill: #94a3b8;
-    font-size: 13px;
-    font-weight: 500;
-}
-
 @media (max-width: 575.98px) {
     .flappy-playfield {
         border-radius: 0.5rem;

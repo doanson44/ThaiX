@@ -1,0 +1,122 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 720 480">
+    <text class="g-muted" x="360" y="22">@L[ResourceKeys.Games.Score]: @_score</text>
+    @for (var i = 0; i < _alive.Length; i++)
+    {
+        if (_alive[i])
+        {
+            <rect x="@BrickX(i)" y="@BrickY(i)" width="@BrickWidth" height="@BrickHeight" rx="3" fill="#38bdf8" />
+        }
+    }
+    <rect x="@Px(_paddleX)" y="@PaddleY" width="@PaddleWidth" height="12" rx="6" fill="#f8fafc" />
+    <circle cx="@Px(_ballX)" cy="@Px(_ballY)" r="@BallRadius" fill="#facc15" />
+
+    @* Hold the left or right half of the board to move the paddle. *@
+    <rect class="g-hit" width="360" height="480" fill="transparent"
+          @onpointerdown="() => _move = -1" @onpointerup="StopMoving" @onpointerleave="StopMoving" @onpointercancel="StopMoving" />
+    <rect class="g-hit" x="360" width="360" height="480" fill="transparent"
+          @onpointerdown="() => _move = 1" @onpointerup="StopMoving" @onpointerleave="StopMoving" @onpointercancel="StopMoving" />
+</svg>
+
+@code {
+    private const int Width = 720;
+    private const int Height = 480;
+    private const int PaddleWidth = 120;
+    private const int PaddleY = 452;
+    private const int PaddleSpeed = 10;
+    private const int BallRadius = 8;
+    private const int BrickWidth = 58;
+    private const int BrickHeight = 16;
+    private const int TickMilliseconds = 30;
+    private const double MaxHorizontalSpeed = 6;
+
+    private readonly bool[] _alive = new bool[50];
+    private double _paddleX;
+    private double _ballX;
+    private double _ballY;
+    private double _speedX;
+    private double _speedY;
+    private int _move;
+    private int _score;
+
+    protected override void Reset()
+    {
+        Array.Fill(_alive, true);
+        _paddleX = 300;
+        _ballX = 350;
+        _ballY = 350;
+        _speedX = 4.5;
+        _speedY = -4.5;
+        _move = 0;
+        _score = 0;
+        StartLoop(TickMilliseconds, Tick);
+    }
+
+    protected override void OnKey(string key)
+    {
+        if (key is "arrowleft" or "a")
+            _move = -1;
+        else if (key is "arrowright" or "d")
+            _move = 1;
+    }
+
+    protected override void OnKeyUp(string key)
+    {
+        if (key is "arrowleft" or "a" or "arrowright" or "d")
+            _move = 0;
+    }
+
+    private void StopMoving() => _move = 0;
+
+    private void Tick()
+    {
+        _paddleX = Math.Clamp(_paddleX + _move * PaddleSpeed, 0, Width - PaddleWidth);
+        _ballX += _speedX;
+        _ballY += _speedY;
+
+        if (_ballX < BallRadius || _ballX > Width - BallRadius)
+        {
+            _ballX = Math.Clamp(_ballX, BallRadius, Width - BallRadius);
+            _speedX = -_speedX;
+        }
+
+        if (_ballY < BallRadius)
+        {
+            _ballY = BallRadius;
+            _speedY = Math.Abs(_speedY);
+        }
+
+        var ballBottom = _ballY + BallRadius;
+        if (_speedY > 0 && ballBottom >= PaddleY && ballBottom <= PaddleY + 12 + _speedY
+            && _ballX >= _paddleX - BallRadius && _ballX <= _paddleX + PaddleWidth + BallRadius)
+        {
+            // The further from the paddle center the ball lands, the steeper it bounces away.
+            var offset = (_ballX - (_paddleX + PaddleWidth / 2.0)) / (PaddleWidth / 2.0);
+            _speedX = Math.Clamp(offset * MaxHorizontalSpeed, -MaxHorizontalSpeed, MaxHorizontalSpeed);
+            _speedY = -Math.Abs(_speedY);
+        }
+
+        for (var i = 0; i < _alive.Length; i++)
+        {
+            if (!_alive[i]
+                || _ballX < BrickX(i) - BallRadius || _ballX > BrickX(i) + BrickWidth + BallRadius
+                || _ballY < BrickY(i) - BallRadius || _ballY > BrickY(i) + BrickHeight + BallRadius)
+                continue;
+
+            _alive[i] = false;
+            _speedY = -_speedY;
+            _score += 10;
+            break;
+        }
+
+        if (_ballY > Height)
+            Finish(_score);
+        else if (!_alive.Contains(true))
+            Finish(_score + 100);
+    }
+
+    private static int BrickX(int index) => 25 + index % 10 * 67;
+
+    private static int BrickY(int index) => 45 + index / 10 * 25;
+}

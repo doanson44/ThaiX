@@ -1,0 +1,80 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 400 440">
+    @for (var y = 0; y < Size; y++)
+    {
+        for (var x = 0; x < Size; x++)
+        {
+            var (cx, cy) = (x, y);
+            var left = 11 + x * 78;
+            var top = 11 + y * 78;
+            <g class="g-hit" @onclick="() => Press(cx, cy)">
+                <rect x="@left" y="@top" width="66" height="66" rx="12" fill="@(_lit[y, x] ? "#facc15" : "#334155")" />
+                @if (_cursor == (x, y))
+                {
+                    <rect class="g-cursor" x="@(left + 3)" y="@(top + 3)" width="60" height="60" rx="10" />
+                }
+            </g>
+        }
+    }
+    <text class="g-muted" x="200" y="418">@L[ResourceKeys.Games.Moves]: @_moves</text>
+</svg>
+
+@code {
+    private const int Size = 5;
+
+    private bool[,] _lit = new bool[Size, Size];
+    private (int X, int Y) _cursor;
+    private int _moves;
+
+    protected override void Reset()
+    {
+        _lit = new bool[Size, Size];
+        _cursor = (2, 2);
+        _moves = 0;
+
+        // Scramble with real presses so the board is always solvable.
+        for (var i = 0; i < 18; i++)
+            Toggle(Random.Shared.Next(Size), Random.Shared.Next(Size));
+        if (IsDark())
+            Toggle(2, 2);
+    }
+
+    protected override void OnKey(string key)
+    {
+        var (x, y) = _cursor;
+        switch (key)
+        {
+            case "arrowleft": _cursor = (Math.Max(0, x - 1), y); break;
+            case "arrowright": _cursor = (Math.Min(Size - 1, x + 1), y); break;
+            case "arrowup": _cursor = (x, Math.Max(0, y - 1)); break;
+            case "arrowdown": _cursor = (x, Math.Min(Size - 1, y + 1)); break;
+            case "enter" or " ": Press(x, y); break;
+        }
+    }
+
+    private void Press(int x, int y)
+    {
+        if (!CanPlay)
+            return;
+
+        _cursor = (x, y);
+        Toggle(x, y);
+        _moves++;
+        if (IsDark())
+            Finish(_moves);
+    }
+
+    private void Toggle(int x, int y)
+    {
+        (int X, int Y)[] offsets = [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)];
+        foreach (var (dx, dy) in offsets)
+        {
+            var (nx, ny) = (x + dx, y + dy);
+            if (nx >= 0 && ny >= 0 && nx < Size && ny < Size)
+                _lit[ny, nx] = !_lit[ny, nx];
+        }
+    }
+
+    private bool IsDark() => !_lit.Cast<bool>().Any(lit => lit);
+}

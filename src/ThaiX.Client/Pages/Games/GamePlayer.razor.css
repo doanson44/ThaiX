@@ -15,18 +15,115 @@
 }
 
 .game-canvas {
+    position: relative;
     display: block;
     width: min(100%, 45rem);
-    height: auto;
     margin-inline: auto;
+    overflow: hidden;
     border-radius: 0.75rem;
     outline-offset: 0.25rem;
     background: #101827;
     touch-action: none;
+    user-select: none;
 }
 
 .game-canvas:focus-visible {
     outline: 3px solid var(--rz-primary);
+}
+
+/* Boards are SVG drawn in their own viewBox, so they scale to any width without script. */
+.game-canvas ::deep .game-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 75vh;
+    fill: #f8fafc;
+    font: 600 16px system-ui, sans-serif;
+    text-anchor: middle;
+}
+
+.game-canvas ::deep .game-svg text {
+    dominant-baseline: central;
+    pointer-events: none;
+}
+
+.game-canvas ::deep .g-muted {
+    fill: #94a3b8;
+}
+
+.game-canvas ::deep .g-hit {
+    cursor: pointer;
+}
+
+.game-canvas ::deep .g-cursor {
+    fill: none;
+    stroke: #38bdf8;
+    stroke-width: 3;
+    pointer-events: none;
+}
+
+.game-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: rgb(2 6 23 / 55%);
+}
+
+.game-overlay-box {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 2rem;
+    border: 1px solid #38bdf8;
+    border-radius: 1rem;
+    background: #0b1220;
+    color: #f8fafc;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.game-overlay-score {
+    color: #22c55e;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.game-overlay-box small {
+    color: #94a3b8;
+    font-size: 0.8125rem;
+}
+
+.game-canvas ::deep .typing-game {
+    padding: 1.25rem;
+    color: #f8fafc;
+    user-select: text;
+}
+
+.game-canvas ::deep .typing-time {
+    color: #f59e0b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.game-canvas ::deep .typing-passage {
+    margin-block: 1rem;
+    color: #94a3b8;
+    font-size: 1.125rem;
+    line-height: 1.8;
+}
+
+.game-canvas ::deep .typing-correct {
+    color: #22c55e;
+}
+
+.game-canvas ::deep .typing-wrong {
+    background: rgb(239 68 68 / 35%);
+    color: #fecaca;
+}
+
+.game-canvas ::deep .typing-current {
+    box-shadow: 0 2px 0 #38bdf8;
 }
 
 @media (max-width: 575.98px) {

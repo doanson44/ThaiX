@@ -1,9 +1,11 @@
+@inherits GameBase
+
 <div class="flappy-game">
     <button type="button" class="flappy-playfield"
-            aria-label="@Title"
+            aria-label="@L[ResourceKeys.Games.NameFlappy]"
             aria-describedby="game-instructions"
             @onclick="Flap">
-        <svg class="flappy-canvas" viewBox="0 0 720 480" role="img" aria-label="@Title">
+        <svg class="flappy-canvas" viewBox="0 0 720 480" role="img" aria-label="@L[ResourceKeys.Games.NameFlappy]">
             <defs>
                 <linearGradient id="flappy-sky" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#0f4568" />
@@ -17,8 +19,8 @@
             </defs>
 
             <rect width="720" height="480" fill="#101827" />
-            <text class="flappy-title" x="360" y="31">@Title</text>
-            <text class="flappy-score" x="24" y="31">@ScoreLabel: @_score</text>
+            <text class="flappy-title" x="360" y="31">@L[ResourceKeys.Games.NameFlappy]</text>
+            <text class="flappy-score" x="24" y="31">@L[ResourceKeys.Games.Score]: @_score</text>
             <rect x="0" y="45" width="720" height="423" fill="url(#flappy-sky)" />
 
             <g class="flappy-clouds" aria-hidden="true">
@@ -50,35 +52,7 @@
                 <path d="M117 @SvgNumber(_birdY) l10 3-10 3Z" fill="#fb923c" />
                 <path d="M95 @SvgNumber(_birdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
             </g>
-
-            @if (IsPaused && !_finished)
-            {
-                <g class="flappy-overlay">
-                    <rect x="184" y="184" width="352" height="112" rx="18" />
-                    <text x="360" y="250">@PausedLabel</text>
-                </g>
-            }
-            @if (_finished)
-            {
-                <g class="flappy-overlay">
-                    <rect x="184" y="174" width="352" height="132" rx="18" />
-                    <text x="360" y="220">@GameOverLabel</text>
-                    <text class="flappy-final-score" x="360" y="256">@ScoreLabel: @_score</text>
-                    <text class="flappy-restart-hint" x="360" y="284">@RestartHintLabel</text>
-                </g>
-            }
         </svg>
-        <span class="visually-hidden" aria-live="polite">
-            @ScoreLabel: @_score
-            @if (IsPaused)
-            {
-                @PausedLabel
-            }
-            else if (_finished)
-            {
-                @GameOverLabel
-            }
-        </span>
     </button>
 </div>
 
@@ -92,109 +66,55 @@
     private const int TickMilliseconds = 30;
     private const int PipeSpawnFrames = 95;
 
-    private readonly CancellationTokenSource _cancellation = new();
     private readonly List<Pipe> _pipes = [];
-    private Task _gameLoopTask = Task.CompletedTask;
-    private DateTimeOffset _startedAt = DateTimeOffset.UtcNow;
-    private DateTimeOffset? _pausedAt;
-    private double _birdY = 230;
+    private double _birdY;
     private double _velocity;
-    private double BirdRotation => Math.Clamp(_velocity * 3, -22, 65);
-    private string BirdTransform => FormattableString.Invariant($"rotate({BirdRotation:0.###} 105 {_birdY:0.###})");
-
-    private static string SvgNumber(double value) =>
-        value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
     private int _frame;
     private int _score;
-    private bool _finished;
     private bool _hasStarted;
-    private bool _wasPaused;
 
-    [Parameter] public string Title { get; set; } = string.Empty;
-    [Parameter] public string ScoreLabel { get; set; } = string.Empty;
-    [Parameter] public string PausedLabel { get; set; } = string.Empty;
-    [Parameter] public string GameOverLabel { get; set; } = string.Empty;
-    [Parameter] public string RestartHintLabel { get; set; } = string.Empty;
-    [Parameter] public bool IsPaused { get; set; }
-    [Parameter] public EventCallback<(double Score, int DurationSeconds)> OnCompleted { get; set; }
+    private double BirdRotation => Math.Clamp(_velocity * 3, -22, 65);
+    private string BirdTransform => $"rotate({SvgNumber(BirdRotation)} 105 {SvgNumber(_birdY)})";
 
-    protected override void OnInitialized()
-    {
-        _wasPaused = IsPaused;
-        _pipes.Add(new Pipe(560, 235));
-        _gameLoopTask = RunGameLoopAsync(_cancellation.Token);
-    }
+    private static string SvgNumber(double value) => Px(value);
 
-    protected override void OnParametersSet()
-    {
-        if (IsPaused && !_wasPaused)
-        {
-            _pausedAt = DateTimeOffset.UtcNow;
-        }
-        else if (!IsPaused && _wasPaused && _pausedAt.HasValue)
-        {
-            _startedAt += DateTimeOffset.UtcNow - _pausedAt.Value;
-            _pausedAt = null;
-        }
-
-        _wasPaused = IsPaused;
-    }
-
-    public void Restart()
+    protected override void Reset()
     {
         _birdY = 230;
         _velocity = 0;
         _frame = 0;
         _score = 0;
-        _finished = false;
         _hasStarted = false;
-        _startedAt = DateTimeOffset.UtcNow;
-        _pausedAt = null;
-        _wasPaused = false;
         _pipes.Clear();
         _pipes.Add(new Pipe(560, 235));
-        StateHasChanged();
+        StartLoop(TickMilliseconds, Tick);
+    }
+
+    protected override void OnKey(string key)
+    {
+        if (key is " " or "enter" or "arrowup")
+            Flap();
     }
 
     private void Flap()
     {
-        if (IsPaused || _finished)
+        if (!CanPlay)
             return;
 
+        // The round, and its clock, only start with the first flap.
         if (!_hasStarted)
         {
             _hasStarted = true;
-            _startedAt = DateTimeOffset.UtcNow;
+            RestartClock();
         }
 
         _velocity = -6.5;
     }
 
-    private async Task RunGameLoopAsync(CancellationToken cancellationToken)
+    private void Tick()
     {
-        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(TickMilliseconds));
-
-        try
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken))
-            {
-                if (IsPaused || !_hasStarted || _finished)
-                    continue;
-
-                if (UpdateGame())
-                {
-                    await InvokeAsync(StateHasChanged);
-                    var duration = Math.Max(1, (int)Math.Round((DateTimeOffset.UtcNow - _startedAt).TotalSeconds));
-                    await OnCompleted.InvokeAsync((_score, duration));
-                    continue;
-                }
-
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-        }
+        if (_hasStarted && UpdateGame())
+            Finish(_score);
     }
 
     private bool UpdateGame()
@@ -242,24 +162,8 @@
         return false;
     }
 
-    private void FinishGame()
-    {
+    private void FinishGame() =>
         _birdY = Math.Clamp(_birdY, PlayTop + BirdRadius, FloorY - BirdRadius);
-        _finished = true;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        _cancellation.Cancel();
-        try
-        {
-            await _gameLoopTask;
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        _cancellation.Dispose();
-    }
 
     private sealed class Pipe(double x, double gapCenter)
     {

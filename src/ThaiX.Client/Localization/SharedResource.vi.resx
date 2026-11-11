@@ -2139,16 +2139,16 @@
   <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Chạm, nhấp chuột hoặc nhấn Space để vỗ cánh. Bay qua các khe hở.</value></data>
   <data name="Games.Breakout.Name" xml:space="preserve"><value>Đập gạch</value></data>
   <data name="Games.Breakout.Description" xml:space="preserve"><value>Nảy bóng để phá hết các viên gạch.</value></data>
-  <data name="Games.Breakout.Instructions" xml:space="preserve"><value>Di chuyển bằng trái/phải hoặc A/D, hoặc chạm để đặt thanh đỡ. Giữ bóng không rơi khỏi thanh đỡ và phá hết gạch.</value></data>
+  <data name="Games.Breakout.Instructions" xml:space="preserve"><value>Di chuyển bằng trái/phải hoặc A/D, hoặc nhấn giữ nửa trái hay nửa phải của bàn chơi. Giữ bóng không rơi khỏi thanh đỡ và phá hết gạch.</value></data>
   <data name="Games.Pong.Name" xml:space="preserve"><value>Pong đấu máy</value></data>
   <data name="Games.Pong.Description" xml:space="preserve"><value>Đánh bại máy tính trong trận đấu ngắn.</value></data>
-  <data name="Games.Pong.Instructions" xml:space="preserve"><value>Di chuyển thanh đỡ bằng lên/xuống hoặc W/S. Trên thiết bị cảm ứng, chạm để đặt độ cao thanh đỡ. Ai đạt năm điểm trước sẽ thắng.</value></data>
+  <data name="Games.Pong.Instructions" xml:space="preserve"><value>Di chuyển thanh đỡ bằng lên/xuống hoặc W/S, hoặc nhấn giữ nửa trên hay nửa dưới của bàn chơi. Ai đạt năm điểm trước sẽ thắng.</value></data>
   <data name="Games.Wordle.Name" xml:space="preserve"><value>Wordle</value></data>
   <data name="Games.Wordle.Description" xml:space="preserve"><value>Đoán từ bí mật gồm năm chữ cái.</value></data>
-  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Nhập từ gồm năm chữ cái không dấu rồi nhấn Enter, hoặc dùng bàn phím trên màn hình hay ô nhập liệu. Màu xanh là đúng vị trí, vàng là có chữ đó nhưng ở vị trí khác.</value></data>
+  <data name="Games.Wordle.Instructions" xml:space="preserve"><value>Nhập từ gồm năm chữ cái không dấu rồi nhấn Enter, hoặc dùng bàn phím trên màn hình. Màu xanh là đúng vị trí, vàng là có chữ đó nhưng ở vị trí khác.</value></data>
   <data name="Games.Hangman.Name" xml:space="preserve"><value>Đoán chữ Hangman</value></data>
   <data name="Games.Hangman.Description" xml:space="preserve"><value>Đoán từ bí mật trước khi hình vẽ hoàn tất.</value></data>
-  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Dùng bàn phím vật lý, bàn phím trên màn hình hoặc ô nhập liệu để chọn chữ cái không dấu. Bạn có sáu lần đoán sai.</value></data>
+  <data name="Games.Hangman.Instructions" xml:space="preserve"><value>Dùng bàn phím vật lý hoặc bàn phím trên màn hình để chọn chữ cái không dấu. Bạn có sáu lần đoán sai.</value></data>
   <data name="Games.Typing.Name" xml:space="preserve"><value>Tốc độ gõ</value></data>
   <data name="Games.Typing.Description" xml:space="preserve"><value>Đo tốc độ và độ chính xác khi gõ.</value></data>
   <data name="Games.Typing.Instructions" xml:space="preserve"><value>Gõ chính xác đoạn văn hiển thị. Bài kiểm tra kết thúc sau 30 giây.</value></data>

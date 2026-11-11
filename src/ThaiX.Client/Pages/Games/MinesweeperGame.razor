@@ -1,0 +1,223 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 380 420" @onpointerdown="OnPointerDown">
+    @for (var y = 0; y < Size; y++)
+    {
+        for (var x = 0; x < Size; x++)
+        {
+            var (cx, cy) = (x, y);
+            var left = 10 + x * 40;
+            var top = 10 + y * 40;
+            <g class="g-hit" @onclick="() => OnCellClick(cx, cy)"
+               @oncontextmenu="() => OnCellContextMenu(cx, cy)" @oncontextmenu:preventDefault>
+                <rect x="@(left + 1)" y="@(top + 1)" width="38" height="38" stroke="#64748b"
+                      fill="@(_open[y, x] ? "#cbd5e1" : "#334155")" />
+                @if (_open[y, x] && _mine[y, x])
+                {
+                    <circle cx="@(left + 20)" cy="@(top + 20)" r="9" fill="#ef4444" />
+                }
+                else if (_open[y, x] && _count[y, x] > 0)
+                {
+                    <g><text x="@(left + 20)" y="@(top + 20)" font-size="20" fill="@CountColor(_count[y, x])">@_count[y, x]</text></g>
+                }
+                else if (_flag[y, x])
+                {
+                    <path d="M@(left + 14) @(top + 30)V@(top + 9)l14 6-14 6" fill="#f59e0b" stroke="#f59e0b" stroke-width="2" />
+                }
+                @if (_cursor == (x, y))
+                {
+                    <rect class="g-cursor" x="@(left + 3)" y="@(top + 3)" width="34" height="34" />
+                }
+            </g>
+        }
+    }
+    <text class="g-muted" x="190" y="398">@L[ResourceKeys.Games.Flags]: @_flags/@Mines</text>
+</svg>
+
+@code {
+    private const int Size = 9;
+    private const int Mines = 10;
+    private const int LongPressMilliseconds = 450;
+
+    private bool[,] _mine = new bool[Size, Size];
+    private bool[,] _open = new bool[Size, Size];
+    private bool[,] _flag = new bool[Size, Size];
+    private int[,] _count = new int[Size, Size];
+    private (int X, int Y) _cursor;
+    private int _opened;
+    private int _flags;
+    private DateTime _pressedAt;
+    private DateTime _contextMenuAt;
+    private bool _touchPress;
+
+    [Parameter] public bool FlagMode { get; set; }
+
+    protected override void Reset()
+    {
+        _mine = new bool[Size, Size];
+        _open = new bool[Size, Size];
+        _flag = new bool[Size, Size];
+        _cursor = (4, 4);
+        _opened = 0;
+        _flags = 0;
+
+        var placed = 0;
+        while (placed < Mines)
+        {
+            var x = Random.Shared.Next(Size);
+            var y = Random.Shared.Next(Size);
+            if (_mine[y, x])
+                continue;
+
+            _mine[y, x] = true;
+            placed++;
+        }
+
+        CountMines();
+    }
+
+    protected override void OnKey(string key)
+    {
+        var (x, y) = _cursor;
+        switch (key)
+        {
+            case "arrowleft": _cursor = (Math.Max(0, x - 1), y); break;
+            case "arrowright": _cursor = (Math.Min(Size - 1, x + 1), y); break;
+            case "arrowup": _cursor = (x, Math.Max(0, y - 1)); break;
+            case "arrowdown": _cursor = (x, Math.Min(Size - 1, y + 1)); break;
+            case "f": ToggleFlag(x, y); break;
+            case "enter" or " ":
+                if (FlagMode)
+                    ToggleFlag(x, y);
+                else
+                    Reveal(x, y);
+                break;
+        }
+    }
+
+    private void OnPointerDown(PointerEventArgs e)
+    {
+        _pressedAt = DateTime.UtcNow;
+        _touchPress = e.PointerType != "mouse";
+    }
+
+    private void OnCellClick(int x, int y)
+    {
+        // A long press that already raised a context menu must not toggle the flag twice.
+        if (!CanPlay || (DateTime.UtcNow - _contextMenuAt).TotalMilliseconds < 700)
+            return;
+
+        _cursor = (x, y);
+        var longPress = _touchPress && (DateTime.UtcNow - _pressedAt).TotalMilliseconds >= LongPressMilliseconds;
+        if (FlagMode || longPress)
+            ToggleFlag(x, y);
+        else
+            Reveal(x, y);
+    }
+
+    private void OnCellContextMenu(int x, int y)
+    {
+        if (!CanPlay)
+            return;
+
+        _contextMenuAt = DateTime.UtcNow;
+        _cursor = (x, y);
+        ToggleFlag(x, y);
+    }
+
+    private void ToggleFlag(int x, int y)
+    {
+        if (_open[y, x] || (!_flag[y, x] && _flags >= Mines))
+            return;
+
+        _flag[y, x] = !_flag[y, x];
+        _flags += _flag[y, x] ? 1 : -1;
+    }
+
+    private void Reveal(int x, int y)
+    {
+        if (_open[y, x] || _flag[y, x])
+            return;
+
+        if (_mine[y, x] && _opened == 0)
+            MoveMineAway(x, y);
+
+        if (_mine[y, x])
+        {
+            for (var my = 0; my < Size; my++)
+                for (var mx = 0; mx < Size; mx++)
+                    _open[my, mx] |= _mine[my, mx];
+
+            // A lost board is recorded as the slowest possible time.
+            Finish(86_400);
+            return;
+        }
+
+        var stack = new Stack<(int X, int Y)>();
+        stack.Push((x, y));
+        while (stack.Count > 0)
+        {
+            var (cx, cy) = stack.Pop();
+            if (_open[cy, cx] || _flag[cy, cx] || _mine[cy, cx])
+                continue;
+
+            _open[cy, cx] = true;
+            _opened++;
+            if (_count[cy, cx] == 0)
+            {
+                foreach (var neighbor in Neighbors(cx, cy))
+                    stack.Push(neighbor);
+            }
+        }
+
+        if (_opened == Size * Size - Mines)
+            Finish(ElapsedSeconds);
+    }
+
+    // The first reveal is always safe: relocate the mine to the first free cell.
+    private void MoveMineAway(int x, int y)
+    {
+        _mine[y, x] = false;
+        for (var i = 0; i < Size * Size; i++)
+        {
+            var (cx, cy) = (i % Size, i / Size);
+            if (_mine[cy, cx] || (cx, cy) == (x, y))
+                continue;
+
+            _mine[cy, cx] = true;
+            break;
+        }
+
+        CountMines();
+    }
+
+    private void CountMines()
+    {
+        _count = new int[Size, Size];
+        for (var y = 0; y < Size; y++)
+            for (var x = 0; x < Size; x++)
+                _count[y, x] = Neighbors(x, y).Count(cell => _mine[cell.Y, cell.X]);
+    }
+
+    private static IEnumerable<(int X, int Y)> Neighbors(int x, int y)
+    {
+        for (var dy = -1; dy <= 1; dy++)
+        {
+            for (var dx = -1; dx <= 1; dx++)
+            {
+                var (nx, ny) = (x + dx, y + dy);
+                if ((dx != 0 || dy != 0) && nx >= 0 && ny >= 0 && nx < Size && ny < Size)
+                    yield return (nx, ny);
+            }
+        }
+    }
+
+    private static string CountColor(int count) => count switch
+    {
+        1 => "#2563eb",
+        2 => "#16a34a",
+        3 => "#dc2626",
+        4 => "#7c3aed",
+        _ => "#0f172a"
+    };
+}

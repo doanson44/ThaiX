@@ -1,0 +1,82 @@
+@using System.Net
+@using System.Text
+@inherits GameBase
+
+<div class="typing-game">
+    <div class="typing-time">@L[ResourceKeys.Games.Time]: @((DurationMilliseconds - _elapsedMilliseconds + 999) / 1000)s</div>
+    <p class="typing-passage">@((MarkupString)PassageHtml())</p>
+    <input class="form-control" type="text" value="@_typed" maxlength="@_text.Length" disabled="@(!CanPlay)"
+           autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+           aria-label="@L[ResourceKeys.Games.NameTyping]" placeholder="@L[ResourceKeys.Games.TypingStart]"
+           @oninput="OnInput" @onpaste:preventDefault />
+</div>
+
+@code {
+    private const int DurationMilliseconds = 30_000;
+    private const int TickMilliseconds = 100;
+    private const int MaxWordsPerMinute = 1_000;
+
+    private string _text = string.Empty;
+    private string _typed = string.Empty;
+    private int _elapsedMilliseconds;
+    private bool _started;
+
+    protected override void Reset()
+    {
+        _text = L[ResourceKeys.Games.TypingPassage].Value;
+        _typed = string.Empty;
+        _elapsedMilliseconds = 0;
+        _started = false;
+        StartLoop(TickMilliseconds, Tick);
+    }
+
+    // The loop only ticks while the game is playable, so paused time never counts.
+    private void Tick()
+    {
+        if (!_started)
+            return;
+
+        _elapsedMilliseconds += TickMilliseconds;
+        if (_elapsedMilliseconds >= DurationMilliseconds)
+            Finish(WordsPerMinute(), "30s");
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        if (!CanPlay)
+            return;
+
+        var value = e.Value?.ToString() ?? string.Empty;
+        _typed = value.Length > _text.Length ? value[.._text.Length] : value;
+        if (_typed.Length > 0 && !_started)
+        {
+            _started = true;
+            RestartClock();
+        }
+
+        if (_typed.Length == _text.Length)
+            Finish(WordsPerMinute(), "30s");
+    }
+
+    private int WordsPerMinute()
+    {
+        var correct = _typed.Where((character, index) => character == _text[index]).Count();
+        var seconds = Math.Max(1, _elapsedMilliseconds / 1000.0);
+        return Math.Min(MaxWordsPerMinute, (int)Math.Round(correct / 5.0 * 60 / seconds));
+    }
+
+    // Built as one string so no stray whitespace appears between the per-character spans.
+    private string PassageHtml()
+    {
+        var html = new StringBuilder();
+        for (var i = 0; i < _text.Length; i++)
+        {
+            var state = i >= _typed.Length ? (i == _typed.Length ? "current" : "pending")
+                : _typed[i] == _text[i] ? "correct" : "wrong";
+            html.Append("<span class=\"typing-").Append(state).Append("\">")
+                .Append(WebUtility.HtmlEncode(_text[i].ToString())).Append("</span>");
+        }
+
+        return html.ToString();
+    }
+}

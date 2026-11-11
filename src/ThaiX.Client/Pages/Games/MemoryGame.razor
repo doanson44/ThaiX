@@ -1,0 +1,98 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 480 400">
+    @for (var i = 0; i < _values.Length; i++)
+    {
+        var index = i;
+        var left = 14 + i % 4 * 116;
+        var top = 14 + i / 4 * 116;
+        var shown = _open[i] || _matched[i];
+        <g class="g-hit" @onclick="() => FlipAsync(index)">
+            <rect x="@left" y="@top" width="104" height="104" rx="12" fill="@(shown ? "#e2e8f0" : "#334155")" />
+            <text x="@(left + 52)" y="@(top + 52)" font-size="34" fill="@(shown ? "#0f172a" : "#f8fafc")">@(shown ? _values[i].ToString() : "?")</text>
+            @if (_cursor == i)
+            {
+                <rect class="g-cursor" x="@(left + 3)" y="@(top + 3)" width="98" height="98" rx="10" />
+            }
+        </g>
+    }
+    <text class="g-muted" x="240" y="380">@L[ResourceKeys.Games.Moves]: @_moves</text>
+</svg>
+
+@code {
+    private const int MismatchDelayMilliseconds = 700;
+
+    private int[] _values = [];
+    private bool[] _open = [];
+    private bool[] _matched = [];
+    private int _first;
+    private int _cursor;
+    private int _moves;
+    private int _round;
+    private bool _locked;
+
+    protected override void Reset()
+    {
+        _values = [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6];
+        Random.Shared.Shuffle(_values);
+        _open = new bool[12];
+        _matched = new bool[12];
+        _first = -1;
+        _cursor = 0;
+        _moves = 0;
+        _locked = false;
+        _round++;
+    }
+
+    protected override void OnKey(string key)
+    {
+        var (row, column) = (_cursor / 4, _cursor % 4);
+        switch (key)
+        {
+            case "arrowleft": column = Math.Max(0, column - 1); break;
+            case "arrowright": column = Math.Min(3, column + 1); break;
+            case "arrowup": row = Math.Max(0, row - 1); break;
+            case "arrowdown": row = Math.Min(2, row + 1); break;
+            case "enter" or " ": _ = FlipAsync(_cursor); return;
+        }
+
+        _cursor = row * 4 + column;
+    }
+
+    private async Task FlipAsync(int index)
+    {
+        if (!CanPlay || _locked || _open[index] || _matched[index])
+            return;
+
+        _cursor = index;
+        _open[index] = true;
+        if (_first < 0)
+        {
+            _first = index;
+            return;
+        }
+
+        var first = _first;
+        _first = -1;
+        _moves++;
+        if (_values[first] == _values[index])
+        {
+            _matched[first] = _matched[index] = true;
+            if (_matched.All(matched => matched))
+                Finish(_moves);
+            return;
+        }
+
+        // Keep the mismatched pair visible briefly; a restart in the meantime cancels the flip back.
+        _locked = true;
+        var round = _round;
+        StateHasChanged();
+        await Task.Delay(MismatchDelayMilliseconds);
+        if (round != _round)
+            return;
+
+        _open[first] = _open[index] = false;
+        _locked = false;
+        StateHasChanged();
+    }
+}

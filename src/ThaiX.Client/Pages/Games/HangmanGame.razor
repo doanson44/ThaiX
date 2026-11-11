@@ -1,0 +1,45 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 380 320">
+    <text x="190" y="55" font-size="30">@string.Join(' ', _word.Select(letter => _guessed.Contains(letter) ? letter : '_'))</text>
+    <text x="190" y="115" font-size="18" fill="#f59e0b">@L[ResourceKeys.Games.WrongGuesses]: @_wrong/@MaxWrong</text>
+    <GameKeyboard Y="190" OnKey="Guess" KeyFill="@(letter => _guessed.Contains(letter) ? "#1e293b" : "#334155")" />
+</svg>
+
+@code {
+    private const int MaxWrong = 6;
+
+    private readonly HashSet<char> _guessed = [];
+    private string _word = string.Empty;
+    private int _wrong;
+
+    protected override void Reset()
+    {
+        var words = L[ResourceKeys.Games.HangmanWords].Value
+            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        _word = words.Length > 0 ? words[Random.Shared.Next(words.Length)].ToUpperInvariant() : "THAIX";
+        _guessed.Clear();
+        _wrong = 0;
+    }
+
+    protected override void OnKey(string key)
+    {
+        if (key.Length == 1 && char.IsAsciiLetter(key[0]))
+            Guess(char.ToUpperInvariant(key[0]));
+    }
+
+    private void Guess(char letter)
+    {
+        if (!CanPlay || !_guessed.Add(letter))
+            return;
+
+        if (!_word.Contains(letter))
+            _wrong++;
+
+        if (_word.All(_guessed.Contains))
+            Finish(MaxWrong - _wrong);
+        else if (_wrong >= MaxWrong)
+            Finish(0);
+    }
+}
