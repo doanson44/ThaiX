@@ -1,51 +1,153 @@
 @inherits GameBase
 
-<svg class="game-svg" viewBox="0 0 480 416">
-    <text class="g-muted" x="60" y="20">@L[ResourceKeys.Games.Wave]: @_wave</text>
-    <text class="g-muted" x="180" y="20">@L[ResourceKeys.Games.Lives]: @_lives</text>
-    <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @_gold</text>
-    <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @_score</text>
+<svg class="game-svg" viewBox="0 0 480 424">
+    <defs>
+        <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
+            <rect width="48" height="48" fill="#4f7d39" />
+            <path d="M6 11l2 -5 2 5M30 23l2 -5 2 5M16 39l2 -5 2 5M40 44l2 -5 2 5" fill="none" stroke="#3d652b" stroke-width="1.5" />
+            <circle cx="24" cy="8" r="1.5" fill="#6f9f4f" />
+            <circle cx="39" cy="30" r="1.5" fill="#6f9f4f" />
+            <circle cx="8" cy="27" r="1.5" fill="#6f9f4f" />
+        </pattern>
+        <g id="td-tree">
+            <circle r="19" fill="#14532d" />
+            <circle cx="-4" cy="-4" r="13" fill="#166534" />
+            <circle cx="3" cy="-7" r="7" fill="#15803d" />
+        </g>
+        <g id="td-rock">
+            <path d="M-14 7L-10 -9L3 -14L14 -4L11 10L-3 14Z" fill="#78716c" stroke="#44403c" stroke-width="1.5" />
+            <path d="M-10 -9L3 -14L5 -2L-6 2Z" fill="#a8a29e" />
+        </g>
+        <g id="td-base">
+            <circle r="17" fill="#44403c" stroke="#d6b98c" stroke-width="6" stroke-dasharray="9 2" />
+            <circle r="13" fill="#57534e" />
+        </g>
+        <g id="td-gun">
+            <rect x="4" y="-5" width="17" height="3" rx="1" fill="#1f2937" />
+            <rect x="4" y="2" width="17" height="3" rx="1" fill="#1f2937" />
+            <rect x="-9" y="-8" width="17" height="16" rx="4" fill="#4d7c0f" stroke="#1a2e05" stroke-width="1.5" />
+            <circle cx="-2" r="3.5" fill="#365314" />
+        </g>
+        <g id="td-cannon">
+            <rect x="2" y="-4" width="19" height="8" rx="2" fill="#1f2937" />
+            <rect x="17" y="-5.5" width="5" height="11" rx="1" fill="#111827" />
+            <circle r="11" fill="#3f6212" stroke="#1a2e05" stroke-width="1.5" />
+            <circle r="5" fill="#65a30d" />
+        </g>
+        <g id="td-frost">
+            <rect x="4" y="-3" width="14" height="6" rx="2" fill="#0e7490" />
+            <circle r="11" fill="#0891b2" stroke="#164e63" stroke-width="1.5" />
+            <path d="M0 -7L2 -2L7 0L2 2L0 7L-2 2L-7 0L-2 -2Z" fill="#cffafe" />
+        </g>
+        <g id="td-soldier">
+            <ellipse rx="4.5" ry="8" fill="#b45309" stroke="#451a03" />
+            <rect x="1" y="3" width="11" height="2" rx="1" fill="#111827" />
+            <circle r="4.5" fill="#7f1d1d" stroke="#450a0a" />
+        </g>
+        <g id="td-jeep">
+            <rect x="-11" y="-9" width="6" height="18" rx="1.5" fill="#1c1917" />
+            <rect x="5" y="-9" width="6" height="18" rx="1.5" fill="#1c1917" />
+            <rect x="-13" y="-6.5" width="26" height="13" rx="3" fill="#c2853a" stroke="#713f12" />
+            <rect x="2" y="-5" width="4" height="10" rx="1" fill="#1e293b" />
+            <rect x="-10" y="-4.5" width="8" height="9" rx="1" fill="#92400e" />
+        </g>
+        <g id="td-tank">
+            <rect x="-17" y="-13" width="34" height="7" rx="2" fill="#1c1917" />
+            <rect x="-17" y="6" width="34" height="7" rx="2" fill="#1c1917" />
+            <rect x="-15" y="-9" width="30" height="18" rx="2" fill="#7f1d1d" stroke="#450a0a" stroke-width="1.5" />
+            <rect x="2" y="-2" width="20" height="4" rx="1" fill="#292524" />
+            <circle r="7" fill="#991b1b" stroke="#450a0a" stroke-width="1.5" />
+        </g>
+    </defs>
 
-    <polyline points="@RoadPoints" fill="none" stroke="#334155" stroke-width="36" stroke-linejoin="round" />
+    <rect y="40" width="480" height="336" fill="url(#td-grass)" />
+    <polyline points="@RoadPoints" fill="none" stroke="#5f4a2c" stroke-width="42" stroke-linejoin="round" />
+    <polyline points="@RoadPoints" fill="none" stroke="#a3824f" stroke-width="36" stroke-linejoin="round" />
+    <polyline points="@RoadPoints" fill="none" stroke="#b6935c" stroke-width="18" stroke-linejoin="round" stroke-dasharray="14 10" />
     @for (var i = 0; i < Columns * Rows; i++)
     {
-        if (!RoadCells.Contains(i))
+        if (!Blocked.Contains(i))
         {
-            <rect class="g-hit" x="@(CellX(i) - 22)" y="@(CellY(i) - 22)" width="44" height="44" rx="6" fill="#17223a"
-                  @onclick="_cellClicks[i]" />
+            <rect class="g-hit" x="@(CellX(i) - 21)" y="@(CellY(i) - 21)" width="42" height="42" rx="6"
+                  fill="#0b1220" fill-opacity="0.14" stroke="#ecfccb" stroke-opacity="0.2" @onclick="_cellClicks[i]" />
         }
     }
 
     <g pointer-events="none">
+        @foreach (var (cell, sprite) in Scenery)
+        {
+            <use href="@sprite" x="@CellX(cell)" y="@CellY(cell)" />
+        }
         @foreach (var tower in _towers)
         {
-            <circle cx="@CellX(tower.Cell)" cy="@CellY(tower.Cell)" r="17" fill="@Types[tower.Type].Color" stroke="#0b1220" stroke-width="3" />
-            <g><text x="@CellX(tower.Cell)" y="@CellY(tower.Cell)" fill="#0b1220">@tower.Level</text></g>
+            <g transform="translate(@CellX(tower.Cell) @CellY(tower.Cell))">
+                <use href="#td-base" />
+                <g transform="rotate(@Px(tower.Angle))">
+                    <use href="@Types[tower.Type].Sprite" />
+                    @if (tower.FlashUntil > _tick)
+                    {
+                        <path d="M22 0L31 -5L28 0L31 5Z" fill="#fde047" />
+                    }
+                </g>
+                @for (var pip = 0; pip < tower.Level; pip++)
+                {
+                    <circle cx="@Px((pip - (tower.Level - 1) / 2.0) * 8)" cy="19" r="3" fill="#facc15" stroke="#713f12" />
+                }
+            </g>
         }
         @foreach (var enemy in _enemies)
         {
-            var radius = enemy.Boss ? 14 : 9;
-            <circle cx="@Px(enemy.X)" cy="@Px(enemy.Y)" r="@radius"
-                    fill="@(enemy.SlowTicks > 0 ? "#7dd3fc" : enemy.Boss ? "#a855f7" : "#ef4444")" />
-            <rect x="@Px(enemy.X - 10)" y="@Px(enemy.Y - radius - 6)" width="@Px(20 * enemy.Health / enemy.MaxHealth)" height="3" fill="#22c55e" />
+            <g transform="translate(@Px(enemy.X) @Px(enemy.Y))">
+                <use href="@enemy.Type.Sprite" transform="rotate(@Px(enemy.Angle))" />
+                @if (enemy.SlowTicks > 0)
+                {
+                    <circle r="@(enemy.Type.Radius + 3)" fill="#a5f3fc" fill-opacity="0.45" />
+                }
+                @if (enemy.Health < enemy.MaxHealth)
+                {
+                    <rect x="-10" y="@(-enemy.Type.Radius - 8)" width="20" height="3" fill="#450a0a" />
+                    <rect x="-10" y="@(-enemy.Type.Radius - 8)" width="@Px(20 * enemy.Health / enemy.MaxHealth)" height="3" fill="#4ade80" />
+                }
+            </g>
         }
+        @* The base the enemies are heading for, at the end of the road. *@
+        <rect x="456" y="278" width="22" height="52" rx="5" fill="#44403c" stroke="#1c1917" stroke-width="2" />
+        <rect x="460" y="282" width="14" height="44" rx="3" fill="#78716c" />
+        <circle cx="467" cy="304" r="6" fill="#2563eb" stroke="#dbeafe" stroke-width="1.5" />
         @foreach (var shot in _shots)
         {
-            <line x1="@Px(shot.X1)" y1="@Px(shot.Y1)" x2="@Px(shot.X2)" y2="@Px(shot.Y2)" stroke="@shot.Color" stroke-width="3" stroke-linecap="round" />
+            <line x1="@Px(shot.X1)" y1="@Px(shot.Y1)" x2="@Px(shot.X2)" y2="@Px(shot.Y2)" stroke="@shot.Color" stroke-width="2" stroke-linecap="round" />
         }
-        <rect class="g-cursor" x="@(CellX(_cursor) - 22)" y="@(CellY(_cursor) - 22)" width="44" height="44" rx="6" />
-        @if (!RoadCells.Contains(_cursor))
+        @foreach (var blast in _blasts)
         {
-            <circle cx="@CellX(_cursor)" cy="@CellY(_cursor)" r="@Px(CursorRange)" fill="none" stroke="#38bdf8" stroke-opacity="0.4" stroke-dasharray="4 4" />
+            var age = (_tick - blast.Start) / (double)BlastTicks;
+            <circle cx="@Px(blast.X)" cy="@Px(blast.Y)" r="@Px(blast.Radius * (0.3 + 0.7 * age))" opacity="@Px(1 - age)"
+                    fill="@(blast.Ring ? "none" : blast.Color)" stroke="@blast.Color" stroke-width="2" />
+        }
+        <rect class="g-cursor" x="@(CellX(_cursor) - 21)" y="@(CellY(_cursor) - 21)" width="42" height="42" rx="6" />
+        @if (!Blocked.Contains(_cursor))
+        {
+            <circle cx="@CellX(_cursor)" cy="@CellY(_cursor)" r="@Px(CursorRange)" fill="none" stroke="#f8fafc" stroke-opacity="0.55" stroke-dasharray="4 4" />
         }
     </g>
 
+    <rect width="480" height="40" fill="#0b1220" />
+    <rect y="376" width="480" height="48" fill="#0b1220" />
+    <text class="g-muted" x="60" y="20">@L[ResourceKeys.Games.Wave]: @_wave</text>
+    <text x="180" y="20" fill="#fca5a5">@L[ResourceKeys.Games.Lives]: @_lives</text>
+    <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @_gold</text>
+    <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @_score</text>
     @for (var i = 0; i < Types.Length; i++)
     {
         var type = i;
         <g class="g-hit" @onclick="() => _selected = type">
-            <rect x="@(i * 160 + 4)" y="380" width="152" height="32" rx="8" fill="@(i == _selected ? Types[i].Color : "#1e293b")" />
-            <text x="@(i * 160 + 80)" y="396" font-size="14" fill="@(i == _selected ? "#0b1220" : "#f8fafc")">@(i + 1). @L[Types[i].NameKey] (@Types[i].Cost)</text>
+            <rect x="@(i * 160 + 4)" y="380" width="152" height="40" rx="8" fill="#1e293b" stroke="@(i == _selected ? "#facc15" : "#334155")" stroke-width="2" />
+            <g transform="translate(@(i * 160 + 26) 400) scale(0.75)">
+                <use href="#td-base" />
+                <use href="@Types[i].Sprite" />
+            </g>
+            <text x="@(i * 160 + 100)" y="392" font-size="13">@(i + 1). @L[Types[i].NameKey]</text>
+            <text x="@(i * 160 + 100)" y="409" font-size="13" fill="#facc15">@Types[i].Cost</text>
         </g>
     }
 </svg>
@@ -60,10 +162,12 @@
     private const int WaveBreakTicks = 90;
     private const int SpawnTicks = 22;
     private const int ShotTicks = 3;
+    private const int BlastTicks = 8;
     private const int ChillTicks = 30;
     private const int MaxLevel = 3;
     private const int RangePerLevel = 12;
     private const int SplashRadius = 36;
+    private const int BarrelLength = 22;
     private const int StartLives = 10;
     private const int StartGold = 150;
     private const int MaxScore = 100_000;
@@ -72,10 +176,14 @@
 
     private static readonly TowerType[] Types =
     [
-        new(ResourceKeys.Games.TowerArrow, 50, 105, 8, 12, "#22c55e"),
-        new(ResourceKeys.Games.TowerCannon, 100, 90, 20, 36, "#f97316"),
-        new(ResourceKeys.Games.TowerFrost, 75, 90, 2, 20, "#38bdf8")
+        new(ResourceKeys.Games.TowerGun, "#td-gun", 50, 105, 8, 12, "#fde047"),
+        new(ResourceKeys.Games.TowerCannon, "#td-cannon", 100, 90, 20, 36, "#fed7aa"),
+        new(ResourceKeys.Games.TowerFrost, "#td-frost", 75, 90, 2, 20, null)
     ];
+
+    private static readonly EnemyType Soldier = new("#td-soldier", 8, 1, 1, 10, 1, "#e7e5e4");
+    private static readonly EnemyType Jeep = new("#td-jeep", 11, 0.7, 1.5, 10, 1, "#fb923c");
+    private static readonly EnemyType Tank = new("#td-tank", 15, 8, 0.8, 100, 5, "#fb923c");
 
     // The road in cell coordinates; it enters and leaves one cell outside the board.
     private static readonly (int Column, int Row)[] Route = [(-1, 1), (7, 1), (7, 3), (2, 3), (2, 5), (10, 5)];
@@ -88,11 +196,18 @@
 
     private static readonly string RoadPoints = string.Join(' ', Road.Select(point => $"{Px(point.X)},{Px(point.Y)}"));
 
-    private static readonly HashSet<int> RoadCells = BuildRoadCells();
+    private static readonly (int Cell, string Sprite)[] Scenery =
+    [
+        (9, "#td-tree"), (19, "#td-tree"), (50, "#td-tree"), (60, "#td-tree"), (30, "#td-rock"), (39, "#td-rock")
+    ];
+
+    // Cells that cannot hold a tower: the road and the scenery.
+    private static readonly HashSet<int> Blocked = [.. RoadCells(), .. Scenery.Select(item => item.Cell)];
 
     private readonly List<Tower> _towers = [];
     private readonly List<Enemy> _enemies = [];
     private readonly List<Shot> _shots = [];
+    private readonly List<Blast> _blasts = [];
     private Action[] _cellClicks = [];
     private int _cursor;
     private int _selected;
@@ -116,6 +231,7 @@
         _towers.Clear();
         _enemies.Clear();
         _shots.Clear();
+        _blasts.Clear();
         _cursor = 2 * Columns + 4;
         _selected = 0;
         _wave = 0;
@@ -150,7 +266,7 @@
             return;
 
         _cursor = cell;
-        if (RoadCells.Contains(cell))
+        if (Blocked.Contains(cell))
             return;
 
         var tower = _towers.Find(candidate => candidate.Cell == cell);
@@ -169,13 +285,18 @@
     {
         _tick++;
         _shots.RemoveAll(shot => shot.ExpiresAt <= _tick);
+        _blasts.RemoveAll(blast => _tick - blast.Start >= BlastTicks);
         Spawn();
 
         foreach (var enemy in _enemies)
         {
             enemy.Distance += enemy.Speed * (enemy.SlowTicks > 0 ? 0.5 : 1);
             enemy.SlowTicks = Math.Max(0, enemy.SlowTicks - 1);
-            (enemy.X, enemy.Y) = GameLogic.PointOnPath(Road, enemy.Distance);
+            var (x, y) = GameLogic.PointOnPath(Road, enemy.Distance);
+            if (x != enemy.X || y != enemy.Y)
+                enemy.Angle = Degrees(x - enemy.X, y - enemy.Y);
+
+            (enemy.X, enemy.Y) = (x, y);
         }
 
         _lives = Math.Max(0, _lives - _enemies.RemoveAll(enemy => enemy.Distance >= RoadLength));
@@ -193,8 +314,9 @@
             if (enemy.Health > 0)
                 continue;
 
-            _gold += (5 + _wave) * (enemy.Boss ? 5 : 1);
-            _score += enemy.Boss ? 100 : 10;
+            _gold += (5 + _wave) * enemy.Type.Gold;
+            _score += enemy.Type.Score;
+            _blasts.Add(new Blast(enemy.X, enemy.Y, enemy.Type.Radius * 1.8, enemy.Type.DeathColor, false, _tick));
         }
 
         _enemies.RemoveAll(enemy => enemy.Health <= 0);
@@ -216,14 +338,18 @@
 
         _toSpawn--;
         _timer = _toSpawn > 0 ? SpawnTicks : WaveBreakTicks;
-        var boss = _wave % 5 == 0 && _toSpawn == 0;
-        var health = 40 * Math.Pow(1.18, _wave - 1) * (boss ? 6 : 1);
+
+        // Every fifth wave ends with a tank, and jeeps join the column from wave three.
+        var type = _wave % 5 == 0 && _toSpawn == 0 ? Tank : _wave >= 3 && _toSpawn % 4 == 1 ? Jeep : Soldier;
+        var health = 40 * Math.Pow(1.18, _wave - 1) * type.Health;
         _enemies.Add(new Enemy
         {
+            Type = type,
+            X = Road[0].X,
+            Y = Road[0].Y,
             Health = health,
             MaxHealth = health,
-            Speed = 1.3 + Math.Min(_wave, 20) * 0.04,
-            Boss = boss
+            Speed = (1.3 + Math.Min(_wave, 20) * 0.04) * type.Speed
         });
     }
 
@@ -252,15 +378,25 @@
             return;
 
         tower.Cooldown = type.Cooldown;
-        _shots.Add(new Shot(x, y, target.X, target.Y, type.Color, _tick + ShotTicks));
+        tower.Angle = Degrees(target.X - x, target.Y - y);
+        if (type.ShotColor is not null)
+        {
+            var radians = tower.Angle * Math.PI / 180;
+            tower.FlashUntil = _tick + ShotTicks;
+            _shots.Add(new Shot(x + BarrelLength * Math.Cos(radians), y + BarrelLength * Math.Sin(radians),
+                target.X, target.Y, type.ShotColor, _tick + ShotTicks));
+        }
 
-        // Arrow hits its target only, Cannon splashes around the target, Frost chills its whole range.
+        // The gun hits its target only, the cannon splashes around it, frost chills its whole range.
         var (centerX, centerY, radius) = tower.Type switch
         {
             Cannon => (target.X, target.Y, SplashRadius),
             Frost => (x, y, range),
             _ => (target.X, target.Y, 0d)
         };
+        if (radius > 0)
+            _blasts.Add(new Blast(centerX, centerY, radius, tower.Type == Frost ? "#a5f3fc" : "#fb923c", tower.Type == Frost, _tick));
+
         foreach (var enemy in _enemies)
         {
             if (double.Hypot(enemy.X - centerX, enemy.Y - centerY) > radius)
@@ -274,11 +410,13 @@
 
     private static double Range(Tower tower) => Types[tower.Type].Range + (tower.Level - 1) * RangePerLevel;
 
+    private static double Degrees(double dx, double dy) => Math.Atan2(dy, dx) * 180 / Math.PI;
+
     private static int CellX(int cell) => cell % Columns * CellSize + CellSize / 2;
 
     private static int CellY(int cell) => Top + cell / Columns * CellSize + CellSize / 2;
 
-    private static HashSet<int> BuildRoadCells()
+    private static HashSet<int> RoadCells()
     {
         var cells = new HashSet<int>();
         for (var i = 1; i < Route.Length; i++)
@@ -300,9 +438,13 @@
         return cells;
     }
 
-    private sealed record TowerType(string NameKey, int Cost, double Range, double Damage, int Cooldown, string Color);
+    private sealed record TowerType(string NameKey, string Sprite, int Cost, double Range, double Damage, int Cooldown, string? ShotColor);
+
+    private sealed record EnemyType(string Sprite, int Radius, double Health, double Speed, int Score, int Gold, string DeathColor);
 
     private readonly record struct Shot(double X1, double Y1, double X2, double Y2, string Color, int ExpiresAt);
+
+    private readonly record struct Blast(double X, double Y, double Radius, string Color, bool Ring, int Start);
 
     private sealed class Tower
     {
@@ -310,17 +452,20 @@
         public int Type { get; init; }
         public int Level { get; set; } = 1;
         public int Cooldown { get; set; }
+        public double Angle { get; set; }
+        public int FlashUntil { get; set; }
     }
 
     private sealed class Enemy
     {
+        public required EnemyType Type { get; init; }
         public double Distance { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
+        public double Angle { get; set; }
         public double Health { get; set; }
         public double MaxHealth { get; init; }
         public double Speed { get; init; }
         public int SlowTicks { get; set; }
-        public bool Boss { get; init; }
     }
 }

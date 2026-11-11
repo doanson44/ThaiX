@@ -71,6 +71,10 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
   finish within its time limit and gave no result. Treat browser behavior as unverified until
   `GamesSmokeTests` passes and each game is play-tested on desktop and touch.
 - Sudoku has a single fixed puzzle.
+- Tower Defense art is original vector art: every sprite is a `<g id="td-...">` in the board's
+  `<defs>`, drawn facing +X and placed with `<use>` plus a `rotate()`. Do not import art, maps or
+  names from an existing commercial game. A static mock rendered in headless Chromium is a quick
+  way to review sprite changes while the local app cannot be browser tested.
 - Tower Defense (added after PR #153) was not run in a browser either, and its balance numbers
   (tower cost, damage, range, wave health growth of 1.18 per wave) are reasoned, not play-tested.
 - On 2026-11-11 the local `visual-tests` profile served pages that never became idle for any game:

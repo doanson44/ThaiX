@@ -157,7 +157,7 @@ public static class ResourceKeys
         public const string Wave = "Games.Wave";
         public const string Lives = "Games.Lives";
         public const string Gold = "Games.Gold";
-        public const string TowerArrow = "Games.TowerArrow";
+        public const string TowerGun = "Games.TowerGun";
         public const string TowerCannon = "Games.TowerCannon";
         public const string TowerFrost = "Games.TowerFrost";
     }
