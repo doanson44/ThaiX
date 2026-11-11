@@ -10,7 +10,7 @@ public sealed class GamesSmokeTests
     [
         "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
         "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-        "typing-speed", "tic-tac-toe", "connect-four"
+        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
     ];
 
     private readonly AuthFixture _auth;
@@ -21,7 +21,7 @@ public sealed class GamesSmokeTests
     }
 
     [Fact]
-    public async Task GamesHub_ShowsAllSixteenGames_AsGuest()
+    public async Task GamesHub_ShowsEveryGame_AsGuest()
     {
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
         await using (context)
@@ -31,7 +31,7 @@ public sealed class GamesSmokeTests
 
             var cards = page.Locator(".game-card");
             await cards.First.WaitForAsync(Visible());
-            Assert.Equal(16, await cards.CountAsync());
+            Assert.Equal(GameIds.Length, await cards.CountAsync());
         }
     }
 

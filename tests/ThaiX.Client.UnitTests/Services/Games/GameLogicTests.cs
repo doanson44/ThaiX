@@ -88,6 +88,24 @@ public sealed class GameLogicTests
         GameLogic.ConnectFourWon(board, 2).Should().BeFalse();
     }
 
+    [Theory]
+    [InlineData(-5, 0, 0)]
+    [InlineData(4, 4, 0)]
+    [InlineData(10, 10, 0)]
+    [InlineData(16, 10, 6)]
+    [InlineData(99, 10, 20)]
+    public void PointOnPath_ShouldFollowEachSegmentAndClampToTheEnds(double distance, double expectedX, double expectedY)
+    {
+        // Arrange
+        (double X, double Y)[] path = [(0, 0), (10, 0), (10, 20)];
+
+        // Act
+        var point = GameLogic.PointOnPath(path, distance);
+
+        // Assert
+        point.Should().Be((expectedX, expectedY));
+    }
+
     [Fact]
     public void Catalog_ShouldMapEveryGameToItsOwnBoardComponent()
     {

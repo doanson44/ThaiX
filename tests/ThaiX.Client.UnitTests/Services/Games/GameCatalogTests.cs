@@ -5,21 +5,20 @@ namespace ThaiX.Client.UnitTests.Services.Games;
 public sealed class GameCatalogTests
 {
     [Fact]
-    public void All_ShouldContainSixteenUniqueGames()
+    public void All_ShouldContainEveryGameOnce()
     {
         // Arrange
         var expectedIds = new[]
         {
             "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
             "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-            "typing-speed", "tic-tac-toe", "connect-four"
+            "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
         };
 
         // Act
         var actualIds = GameCatalog.All.Select(game => game.Id).ToArray();
 
         // Assert
-        actualIds.Should().HaveCount(16);
         actualIds.Should().OnlyHaveUniqueItems();
         actualIds.Should().BeEquivalentTo(expectedIds);
     }

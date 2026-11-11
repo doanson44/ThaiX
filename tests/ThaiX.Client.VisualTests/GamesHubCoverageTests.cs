@@ -10,11 +10,11 @@ public sealed class GamesHubCoverageTests
     [
         "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
         "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-        "typing-speed", "tic-tac-toe", "connect-four"
+        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
     ];
 
     [Fact]
-    public void GamesHub_ShouldExposeAllSixteenGames()
+    public void GamesHub_ShouldExposeEveryGame()
     {
         // Arrange
         var root = RepoRoot.Resolve();

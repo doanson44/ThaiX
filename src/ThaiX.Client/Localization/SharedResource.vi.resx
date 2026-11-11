@@ -2194,4 +2194,13 @@
   <data name="Games.KeyEnter" xml:space="preserve"><value>NHẬP</value></data>
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
+  <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Xây tháp dọc con đường và chặn các đợt quân địch.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn loại tháp ở phía dưới hoặc nhấn 1-3, rồi chọn một ô trống để xây. Chọn một tháp để nâng cấp, tối đa cấp 3; mỗi lần nâng cấp tốn giá tháp nhân với cấp hiện tại. Phím mũi tên di chuyển con trỏ và Enter để xây. Mỗi quân địch đi hết con đường làm mất một mạng.</value></data>
+  <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
+  <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
+  <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>
+  <data name="Games.TowerArrow" xml:space="preserve"><value>Cung</value></data>
+  <data name="Games.TowerCannon" xml:space="preserve"><value>Pháo</value></data>
+  <data name="Games.TowerFrost" xml:space="preserve"><value>Băng</value></data>
 </root>

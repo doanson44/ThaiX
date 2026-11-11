@@ -7,14 +7,14 @@ namespace ThaiX.Application.UnitTests.Features.Games;
 public sealed class GameScoreRulesTests
 {
     [Fact]
-    public void IsSupported_ShouldReturnTrue_ForAllSixteenGames()
+    public void IsSupported_ShouldReturnTrue_ForEveryGame()
     {
         // Arrange
         var gameIds = new[]
         {
             "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
             "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-            "typing-speed", "tic-tac-toe", "connect-four"
+            "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
         };
 
         // Act
@@ -81,6 +81,7 @@ public sealed class GameScoreRulesTests
     [InlineData("typing-speed", 75)]
     [InlineData("tic-tac-toe", 0)]
     [InlineData("connect-four", 1)]
+    [InlineData("tower-defense", 1_250)]
     public void IsValidScore_ShouldAcceptPlausibleScores(string gameId, decimal score)
     {
         // Arrange
@@ -98,6 +99,7 @@ public sealed class GameScoreRulesTests
     [InlineData("wordle", 8)]
     [InlineData("hangman", 7)]
     [InlineData("connect-four", 2)]
+    [InlineData("tower-defense", 125)]
     [InlineData("memory-cards", 5)]
     public void IsValidScore_ShouldRejectImpossibleScores(string gameId, decimal score)
     {

@@ -37,6 +37,8 @@ public sealed class GameScoreRulesBoundaryTests
     [InlineData("tic-tac-toe", 1)]
     [InlineData("connect-four", 0)]
     [InlineData("connect-four", 1)]
+    [InlineData("tower-defense", 0)]
+    [InlineData("tower-defense", 100_000)]
     public void IsValidScore_ShouldAcceptInclusiveBoundaries_ForEveryGame(string gameId, decimal score)
     {
         // Arrange
@@ -81,6 +83,8 @@ public sealed class GameScoreRulesBoundaryTests
     [InlineData("tic-tac-toe", 2)]
     [InlineData("connect-four", -1)]
     [InlineData("connect-four", 2)]
+    [InlineData("tower-defense", -10)]
+    [InlineData("tower-defense", 100_010)]
     public void IsValidScore_ShouldRejectOutOfRangeValues_ForEveryGame(string gameId, decimal score)
     {
         // Arrange

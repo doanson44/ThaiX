@@ -6,7 +6,7 @@ public static class GameScoreRules
     {
         "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
         "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-        "typing-speed", "tic-tac-toe", "connect-four"
+        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
     };
 
     private static readonly HashSet<string> LowerIsBetterGames = new(StringComparer.OrdinalIgnoreCase)
@@ -36,6 +36,7 @@ public static class GameScoreRules
             "wordle" => score is >= 1 and <= 7,
             "hangman" => score is >= 0 and <= 6,
             "typing-speed" => score is >= 0 and <= 1_000,
+            "tower-defense" => score is >= 0 and <= 100_000 && score % 10 == 0,
             _ => false
         };
     }
