@@ -109,10 +109,47 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
         [["<",245],[T.rotateKey,315],[">",385],[T.dropKey,455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
     }
     function drawFlappy(){
-        frame(T.title);ctx.fillStyle="#0c4a6e";ctx.fillRect(0,45,W,H-45);
-        state.pipes.forEach(p=>{ctx.fillStyle="#22c55e";ctx.fillRect(p.x,45,55,p.gap-85-45);ctx.fillRect(p.x,p.gap+85,55,H-p.gap-85);});
-        ctx.fillStyle="#facc15";ctx.beginPath();ctx.arc(105,state.birdY,15,0,Math.PI*2);ctx.fill();
-        drawText(`${T.passed}: ${state.score}`,W/2,35,18);
+        frame(T.title);
+        ctx.fillStyle="#0c4a6e";
+        ctx.fillRect(0,45,W,H-45);
+
+        const pipeWidth=55;
+        const pipeCapWidth=63;
+        const gapHeight=170;
+        state.pipes.forEach(p=>{
+            const gapTop=p.gap-gapHeight/2;
+            const gapBottom=p.gap+gapHeight/2;
+            const pipeX=Math.round(p.x);
+            ctx.fillStyle="#15803d";
+            ctx.fillRect(pipeX,45,pipeWidth,gapTop-45);
+            ctx.fillRect(pipeX,gapBottom,pipeWidth,H-12-gapBottom);
+            ctx.fillStyle="#22c55e";
+            ctx.fillRect(pipeX-4,gapTop-12,pipeCapWidth,12);
+            ctx.fillRect(pipeX-4,gapBottom,pipeCapWidth,12);
+            ctx.fillStyle="#86efac";
+            ctx.fillRect(pipeX+5,45,4,Math.max(0,gapTop-57));
+            ctx.fillRect(pipeX+5,gapBottom+12,4,Math.max(0,H-24-gapBottom));
+        });
+
+        ctx.fillStyle="#075985";
+        ctx.fillRect(0,H-12,W,12);
+        ctx.fillStyle="#facc15";
+        ctx.beginPath();
+        ctx.arc(105,state.birdY,15,0,Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle="#0f172a";
+        ctx.beginPath();
+        ctx.arc(110,state.birdY-5,2.5,0,Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle="#fb923c";
+        ctx.beginPath();
+        ctx.moveTo(117,state.birdY);
+        ctx.lineTo(127,state.birdY+3);
+        ctx.lineTo(117,state.birdY+6);
+        ctx.closePath();
+        ctx.fill();
+
+        drawText(`${T.passed}: ${state.score}`,24,30,16,COLORS.muted,"left");
     }
     function drawBreakout(){
         frame(T.title);state.bricks.forEach(b=>{if(b.alive)rounded(b.x,b.y,58,16,3,"#38bdf8");});
