@@ -1,0 +1,243 @@
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="flappy-game">
+    <button type="button" class="flappy-playfield"
+            aria-label="@Title"
+            @onclick="Flap">
+        <svg class="flappy-canvas" viewBox="0 0 720 480" role="img" aria-label="@Title">
+            <defs>
+                <linearGradient id="flappy-sky" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0f4568" />
+                    <stop offset="100%" stop-color="#0b6384" />
+                </linearGradient>
+                <linearGradient id="flappy-pipe" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#15803d" />
+                    <stop offset="45%" stop-color="#22c55e" />
+                    <stop offset="100%" stop-color="#166534" />
+                </linearGradient>
+            </defs>
+
+            <rect width="720" height="480" fill="#101827" />
+            <text class="flappy-title" x="360" y="31">@Title</text>
+            <text class="flappy-score" x="24" y="31">@ScoreLabel: @_score</text>
+            <rect x="0" y="45" width="720" height="423" fill="url(#flappy-sky)" />
+
+            <g class="flappy-clouds" aria-hidden="true">
+                <path d="M45 112c0-13 11-23 24-23 5-15 27-19 37-6 16-3 29 9 29 24 0 2 0 4-1 5H46c-1 0-1-1-1-0Z" />
+                <path d="M500 145c0-10 8-18 18-18 4-12 21-15 29-5 13-2 23 7 23 19 0 2 0 3-1 4h-68c-1 0-1 0-1 0Z" />
+            </g>
+
+            @foreach (var pipe in _pipes)
+            {
+                var gapTop = pipe.GapCenter - GapHeight / 2;
+                var gapBottom = pipe.GapCenter + GapHeight / 2;
+                <g class="flappy-pipe">
+                    <rect x="@pipe.X" y="@PlayTop" width="@PipeWidth" height="@Math.Max(0, gapTop - PlayTop)" fill="url(#flappy-pipe)" />
+                    <rect x="@(pipe.X - 4)" y="@(gapTop - 12)" width="@(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@(pipe.X + 7)" y="@PlayTop" width="4" height="@Math.Max(0, gapTop - PlayTop - 12)" fill="#86efac" opacity="0.65" />
+
+                    <rect x="@pipe.X" y="@gapBottom" width="@PipeWidth" height="@Math.Max(0, FloorY - gapBottom)" fill="url(#flappy-pipe)" />
+                    <rect x="@(pipe.X - 4)" y="@gapBottom" width="@(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@(pipe.X + 7)" y="@(gapBottom + 12)" width="4" height="@Math.Max(0, FloorY - gapBottom - 12)" fill="#86efac" opacity="0.65" />
+                </g>
+            }
+
+            <rect x="0" y="@FloorY" width="720" height="12" fill="#075985" />
+            <path d="M0 468h720" stroke="#38bdf8" stroke-width="2" opacity="0.65" />
+
+            <g transform="rotate(@BirdRotation 105 @_birdY)">
+                <circle cx="105" cy="@_birdY" r="15" fill="#facc15" />
+                <circle cx="110" cy="@(_birdY - 5)" r="2.5" fill="#0f172a" />
+                <path d="M117 @_birdY l10 3-10 3Z" fill="#fb923c" />
+                <path d="M95 @(_birdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
+            </g>
+
+            @if (IsPaused && !_finished)
+            {
+                <g class="flappy-overlay">
+                    <rect x="184" y="184" width="352" height="112" rx="18" />
+                    <text x="360" y="250">@PausedLabel</text>
+                </g>
+            }
+            @if (_finished)
+            {
+                <g class="flappy-overlay">
+                    <rect x="184" y="174" width="352" height="132" rx="18" />
+                    <text x="360" y="220">@GameOverLabel</text>
+                    <text class="flappy-final-score" x="360" y="256">@ScoreLabel: @_score</text>
+                    <text class="flappy-restart-hint" x="360" y="284">@RestartHintLabel</text>
+                </g>
+            }
+        </svg>
+        <span class="visually-hidden">@Title. @ScoreLabel: @_score. @PausedLabel</span>
+    </button>
+</div>
+
+@code {
+    private const double BirdX = 105;
+    private const double BirdRadius = 15;
+    private const double PipeWidth = 55;
+    private const double GapHeight = 170;
+    private const double PlayTop = 45;
+    private const double FloorY = 468;
+    private const int TickMilliseconds = 30;
+    private const int PipeSpawnFrames = 95;
+
+    private readonly CancellationTokenSource _cancellation = new();
+    private readonly List<Pipe> _pipes = [];
+    private Task _gameLoopTask = Task.CompletedTask;
+    private DateTimeOffset _startedAt = DateTimeOffset.UtcNow;
+    private DateTimeOffset? _pausedAt;
+    private double _birdY = 230;
+    private double _velocity;
+    private double BirdRotation => Math.Clamp(_velocity * 3, -22, 65);
+    private int _frame;
+    private int _score;
+    private bool _finished;
+    private bool _wasPaused;
+
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string ScoreLabel { get; set; } = string.Empty;
+    [Parameter] public string PausedLabel { get; set; } = string.Empty;
+    [Parameter] public string GameOverLabel { get; set; } = string.Empty;
+    [Parameter] public string RestartHintLabel { get; set; } = string.Empty;
+    [Parameter] public bool IsPaused { get; set; }
+    [Parameter] public EventCallback<(double Score, int DurationSeconds)> OnCompleted { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _wasPaused = IsPaused;
+        _pipes.Add(new Pipe(560, 235));
+        _gameLoopTask = RunGameLoopAsync(_cancellation.Token);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsPaused && !_wasPaused)
+        {
+            _pausedAt = DateTimeOffset.UtcNow;
+        }
+        else if (!IsPaused && _wasPaused && _pausedAt.HasValue)
+        {
+            _startedAt += DateTimeOffset.UtcNow - _pausedAt.Value;
+            _pausedAt = null;
+        }
+
+        _wasPaused = IsPaused;
+    }
+
+    public void Restart()
+    {
+        _birdY = 230;
+        _velocity = 0;
+        _frame = 0;
+        _score = 0;
+        _finished = false;
+        _startedAt = DateTimeOffset.UtcNow;
+        _pausedAt = null;
+        _wasPaused = false;
+        _pipes.Clear();
+        _pipes.Add(new Pipe(560, 235));
+        StateHasChanged();
+    }
+
+    private void Flap()
+    {
+        if (IsPaused || _finished)
+            return;
+
+        _velocity = -6.5;
+    }
+
+    private async Task RunGameLoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(TickMilliseconds));
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                if (IsPaused || _finished)
+                    continue;
+
+                if (UpdateGame())
+                {
+                    await InvokeAsync(StateHasChanged);
+                    var duration = Math.Max(1, (int)Math.Round((DateTimeOffset.UtcNow - _startedAt).TotalSeconds));
+                    await OnCompleted.InvokeAsync((_score, duration));
+                    return;
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+    }
+
+    private bool UpdateGame()
+    {
+        _frame++;
+        _velocity += 0.42;
+        _birdY += _velocity;
+
+        if (_frame % PipeSpawnFrames == 0)
+            _pipes.Add(new Pipe(740, 180 + Random.Shared.NextDouble() * 100));
+
+        foreach (var pipe in _pipes)
+            pipe.X -= 3;
+
+        _pipes.RemoveAll(pipe => pipe.X < -PipeWidth - 8);
+
+        foreach (var pipe in _pipes)
+        {
+            if (!pipe.Passed && pipe.X + PipeWidth < BirdX)
+            {
+                pipe.Passed = true;
+                _score++;
+            }
+
+            var gapTop = pipe.GapCenter - GapHeight / 2;
+            var gapBottom = pipe.GapCenter + GapHeight / 2;
+            var overlapsPipe = BirdX + BirdRadius > pipe.X - 4
+                && BirdX - BirdRadius < pipe.X + PipeWidth + 4;
+            var outsideGap = _birdY - BirdRadius < gapTop
+                || _birdY + BirdRadius > gapBottom;
+
+            if (overlapsPipe && outsideGap)
+            {
+                _finished = true;
+                return true;
+            }
+        }
+
+        if (_birdY - BirdRadius < PlayTop || _birdY + BirdRadius > FloorY)
+        {
+            _finished = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _cancellation.Cancel();
+        try
+        {
+            await _gameLoopTask;
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        _cancellation.Dispose();
+    }
+
+    private sealed class Pipe(double x, double gapCenter)
+    {
+        public double X { get; set; } = x;
+        public double GapCenter { get; } = gapCenter;
+        public bool Passed { get; set; }
+    }
+}
