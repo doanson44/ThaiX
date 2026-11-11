@@ -78,6 +78,9 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         minePress = null;
         mismatchTimeout = 0;
         cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+        lastFrame = 0;
+        frameAccumulator = 0;
         state = baseState();
         if (typeof typingField?.addEventListener === "function") typingField.value = "";
         switch (gameId) {
@@ -318,23 +321,53 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         newPiece();
     }
 
+    let frameAccumulator = 0;
+
     function initFlappy() {
-        state.birdY=230;state.velocity=0;state.pipes=[];state.frame=0;state.score=0;state.message="Flappy";
-        timer=setInterval(()=>{
-            if(state.paused||state.finished)return;
-            state.frame++;state.velocity+=0.42;state.birdY+=state.velocity;
-            if(state.frame%95===0)state.pipes.push({x:W+20,gap:150+Math.random()*110});
-            state.pipes.forEach(p=>p.x-=3);
-            state.pipes=state.pipes.filter(p=>p.x>-60);
-            for(const p of state.pipes){
-                if(!p.passed&&p.x<115){p.passed=true;state.score++;}
-                if(105+15>p.x&&105-15<p.x+55&&(state.birdY-15<p.gap-85||state.birdY+15>p.gap+85))finish(state.score);
-            }
-            if(state.birdY<0||state.birdY>H)finish(state.score);
-            render();
-        },30);
+        state.birdY=230;state.velocity=0;state.frame=0;state.score=0;state.message="Flappy";
+        state.pipes=[{x:W*0.78,gap:235,passed:false}];
+        frameAccumulator=0;
+        lastFrame=0;
+        animationFrame=requestAnimationFrame(updateFlappy);
     }
-    function flap() {if(state.finished)return;state.velocity=-6.5;if(state.paused)state.paused=false;}
+
+    function updateFlappy(timestamp) {
+        if(disposed||state.paused||state.finished){
+            animationFrame=0;
+            lastFrame=0;
+            return;
+        }
+
+        if(!lastFrame)lastFrame=timestamp;
+        frameAccumulator+=Math.min(timestamp-lastFrame,100);
+        lastFrame=timestamp;
+
+        while(frameAccumulator>=30&&!state.finished){
+            frameAccumulator-=30;
+            state.frame++;
+            state.velocity+=0.42;
+            state.birdY+=state.velocity;
+
+            if(state.frame%95===0)state.pipes.push({x:W+20,gap:180+Math.random()*100,passed:false});
+            state.pipes.forEach(p=>p.x-=3);
+            state.pipes=state.pipes.filter(p=>p.x>-65);
+
+            for(const p of state.pipes){
+                if(!p.passed&&p.x+55<105){p.passed=true;state.score++;}
+                if(105+15>p.x-4&&105-15<p.x+59
+                    &&(state.birdY-15<p.gap-85||state.birdY+15>p.gap+85))
+                    finish(state.score);
+            }
+
+            if(state.birdY-15<45||state.birdY+15>H-12)finish(state.score);
+        }
+
+        render();
+        if(!state.finished)animationFrame=requestAnimationFrame(updateFlappy);
+        else animationFrame=0;
+    }
+
+    function flap() {if(state.finished||state.paused)return;state.velocity=-6.5;}
 
     function initBreakout() {
         state.paddleX=300;state.ball={x:350,y:350,dx:3,dy:-3};state.bricks=[];
@@ -684,7 +717,20 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
                 if(state.startedAt)state.startedAt+=Date.now()-state.pausedAt;
                 state.pausedAt=0;
             }
-            state.paused=value;render();
+            state.paused=value;
+            if(gameId==="flappy"){
+                if(value){
+                    cancelAnimationFrame(animationFrame);
+                    animationFrame=0;
+                    lastFrame=0;
+                    frameAccumulator=0;
+                }else if(!state.finished){
+                    lastFrame=0;
+                    frameAccumulator=0;
+                    animationFrame=requestAnimationFrame(updateFlappy);
+                }
+            }
+            render();
         },
         dispose() {
             disposed=true;clearInterval(timer);clearTimeout(mismatchTimeout);mismatchTimeout=0;cancelAnimationFrame(animationFrame);
