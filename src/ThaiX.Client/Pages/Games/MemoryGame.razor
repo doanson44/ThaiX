@@ -2,16 +2,16 @@
 
 <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 p-2">
     <span class="small text-muted">@L[ResourceKeys.Games.TypingDifficulty]</span>
-    <button type="button" class="btn btn-sm @DifficultyButtonClass("easy")"
-            aria-pressed="@(_difficulty == "easy")" @onclick="() => SetDifficulty("easy")">
+    <button type="button" class="btn btn-sm @EasyButtonClass"
+            aria-pressed="@(_difficulty == "easy")" @onclick="SetEasyDifficulty">
         @L[ResourceKeys.Games.TypingEasy]
     </button>
-    <button type="button" class="btn btn-sm @DifficultyButtonClass("medium")"
-            aria-pressed="@(_difficulty == "medium")" @onclick="() => SetDifficulty("medium")">
+    <button type="button" class="btn btn-sm @MediumButtonClass"
+            aria-pressed="@(_difficulty == "medium")" @onclick="SetMediumDifficulty">
         @L[ResourceKeys.Games.TypingMedium]
     </button>
-    <button type="button" class="btn btn-sm @DifficultyButtonClass("hard")"
-            aria-pressed="@(_difficulty == "hard")" @onclick="() => SetDifficulty("hard")">
+    <button type="button" class="btn btn-sm @HardButtonClass"
+            aria-pressed="@(_difficulty == "hard")" @onclick="SetHardDifficulty">
         @L[ResourceKeys.Games.TypingHard]
     </button>
 </div>
@@ -98,9 +98,19 @@
         _cursor = row * ColumnCount + column;
     }
 
+    private string EasyButtonClass => DifficultyButtonClass("easy");
+    private string MediumButtonClass => DifficultyButtonClass("medium");
+    private string HardButtonClass => DifficultyButtonClass("hard");
+
+    private void SetEasyDifficulty() => SetDifficulty("easy");
+
+    private void SetMediumDifficulty() => SetDifficulty("medium");
+
+    private void SetHardDifficulty() => SetDifficulty("hard");
+
     private void SetDifficulty(string difficulty)
     {
-        if (!CanPlay || _difficulty == difficulty)
+        if (_difficulty == difficulty)
             return;
 
         _difficulty = difficulty;
