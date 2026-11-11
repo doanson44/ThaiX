@@ -21,8 +21,6 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
         if(!state)return;
         switch(gameId){
             case "2048": draw2048();break;case "minesweeper":drawMines();break;case "sudoku":drawSudoku();break;
-            case "memory-cards":drawMemory();break;case "15-puzzle":drawFifteen();break;case "lights-out":drawLights();break;
-            case "snake":drawSnake();break;case "tetris":drawTetris();break;case "flappy":drawFlappy();break;
             case "breakout":drawBreakout();break;case "pong":drawPong();break;case "wordle":drawWordle();break;
             case "hangman":drawHangman();break;case "typing-speed":drawTyping();break;case "tic-tac-toe":drawTicTacToe();break;
             case "connect-four":drawConnectFour();break;
@@ -107,12 +105,6 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
         state.piece.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+(state.pieceX+x)*size+1,top+(state.pieceY+y)*size+1,size-2,size-2,3,"#f59e0b");}));
         drawText(`${T.score}: ${state.score}`,W/2,465,18,COLORS.muted);
         [["<",245],[T.rotateKey,315],[">",385],[T.dropKey,455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
-    }
-    function drawFlappy(){
-        frame(T.title);ctx.fillStyle="#0c4a6e";ctx.fillRect(0,45,W,H-45);
-        state.pipes.forEach(p=>{ctx.fillStyle="#22c55e";ctx.fillRect(p.x,45,55,p.gap-85-45);ctx.fillRect(p.x,p.gap+85,55,H-p.gap-85);});
-        ctx.fillStyle="#facc15";ctx.beginPath();ctx.arc(105,state.birdY,15,0,Math.PI*2);ctx.fill();
-        drawText(`${T.passed}: ${state.score}`,W/2,35,18);
     }
     function drawBreakout(){
         frame(T.title);state.bricks.forEach(b=>{if(b.alive)rounded(b.x,b.y,58,16,3,"#38bdf8");});
