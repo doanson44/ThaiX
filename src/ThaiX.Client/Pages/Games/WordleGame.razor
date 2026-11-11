@@ -1,0 +1,121 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 380 460">
+    @for (var row = 0; row < MaxGuesses; row++)
+    {
+        var guess = row < _guesses.Count ? _guesses[row] : row == _guesses.Count ? _current : string.Empty;
+        var statuses = row < _guesses.Count ? GameLogic.WordleStatuses(guess, _word) : null;
+        for (var i = 0; i < WordLength; i++)
+        {
+            var left = 78 + i * 46;
+            var top = 10 + row * 46;
+            <g>
+                <rect x="@left" y="@top" width="40" height="40" rx="6" stroke="#475569"
+                      fill="@(statuses is null ? "#1e293b" : StatusFill(statuses[i]))" />
+                @if (i < guess.Length)
+                {
+                    <g><text x="@(left + 20)" y="@(top + 20)" font-size="24">@guess[i]</text></g>
+                }
+            </g>
+        }
+    }
+    <GameKeyboard Y="300" OnKey="Type" KeyFill="KeyFill" />
+    <g class="g-hit" @onclick="Backspace">
+        <rect x="85" y="416" width="100" height="32" rx="4" fill="#334155" />
+        <text x="135" y="432" font-size="13">@L[ResourceKeys.Games.KeyDelete]</text>
+    </g>
+    <g class="g-hit" @onclick="Submit">
+        <rect x="195" y="416" width="100" height="32" rx="4" fill="#334155" />
+        <text x="245" y="432" font-size="13">@L[ResourceKeys.Games.KeyEnter]</text>
+    </g>
+</svg>
+
+@code {
+    private const int WordLength = 5;
+    private const int MaxGuesses = 6;
+
+    private readonly List<string> _guesses = [];
+    private string _word = string.Empty;
+    private string _current = string.Empty;
+
+    protected override void Reset()
+    {
+        var words = L[ResourceKeys.Games.WordleWords].Value
+            .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .Where(word => word.Length == WordLength)
+            .ToArray();
+
+        _word = words.Length > 0 ? words[Random.Shared.Next(words.Length)].ToUpperInvariant() : "CRANE";
+        _guesses.Clear();
+        _current = string.Empty;
+    }
+
+    protected override void OnKey(string key)
+    {
+        if (key == "enter")
+            Submit();
+        else if (key == "backspace")
+            Backspace();
+        else if (key.Length == 1 && char.IsAsciiLetter(key[0]))
+            Type(char.ToUpperInvariant(key[0]));
+    }
+
+    private void Type(char letter)
+    {
+        if (CanPlay && _current.Length < WordLength)
+            _current += letter;
+    }
+
+    private void Backspace()
+    {
+        if (CanPlay && _current.Length > 0)
+            _current = _current[..^1];
+    }
+
+    private void Submit()
+    {
+        if (!CanPlay || _current.Length != WordLength)
+            return;
+
+        _guesses.Add(_current);
+        if (_current == _word)
+            Finish(_guesses.Count, "classic");
+        else if (_guesses.Count >= MaxGuesses)
+            Finish(MaxGuesses + 1, "classic");
+
+        _current = string.Empty;
+    }
+
+    // A key takes the best status any guess has revealed for its letter.
+    private string KeyFill(char letter)
+    {
+        var best = '\0';
+        foreach (var guess in _guesses)
+        {
+            var statuses = GameLogic.WordleStatuses(guess, _word);
+            for (var i = 0; i < guess.Length; i++)
+            {
+                if (guess[i] != letter)
+                    continue;
+                if (statuses[i] == 'c')
+                    return StatusFill('c');
+
+                best = statuses[i] == 'p' || best == 'p' ? 'p' : 'a';
+            }
+        }
+
+        return best switch
+        {
+            'p' => StatusFill('p'),
+            'a' => "#1e293b",
+            _ => "#334155"
+        };
+    }
+
+    private static string StatusFill(char status) => status switch
+    {
+        'c' => "#15803d",
+        'p' => "#a16207",
+        _ => "#475569"
+    };
+}

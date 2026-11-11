@@ -36,3 +36,14 @@ window.copyTextToClipboard = async function (text) {
         document.body.removeChild(textArea);
     }
 };
+
+// Keep arrow keys and space from scrolling the page while a game board has focus.
+// Blazor cannot do this per key: @onkeydown:preventDefault would also swallow Tab.
+document.addEventListener('keydown', function (event) {
+    var target = event.target;
+    if ((event.key === ' ' || event.key.indexOf('Arrow') === 0)
+        && target.closest && target.closest('[data-game-keys]')
+        && !target.matches('input, textarea, button')) {
+        event.preventDefault();
+    }
+});

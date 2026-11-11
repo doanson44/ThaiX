@@ -1,0 +1,79 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 430 470">
+    @for (var i = 0; i < 16; i++)
+    {
+        var index = i;
+        var left = 11 + i % 4 * 104;
+        var top = 11 + i / 4 * 104;
+        <g class="g-hit" @onclick="() => Slide(index)">
+            <rect x="@left" y="@top" width="96" height="96" rx="10" fill="@(_tiles[i] == 0 ? "#0b1220" : "#334155")" />
+            @if (_tiles[i] != 0)
+            {
+                <g><text x="@(left + 48)" y="@(top + 48)" font-size="30">@_tiles[i]</text></g>
+            }
+        </g>
+    }
+    <text class="g-muted" x="215" y="447">@L[ResourceKeys.Games.Moves]: @_moves</text>
+</svg>
+
+@code {
+    private int[] _tiles = [];
+    private int _moves;
+
+    protected override void Reset()
+    {
+        _moves = 0;
+        _tiles = Enumerable.Range(1, 16).Select(value => value % 16).ToArray();
+
+        // Shuffle by sliding tiles so the puzzle always stays solvable.
+        var previous = -1;
+        for (var i = 0; i < 120 || IsSolved(); i++)
+        {
+            var empty = Array.IndexOf(_tiles, 0);
+            var options = Adjacent(empty).Where(index => index != previous).ToArray();
+            var next = options[Random.Shared.Next(options.Length)];
+            (_tiles[empty], _tiles[next]) = (_tiles[next], _tiles[empty]);
+            previous = empty;
+        }
+    }
+
+    protected override void OnKey(string key)
+    {
+        // An arrow key moves the neighboring tile into the empty space in that direction.
+        var empty = Array.IndexOf(_tiles, 0);
+        var tile = key switch
+        {
+            "arrowleft" => empty % 4 < 3 ? empty + 1 : -1,
+            "arrowright" => empty % 4 > 0 ? empty - 1 : -1,
+            "arrowup" => empty < 12 ? empty + 4 : -1,
+            "arrowdown" => empty >= 4 ? empty - 4 : -1,
+            _ => -1
+        };
+
+        if (tile >= 0)
+            Slide(tile);
+    }
+
+    private void Slide(int index)
+    {
+        var empty = Array.IndexOf(_tiles, 0);
+        if (!CanPlay || !Adjacent(empty).Contains(index))
+            return;
+
+        (_tiles[empty], _tiles[index]) = (_tiles[index], _tiles[empty]);
+        _moves++;
+        if (IsSolved())
+            Finish(_moves);
+    }
+
+    private bool IsSolved() => _tiles.Select((value, index) => value == (index + 1) % 16).All(match => match);
+
+    private static IEnumerable<int> Adjacent(int index)
+    {
+        if (index >= 4) yield return index - 4;
+        if (index < 12) yield return index + 4;
+        if (index % 4 > 0) yield return index - 1;
+        if (index % 4 < 3) yield return index + 1;
+    }
+}

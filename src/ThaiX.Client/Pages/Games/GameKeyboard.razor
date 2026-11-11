@@ -1,0 +1,23 @@
+@* On-screen QWERTY keyboard drawn inside a game SVG that is 380 units wide. *@
+@for (var row = 0; row < Rows.Length; row++)
+{
+    var top = Y + row * 38;
+    var offset = 10 + (10 - Rows[row].Length) * 18;
+    for (var i = 0; i < Rows[row].Length; i++)
+    {
+        var letter = Rows[row][i];
+        var left = offset + i * 36;
+        <g class="g-hit" @onclick="() => OnKey.InvokeAsync(letter)">
+            <rect x="@left" y="@top" width="34" height="32" rx="4" fill="@(KeyFill?.Invoke(letter) ?? "#334155")" />
+            <text x="@(left + 17)" y="@(top + 16)" font-size="15">@letter</text>
+        </g>
+    }
+}
+
+@code {
+    private static readonly string[] Rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
+
+    [Parameter] public int Y { get; set; }
+    [Parameter] public EventCallback<char> OnKey { get; set; }
+    [Parameter] public Func<char, string>? KeyFill { get; set; }
+}
