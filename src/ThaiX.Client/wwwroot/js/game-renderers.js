@@ -21,8 +21,6 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
         if(!state)return;
         switch(gameId){
             case "2048": draw2048();break;case "minesweeper":drawMines();break;case "sudoku":drawSudoku();break;
-            case "memory-cards":drawMemory();break;case "15-puzzle":drawFifteen();break;case "lights-out":drawLights();break;
-            case "snake":drawSnake();break;case "tetris":drawTetris();break;case "flappy":drawFlappy();break;
             case "breakout":drawBreakout();break;case "pong":drawPong();break;case "wordle":drawWordle();break;
             case "hangman":drawHangman();break;case "typing-speed":drawTyping();break;case "tic-tac-toe":drawTicTacToe();break;
             case "connect-four":drawConnectFour();break;
@@ -107,49 +105,6 @@ export function createGameRenderer(canvas, gameId, strings, getMinesLayout, isMi
         state.piece.forEach((row,y)=>row.forEach((v,x)=>{if(v)rounded(left+(state.pieceX+x)*size+1,top+(state.pieceY+y)*size+1,size-2,size-2,3,"#f59e0b");}));
         drawText(`${T.score}: ${state.score}`,W/2,465,18,COLORS.muted);
         [["<",245],[T.rotateKey,315],[">",385],[T.dropKey,455]].forEach(([label,x])=>{rounded(x,438,62,30,5,COLORS.tile);drawText(label,x+31,459,13);});
-    }
-    function drawFlappy(){
-        frame(T.title);
-        ctx.fillStyle="#0c4a6e";
-        ctx.fillRect(0,45,W,H-45);
-
-        const pipeWidth=55;
-        const pipeCapWidth=63;
-        const gapHeight=170;
-        state.pipes.forEach(p=>{
-            const gapTop=p.gap-gapHeight/2;
-            const gapBottom=p.gap+gapHeight/2;
-            const pipeX=Math.round(p.x);
-            ctx.fillStyle="#15803d";
-            ctx.fillRect(pipeX,45,pipeWidth,gapTop-45);
-            ctx.fillRect(pipeX,gapBottom,pipeWidth,H-12-gapBottom);
-            ctx.fillStyle="#22c55e";
-            ctx.fillRect(pipeX-4,gapTop-12,pipeCapWidth,12);
-            ctx.fillRect(pipeX-4,gapBottom,pipeCapWidth,12);
-            ctx.fillStyle="#86efac";
-            ctx.fillRect(pipeX+5,45,4,Math.max(0,gapTop-57));
-            ctx.fillRect(pipeX+5,gapBottom+12,4,Math.max(0,H-24-gapBottom));
-        });
-
-        ctx.fillStyle="#075985";
-        ctx.fillRect(0,H-12,W,12);
-        ctx.fillStyle="#facc15";
-        ctx.beginPath();
-        ctx.arc(105,state.birdY,15,0,Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle="#0f172a";
-        ctx.beginPath();
-        ctx.arc(110,state.birdY-5,2.5,0,Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle="#fb923c";
-        ctx.beginPath();
-        ctx.moveTo(117,state.birdY);
-        ctx.lineTo(127,state.birdY+3);
-        ctx.lineTo(117,state.birdY+6);
-        ctx.closePath();
-        ctx.fill();
-
-        drawText(`${T.passed}: ${state.score}`,24,30,16,COLORS.muted,"left");
     }
     function drawBreakout(){
         frame(T.title);state.bricks.forEach(b=>{if(b.alive)rounded(b.x,b.y,58,16,3,"#38bdf8");});
