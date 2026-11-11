@@ -1,5 +1,3 @@
-@using Microsoft.AspNetCore.Components.Web
-
 <div class="flappy-game">
     <button type="button" class="flappy-playfield"
             aria-label="@Title"
@@ -165,7 +163,7 @@
                     await InvokeAsync(StateHasChanged);
                     var duration = Math.Max(1, (int)Math.Round((DateTimeOffset.UtcNow - _startedAt).TotalSeconds));
                     await OnCompleted.InvokeAsync((_score, duration));
-                    return;
+                    continue;
                 }
 
                 await InvokeAsync(StateHasChanged);
