@@ -45,6 +45,17 @@ else
                 <strong>@L[ResourceKeys.Games.Instructions]:</strong>
                 <span>@L[Game.InstructionsKey]</span>
             </div>
+            @if (Game.Id == "typing-speed")
+            {
+                <div class="mb-3">
+                    <label for="typing-difficulty" class="form-label">@L[ResourceKeys.Games.TypingDifficulty]</label>
+                    <select id="typing-difficulty" class="form-select" value="@_typingDifficulty" @onchange="OnTypingDifficultyChanged">
+                        <option value="@TypingDifficulty.Easy">@L[ResourceKeys.Games.TypingEasy]</option>
+                        <option value="@TypingDifficulty.Medium">@L[ResourceKeys.Games.TypingMedium]</option>
+                        <option value="@TypingDifficulty.Hard">@L[ResourceKeys.Games.TypingHard]</option>
+                    </select>
+                </div>
+            }
             <div @ref="_stage" class="game-canvas" tabindex="0" role="application" data-game-keys
                  aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"
                  @onkeydown="@(e => ActiveGame?.HandleKey(e.Key))"
@@ -202,6 +213,7 @@ else
     private bool _isPaused;
     private bool _isFinished;
     private bool _flagMode;
+    private TypingDifficulty _typingDifficulty = TypingDifficulty.Medium;
     private bool _syncFailed;
     private bool _pendingAuthenticated;
     private bool IsCumulativeWinGame => Game?.Id is "pong" or "tic-tac-toe" or "connect-four";
@@ -216,6 +228,8 @@ else
                 [nameof(GameBase.IsPaused)] = _isPaused,
                 [nameof(GameBase.OnCompleted)] = EventCallback.Factory.Create<GameResult>(this, OnGameCompletedAsync)
             };
+            if (Game?.Id == "typing-speed")
+                parameters[nameof(TypingGame.Difficulty)] = _typingDifficulty;
             if (Game?.Id == "minesweeper")
                 parameters[nameof(MinesweeperGame.FlagMode)] = _flagMode;
 
@@ -422,6 +436,21 @@ else
     private void ToggleHistory() => _showAllHistory = !_showAllHistory;
 
     private void BackToGames() => Navigation.NavigateTo("/games");
+
+    private void OnTypingDifficultyChanged(ChangeEventArgs e)
+    {
+        if (!Enum.TryParse<TypingDifficulty>(e.Value?.ToString(), out var difficulty)
+            || !Enum.IsDefined(difficulty)
+            || difficulty == _typingDifficulty)
+            return;
+
+        _typingDifficulty = difficulty;
+        _isPaused = false;
+        _isFinished = false;
+        _syncFailed = false;
+        _statusMessage = null;
+        _gameStatusMessage = null;
+    }
 
     private async Task RestartAsync()
     {
