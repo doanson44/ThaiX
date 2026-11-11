@@ -1,0 +1,171 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 290 480" @onpointerdown="SwipeStart" @onpointerup="SwipeEnd">
+    <text class="g-muted" x="145" y="15">@L[ResourceKeys.Games.Score]: @_score</text>
+    <rect x="@Left" y="@Top" width="@(Columns * Cell)" height="@(Rows * Cell)" fill="#0b1220" />
+    @for (var y = 0; y < Rows; y++)
+    {
+        for (var x = 0; x < Columns; x++)
+        {
+            if (_board[y, x] != 0)
+            {
+                <rect x="@(Left + x * Cell + 1)" y="@(Top + y * Cell + 1)" width="@(Cell - 2)" height="@(Cell - 2)" rx="3" fill="#38bdf8" />
+            }
+        }
+    }
+    @for (var y = 0; y < _piece.Length; y++)
+    {
+        for (var x = 0; x < _piece[y].Length; x++)
+        {
+            if (_piece[y][x] != 0 && _pieceY + y >= 0)
+            {
+                <rect x="@(Left + (_pieceX + x) * Cell + 1)" y="@(Top + (_pieceY + y) * Cell + 1)" width="@(Cell - 2)" height="@(Cell - 2)" rx="3" fill="#f59e0b" />
+            }
+        }
+    }
+    @for (var i = 0; i < Buttons.Length; i++)
+    {
+        var button = Buttons[i];
+        var left = 9 + i * 70;
+        <g class="g-hit" @onclick="() => OnKey(button.Key)">
+            <rect x="@left" y="440" width="62" height="34" rx="5" fill="#334155" />
+            <text x="@(left + 31)" y="457" font-size="13">@(button.LabelKey is null ? button.Text : L[button.LabelKey].Value)</text>
+        </g>
+    }
+</svg>
+
+@code {
+    private const int Columns = 10;
+    private const int Rows = 20;
+    private const int Cell = 20;
+    private const int Left = 45;
+    private const int Top = 30;
+    private const int TickMilliseconds = 550;
+
+    private static readonly int[][][] Shapes =
+    [
+        [[1, 1, 1, 1]],
+        [[1, 1], [1, 1]],
+        [[0, 1, 0], [1, 1, 1]],
+        [[1, 0, 0], [1, 1, 1]],
+        [[0, 0, 1], [1, 1, 1]],
+        [[1, 1, 0], [0, 1, 1]],
+        [[0, 1, 1], [1, 1, 0]]
+    ];
+
+    private static readonly (string Key, string Text, string? LabelKey)[] Buttons =
+    [
+        ("arrowleft", "<", null),
+        ("arrowup", string.Empty, ResourceKeys.Games.KeyRotate),
+        ("arrowright", ">", null),
+        (" ", string.Empty, ResourceKeys.Games.KeyDrop)
+    ];
+
+    private int[,] _board = new int[Rows, Columns];
+    private int[][] _piece = Shapes[0];
+    private int _pieceX;
+    private int _pieceY;
+    private int _score;
+
+    protected override void Reset()
+    {
+        _board = new int[Rows, Columns];
+        _score = 0;
+        SpawnPiece();
+        StartLoop(TickMilliseconds, StepDown);
+    }
+
+    protected override void OnKey(string key)
+    {
+        switch (key)
+        {
+            case "arrowleft" or "a": TryMove(-1, 0); break;
+            case "arrowright" or "d": TryMove(1, 0); break;
+            case "arrowdown" or "s": StepDown(); break;
+            case "arrowup" or "w":
+                var rotated = GameLogic.RotateClockwise(_piece);
+                if (Fits(rotated, _pieceX, _pieceY))
+                    _piece = rotated;
+                break;
+            case " ":
+                while (TryMove(0, 1))
+                {
+                }
+
+                LockPiece();
+                break;
+        }
+    }
+
+    private void StepDown()
+    {
+        if (!TryMove(0, 1))
+            LockPiece();
+    }
+
+    private bool TryMove(int dx, int dy)
+    {
+        if (!Fits(_piece, _pieceX + dx, _pieceY + dy))
+            return false;
+
+        _pieceX += dx;
+        _pieceY += dy;
+        return true;
+    }
+
+    private bool Fits(int[][] piece, int pieceX, int pieceY)
+    {
+        for (var y = 0; y < piece.Length; y++)
+        {
+            for (var x = 0; x < piece[y].Length; x++)
+            {
+                if (piece[y][x] == 0)
+                    continue;
+
+                var (column, row) = (pieceX + x, pieceY + y);
+                if (column < 0 || column >= Columns || row >= Rows || (row >= 0 && _board[row, column] != 0))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void LockPiece()
+    {
+        for (var y = 0; y < _piece.Length; y++)
+            for (var x = 0; x < _piece[y].Length; x++)
+                if (_piece[y][x] != 0 && _pieceY + y >= 0)
+                    _board[_pieceY + y, _pieceX + x] = 1;
+
+        // Copy the incomplete rows downward; whatever is left at the top stays empty.
+        var remaining = new int[Rows, Columns];
+        var target = Rows - 1;
+        for (var row = Rows - 1; row >= 0; row--)
+        {
+            var full = true;
+            for (var column = 0; column < Columns; column++)
+                full &= _board[row, column] != 0;
+            if (full)
+                continue;
+
+            for (var column = 0; column < Columns; column++)
+                remaining[target, column] = _board[row, column];
+            target--;
+        }
+
+        var cleared = target + 1;
+        _score += cleared * cleared * 100;
+        _board = remaining;
+        SpawnPiece();
+    }
+
+    private void SpawnPiece()
+    {
+        _piece = Shapes[Random.Shared.Next(Shapes.Length)];
+        _pieceX = 3;
+        _pieceY = 0;
+        if (!Fits(_piece, _pieceX, _pieceY))
+            Finish(_score);
+    }
+}

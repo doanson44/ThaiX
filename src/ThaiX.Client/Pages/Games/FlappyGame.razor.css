@@ -1,0 +1,53 @@
+.flappy-game {
+    width: min(100%, 45rem);
+    margin-inline: auto;
+}
+
+.flappy-playfield {
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0.75rem;
+    background: #101827;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.flappy-playfield:focus-visible {
+    outline: 3px solid var(--rz-primary);
+    outline-offset: 0.25rem;
+}
+
+.flappy-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.flappy-title {
+    fill: #f8fafc;
+    font: 700 20px system-ui, sans-serif;
+    text-anchor: middle;
+}
+
+.flappy-score {
+    fill: #cbd5e1;
+    font: 600 15px system-ui, sans-serif;
+}
+
+.flappy-clouds path {
+    fill: #bae6fd;
+    opacity: 0.12;
+}
+
+.flappy-pipe {
+    filter: drop-shadow(0 3px 3px rgb(2 6 23 / 20%));
+}
+
+@media (max-width: 575.98px) {
+    .flappy-playfield {
+        border-radius: 0.5rem;
+    }
+}

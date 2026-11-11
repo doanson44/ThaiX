@@ -1,0 +1,122 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 420 460" @onpointerdown="SwipeStart" @onpointerup="SwipeEnd">
+    @for (var y = 0; y < 4; y++)
+    {
+        for (var x = 0; x < 4; x++)
+        {
+            var value = _grid[y, x];
+            var left = 11 + x * 102;
+            var top = 11 + y * 102;
+            <g>
+                <rect x="@left" y="@top" width="92" height="92" rx="10" fill="@TileColor(value)" />
+                @if (value > 0)
+                {
+                    <g><text x="@(left + 46)" y="@(top + 46)" font-size="@(value >= 1000 ? 24 : 30)">@value</text></g>
+                }
+            </g>
+        }
+    }
+    <text class="g-muted" x="210" y="437">@L[ResourceKeys.Games.Score]: @_score</text>
+</svg>
+
+@code {
+    private int[,] _grid = new int[4, 4];
+    private int _score;
+
+    protected override void Reset()
+    {
+        _grid = new int[4, 4];
+        _score = 0;
+        Spawn();
+        Spawn();
+    }
+
+    protected override void OnKey(string key)
+    {
+        switch (key)
+        {
+            case "arrowleft": Move(-1, 0); break;
+            case "arrowright": Move(1, 0); break;
+            case "arrowup": Move(0, -1); break;
+            case "arrowdown": Move(0, 1); break;
+        }
+    }
+
+    private void Move(int dx, int dy)
+    {
+        var moved = false;
+        for (var i = 0; i < 4; i++)
+        {
+            // Cells of row/column i, ordered from the edge the tiles slide toward.
+            var cells = new (int X, int Y)[4];
+            for (var j = 0; j < 4; j++)
+                cells[j] = dx != 0 ? (dx < 0 ? j : 3 - j, i) : (i, dy < 0 ? j : 3 - j);
+
+            var (merged, gained) = GameLogic.MergeLine(cells.Select(cell => _grid[cell.Y, cell.X]).ToArray());
+            _score += gained;
+            for (var j = 0; j < 4; j++)
+            {
+                if (_grid[cells[j].Y, cells[j].X] == merged[j])
+                    continue;
+
+                _grid[cells[j].Y, cells[j].X] = merged[j];
+                moved = true;
+            }
+        }
+
+        if (!moved)
+            return;
+
+        Spawn();
+        if (_grid.Cast<int>().Contains(2048) || !HasMove())
+            Finish(_score);
+    }
+
+    private void Spawn()
+    {
+        var empty = new List<(int X, int Y)>();
+        for (var y = 0; y < 4; y++)
+            for (var x = 0; x < 4; x++)
+                if (_grid[y, x] == 0)
+                    empty.Add((x, y));
+
+        if (empty.Count == 0)
+            return;
+
+        var (cx, cy) = empty[Random.Shared.Next(empty.Count)];
+        _grid[cy, cx] = Random.Shared.NextDouble() < 0.9 ? 2 : 4;
+    }
+
+    private bool HasMove()
+    {
+        for (var y = 0; y < 4; y++)
+        {
+            for (var x = 0; x < 4; x++)
+            {
+                if (_grid[y, x] == 0
+                    || (x < 3 && _grid[y, x] == _grid[y, x + 1])
+                    || (y < 3 && _grid[y, x] == _grid[y + 1, x]))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string TileColor(int value) => value switch
+    {
+        0 => "#1e293b",
+        2 => "#64748b",
+        4 => "#0e7490",
+        8 => "#0284c7",
+        16 => "#2563eb",
+        32 => "#7c3aed",
+        64 => "#9333ea",
+        128 => "#c026d3",
+        256 => "#db2777",
+        512 => "#ea580c",
+        1024 => "#ca8a04",
+        _ => "#16a34a"
+    };
+}

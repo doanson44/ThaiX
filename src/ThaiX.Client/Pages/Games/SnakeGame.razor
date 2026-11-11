@@ -1,0 +1,105 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 500 440" @onpointerdown="SwipeStart" @onpointerup="SwipeEnd">
+    <rect width="500" height="375" fill="#0b1220" />
+    @for (var i = 0; i < _snake.Count; i++)
+    {
+        <rect x="@(_snake[i].X * Cell + 1)" y="@(_snake[i].Y * Cell + 1)" width="@(Cell - 2)" height="@(Cell - 2)"
+              fill="@(i == 0 ? "#86efac" : "#16a34a")" />
+    }
+    <rect x="@(_food.X * Cell + 4)" y="@(_food.Y * Cell + 4)" width="@(Cell - 8)" height="@(Cell - 8)" fill="#ef4444" />
+    <text class="g-muted" x="125" y="408">@L[ResourceKeys.Games.Score]: @_score</text>
+    @for (var i = 0; i < Pad.Length; i++)
+    {
+        var pad = Pad[i];
+        var left = 268 + i * 56;
+        <g class="g-hit" @onclick="() => OnKey(pad.Key)">
+            <rect x="@left" y="386" width="46" height="44" rx="6" fill="#334155" />
+            <path d="@pad.Arrow" transform="translate(@(left + 23) 408)" fill="#f8fafc" />
+        </g>
+    }
+</svg>
+
+@code {
+    private const int Columns = 20;
+    private const int Rows = 15;
+    private const int Cell = 25;
+    private const int TickMilliseconds = 115;
+
+    private static readonly (string Key, string Arrow)[] Pad =
+    [
+        ("arrowleft", "M-9 0 7-9V9Z"),
+        ("arrowup", "M0-9 9 7H-9Z"),
+        ("arrowdown", "M0 9 9-7H-9Z"),
+        ("arrowright", "M9 0-7-9V9Z")
+    ];
+
+    private readonly List<(int X, int Y)> _snake = [];
+    private (int X, int Y) _direction;
+    private (int X, int Y) _nextDirection;
+    private (int X, int Y) _food;
+    private int _score;
+
+    protected override void Reset()
+    {
+        _snake.Clear();
+        _snake.AddRange([(8, 8), (7, 8), (6, 8)]);
+        _direction = _nextDirection = (1, 0);
+        _food = (14, 8);
+        _score = 0;
+        StartLoop(TickMilliseconds, Tick);
+    }
+
+    protected override void OnKey(string key)
+    {
+        switch (key)
+        {
+            case "arrowleft" or "a": Turn(-1, 0); break;
+            case "arrowright" or "d": Turn(1, 0); break;
+            case "arrowup" or "w": Turn(0, -1); break;
+            case "arrowdown" or "s": Turn(0, 1); break;
+        }
+    }
+
+    // The snake can never reverse straight into its own neck.
+    private void Turn(int dx, int dy)
+    {
+        if ((dx, dy) != (-_direction.X, -_direction.Y))
+            _nextDirection = (dx, dy);
+    }
+
+    private void Tick()
+    {
+        _direction = _nextDirection;
+        var head = (X: _snake[0].X + _direction.X, Y: _snake[0].Y + _direction.Y);
+        var eating = head == _food;
+
+        // The tail cell frees up this tick unless the snake grows.
+        var body = eating ? _snake : _snake.Take(_snake.Count - 1);
+        if (head.X < 0 || head.X >= Columns || head.Y < 0 || head.Y >= Rows || body.Contains(head))
+        {
+            Finish(_score);
+            return;
+        }
+
+        _snake.Insert(0, head);
+        if (!eating)
+        {
+            _snake.RemoveAt(_snake.Count - 1);
+            return;
+        }
+
+        _score += 10;
+        if (_snake.Count == Columns * Rows)
+        {
+            Finish(_score);
+            return;
+        }
+
+        do
+        {
+            _food = (Random.Shared.Next(Columns), Random.Shared.Next(Rows));
+        }
+        while (_snake.Contains(_food));
+    }
+}

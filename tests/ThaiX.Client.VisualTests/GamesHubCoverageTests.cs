@@ -32,41 +32,22 @@ public sealed class GamesHubCoverageTests
     }
 
     [Fact]
-    public void GameEngine_ShouldHaveAnImplementationForEveryCatalogEntry()
+    public void GameCatalog_ShouldMapEveryEntryToABlazorComponent()
     {
         // Arrange
         var root = RepoRoot.Resolve();
-        var enginePath = Path.Combine(root, "src", "ThaiX.Client", "wwwroot", "js", "games.js");
+        var catalogPath = Path.Combine(root, "src", "ThaiX.Client", "Services", "Games", "GameCatalog.cs");
+        var gamesPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games");
 
         // Act
-        var source = File.ReadAllText(enginePath);
-        var actual = Regex.Matches(source, @"case ""([^""]+)""")
+        var components = Regex.Matches(File.ReadAllText(catalogPath), @"typeof\((\w+)\)")
             .Select(match => match.Groups[1].Value)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(value => value)
             .ToArray();
 
         // Assert
-        Assert.Equal(ExpectedGameIds.OrderBy(value => value), actual);
-    }
-
-    [Fact]
-    public void GameRenderer_ShouldHaveAnImplementationForEveryCatalogEntry()
-    {
-        // Arrange
-        var root = RepoRoot.Resolve();
-        var rendererPath = Path.Combine(root, "src", "ThaiX.Client", "wwwroot", "js", "game-renderers.js");
-
-        // Act
-        var source = File.ReadAllText(rendererPath);
-        var actual = Regex.Matches(source, @"case ""([^""]+)""")
-            .Select(match => match.Groups[1].Value)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(value => value)
-            .ToArray();
-
-        // Assert
-        Assert.Equal(ExpectedGameIds.OrderBy(value => value), actual);
+        Assert.Equal(ExpectedGameIds.Length, components.Distinct(StringComparer.Ordinal).Count());
+        Assert.All(components, component =>
+            Assert.True(File.Exists(Path.Combine(gamesPath, $"{component}.razor")), $"Missing component '{component}'."));
     }
 
     [Fact]

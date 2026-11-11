@@ -1,0 +1,81 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 360 400">
+    @for (var i = 0; i < _cells.Length; i++)
+    {
+        var index = i;
+        var left = 12 + i % 3 * 112;
+        var top = 12 + i / 3 * 112;
+        <g class="g-hit" @onclick="() => Play(index)">
+            <rect x="@(left + 4)" y="@(top + 4)" width="104" height="104" rx="12" fill="#1e293b" stroke="#475569" />
+            @if (_cells[i] != Empty)
+            {
+                <g><text x="@(left + 56)" y="@(top + 56)" font-size="56" fill="@(_cells[i] == 'X' ? "#38bdf8" : "#f59e0b")">@_cells[i]</text></g>
+            }
+            @if (_cursor == i)
+            {
+                <rect class="g-cursor" x="@(left + 7)" y="@(top + 7)" width="98" height="98" rx="10" />
+            }
+        </g>
+    }
+    <text class="g-muted" x="180" y="376">@L[ResourceKeys.Games.YouAreX]</text>
+</svg>
+
+@code {
+    private const char Empty = '\0';
+
+    // A perfect opponent can never be beaten, so the computer sometimes plays a random square.
+    private const double MistakeChance = 0.35;
+
+    private char[] _cells = new char[9];
+    private int _cursor;
+
+    protected override void Reset()
+    {
+        _cells = new char[9];
+        _cursor = 4;
+    }
+
+    protected override void OnKey(string key)
+    {
+        var (row, column) = (_cursor / 3, _cursor % 3);
+        switch (key)
+        {
+            case "arrowleft": column = Math.Max(0, column - 1); break;
+            case "arrowright": column = Math.Min(2, column + 1); break;
+            case "arrowup": row = Math.Max(0, row - 1); break;
+            case "arrowdown": row = Math.Min(2, row + 1); break;
+            case "enter" or " ": Play(_cursor); return;
+        }
+
+        _cursor = row * 3 + column;
+    }
+
+    private void Play(int index)
+    {
+        if (!CanPlay || _cells[index] != Empty)
+            return;
+
+        _cursor = index;
+        _cells[index] = 'X';
+        if (GameLogic.TicTacToeWon(_cells, 'X'))
+        {
+            Finish(1);
+            return;
+        }
+
+        var free = Enumerable.Range(0, 9).Where(cell => _cells[cell] == Empty).ToArray();
+        if (free.Length == 0)
+        {
+            Finish(0);
+            return;
+        }
+
+        var reply = Random.Shared.NextDouble() < MistakeChance
+            ? free[Random.Shared.Next(free.Length)]
+            : GameLogic.BestTicTacToeMove(_cells);
+        _cells[reply] = 'O';
+        if (GameLogic.TicTacToeWon(_cells, 'O') || free.Length == 1)
+            Finish(0);
+    }
+}

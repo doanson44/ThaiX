@@ -1,0 +1,109 @@
+@inherits GameBase
+
+<svg class="game-svg" viewBox="0 0 490 450">
+    <path d="M@(ColumnX(_cursor) - 11) 12h22l-11 16z" fill="#f59e0b" />
+    <rect x="10" y="42" width="470" height="372" rx="20" fill="#1d4ed8" />
+    @for (var row = 0; row < Rows; row++)
+    {
+        for (var column = 0; column < Columns; column++)
+        {
+            <circle cx="@ColumnX(column)" cy="@(78 + row * 60)" r="25"
+                    fill="@(_board[row, column] switch { Player => "#facc15", Computer => "#f8fafc", _ => "#101827" })" />
+        }
+    }
+    @for (var i = 0; i < Columns; i++)
+    {
+        var column = i;
+        <rect class="g-hit" x="@(ColumnX(i) - 33)" width="66" height="414" fill="transparent" @onclick="() => Drop(column)" />
+    }
+    <text class="g-muted" x="245" y="434">@L[ResourceKeys.Games.YouAreYellow]</text>
+</svg>
+
+@code {
+    private const int Rows = 6;
+    private const int Columns = 7;
+    private const int Player = 1;
+    private const int Computer = 2;
+
+    private int[,] _board = new int[Rows, Columns];
+    private int _cursor;
+
+    protected override void Reset()
+    {
+        _board = new int[Rows, Columns];
+        _cursor = 3;
+    }
+
+    protected override void OnKey(string key)
+    {
+        switch (key)
+        {
+            case "arrowleft": _cursor = Math.Max(0, _cursor - 1); break;
+            case "arrowright": _cursor = Math.Min(Columns - 1, _cursor + 1); break;
+            case "enter" or " ": Drop(_cursor); break;
+        }
+    }
+
+    private void Drop(int column)
+    {
+        if (!CanPlay)
+            return;
+
+        _cursor = column;
+        if (Place(column, Player) < 0)
+            return;
+
+        if (GameLogic.ConnectFourWon(_board, Player))
+        {
+            Finish(1);
+            return;
+        }
+
+        if (IsFull())
+        {
+            Finish(0);
+            return;
+        }
+
+        Place(ChooseComputerColumn(), Computer);
+        if (GameLogic.ConnectFourWon(_board, Computer) || IsFull())
+            Finish(0);
+    }
+
+    private int Place(int column, int player)
+    {
+        for (var row = Rows - 1; row >= 0; row--)
+        {
+            if (_board[row, column] != 0)
+                continue;
+
+            _board[row, column] = player;
+            return row;
+        }
+
+        return -1;
+    }
+
+    // Win if possible, otherwise block the player's win, otherwise prefer the center.
+    private int ChooseComputerColumn()
+    {
+        var open = Enumerable.Range(0, Columns).Where(column => _board[0, column] == 0).ToArray();
+        foreach (var player in (int[])[Computer, Player])
+        {
+            foreach (var column in open)
+            {
+                var row = Place(column, player);
+                var wins = GameLogic.ConnectFourWon(_board, player);
+                _board[row, column] = 0;
+                if (wins)
+                    return column;
+            }
+        }
+
+        return open.MinBy(column => Math.Abs(column - Columns / 2));
+    }
+
+    private bool IsFull() => Enumerable.Range(0, Columns).All(column => _board[0, column] != 0);
+
+    private static int ColumnX(int column) => 47 + column * 66;
+}
