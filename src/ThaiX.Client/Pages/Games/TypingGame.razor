@@ -1,5 +1,6 @@
 @using System.Net
 @using System.Text
+@using ThaiX.Client.Services.Games
 @inherits GameBase
 
 <div class="typing-game">
@@ -15,15 +16,53 @@
     private const int DurationMilliseconds = 30_000;
     private const int TickMilliseconds = 100;
     private const int MaxWordsPerMinute = 1_000;
+    private const int RecentPassageLimit = 2;
 
+    private readonly Dictionary<TypingDifficulty, Queue<string>> _recentPassages = [];
     private string _text = string.Empty;
     private string _typed = string.Empty;
     private int _elapsedMilliseconds;
     private bool _started;
+    private TypingDifficulty? _lastDifficulty;
+
+    [Parameter] public TypingDifficulty Difficulty { get; set; } = TypingDifficulty.Medium;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (_lastDifficulty is null)
+        {
+            _lastDifficulty = Difficulty;
+            return;
+        }
+
+        if (_lastDifficulty == Difficulty)
+            return;
+
+        _lastDifficulty = Difficulty;
+        Restart();
+    }
 
     protected override void Reset()
     {
-        _text = L[ResourceKeys.Games.TypingPassage].Value;
+        if (!_recentPassages.TryGetValue(Difficulty, out var recent))
+        {
+            recent = new Queue<string>();
+            _recentPassages[Difficulty] = recent;
+        }
+
+        var passages = TypingPassageCatalog.GetPassageKeys(Difficulty)
+            .Select(key => L[key].Value)
+            .ToArray();
+        var available = passages.Where(passage => !recent.Contains(passage, StringComparer.Ordinal)).ToArray();
+        var candidates = available.Length > 0 ? available : passages;
+        _text = candidates[Random.Shared.Next(candidates.Length)];
+
+        recent.Enqueue(_text);
+        while (recent.Count > RecentPassageLimit)
+            recent.Dequeue();
+
         _typed = string.Empty;
         _elapsedMilliseconds = 0;
         _started = false;
