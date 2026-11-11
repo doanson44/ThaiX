@@ -31,24 +31,24 @@
                 var gapTop = pipe.GapCenter - GapHeight / 2;
                 var gapBottom = pipe.GapCenter + GapHeight / 2;
                 <g class="flappy-pipe">
-                    <rect x="@pipe.X" y="@PlayTop" width="@PipeWidth" height="@Math.Max(0, gapTop - PlayTop)" fill="url(#flappy-pipe)" />
-                    <rect x="@(pipe.X - 4)" y="@(gapTop - 12)" width="@(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
-                    <rect x="@(pipe.X + 7)" y="@PlayTop" width="4" height="@Math.Max(0, gapTop - PlayTop - 12)" fill="#86efac" opacity="0.65" />
+                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(PlayTop)" width="@SvgNumber(PipeWidth)" height="@SvgNumber(Math.Max(0, gapTop - PlayTop))" fill="url(#flappy-pipe)" />
+                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapTop - 12)" width="@SvgNumber(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(PlayTop)" width="4" height="@SvgNumber(Math.Max(0, gapTop - PlayTop - 12))" fill="#86efac" opacity="0.65" />
 
-                    <rect x="@pipe.X" y="@gapBottom" width="@PipeWidth" height="@Math.Max(0, FloorY - gapBottom)" fill="url(#flappy-pipe)" />
-                    <rect x="@(pipe.X - 4)" y="@gapBottom" width="@(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
-                    <rect x="@(pipe.X + 7)" y="@(gapBottom + 12)" width="4" height="@Math.Max(0, FloorY - gapBottom - 12)" fill="#86efac" opacity="0.65" />
+                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(gapBottom)" width="@SvgNumber(PipeWidth)" height="@SvgNumber(Math.Max(0, FloorY - gapBottom))" fill="url(#flappy-pipe)" />
+                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapBottom)" width="@SvgNumber(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(gapBottom + 12)" width="4" height="@SvgNumber(Math.Max(0, FloorY - gapBottom - 12))" fill="#86efac" opacity="0.65" />
                 </g>
             }
 
-            <rect x="0" y="@FloorY" width="720" height="12" fill="#075985" />
+            <rect x="0" y="@SvgNumber(FloorY)" width="720" height="12" fill="#075985" />
             <path d="M0 468h720" stroke="#38bdf8" stroke-width="2" opacity="0.65" />
 
-            <g transform="rotate(@BirdRotation 105 @_birdY)">
-                <circle cx="105" cy="@_birdY" r="15" fill="#facc15" />
-                <circle cx="110" cy="@(_birdY - 5)" r="2.5" fill="#0f172a" />
-                <path d="M117 @_birdY l10 3-10 3Z" fill="#fb923c" />
-                <path d="M95 @(_birdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
+            <g transform="@BirdTransform">
+                <circle cx="105" cy="@SvgNumber(_birdY)" r="15" fill="#facc15" />
+                <circle cx="110" cy="@SvgNumber(_birdY - 5)" r="2.5" fill="#0f172a" />
+                <path d="M117 @SvgNumber(_birdY) l10 3-10 3Z" fill="#fb923c" />
+                <path d="M95 @SvgNumber(_birdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
             </g>
 
             @if (IsPaused && !_finished)
@@ -100,6 +100,10 @@
     private double _birdY = 230;
     private double _velocity;
     private double BirdRotation => Math.Clamp(_velocity * 3, -22, 65);
+    private string BirdTransform => FormattableString.Invariant($"rotate({BirdRotation:0.###} 105 {_birdY:0.###})");
+
+    private static string SvgNumber(double value) =>
+        value.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
     private int _frame;
     private int _score;
     private bool _finished;
