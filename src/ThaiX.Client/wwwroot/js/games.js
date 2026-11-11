@@ -92,7 +92,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             case "lights-out": initLights(); break;
             case "snake": initSnake(); break;
             case "tetris": initTetris(); break;
-            case "flappy": initFlappy(); break;
             case "breakout": initBreakout(); break;
             case "pong": initPong(); break;
             case "wordle": initWordle(); break;
@@ -321,54 +320,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
         newPiece();
     }
 
-    let frameAccumulator = 0;
-
-    function initFlappy() {
-        state.birdY=230;state.velocity=0;state.frame=0;state.score=0;state.message="Flappy";
-        state.pipes=[{x:W*0.78,gap:235,passed:false}];
-        frameAccumulator=0;
-        lastFrame=0;
-        animationFrame=requestAnimationFrame(updateFlappy);
-    }
-
-    function updateFlappy(timestamp) {
-        if(disposed||state.paused||state.finished){
-            animationFrame=0;
-            lastFrame=0;
-            return;
-        }
-
-        if(!lastFrame)lastFrame=timestamp;
-        frameAccumulator+=Math.min(timestamp-lastFrame,100);
-        lastFrame=timestamp;
-
-        while(frameAccumulator>=30&&!state.finished){
-            frameAccumulator-=30;
-            state.frame++;
-            state.velocity+=0.42;
-            state.birdY+=state.velocity;
-
-            if(state.frame%95===0)state.pipes.push({x:W+20,gap:180+Math.random()*100,passed:false});
-            state.pipes.forEach(p=>p.x-=3);
-            state.pipes=state.pipes.filter(p=>p.x>-65);
-
-            for(const p of state.pipes){
-                if(!p.passed&&p.x+55<105){p.passed=true;state.score++;}
-                if(105+15>p.x-4&&105-15<p.x+59
-                    &&(state.birdY-15<p.gap-85||state.birdY+15>p.gap+85))
-                    finish(state.score);
-            }
-
-            if(state.birdY-15<45||state.birdY+15>H-12)finish(state.score);
-        }
-
-        render();
-        if(!state.finished)animationFrame=requestAnimationFrame(updateFlappy);
-        else animationFrame=0;
-    }
-
-    function flap() {if(state.finished||state.paused)return;state.velocity=-6.5;}
-
     function initBreakout() {
         state.paddleX=300;state.ball={x:350,y:350,dx:3,dy:-3};state.bricks=[];
         for(let r=0;r<5;r++)for(let c=0;c<10;c++)state.bricks.push({x:25+c*67,y:45+r*25,alive:true});
@@ -593,7 +544,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             render();
         } else if(gameId==="sudoku"){
             const cx=Math.floor((x-171)/42),cy=Math.floor((y-55)/42);if(cx>=0&&cy>=0&&cx<9&&cy<9)state.selected=[cx,cy];render();
-        } else if(gameId==="flappy")flap();
         else if(gameId==="connect-four"){const col=Math.round((x-158)/67);if(col>=0&&col<7){state.cursor=col;dropConnectFour(col);}}
         else if(gameId==="tic-tac-toe"){const col=Math.floor((x-192)/112),row=Math.floor((y-65)/112);if(col>=0&&col<3&&row>=0&&row<3){state.cursor=row*3+col;ticMove(state.cursor);}}
     }
@@ -680,7 +630,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
             case "sudoku": if(key.startsWith("arrow")){const [x,y]=state.selected;state.selected=[Math.max(0,Math.min(8,x+(key==="arrowright"?1:key==="arrowleft"?-1:0))),Math.max(0,Math.min(8,y+(key==="arrowdown"?1:key==="arrowup"?-1:0)))];render();}else if(/^[1-9]$/.test(key))sudokuInput(Number(key));else if(key==="backspace"||key==="delete"){const [x,y]=state.selected;if(!state.fixed[y][x]){state.grid[y][x]=0;render();}}break;
             case "snake": if(key==="arrowup"||key==="w"){if(state.dir[1]!==1)state.nextDir=[0,-1];}if(key==="arrowdown"||key==="s"){if(state.dir[1]!==-1)state.nextDir=[0,1];}if(key==="arrowleft"||key==="a"){if(state.dir[0]!==1)state.nextDir=[-1,0];}if(key==="arrowright"||key==="d"){if(state.dir[0]!==-1)state.nextDir=[1,0];}break;
             case "tetris": if(key==="arrowleft"||key==="a")movePiece(-1,0);if(key==="arrowright"||key==="d")movePiece(1,0);if(key==="arrowup"||key==="w")rotatePiece();if(key==="arrowdown")movePiece(0,1);if(key===" "){while(movePiece(0,1)){}lockPiece();}render();break;
-            case "flappy": if(key===" "||key==="arrowup")flap();break;
             case "breakout": if(key==="arrowleft"||key==="a")state.paddleX=Math.max(0,state.paddleX-35);if(key==="arrowright"||key==="d")state.paddleX=Math.min(W-120,state.paddleX+35);render();break;
             case "pong": if(key==="arrowup"||key==="w")state.paddleY=Math.max(0,state.paddleY-35);if(key==="arrowdown"||key==="s")state.paddleY=Math.min(H-100,state.paddleY+35);break;
             case "wordle": if(key==="enter")submitWordle();else if(key==="backspace")state.current=state.current.slice(0,-1);else if(/^[a-z]$/.test(key)&&state.current.length<5)state.current+=key.toUpperCase();render();break;
@@ -718,18 +667,6 @@ export function mount(canvas, gameId, dotnet, typingField = null, strings = {}) 
                 state.pausedAt=0;
             }
             state.paused=value;
-            if(gameId==="flappy"){
-                if(value){
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame=0;
-                    lastFrame=0;
-                    frameAccumulator=0;
-                }else if(!state.finished){
-                    lastFrame=0;
-                    frameAccumulator=0;
-                    animationFrame=requestAnimationFrame(updateFlappy);
-                }
-            }
             render();
         },
         dispose() {
