@@ -18,7 +18,12 @@ Verified against source on 2026-11-12. Re-check implementation before changing t
 
 ## Database providers
 
-## Database providers
+- The current central package version for `MySql.EntityFrameworkCore` is `10.0.12`.
+- Oracle's `MySql.EntityFrameworkCore 11.0.0` is not currently a stable release; its available
+  `11.0.0-preview` package is prerelease and must not be introduced into production without an
+  explicit provider migration decision.
+
+
 
 - `ApplicationDbContext` is registered with Oracle's `MySql.EntityFrameworkCore` provider via
   `UseMySQL(connectionString)`.
