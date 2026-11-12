@@ -44,7 +44,8 @@ Expected selected SDK: `11.0.100`. Confirm a .NET 10 runtime is listed before ru
 
 ## CI and container alignment
 
-- GitHub Actions CI and production workflows install SDK 11 and SDK 10 side-by-side. SDK 11 is
+- GitHub Actions CI, production, and client visual-test workflows install SDK 11 and SDK 10
+  side-by-side. SDK 11 is
   selected by `global.json`; SDK 10 provides the runtime used by `net10.0` test hosts.
 - Azure Pipelines installs the same SDK/runtime combination.
 - The main Presentation Dockerfile copies root `global.json`, so its build stage uses
