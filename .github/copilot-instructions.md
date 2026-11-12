@@ -12,6 +12,7 @@ You are working on the ThaiX solution.
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
 - EF Core 10 + MySQL/MariaDB
+- Keep the application on `net10.0` / EF Core 10 until Oracle publishes a stable `MySql.EntityFrameworkCore` provider for EF Core 11 and .NET 11. Do not use the current 11.0.0-preview provider in production.
 - MediatR 12 (CQRS)
 - FluentValidation 11
 - Manual DTO projection (LINQ Select)
