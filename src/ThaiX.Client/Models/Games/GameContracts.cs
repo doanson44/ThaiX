@@ -40,6 +40,7 @@ public sealed class GameLocalScoreState
 {
     public decimal? BestScore { get; set; }
     public decimal TotalWins { get; set; }
+    public Dictionary<string, decimal> ModeBestScores { get; set; } = new(StringComparer.OrdinalIgnoreCase);
     public List<GameRunRecord> History { get; set; } = [];
 }
 

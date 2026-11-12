@@ -2196,12 +2196,78 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Đặt ụ súng dọc con đường và chặn đoàn quân địch trước khi chúng tới căn cứ.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn loại tháp ở phía dưới hoặc nhấn 1-3, rồi chọn một ô trống để xây. Chọn một tháp để nâng cấp, tối đa cấp 3; mỗi lần nâng cấp tốn giá tháp nhân với cấp hiện tại. Phím mũi tên di chuyển con trỏ và Enter để xây. Mỗi quân địch đi hết con đường làm mất một mạng.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Xây dựng tuyến phòng thủ nhiều lớp, triển khai các tháp chuyên dụng và ngăn quân địch tiến đến căn cứ.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn Chiến dịch để hoàn thành 14 nhiệm vụ hoặc Sinh tồn vô tận để chống lại các đợt quân không giới hạn. Chọn tháp trong kho rồi chọn ô trống trên chiến trường để xây. Chọn tháp đã đặt để nâng cấp sát thương, tầm bắn hoặc tốc độ bắn, đổi ưu tiên mục tiêu hoặc bán tháp. Sử dụng kỹ năng chỉ huy khi sẵn sàng. Phím mũi tên di chuyển con trỏ, phím số chọn tháp, Enter để xây và Delete để bán tháp đang chọn.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>
   <data name="Games.TowerGun" xml:space="preserve"><value>Súng máy</value></data>
   <data name="Games.TowerCannon" xml:space="preserve"><value>Pháo</value></data>
   <data name="Games.TowerFrost" xml:space="preserve"><value>Băng</value></data>
+  <data name="Games.TowerDefense.Title" xml:space="preserve"><value>Chỉ huy chiến trường</value></data>
+  <data name="Games.TowerDefense.ChooseMode" xml:space="preserve"><value>Chọn chiến dịch tác chiến.</value></data>
+  <data name="Games.TowerDefense.Campaign" xml:space="preserve"><value>Chiến dịch</value></data>
+  <data name="Games.TowerDefense.CampaignDescription" xml:space="preserve"><value>Hoàn thành 14 nhiệm vụ trên năm chiến trường. Kiếm sao để mở khóa nhiệm vụ tiếp theo.</value></data>
+  <data name="Games.TowerDefense.Unlocked" xml:space="preserve"><value>Nhiệm vụ đã mở</value></data>
+  <data name="Games.TowerDefense.Mission" xml:space="preserve"><value>Nhiệm vụ</value></data>
+  <data name="Games.TowerDefense.Endless" xml:space="preserve"><value>Sinh tồn vô tận</value></data>
+  <data name="Games.TowerDefense.EndlessDescription" xml:space="preserve"><value>Phòng thủ càng lâu càng tốt. Quân địch mạnh hơn sau mỗi đợt.</value></data>
+  <data name="Games.TowerDefense.EndlessWaves" xml:space="preserve"><value>Đợt địch không giới hạn</value></data>
+  <data name="Games.TowerDefense.EndlessBosses" xml:space="preserve"><value>Chỉ huy xuất hiện mỗi mười đợt</value></data>
+  <data name="Games.TowerDefense.EndlessScaling" xml:space="preserve"><value>Sức mạnh địch tăng dần</value></data>
+  <data name="Games.TowerDefense.StartEndless" xml:space="preserve"><value>Bắt đầu sinh tồn</value></data>
+  <data name="Games.TowerDefense.Arsenal" xml:space="preserve"><value>Kho tháp phòng thủ</value></data>
+  <data name="Games.TowerDefense.TowerTypes" xml:space="preserve"><value>loại tháp</value></data>
+  <data name="Games.TowerDefense.EnemyTypes" xml:space="preserve"><value>loại quân địch</value></data>
+  <data name="Games.TowerDefense.Maps" xml:space="preserve"><value>chiến trường</value></data>
+  <data name="Games.TowerDefense.Mode" xml:space="preserve"><value>Chế độ</value></data>
+  <data name="Games.TowerDefense.Battlefield" xml:space="preserve"><value>Chiến trường thủ thành</value></data>
+  <data name="Games.TowerDefense.Damage" xml:space="preserve"><value>Sát thương</value></data>
+  <data name="Games.TowerDefense.Range" xml:space="preserve"><value>Tầm bắn</value></data>
+  <data name="Games.TowerDefense.FireRate" xml:space="preserve"><value>Tốc độ bắn</value></data>
+  <data name="Games.TowerDefense.Sell" xml:space="preserve"><value>Bán tháp</value></data>
+  <data name="Games.TowerDefense.Targeting" xml:space="preserve"><value>Ưu tiên mục tiêu</value></data>
+  <data name="Games.TowerDefense.Abilities" xml:space="preserve"><value>Kỹ năng chỉ huy</value></data>
+  <data name="Games.TowerDefense.Airstrike" xml:space="preserve"><value>Không kích</value></data>
+  <data name="Games.TowerDefense.Artillery" xml:space="preserve"><value>Pháo kích</value></data>
+  <data name="Games.TowerDefense.Emp" xml:space="preserve"><value>Xung điện từ</value></data>
+  <data name="Games.TowerDefense.Reinforce" xml:space="preserve"><value>Tiếp viện</value></data>
+  <data name="Games.TowerDefense.Supply" xml:space="preserve"><value>Tiếp tế</value></data>
+  <data name="Games.TowerDefense.Controls" xml:space="preserve"><value>Điều khiển</value></data>
+  <data name="Games.TowerDefense.SelectTower" xml:space="preserve"><value>Chọn tháp</value></data>
+  <data name="Games.TowerDefense.MoveCursor" xml:space="preserve"><value>Di chuyển con trỏ</value></data>
+  <data name="Games.TowerDefense.Build" xml:space="preserve"><value>Xây dựng / chọn</value></data>
+  <data name="Games.TowerDefense.BackToModes" xml:space="preserve"><value>Quay lại chọn chế độ</value></data>
+  <data name="Games.TowerDefense.Level" xml:space="preserve"><value>Cấp</value></data>
+  <data name="Games.TowerDefense.Open" xml:space="preserve"><value>MỞ</value></data>
+  <data name="Games.TowerDefense.Locked" xml:space="preserve"><value>KHÓA</value></data>
+  <data name="Games.TowerDefense.Tower.Rifleman" xml:space="preserve"><value>Lính súng trường</value></data>
+  <data name="Games.TowerDefense.Tower.Sniper" xml:space="preserve"><value>Lính bắn tỉa</value></data>
+  <data name="Games.TowerDefense.Tower.MachineGun" xml:space="preserve"><value>Súng máy</value></data>
+  <data name="Games.TowerDefense.Tower.Cannon" xml:space="preserve"><value>Pháo</value></data>
+  <data name="Games.TowerDefense.Tower.Flamethrower" xml:space="preserve"><value>Súng phun lửa</value></data>
+  <data name="Games.TowerDefense.Tower.Freezer" xml:space="preserve"><value>Tháp đóng băng</value></data>
+  <data name="Games.TowerDefense.Tower.Electric" xml:space="preserve"><value>Tháp Tesla</value></data>
+  <data name="Games.TowerDefense.Tower.Rocket" xml:space="preserve"><value>Bệ phóng tên lửa</value></data>
+  <data name="Games.TowerDefense.Tower.Plasma" xml:space="preserve"><value>Tháp plasma</value></data>
+  <data name="Games.TowerDefense.Tower.Artillery" xml:space="preserve"><value>Pháo binh</value></data>
+  <data name="Games.TowerDefense.Enemy.Infantry" xml:space="preserve"><value>Bộ binh</value></data>
+  <data name="Games.TowerDefense.Enemy.Scout" xml:space="preserve"><value>Trinh sát</value></data>
+  <data name="Games.TowerDefense.Enemy.Jeep" xml:space="preserve"><value>Xe jeep chiến đấu</value></data>
+  <data name="Games.TowerDefense.Enemy.Armored" xml:space="preserve"><value>Xe bọc thép</value></data>
+  <data name="Games.TowerDefense.Enemy.Tank" xml:space="preserve"><value>Xe tăng hạng nặng</value></data>
+  <data name="Games.TowerDefense.Enemy.Helicopter" xml:space="preserve"><value>Trực thăng</value></data>
+  <data name="Games.TowerDefense.Enemy.Medic" xml:space="preserve"><value>Quân y</value></data>
+  <data name="Games.TowerDefense.Enemy.Commander" xml:space="preserve"><value>Chỉ huy</value></data>
+  <data name="Games.TowerDefense.Map.GreenValley" xml:space="preserve"><value>Thung lũng xanh</value></data>
+  <data name="Games.TowerDefense.Map.DesertOutpost" xml:space="preserve"><value>Tiền đồn sa mạc</value></data>
+  <data name="Games.TowerDefense.Map.FrozenMountains" xml:space="preserve"><value>Núi băng</value></data>
+  <data name="Games.TowerDefense.Map.UrbanBattlefield" xml:space="preserve"><value>Chiến trường đô thị</value></data>
+  <data name="Games.TowerDefense.Map.MilitaryBase" xml:space="preserve"><value>Căn cứ quân sự</value></data>
+  <data name="Games.TowerDefense.Targeting.First" xml:space="preserve"><value>Địch đi đầu</value></data>
+  <data name="Games.TowerDefense.Targeting.Last" xml:space="preserve"><value>Địch đi cuối</value></data>
+  <data name="Games.TowerDefense.Targeting.Strongest" xml:space="preserve"><value>Địch mạnh nhất</value></data>
+  <data name="Games.TowerDefense.Targeting.Weakest" xml:space="preserve"><value>Địch yếu nhất</value></data>
+  <data name="Games.TowerDefense.Targeting.Closest" xml:space="preserve"><value>Địch gần nhất</value></data>
+  <data name="Games.TowerDefense.Targeting.Farthest" xml:space="preserve"><value>Địch xa nhất</value></data>
 </root>

@@ -9,6 +9,7 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
     private const string GuestSessionKey = "ThaiX.Games.GuestSession";
     private const string GuestNameKey = "ThaiX.Games.GuestName";
     private const string GuestChoiceKey = "ThaiX.Games.LeaderboardChoice";
+    private const string TowerDefenseProgressKey = "ThaiX.Games.TowerDefense.Progress.v1";
     private const int HistoryLimit = 500;
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -23,6 +24,7 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
             var state = JsonSerializer.Deserialize<GameLocalScoreState>(json, JsonOptions)
                 ?? new GameLocalScoreState();
             state.History ??= [];
+            state.ModeBestScores ??= new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
             return state;
         }
         catch (JsonException)
@@ -53,9 +55,19 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
             state.History.RemoveRange(HistoryLimit, state.History.Count - HistoryLimit);
 
         if (IsCumulativeWinGame(gameId))
+        {
             state.TotalWins += score;
-        else if (!state.BestScore.HasValue || IsBetter(gameId, score, state.BestScore.Value))
-            state.BestScore = score;
+        }
+        else
+        {
+            if (!state.BestScore.HasValue || IsBetter(gameId, score, state.BestScore.Value))
+                state.BestScore = score;
+
+            if (!string.IsNullOrWhiteSpace(mode)
+                && (!state.ModeBestScores.TryGetValue(mode, out var modeBest)
+                    || IsBetter(gameId, score, modeBest)))
+                state.ModeBestScores[mode] = score;
+        }
 
         await jsRuntime.InvokeVoidAsync(
             "localStorage.setItem",
@@ -64,6 +76,29 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
 
         return state;
     }
+
+    public async Task<TowerDefenseProgress> GetTowerDefenseProgressAsync()
+    {
+        var json = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", TowerDefenseProgressKey);
+        if (string.IsNullOrWhiteSpace(json))
+            return new TowerDefenseProgress();
+
+        try
+        {
+            return JsonSerializer.Deserialize<TowerDefenseProgress>(json, JsonOptions)
+                ?? new TowerDefenseProgress();
+        }
+        catch (JsonException)
+        {
+            return new TowerDefenseProgress();
+        }
+    }
+
+    public Task SaveTowerDefenseProgressAsync(TowerDefenseProgress progress) =>
+        jsRuntime.InvokeVoidAsync(
+            "localStorage.setItem",
+            TowerDefenseProgressKey,
+            JsonSerializer.Serialize(progress, JsonOptions)).AsTask();
 
     public async Task<GuestSessionModel?> GetGuestSessionAsync()
     {

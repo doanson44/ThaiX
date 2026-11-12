@@ -2197,12 +2197,78 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Place gun turrets along the road and stop the enemy column before it reaches your base.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a tower at the bottom or press 1-3, then select an empty tile to build it. Select a tower to upgrade it up to level 3; an upgrade costs the tower price times its level. Arrow keys move the cursor and Enter builds. Every enemy that reaches the end of the road costs a life.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Build a layered defense, deploy specialized towers and stop enemy forces before they reach your base.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Choose Campaign to complete 14 missions or Endless to survive unlimited waves. Select a tower from the arsenal, then select an open battlefield cell to build. Select a placed tower to upgrade damage, range or fire rate, change target priority, or sell it. Use command abilities when available. Arrow keys move the cursor, number keys select towers, Enter builds, and Delete sells the selected tower.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
   <data name="Games.TowerGun" xml:space="preserve"><value>Machine gun</value></data>
   <data name="Games.TowerCannon" xml:space="preserve"><value>Cannon</value></data>
   <data name="Games.TowerFrost" xml:space="preserve"><value>Frost</value></data>
+  <data name="Games.TowerDefense.Title" xml:space="preserve"><value>Command the battlefield</value></data>
+  <data name="Games.TowerDefense.ChooseMode" xml:space="preserve"><value>Choose your operation.</value></data>
+  <data name="Games.TowerDefense.Campaign" xml:space="preserve"><value>Campaign</value></data>
+  <data name="Games.TowerDefense.CampaignDescription" xml:space="preserve"><value>Complete 14 missions across five battle zones. Earn stars and unlock the next operation.</value></data>
+  <data name="Games.TowerDefense.Unlocked" xml:space="preserve"><value>Unlocked missions</value></data>
+  <data name="Games.TowerDefense.Mission" xml:space="preserve"><value>Mission</value></data>
+  <data name="Games.TowerDefense.Endless" xml:space="preserve"><value>Endless survival</value></data>
+  <data name="Games.TowerDefense.EndlessDescription" xml:space="preserve"><value>Hold the line for as long as possible. Enemy forces grow stronger with every wave.</value></data>
+  <data name="Games.TowerDefense.EndlessWaves" xml:space="preserve"><value>Unlimited enemy waves</value></data>
+  <data name="Games.TowerDefense.EndlessBosses" xml:space="preserve"><value>Commander encounters every ten waves</value></data>
+  <data name="Games.TowerDefense.EndlessScaling" xml:space="preserve"><value>Progressive enemy strength</value></data>
+  <data name="Games.TowerDefense.StartEndless" xml:space="preserve"><value>Deploy to endless</value></data>
+  <data name="Games.TowerDefense.Arsenal" xml:space="preserve"><value>Tower arsenal</value></data>
+  <data name="Games.TowerDefense.TowerTypes" xml:space="preserve"><value>tower types</value></data>
+  <data name="Games.TowerDefense.EnemyTypes" xml:space="preserve"><value>enemy classes</value></data>
+  <data name="Games.TowerDefense.Maps" xml:space="preserve"><value>battle zones</value></data>
+  <data name="Games.TowerDefense.Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Games.TowerDefense.Battlefield" xml:space="preserve"><value>Tower Defense battlefield</value></data>
+  <data name="Games.TowerDefense.Damage" xml:space="preserve"><value>Damage</value></data>
+  <data name="Games.TowerDefense.Range" xml:space="preserve"><value>Range</value></data>
+  <data name="Games.TowerDefense.FireRate" xml:space="preserve"><value>Fire rate</value></data>
+  <data name="Games.TowerDefense.Sell" xml:space="preserve"><value>Sell tower</value></data>
+  <data name="Games.TowerDefense.Targeting" xml:space="preserve"><value>Target priority</value></data>
+  <data name="Games.TowerDefense.Abilities" xml:space="preserve"><value>Command abilities</value></data>
+  <data name="Games.TowerDefense.Airstrike" xml:space="preserve"><value>Airstrike</value></data>
+  <data name="Games.TowerDefense.Artillery" xml:space="preserve"><value>Artillery strike</value></data>
+  <data name="Games.TowerDefense.Emp" xml:space="preserve"><value>EMP</value></data>
+  <data name="Games.TowerDefense.Reinforce" xml:space="preserve"><value>Reinforce</value></data>
+  <data name="Games.TowerDefense.Supply" xml:space="preserve"><value>Supply drop</value></data>
+  <data name="Games.TowerDefense.Controls" xml:space="preserve"><value>Controls</value></data>
+  <data name="Games.TowerDefense.SelectTower" xml:space="preserve"><value>Select tower</value></data>
+  <data name="Games.TowerDefense.MoveCursor" xml:space="preserve"><value>Move cursor</value></data>
+  <data name="Games.TowerDefense.Build" xml:space="preserve"><value>Build / select</value></data>
+  <data name="Games.TowerDefense.BackToModes" xml:space="preserve"><value>Back to mode select</value></data>
+  <data name="Games.TowerDefense.Level" xml:space="preserve"><value>Level</value></data>
+  <data name="Games.TowerDefense.Open" xml:space="preserve"><value>OPEN</value></data>
+  <data name="Games.TowerDefense.Locked" xml:space="preserve"><value>LOCKED</value></data>
+  <data name="Games.TowerDefense.Tower.Rifleman" xml:space="preserve"><value>Rifleman</value></data>
+  <data name="Games.TowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper</value></data>
+  <data name="Games.TowerDefense.Tower.MachineGun" xml:space="preserve"><value>Machine gun</value></data>
+  <data name="Games.TowerDefense.Tower.Cannon" xml:space="preserve"><value>Cannon</value></data>
+  <data name="Games.TowerDefense.Tower.Flamethrower" xml:space="preserve"><value>Flamethrower</value></data>
+  <data name="Games.TowerDefense.Tower.Freezer" xml:space="preserve"><value>Cryo tower</value></data>
+  <data name="Games.TowerDefense.Tower.Electric" xml:space="preserve"><value>Tesla tower</value></data>
+  <data name="Games.TowerDefense.Tower.Rocket" xml:space="preserve"><value>Rocket launcher</value></data>
+  <data name="Games.TowerDefense.Tower.Plasma" xml:space="preserve"><value>Plasma turret</value></data>
+  <data name="Games.TowerDefense.Tower.Artillery" xml:space="preserve"><value>Artillery</value></data>
+  <data name="Games.TowerDefense.Enemy.Infantry" xml:space="preserve"><value>Infantry</value></data>
+  <data name="Games.TowerDefense.Enemy.Scout" xml:space="preserve"><value>Scout</value></data>
+  <data name="Games.TowerDefense.Enemy.Jeep" xml:space="preserve"><value>Attack jeep</value></data>
+  <data name="Games.TowerDefense.Enemy.Armored" xml:space="preserve"><value>Armored vehicle</value></data>
+  <data name="Games.TowerDefense.Enemy.Tank" xml:space="preserve"><value>Heavy tank</value></data>
+  <data name="Games.TowerDefense.Enemy.Helicopter" xml:space="preserve"><value>Helicopter</value></data>
+  <data name="Games.TowerDefense.Enemy.Medic" xml:space="preserve"><value>Combat medic</value></data>
+  <data name="Games.TowerDefense.Enemy.Commander" xml:space="preserve"><value>Commander</value></data>
+  <data name="Games.TowerDefense.Map.GreenValley" xml:space="preserve"><value>Green Valley</value></data>
+  <data name="Games.TowerDefense.Map.DesertOutpost" xml:space="preserve"><value>Desert Outpost</value></data>
+  <data name="Games.TowerDefense.Map.FrozenMountains" xml:space="preserve"><value>Frozen Mountains</value></data>
+  <data name="Games.TowerDefense.Map.UrbanBattlefield" xml:space="preserve"><value>Urban Battlefield</value></data>
+  <data name="Games.TowerDefense.Map.MilitaryBase" xml:space="preserve"><value>Military Base</value></data>
+  <data name="Games.TowerDefense.Targeting.First" xml:space="preserve"><value>First</value></data>
+  <data name="Games.TowerDefense.Targeting.Last" xml:space="preserve"><value>Last</value></data>
+  <data name="Games.TowerDefense.Targeting.Strongest" xml:space="preserve"><value>Strongest</value></data>
+  <data name="Games.TowerDefense.Targeting.Weakest" xml:space="preserve"><value>Weakest</value></data>
+  <data name="Games.TowerDefense.Targeting.Closest" xml:space="preserve"><value>Closest</value></data>
+  <data name="Games.TowerDefense.Targeting.Farthest" xml:space="preserve"><value>Farthest</value></data>
 </root>
