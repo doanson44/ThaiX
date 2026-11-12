@@ -35,6 +35,14 @@ public sealed class AuthFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        var browserInstallExitCode = Microsoft.Playwright.Program.Main(
+            new[] { "install", "chromium", "--only-shell" });
+        if (browserInstallExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"Playwright Chromium installation failed with exit code {browserInstallExitCode}.");
+        }
+
         await _appHost.StartAsync();
         BaseUrl = _appHost.BaseUrl;
 
