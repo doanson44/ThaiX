@@ -136,6 +136,20 @@ public sealed class DemoEndpointCoverageTests
         Assert.Contains("demo mode", downloadContent, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task UnknownApiEndpoint_ShouldReturnNotImplemented()
+    {
+        // Arrange
+        var factory = new DemoResponseFactory(new DemoSessionStore());
+        using var request = CreateRequest(HttpMethod.Get, "api/unknown-demo-endpoint");
+
+        // Act
+        using var response = await factory.CreateAsync(request);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.NotImplemented, response.StatusCode);
+    }
+
     private static HttpRequestMessage CreateRequest(HttpMethod method, string path, HttpContent? content = null) =>
         new(method, new Uri($"https://localhost/{path}")) { Content = content };
 }
