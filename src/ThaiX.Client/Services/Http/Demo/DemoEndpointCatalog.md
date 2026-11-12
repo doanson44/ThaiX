@@ -45,14 +45,14 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/contacts/import-async` | Covered | Returns job `Guid`; stores `ContactImportJobDto` |
 | `api/contacts/import/jobs/{id}` | Covered | `ContactImportJobDto` (+ synthetic completed if unknown) |
 | `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/... |
-| `api/public-html` | Covered | Raw `PublicHtmlPageModel[]` GET; upload, rename, publish, delete use in-memory demo state |
+| `api/public-html` | Partial | Raw `PublicHtmlPageModel[]` GET and in-memory metadata mutations; uploaded HTML bytes are not persisted |
 | `api/system-logs` | Covered | Raw file list, preview DTO and text download; synthetic demo log only |
 | `api/files/upload` | Covered | **Raw** `UploadedFileDto` JSON (not ApiResponse) + `DemoImageUrls` |
 | `api/files/{id}` GET | Covered | `UploadedFileDto` in ApiResponse |
 | `api/files/{id}` DELETE | Covered | Success |
 | `api/portfolios` (+ export / import / template) | Covered | Paged >=80, search, CRUD, CSV |
-| `api/games/leaderboards\|guest-session\|scores` | Covered | Typed leaderboard with seeded entries, guest session and score submission envelopes; submitted scores are not persisted |
-| `api/stock\|crypto\|saving-positions` | Covered | Paged >=80, `portfolioId` + `search`/`searchTerm` filter; `{id}/transactions` paged |
+| `api/games/leaderboards\|guest-session\|scores` | Partial | Typed leaderboard with seeded entries, guest session and score submission envelopes; submitted scores are not persisted |
+| `api/stock\|crypto\|saving-positions` | Partial | Paged >=80, `portfolioId` + `search`/`searchTerm` filter; `{id}/transactions` paged; position writes are success shells and are not persisted |
 | `api/notes` | Covered | Paged + search/pin/archive filters; pin/archive toggles store |
 | `api/credential-accounts` | Covered | Paged; detail; password view/copy -> CredentialAccountPasswordDto; audit-logs seeded |
 | `api/blog/posts` | Covered | Admin list + PostDto by id |
@@ -63,12 +63,12 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/notification-schedules` | Covered | List/filter; NotificationScheduleDto GET/POST; run-now / preview / executions |
 | `api/notification-schedules/upcoming` | Covered | List of upcoming schedule items |
 | `api/notification-schedules/{id}/resume` | Covered | Success; status -> Active |
-| `api/price-alerts`, `api/market-scanner` | Covered | Paged >=80 + `search`/`searchTerm` filter |
+| `api/price-alerts`, `api/market-scanner` | Partial | Paged >=80 + `search`/`searchTerm` filter; create/update/delete are response shells and do not mutate the seed |
 | `api/api-clients` | Covered | List/scopes; CreateApiClientResponse; regenerate-secret; activate/deactivate |
 | `api/json-bins` | Covered | Paged search; CRUD; code-exists; by-code; content; expire; share/revoke |
 | `api/public/json-bins/share/{token}` | Covered | Anonymous shared bin payload |
 | `api/public/donate-config` | Covered | Raw PublicDonateConfigurationResponse; disabled in demo mode |
-| `api/developer-tools/cmsx-proxy/test` | Covered | Typed diagnostic envelope; proxy request is deliberately not sent in demo mode |
+| `api/developer-tools/cmsx-proxy/test` | Partial | Typed diagnostic envelope; proxy request is deliberately not sent in demo mode |
 | `api/expense-tracker/*` | Covered | Typed dashboard and CRUD responses backed by in-memory demo seed |
 | `api/external-data/market/dashboard` | Covered | Typed MarketDashboardResponseDto with unavailable demo values; Home renders without null nested data |
 | `api/external-data/market/commodities\|currencies\|cryptocurrencies` | Covered | nested `*ResponseDto.Data` >=80 |
