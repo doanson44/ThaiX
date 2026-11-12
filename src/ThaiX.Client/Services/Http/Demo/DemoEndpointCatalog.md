@@ -21,6 +21,8 @@ Status legend:
 | **Partial** | Responds but some mutations/filters are shells only |
 | **Missing** | Should be zero for HttpClient REST (MEXC WebSocket excluded) |
 
+Unmapped top-level, external-data, and master-data routes return HTTP 501 instead of a generic placeholder. Add a typed handler and catalog row when a FE endpoint is introduced.
+
 Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development may set `false` to hit a live API).
 
 | Path | Status | Demo shape / notes |
