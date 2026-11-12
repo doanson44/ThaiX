@@ -74,7 +74,6 @@
     {
         _engine.Reset();
         _lastTickTimestamp = Stopwatch.GetTimestamp();
-        StartLoop(TickMilliseconds, Tick);
     }
 
     protected override void OnParametersSet()
@@ -106,6 +105,7 @@
         {
             RestartClock();
             _lastTickTimestamp = Stopwatch.GetTimestamp();
+            StartLoop(TickMilliseconds, Tick);
         }
     }
 
