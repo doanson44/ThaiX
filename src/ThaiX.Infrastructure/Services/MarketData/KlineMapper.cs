@@ -35,7 +35,7 @@ public static class KlineMapper
             data.Close.Count != count ||
             data.Vol.Count != count)
         {
-            throw new ArgumentException("Inconsistent crypto kline arrays.", nameof(raw));
+            throw new ArgumentException("Inconsistent crypto kline arrays.", nameof(response));
         }
 
         var klines = new List<Kline>(count);
