@@ -1,8 +1,7 @@
 # New Module Workflow
 
 Build and test with the repository-pinned .NET SDK 11.0.100. All application and test projects
-now target `net11.0` / C# 15. See
-[`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md).
+target `net11.0` / C# 15. See [`SDK-11-TOOLCHAIN.md`](SDK-11-TOOLCHAIN.md).
 
 Create a complete module across the layers when the requested scope is clear. Do not pause for
 confirmation after every layer. Ask only when a material business rule, public contract, destructive

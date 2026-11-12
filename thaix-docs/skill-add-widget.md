@@ -1,8 +1,7 @@
 # Add Widget Workflow
 
-Use the repository-pinned .NET SDK 11.0.100 for builds. The Client project remains
-`net10.0` / C# 14; keep its framework and package major versions unchanged unless a separate
-framework migration is requested. See [`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md).
+Use the repository-pinned .NET SDK 11.0.100 for builds. The Client project targets
+`net11.0` / C# 15. See [`SDK-11-TOOLCHAIN.md`](SDK-11-TOOLCHAIN.md).
 
 Follow the current implementation in `.agents/skills/add-widget/SKILL.md` as the primary
 reference. The rules below capture its important contracts and guard against older templates.

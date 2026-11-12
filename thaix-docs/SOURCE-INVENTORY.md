@@ -13,13 +13,13 @@ not claim that every supplied file has been copied one-for-one.
 
 | Supplied source | Refreshed file |
 |---|---|
-| `instruction-application-layer.md` | `instructions/application-layer.md` |
-| `instruction-security-auth.md` | `instructions/security-auth.md` |
-| `instruction-testing.md` | `instructions/testing.md` |
-| `skill-db-query.md` | `skills/db-query.md` |
-| `skill-new-module.md` | `skills/new-module.md` |
-| `skill-add-integration-test.md` | `skills/add-integration-test.md` |
-| `skill-add-widget.md` | `skills/add-widget.md` |
+| `instruction-application-layer.md` | `instruction-application-layer.md` |
+| `instruction-security-auth.md` | `instruction-security-auth.md` |
+| `instruction-testing.md` | `instruction-testing.md` |
+| `skill-db-query.md` | `skill-db-query.md` |
+| `skill-new-module.md` | `skill-new-module.md` |
+| `skill-add-integration-test.md` | `skill-add-integration-test.md` |
+| `skill-add-widget.md` | `skill-add-widget.md` |
 
 ## Reviewed and retained for follow-up
 
