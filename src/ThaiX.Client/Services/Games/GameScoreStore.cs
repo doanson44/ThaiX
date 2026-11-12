@@ -85,8 +85,11 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
 
         try
         {
-            return JsonSerializer.Deserialize<TowerDefenseProgress>(json, JsonOptions)
+            var progress = JsonSerializer.Deserialize<TowerDefenseProgress>(json, JsonOptions)
                 ?? new TowerDefenseProgress();
+            progress.MissionStars ??= [];
+            progress.UnlockedMission = Math.Clamp(progress.UnlockedMission, 1, 14);
+            return progress;
         }
         catch (JsonException)
         {

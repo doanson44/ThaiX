@@ -347,17 +347,22 @@ else
 
     private async Task CompleteRunAsync()
     {
-        if (_engine.Mode == TowerDefenseMode.Campaign && _engine.MissionCompleted)
+        try
         {
-            var mission = _engine.MissionNumber;
-            var stars = _engine.CalculateStars();
-            _progress.MissionStars[mission] = Math.Max(_progress.MissionStars.GetValueOrDefault(mission), stars);
-            _progress.UnlockedMission = Math.Max(_progress.UnlockedMission, Math.Min(14, mission + 1));
-            _engine.SetProgress(_progress.UnlockedMission);
-            await ScoreStore.SaveTowerDefenseProgressAsync(_progress);
+            if (_engine.Mode == TowerDefenseMode.Campaign && _engine.MissionCompleted)
+            {
+                var mission = _engine.MissionNumber;
+                var stars = _engine.CalculateStars();
+                _progress.MissionStars[mission] = Math.Max(_progress.MissionStars.GetValueOrDefault(mission), stars);
+                _progress.UnlockedMission = Math.Max(_progress.UnlockedMission, Math.Min(14, mission + 1));
+                _engine.SetProgress(_progress.UnlockedMission);
+                await ScoreStore.SaveTowerDefenseProgressAsync(_progress);
+            }
         }
-
-        Finish(_engine.Score, _engine.Mode == TowerDefenseMode.Campaign ? "campaign" : "endless");
+        finally
+        {
+            Finish(_engine.Score, _engine.Mode == TowerDefenseMode.Campaign ? "campaign" : "endless");
+        }
     }
 
     private void SelectCell(int cell)
