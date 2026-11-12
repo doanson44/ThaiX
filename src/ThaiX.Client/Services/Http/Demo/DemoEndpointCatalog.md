@@ -44,6 +44,7 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/contacts/import/jobs/{id}` | Covered | `ContactImportJobDto` (+ synthetic completed if unknown) |
 | `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/… |
 | `api/public-html` | Covered | Raw `PublicHtmlPageModel[]` GET; upload, rename, publish, delete use in-memory demo state |
+| `api/system-logs` | Covered | Raw file list, preview DTO and text download; synthetic demo log only |
 | `api/files/upload` | Covered | **Raw** `UploadedFileDto` JSON (not ApiResponse) + `DemoImageUrls` |
 | `api/files/{id}` GET | Covered | `UploadedFileDto` in ApiResponse |
 | `api/files/{id}` DELETE | Covered | Success |
