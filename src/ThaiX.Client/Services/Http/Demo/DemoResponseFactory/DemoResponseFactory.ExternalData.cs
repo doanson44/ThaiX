@@ -21,7 +21,7 @@ public sealed partial class DemoResponseFactory
             {
                 return DemoEnvelope.SuccessData(new CombinedMarketAssessmentResponseDto
                 {
-                    Commentary = "DEMO CROSS-MARKET ASSESSMENT\\n\\nVIX: volatility is in a neutral regime; no volatility shock is indicated by the supplied demo snapshot.\\n\\nVNINDEX: the technical profile is bullish with positive momentum. Prefer confirmation above the recent range and define invalidation before entry.\\n\\nBitcoin: momentum is strong and the trend is bullish, but crypto volatility warrants smaller position sizing.\\n\\nGold: the trend is bullish with a constructive pullback setup, providing a defensive asset perspective.\\n\\nPortfolio view: risk appetite is positive but not uniform across assets. Avoid concentration, use independent stop levels, and treat all figures as synthetic demo data."
+                    Commentary = "DEMO CROSS-MARKET ASSESSMENT\n\nVIX: volatility is in a neutral regime; no volatility shock is indicated by the supplied demo snapshot.\n\nVNINDEX: the technical profile is bullish with positive momentum. Prefer confirmation above the recent range and define invalidation before entry.\n\nBitcoin: momentum is strong and the trend is bullish, but crypto volatility warrants smaller position sizing.\n\nGold: the trend is bullish with a constructive pullback setup, providing a defensive asset perspective.\n\nPortfolio view: risk appetite is positive but not uniform across assets. Avoid concentration, use independent stop levels, and treat all figures as synthetic demo data."
                 });
             }
 
