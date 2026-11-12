@@ -60,6 +60,7 @@ public sealed class AuthFixture : IAsyncLifetime
                 ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
             });
             var publicOnlyPage = await publicOnlyContext.NewPageAsync();
+            AttachBrowserDiagnostics(publicOnlyPage);
             await GotoAsync(publicOnlyPage, "/auth/login", 1280, 800);
             await EnsureDemoModeAsync(publicOnlyPage);
 
@@ -77,27 +78,51 @@ public sealed class AuthFixture : IAsyncLifetime
             ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
         });
         var authenticatedPage = await authContext.NewPageAsync();
+        AttachBrowserDiagnostics(authenticatedPage);
+        LogFixture("Authentication setup started.");
 
-        await GotoAsync(authenticatedPage, "/auth/login", 1280, 800);
-        await EnsureDemoModeAsync(authenticatedPage);
-
-        await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
-        await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
-        var loginSubmitButton = authenticatedPage.Locator("button[type='submit']");
-        await loginSubmitButton.WaitForAsync(new LocatorWaitForOptions
+        try
         {
-            State = WaitForSelectorState.Visible,
-            Timeout = 15000
-        });
+            LogFixture("Navigating to the login page.");
+            await GotoAsync(authenticatedPage, "/auth/login", 1280, 800);
+            LogFixture($"Login page ready. URL: {authenticatedPage.Url}");
+            await EnsureDemoModeAsync(authenticatedPage);
 
-        // Blazor performs client-side navigation; do not make the click action wait for navigation.
-        await loginSubmitButton.DispatchEventAsync("click");
-        await authenticatedPage.WaitForFunctionAsync(
-            "() => window.location.pathname === '/' && !!localStorage.getItem('AuthToken')",
-            null,
-            new PageWaitForFunctionOptions { Timeout = 60000 });
-        await WaitForPageReadyAsync(authenticatedPage, "/");
-        await EnsureDemoModeAsync(authenticatedPage);
+            LogFixture("Filling login credentials.");
+            await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
+            await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
+
+            var loginSubmitButton = authenticatedPage.Locator("button[type='submit']");
+            await loginSubmitButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = 15000
+            });
+            LogFixture($"Login submit button ready. Count: {await loginSubmitButton.CountAsync()}, enabled: {await loginSubmitButton.IsEnabledAsync()}.");
+
+            // Blazor performs client-side navigation; do not make the click action wait for navigation.
+            LogFixture("Dispatching login submit click.");
+            await loginSubmitButton.DispatchEventAsync("click");
+
+            LogFixture("Waiting for the Blazor route and auth token.");
+            await authenticatedPage.WaitForFunctionAsync(
+                "() => window.location.pathname === '/' && !!localStorage.getItem('AuthToken')",
+                null,
+                new PageWaitForFunctionOptions { Timeout = 60000 });
+
+            LogFixture($"Login state reached. URL: {authenticatedPage.Url}");
+            await WaitForPageReadyAsync(authenticatedPage, "/");
+            await EnsureDemoModeAsync(authenticatedPage);
+            LogFixture("Authentication setup completed.");
+        }
+        catch (Exception ex)
+        {
+            var diagnostics = await GetAuthenticationDiagnosticsAsync(authenticatedPage);
+            LogFixture($"Authentication setup failed: {ex}");
+            throw new InvalidOperationException(
+                $"Visual test authentication setup failed.{Environment.NewLine}{diagnostics}",
+                ex);
+        }
 
         _authStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-auth-{Guid.NewGuid():N}.json");
         await authContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _authStorageStatePath });
@@ -109,6 +134,7 @@ public sealed class AuthFixture : IAsyncLifetime
             ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
         });
         var publicPage = await publicContext.NewPageAsync();
+        AttachBrowserDiagnostics(publicPage);
         await GotoAsync(publicPage, "/auth/login", 1280, 800);
         await EnsureDemoModeAsync(publicPage);
 
@@ -143,6 +169,8 @@ public sealed class AuthFixture : IAsyncLifetime
 
         var context = await Browser.NewContextAsync(contextOptions);
         var page = await context.NewPageAsync();
+        AttachBrowserDiagnostics(page);
+        LogFixture($"Created {(authenticated ? "authenticated" : "guest")} page. Viewport: {width}x{height}, locale: {locale ?? "default"}.");
         return (context, page);
     }
 
@@ -270,6 +298,84 @@ public sealed class AuthFixture : IAsyncLifetime
         {
             // Some pages keep websockets/polling; content wait above is enough.
         }
+    }
+
+    private static void AttachBrowserDiagnostics(IPage page)
+    {
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error" || message.Type == "warning")
+            {
+                LogFixture($"Browser console {message.Type}: {message.Text}");
+            }
+        };
+        page.PageError += (_, error) => LogFixture($"Browser page error: {error}");
+        page.RequestFailed += (_, request) =>
+            LogFixture($"Request failed: {request.Method} {GetSafeUrl(request.Url)} ({request.Failure ?? "unknown"})");
+        page.Request += (_, request) =>
+        {
+            if (request.Method is "POST" or "PUT" or "PATCH" or "DELETE")
+            {
+                LogFixture($"HTTP request: {request.Method} {GetSafeUrl(request.Url)}");
+            }
+        };
+        page.Response += (_, response) =>
+        {
+            if (response.Status >= 400)
+            {
+                LogFixture($"HTTP response error: {response.Status} {response.StatusText} {response.Request.Method} {GetSafeUrl(response.Url)}");
+            }
+        };
+    }
+
+    private static string GetSafeUrl(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out var uri)
+            ? $"{uri.GetLeftPart(UriPartial.Path)}"
+            : url.Split('?', 2)[0];
+    }
+
+    private static void LogFixture(string message)
+    {
+        Console.WriteLine($"[ThaiX.VisualTests] {DateTimeOffset.Now:O} {message}");
+    }
+
+    private static async Task<string> GetAuthenticationDiagnosticsAsync(IPage page)
+    {
+        string browserState;
+        try
+        {
+            browserState = await page.EvaluateAsync<string>(
+                """
+                () => JSON.stringify({
+                    url: location.href.split("?")[0],
+                    title: document.title,
+                    readyState: document.readyState,
+                    pathname: location.pathname,
+                    loadingVisible: !!document.querySelector("svg.loading-progress"),
+                    errorUi: document.querySelector("#blazor-error-ui")?.textContent?.trim() ?? null,
+                    authTokenPresent: !!localStorage.getItem("AuthToken"),
+                    submitButtons: Array.from(document.querySelectorAll("button[type='submit']")).map(button => ({
+                        text: button.innerText,
+                        disabled: button.disabled,
+                        visible: !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
+                    })),
+                    passwordInputCount: document.querySelectorAll("input[type='password']").length,
+                    usernameInputCount: document.querySelectorAll("input[name='username'], input[name='Username'], input.rz-textbox").length,
+                    bodyText: (document.body?.innerText ?? "").slice(0, 1500)
+                })
+                """);
+        }
+        catch (Exception diagnosticException)
+        {
+            browserState = $"Could not read browser state: {diagnosticException.Message}";
+        }
+
+        return string.Join(
+            Environment.NewLine,
+            "Authentication diagnostics:",
+            $"URL: {page.Url}",
+            $"Browser state: {browserState}");
     }
 
     private static async Task<string> GetStartupDiagnosticsAsync(
