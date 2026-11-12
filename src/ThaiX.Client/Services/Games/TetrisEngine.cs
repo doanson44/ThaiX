@@ -136,7 +136,7 @@ public sealed class TetrisEngine
     public void SoftDrop()
     {
         if (Move(0, 1))
-            Score++;
+            AddScore(1);
         else
             LockPiece();
     }
@@ -148,7 +148,7 @@ public sealed class TetrisEngine
 
         var distance = GhostY - PieceY;
         PieceY += distance;
-        Score += distance * 2;
+        AddScore(distance * 2);
         LockPiece();
     }
 
@@ -253,8 +253,11 @@ public sealed class TetrisEngine
 
         var scoringLevel = Level;
         Lines += cleared;
-        Score += (cleared switch { 1 => 100, 2 => 300, 3 => 500, 4 => 800, _ => 0 }) * scoringLevel;
+        AddScore((cleared switch { 1 => 100, 2 => 300, 3 => 500, 4 => 800, _ => 0 }) * scoringLevel);
     }
+
+    private void AddScore(int points) =>
+        Score = (int)Math.Min(1_000_000L, (long)Score + points);
 
     private bool Fits(int[][] shape, int x, int y)
     {
