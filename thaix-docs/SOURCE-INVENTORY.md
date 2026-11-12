@@ -4,6 +4,11 @@ The user supplied 25 Markdown source files. The audit report records findings fo
 This folder publishes refreshed canonical guidance for the high-impact areas listed below; it does
 not claim that every supplied file has been copied one-for-one.
 
+## Toolchain guidance
+
+- `SDK-11-TOOLCHAIN.md` records the repository SDK pin, current target frameworks, C# defaults,
+  CI/runtime requirements, and Docker image split.
+
 ## Refreshed canonical documents
 
 | Supplied source | Refreshed file |
