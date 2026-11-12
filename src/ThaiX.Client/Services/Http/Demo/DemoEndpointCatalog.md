@@ -1,13 +1,13 @@
 # Demo endpoint catalog (ThaiX.Client)
 
-Inventory of REST paths called from `src/ThaiX.Client/Services/**` and how demo mode answers them.
+Inventory of HTTP endpoints called by ThaiX.Client and how demo mode answers them.
 
 ## Re-scan (avoid coverage regression)
 
 From repo root:
 
 ```powershell
-rg -o '"api/[^"]+"' src/ThaiX.Client/Services --glob '*.cs' | Sort-Object -Unique
+rg -n 'api/|/api/' src/ThaiX.Client --glob '*.cs' --glob '*.razor'
 ```
 
 Also check interpolated paths in `ExternalDataService` (`api/external-data/...`).
