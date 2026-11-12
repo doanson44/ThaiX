@@ -1,5 +1,9 @@
 # Testing Rules
 
+Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Test projects currently target
+`net10.0`, so the .NET 10 runtime must also be installed to execute them. See
+[`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md). 
+
 ## Organization
 
 - Unit tests: `tests/ThaiX.Application.UnitTests/` using xUnit, Moq, and FluentAssertions.
