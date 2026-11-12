@@ -12,6 +12,7 @@ This file records implementation facts verified against the current ThaiX source
 ## Database Providers
 
 - The current `ApplicationDbContext` registration in `src/ThaiX.Infrastructure/DependencyInjection.cs` uses Oracle's `MySql.EntityFrameworkCore` provider through `UseMySQL(connectionString)`.
+- Keep the solution on `net10.0` and EF Core 10 until Oracle publishes a stable `MySql.EntityFrameworkCore` release compatible with EF Core 11 / .NET 11. Do not adopt its current prerelease 11.0.0 provider in production.
 - The current EF history repository is `MariaDbHistoryRepository`.
 - `DefaultConnection` is the application/Identity database connection.
 - `HangfireConnection` is used by Hangfire storage through `UseSqlServerStorage()`; it does not fall back to `DefaultConnection`.
