@@ -160,6 +160,27 @@ public sealed class FlappyEngineTests
     }
 
     [Fact]
+    public void Advance_BirdTouchingPipeWithItsCircle_ShouldFinishRound()
+    {
+        // Arrange
+        var engine = new FlappyEngine(new FixedRandom(0.55));
+        engine.Flap();
+
+        // Act
+        for (var step = 0; step < 400 && !engine.IsFinished; step++)
+        {
+            if (step > 0 && step % 60 == 0)
+                engine.Flap();
+
+            engine.Advance(1.0 / 60);
+        }
+
+        // Assert
+        engine.IsFinished.Should().BeTrue();
+        engine.Score.Should().Be(0);
+    }
+
+    [Fact]
     public void Flap_AfterGameOver_ShouldNotRestartRound()
     {
         // Arrange
