@@ -32,12 +32,12 @@ public sealed class TetrisEngine
     [
         [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
         [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
-        [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
-        [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
         [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)],
         [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
-        [(0, 0), (-1, 0), (-1, 1), (0, -2), (-1, -2)],
-        [(0, 0), (1, 0), (1, -1), (0, 2), (1, 2)]
+        [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)],
+        [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
+        [(0, 0), (-1, 0), (-1, -1), (0, 2), (-1, 2)],
+        [(0, 0), (1, 0), (1, 1), (0, -2), (1, -2)]
     ];
 
     private static readonly (int X, int Y)[][] IKicks =
@@ -156,22 +156,16 @@ public sealed class TetrisEngine
         var rotated = GameLogic.RotateClockwise(_shape);
         var nextRotation = (Rotation + 1) % 4;
         var kickSet = CurrentKind == TetrisPieceKind.I ? IKicks : JlstzKicks;
-        var kickIndex = Rotation * 2 + (Rotation == 0 || Rotation == 2 ? 0 : 1);
-        if (Rotation == 1)
-            kickIndex = 2;
-        else if (Rotation == 2)
-            kickIndex = 4;
-        else if (Rotation == 3)
-            kickIndex = 6;
+        var kickIndex = Rotation * 2;
 
         foreach (var (x, y) in kickSet[kickIndex])
         {
-            if (!Fits(rotated, PieceX + x, PieceY - y))
+            if (!Fits(rotated, PieceX + x, PieceY + y))
                 continue;
 
             _shape = rotated;
             PieceX += x;
-            PieceY -= y;
+            PieceY += y;
             Rotation = nextRotation;
             return;
         }
@@ -253,8 +247,9 @@ public sealed class TetrisEngine
         if (cleared == 0)
             return;
 
+        var scoringLevel = Level;
         Lines += cleared;
-        Score += (cleared switch { 1 => 100, 2 => 300, 3 => 500, 4 => 800, _ => 0 }) * Level;
+        Score += (cleared switch { 1 => 100, 2 => 300, 3 => 500, 4 => 800, _ => 0 }) * scoringLevel;
     }
 
     private bool Fits(int[][] shape, int x, int y)
