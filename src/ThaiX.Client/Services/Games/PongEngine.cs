@@ -91,7 +91,6 @@ public sealed class PongEngine
         var previousX = BallX;
         var previousY = BallY;
         var nextX = previousX + BallVelocityX * deltaTime;
-        var nextY = previousY + BallVelocityY * deltaTime;
 
         if (BallVelocityX < 0 && previousX > PlayerCollisionX && nextX <= PlayerCollisionX)
         {
