@@ -80,7 +80,15 @@ public sealed class AuthFixture : IAsyncLifetime
         catch (Exception ex)
         {
             LogFixture($"Visual test fixture initialization failed: {ex}");
-            await DisposeAsync();
+            try
+            {
+                await DisposeAsync();
+            }
+            catch (Exception cleanupException)
+            {
+                LogFixture($"Fixture cleanup after initialization failure also failed: {cleanupException}");
+            }
+
             throw;
         }
     }
@@ -665,11 +673,13 @@ public sealed class AuthFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        if (Browser is not null)
+        var browser = Browser;
+        Browser = null!;
+        if (browser is not null)
         {
             try
             {
-                await Browser.CloseAsync();
+                await browser.CloseAsync();
             }
             catch (PlaywrightException ex)
             {
@@ -677,11 +687,19 @@ public sealed class AuthFixture : IAsyncLifetime
             }
         }
 
-        Playwright?.Dispose();
-        await _appHost.DisposeAsync();
+        var playwright = Playwright;
+        Playwright = null!;
+        playwright?.Dispose();
 
-        TryDelete(_authStorageStatePath);
-        TryDelete(_publicStorageStatePath);
+        try
+        {
+            await _appHost.DisposeAsync();
+        }
+        finally
+        {
+            TryDelete(_authStorageStatePath);
+            TryDelete(_publicStorageStatePath);
+        }
     }
 
     private static void TryDelete(string? path)
