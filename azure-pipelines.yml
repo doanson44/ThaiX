@@ -28,7 +28,6 @@ pr:
 variables:
   buildConfiguration: 'Release'
   dotnetVersion: '11.0.x'
-  dotnetRuntimeVersion: '11.0.x'
   solutionPath: 'ThaiX.slnx'
   presentationProject: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
   unitTestProject: 'tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj'
