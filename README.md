@@ -6,7 +6,7 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 
 [![CI/CD](https://github.com/doanson44/ThaiX/actions/workflows/ci.yml/badge.svg)](https://github.com/doanson44/ThaiX/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![.NET](https://img.shields.io/badge/.NET-10-512BD4)](global.json)
+[![.NET](https://img.shields.io/badge/.NET-11-512BD4)](global.json)
 
 ## Features
 
@@ -25,7 +25,7 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 | Layer | Technology |
 |---|---|
 | Backend | .NET 11, C# 15, ASP.NET Core Minimal API |
-| Build toolchain | .NET SDK 11.0.100 (`global.json`); .NET 10 runtime for `net10.0` execution |
+| Build toolchain | .NET SDK 11.0.100 (`global.json`) |
 | Frontend | Blazor WebAssembly, Radzen Blazor, Bootstrap 5.3 (dark mode) |
 | Data | EF Core 11, MySQL / MariaDB |
 | CQRS | MediatR 12 |
@@ -74,8 +74,8 @@ deploy/, cloudflare/      Deployment and edge configuration
 
 ### Prerequisites
 
-- - .NET 11 SDK 11.0.100 (see [global.json](global.json)); all projects target `net11.0`
-- Oracle `MySql.EntityFrameworkCore` 11.0.0-preview is currently prerelease; validate the MariaDB integration suite before production rollout
+- .NET 11 SDK 11.0.100 (see [global.json](global.json)); all projects target `net11.0`
+- Oracle `MySql.EntityFrameworkCore` 11.0.0-preview is prerelease; validate the MariaDB integration suite before production rollout
 - SQL Server or MariaDB (see [docker-compose.yml](docker-compose.yml) for a local MariaDB container)
 - Node-free: the Blazor client uses LibMan for client-side libraries (`dotnet tool restore` + `dotnet libman restore`)
 
