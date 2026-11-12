@@ -49,6 +49,7 @@ public sealed class DemoEndpointCoverageTests
 
         // Assert
         Assert.Equal("2048", leaderboard.RootElement.GetProperty("data").GetProperty("gameId").GetString());
+        Assert.True(leaderboard.RootElement.GetProperty("data").GetProperty("entries").GetArrayLength() > 0);
         Assert.True(session.RootElement.GetProperty("data").TryGetProperty("token", out _));
         Assert.Equal(1, score.RootElement.GetProperty("data").GetProperty("rank").GetInt32());
     }
