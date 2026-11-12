@@ -101,7 +101,7 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.SuccessData(new TradeVerdictDto
             {
                 Verdict = "Proceed with caution",
-                Reasoning = "Demo verdict: setup quality is acceptable; keep risk under 1% of equity."
+                Reasoning = "Demo verdict: the supplied setup has a positive but non-conclusive edge. Confirm trend and momentum alignment, enter only within the planned entry zone, place the stop at the invalidation level, and cap risk at 1% of equity. This is synthetic demo commentary, not a live market recommendation."
             });
         }
 
