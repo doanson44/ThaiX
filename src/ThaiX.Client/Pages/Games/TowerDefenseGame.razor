@@ -108,7 +108,7 @@ else
                         r="@Px(selectedTower.Range)" fill="#f8fafc" fill-opacity="0.08" stroke="#f8fafc"
                         stroke-opacity="0.65" stroke-dasharray="5 5" />
             }
-            @foreach (var tower in _engine.Towers)
+            @foreach (var placedTower in _engine.Towers)
             {
                 <g transform="translate(@TowerDefenseEngine.CellX(placedTower.Cell) @TowerDefenseEngine.CellY(placedTower.Cell))">
                     <use href="#td-tower-base" />
