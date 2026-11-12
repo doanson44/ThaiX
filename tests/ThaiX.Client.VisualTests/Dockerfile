@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:11.0
 WORKDIR /workspace
 
 # Central package versions only — intentionally omit repo global.json (SDK 11 pin) and
-# Directory.Build.props (warning suppression only). This isolated SDK 10 image builds and runs
+# Directory.Build.props (warning suppression only). This image uses SDK 11 and runs
 # the net11.0 client with its matching runtime.
 COPY Directory.Packages.props ./
 COPY src/ThaiX.Client/ThaiX.Client.csproj src/ThaiX.Client/
