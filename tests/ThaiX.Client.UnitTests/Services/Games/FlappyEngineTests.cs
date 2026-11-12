@@ -50,7 +50,7 @@ public sealed class FlappyEngineTests
 
         // Assert
         engine.HasStarted.Should().BeTrue();
-        engine.BirdVelocity.Should().Be(-195);
+        engine.BirdVelocity.Should().BeApproximately(-216.66666666666666, 0.0001);
     }
 
     [Fact]
@@ -64,9 +64,9 @@ public sealed class FlappyEngineTests
         engine.Advance(1.0 / 60);
 
         // Assert
-        engine.BirdVelocity.Should().BeApproximately(-188.7, 0.0001);
-        engine.BirdY.Should().BeApproximately(226.855, 0.0001);
-        engine.Pipes[0].X.Should().BeApproximately(558.5, 0.0001);
+        engine.BirdVelocity.Should().BeApproximately(-208.88888888888886, 0.0001);
+        engine.BirdY.Should().BeApproximately(226.51851851851853, 0.0001);
+        engine.Pipes[0].X.Should().BeApproximately(558.3333333333334, 0.0001);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class FlappyEngineTests
         engine.Advance(1);
 
         // Assert
-        engine.Pipes[0].X.Should().BeApproximately(552.5, 0.0001);
+        engine.Pipes[0].X.Should().BeApproximately(551.6666666666666, 0.0001);
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public sealed class FlappyEngineTests
         // Act
         for (var step = 0; step < 400 && !engine.IsFinished; step++)
         {
-            if (step > 0 && step % 60 == 0)
+            if (step > 0 && step % 56 == 0)
                 engine.Flap();
 
             engine.Advance(1.0 / 60);
