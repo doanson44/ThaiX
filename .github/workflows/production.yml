@@ -145,6 +145,12 @@ jobs:
       name: production
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify deployment script
+        run: test -s run.sh
+
       - name: Upload deployment script
         uses: appleboy/scp-action@v1
         with:
@@ -154,6 +160,7 @@ jobs:
           port: ${{ secrets.SSH_SERVER_PORT || 22 }}
           source: "run.sh"
           target: "/srv/thaix"
+          overwrite: true
 
       - name: Deploy through SSH
         uses: appleboy/ssh-action@v1.2.2
@@ -165,5 +172,6 @@ jobs:
           command_timeout: 10m
           script: |
             set -e
+            test -s /srv/thaix/run.sh
             chmod 750 /srv/thaix/run.sh
             IMAGE_TAG="sha-${{ github.sha }}" /srv/thaix/run.sh
