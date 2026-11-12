@@ -123,7 +123,7 @@ public sealed class PongEngine
         }
 
         BallX = nextX;
-        BallY = ReflectY(nextY);
+        AdvanceVertical(deltaTime);
 
         if (BallX < 0)
         {
@@ -181,7 +181,28 @@ public sealed class PongEngine
     private void AdvanceBall(double deltaTime)
     {
         BallX += BallVelocityX * deltaTime;
-        BallY = ReflectY(BallY + BallVelocityY * deltaTime);
+        AdvanceVertical(deltaTime);
+    }
+
+    private void AdvanceVertical(double deltaTime)
+    {
+        var minimum = (double)BallRadius;
+        var maximum = BoardHeight - BallRadius;
+        var range = maximum - minimum;
+        var offset = (BallY - minimum + BallVelocityY * deltaTime) % (range * 2);
+
+        if (offset < 0)
+            offset += range * 2;
+
+        if (offset < range)
+        {
+            BallY = minimum + offset;
+        }
+        else
+        {
+            BallY = maximum - (offset - range);
+            BallVelocityY = -BallVelocityY;
+        }
     }
 
     private void CompletePoint()
