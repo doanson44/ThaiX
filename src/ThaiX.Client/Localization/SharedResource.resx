@@ -2132,9 +2132,10 @@
   <data name="Games.Snake.Name" xml:space="preserve"><value>Snake</value></data>
   <data name="Games.Snake.Description" xml:space="preserve"><value>Eat food, grow, and avoid collisions.</value></data>
   <data name="Games.Snake.Instructions" xml:space="preserve"><value>Use arrow keys or WASD, tap the on-screen arrows, or swipe to steer. Avoid walls and your own tail.</value></data>
+  <data name="Games.NextPiece" xml:space="preserve"><value>Next</value></data>
   <data name="Games.Tetris.Name" xml:space="preserve"><value>Tetris</value></data>
   <data name="Games.Tetris.Description" xml:space="preserve"><value>Fit falling blocks and clear complete lines.</value></data>
-  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Left/right move, up rotates, down soft-drops, and space hard-drops. On touch devices, use the buttons or swipe.</value></data>
+  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Left/right move, up rotates, down soft-drops, space hard-drops, and C holds a piece. On touch devices, use the buttons or swipe.</value></data>
   <data name="Games.Flappy.Name" xml:space="preserve"><value>Flappy</value></data>
   <data name="Games.Flappy.Description" xml:space="preserve"><value>Fly through gaps without hitting obstacles.</value></data>
   <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Tap, click, or press Space to flap upward. Pass through the gaps.</value></data>

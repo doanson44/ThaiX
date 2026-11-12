@@ -81,6 +81,7 @@ public static class ResourceKeys
         public const string KeyEnter = "Games.KeyEnter";
         public const string KeyRotate = "Games.KeyRotate";
         public const string KeyDrop = "Games.KeyDrop";
+        public const string NextPiece = "Games.NextPiece";
         public const string Passed = "Games.Passed";
         public const string WrongGuesses = "Games.WrongGuesses";
         public const string Time = "Games.Time";
