@@ -64,11 +64,20 @@ public sealed class LightThemeVisualTests
                 if (UpdateBaselines)
                 {
                     Directory.CreateDirectory(BaselineDir);
-                    await page.ScreenshotAsync(new PageScreenshotOptions { Path = baselinePath, FullPage = true });
+                    await page.ScreenshotAsync(new PageScreenshotOptions
+                    {
+                        Path = baselinePath,
+                        FullPage = true,
+                        Animations = ScreenshotAnimations.Disabled
+                    });
                     return;
                 }
 
-                var screenshot = await page.ScreenshotAsync(new PageScreenshotOptions { FullPage = true });
+                var screenshot = await page.ScreenshotAsync(new PageScreenshotOptions
+                {
+                    FullPage = true,
+                    Animations = ScreenshotAnimations.Disabled
+                });
 
                 if (!File.Exists(baselinePath))
                 {
@@ -111,11 +120,18 @@ public sealed class LightThemeVisualTests
     {
         await page.EvaluateAsync("() => window.ThaiXTheme && window.ThaiXTheme.set('light')");
         await page.WaitForFunctionAsync(
-            "() => document.documentElement.getAttribute('data-bs-theme') === 'light'",
+            """
+            () => {
+                const themeLink = document.getElementById("ThaiX-radzen-theme");
+                return document.documentElement.getAttribute("data-bs-theme") === "light"
+                    && themeLink?.href.endsWith("/_content/Radzen.Blazor/css/standard-base.css")
+                    && themeLink.sheet !== null;
+            }
+            """,
             null,
-            new PageWaitForFunctionOptions { Timeout = 10000 });
-        // Let Radzen theme stylesheet swap settle before capture.
-        await page.WaitForTimeoutAsync(400);
+            new PageWaitForFunctionOptions { Timeout = 15000 });
+
+        await page.EvaluateAsync("() => document.fonts.ready");
     }
 
     private static async Task OpenSidebarIfNeededAsync(IPage page)
