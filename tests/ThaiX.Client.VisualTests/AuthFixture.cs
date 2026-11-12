@@ -380,7 +380,7 @@ public sealed class AuthFixture : IAsyncLifetime
                     readyState: document.readyState,
                     pathname: location.pathname,
                     loadingVisible: !!document.querySelector("svg.loading-progress"),
-                    errorUi: document.querySelector("#blazor-error-ui")?.textContent?.trim() ?? null,
+                    errorUiVisible: !!document.querySelector("#blazor-error-ui") && getComputedStyle(document.querySelector("#blazor-error-ui")).display !== "none",
                     authTokenPresent: !!localStorage.getItem("AuthToken"),
                     submitButtons: Array.from(document.querySelectorAll("button[type='submit']")).map(button => ({
                         text: button.innerText,
@@ -388,8 +388,7 @@ public sealed class AuthFixture : IAsyncLifetime
                         visible: !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
                     })),
                     passwordInputCount: document.querySelectorAll("input[type='password']").length,
-                    usernameInputCount: document.querySelectorAll("input[name='username'], input[name='Username'], input.rz-textbox").length,
-                    bodyText: (document.body?.innerText ?? "").slice(0, 1500)
+                    usernameInputCount: document.querySelectorAll("input[name='username'], input[name='Username'], input.rz-textbox").length
                 })
                 """);
         }
