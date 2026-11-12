@@ -1,3 +1,5 @@
+@using System.Diagnostics
+@using ThaiX.Client.Services.Games
 @inherits GameBase
 
 <div class="flappy-game">
@@ -5,7 +7,7 @@
             aria-label="@L[ResourceKeys.Games.NameFlappy]"
             aria-describedby="game-instructions"
             @onclick="Flap">
-        <svg class="flappy-canvas" viewBox="0 0 720 480" role="img" aria-label="@L[ResourceKeys.Games.NameFlappy]">
+        <svg class="flappy-canvas" viewBox="0 0 @FlappyEngine.BoardWidth @FlappyEngine.BoardHeight" role="img" aria-label="@L[ResourceKeys.Games.NameFlappy]">
             <defs>
                 <linearGradient id="flappy-sky" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#0f4568" />
@@ -20,7 +22,7 @@
 
             <rect width="720" height="480" fill="#101827" />
             <text class="flappy-title" x="360" y="31">@L[ResourceKeys.Games.NameFlappy]</text>
-            <text class="flappy-score" x="24" y="31">@L[ResourceKeys.Games.Score]: @_score</text>
+            <text class="flappy-score" x="24" y="31">@L[ResourceKeys.Games.Score]: @_engine.Score</text>
             <rect x="0" y="45" width="720" height="423" fill="url(#flappy-sky)" />
 
             <g class="flappy-clouds" aria-hidden="true">
@@ -28,66 +30,62 @@
                 <path d="M500 145c0-10 8-18 18-18 4-12 21-15 29-5 13-2 23 7 23 19 0 2 0 3-1 4h-68c-1 0-1 0-1 0Z" />
             </g>
 
-            @foreach (var pipe in _pipes)
+            @foreach (var pipe in _engine.Pipes)
             {
-                var gapTop = pipe.GapCenter - GapHeight / 2;
-                var gapBottom = pipe.GapCenter + GapHeight / 2;
+                var gapTop = pipe.GapCenter - FlappyEngine.GapHeight / 2;
+                var gapBottom = pipe.GapCenter + FlappyEngine.GapHeight / 2;
                 <g class="flappy-pipe">
-                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(PlayTop)" width="@SvgNumber(PipeWidth)" height="@SvgNumber(Math.Max(0, gapTop - PlayTop))" fill="url(#flappy-pipe)" />
-                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapTop - 12)" width="@SvgNumber(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
-                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(PlayTop)" width="4" height="@SvgNumber(Math.Max(0, gapTop - PlayTop - 12))" fill="#86efac" opacity="0.65" />
+                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(FlappyEngine.PlayTop)" width="@SvgNumber(FlappyEngine.PipeWidth)" height="@SvgNumber(Math.Max(0, gapTop - FlappyEngine.PlayTop))" fill="url(#flappy-pipe)" />
+                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapTop - 12)" width="@SvgNumber(FlappyEngine.PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(FlappyEngine.PlayTop)" width="4" height="@SvgNumber(Math.Max(0, gapTop - FlappyEngine.PlayTop - 12))" fill="#86efac" opacity="0.65" />
 
-                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(gapBottom)" width="@SvgNumber(PipeWidth)" height="@SvgNumber(Math.Max(0, FloorY - gapBottom))" fill="url(#flappy-pipe)" />
-                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapBottom)" width="@SvgNumber(PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
-                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(gapBottom + 12)" width="4" height="@SvgNumber(Math.Max(0, FloorY - gapBottom - 12))" fill="#86efac" opacity="0.65" />
+                    <rect x="@SvgNumber(pipe.X)" y="@SvgNumber(gapBottom)" width="@SvgNumber(FlappyEngine.PipeWidth)" height="@SvgNumber(Math.Max(0, FlappyEngine.FloorY - gapBottom))" fill="url(#flappy-pipe)" />
+                    <rect x="@SvgNumber(pipe.X - 4)" y="@SvgNumber(gapBottom)" width="@SvgNumber(FlappyEngine.PipeWidth + 8)" height="12" rx="3" fill="#4ade80" />
+                    <rect x="@SvgNumber(pipe.X + 7)" y="@SvgNumber(gapBottom + 12)" width="4" height="@SvgNumber(Math.Max(0, FlappyEngine.FloorY - gapBottom - 12))" fill="#86efac" opacity="0.65" />
                 </g>
             }
 
-            <rect x="0" y="@SvgNumber(FloorY)" width="720" height="12" fill="#075985" />
+            <rect x="0" y="@SvgNumber(FlappyEngine.FloorY)" width="720" height="12" fill="#075985" />
             <path d="M0 468h720" stroke="#38bdf8" stroke-width="2" opacity="0.65" />
 
             <g transform="@BirdTransform">
-                <circle cx="105" cy="@SvgNumber(_birdY)" r="15" fill="#facc15" />
-                <circle cx="110" cy="@SvgNumber(_birdY - 5)" r="2.5" fill="#0f172a" />
-                <path d="M117 @SvgNumber(_birdY) l10 3-10 3Z" fill="#fb923c" />
-                <path d="M95 @SvgNumber(_birdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
+                <circle cx="@SvgNumber(FlappyEngine.BirdX)" cy="@SvgNumber(_engine.BirdY)" r="@SvgNumber(FlappyEngine.BirdRadius)" fill="#facc15" />
+                <circle cx="110" cy="@SvgNumber(_engine.BirdY - 5)" r="2.5" fill="#0f172a" />
+                <path d="M117 @SvgNumber(_engine.BirdY) l10 3-10 3Z" fill="#fb923c" />
+                <path d="M95 @SvgNumber(_engine.BirdY + 12) q9 5 16 0" fill="none" stroke="#eab308" stroke-width="2" />
             </g>
         </svg>
     </button>
 </div>
 
 @code {
-    private const double BirdX = 105;
-    private const double BirdRadius = 15;
-    private const double PipeWidth = 55;
-    private const double GapHeight = 170;
-    private const double PlayTop = 45;
-    private const double FloorY = 468;
-    private const int TickMilliseconds = 30;
-    private const int PipeSpawnFrames = 95;
+    private const int TickMilliseconds = 16;
 
-    private readonly List<Pipe> _pipes = [];
-    private double _birdY;
-    private double _velocity;
-    private int _frame;
-    private int _score;
-    private bool _hasStarted;
+    private readonly FlappyEngine _engine = new();
+    private long _lastTickTimestamp;
+    private bool? _lastPaused;
 
-    private double BirdRotation => Math.Clamp(_velocity * 3, -22, 65);
-    private string BirdTransform => $"rotate({SvgNumber(BirdRotation)} 105 {SvgNumber(_birdY)})";
+    private double BirdRotation => Math.Clamp(_engine.BirdVelocity / 10, -22, 65);
+    private string BirdTransform => $"rotate({SvgNumber(BirdRotation)} {SvgNumber(FlappyEngine.BirdX)} {SvgNumber(_engine.BirdY)})";
 
-    private static string SvgNumber(double value) => Px(value);
+    private string SvgNumber(double value) => Px(value);
 
     protected override void Reset()
     {
-        _birdY = 230;
-        _velocity = 0;
-        _frame = 0;
-        _score = 0;
-        _hasStarted = false;
-        _pipes.Clear();
-        _pipes.Add(new Pipe(560, 235));
+        _engine.Reset();
+        _lastTickTimestamp = Stopwatch.GetTimestamp();
         StartLoop(TickMilliseconds, Tick);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+
+        if (_lastPaused != IsPaused)
+        {
+            _lastTickTimestamp = Stopwatch.GetTimestamp();
+            _lastPaused = IsPaused;
+        }
     }
 
     protected override void OnKey(string key)
@@ -101,74 +99,25 @@
         if (!CanPlay)
             return;
 
-        // The round, and its clock, only start with the first flap.
-        if (!_hasStarted)
-        {
-            _hasStarted = true;
-            RestartClock();
-        }
+        var wasStarted = _engine.HasStarted;
+        _engine.Flap();
 
-        _velocity = -6.5;
+        if (!wasStarted)
+        {
+            RestartClock();
+            _lastTickTimestamp = Stopwatch.GetTimestamp();
+        }
     }
 
     private void Tick()
     {
-        if (_hasStarted && UpdateGame())
-            Finish(_score);
-    }
+        var now = Stopwatch.GetTimestamp();
+        var elapsedSeconds = Stopwatch.GetElapsedTime(_lastTickTimestamp, now).TotalSeconds;
+        _lastTickTimestamp = now;
 
-    private bool UpdateGame()
-    {
-        _frame++;
-        _velocity += 0.42;
-        _birdY += _velocity;
+        _engine.Advance(elapsedSeconds);
 
-        if (_frame % PipeSpawnFrames == 0)
-            _pipes.Add(new Pipe(740, 180 + Random.Shared.NextDouble() * 100));
-
-        foreach (var pipe in _pipes)
-            pipe.X -= 3;
-
-        _pipes.RemoveAll(pipe => pipe.X < -PipeWidth - 8);
-
-        foreach (var pipe in _pipes)
-        {
-            if (!pipe.Passed && pipe.X + PipeWidth + 4 < BirdX)
-            {
-                pipe.Passed = true;
-                _score++;
-            }
-
-            var gapTop = pipe.GapCenter - GapHeight / 2;
-            var gapBottom = pipe.GapCenter + GapHeight / 2;
-            var overlapsPipe = BirdX + BirdRadius > pipe.X - 4
-                && BirdX - BirdRadius < pipe.X + PipeWidth + 4;
-            var outsideGap = _birdY - BirdRadius < gapTop
-                || _birdY + BirdRadius > gapBottom;
-
-            if (overlapsPipe && outsideGap)
-            {
-                FinishGame();
-                return true;
-            }
-        }
-
-        if (_birdY - BirdRadius < PlayTop || _birdY + BirdRadius > FloorY)
-        {
-            FinishGame();
-            return true;
-        }
-
-        return false;
-    }
-
-    private void FinishGame() =>
-        _birdY = Math.Clamp(_birdY, PlayTop + BirdRadius, FloorY - BirdRadius);
-
-    private sealed class Pipe(double x, double gapCenter)
-    {
-        public double X { get; set; } = x;
-        public double GapCenter { get; } = gapCenter;
-        public bool Passed { get; set; }
+        if (_engine.IsFinished)
+            Finish(_engine.Score);
     }
 }
