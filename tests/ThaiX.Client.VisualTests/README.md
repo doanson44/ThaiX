@@ -80,7 +80,8 @@ docker compose -f .docker-composes/docker-compose.client-visualtests.yaml down
 - `OverlayCatalog` must cover every `DialogService.OpenAsync<T>` — enforced by `OverlayCatalogCoverageTests`.
 - Parameterized routes use smoke values (`route-catalog-smoke-test`, `RouteCatalog.SmokeEntityId`).
 - Dockerfile runs `dotnet tool restore` + `dotnet tool run libman restore` before `dotnet build`.
-- Repo `global.json` (SDK 6) and `Directory.Build.props` (TFM net6) are **not** copied into the image.
+- The repo `global.json` pins SDK 11.0.100, but is intentionally not copied into this isolated SDK 10 image; this container builds and runs the `net10.0` client with its matching runtime.
+- Root `Directory.Build.props` only suppresses NU1902 and does not set a target framework; it is intentionally not copied into this isolated image.
 - Root `.dockerignore` limits build context to `Directory.Packages.props` + `src/ThaiX.Client`.
 - First image build is slow (restore + build); later builds use Docker layer cache.
 - `NotificationDesignPreviewTests.cs` is excluded from compile.
