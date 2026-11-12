@@ -45,7 +45,7 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/contacts/import-async` | Covered | Returns job `Guid`; stores `ContactImportJobDto` |
 | `api/contacts/import/jobs/{id}` | Covered | `ContactImportJobDto` (+ synthetic completed if unknown) |
 | `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/... |
-| `api/public-html` | Partial | Raw `PublicHtmlPageModel[]` GET and in-memory metadata mutations; uploaded HTML bytes are not persisted |
+| `api/public-html` | Partial | Raw `PublicHtmlPageModel[]` GET and in-memory metadata mutations; uploaded HTML bytes are not persisted; server-hosted preview is hidden in demo mode |
 | `api/system-logs` | Covered | Raw file list, preview DTO and text download; synthetic demo log only |
 | `api/files/upload` | Covered | **Raw** `UploadedFileDto` JSON (not ApiResponse) + `DemoImageUrls` |
 | `api/files/{id}` GET | Covered | `UploadedFileDto` in ApiResponse |
@@ -120,6 +120,6 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/notifications/preferences/{userId}` | Covered | List of UserNotificationPreferenceDto |
 | `api/notifications/preferences` PUT | Covered | Upsert into session store |
 
-**Skipped (not HttpClient product surface):** `api/account/external-login-callback` (browser redirect), `api/telegram/webhook` (server inbound).
+**Direct browser/server flows (not intercepted by DemoApiMessageHandler):** `api/account/external-login` (Google OAuth redirect; button hidden in demo mode), `/html/{slug}` and `/api/public-html/{slug}/content` (server-hosted HTML; View action hidden in demo mode), and `api/health` checks from the Health diagnostics page. `api/telegram/webhook` is server inbound.
 
 **Missing:** none for HttpClient REST paths (MEXC WebSocket pages excluded -- not HTTP).
