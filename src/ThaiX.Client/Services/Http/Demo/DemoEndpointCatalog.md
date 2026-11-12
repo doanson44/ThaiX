@@ -26,6 +26,7 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | Path | Status | Demo shape / notes |
 |---|---|---|
 | `health` / `api/health` | Covered | plain text |
+| `api/auth/email-otp/request\\|verify` + `api/auth/login-settings` | Covered | Typed OTP challenge / LoginResponse; login-settings mutation returns success |
 | `api/auth/*` | Covered | LoginResponse / UserInfoResponse / Success |
 | `api/account/login-2fa\|login-recovery` | Covered | LoginResponse |
 | `api/account/2fa-status` | Covered | TwoFactorStatusResponse |
@@ -42,10 +43,12 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/contacts/import-async` | Covered | Returns job `Guid`; stores `ContactImportJobDto` |
 | `api/contacts/import/jobs/{id}` | Covered | `ContactImportJobDto` (+ synthetic completed if unknown) |
 | `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/… |
+| `api/public-html` | Covered | Raw `PublicHtmlPageModel[]` GET; upload, rename, publish, delete use in-memory demo state |
 | `api/files/upload` | Covered | **Raw** `UploadedFileDto` JSON (not ApiResponse) + `DemoImageUrls` |
 | `api/files/{id}` GET | Covered | `UploadedFileDto` in ApiResponse |
 | `api/files/{id}` DELETE | Covered | Success |
 | `api/portfolios` (+ export / import / template) | Covered | Paged ≥80, search, CRUD, CSV |
+| `api/games/leaderboards\\|guest-session\\|scores` | Covered | Typed leaderboard, guest session and score submission envelopes; demo scores are not persisted |
 | `api/stock\|crypto\|saving-positions` | Covered | Paged ≥80, `portfolioId` + `search`/`searchTerm` filter; `{id}/transactions` paged |
 | `api/notes` | Covered | Paged + search/pin/archive filters; pin/archive toggles store |
 | `api/credential-accounts` | Covered | Paged; detail; password view/copy → CredentialAccountPasswordDto; audit-logs seeded |
@@ -61,6 +64,9 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/api-clients` | Covered | List/scopes; CreateApiClientResponse; regenerate-secret; activate/deactivate |
 | `api/json-bins` | Covered | Paged search; CRUD; code-exists; by-code; content; expire; share/revoke |
 | `api/public/json-bins/share/{token}` | Covered | Anonymous shared bin payload |
+| `api/public/donate-config` | Covered | Raw PublicDonateConfigurationResponse; disabled in demo mode |
+| `api/developer-tools/cmsx-proxy/test` | Covered | Typed diagnostic envelope; proxy request is deliberately not sent in demo mode |
+| `api/expense-tracker/*` | Covered | Typed dashboard and CRUD responses backed by in-memory demo seed |
 | `api/external-data/market/dashboard` | Covered | Typed MarketDashboardResponseDto with unavailable demo values; Home renders without null nested data |
 | `api/external-data/market/commodities\|currencies\|cryptocurrencies` | Covered | nested `*ResponseDto.Data` ≥80 |
 | `api/external-data/market/coingecko/coins-list` | Covered | nested list ≥80 |
