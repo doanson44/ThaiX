@@ -11,6 +11,7 @@ using ThaiX.Client.Models.MasterData;
 using ThaiX.Client.Models.Notes;
 using ThaiX.Client.Models.Notifications;
 using ThaiX.Client.Models.Portfolios;
+using ThaiX.Client.Models.PublicHtml;
 using ThaiX.Client.Models.PriceAlerts;
 using ThaiX.Client.Models.Resumes;
 using ThaiX.Client.Models.Trading;
@@ -46,6 +47,7 @@ public sealed class DemoSessionStore
     public List<CredentialAccountAuditDto> CredentialAudits { get; } = [];
     public List<PostListItemDto> BlogPosts { get; } = [];
     public List<PublishedPostListItemDto> PublishedPosts { get; } = [];
+    public List<PublicHtmlPageModel> PublicHtmlPages { get; } = [];
     public List<TagDto> BlogTags { get; } = [];
     public List<CategoryDto> BlogCategories { get; } = [];
     public List<NotificationScheduleListItemDto> NotificationSchedules { get; } = [];
@@ -95,7 +97,7 @@ public sealed class DemoSessionStore
         }
     }
 
-    /// <summary>Market / external-data / lottery / trading history — generated only when those pages are hit.</summary>
+    /// <summary>Market / external-data / lottery / trading history -- generated only when those pages are hit.</summary>
     public void EnsureMarketSeeded()
     {
         if (_marketSeeded)
@@ -163,6 +165,7 @@ public sealed class DemoSessionStore
         CredentialAudits.Clear();
         BlogPosts.Clear();
         PublishedPosts.Clear();
+        PublicHtmlPages.Clear();
         BlogTags.Clear();
         BlogCategories.Clear();
         NotificationSchedules.Clear();
@@ -265,6 +268,16 @@ public sealed class DemoSessionStore
 
         BlogPosts.AddRange(DemoDataGenerators.GenerateList(DemoDataGenerators.BlogPosts()));
         PublishedPosts.AddRange(DemoDataGenerators.GenerateList(DemoDataGenerators.PublishedPosts()));
+        PublicHtmlPages.Add(new PublicHtmlPageModel
+        {
+            Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            Title = "Demo landing page",
+            Slug = "demo-landing-page",
+            SizeBytes = 4096,
+            IsPublished = true,
+            CreatedAtUtc = DateTime.UtcNow.AddDays(-7),
+            PublishedAtUtc = DateTime.UtcNow.AddDays(-6)
+        });
         BlogTags.AddRange(DemoDataGenerators.GenerateList(DemoDataGenerators.BlogTags()));
         BlogCategories.AddRange(DemoDataGenerators.GenerateList(DemoDataGenerators.BlogCategories()));
         NotificationSchedules.AddRange(DemoDataGenerators.GenerateList(DemoDataGenerators.NotificationSchedules()));

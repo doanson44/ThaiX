@@ -81,6 +81,7 @@ public static class ResourceKeys
         public const string KeyEnter = "Games.KeyEnter";
         public const string KeyRotate = "Games.KeyRotate";
         public const string KeyDrop = "Games.KeyDrop";
+        public const string NextPiece = "Games.NextPiece";
         public const string Passed = "Games.Passed";
         public const string WrongGuesses = "Games.WrongGuesses";
         public const string Time = "Games.Time";
@@ -90,6 +91,19 @@ public static class ResourceKeys
         public const string WordleWords = "Games.WordleWords";
         public const string HangmanWords = "Games.HangmanWords";
         public const string TypingPassage = "Games.TypingPassage";
+        public const string TypingDifficulty = "Games.TypingDifficulty";
+        public const string TypingEasy = "Games.TypingEasy";
+        public const string TypingMedium = "Games.TypingMedium";
+        public const string TypingHard = "Games.TypingHard";
+        public const string TypingEasyPassage1 = "Games.TypingEasyPassage1";
+        public const string TypingEasyPassage2 = "Games.TypingEasyPassage2";
+        public const string TypingEasyPassage3 = "Games.TypingEasyPassage3";
+        public const string TypingMediumPassage1 = "Games.TypingMediumPassage1";
+        public const string TypingMediumPassage2 = "Games.TypingMediumPassage2";
+        public const string TypingMediumPassage3 = "Games.TypingMediumPassage3";
+        public const string TypingHardPassage1 = "Games.TypingHardPassage1";
+        public const string TypingHardPassage2 = "Games.TypingHardPassage2";
+        public const string TypingHardPassage3 = "Games.TypingHardPassage3";
         public const string Name2048 = "Games.2048.Name";
         public const string Description2048 = "Games.2048.Description";
         public const string Instructions2048 = "Games.2048.Instructions";
@@ -138,6 +152,15 @@ public static class ResourceKeys
         public const string NameConnectFour = "Games.ConnectFour.Name";
         public const string DescriptionConnectFour = "Games.ConnectFour.Description";
         public const string InstructionsConnectFour = "Games.ConnectFour.Instructions";
+        public const string NameTowerDefense = "Games.TowerDefense.Name";
+        public const string DescriptionTowerDefense = "Games.TowerDefense.Description";
+        public const string InstructionsTowerDefense = "Games.TowerDefense.Instructions";
+        public const string Wave = "Games.Wave";
+        public const string Lives = "Games.Lives";
+        public const string Gold = "Games.Gold";
+        public const string TowerGun = "Games.TowerGun";
+        public const string TowerCannon = "Games.TowerCannon";
+        public const string TowerFrost = "Games.TowerFrost";
     }
 
     public static class Menu

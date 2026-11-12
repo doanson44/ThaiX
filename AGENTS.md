@@ -1,6 +1,6 @@
 # ThaiX Repository Guidelines
 
-You are working on the ThaiX solution — a .NET 10 / C# 14 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend.
+You are working on the ThaiX solution — a .NET 11 / C# 15 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend. The repository pins .NET SDK 11.0.100 in `global.json`; all application and test projects target `net11.0` and therefore default to C# 15. The .NET 11 SDK installation includes the runtime required to run `net11.0` applications and tests.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ src/
 
 ## Technology Stack
 
-.NET 10 / C# 14 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 10 + MySQL/MariaDB | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
+.NET 11 / C# 15 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 11 + MySQL/MariaDB (Oracle provider 11.0.0-preview; prerelease) | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
 
 ## Mandatory Dependency Rules
 
@@ -116,10 +116,9 @@ dotnet watch run --non-interactive             # Run Presentation (cd src/ThaiX.
 
 ## Agent Delivery Workflow
 
-- For every implementation or repository-maintenance task, create and switch to a new branch from the current `master` before changing files.
 - Inspect the affected source and applicable instructions before editing; keep the diff focused.
 - Run the narrowest relevant verification and report commands and results accurately. Do not claim checks that were not run.
-- When the user requests a pull request, commit the completed changes on the task branch and open a PR targeting `master`. Do not merge the PR unless explicitly requested.
+- When the user requests a pull request, create a task branch from `master`, commit the completed changes on it, and open a PR targeting `master`. Do not merge the PR unless explicitly requested.
 - Do not ask for confirmation when the requested scope and implementation path are clear. Ask only when a genuinely blocking ambiguity or destructive external action requires it.
 
 ## Git Commit Message Policy

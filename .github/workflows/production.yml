@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DOTNET_VERSION: "10.0.302"
+  DOTNET_VERSION: "11.0.100"
   BUILD_CONFIGURATION: "Release"
   SOLUTION_PATH: "ThaiX.slnx"
   UNIT_TEST_PROJECT: "tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj"
@@ -31,10 +31,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK
+      - name: Install pinned .NET 11 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
 
       - name: Restore NuGet packages
         run: dotnet restore "${{ env.SOLUTION_PATH }}"
@@ -144,6 +145,16 @@ jobs:
       name: production
 
     steps:
+      - name: Upload deployment script
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_SERVER_HOST }}
+          username: ${{ secrets.SSH_SERVER_USER }}
+          key: ${{ secrets.SSH_SERVER_KEY }}
+          port: ${{ secrets.SSH_SERVER_PORT || 22 }}
+          source: "run.sh"
+          target: "/srv/thaix"
+
       - name: Deploy through SSH
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -154,4 +165,5 @@ jobs:
           command_timeout: 10m
           script: |
             set -e
+            chmod 750 /srv/thaix/run.sh
             IMAGE_TAG="sha-${{ github.sha }}" /srv/thaix/run.sh

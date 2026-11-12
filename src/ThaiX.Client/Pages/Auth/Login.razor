@@ -5,6 +5,7 @@
 @inject NotificationService NotificationService
 @inject IStringLocalizer<SharedResource> L
 @inject IConfiguration Configuration
+@inject ThaiX.Client.Services.Http.Demo.ApiConnectivityState ApiConnectivityState
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @using ThaiX.Client.Constants
 @implements IDisposable
@@ -113,14 +114,17 @@ else
     }
 </div>
 
-<div class="auth-divider">@L[RK.Auth.ExternalLoginOr]</div>
+@if (!ApiConnectivityState.IsDemoMode)
+{
+    <div class="auth-divider">@L[RK.Auth.ExternalLoginOr]</div>
 
-<RadzenButton Text="@L[RK.Auth.ExternalLoginGoogle]"
-              Icon="g_mobiledata"
-              ButtonType="ButtonType.Button"
-              Click="LoginWithGoogle"
-              ButtonStyle="ButtonStyle.Light"
-              class="w-100" />
+    <RadzenButton Text="@L[RK.Auth.ExternalLoginGoogle]"
+                  Icon="g_mobiledata"
+                  ButtonType="ButtonType.Button"
+                  Click="LoginWithGoogle"
+                  ButtonStyle="ButtonStyle.Light"
+                  class="w-100" />
+}
 
 @code {
     private LoginFormModel _model = new();

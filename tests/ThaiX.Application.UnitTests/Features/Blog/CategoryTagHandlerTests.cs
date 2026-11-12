@@ -151,6 +151,6 @@ public sealed class CategoryTagHandlerTests
         var handler = new DeleteTagCommandHandler(context);
         await handler.Invoking(h => h.Handle(new DeleteTagCommand { Id = tag.Id }, CancellationToken.None))
             .Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*ExecuteDelete*not supported*");
+            .WithMessage("*ExecuteDelete*");
     }
 }

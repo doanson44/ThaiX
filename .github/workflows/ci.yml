@@ -18,7 +18,7 @@ on:
       - develop
 
 env:
-  DOTNET_VERSION: '10.0.x'
+  DOTNET_VERSION: '11.0.x'
   BUILD_CONFIGURATION: 'Release'
   SOLUTION_PATH: 'ThaiX.slnx'
   PRESENTATION_PROJECT: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
@@ -38,11 +38,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK
+      - name: Install pinned .NET 11 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          dotnet-quality: 'preview'
+
 
       - name: Restore NuGet packages
         run: dotnet restore "${{ env.SOLUTION_PATH }}"
@@ -131,11 +131,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK
+      - name: Install pinned .NET 11 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-          dotnet-quality: 'preview'
+
 
       - name: Restore NuGet packages
         run: dotnet restore "${{ env.SOLUTION_PATH }}"

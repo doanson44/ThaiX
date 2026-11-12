@@ -28,10 +28,10 @@ internal sealed class ClientAppHost : IAsyncDisposable
         if (!string.IsNullOrWhiteSpace(overrideUrl))
         {
             BaseUrl = overrideUrl.TrimEnd('/');
-            if (!await IsReachableAsync(BaseUrl, cancellationToken))
+            if (!await IsHttpReadyAsync(BaseUrl, cancellationToken))
             {
                 throw new InvalidOperationException(
-                    $"APP_BASE_URL is set to {BaseUrl} but the app is not reachable. " +
+                    $"APP_BASE_URL is set to {BaseUrl}, but GET / did not return HTTP 2xx. " +
                     "Start the client container, or unset APP_BASE_URL so the fixture builds and starts Docker.");
             }
 
@@ -70,11 +70,11 @@ internal sealed class ClientAppHost : IAsyncDisposable
         var hostPort = _container.GetMappedPublicPort(AppPort);
         BaseUrl = $"http://127.0.0.1:{hostPort}";
 
-        if (!await IsReachableAsync(BaseUrl, cancellationToken))
+        if (!await IsHttpReadyAsync(BaseUrl, cancellationToken))
         {
             var logs = await _container.GetLogsAsync(timestampsEnabled: false);
             throw new InvalidOperationException(
-                $"Docker client container started but {BaseUrl} is not reachable.\n{logs.Stdout}\n{logs.Stderr}");
+                $"Docker client container started, but GET {BaseUrl}/ did not return HTTP 2xx.\n{logs.Stdout}\n{logs.Stderr}");
         }
     }
 
@@ -97,7 +97,7 @@ internal sealed class ClientAppHost : IAsyncDisposable
             "Could not locate repo root (ThaiX.sln/ThaiX.slnx + src/ThaiX.Client) from the test output directory.");
     }
 
-    private static async Task<bool> IsReachableAsync(string baseUrl, CancellationToken cancellationToken = default)
+    private static async Task<bool> IsHttpReadyAsync(string baseUrl, CancellationToken cancellationToken = default)
     {
         if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
         {
@@ -108,14 +108,18 @@ internal sealed class ClientAppHost : IAsyncDisposable
         {
             using var client = new HttpClient(new HttpClientHandler
             {
+                AllowAutoRedirect = false,
                 ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
             })
             {
                 Timeout = TimeSpan.FromSeconds(5)
             };
 
-            using var response = await client.GetAsync(uri, cancellationToken);
-            return response.IsSuccessStatusCode || (int)response.StatusCode is >= 300 and < 500;
+            using var response = await client.GetAsync(
+                uri,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+            return response.IsSuccessStatusCode;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SocketException)
         {

@@ -2,12 +2,21 @@
 
 This file records implementation facts verified against the current ThaiX source. Re-check the source before changing these facts; source code remains authoritative if this document becomes stale.
 
+## .NET Toolchain and Target Framework
+
+- The repository pins .NET SDK `11.0.100` through root `global.json`.
+- All application and test projects target `net11.0`; with the SDK default language-version mapping, they compile as C# 15.
+- The .NET 11 SDK installation includes the runtime required to execute `net11.0` applications and tests.
+- The solution has been retargeted to .NET 11; keep project TFMs aligned unless a deliberate future framework migration is requested.
+
 ## Database Providers
 
 - The current `ApplicationDbContext` registration in `src/ThaiX.Infrastructure/DependencyInjection.cs` uses Oracle's `MySql.EntityFrameworkCore` provider through `UseMySQL(connectionString)`.
+- The solution now targets `net11.0` / EF Core 11 and uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview`. This is a prerelease production dependency; verify database compatibility and upgrade to a stable provider as soon as Oracle publishes one.
 - The current EF history repository is `MariaDbHistoryRepository`.
 - `DefaultConnection` is the application/Identity database connection.
-- `HangfireConnection` is used by Hangfire storage through `MySqlConnector`; it may fall back to `DefaultConnection` when not configured.
+- `HangfireConnection` is used by Hangfire storage through `UseSqlServerStorage()`; it does not fall back to `DefaultConnection`.
+- When Hangfire is enabled, missing `HangfireConnection` causes startup/configuration failure.
 - The current presentation integration-test factory uses Testcontainers.MariaDb with MariaDB 11.4, `UseMySQL()`, and `MariaDbHistoryRepository`.
 - Do not copy SQL Server/Testcontainers.MsSql setup into current ThaiX integration tests. If a provider migration is requested, update the runtime registration, test factory, packages, migration behavior, and these instructions together.
 

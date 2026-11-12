@@ -42,12 +42,16 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
 - Do not set `fill` or `font-size` on SVG `text` in CSS: a CSS rule overrides the presentation
   attribute on the element. Defaults are inherited from `.game-svg` instead.
 - Capture loop variables in a local before using them in an event lambda.
+- A board that re-renders on every tick must not create a new lambda per clickable cell: cache the
+  delegates once (see `_cellClicks` in `TowerDefenseGame`), or the renderer re-registers every
+  handler on every frame.
 - Format doubles for SVG with `Px()`; the Vietnamese culture uses a decimal comma.
 
 ## Scoring contract
 
 - Client scores must stay valid for `GameScoreRules.IsValidScore`. Lower-is-better games:
   minesweeper, sudoku, memory-cards, 15-puzzle, lights-out, wordle.
+- Tower Defense scores are multiples of 10 (kill 10, boss 100), capped at 100000 on both sides.
 - A lost Minesweeper board reports 86400 and a failed Wordle reports 7. These still reach local
   history and the leaderboard; changing that needs a server-side decision.
 
@@ -59,7 +63,7 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
 - Browser smoke: `GamesSmokeTests` (Playwright). The fixture needs Docker. Without Docker, start
   the client with `dotnet run --launch-profile visual-tests` in `src/ThaiX.Client` and set
   `APP_BASE_URL=http://localhost:5201` and `VISUAL_SKIP_AUTH_LOGIN=true`. The Playwright browser
-  must be installed once with `bin/Debug/net10.0/playwright.ps1 install chromium`.
+  must be installed once with `bin/Debug/net11.0/playwright.ps1 install chromium`.
 - `GamesSmokeTests` locates the board by the `.game-canvas` class; keep that class on the wrapper.
 
 ## Open items from PR #153
@@ -68,3 +72,12 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
   finish within its time limit and gave no result. Treat browser behavior as unverified until
   `GamesSmokeTests` passes and each game is play-tested on desktop and touch.
 - Sudoku has a single fixed puzzle.
+- Tower Defense art is original vector art: every sprite is a `<g id="td-...">` in the board's
+  `<defs>`, drawn facing +X and placed with `<use>` plus a `rotate()`. Do not import art, maps or
+  names from an existing commercial game. A static mock rendered in headless Chromium is a quick
+  way to review sprite changes while the local app cannot be browser tested.
+- Tower Defense (added after PR #153) was not run in a browser either, and its balance numbers
+  (tower cost, damage, range, wave health growth of 1.18 per wave) are reasoned, not play-tested.
+- On 2026-11-11 the local `visual-tests` profile served pages that never became idle for any game:
+  `snake` and `tower-defense` both timed out in headless Chromium and in Chrome. The cause is not
+  diagnosed, so a hang there does not point at the game being opened.

@@ -32,7 +32,8 @@ public static class GameCatalog
         new("hangman", ResourceKeys.Games.NameHangman, ResourceKeys.Games.DescriptionHangman, ResourceKeys.Games.WordSkill, "psychology", ResourceKeys.Games.InstructionsHangman, ResourceKeys.Games.Score, typeof(HangmanGame)),
         new("typing-speed", ResourceKeys.Games.NameTyping, ResourceKeys.Games.DescriptionTyping, ResourceKeys.Games.WordSkill, "keyboard", ResourceKeys.Games.InstructionsTyping, ResourceKeys.Games.Wpm, typeof(TypingGame)),
         new("tic-tac-toe", ResourceKeys.Games.NameTicTacToe, ResourceKeys.Games.DescriptionTicTacToe, ResourceKeys.Games.Strategy, "grid_3x3", ResourceKeys.Games.InstructionsTicTacToe, ResourceKeys.Games.Wins, typeof(TicTacToeGame)),
-        new("connect-four", ResourceKeys.Games.NameConnectFour, ResourceKeys.Games.DescriptionConnectFour, ResourceKeys.Games.Strategy, "view_week", ResourceKeys.Games.InstructionsConnectFour, ResourceKeys.Games.Wins, typeof(ConnectFourGame))
+        new("connect-four", ResourceKeys.Games.NameConnectFour, ResourceKeys.Games.DescriptionConnectFour, ResourceKeys.Games.Strategy, "view_week", ResourceKeys.Games.InstructionsConnectFour, ResourceKeys.Games.Wins, typeof(ConnectFourGame)),
+        new("tower-defense", ResourceKeys.Games.NameTowerDefense, ResourceKeys.Games.DescriptionTowerDefense, ResourceKeys.Games.Strategy, "military_tech", ResourceKeys.Games.InstructionsTowerDefense, ResourceKeys.Games.Score, typeof(TowerDefenseGame))
     ];
 
     public static GameDefinition? Find(string? id) =>

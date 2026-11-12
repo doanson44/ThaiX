@@ -145,6 +145,30 @@ public static class GameLogic
         return false;
     }
 
+    /// <summary>
+    /// Returns the point reached after walking <paramref name="distance"/> along a polyline,
+    /// clamped to its first and last point.
+    /// </summary>
+    public static (double X, double Y) PointOnPath(IReadOnlyList<(double X, double Y)> path, double distance)
+    {
+        for (var i = 1; i < path.Count; i++)
+        {
+            var (fromX, fromY) = path[i - 1];
+            var (toX, toY) = path[i];
+            var length = double.Hypot(toX - fromX, toY - fromY);
+            if (distance > length && i < path.Count - 1)
+            {
+                distance -= length;
+                continue;
+            }
+
+            var ratio = length == 0 ? 0 : Math.Clamp(distance / length, 0, 1);
+            return (fromX + (toX - fromX) * ratio, fromY + (toY - fromY) * ratio);
+        }
+
+        return path[0];
+    }
+
     private static int Minimax(char[] cells, int depth, bool maximizing)
     {
         if (TicTacToeWon(cells, 'O'))

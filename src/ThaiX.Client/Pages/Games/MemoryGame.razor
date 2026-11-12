@@ -1,6 +1,22 @@
 @inherits GameBase
 
-<svg class="game-svg" viewBox="0 0 480 400">
+<div class="d-flex flex-wrap align-items-center justify-content-center gap-2 p-2">
+    <span class="small text-muted">@L[ResourceKeys.Games.TypingDifficulty]</span>
+    <button type="button" class="btn btn-sm @EasyButtonClass"
+            aria-pressed="@(_difficulty == "easy")" @onclick="SetEasyDifficulty">
+        @L[ResourceKeys.Games.TypingEasy]
+    </button>
+    <button type="button" class="btn btn-sm @MediumButtonClass"
+            aria-pressed="@(_difficulty == "medium")" @onclick="SetMediumDifficulty">
+        @L[ResourceKeys.Games.TypingMedium]
+    </button>
+    <button type="button" class="btn btn-sm @HardButtonClass"
+            aria-pressed="@(_difficulty == "hard")" @onclick="SetHardDifficulty">
+        @L[ResourceKeys.Games.TypingHard]
+    </button>
+</div>
+
+<svg class="game-svg" viewBox="@($"0 0 480 {_rows * 116 + 52}")">
     @for (var i = 0; i < _values.Length; i++)
     {
         var index = i;
@@ -9,18 +25,28 @@
         var shown = _open[i] || _matched[i];
         <g class="g-hit" @onclick="() => FlipAsync(index)">
             <rect x="@left" y="@top" width="104" height="104" rx="12" fill="@(shown ? "#e2e8f0" : "#334155")" />
-            <text x="@(left + 52)" y="@(top + 52)" font-size="34" fill="@(shown ? "#0f172a" : "#f8fafc")">@(shown ? _values[i].ToString() : "?")</text>
+            <g>
+                <text x="@(left + 52)" y="@(top + 52)" font-size="@(shown ? 46 : 34)"
+                      fill="@(shown ? "#0f172a" : "#f8fafc")">@(shown ? (MarkupString)FruitGlyph(_values[i]) : (MarkupString)"?")</text>
+            </g>
             @if (_cursor == i)
             {
                 <rect class="g-cursor" x="@(left + 3)" y="@(top + 3)" width="98" height="98" rx="10" />
             }
         </g>
     }
-    <text class="g-muted" x="240" y="380">@L[ResourceKeys.Games.Moves]: @_moves</text>
+    <text class="g-muted" x="240" y="@(_rows * 116 + 38)">@L[ResourceKeys.Games.Moves]: @_moves</text>
 </svg>
 
 @code {
     private const int MismatchDelayMilliseconds = 700;
+    private const int ColumnCount = 4;
+
+    private static readonly int[] FruitCodePoints =
+    [
+        0x1F34E, 0x1F34C, 0x1F353, 0x1F349, 0x1F95D, 0x1F352,
+        0x1F96D, 0x1F34D, 0x1F951, 0x1F347, 0x1F965, 0x1F350
+    ];
 
     private int[] _values = [];
     private bool[] _open = [];
@@ -29,14 +55,27 @@
     private int _cursor;
     private int _moves;
     private int _round;
+    private int _rows = 3;
     private bool _locked;
+    private string _difficulty = "easy";
 
     protected override void Reset()
     {
-        _values = [1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6];
+        var pairCount = _difficulty switch
+        {
+            "medium" => 8,
+            "hard" => 12,
+            _ => 6
+        };
+
+        _rows = pairCount * 2 / ColumnCount;
+        _values = Enumerable.Range(0, pairCount)
+            .SelectMany(index => new[] { index, index })
+            .ToArray();
         Random.Shared.Shuffle(_values);
-        _open = new bool[12];
-        _matched = new bool[12];
+
+        _open = new bool[_values.Length];
+        _matched = new bool[_values.Length];
         _first = -1;
         _cursor = 0;
         _moves = 0;
@@ -46,18 +85,42 @@
 
     protected override void OnKey(string key)
     {
-        var (row, column) = (_cursor / 4, _cursor % 4);
+        var (row, column) = (_cursor / ColumnCount, _cursor % ColumnCount);
         switch (key)
         {
             case "arrowleft": column = Math.Max(0, column - 1); break;
-            case "arrowright": column = Math.Min(3, column + 1); break;
+            case "arrowright": column = Math.Min(ColumnCount - 1, column + 1); break;
             case "arrowup": row = Math.Max(0, row - 1); break;
-            case "arrowdown": row = Math.Min(2, row + 1); break;
+            case "arrowdown": row = Math.Min(_rows - 1, row + 1); break;
             case "enter" or " ": _ = FlipAsync(_cursor); return;
         }
 
-        _cursor = row * 4 + column;
+        _cursor = row * ColumnCount + column;
     }
+
+    private string EasyButtonClass => DifficultyButtonClass("easy");
+    private string MediumButtonClass => DifficultyButtonClass("medium");
+    private string HardButtonClass => DifficultyButtonClass("hard");
+
+    private void SetEasyDifficulty() => SetDifficulty("easy");
+
+    private void SetMediumDifficulty() => SetDifficulty("medium");
+
+    private void SetHardDifficulty() => SetDifficulty("hard");
+
+    private void SetDifficulty(string difficulty)
+    {
+        if (_difficulty == difficulty)
+            return;
+
+        _difficulty = difficulty;
+        Restart();
+    }
+
+    private string DifficultyButtonClass(string difficulty) =>
+        _difficulty == difficulty ? "btn-primary" : "btn-outline-secondary";
+
+    private static string FruitGlyph(int index) => char.ConvertFromUtf32(FruitCodePoints[index]);
 
     private async Task FlipAsync(int index)
     {
@@ -79,7 +142,7 @@
         {
             _matched[first] = _matched[index] = true;
             if (_matched.All(matched => matched))
-                Finish(_moves);
+                Finish(_moves, _difficulty);
             return;
         }
 

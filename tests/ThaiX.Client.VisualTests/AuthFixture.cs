@@ -19,6 +19,12 @@ public sealed class AuthFixture : IAsyncLifetime
     private const string LoginPasswordSelector =
         "input[name='password'], input[name='Password'], input[type='password']";
 
+    private static readonly object LogGate = new();
+    private static readonly string LogFilePath = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "TestResults",
+        "visual-tests.log");
+
     private readonly ClientAppHost _appHost = new();
     private string? _authStorageStatePath;
     private string? _publicStorageStatePath;
@@ -35,69 +41,232 @@ public sealed class AuthFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        await _appHost.StartAsync();
-        BaseUrl = _appHost.BaseUrl;
-
-        Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
-        Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
-
-        if (string.Equals(
-                Environment.GetEnvironmentVariable("VISUAL_SKIP_AUTH_LOGIN"),
-                "true",
-                StringComparison.OrdinalIgnoreCase))
+        try
         {
-            var publicOnlyContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+            LogFixture("Starting the VisualTests application host.");
+            await _appHost.StartAsync();
+            BaseUrl = _appHost.BaseUrl;
+            LogFixture($"VisualTests application host is HTTP-ready at {BaseUrl}.");
+
+            LogFixture("Installing or validating the Playwright Chromium headless shell.");
+            var browserInstallExitCode = Microsoft.Playwright.Program.Main(
+                new[] { "install", "chromium", "--only-shell" });
+            if (browserInstallExitCode != 0)
             {
-                IgnoreHTTPSErrors = true,
-                ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
-            });
-            var publicOnlyPage = await publicOnlyContext.NewPageAsync();
-            await GotoAsync(publicOnlyPage, "/auth/login", 1280, 800);
-            await EnsureDemoModeAsync(publicOnlyPage);
+                throw new InvalidOperationException(
+                    $"Playwright Chromium installation failed with exit code {browserInstallExitCode}.");
+            }
 
-            _publicStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
-            await publicOnlyContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
-            await publicOnlyContext.CloseAsync();
+            LogFixture("Playwright Chromium headless shell is ready.");
+            LogFixture("Creating Playwright and launching the shared Chromium browser.");
+            Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
+            Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+            Browser.Disconnected += (_, _) => LogFixture("Browser disconnected from the Playwright driver.");
 
-            _authStorageStatePath = _publicStorageStatePath;
-            return;
+            await VerifyBrowserStartupAsync();
+
+            if (string.Equals(
+                    Environment.GetEnvironmentVariable("VISUAL_SKIP_AUTH_LOGIN"),
+                    "true",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                await CreatePublicOnlyStorageStateAsync();
+                return;
+            }
+
+            await CreateAuthenticationStorageStateAsync();
+            await CreatePublicStorageStateAsync();
         }
+        catch (Exception ex)
+        {
+            LogFixture($"Visual test fixture initialization failed: {ex}");
+            try
+            {
+                await DisposeAsync();
+            }
+            catch (Exception cleanupException)
+            {
+                LogFixture($"Fixture cleanup after initialization failure also failed: {cleanupException}");
+            }
 
-        var authContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+            throw;
+        }
+    }
+
+    private async Task VerifyBrowserStartupAsync()
+    {
+        LogFixture("Starting browser smoke check against the home page.");
+        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             IgnoreHTTPSErrors = true,
             ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
         });
-        var authenticatedPage = await authContext.NewPageAsync();
 
-        await GotoAsync(authenticatedPage, "/auth/login", 1280, 800);
-        await EnsureDemoModeAsync(authenticatedPage);
+        try
+        {
+            var page = await context.NewPageAsync();
+            AttachBrowserDiagnostics(page);
+            await GotoAsync(page, "/", 1280, 800, settleMs: 0, networkIdleTimeoutMs: 0);
+            await EnsureDemoModeAsync(page);
+            LogFixture("Browser smoke check passed: home page rendered and Demo Mode was verified.");
+        }
+        catch (Exception ex)
+        {
+            LogFixture($"Browser smoke check failed: {ex}");
+            throw new InvalidOperationException(
+                "VisualTests application passed HTTP readiness but failed the browser startup smoke check.",
+                ex);
+        }
+        finally
+        {
+            await CloseContextAsync(context, "fixture setup");
+        }
+    }
 
-        await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
-        await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
-        await authenticatedPage.ClickAsync("button[type='submit']");
-        await authenticatedPage.WaitForURLAsync(
-            url => new Uri(url).AbsolutePath == "/",
-            new PageWaitForURLOptions { Timeout = 60000 });
-        await WaitForPageReadyAsync(authenticatedPage, "/");
-        await EnsureDemoModeAsync(authenticatedPage);
-
-        _authStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-auth-{Guid.NewGuid():N}.json");
-        await authContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _authStorageStatePath });
-        await authContext.CloseAsync();
-
-        var publicContext = await Browser.NewContextAsync(new BrowserNewContextOptions
+    private async Task CreatePublicOnlyStorageStateAsync()
+    {
+        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             IgnoreHTTPSErrors = true,
             ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
         });
-        var publicPage = await publicContext.NewPageAsync();
-        await GotoAsync(publicPage, "/auth/login", 1280, 800);
-        await EnsureDemoModeAsync(publicPage);
 
-        _publicStorageStatePath = Path.Combine(Path.GetTempPath(), $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
-        await publicContext.StorageStateAsync(new BrowserContextStorageStateOptions { Path = _publicStorageStatePath });
-        await publicContext.CloseAsync();
+        try
+        {
+            var page = await context.NewPageAsync();
+            AttachBrowserDiagnostics(page);
+            await GotoAsync(page, "/auth/login", 1280, 800);
+            await EnsureDemoModeAsync(page);
+
+            _publicStorageStatePath = Path.Combine(
+                Path.GetTempPath(),
+                $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
+            await context.StorageStateAsync(new BrowserContextStorageStateOptions
+            {
+                Path = _publicStorageStatePath
+            });
+            _authStorageStatePath = _publicStorageStatePath;
+        }
+        finally
+        {
+            await CloseContextAsync(context, "fixture setup");
+        }
+    }
+
+    private async Task CreateAuthenticationStorageStateAsync()
+    {
+        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            IgnoreHTTPSErrors = true,
+            ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
+        });
+        context.Close += (_, _) => LogFixture("Authentication browser context closed.");
+
+        try
+        {
+            var page = await context.NewPageAsync();
+            AttachBrowserDiagnostics(page);
+            LogFixture("Authentication setup started.");
+
+            LogFixture("Navigating to the login page.");
+            await GotoAsync(page, "/auth/login", 1280, 800);
+            LogFixture($"Login page ready. URL: {page.Url}");
+            await EnsureDemoModeAsync(page);
+
+            LogFixture("Filling username field.");
+            await page.FillAsync(LoginUsernameSelector, Username);
+            LogFixture("Username field filled.");
+            LogFixture("Filling password field.");
+            await page.FillAsync(LoginPasswordSelector, Password);
+            LogFixture("Password field filled.");
+
+            var loginSubmitButton = page.Locator("button[type='submit']");
+            await loginSubmitButton.WaitForAsync(new LocatorWaitForOptions
+            {
+                State = WaitForSelectorState.Visible,
+                Timeout = 15000
+            });
+            LogFixture(
+                $"Login submit button ready. Count: {await loginSubmitButton.CountAsync()}, " +
+                $"enabled: {await loginSubmitButton.IsEnabledAsync()}.");
+
+            // Use a real browser click so Radzen validation and the form submit pipeline run.
+            LogFixture("Clicking the login submit button.");
+            await loginSubmitButton.ClickAsync(new LocatorClickOptions { Timeout = 15000 });
+            LogFixture("Login submit click completed.");
+
+            LogFixture("Waiting for the Blazor route and auth token.");
+            await page.WaitForFunctionAsync(
+                "() => window.location.pathname === '/' && !!localStorage.getItem('AuthToken')",
+                null,
+                new PageWaitForFunctionOptions { Timeout = 60000 });
+
+            LogFixture($"Login state reached. URL: {page.Url}");
+            await WaitForPageReadyAsync(page, "/");
+            await EnsureDemoModeAsync(page);
+            LogFixture("Authentication setup completed.");
+
+            _authStorageStatePath = Path.Combine(
+                Path.GetTempPath(),
+                $"ThaiX-visualtests-auth-{Guid.NewGuid():N}.json");
+            await context.StorageStateAsync(new BrowserContextStorageStateOptions
+            {
+                Path = _authStorageStatePath
+            });
+        }
+        catch (Exception ex)
+        {
+            LogFixture($"Authentication setup failed with original exception: {ex}");
+
+            string diagnostics;
+            try
+            {
+                diagnostics = await GetAuthenticationDiagnosticsAsync(context.Pages.FirstOrDefault()!, Browser);
+            }
+            catch (Exception diagnosticException)
+            {
+                LogFixture($"Authentication diagnostics collection failed: {diagnosticException}");
+                diagnostics =
+                    $"Diagnostics unavailable: {diagnosticException.GetType().Name}: {diagnosticException.Message}";
+            }
+
+            throw new InvalidOperationException(
+                $"Visual test authentication setup failed.{Environment.NewLine}{diagnostics}",
+                ex);
+        }
+        finally
+        {
+            await CloseContextAsync(context, "fixture setup");
+        }
+    }
+
+    private async Task CreatePublicStorageStateAsync()
+    {
+        var context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            IgnoreHTTPSErrors = true,
+            ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
+        });
+
+        try
+        {
+            var page = await context.NewPageAsync();
+            AttachBrowserDiagnostics(page);
+            await GotoAsync(page, "/auth/login", 1280, 800);
+            await EnsureDemoModeAsync(page);
+
+            _publicStorageStatePath = Path.Combine(
+                Path.GetTempPath(),
+                $"ThaiX-visualtests-public-{Guid.NewGuid():N}.json");
+            await context.StorageStateAsync(new BrowserContextStorageStateOptions
+            {
+                Path = _publicStorageStatePath
+            });
+        }
+        finally
+        {
+            await CloseContextAsync(context, "fixture setup");
+        }
     }
 
     /// <summary>
@@ -126,6 +295,8 @@ public sealed class AuthFixture : IAsyncLifetime
 
         var context = await Browser.NewContextAsync(contextOptions);
         var page = await context.NewPageAsync();
+        AttachBrowserDiagnostics(page);
+        LogFixture($"Created {(authenticated ? "authenticated" : "guest")} page. Viewport: {width}x{height}, locale: {locale ?? "default"}.");
         return (context, page);
     }
 
@@ -159,7 +330,7 @@ public sealed class AuthFixture : IAsyncLifetime
                 }
                 finally
                 {
-                    await context.CloseAsync();
+                    await CloseContextAsync(context, "fixture setup");
                 }
             });
 
@@ -210,7 +381,7 @@ public sealed class AuthFixture : IAsyncLifetime
 
     /// <summary>
     /// Boot splash (.loading-progress) must be gone; then wait for route-specific UI.
-    /// Full page reloads re-download WASM — this often takes tens of seconds in Docker.
+    /// Full page reloads re-download WASM and often take tens of seconds in Docker.
     /// </summary>
     public static async Task WaitForPageReadyAsync(IPage page, string route, int networkIdleTimeoutMs = 30000)
     {
@@ -253,6 +424,142 @@ public sealed class AuthFixture : IAsyncLifetime
         {
             // Some pages keep websockets/polling; content wait above is enough.
         }
+    }
+
+    private static async Task CloseContextAsync(IBrowserContext context, string purpose)
+    {
+        try
+        {
+            await context.CloseAsync();
+        }
+        catch (PlaywrightException ex)
+        {
+            LogFixture($"Browser context close during {purpose} failed: {ex.Message}");
+        }
+    }
+
+    private static void AttachBrowserDiagnostics(IPage page)
+    {
+        page.Close += (_, _) => LogFixture("Browser page closed.");
+        page.Crash += (_, _) => LogFixture("Browser page crashed.");
+        page.Console += (_, message) =>
+        {
+            if (message.Type == "error" || message.Type == "warning")
+            {
+                LogFixture($"Browser console {message.Type}: {message.Text}");
+            }
+        };
+        page.PageError += (_, error) => LogFixture($"Browser page error: {error}");
+        page.RequestFailed += (_, request) =>
+            LogFixture($"Request failed: {request.Method} {GetSafeUrl(request.Url)} ({request.Failure ?? "unknown"})");
+        page.Request += (_, request) =>
+        {
+            if (request.Method is "POST" or "PUT" or "PATCH" or "DELETE")
+            {
+                LogFixture($"HTTP request: {request.Method} {GetSafeUrl(request.Url)}");
+            }
+        };
+        page.Response += (_, response) =>
+        {
+            var isLoginResponse = GetSafeUrl(response.Url).Contains(
+                "/api/auth/login",
+                StringComparison.OrdinalIgnoreCase);
+            if (response.Status >= 400 || isLoginResponse)
+            {
+                LogFixture($"HTTP response: {response.Status} {response.StatusText} {response.Request.Method} {GetSafeUrl(response.Url)}");
+            }
+        };
+    }
+
+    private static string GetSafeUrl(string url)
+    {
+        return Uri.TryCreate(url, UriKind.Absolute, out var uri)
+            ? $"{uri.GetLeftPart(UriPartial.Path)}"
+            : url.Split('?', 2)[0];
+    }
+
+    private static void LogFixture(string message)
+    {
+        var entry = $"[ThaiX.VisualTests] {DateTimeOffset.Now:O} {message}";
+        Console.WriteLine(entry);
+
+        try
+        {
+            lock (LogGate)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath)!);
+                File.AppendAllText(LogFilePath, entry + Environment.NewLine);
+            }
+        }
+        catch (IOException)
+        {
+            // Diagnostics must never fail a visual test.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Console output remains available when the log file cannot be written.
+        }
+    }
+
+    private static async Task<string> GetAuthenticationDiagnosticsAsync(IPage page, IBrowser browser)
+    {
+        var browserConnected = browser.IsConnected;
+        var pageClosed = page.IsClosed;
+
+        if (!browserConnected || pageClosed)
+        {
+            return string.Join(
+                Environment.NewLine,
+                "Authentication diagnostics:",
+                $"Browser connected: {browserConnected}",
+                $"Page closed: {pageClosed}",
+                "Browser state evaluation skipped because the Playwright target is unavailable.");
+        }
+
+        string browserState;
+        try
+        {
+            browserState = await page.EvaluateAsync<string>(
+                """
+                () => JSON.stringify({
+                    url: location.href.split("?")[0],
+                    title: document.title,
+                    readyState: document.readyState,
+                    pathname: location.pathname,
+                    loadingVisible: !!document.querySelector("svg.loading-progress"),
+                    errorUiVisible: !!document.querySelector("#blazor-error-ui") && getComputedStyle(document.querySelector("#blazor-error-ui")).display !== "none",
+                    authTokenPresent: !!localStorage.getItem("AuthToken"),
+                    submitButtons: Array.from(document.querySelectorAll("button[type='submit']")).map(button => ({
+                        disabled: button.disabled,
+                        visible: !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
+                    })),
+                    passwordInputCount: document.querySelectorAll("input[type='password']").length,
+                    usernameInputCount: document.querySelectorAll("input[name='username'], input[name='Username'], input.rz-textbox").length
+                })
+                """);
+        }
+        catch (Exception diagnosticException)
+        {
+            browserState = $"Browser state unavailable ({diagnosticException.GetType().Name}): {diagnosticException.Message}";
+        }
+
+        string pageUrl;
+        try
+        {
+            pageUrl = page.IsClosed ? "<closed>" : page.Url;
+        }
+        catch (Exception urlException)
+        {
+            pageUrl = $"<unavailable: {urlException.GetType().Name}>";
+        }
+
+        return string.Join(
+            Environment.NewLine,
+            "Authentication diagnostics:",
+            $"Browser connected: {browser.IsConnected}",
+            $"Page closed: {page.IsClosed}",
+            $"URL: {pageUrl}",
+            $"Browser state: {browserState}");
     }
 
     private static async Task<string> GetStartupDiagnosticsAsync(
@@ -378,16 +685,33 @@ public sealed class AuthFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        if (Browser is not null)
+        var browser = Browser;
+        Browser = null!;
+        if (browser is not null)
         {
-            await Browser.CloseAsync();
+            try
+            {
+                await browser.CloseAsync();
+            }
+            catch (PlaywrightException ex)
+            {
+                LogFixture($"Browser close during fixture cleanup failed: {ex.Message}");
+            }
         }
 
-        Playwright?.Dispose();
-        await _appHost.DisposeAsync();
+        var playwright = Playwright;
+        Playwright = null!;
+        playwright?.Dispose();
 
-        TryDelete(_authStorageStatePath);
-        TryDelete(_publicStorageStatePath);
+        try
+        {
+            await _appHost.DisposeAsync();
+        }
+        finally
+        {
+            TryDelete(_authStorageStatePath);
+            TryDelete(_publicStorageStatePath);
+        }
     }
 
     private static void TryDelete(string? path)

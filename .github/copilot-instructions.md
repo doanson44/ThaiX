@@ -7,10 +7,12 @@ You are working on the ThaiX solution.
 
 ## Technology Stack
 
-- .NET 10 / C# 14
+- Application target: .NET 11 / C# 15
+- Build toolchain: .NET SDK 11.0.100 (`global.json`); all application and test projects target `net11.0`.
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
-- EF Core 10 + MySQL/MariaDB
+- EF Core 11 + MySQL/MariaDB
+- The application currently uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview` for EF Core 11. This prerelease provider is a known compatibility risk; verify MariaDB/MySQL integration tests and move to a stable Oracle provider when available.
 - MediatR 12 (CQRS)
 - FluentValidation 11
 - Manual DTO projection (LINQ Select)
@@ -104,8 +106,7 @@ You are working on the ThaiX solution.
 
 ## Agent Delivery Workflow
 
-- Create a new branch from `master` before repository changes.
-- If the user requests a PR, commit the completed changes on that branch and open the PR against `master`; do not merge unless requested.
+- If the user requests a PR, create a branch, commit the completed changes on it, and open the PR against `master`; do not merge unless requested.
 - Do not ask for confirmation when the task is clear; ask only for blocking ambiguity or required destructive actions.
 
 ## Feature Development Workflow
@@ -210,7 +211,6 @@ Do not add trailers that are unsupported by the repository workflow.
 ## Agent behavior
 
 - Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
-- Create a new branch from `master` before implementation.
 - When a PR is requested, commit the finished changes and open the PR against `master`; do not merge unless requested.
 - Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
 - Prefer one focused commit over a mixed commit containing unrelated changes.
@@ -224,7 +224,6 @@ Do not add trailers that are unsupported by the repository workflow.
 
 - Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
 - Stage and commit changes when the user delegates a PR workflow.
-- Create a new branch from `master` before implementation.
 - When a PR is requested, open it against `master`; do not merge unless requested.
 - Do not treat Git operations as the user's responsibility when the user explicitly delegates them.
 
