@@ -42,6 +42,8 @@ public sealed class LightThemeVisualTests
             cases,
             async (item, page) =>
             {
+                await page.AddInitScriptAsync(
+                    "() => window.localStorage.setItem('ThaiX-theme', 'light')");
                 await _auth.GotoAsync(page, item.Route, item.Width, item.Height);
                 await EnsureLightThemeAsync(page);
 
@@ -118,7 +120,6 @@ public sealed class LightThemeVisualTests
 
     private static async Task EnsureLightThemeAsync(IPage page)
     {
-        await page.EvaluateAsync("() => window.ThaiXTheme && window.ThaiXTheme.set('light')");
         await page.WaitForFunctionAsync(
             """
             () => {
