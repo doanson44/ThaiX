@@ -90,12 +90,13 @@ public sealed class TowerDefenseEngineTests
 
         // Act
         engine.StartCampaign(1);
+        engine.Gold.Should().Be(205);
         var cell = Enumerable.Range(0, TowerDefenseEngine.Columns * TowerDefenseEngine.Rows)
             .First(candidate => !engine.BlockedCells.Contains(candidate));
         engine.Build(cell, 0);
 
         // Assert
-        engine.Gold.Should().Be(205);
+        engine.Gold.Should().Be(155);
         engine.Lives.Should().Be(21);
         engine.Towers.Single().Damage.Should().BeApproximately(8.8, 0.001);
     }
