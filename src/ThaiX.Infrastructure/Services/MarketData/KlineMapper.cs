@@ -4,26 +4,26 @@ using ThaiX.Application.Trading;
 
 namespace ThaiX.Infrastructure.Services.MarketData;
 
+public union KlineRawResponse(
+    MexcContractKlineRawResponse,
+    List<List<JsonElement>>,
+    VnDirectStockPricesRawResponse);
+
 public static class KlineMapper
 {
-    public static IReadOnlyList<Kline> Map(object raw, MarketType marketType)
-    {
-        ArgumentNullException.ThrowIfNull(raw);
-
-        return marketType switch
+    public static IReadOnlyList<Kline> Map(KlineRawResponse raw)
+        => raw switch
         {
-            MarketType.Crypto => MapCrypto(raw),
-            MarketType.CryptoSpot => MapCryptoSpot(raw),
-            MarketType.Stock => MapStock(raw),
-            _ => throw new ArgumentOutOfRangeException(nameof(marketType), marketType, "Unsupported market type.")
+            MexcContractKlineRawResponse response => MapCrypto(response),
+            List<List<JsonElement>> rows => MapCryptoSpot(rows),
+            VnDirectStockPricesRawResponse response => MapStock(response)
         };
-    }
 
-    private static IReadOnlyList<Kline> MapCrypto(object raw)
+    private static IReadOnlyList<Kline> MapCrypto(MexcContractKlineRawResponse response)
     {
-        if (raw is not MexcContractKlineRawResponse response || response.Data is null)
+        if (response.Data is null)
         {
-            throw new ArgumentException("Invalid crypto kline payload.", nameof(raw));
+            throw new ArgumentException("Invalid crypto kline payload.", nameof(response));
         }
 
         var data = response.Data;
@@ -55,13 +55,8 @@ public static class KlineMapper
         return klines.OrderBy(x => x.Time).ToList();
     }
 
-    private static IReadOnlyList<Kline> MapCryptoSpot(object raw)
+    private static IReadOnlyList<Kline> MapCryptoSpot(List<List<JsonElement>> rows)
     {
-        if (raw is not List<List<JsonElement>> rows)
-        {
-            throw new ArgumentException("Invalid spot kline payload: expected List<List<JsonElement>>.", nameof(raw));
-        }
-
         var klines = new List<Kline>(rows.Count);
         foreach (var row in rows)
         {
@@ -103,13 +98,8 @@ public static class KlineMapper
         return klines.OrderBy(x => x.Time).ToList();
     }
 
-    private static IReadOnlyList<Kline> MapStock(object raw)
+    private static IReadOnlyList<Kline> MapStock(VnDirectStockPricesRawResponse response)
     {
-        if (raw is not VnDirectStockPricesRawResponse response)
-        {
-            throw new ArgumentException("Invalid stock kline payload.", nameof(raw));
-        }
-
         var klines = new List<Kline>(response.Data.Count);
         foreach (var x in response.Data)
         {
