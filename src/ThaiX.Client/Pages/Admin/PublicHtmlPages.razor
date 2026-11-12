@@ -3,9 +3,11 @@
 @using ThaiX.Client.Constants
 @using ThaiX.Client.Models.PublicHtml
 @using ThaiX.Client.Services.PublicHtml
+@using ThaiX.Client.Services.Http.Demo
 @using RK = ThaiX.Client.Constants.ResourceKeys
 @inherits ThaiXPageBase
 @inject IPublicHtmlPageService PublicHtmlService
+@inject ApiConnectivityState ApiConnectivityState
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NotificationService NotificationService
 @inject DialogService DialogService
@@ -115,7 +117,7 @@
                                 <span class="public-html-status @(item.IsPublished ? "public-html-status-published" : "public-html-status-unpublished")">
                                     @(item.IsPublished ? L[RK.PublicHtmlPages.Published].Value : L[RK.PublicHtmlPages.Unpublished].Value)
                                 </span>
-                                @if (item.IsPublished)
+                                @if (item.IsPublished && !ApiConnectivityState.IsDemoMode)
                                 {
                                     <RadzenButton Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
                                                   title="@L[RK.PublicHtmlPages.View].Value"
