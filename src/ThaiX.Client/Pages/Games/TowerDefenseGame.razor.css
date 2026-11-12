@@ -367,3 +367,68 @@
         font-size: 0.7rem;
     }
 }
+
+.td-research-card {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 1px solid #a16207;
+    border-radius: 0.7rem;
+    background: linear-gradient(135deg, var(--rz-card-background-color), #29200d);
+}
+
+.td-research-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+}
+
+.td-research-heading div {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.td-research-heading small {
+    color: var(--rz-text-secondary-color);
+    font-size: 0.8rem;
+}
+
+.td-research-points {
+    color: #facc15;
+    font-variant-numeric: tabular-nums;
+}
+
+.td-research-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.td-research-upgrade {
+    display: grid;
+    min-width: 0;
+    gap: 0.35rem;
+    padding: 0.7rem;
+    border: 1px solid #854d0e;
+    border-radius: 0.55rem;
+    background: rgb(15 23 42 / 55%);
+    color: #f8fafc;
+    text-align: left;
+}
+
+.td-research-upgrade:disabled {
+    opacity: 0.45;
+}
+
+.td-research-upgrade small {
+    color: #fcd34d;
+    font-size: 0.7rem;
+}
+
+@media (max-width: 767.98px) {
+    .td-research-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

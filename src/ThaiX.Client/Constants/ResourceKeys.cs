@@ -198,6 +198,12 @@ public static class ResourceKeys
         public const string TowerDefenseLevel = "Games.TowerDefense.Level";
         public const string TowerDefenseOpen = "Games.TowerDefense.Open";
         public const string TowerDefenseLocked = "Games.TowerDefense.Locked";
+        public const string TowerDefenseResearchWorkshop = "Games.TowerDefense.ResearchWorkshop";
+        public const string TowerDefenseResearchDescription = "Games.TowerDefense.ResearchDescription";
+        public const string TowerDefenseResearchPoints = "Games.TowerDefense.ResearchPoints";
+        public const string TowerDefenseResearchDamage = "Games.TowerDefense.ResearchDamage";
+        public const string TowerDefenseResearchSupply = "Games.TowerDefense.ResearchSupply";
+        public const string TowerDefenseResearchReinforcement = "Games.TowerDefense.ResearchReinforcement";
         public const string TowerDefenseTowerRifleman = "Games.TowerDefense.Tower.Rifleman";
         public const string TowerDefenseTowerSniper = "Games.TowerDefense.Tower.Sniper";
         public const string TowerDefenseTowerMachineGun = "Games.TowerDefense.Tower.MachineGun";

@@ -52,6 +52,29 @@ else if (_engine.Mode is null)
                 </button>
             </article>
         </div>
+        <section class="td-research-card">
+            <div class="td-research-heading">
+                <div>
+                    <strong>@L[ResourceKeys.Games.TowerDefenseResearchWorkshop]</strong>
+                    <small>@L[ResourceKeys.Games.TowerDefenseResearchDescription]</small>
+                </div>
+                <strong class="td-research-points">@_progress.ResearchPoints @L[ResourceKeys.Games.TowerDefenseResearchPoints]</strong>
+            </div>
+            <div class="td-research-grid">
+                <button type="button" class="td-research-upgrade" disabled="@(!CanPurchaseResearch("damage"))" @onclick="PurchaseDamageResearch">
+                    <span>@L[ResourceKeys.Games.TowerDefenseResearchDamage]</span>
+                    <small>@L[ResourceKeys.Games.TowerDefenseLevel] @_progress.DamageResearchLevel/5 - @ResearchCost("damage") @L[ResourceKeys.Games.TowerDefenseResearchPoints]</small>
+                </button>
+                <button type="button" class="td-research-upgrade" disabled="@(!CanPurchaseResearch("supply"))" @onclick="PurchaseSupplyResearch">
+                    <span>@L[ResourceKeys.Games.TowerDefenseResearchSupply]</span>
+                    <small>@L[ResourceKeys.Games.TowerDefenseLevel] @_progress.SupplyResearchLevel/5 - @ResearchCost("supply") @L[ResourceKeys.Games.TowerDefenseResearchPoints]</small>
+                </button>
+                <button type="button" class="td-research-upgrade" disabled="@(!CanPurchaseResearch("reinforcement"))" @onclick="PurchaseReinforcementResearch">
+                    <span>@L[ResourceKeys.Games.TowerDefenseResearchReinforcement]</span>
+                    <small>@L[ResourceKeys.Games.TowerDefenseLevel] @_progress.ReinforcementResearchLevel/5 - @ResearchCost("reinforcement") @L[ResourceKeys.Games.TowerDefenseResearchPoints]</small>
+                </button>
+            </div>
+        </section>
         <div class="td-arsenal-preview">
             <strong>@L[ResourceKeys.Games.TowerDefenseArsenal]</strong>
             <span>@TowerDefenseEngine.TowerDefinitions.Count @L[ResourceKeys.Games.TowerDefenseTowerTypes]</span>
@@ -264,7 +287,7 @@ else
     protected override void Reset()
     {
         _engine = new TowerDefenseEngine();
-        _engine.SetProgress(_progress.UnlockedMission);
+        ApplyProgress();
         _completionReported = false;
         _cellClicks = [.. Enumerable.Range(0, TowerDefenseEngine.Columns * TowerDefenseEngine.Rows)
             .Select(cell => (Action)(() => SelectCell(cell)))];
@@ -288,7 +311,7 @@ else
             return;
 
         _progress = await ScoreStore.GetTowerDefenseProgressAsync();
-        _engine.SetProgress(_progress.UnlockedMission);
+        ApplyProgress();
         _progressLoaded = true;
         await InvokeAsync(StateHasChanged);
     }
@@ -312,6 +335,52 @@ else
                     _engine.SelectedTowerType = key[0] == '0' ? 9 : key[0] - '1';
                 break;
         }
+    }
+
+    private void ApplyProgress() => _engine.SetProgress(
+        _progress.UnlockedMission,
+        _progress.DamageResearchLevel,
+        _progress.SupplyResearchLevel,
+        _progress.ReinforcementResearchLevel);
+
+    private int ResearchCost(string upgrade) => upgrade switch
+    {
+        "damage" => 4 + _progress.DamageResearchLevel * 3,
+        "supply" => 3 + _progress.SupplyResearchLevel * 3,
+        "reinforcement" => 5 + _progress.ReinforcementResearchLevel * 3,
+        _ => int.MaxValue
+    };
+
+    private int ResearchLevel(string upgrade) => upgrade switch
+    {
+        "damage" => _progress.DamageResearchLevel,
+        "supply" => _progress.SupplyResearchLevel,
+        "reinforcement" => _progress.ReinforcementResearchLevel,
+        _ => 5
+    };
+
+    private bool CanPurchaseResearch(string upgrade) =>
+        ResearchLevel(upgrade) < 5 && _progress.ResearchPoints >= ResearchCost(upgrade);
+
+    private Task PurchaseDamageResearch() => PurchaseResearchAsync("damage");
+    private Task PurchaseSupplyResearch() => PurchaseResearchAsync("supply");
+    private Task PurchaseReinforcementResearch() => PurchaseResearchAsync("reinforcement");
+
+    private async Task PurchaseResearchAsync(string upgrade)
+    {
+        if (!CanPurchaseResearch(upgrade))
+            return;
+
+        _progress.ResearchPoints -= ResearchCost(upgrade);
+        switch (upgrade)
+        {
+            case "damage": _progress.DamageResearchLevel++; break;
+            case "supply": _progress.SupplyResearchLevel++; break;
+            case "reinforcement": _progress.ReinforcementResearchLevel++; break;
+        }
+
+        ApplyProgress();
+        await ScoreStore.SaveTowerDefenseProgressAsync(_progress);
     }
 
     private void StartCampaign(int mission)
@@ -353,9 +422,11 @@ else
             {
                 var mission = _engine.MissionNumber;
                 var stars = _engine.CalculateStars();
-                _progress.MissionStars[mission] = Math.Max(_progress.MissionStars.GetValueOrDefault(mission), stars);
+                var previousStars = _progress.MissionStars.GetValueOrDefault(mission);
+                _progress.MissionStars[mission] = Math.Max(previousStars, stars);
                 _progress.UnlockedMission = Math.Max(_progress.UnlockedMission, Math.Min(14, mission + 1));
-                _engine.SetProgress(_progress.UnlockedMission);
+                _progress.ResearchPoints += Math.Max(0, stars - previousStars) * 2;
+                ApplyProgress();
                 await ScoreStore.SaveTowerDefenseProgressAsync(_progress);
             }
         }

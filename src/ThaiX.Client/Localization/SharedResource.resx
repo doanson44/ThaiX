@@ -2271,4 +2271,10 @@
   <data name="Games.TowerDefense.Targeting.Weakest" xml:space="preserve"><value>Weakest</value></data>
   <data name="Games.TowerDefense.Targeting.Closest" xml:space="preserve"><value>Closest</value></data>
   <data name="Games.TowerDefense.Targeting.Farthest" xml:space="preserve"><value>Farthest</value></data>
+  <data name="Games.TowerDefense.ResearchWorkshop" xml:space="preserve"><value>Research workshop</value></data>
+  <data name="Games.TowerDefense.ResearchDescription" xml:space="preserve"><value>Spend research points earned from new mission stars on permanent battlefield improvements.</value></data>
+  <data name="Games.TowerDefense.ResearchPoints" xml:space="preserve"><value>RP</value></data>
+  <data name="Games.TowerDefense.ResearchDamage" xml:space="preserve"><value>Ballistics research - tower damage +5%</value></data>
+  <data name="Games.TowerDefense.ResearchSupply" xml:space="preserve"><value>Supply network - starting gold +25</value></data>
+  <data name="Games.TowerDefense.ResearchReinforcement" xml:space="preserve"><value>Reinforcement doctrine - starting lives +1</value></data>
 </root>

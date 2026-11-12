@@ -82,6 +82,25 @@ public sealed class TowerDefenseEngineTests
     }
 
     [Fact]
+    public void PermanentResearch_ShouldImproveStartingResourcesAndTowerDamage()
+    {
+        // Arrange
+        var engine = new TowerDefenseEngine();
+        engine.SetProgress(1, damageResearchLevel: 2, supplyResearchLevel: 1, reinforcementResearchLevel: 1);
+
+        // Act
+        engine.StartCampaign(1);
+        var cell = Enumerable.Range(0, TowerDefenseEngine.Columns * TowerDefenseEngine.Rows)
+            .First(candidate => !engine.BlockedCells.Contains(candidate));
+        engine.Build(cell, 0);
+
+        // Assert
+        engine.Gold.Should().Be(205);
+        engine.Lives.Should().Be(21);
+        engine.Towers.Single().Damage.Should().BeApproximately(8.8, 0.001);
+    }
+
+    [Fact]
     public void Tick_ShouldSpawnEnemiesAfterInitialDeploymentDelay()
     {
         var engine = new TowerDefenseEngine();

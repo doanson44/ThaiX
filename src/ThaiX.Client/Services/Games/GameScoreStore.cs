@@ -89,6 +89,10 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
                 ?? new TowerDefenseProgress();
             progress.MissionStars ??= [];
             progress.UnlockedMission = Math.Clamp(progress.UnlockedMission, 1, 14);
+            progress.ResearchPoints = Math.Max(0, progress.ResearchPoints);
+            progress.DamageResearchLevel = Math.Clamp(progress.DamageResearchLevel, 0, 5);
+            progress.SupplyResearchLevel = Math.Clamp(progress.SupplyResearchLevel, 0, 5);
+            progress.ReinforcementResearchLevel = Math.Clamp(progress.ReinforcementResearchLevel, 0, 5);
             return progress;
         }
         catch (JsonException)

@@ -2270,4 +2270,10 @@
   <data name="Games.TowerDefense.Targeting.Weakest" xml:space="preserve"><value>Địch yếu nhất</value></data>
   <data name="Games.TowerDefense.Targeting.Closest" xml:space="preserve"><value>Địch gần nhất</value></data>
   <data name="Games.TowerDefense.Targeting.Farthest" xml:space="preserve"><value>Địch xa nhất</value></data>
+  <data name="Games.TowerDefense.ResearchWorkshop" xml:space="preserve"><value>Xưởng nghiên cứu</value></data>
+  <data name="Games.TowerDefense.ResearchDescription" xml:space="preserve"><value>Dùng điểm nghiên cứu kiếm được từ số sao nhiệm vụ mới để nâng cấp vĩnh viễn.</value></data>
+  <data name="Games.TowerDefense.ResearchPoints" xml:space="preserve"><value>ĐNC</value></data>
+  <data name="Games.TowerDefense.ResearchDamage" xml:space="preserve"><value>Nghiên cứu đạn đạo - sát thương tháp +5%</value></data>
+  <data name="Games.TowerDefense.ResearchSupply" xml:space="preserve"><value>Mạng lưới tiếp tế - vàng khởi đầu +25</value></data>
+  <data name="Games.TowerDefense.ResearchReinforcement" xml:space="preserve"><value>Học thuyết tiếp viện - mạng khởi đầu +1</value></data>
 </root>

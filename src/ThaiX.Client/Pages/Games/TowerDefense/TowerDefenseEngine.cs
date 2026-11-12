@@ -30,7 +30,8 @@ public sealed class TowerDefenseTowerState
     public double Angle { get; set; }
     public TowerTargeting Targeting { get; set; } = TowerTargeting.First;
     public int TotalLevel => DamageLevel + RangeLevel + RateLevel - 2;
-    public double Damage => Definition.Damage * (1 + (DamageLevel - 1) * 0.65);
+    public double PermanentDamageMultiplier { get; init; } = 1;
+    public double Damage => Definition.Damage * (1 + (DamageLevel - 1) * 0.65) * PermanentDamageMultiplier;
     public double Range => Definition.Range + (RangeLevel - 1) * 12;
     public int AttackCooldown => Math.Max(3, Definition.Cooldown - (RateLevel - 1) * 2);
 }
@@ -135,6 +136,9 @@ public sealed class TowerDefenseEngine
     private int _spawnIndex;
     private int _tick;
     private double _difficulty = 1;
+    private int _damageResearchLevel;
+    private int _startingGoldBonus;
+    private int _startingLivesBonus;
 
     public TowerDefenseMode? Mode { get; private set; }
     public int MissionNumber { get; private set; }
@@ -164,8 +168,13 @@ public sealed class TowerDefenseEngine
         && _towers.All(tower => tower.Cell != SelectedCell)
         && Gold >= TowerDefinitions[SelectedTowerType].Cost;
 
-    public void SetProgress(int unlockedMission) =>
+    public void SetProgress(int unlockedMission, int damageResearchLevel = 0, int supplyResearchLevel = 0, int reinforcementResearchLevel = 0)
+    {
         UnlockedMission = Math.Clamp(unlockedMission, 1, Missions.Count);
+        _damageResearchLevel = Math.Clamp(damageResearchLevel, 0, 5);
+        _startingGoldBonus = Math.Clamp(supplyResearchLevel, 0, 5) * 25;
+        _startingLivesBonus = Math.Clamp(reinforcementResearchLevel, 0, 5);
+    }
 
     public void StartCampaign(int missionNumber)
     {
@@ -173,11 +182,12 @@ public sealed class TowerDefenseEngine
         if (mission is null || missionNumber > UnlockedMission)
             return;
 
-        Start(TowerDefenseMode.Campaign, mission.Number, mission.MapId, mission.StartingGold,
-            mission.StartingLives, mission.Difficulty);
+        Start(TowerDefenseMode.Campaign, mission.Number, mission.MapId, mission.StartingGold + _startingGoldBonus,
+            mission.StartingLives + _startingLivesBonus, mission.Difficulty);
     }
 
-    public void StartEndless() => Start(TowerDefenseMode.Endless, 0, Maps[0].Id, 200, 20, 1);
+    public void StartEndless() => Start(TowerDefenseMode.Endless, 0, Maps[0].Id,
+        200 + _startingGoldBonus, 20 + _startingLivesBonus, 1);
 
     public bool Build(int cell, int towerIndex)
     {
@@ -191,7 +201,12 @@ public sealed class TowerDefenseEngine
             return false;
 
         Gold -= definition.Cost;
-        _towers.Add(new TowerDefenseTowerState { Cell = cell, Definition = definition });
+        _towers.Add(new TowerDefenseTowerState
+        {
+            Cell = cell,
+            Definition = definition,
+            PermanentDamageMultiplier = 1 + _damageResearchLevel * 0.05
+        });
         SelectedCell = cell;
         SelectedTowerType = towerIndex;
         return true;
