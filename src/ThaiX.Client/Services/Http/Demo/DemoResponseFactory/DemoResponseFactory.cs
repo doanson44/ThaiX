@@ -38,6 +38,11 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.Text("Healthy (demo)");
         }
 
+        if (path.StartsWith("api/system-logs", StringComparison.OrdinalIgnoreCase))
+        {
+            return HandleSystemLogs(method, path);
+        }
+
         if (path.Equals("api/public/donate-config", StringComparison.OrdinalIgnoreCase) && method == "GET")
         {
             return DemoEnvelope.Json(new ThaiX.Client.Models.PublicDonateConfigurationResponse
