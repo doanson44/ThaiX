@@ -1,6 +1,6 @@
 # ThaiX Repository Guidelines
 
-You are working on the ThaiX solution — a .NET 10 / C# 14 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend. The repository pins .NET SDK 11.0.100 in `global.json`; all current projects still target `net10.0` and therefore default to C# 14.
+You are working on the ThaiX solution — a .NET 10 / C# 14 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend. The repository pins .NET SDK 11.0.100 in `global.json`; all current projects still target `net10.0` and therefore default to C# 14. Install the .NET 10 runtime as well when running `net10.0` applications and tests.
 
 ## Project Structure
 
