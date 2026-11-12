@@ -15,7 +15,6 @@ concurrency:
 
 env:
   DOTNET_VERSION: "11.0.100"
-  DOTNET_RUNTIME_VERSION: "11.0.x"
   BUILD_CONFIGURATION: "Release"
   SOLUTION_PATH: "ThaiX.slnx"
   UNIT_TEST_PROJECT: "tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj"
