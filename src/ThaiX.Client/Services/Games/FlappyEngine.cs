@@ -118,7 +118,7 @@ public sealed class FlappyEngine
             if (IntersectsPipe(pipeLeft, pipeRight, PlayTop, gapTop)
                 || IntersectsPipe(pipeLeft, pipeRight, gapBottom, FloorY))
             {
-                IsFinished = true;
+                FinishRound();
                 return;
             }
         }
@@ -130,10 +130,13 @@ public sealed class FlappyEngine
         }
 
         if (BirdY - BirdRadius <= PlayTop || BirdY + BirdRadius >= FloorY)
-        {
-            BirdY = Math.Clamp(BirdY, PlayTop + BirdRadius, FloorY - BirdRadius);
-            IsFinished = true;
-        }
+            FinishRound();
+    }
+
+    private void FinishRound()
+    {
+        BirdY = Math.Clamp(BirdY, PlayTop + BirdRadius, FloorY - BirdRadius);
+        IsFinished = true;
     }
 
     private bool IntersectsPipe(double left, double right, double top, double bottom)
