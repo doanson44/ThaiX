@@ -104,14 +104,14 @@ public sealed class DevToolsSmokeTests
 
             await page.GetByRole(AriaRole.Button, new() { Name = "Preview" }).First.ClickAsync();
             await page.Locator(".ThaiX-md-preview--focus").First.WaitForAsync(Visible(15000));
-            await page.GetByRole(AriaRole.Button, new() { Name = "Edit" }).First.WaitForAsync(Visible());
+            await page.Locator(".ThaiX-md-preview-edit").First.WaitForAsync(Visible());
 
             await page.GetByRole(AriaRole.Button, new() { Name = "Preview" }).First.ClickAsync();
             await page.Locator(".ThaiX-md-editor").First.WaitForAsync(Visible(15000));
             await page.Locator(".ThaiX-md-preview").First.WaitForAsync(Visible(15000));
             await page.Locator(".ThaiX-md-preview--focus").WaitForAsync(new() { State = WaitForSelectorState.Hidden, Timeout = 5000 });
 
-            await page.GetByRole(AriaRole.Button, new() { Name = "Edit" }).First.ClickAsync();
+            await page.Locator(".ThaiX-md-preview-edit").First.ClickAsync();
             await page.Locator(".ThaiX-md-editor").First.WaitForAsync(Visible(15000));
             await page.Locator(".ThaiX-md-preview").First.WaitForAsync(Visible(15000));
         }
