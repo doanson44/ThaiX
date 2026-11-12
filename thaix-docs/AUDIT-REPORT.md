@@ -89,3 +89,27 @@ Inspected the repository guidelines, current Application DI pipeline, Infrastruc
 registration, JWT validation extension, permission constants, client permission constants,
 integration test factory, and maintained agent skills. No production code, database, migrations,
 or runtime configuration was changed. This is a documentation-only refresh.
+
+
+## Follow-up: .NET 11 framework migration
+
+The earlier decision above records the state and risk assessment before the user authorized the migration.
+It is superseded by the follow-up implementation on this branch:
+
+- All application and test projects now target `net11.0` (C# 15).
+- Microsoft ASP.NET Core, EF Core, and Microsoft.Extensions package references are aligned to
+  `11.0.0`.
+- Oracle `MySql.EntityFrameworkCore` is set to `11.0.0-preview`; NuGet declares a `net11.0`
+  asset group and an EF Core 11 dependency group. This remains a prerelease production dependency.
+- GitHub Actions, Azure Pipelines, and both Dockerfiles are aligned to .NET 11.
+- No EF migration file, database schema, or live database was changed.
+
+Official provider metadata confirms that the preview package contains a `net11.0` asset group and
+requires EF Core 11 preview.7 or later; the Connector/NET 26.10 documentation describes the
+provider line as prerelease support. The package graph can therefore be restored for .NET 11, but
+runtime behavior against ThaiX's MariaDB deployment still requires user-side verification.
+See the [Oracle provider package](https://www.nuget.org/packages/MySql.EntityFrameworkCore/11.0.0-preview)
+and [Connector/NET EF Core support matrix](https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core.html).
+
+Build and tests were not run in this editing environment. Treat the migration as implemented but
+not verified until restore, build, unit, integration, visual, and publish checks pass.
