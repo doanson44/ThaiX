@@ -33,7 +33,7 @@ public sealed class ExternalMarketDataService : IExternalMarketDataService
         _external = external;
     }
 
-    private async Task<object> GetRawKlinesAsync(
+    private async Task<KlineRawResponse> GetRawKlinesAsync(
         string symbol,
         MarketType marketType,
         string timeframe,
@@ -63,7 +63,7 @@ public sealed class ExternalMarketDataService : IExternalMarketDataService
         CancellationToken ct)
     {
         var raw = await GetRawKlinesAsync(symbol, marketType, timeframe, ct);
-        var klines = KlineMapper.Map(raw, marketType);
+        var klines = KlineMapper.Map(raw);
 
         if (marketType != MarketType.Stock)
         {
@@ -127,7 +127,7 @@ public sealed class ExternalMarketDataService : IExternalMarketDataService
         };
     }
 
-    private async Task<object> GetSpotCryptoRawAsync(string symbol, string timeframe, CancellationToken ct)
+    private async Task<KlineRawResponse> GetSpotCryptoRawAsync(string symbol, string timeframe, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(timeframe))
         {
@@ -151,7 +151,7 @@ public sealed class ExternalMarketDataService : IExternalMarketDataService
         return raw;
     }
 
-    private async Task<object> GetCryptoRawAsync(string symbol, string timeframe, CancellationToken ct)
+    private async Task<KlineRawResponse> GetCryptoRawAsync(string symbol, string timeframe, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(timeframe))
         {
@@ -175,7 +175,7 @@ public sealed class ExternalMarketDataService : IExternalMarketDataService
         return raw;
     }
 
-    private async Task<object> GetStockRawAsync(string symbol, CancellationToken ct)
+    private async Task<KlineRawResponse> GetStockRawAsync(string symbol, CancellationToken ct)
     {
         var raw = await _external.GetVnDirectStockPricesAsync<VnDirectStockPricesRawResponse>(symbol, ct);
         if (raw is null || raw.Data is null || raw.Data.Count == 0)
