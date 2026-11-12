@@ -4,6 +4,7 @@ This directory contains the source audit and refreshed guidance for ThaiX.
 
 - [Audit report](AUDIT-REPORT.md)
 - [Verified runtime facts](VERIFIED-RUNTIME-FACTS.md)
+- [.NET 11 SDK toolchain](SDK-11-TOOLCHAIN.md)
 - [Application layer rules](instructions/application-layer.md)
 - [Security and authentication](instructions/security-auth.md)
 - [Testing rules](instructions/testing.md)
