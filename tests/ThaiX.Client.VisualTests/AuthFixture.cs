@@ -381,7 +381,7 @@ public sealed class AuthFixture : IAsyncLifetime
 
     /// <summary>
     /// Boot splash (.loading-progress) must be gone; then wait for route-specific UI.
-    /// Full page reloads re-download WASM — this often takes tens of seconds in Docker.
+    /// Full page reloads re-download WASM and often take tens of seconds in Docker.
     /// </summary>
     public static async Task WaitForPageReadyAsync(IPage page, string route, int networkIdleTimeoutMs = 30000)
     {
