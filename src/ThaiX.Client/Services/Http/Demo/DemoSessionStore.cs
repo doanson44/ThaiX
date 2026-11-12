@@ -97,7 +97,7 @@ public sealed class DemoSessionStore
         }
     }
 
-    /// <summary>Market / external-data / lottery / trading history — generated only when those pages are hit.</summary>
+    /// <summary>Market / external-data / lottery / trading history -- generated only when those pages are hit.</summary>
     public void EnsureMarketSeeded()
     {
         if (_marketSeeded)
