@@ -73,7 +73,7 @@ deploy/, cloudflare/      Deployment and edge configuration
 
 ### Prerequisites
 
-- .NET 10 SDK (see [global.json](global.json))
+- .NET 11 SDK 11.0.100 (see [global.json](global.json)); projects still target .NET 10
 - SQL Server or MariaDB (see [docker-compose.yml](docker-compose.yml) for a local MariaDB container)
 - Node-free: the Blazor client uses LibMan for client-side libraries (`dotnet tool restore` + `dotnet libman restore`)
 
