@@ -110,16 +110,16 @@ else
             }
             @foreach (var tower in _engine.Towers)
             {
-                <g transform="translate(@TowerDefenseEngine.CellX(tower.Cell) @TowerDefenseEngine.CellY(tower.Cell))">
+                <g transform="translate(@TowerDefenseEngine.CellX(placedTower.Cell) @TowerDefenseEngine.CellY(placedTower.Cell))">
                     <use href="#td-tower-base" />
-                    <rect x="0" y="-4" width="22" height="8" rx="3" fill="@tower.Definition.Color"
-                          stroke="#1f2937" stroke-width="2" transform="rotate(@Px(tower.Angle))" />
-                    <circle r="7" fill="@tower.Definition.Color" stroke="#1f2937" stroke-width="2" />
-                    @if (tower.TotalLevel > 0)
+                    <rect x="0" y="-4" width="22" height="8" rx="3" fill="@placedTower.Definition.Color"
+                          stroke="#1f2937" stroke-width="2" transform="rotate(@Px(placedTower.Angle))" />
+                    <circle r="7" fill="@placedTower.Definition.Color" stroke="#1f2937" stroke-width="2" />
+                    @if (placedTower.TotalLevel > 0)
                     {
                         <circle cx="0" cy="18" r="4" fill="#facc15" stroke="#713f12" />
                     }
-                    @if (_engine.SelectedCell == tower.Cell)
+                    @if (_engine.SelectedCell == placedTower.Cell)
                     {
                         <circle r="19" fill="none" stroke="#facc15" stroke-width="2.5" />
                     }
@@ -172,7 +172,7 @@ else
             @for (var index = 0; index < 3; index++)
             {
                 <rect x="@(index * 160 + 4)" y="380" width="152" height="40" rx="8" fill="#1e293b" stroke="#334155" />
-                <text x="@(index * 160 + 80)" y="404" fill="#e2e8f0" font-size="12" text-anchor="middle">@L[TowerDefenseEngine.TowerDefinitions[index].NameKey]</text>
+                <g><text x="@(index * 160 + 80)" y="404" fill="#e2e8f0" font-size="12" text-anchor="middle">@L[TowerDefenseEngine.TowerDefinitions[index].NameKey]</text></g>
             }
         </svg>
         <div class="td-shop" aria-label="@L[ResourceKeys.Games.TowerDefenseArsenal]">
@@ -187,22 +187,22 @@ else
                 </button>
             }
         </div>
-        @if (_engine.SelectedTower is { } tower)
+        @if (_engine.SelectedTower is { } selectedTowerState)
         {
             <div class="td-tower-panel">
                 <div class="td-panel-heading">
-                    <strong>@L[tower.Definition.NameKey]</strong>
-                    <span>@L[ResourceKeys.Games.TowerDefenseLevel] @tower.TotalLevel</span>
+                    <strong>@L[selectedTowerState.Definition.NameKey]</strong>
+                    <span>@L[ResourceKeys.Games.TowerDefenseLevel] @selectedTowerState.TotalLevel</span>
                 </div>
                 <div class="td-upgrade-grid">
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeDamage">
-                        @L[ResourceKeys.Games.TowerDefenseDamage] - Lv.@tower.DamageLevel
+                        @L[ResourceKeys.Games.TowerDefenseDamage] - Lv.@selectedTowerState.DamageLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeRange">
-                        @L[ResourceKeys.Games.TowerDefenseRange] - Lv.@tower.RangeLevel
+                        @L[ResourceKeys.Games.TowerDefenseRange] - Lv.@selectedTowerState.RangeLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeRate">
-                        @L[ResourceKeys.Games.TowerDefenseFireRate] - Lv.@tower.RateLevel
+                        @L[ResourceKeys.Games.TowerDefenseFireRate] - Lv.@selectedTowerState.RateLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger" @onclick="SellSelected">
                         @L[ResourceKeys.Games.TowerDefenseSell]
