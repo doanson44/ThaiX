@@ -2,12 +2,20 @@
 
 This file records implementation facts verified against the current ThaiX source. Re-check the source before changing these facts; source code remains authoritative if this document becomes stale.
 
+## .NET Toolchain and Target Framework
+
+- The repository pins .NET SDK `11.0.100` through root `global.json`.
+- Current application and test projects target `net10.0`; with the SDK default language-version mapping, they compile as C# 14, not C# 15.
+- Install the .NET 10 runtime alongside the .NET 11 SDK when executing `net10.0` test applications outside environments that already provide it.
+- Do not change project TFMs or claim a .NET 11 framework migration solely because the SDK was upgraded.
+
 ## Database Providers
 
 - The current `ApplicationDbContext` registration in `src/ThaiX.Infrastructure/DependencyInjection.cs` uses Oracle's `MySql.EntityFrameworkCore` provider through `UseMySQL(connectionString)`.
 - The current EF history repository is `MariaDbHistoryRepository`.
 - `DefaultConnection` is the application/Identity database connection.
-- `HangfireConnection` is used by Hangfire storage through `MySqlConnector`; it may fall back to `DefaultConnection` when not configured.
+- `HangfireConnection` is used by Hangfire storage through `UseSqlServerStorage()`; it does not fall back to `DefaultConnection`.
+- When Hangfire is enabled, missing `HangfireConnection` causes startup/configuration failure.
 - The current presentation integration-test factory uses Testcontainers.MariaDb with MariaDB 11.4, `UseMySQL()`, and `MariaDbHistoryRepository`.
 - Do not copy SQL Server/Testcontainers.MsSql setup into current ThaiX integration tests. If a provider migration is requested, update the runtime registration, test factory, packages, migration behavior, and these instructions together.
 
