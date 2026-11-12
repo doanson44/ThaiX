@@ -125,11 +125,12 @@ public sealed class TetrisEngineTests
 
         // Act
         engine.HardDrop();
+        var currentAfterLock = engine.CurrentKind;
         engine.Hold();
 
         // Assert
         engine.CurrentKind.Should().Be(first);
-        engine.HeldPiece.Should().Be(currentAfterFirstUse);
+        engine.HeldPiece.Should().Be(currentAfterLock);
     }
 
     [Fact]
