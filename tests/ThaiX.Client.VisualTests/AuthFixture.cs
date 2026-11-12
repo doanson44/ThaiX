@@ -92,13 +92,10 @@ public sealed class AuthFixture : IAsyncLifetime
 
         // Blazor performs client-side navigation; do not make the click action wait for navigation.
         await loginSubmitButton.DispatchEventAsync("click");
-        await authenticatedPage.WaitForURLAsync(
-            url => new Uri(url).AbsolutePath == "/",
-            new PageWaitForURLOptions { Timeout = 60000 });
         await authenticatedPage.WaitForFunctionAsync(
-            "() => !!localStorage.getItem('AuthToken')",
+            "() => window.location.pathname === '/' && !!localStorage.getItem('AuthToken')",
             null,
-            new PageWaitForFunctionOptions { Timeout = 15000 });
+            new PageWaitForFunctionOptions { Timeout = 60000 });
         await WaitForPageReadyAsync(authenticatedPage, "/");
         await EnsureDemoModeAsync(authenticatedPage);
 
