@@ -28,7 +28,7 @@ pr:
 variables:
   buildConfiguration: 'Release'
   dotnetVersion: '11.0.x'
-  dotnetRuntimeVersion: '10.0.x'
+  dotnetRuntimeVersion: '11.0.x'
   solutionPath: 'ThaiX.slnx'
   presentationProject: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
   unitTestProject: 'tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj'
@@ -56,11 +56,6 @@ stages:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
 
-          - task: UseDotNet@2
-            displayName: 'Install .NET 10 runtime for net10.0 test execution'
-            inputs:
-              packageType: 'sdk'
-              version: '$(dotnetRuntimeVersion)'
 
           - task: DotNetCoreCLI@2
             displayName: 'Restore NuGet packages'
@@ -169,11 +164,6 @@ stages:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
 
-          - task: UseDotNet@2
-            displayName: 'Install .NET 10 runtime for net10.0 test execution'
-            inputs:
-              packageType: 'sdk'
-              version: '$(dotnetRuntimeVersion)'
 
           - task: DotNetCoreCLI@2
             displayName: 'Restore NuGet packages'
