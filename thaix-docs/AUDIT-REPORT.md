@@ -18,8 +18,9 @@ The branch pins SDK `11.0.100` in root `global.json`, while all application and 
 remain on `net10.0` and C# 14. The first pass found SDK 10 installations in the main GitHub
 Actions workflow, production workflow, Azure Pipelines, and production Docker build stage. Those
 would conflict with `global.json` because SDK roll-forward does not move from major version 10 to
-11. The CI and Docker build stages have been aligned to SDK 11; CI also installs SDK 10 to provide
-the runtime required to execute `net10.0` tests. The ASP.NET runtime image remains 10.0.
+11. The GitHub Actions workflows, Azure Pipelines, and main Docker build stage have been aligned
+to SDK 11; CI installs SDK 10 side-by-side to provide the runtime required to execute
+`net10.0` tests. The ASP.NET runtime image remains 10.0.
 
 The isolated visual-test Docker image intentionally remains on SDK 10 and does not copy root
 `global.json`; it builds and runs the `net10.0` client in the same container. Its README now records
