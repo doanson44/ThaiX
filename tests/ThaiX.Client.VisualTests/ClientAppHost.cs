@@ -108,14 +108,18 @@ internal sealed class ClientAppHost : IAsyncDisposable
         {
             using var client = new HttpClient(new HttpClientHandler
             {
+                AllowAutoRedirect = false,
                 ServerCertificateCustomValidationCallback = static (_, _, _, _) => true
             })
             {
                 Timeout = TimeSpan.FromSeconds(5)
             };
 
-            using var response = await client.GetAsync(uri, cancellationToken);
-            return response.IsSuccessStatusCode || (int)response.StatusCode is >= 300 and < 500;
+            using var response = await client.GetAsync(
+                uri,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+            return response.IsSuccessStatusCode;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or SocketException)
         {
