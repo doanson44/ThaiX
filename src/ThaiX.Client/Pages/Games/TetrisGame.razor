@@ -1,3 +1,4 @@
+@using System.Diagnostics
 @using ThaiX.Client.Services.Games
 @inherits GameBase
 
@@ -63,11 +64,19 @@
     ];
 
     private readonly TetrisEngine _engine = new();
+    private long _lastTickTimestamp;
 
     protected override void Reset()
     {
         _engine.Reset();
+        _lastTickTimestamp = Stopwatch.GetTimestamp();
         StartLoop(50, Tick);
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _lastTickTimestamp = Stopwatch.GetTimestamp();
     }
 
     protected override void OnKey(string key)
@@ -100,7 +109,10 @@
 
     private void Tick()
     {
-        _engine.Advance(TimeSpan.FromMilliseconds(50));
+        var now = Stopwatch.GetTimestamp();
+        var elapsed = Stopwatch.GetElapsedTime(_lastTickTimestamp, now);
+        _lastTickTimestamp = now;
+        _engine.Advance(elapsed);
         if (_engine.IsFinished)
             Finish(_engine.Score);
     }
