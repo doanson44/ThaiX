@@ -8,7 +8,7 @@ argument-hint: "Action + description, e.g. 'add AddProducts', 'revert', or 'remo
 
 ## Toolchain
 
-Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Migration commands still operate on projects targeting `net10.0`; do not change their target framework as part of an SDK-only update.
+Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Migration commands operate on projects targeting `net11.0` and use EF Core 11.
 
 Manage EF Core migrations for ThaiX. All commands target:
 - **Project:** `src/ThaiX.Infrastructure`
