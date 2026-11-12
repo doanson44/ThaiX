@@ -428,12 +428,22 @@ public sealed class AuthFixture : IAsyncLifetime
             browserState = $"Browser state unavailable ({diagnosticException.GetType().Name}): {diagnosticException.Message}";
         }
 
+        string pageUrl;
+        try
+        {
+            pageUrl = page.IsClosed ? "<closed>" : page.Url;
+        }
+        catch (Exception urlException)
+        {
+            pageUrl = $"<unavailable: {urlException.GetType().Name}>";
+        }
+
         return string.Join(
             Environment.NewLine,
             "Authentication diagnostics:",
             $"Browser connected: {browser.IsConnected}",
             $"Page closed: {page.IsClosed}",
-            $"URL: {(page.IsClosed ? "<closed>" : page.Url)}",
+            $"URL: {pageUrl}",
             $"Browser state: {browserState}");
     }
 
