@@ -131,7 +131,7 @@ public sealed class LightThemeVisualTests
             null,
             new PageWaitForFunctionOptions { Timeout = 15000 });
 
-        await page.EvaluateAsync("() => document.fonts.ready");
+        await page.EvaluateAsync<bool>("() => document.fonts.ready.then(() => true)");
     }
 
     private static async Task OpenSidebarIfNeededAsync(IPage page)
