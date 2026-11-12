@@ -2133,7 +2133,7 @@
   <data name="Games.Snake.Instructions" xml:space="preserve"><value>Dùng phím mũi tên hoặc WASD, chạm các nút mũi tên hoặc vuốt để điều khiển. Tránh tường và thân mình.</value></data>
   <data name="Games.Tetris.Name" xml:space="preserve"><value>Xếp gạch Tetris</value></data>
   <data name="Games.Tetris.Description" xml:space="preserve"><value>Xếp các khối rơi và xóa hàng đầy.</value></data>
-  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Trái/phải để di chuyển, lên để xoay, xuống để rơi chậm, Space để thả nhanh. Khi dùng cảm ứng, hãy chạm nút hoặc vuốt.</value></data>
+  <data name="Games.Tetris.Instructions" xml:space="preserve"><value>Trái/phải để di chuyển, lên để xoay, xuống để rơi chậm, Space để thả nhanh, C để giữ khối. Khi dùng cảm ứng, hãy chạm nút hoặc vuốt.</value></data>
   <data name="Games.Flappy.Name" xml:space="preserve"><value>Flappy</value></data>
   <data name="Games.Flappy.Description" xml:space="preserve"><value>Bay qua các khe hở và tránh chướng ngại vật.</value></data>
   <data name="Games.Flappy.Instructions" xml:space="preserve"><value>Chạm, nhấp chuột hoặc nhấn Space để vỗ cánh. Bay qua các khe hở.</value></data>
