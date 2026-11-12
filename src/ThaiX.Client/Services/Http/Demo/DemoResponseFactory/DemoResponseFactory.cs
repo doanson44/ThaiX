@@ -38,6 +38,16 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.Text("Healthy (demo)");
         }
 
+        if (path.StartsWith("api/games", StringComparison.OrdinalIgnoreCase))
+        {
+            return await HandleGamesAsync(method, path, query, request, cancellationToken);
+        }
+
+        if (path.StartsWith("api/public-html", StringComparison.OrdinalIgnoreCase))
+        {
+            return await HandlePublicHtmlAsync(method, path, request, cancellationToken);
+        }
+
         if (path.StartsWith("api/auth", StringComparison.OrdinalIgnoreCase))
         {
             return HandleAuth(method, path);
