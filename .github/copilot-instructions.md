@@ -7,12 +7,12 @@ You are working on the ThaiX solution.
 
 ## Technology Stack
 
-- Application target: .NET 10 / C# 14
-- Build toolchain: .NET SDK 11.0.100 (`global.json`); keep project TFMs at `net10.0` unless a separate framework migration is requested. Install the .NET 10 runtime to execute `net10.0` applications and tests.
+- Application target: .NET 11 / C# 15
+- Build toolchain: .NET SDK 11.0.100 (`global.json`); all application and test projects target `net11.0`.
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
-- EF Core 10 + MySQL/MariaDB
-- Keep the application on `net10.0` / EF Core 10 until Oracle publishes a stable `MySql.EntityFrameworkCore` provider for EF Core 11 and .NET 11. Do not use the current 11.0.0-preview provider in production.
+- EF Core 11 + MySQL/MariaDB
+- The application currently uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview` for EF Core 11. This prerelease provider is a known compatibility risk; verify MariaDB/MySQL integration tests and move to a stable Oracle provider when available.
 - MediatR 12 (CQRS)
 - FluentValidation 11
 - Manual DTO projection (LINQ Select)
