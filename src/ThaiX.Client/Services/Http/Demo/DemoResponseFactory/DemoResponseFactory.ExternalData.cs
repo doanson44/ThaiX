@@ -41,6 +41,34 @@ public sealed partial class DemoResponseFactory
             return _store.WithLock(() => DemoEnvelope.Paged(_store.ChainBrokerUnlocks.ToList(), pageNumber, pageSize));
         }
 
+        if (path.Equals("api/external-data/market/dashboard", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(new MarketDashboardResponseDto
+            {
+                Vix = new VixResponseDto
+                {
+                    Symbol = "^VIX",
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                VnIndex = new VnIndexAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                Bitcoin = new MexcBitcoinAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                Gold = new MexcGoldAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                }
+            });
+        }
+
         if (path.Contains("market/commodities", StringComparison.OrdinalIgnoreCase))
         {
             return _store.WithLock(() => DemoEnvelope.SuccessData(new CommoditiesResponseDto
