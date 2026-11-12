@@ -27,7 +27,7 @@ pr:
 
 variables:
   buildConfiguration: 'Release'
-  dotnetVersion: '10.0.x'
+  dotnetVersion: '11.0.x'
   solutionPath: 'ThaiX.slnx'
   presentationProject: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
   unitTestProject: 'tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj'
@@ -50,11 +50,11 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: UseDotNet@2
-            displayName: 'Install .NET SDK'
+            displayName: 'Install pinned .NET 11 SDK'
             inputs:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
-              includePreviewVersions: true
+
 
           - task: DotNetCoreCLI@2
             displayName: 'Restore NuGet packages'
@@ -158,11 +158,11 @@ stages:
           vmImage: 'ubuntu-latest'
         steps:
           - task: UseDotNet@2
-            displayName: 'Install .NET SDK'
+            displayName: 'Install pinned .NET 11 SDK'
             inputs:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
-              includePreviewVersions: true
+
 
           - task: DotNetCoreCLI@2
             displayName: 'Restore NuGet packages'

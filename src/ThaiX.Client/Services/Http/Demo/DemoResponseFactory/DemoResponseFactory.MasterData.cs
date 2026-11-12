@@ -78,9 +78,10 @@ public sealed partial class DemoResponseFactory
             "cities" => await HandleCityCrudAsync(method, hasId, entityId, pageNumber, pageSize, parentCode, searchTerm, request, cancellationToken),
             "districts" => await HandleDistrictCrudAsync(method, hasId, entityId, pageNumber, pageSize, parentCode, searchTerm, request, cancellationToken),
             "banks" => await HandleBankCrudAsync(method, hasId, entityId, pageNumber, pageSize, parentCode, searchTerm, request, cancellationToken),
-            _ => method == "GET"
-                ? DemoEnvelope.EmptyPaged(pageNumber, pageSize)
-                : DemoEnvelope.SuccessData(Guid.NewGuid())
+            _ => DemoEnvelope.Failure(
+                "DEMO_MASTER_DATA_ENDPOINT_NOT_MAPPED",
+                $"No demo response is configured for {method} {path}.",
+                System.Net.HttpStatusCode.NotImplemented)
         };
     }
 

@@ -7,6 +7,8 @@ applyTo: "src/ThaiX.Infrastructure/**"
 
 ## EF Core
 
+- The solution targets `net11.0` / EF Core 11 and currently uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview`. This prerelease provider is a known production risk; validate it and replace it with a stable provider when available.
+
 - All data access through `ApplicationDbContext` implementing `IApplicationDbContext`.
 - Entity configurations in `Persistence/Configurations/`.
 - Interceptors handle audit fields and domain event persistence.

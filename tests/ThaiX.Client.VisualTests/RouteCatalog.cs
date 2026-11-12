@@ -55,6 +55,8 @@ public static class RouteCatalog
         "/account/enable-authenticator",
         "/admin/users",
         "/admin/command-tester",
+        "/admin/cmsx-proxy-tester",
+        "/admin/system-logs",
         "/admin/ai-tester",
         "/admin/resume",
         "/admin/json-bins",

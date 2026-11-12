@@ -6,7 +6,7 @@ public static class AgentDiscoveryMetadataEndpoints
         "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
     private const string AgentSkillDigest =
-        "sha256:508f61c7405c042c72391c0f2ac10a011cbdd5fc8624ff07297f3be3180f7833";
+        "sha256:78381009b521d52c978fe9980eed754f0613e21c2f4e9b75e66878330c608bf0";
 
     public static void MapAgentDiscoveryMetadataEndpoints(this IEndpointRouteBuilder endpoints)
     {

@@ -7,10 +7,12 @@ You are working on the ThaiX solution.
 
 ## Technology Stack
 
-- .NET 10 / C# 14
+- Application target: .NET 11 / C# 15
+- Build toolchain: .NET SDK 11.0.100 (`global.json`); all application and test projects target `net11.0`.
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
-- EF Core 10 + MySQL/MariaDB
+- EF Core 11 + MySQL/MariaDB
+- The application currently uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview` for EF Core 11. This prerelease provider is a known compatibility risk; verify MariaDB/MySQL integration tests and move to a stable Oracle provider when available.
 - MediatR 12 (CQRS)
 - FluentValidation 11
 - Manual DTO projection (LINQ Select)

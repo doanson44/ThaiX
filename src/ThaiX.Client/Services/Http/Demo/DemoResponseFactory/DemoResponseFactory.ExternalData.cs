@@ -9,6 +9,22 @@ public sealed partial class DemoResponseFactory
     {
         if (method == "POST")
         {
+            if (path.Contains("investing/vnindex/analysis/verdict", StringComparison.OrdinalIgnoreCase))
+            {
+                return DemoEnvelope.SuccessData(new VnIndexVerdictResponseDto
+                {
+                    Commentary = "Demo VNINDEX verdict: the daily trend is bullish, momentum is positive, and the setup favors a measured long bias. Wait for confirmation near the entry zone, invalidate below the stated stop, and keep position risk within the trading plan."
+                });
+            }
+
+            if (path.Equals("api/external-data/market/assessment", StringComparison.OrdinalIgnoreCase))
+            {
+                return DemoEnvelope.SuccessData(new CombinedMarketAssessmentResponseDto
+                {
+                    Commentary = "DEMO CROSS-MARKET ASSESSMENT\n\nVIX: volatility is in a neutral regime; no volatility shock is indicated by the supplied demo snapshot.\n\nVNINDEX: the technical profile is bullish with positive momentum. Prefer confirmation above the recent range and define invalidation before entry.\n\nBitcoin: momentum is strong and the trend is bullish, but crypto volatility warrants smaller position sizing.\n\nGold: the trend is bullish with a constructive pullback setup, providing a defensive asset perspective.\n\nPortfolio view: risk appetite is positive but not uniform across assets. Avoid concentration, use independent stop levels, and treat all figures as synthetic demo data."
+                });
+            }
+
             if (path.Contains("yahoo-finance/vix/verdict", StringComparison.OrdinalIgnoreCase))
             {
                 return DemoEnvelope.SuccessData(new VixVerdictDto
@@ -39,6 +55,34 @@ public sealed partial class DemoResponseFactory
         if (path.Contains("chainbroker/db/unlocks", StringComparison.OrdinalIgnoreCase))
         {
             return _store.WithLock(() => DemoEnvelope.Paged(_store.ChainBrokerUnlocks.ToList(), pageNumber, pageSize));
+        }
+
+        if (path.Equals("api/external-data/market/dashboard", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(new MarketDashboardResponseDto
+            {
+                Vix = new VixResponseDto
+                {
+                    Symbol = "^VIX",
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                VnIndex = new VnIndexAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                Bitcoin = new MexcBitcoinAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                },
+                Gold = new MexcGoldAnalysisResponseDto
+                {
+                    Success = false,
+                    Message = "Market dashboard data is unavailable in demo mode."
+                }
+            });
         }
 
         if (path.Contains("market/commodities", StringComparison.OrdinalIgnoreCase))
@@ -177,6 +221,21 @@ public sealed partial class DemoResponseFactory
             }));
         }
 
+        if (path.Contains("mexc/gold-analysis", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(DemoDataGenerators.DemoGoldAnalysis());
+        }
+
+        if (path.Contains("mexc/bitcoin-analysis", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(DemoDataGenerators.DemoBitcoinAnalysis());
+        }
+
+        if (path.Contains("investing/vnindex/analysis", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(DemoDataGenerators.DemoVnIndexAnalysis());
+        }
+
         if (path.Contains("yahoo-finance/vix", StringComparison.OrdinalIgnoreCase))
         {
             return DemoEnvelope.SuccessData(DemoDataGenerators.DemoVix());
@@ -255,6 +314,37 @@ public sealed partial class DemoResponseFactory
             });
         }
 
+        if (path.Contains("mexc/funding-rate/history/", StringComparison.OrdinalIgnoreCase))
+        {
+            var symbol = path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "BTC_USDT";
+            var requestedPage = int.TryParse(GetQueryValue(query, "pageNum"), out var pageNum) ? Math.Max(1, pageNum) : pageNumber;
+            var requestedPageSize = int.TryParse(GetQueryValue(query, "pageSize"), out var requestedSize) ? Math.Clamp(requestedSize, 1, 100) : 12;
+            var startTime = long.TryParse(GetQueryValue(query, "startTime"), out var start) ? start : DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeMilliseconds();
+            var endTime = long.TryParse(GetQueryValue(query, "endTime"), out var end) ? end : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var rows = Enumerable.Range(0, requestedPageSize)
+                .Select(i => new MexcContractFundingRateHistoryItemDto
+                {
+                    Symbol = symbol,
+                    FundingRate = 0.0001m * (i - 4),
+                    SettleTime = startTime + (endTime - startTime) * (i + 1) / requestedPageSize,
+                    CollectCycle = 8
+                })
+                .ToList();
+
+            return DemoEnvelope.SuccessData(new MexcContractFundingRateHistoryResponseDto
+            {
+                Symbol = symbol,
+                PageNum = requestedPage,
+                PageSize = requestedPageSize,
+                TotalCount = rows.Count,
+                TotalPage = 1,
+                CurrentPage = requestedPage,
+                Data = rows,
+                Success = true,
+                Message = "Demo mode"
+            });
+        }
+
         if (path.Contains("binance/funding-rates", StringComparison.OrdinalIgnoreCase) ||
             path.Contains("mexc/funding-rate", StringComparison.OrdinalIgnoreCase))
         {
@@ -277,6 +367,42 @@ public sealed partial class DemoResponseFactory
         {
             var symbol = path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "BTCUSDT";
             return DemoEnvelope.SuccessData(DemoDataGenerators.DemoOrderBook(symbol));
+        }
+
+        if (path.Contains("mexc/contract-kline/", StringComparison.OrdinalIgnoreCase) &&
+            GetQueryValue(query, "start") is not null &&
+            GetQueryValue(query, "end") is not null)
+        {
+            var symbol = path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "BTC_USDT";
+            var interval = GetQueryValue(query, "interval") ?? "Min1";
+            var start = long.TryParse(GetQueryValue(query, "start"), out var parsedStart) ? parsedStart : DateTimeOffset.UtcNow.AddHours(-24).ToUnixTimeSeconds();
+            var end = long.TryParse(GetQueryValue(query, "end"), out var parsedEnd) ? parsedEnd : DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var count = 48;
+            var step = Math.Max(1, (end - start) / count);
+            var opens = Enumerable.Range(0, count).Select(i => 65_000m + i * 12m).ToList();
+            var data = new MexcContractKlineDataDto
+            {
+                Time = Enumerable.Range(0, count).Select(i => start + i * step).ToList(),
+                Open = opens,
+                Close = opens.Select((value, i) => value + (i % 3 - 1) * 8m).ToList(),
+                High = opens.Select(value => value + 35m).ToList(),
+                Low = opens.Select(value => value - 30m).ToList(),
+                Vol = Enumerable.Range(0, count).Select(i => 100m + i * 2m).ToList(),
+                Amount = opens.Select((value, i) => value * (100m + i * 2m)).ToList(),
+                RealOpen = opens,
+                RealClose = opens.Select((value, i) => value + (i % 3 - 1) * 8m).ToList(),
+                RealHigh = opens.Select(value => value + 35m).ToList(),
+                RealLow = opens.Select(value => value - 30m).ToList()
+            };
+
+            return DemoEnvelope.SuccessData(new MexcContractKlineResponseDto
+            {
+                Symbol = symbol,
+                Interval = interval,
+                Data = data,
+                Success = true,
+                Message = "Demo mode"
+            });
         }
 
         if (path.Contains("mexc/contract-kline/", StringComparison.OrdinalIgnoreCase) ||
@@ -407,14 +533,10 @@ public sealed partial class DemoResponseFactory
             }));
         }
 
-        return DemoEnvelope.SuccessData(new
-        {
-            success = true,
-            message = "Demo mode",
-            data = Array.Empty<object>(),
-            demo = true,
-            path
-        });
+        return DemoEnvelope.Failure(
+            "DEMO_EXTERNAL_DATA_ENDPOINT_NOT_MAPPED",
+            $"No demo response is configured for GET {path}.",
+            System.Net.HttpStatusCode.NotImplemented);
     }
 
     private static List<PriceComparisonPeriodDto> BuildPriceComparisonPeriods()

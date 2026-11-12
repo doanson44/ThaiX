@@ -15,6 +15,8 @@ Apply these rules in every task:
 - Use `ResourceKeys` constants; do not hardcode UI/API messages.
 - Use ASCII in source files; `.resx` is the only Unicode exception.
 - Keep package versions in `Directory.Packages.props` only.
+- The repo pins .NET SDK 11.0.100 in `global.json`; all application and test projects target `net11.0` and default to C# 15. Do not conflate SDK and target framework.
+- The solution targets `net11.0` / EF Core 11 and currently uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview`. This prerelease provider is a known production risk; validate it and replace it with a stable provider when available.
 - For current provider, MediatR pipeline, and permission-claim facts, consult `.agents/rules/repository-facts.md` before changing related code.
 - Do not auto-stage or auto-commit unless user explicitly requests it.
 - Agent asset changes must follow `.github/AGENT_SYNC_POLICY.md`.

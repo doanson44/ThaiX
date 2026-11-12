@@ -1,5 +1,6 @@
 using MediatR;
 using Skender.Stock.Indicators;
+using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.ExternalData.MarketData.Queries.GetYahooFinanceVix;
@@ -151,8 +152,8 @@ public sealed class GetYahooFinanceVixQueryHandler
             FiftyTwoWeekHigh = meta.FiftyTwoWeekHigh,
             FiftyTwoWeekLow = meta.FiftyTwoWeekLow,
             LastUpdateTime = lastUpdateTime,
-            Ema10 = lastEma10.HasValue ? (decimal)lastEma10.Value : null,
-            Ema20 = lastEma20.HasValue ? (decimal)lastEma20.Value : null,
+            Ema10 = lastEma10.HasValue ? DecimalConversionHelper.ToDecimalPreservingLegacyPrecision(lastEma10.Value) : null,
+            Ema20 = lastEma20.HasValue ? DecimalConversionHelper.ToDecimalPreservingLegacyPrecision(lastEma20.Value) : null,
             Momentum3D = momentum3D,
             Momentum5D = momentum5D,
             Percentile = percentile,

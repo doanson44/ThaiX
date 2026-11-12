@@ -14,17 +14,20 @@ docker build (Dockerfile) → start container :8080 → Playwright tests → dis
 |-------|--------|-----|
 | Orchestration | Testcontainers `ImageFromDockerfileBuilder` | Build + start/stop with the test collection |
 | Dockerfile | `tests/ThaiX.Client.VisualTests/Dockerfile` | NuGet restore → LibMan restore → build |
-| Runtime | SDK 10 + `dotnet run` DevServer | Fingerprinted Blazor assets rewrite; ForceDemo |
+| Runtime | SDK 11 + `dotnet run` DevServer | Fingerprinted Blazor assets rewrite; ForceDemo |
 | Not used | plain nginx + publish | `blazor.webassembly.js` 404 without DevServer rewrite |
 
 Docker Desktop required (same as `ThaiX.Tests.API`).
 
 ## Prerequisites
 
-```powershell
-dotnet tool install --global Microsoft.Playwright.CLI
-playwright install chromium
-```
+- .NET 11 SDK
+- Docker Desktop (or a reachable Docker Engine)
+- Internet access on the first run so Playwright can download its matching Chromium headless shell
+
+The visual-test fixture automatically runs Playwright's browser installer before launching Chromium.
+The browser binary is stored in the operating system's Playwright cache, not in the repository.
+No global Playwright CLI or manual browser download is required.
 
 ## Run (recommended)
 
@@ -80,7 +83,8 @@ docker compose -f .docker-composes/docker-compose.client-visualtests.yaml down
 - `OverlayCatalog` must cover every `DialogService.OpenAsync<T>` — enforced by `OverlayCatalogCoverageTests`.
 - Parameterized routes use smoke values (`route-catalog-smoke-test`, `RouteCatalog.SmokeEntityId`).
 - Dockerfile runs `dotnet tool restore` + `dotnet tool run libman restore` before `dotnet build`.
-- Repo `global.json` (SDK 6) and `Directory.Build.props` (TFM net6) are **not** copied into the image.
+- The repo `global.json` pins SDK 11.0.100, but is intentionally not copied into this isolated SDK 11 image; this container builds and runs the `net11.0` client with its matching runtime.
+- Root `Directory.Build.props` only suppresses NU1902 and does not set a target framework; it is intentionally not copied into this isolated image.
 - Root `.dockerignore` limits build context to `Directory.Packages.props` + `src/ThaiX.Client`.
 - First image build is slow (restore + build); later builds use Docker layer cache.
 - `NotificationDesignPreviewTests.cs` is excluded from compile.

@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractTickers;
@@ -214,8 +215,8 @@ public sealed class GetMexcContractTickersQueryHandler
         var fundraisingScore = 0m;
         if (project?.TotalRaiseUsd is { } raise && raise > 0)
         {
-            var logVal = (decimal)Math.Log10((double)(raise + 1));
-            var logMax = (decimal)Math.Log10(50_000_001.0);
+            var logVal = DecimalConversionHelper.ToDecimalPreservingLegacyPrecision(Math.Log10((double)(raise + 1)));
+            var logMax = DecimalConversionHelper.ToDecimalPreservingLegacyPrecision(Math.Log10(50_000_001.0));
             fundraisingScore = Math.Round(Math.Min(logVal / logMax * 5m, 5m), 2);
         }
 

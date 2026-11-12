@@ -1018,6 +1018,175 @@ internal static class DemoDataGenerators
                 .ToList()
         };
 
+    public static MexcGoldAnalysisResponseDto DemoGoldAnalysis()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var history = Enumerable.Range(0, 60)
+            .Select(i =>
+            {
+                var close = 2_350m + i * 1.4m + (i % 7 - 3) * 2.1m;
+                return new MexcGoldCandleDto
+                {
+                    Time = now.AddHours(-(59 - i)),
+                    DateLabel = now.AddHours(-(59 - i)).ToString("MM-dd HH:mm"),
+                    Open = close - 3.5m,
+                    High = close + 8m,
+                    Low = close - 9m,
+                    Close = close,
+                    Volume = 120m + i * 2m
+                };
+            })
+            .ToList();
+        var latest = history[^1];
+
+        return new MexcGoldAnalysisResponseDto
+        {
+            Symbol = "XAUTUSDT",
+            Price = latest.Close,
+            BopPrice = history[^2].Close,
+            Change = latest.Close - history[^2].Close,
+            ChangePct = (latest.Close - history[^2].Close) / history[^2].Close * 100m,
+            High = latest.High,
+            Low = latest.Low,
+            Volume = latest.Volume,
+            QuoteVolume = latest.Volume * latest.Close,
+            PreviousClose = history[^2].Close,
+            HistoryCount = history.Count,
+            History = history,
+            Ema9 = latest.Close - 4m,
+            Ema21 = latest.Close - 9m,
+            Ema50 = latest.Close - 18m,
+            Rsi14 = 58.4m,
+            Atr14 = 16.8m,
+            AverageVolume20 = 165m,
+            HighestHigh20 = history.TakeLast(20).Max(x => x.High),
+            LowestLow20 = history.TakeLast(20).Min(x => x.Low),
+            Trend = "Bullish",
+            Momentum = "Positive",
+            Setup = "Pullback continuation",
+            Signal = "Long",
+            Confidence = 0.76m,
+            Entry = latest.Close,
+            StopLoss = latest.Close - 28m,
+            TakeProfit1 = latest.Close + 42m,
+            TakeProfit2 = latest.Close + 68m,
+            LastUpdated = now.ToString("O"),
+            Success = true,
+            Message = "Demo mode"
+        };
+    }
+
+    public static MexcBitcoinAnalysisResponseDto DemoBitcoinAnalysis()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var history = Enumerable.Range(0, 60)
+            .Select(i =>
+            {
+                var close = 64_000m + i * 38m + (i % 9 - 4) * 85m;
+                return new MexcBitcoinCandleDto
+                {
+                    Time = now.AddHours(-(59 - i)),
+                    DateLabel = now.AddHours(-(59 - i)).ToString("MM-dd HH:mm"),
+                    Open = close - 95m,
+                    High = close + 210m,
+                    Low = close - 240m,
+                    Close = close,
+                    Volume = 850m + i * 17m
+                };
+            })
+            .ToList();
+        var latest = history[^1];
+
+        return new MexcBitcoinAnalysisResponseDto
+        {
+            Symbol = "BTCUSDT",
+            Price = latest.Close,
+            Open = latest.Open,
+            Change = latest.Close - history[^2].Close,
+            ChangePct = (latest.Close - history[^2].Close) / history[^2].Close * 100m,
+            High = latest.High,
+            Low = latest.Low,
+            Volume = latest.Volume,
+            QuoteVolume = latest.Volume * latest.Close,
+            PreviousClose = history[^2].Close,
+            HistoryCount = history.Count,
+            History = history,
+            Ema9 = latest.Close - 110m,
+            Ema21 = latest.Close - 240m,
+            Ema50 = latest.Close - 510m,
+            Rsi14 = 61.2m,
+            Atr14 = 740m,
+            AverageVolume20 = 1_020m,
+            HighestHigh20 = history.TakeLast(20).Max(x => x.High),
+            LowestLow20 = history.TakeLast(20).Min(x => x.Low),
+            Trend = "Bullish",
+            Momentum = "Strong",
+            Setup = "Higher-high continuation",
+            Signal = "Long",
+            Confidence = 0.81m,
+            Entry = latest.Close,
+            StopLoss = latest.Close - 1_150m,
+            TakeProfit1 = latest.Close + 1_700m,
+            TakeProfit2 = latest.Close + 2_600m,
+            LastUpdated = now.ToString("O"),
+            Success = true,
+            Message = "Demo mode"
+        };
+    }
+
+    public static VnIndexAnalysisResponseDto DemoVnIndexAnalysis()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var history = Enumerable.Range(0, 60)
+            .Select(i =>
+            {
+                var close = 1_245m + i * 1.15m + (i % 8 - 3) * 1.8m;
+                return new MarketAnalysisCandleDto
+                {
+                    DateLabel = now.AddDays(-(59 - i)).ToString("yyyy-MM-dd"),
+                    Close = close
+                };
+            })
+            .ToList();
+        var latest = history[^1].Close;
+        var previous = history[^2].Close;
+
+        return new VnIndexAnalysisResponseDto
+        {
+            Symbol = "VNINDEX",
+            Success = true,
+            Message = "Demo mode",
+            HistoryCount = history.Count,
+            LatestTime = now,
+            Open = latest - 3.2m,
+            High = latest + 7.5m,
+            Low = latest - 8.1m,
+            Close = latest,
+            PreviousClose = previous,
+            Change = latest - previous,
+            ChangePct = (latest - previous) / previous * 100m,
+            Volume = 685_000_000m,
+            Ema9 = latest - 3m,
+            Ema21 = latest - 8m,
+            Ema50 = latest - 16m,
+            Rsi14 = 57.8m,
+            Atr14 = 18.5m,
+            AverageVolume20 = 642_000_000m,
+            HighestHigh20 = history.TakeLast(20).Max(x => x.Close) + 8m,
+            LowestLow20 = history.TakeLast(20).Min(x => x.Close) - 5m,
+            Trend = "Bullish",
+            Momentum = "Positive",
+            Setup = "Consolidation breakout",
+            Signal = "Long",
+            Confidence = 0.74m,
+            Entry = latest,
+            StopLoss = latest - 24m,
+            TakeProfit1 = latest + 35m,
+            TakeProfit2 = latest + 52m,
+            History = history
+        };
+    }
+
     public static KlineSeriesResponseDto DemoKlines(string symbol, string interval)
     {
         var now = DateTimeOffset.UtcNow;

@@ -23,6 +23,29 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.Success();
         }
 
+        if (method == "POST" && path.Equals("api/auth/email-otp/request", StringComparison.OrdinalIgnoreCase))
+        {
+            var now = DateTime.UtcNow;
+            return DemoEnvelope.SuccessData(new RequestEmailOtpResponse
+            {
+                ChallengeId = Guid.NewGuid(),
+                ExpiresAt = now.AddMinutes(10),
+                ResendAfter = now.AddSeconds(60),
+                CodeLength = 6
+            });
+        }
+
+        if (method == "POST" && path.Equals("api/auth/email-otp/verify", StringComparison.OrdinalIgnoreCase))
+        {
+            return DemoEnvelope.SuccessData(new LoginResponse
+            {
+                Token = _adminToken,
+                TokenType = "Bearer",
+                ExpiresIn = 3600 * 24 * 365,
+                RequiresTwoFactor = false
+            });
+        }
+
         if (method == "POST" && path.Equals("api/auth/register", StringComparison.OrdinalIgnoreCase))
         {
             return DemoEnvelope.SuccessData(new RegisterResponse

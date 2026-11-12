@@ -6,6 +6,10 @@ argument-hint: "Action + description, e.g. 'add AddProducts', 'revert', or 'remo
 
 # EF Core Migration Skill
 
+## Toolchain
+
+Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Migration commands operate on projects targeting `net11.0` and use EF Core 11.
+
 Manage EF Core migrations for ThaiX. All commands target:
 - **Project:** `src/ThaiX.Infrastructure`
 - **Startup project:** `src/ThaiX.Presentation`
