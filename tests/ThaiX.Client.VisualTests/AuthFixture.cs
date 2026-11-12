@@ -54,6 +54,7 @@ public sealed class AuthFixture : IAsyncLifetime
 
         Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
         Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        Browser.Disconnected += (_, _) => LogFixture("Browser disconnected from the Playwright driver.");
 
         if (string.Equals(
                 Environment.GetEnvironmentVariable("VISUAL_SKIP_AUTH_LOGIN"),
@@ -83,6 +84,7 @@ public sealed class AuthFixture : IAsyncLifetime
             IgnoreHTTPSErrors = true,
             ViewportSize = new ViewportSize { Width = 1280, Height = 800 }
         });
+        authContext.Close += (_, _) => LogFixture("Authentication browser context closed.");
         var authenticatedPage = await authContext.NewPageAsync();
         AttachBrowserDiagnostics(authenticatedPage);
         LogFixture("Authentication setup started.");
@@ -94,9 +96,12 @@ public sealed class AuthFixture : IAsyncLifetime
             LogFixture($"Login page ready. URL: {authenticatedPage.Url}");
             await EnsureDemoModeAsync(authenticatedPage);
 
-            LogFixture("Filling login credentials.");
+            LogFixture("Filling username field.");
             await authenticatedPage.FillAsync(LoginUsernameSelector, Username);
+            LogFixture("Username field filled.");
+            LogFixture("Filling password field.");
             await authenticatedPage.FillAsync(LoginPasswordSelector, Password);
+            LogFixture("Password field filled.");
 
             var loginSubmitButton = authenticatedPage.Locator("button[type='submit']");
             await loginSubmitButton.WaitForAsync(new LocatorWaitForOptions
@@ -109,6 +114,7 @@ public sealed class AuthFixture : IAsyncLifetime
             // Blazor performs client-side navigation; do not make the click action wait for navigation.
             LogFixture("Dispatching login submit click.");
             await loginSubmitButton.DispatchEventAsync("click");
+            LogFixture("Login submit click dispatched.");
 
             LogFixture("Waiting for the Blazor route and auth token.");
             await authenticatedPage.WaitForFunctionAsync(
@@ -123,8 +129,19 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         catch (Exception ex)
         {
-            var diagnostics = await GetAuthenticationDiagnosticsAsync(authenticatedPage);
-            LogFixture($"Authentication setup failed: {ex}");
+            LogFixture($"Authentication setup failed with original exception: {ex}");
+
+            string diagnostics;
+            try
+            {
+                diagnostics = await GetAuthenticationDiagnosticsAsync(authenticatedPage, Browser);
+            }
+            catch (Exception diagnosticException)
+            {
+                LogFixture($"Authentication diagnostics collection failed: {diagnosticException}");
+                diagnostics = $"Diagnostics unavailable: {diagnosticException.GetType().Name}: {diagnosticException.Message}";
+            }
+
             throw new InvalidOperationException(
                 $"Visual test authentication setup failed.{Environment.NewLine}{diagnostics}",
                 ex);
@@ -308,6 +325,8 @@ public sealed class AuthFixture : IAsyncLifetime
 
     private static void AttachBrowserDiagnostics(IPage page)
     {
+        page.Close += (_, _) => LogFixture("Browser page closed.");
+        page.Crash += (_, _) => LogFixture("Browser page crashed.");
         page.Console += (_, message) =>
         {
             if (message.Type == "error" || message.Type == "warning")
@@ -367,8 +386,21 @@ public sealed class AuthFixture : IAsyncLifetime
         }
     }
 
-    private static async Task<string> GetAuthenticationDiagnosticsAsync(IPage page)
+    private static async Task<string> GetAuthenticationDiagnosticsAsync(IPage page, IBrowser browser)
     {
+        var browserConnected = browser.IsConnected;
+        var pageClosed = page.IsClosed;
+
+        if (!browserConnected || pageClosed)
+        {
+            return string.Join(
+                Environment.NewLine,
+                "Authentication diagnostics:",
+                $"Browser connected: {browserConnected}",
+                $"Page closed: {pageClosed}",
+                "Browser state evaluation skipped because the Playwright target is unavailable.");
+        }
+
         string browserState;
         try
         {
@@ -383,7 +415,6 @@ public sealed class AuthFixture : IAsyncLifetime
                     errorUiVisible: !!document.querySelector("#blazor-error-ui") && getComputedStyle(document.querySelector("#blazor-error-ui")).display !== "none",
                     authTokenPresent: !!localStorage.getItem("AuthToken"),
                     submitButtons: Array.from(document.querySelectorAll("button[type='submit']")).map(button => ({
-                        text: button.innerText,
                         disabled: button.disabled,
                         visible: !!(button.offsetWidth || button.offsetHeight || button.getClientRects().length)
                     })),
@@ -394,13 +425,15 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         catch (Exception diagnosticException)
         {
-            browserState = $"Could not read browser state: {diagnosticException.Message}";
+            browserState = $"Browser state unavailable ({diagnosticException.GetType().Name}): {diagnosticException.Message}";
         }
 
         return string.Join(
             Environment.NewLine,
             "Authentication diagnostics:",
-            $"URL: {page.Url}",
+            $"Browser connected: {browser.IsConnected}",
+            $"Page closed: {page.IsClosed}",
+            $"URL: {(page.IsClosed ? "<closed>" : page.Url)}",
             $"Browser state: {browserState}");
     }
 
