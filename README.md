@@ -1,6 +1,6 @@
 # ThaiX
 
-Personal finance and market intelligence platform built with Clean Architecture, DDD and CQRS on .NET 10, with a Blazor WebAssembly front end.
+Personal finance and market intelligence platform built with Clean Architecture, DDD and CQRS on .NET 11, with a Blazor WebAssembly front end.
 
 ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and price alerts, and automates notifications (Slack/Telegram/Email), all behind a permission-based Minimal API and an admin-style Blazor UI.
 
@@ -24,10 +24,10 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 
 | Layer | Technology |
 |---|---|
-| Backend | .NET 10, C# 14, ASP.NET Core Minimal API |
+| Backend | .NET 11, C# 15, ASP.NET Core Minimal API |
 | Build toolchain | .NET SDK 11.0.100 (`global.json`); .NET 10 runtime for `net10.0` execution |
 | Frontend | Blazor WebAssembly, Radzen Blazor, Bootstrap 5.3 (dark mode) |
-| Data | EF Core 10, SQL Server / MariaDB |
+| Data | EF Core 11, MySQL / MariaDB |
 | CQRS | MediatR 12 |
 | Validation | FluentValidation 11 |
 | Background jobs | Hangfire (Outbox processing, scheduled checks) |
@@ -74,9 +74,8 @@ deploy/, cloudflare/      Deployment and edge configuration
 
 ### Prerequisites
 
-- .NET 11 SDK 11.0.100 (see [global.json](global.json)); projects still target .NET 10
-- .NET 10 runtime for running the `net10.0` application and test hosts
-- Application target remains .NET 10 until the Oracle MySQL EF Core 11 provider has a stable release
+- - .NET 11 SDK 11.0.100 (see [global.json](global.json)); all projects target `net11.0`
+- Oracle `MySql.EntityFrameworkCore` 11.0.0-preview is currently prerelease; validate the MariaDB integration suite before production rollout
 - SQL Server or MariaDB (see [docker-compose.yml](docker-compose.yml) for a local MariaDB container)
 - Node-free: the Blazor client uses LibMan for client-side libraries (`dotnet tool restore` + `dotnet libman restore`)
 
