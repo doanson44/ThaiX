@@ -1,9 +1,7 @@
 # ThaiX Documentation Audit
 
 - Repository: [`doanson44/ThaiX`](https://github.com/doanson44/ThaiX)
-- Baseline: [`master` at `db9eb84c2747fef7aa8216eb4c3e8923f731b7d0`](https://github.com/doanson44/ThaiX/commit/db9eb84c2747fef7aa8216eb4c3e8923f731b7d0)
 - Date: 2026-11-12
-- Branch: [`docs/audit-and-refresh-thaix-docs`](https://github.com/doanson44/ThaiX/tree/docs/audit-and-refresh-thaix-docs)
 
 ## Executive summary
 
