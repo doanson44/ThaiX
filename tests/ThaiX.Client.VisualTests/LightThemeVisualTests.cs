@@ -43,7 +43,7 @@ public sealed class LightThemeVisualTests
             async (item, page) =>
             {
                 await page.AddInitScriptAsync(
-                    "() => window.localStorage.setItem('ThaiX-theme', 'light')");
+                    "window.localStorage.setItem('ThaiX-theme', 'light');");
                 await _auth.GotoAsync(page, item.Route, item.Width, item.Height);
                 await EnsureLightThemeAsync(page);
 
