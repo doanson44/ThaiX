@@ -120,17 +120,56 @@ public sealed class LightThemeVisualTests
 
     private static async Task EnsureLightThemeAsync(IPage page)
     {
-        await page.WaitForFunctionAsync(
-            """
-            () => {
-                const themeLink = document.getElementById("ThaiX-radzen-theme");
-                return document.documentElement.getAttribute("data-bs-theme") === "light"
-                    && themeLink?.href.endsWith("/_content/Radzen.Blazor/css/standard-base.css")
-                    && themeLink.sheet !== null;
-            }
-            """,
-            null,
-            new PageWaitForFunctionOptions { Timeout = 15000 });
+        try
+        {
+            await page.WaitForFunctionAsync(
+                """
+                () => {
+                    const themeLink = document.getElementById("ThaiX-radzen-theme");
+                    return document.documentElement.getAttribute("data-bs-theme") === "light"
+                        && themeLink?.href.endsWith("/_content/Radzen.Blazor/css/standard-base.css")
+                        && themeLink.sheet !== null;
+                }
+                """,
+                null,
+                new PageWaitForFunctionOptions { Timeout = 15000 });
+        }
+        catch (TimeoutException ex)
+        {
+            var diagnostics = await page.EvaluateAsync<string>(
+                """
+                () => {
+                    const link = document.getElementById("ThaiX-radzen-theme");
+                    const resources = performance.getEntriesByType("resource")
+                        .filter(entry => entry.name.includes("Radzen.Blazor") || entry.name.endsWith(".css"))
+                        .map(entry => ({
+                            name: entry.name,
+                            duration: Math.round(entry.duration),
+                            transferSize: entry.transferSize,
+                            responseEnd: Math.round(entry.responseEnd)
+                        }));
+
+                    return JSON.stringify({
+                        url: location.href,
+                        readyState: document.readyState,
+                        storedTheme: localStorage.getItem("ThaiX-theme"),
+                        documentTheme: document.documentElement.getAttribute("data-bs-theme"),
+                        baseUri: document.baseURI,
+                        themeLinkFound: !!link,
+                        themeLinkHref: link?.href ?? null,
+                        themeLinkAttribute: link?.getAttribute("href") ?? null,
+                        themeLinkSheetLoaded: link?.sheet !== null,
+                        themeLinkDisabled: link?.disabled ?? null,
+                        loadedStyleSheets: Array.from(document.styleSheets).map(sheet => sheet.href),
+                        cssResources: resources
+                    });
+                }
+                """);
+
+            throw new TimeoutException(
+                $"Light theme stylesheet did not become ready within 15000ms. Browser state: {diagnostics}",
+                ex);
+        }
 
         await page.EvaluateAsync<bool>("() => document.fonts.ready.then(() => true)");
     }
