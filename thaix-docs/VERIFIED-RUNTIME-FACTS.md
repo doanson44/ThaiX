@@ -2,6 +2,22 @@
 
 Verified against source on 2026-11-12. Re-check implementation before changing these facts.
 
+## .NET SDK and target framework
+
+- Root `global.json` pins .NET SDK `11.0.100` with `rollForward: latestMinor`.
+- Current application and test project files target `net10.0`; this is an SDK update, not a
+  framework migration.
+- The SDK compiler defaults to C# 14 for `net10.0`. C# 15 is the default for `net11.0` only.
+- Build and CI use the .NET 11 SDK, while test execution needs the .NET 10 runtime for
+  `net10.0` test hosts. CI installs the .NET 10 SDK as well to provide that runtime; root
+  `global.json` still selects SDK 11 for CLI operations.
+- The production Dockerfile builds with `mcr.microsoft.com/dotnet/sdk:11.0` and runs with
+  `mcr.microsoft.com/dotnet/aspnet:10.0`, matching the current `net10.0` target.
+- The visual-test Dockerfile is intentionally isolated from root `global.json` and uses SDK 10
+  because its test host runs the `net10.0` Blazor client inside the same container.
+
+## Database providers
+
 ## Database providers
 
 - `ApplicationDbContext` is registered with Oracle's `MySql.EntityFrameworkCore` provider via
