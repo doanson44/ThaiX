@@ -96,7 +96,7 @@ public sealed class PongEngineTests
         var initialSpeed = engine.BallSpeed;
 
         // Act
-        for (var step = 0; step < 600 && engine.RallyHits == 0; step++)
+        for (var step = 0; step < 600 && engine.RallyHits < 2; step++)
         {
             var paddleCenter = engine.PlayerPaddleY + PongEngine.PaddleHeight / 2.0;
             var direction = engine.BallY < paddleCenter ? -1 : 1;
@@ -104,8 +104,8 @@ public sealed class PongEngineTests
         }
 
         // Assert
-        engine.RallyHits.Should().BeGreaterThan(0);
-        engine.BallSpeed.Should().BeApproximately(initialSpeed * 1.06, 0.001);
+        engine.RallyHits.Should().Be(2);
+        engine.BallSpeed.Should().BeApproximately(initialSpeed * 1.06 * 1.06, 0.001);
     }
 
     [Fact]
