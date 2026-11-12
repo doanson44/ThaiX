@@ -196,13 +196,13 @@ else
                 </div>
                 <div class="td-upgrade-grid">
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeDamage">
-                        @L[ResourceKeys.Games.TowerDefenseDamage] - Lv.@selectedTowerState.DamageLevel
+                        @L[ResourceKeys.Games.TowerDefenseDamage] - @L[ResourceKeys.Games.TowerDefenseLevel] @selectedTowerState.DamageLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeRange">
-                        @L[ResourceKeys.Games.TowerDefenseRange] - Lv.@selectedTowerState.RangeLevel
+                        @L[ResourceKeys.Games.TowerDefenseRange] - @L[ResourceKeys.Games.TowerDefenseLevel] @selectedTowerState.RangeLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-light" @onclick="UpgradeRate">
-                        @L[ResourceKeys.Games.TowerDefenseFireRate] - Lv.@selectedTowerState.RateLevel
+                        @L[ResourceKeys.Games.TowerDefenseFireRate] - @L[ResourceKeys.Games.TowerDefenseLevel] @selectedTowerState.RateLevel
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger" @onclick="SellSelected">
                         @L[ResourceKeys.Games.TowerDefenseSell]
