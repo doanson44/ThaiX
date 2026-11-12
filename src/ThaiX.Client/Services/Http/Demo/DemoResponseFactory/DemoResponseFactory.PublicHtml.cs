@@ -23,7 +23,7 @@ public sealed partial class DemoResponseFactory
             {
                 Id = id,
                 Title = "Uploaded demo page",
-                Slug = $"demo-page-{id:N}"[..18],
+                Slug = $"demo-page-{id:N}".Substring(0, 18),
                 SizeBytes = request.Content?.Headers.ContentLength ?? 0,
                 IsPublished = false,
                 CreatedAtUtc = DateTime.UtcNow
