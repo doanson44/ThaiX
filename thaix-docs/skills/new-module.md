@@ -1,5 +1,9 @@
 # New Module Workflow
 
+Build and test with the repository-pinned .NET SDK 11.0.100. Current projects remain on
+`net10.0` / C# 14; do not change their target framework as part of SDK maintenance. See
+[`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md).
+
 Create a complete module across the layers when the requested scope is clear. Do not pause for
 confirmation after every layer. Ask only when a material business rule, public contract, destructive
 database operation, or architectural decision is genuinely ambiguous. Never apply migrations unless
