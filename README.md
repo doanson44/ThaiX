@@ -25,6 +25,7 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 | Layer | Technology |
 |---|---|
 | Backend | .NET 10, C# 14, ASP.NET Core Minimal API |
+| Build toolchain | .NET SDK 11.0.100 (`global.json`); .NET 10 runtime for `net10.0` execution |
 | Frontend | Blazor WebAssembly, Radzen Blazor, Bootstrap 5.3 (dark mode) |
 | Data | EF Core 10, SQL Server / MariaDB |
 | CQRS | MediatR 12 |
