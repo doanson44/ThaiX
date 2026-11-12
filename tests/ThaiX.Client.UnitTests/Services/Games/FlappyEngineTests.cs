@@ -156,7 +156,7 @@ public sealed class FlappyEngineTests
 
         // Assert
         engine.Score.Should().Be(1);
-        engine.Pipes.Should().Contain(pipe => pipe.Passed);
+        engine.Pipes.Should().NotContain(pipe => pipe.X < -FlappyEngine.PipeWidth - FlappyEngine.PipeCapWidth * 2);
     }
 
     [Fact]
