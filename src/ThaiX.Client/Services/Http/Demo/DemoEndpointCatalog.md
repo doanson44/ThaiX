@@ -61,6 +61,7 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/api-clients` | Covered | List/scopes; CreateApiClientResponse; regenerate-secret; activate/deactivate |
 | `api/json-bins` | Covered | Paged search; CRUD; code-exists; by-code; content; expire; share/revoke |
 | `api/public/json-bins/share/{token}` | Covered | Anonymous shared bin payload |
+| `api/external-data/market/dashboard` | Covered | Typed MarketDashboardResponseDto with unavailable demo values; Home renders without null nested data |
 | `api/external-data/market/commodities\|currencies\|cryptocurrencies` | Covered | nested `*ResponseDto.Data` ≥80 |
 | `api/external-data/market/coingecko/coins-list` | Covered | nested list ≥80 |
 | `api/external-data/market/coingecko/markets/{id}` | Covered | CoinGeckoCoinMarketResponseDto |
