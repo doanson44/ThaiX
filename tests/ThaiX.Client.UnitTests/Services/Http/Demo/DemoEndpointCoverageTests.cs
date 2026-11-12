@@ -112,6 +112,30 @@ public sealed class DemoEndpointCoverageTests
         Assert.Contains("not sent", document.RootElement.GetProperty("data").GetProperty("body").GetString(), StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task SystemLogEndpoints_ShouldReturnRawListPreviewAndDownload()
+    {
+        // Arrange
+        var factory = new DemoResponseFactory(new DemoSessionStore());
+        using var listRequest = CreateRequest(HttpMethod.Get, "api/system-logs");
+
+        // Act
+        using var listResponse = await factory.CreateAsync(listRequest);
+        using var list = await JsonDocument.ParseAsync(await listResponse.Content.ReadAsStreamAsync());
+        var fileName = list.RootElement[0].GetProperty("fileName").GetString();
+        using var previewRequest = CreateRequest(HttpMethod.Get, $"api/system-logs/{fileName}");
+        using var previewResponse = await factory.CreateAsync(previewRequest);
+        using var preview = await JsonDocument.ParseAsync(await previewResponse.Content.ReadAsStreamAsync());
+        using var downloadRequest = CreateRequest(HttpMethod.Get, $"api/system-logs/{fileName}/download");
+        using var downloadResponse = await factory.CreateAsync(downloadRequest);
+        var downloadContent = await downloadResponse.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.Equal(JsonValueKind.Array, list.RootElement.ValueKind);
+        Assert.Equal(fileName, preview.RootElement.GetProperty("fileName").GetString());
+        Assert.Contains("demo mode", downloadContent, StringComparison.OrdinalIgnoreCase);
+    }
+
     private static HttpRequestMessage CreateRequest(HttpMethod method, string path, HttpContent? content = null) =>
         new(method, new Uri($"https://localhost/{path}")) { Content = content };
 }
