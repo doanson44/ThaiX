@@ -1,7 +1,7 @@
 # Add Integration Test
 
 Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Integration tests target
-`net10.0` and require the .NET 10 runtime for execution. See
+`net11.0` and run on the .NET 11 runtime. See
 [`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md).
 
 Add endpoint integration tests in `tests/ThaiX.Presentation.IntegrationTests/`.
