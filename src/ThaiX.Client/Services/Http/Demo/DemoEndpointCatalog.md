@@ -108,7 +108,7 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/external-data/chainbroker/db/funds\|projects\|unlocks` | Covered | Paged >=80 |
 | `api/external-data/chainbroker/sync*` | Covered | SuccessData sync object |
 | `api/trading/suggestion` | Covered | TradeSuggestionDto |
-| `api/trading/verdict` | Covered | TradeVerdictDto |
+| `api/trading/verdict` | Covered | TradeVerdictDto with non-empty verdict and risk-management reasoning |
 | `api/trading/suggestion-history` | Covered | WeeklySuggestionHistoryResultDto (>=80 reports) |
 | `api/trading/suggestion-history/evaluate` | Covered | EvaluateWeeklySuggestionPerformanceResultDto |
 | `api/trading/suggestion-history/export` | Covered | CSV bytes + Content-Disposition |
