@@ -4,6 +4,18 @@
 
 <svg class="game-svg" viewBox="0 0 360 480" @onpointerdown="SwipeStart" @onpointerup="SwipeEnd">
     <text class="g-muted" x="145" y="15">@L[ResourceKeys.Games.Score]: @_engine.Score</text>
+    <text class="g-muted" x="287" y="70" text-anchor="middle">@L[ResourceKeys.Games.NextPiece]</text>
+    @for (var y = 0; y < _engine.NextShape.Length; y++)
+    {
+        for (var x = 0; x < _engine.NextShape[y].Length; x++)
+        {
+            if (_engine.NextShape[y][x] != 0)
+            {
+                <rect x="@(264 + x * 13)" y="@(84 + y * 13)" width="11" height="11" rx="2"
+                      fill="@PieceColor((int)_engine.NextPiece)" />
+            }
+        }
+    }
     <rect x="@Left" y="@Top" width="@(TetrisEngine.Columns * Cell)" height="@(TetrisEngine.Rows * Cell)" fill="#0b1220" />
     @for (var y = 0; y < TetrisEngine.Rows; y++)
     {
