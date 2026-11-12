@@ -14,7 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DOTNET_VERSION: "10.0.302"
+  DOTNET_VERSION: "11.0.100"
+  DOTNET_RUNTIME_VERSION: "10.0.x"
   BUILD_CONFIGURATION: "Release"
   SOLUTION_PATH: "ThaiX.slnx"
   UNIT_TEST_PROJECT: "tests/ThaiX.Application.UnitTests/ThaiX.Application.UnitTests.csproj"
@@ -31,10 +32,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK
+      - name: Install pinned .NET 11 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install .NET 10 runtime for net10.0 test execution
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_RUNTIME_VERSION }}
 
       - name: Restore NuGet packages
         run: dotnet restore "${{ env.SOLUTION_PATH }}"
