@@ -19,10 +19,6 @@ jobs:
         with:
           dotnet-version: "11.0.x"
 
-      - name: Install .NET 11 runtime for net11.0 test execution
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: "11.0.x"
 
       - name: Restore visual test project
         run: dotnet restore tests/ThaiX.Client.VisualTests/ThaiX.Client.VisualTests.csproj
