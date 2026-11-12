@@ -22,7 +22,7 @@ public sealed partial class DemoResponseFactory
             var now = DateTime.UtcNow;
             return DemoEnvelope.Json(new[]
             {
-                new SystemLogFileDto(DemoLogFileName, DateOnly.FromDateTime(now), 82, now)
+                new SystemLogFileDto(DemoLogFileName, DateOnly.FromDateTime(now), 64, now)
             });
         }
 
