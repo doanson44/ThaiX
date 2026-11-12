@@ -5,14 +5,14 @@ This file records implementation facts verified against the current ThaiX source
 ## .NET Toolchain and Target Framework
 
 - The repository pins .NET SDK `11.0.100` through root `global.json`.
-- Current application and test projects target `net10.0`; with the SDK default language-version mapping, they compile as C# 14, not C# 15.
-- Install the .NET 10 runtime alongside the .NET 11 SDK when executing `net10.0` test applications outside environments that already provide it.
-- Do not change project TFMs or claim a .NET 11 framework migration solely because the SDK was upgraded.
+- All application and test projects target `net11.0`; with the SDK default language-version mapping, they compile as C# 15.
+- The .NET 11 SDK installation includes the runtime required to execute `net11.0` applications and tests.
+- The solution has been retargeted to .NET 11; keep project TFMs aligned unless a deliberate future framework migration is requested.
 
 ## Database Providers
 
 - The current `ApplicationDbContext` registration in `src/ThaiX.Infrastructure/DependencyInjection.cs` uses Oracle's `MySql.EntityFrameworkCore` provider through `UseMySQL(connectionString)`.
-- Keep the solution on `net10.0` and EF Core 10 until Oracle publishes a stable `MySql.EntityFrameworkCore` release compatible with EF Core 11 / .NET 11. Do not adopt its current prerelease 11.0.0 provider in production.
+- The solution now targets `net11.0` / EF Core 11 and uses Oracle `MySql.EntityFrameworkCore` `11.0.0-preview`. This is a prerelease production dependency; verify database compatibility and upgrade to a stable provider as soon as Oracle publishes one.
 - The current EF history repository is `MariaDbHistoryRepository`.
 - `DefaultConnection` is the application/Identity database connection.
 - `HangfireConnection` is used by Hangfire storage through `UseSqlServerStorage()`; it does not fall back to `DefaultConnection`.
