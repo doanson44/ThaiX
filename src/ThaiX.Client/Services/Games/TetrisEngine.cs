@@ -108,9 +108,12 @@ public sealed class TetrisEngine
             return;
 
         _gravityElapsed += Math.Min(elapsed.TotalSeconds, 1);
-        var interval = Math.Max(0.08, 0.8 * Math.Pow(0.8, Level - 1));
-        while (_gravityElapsed >= interval && !IsFinished)
+        while (!IsFinished)
         {
+            var interval = Math.Max(0.08, 0.8 * Math.Pow(0.8, Level - 1));
+            if (_gravityElapsed < interval)
+                break;
+
             _gravityElapsed -= interval;
             if (!Move(0, 1))
                 LockPiece();
