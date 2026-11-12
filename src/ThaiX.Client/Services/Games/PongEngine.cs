@@ -145,7 +145,7 @@ public sealed class PongEngine
             _aiReactionElapsed -= AiReactionDelaySeconds;
             _aiTargetY = BallVelocityX > 0
                 ? PredictBallYAt(AiCollisionX)
-                : (BoardHeight - PaddleHeight) / 2.0;
+                : BoardHeight / 2.0;
         }
 
         var targetPaddleY = _aiTargetY - PaddleHeight / 2.0;
