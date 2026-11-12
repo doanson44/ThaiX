@@ -76,6 +76,7 @@ deploy/, cloudflare/      Deployment and edge configuration
 
 - .NET 11 SDK 11.0.100 (see [global.json](global.json)); projects still target .NET 10
 - .NET 10 runtime for running the `net10.0` application and test hosts
+- Application target remains .NET 10 until the Oracle MySQL EF Core 11 provider has a stable release
 - SQL Server or MariaDB (see [docker-compose.yml](docker-compose.yml) for a local MariaDB container)
 - Node-free: the Blazor client uses LibMan for client-side libraries (`dotnet tool restore` + `dotnet libman restore`)
 
