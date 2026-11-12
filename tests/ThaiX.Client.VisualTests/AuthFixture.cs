@@ -119,7 +119,7 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         finally
         {
-            await context.CloseAsync();
+            await CloseContextAsync(context, "fixture setup");
         }
     }
 
@@ -149,7 +149,7 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         finally
         {
-            await context.CloseAsync();
+            await CloseContextAsync(context, "fixture setup");
         }
     }
 
@@ -236,7 +236,7 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         finally
         {
-            await context.CloseAsync();
+            await CloseContextAsync(context, "fixture setup");
         }
     }
 
@@ -265,7 +265,7 @@ public sealed class AuthFixture : IAsyncLifetime
         }
         finally
         {
-            await context.CloseAsync();
+            await CloseContextAsync(context, "fixture setup");
         }
     }
 
@@ -330,7 +330,7 @@ public sealed class AuthFixture : IAsyncLifetime
                 }
                 finally
                 {
-                    await context.CloseAsync();
+                    await CloseContextAsync(context, "fixture setup");
                 }
             });
 
@@ -423,6 +423,18 @@ public sealed class AuthFixture : IAsyncLifetime
         catch (TimeoutException)
         {
             // Some pages keep websockets/polling; content wait above is enough.
+        }
+    }
+
+    private static async Task CloseContextAsync(IBrowserContext context, string purpose)
+    {
+        try
+        {
+            await context.CloseAsync();
+        }
+        catch (PlaywrightException ex)
+        {
+            LogFixture($"Browser context close during {purpose} failed: {ex.Message}");
         }
     }
 
