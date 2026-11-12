@@ -23,7 +23,7 @@ Status legend:
 
 Unmapped top-level, external-data, and master-data routes return HTTP 501 instead of a generic placeholder. Add a typed handler and catalog row when a FE endpoint is introduced.
 
-Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development may set `false` to hit a live API).
+Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may set `false` to hit a live API).
 
 | Path | Status | Demo shape / notes |
 |---|---|---|
@@ -37,24 +37,24 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/account/generate-recovery-codes` | Covered | GenerateRecoveryCodesResponse |
 | `api/account/external-logins` | Covered | ExternalLoginsResponse |
 | `api/account/personal-data` | Covered | `Dictionary<string,string>` |
-| `api/account/*` other | Partial | Success shells (confirm-email, forgot/reset, disable-2fa, …) |
-| `api/master-data/countries\|cities\|districts\|banks` | Covered | Paged ≥80 + CRUD; filter by `search` / `searchTerm` on code/name; cities/districts/banks also `parentCode` |
+| `api/account/*` other | Partial | Success shells (confirm-email, forgot/reset, disable-2fa, ...) |
+| `api/master-data/countries\|cities\|districts\|banks` | Covered | Paged >=80 + CRUD; filter by `search` / `searchTerm` on code/name; cities/districts/banks also `parentCode` |
 | `api/master-data/symbols/search` | Covered | `SymbolSearchResultDto` (Items + TotalCount); stock/crypto lists |
-| `api/users/*` | Covered | Paged users ≥80, permissions, profile |
-| `api/contacts` | Covered | Paged ≥80, search, ContactDetailDto, CSV export/import/template, suggest-users |
+| `api/users/*` | Covered | Paged users >=80, permissions, profile |
+| `api/contacts` | Covered | Paged >=80, search, ContactDetailDto, CSV export/import/template, suggest-users |
 | `api/contacts/import-async` | Covered | Returns job `Guid`; stores `ContactImportJobDto` |
 | `api/contacts/import/jobs/{id}` | Covered | `ContactImportJobDto` (+ synthetic completed if unknown) |
-| `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/… |
+| `api/contacts` child resources | Partial | Success / Guid shells for emails/phones/... |
 | `api/public-html` | Covered | Raw `PublicHtmlPageModel[]` GET; upload, rename, publish, delete use in-memory demo state |
 | `api/system-logs` | Covered | Raw file list, preview DTO and text download; synthetic demo log only |
 | `api/files/upload` | Covered | **Raw** `UploadedFileDto` JSON (not ApiResponse) + `DemoImageUrls` |
 | `api/files/{id}` GET | Covered | `UploadedFileDto` in ApiResponse |
 | `api/files/{id}` DELETE | Covered | Success |
-| `api/portfolios` (+ export / import / template) | Covered | Paged ≥80, search, CRUD, CSV |
+| `api/portfolios` (+ export / import / template) | Covered | Paged >=80, search, CRUD, CSV |
 | `api/games/leaderboards\\|guest-session\\|scores` | Covered | Typed leaderboard, guest session and score submission envelopes; demo scores are not persisted |
-| `api/stock\|crypto\|saving-positions` | Covered | Paged ≥80, `portfolioId` + `search`/`searchTerm` filter; `{id}/transactions` paged |
+| `api/stock\|crypto\|saving-positions` | Covered | Paged >=80, `portfolioId` + `search`/`searchTerm` filter; `{id}/transactions` paged |
 | `api/notes` | Covered | Paged + search/pin/archive filters; pin/archive toggles store |
-| `api/credential-accounts` | Covered | Paged; detail; password view/copy → CredentialAccountPasswordDto; audit-logs seeded |
+| `api/credential-accounts` | Covered | Paged; detail; password view/copy -> CredentialAccountPasswordDto; audit-logs seeded |
 | `api/blog/posts` | Covered | Admin list + PostDto by id |
 | `api/blog/posts/public` (+ `/{slug}`) | Covered | PublishedPosts page + PostDto by slug |
 | `api/blog/categories` | Covered | SuccessData list (not paged) |
@@ -62,8 +62,8 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/blog/ai/*` | Covered | BlogAiTextResponseDto / SEO / Review |
 | `api/notification-schedules` | Covered | List/filter; NotificationScheduleDto GET/POST; run-now / preview / executions |
 | `api/notification-schedules/upcoming` | Covered | List of upcoming schedule items |
-| `api/notification-schedules/{id}/resume` | Covered | Success; status → Active |
-| `api/price-alerts`, `api/market-scanner` | Covered | Paged ≥80 + `search`/`searchTerm` filter |
+| `api/notification-schedules/{id}/resume` | Covered | Success; status -> Active |
+| `api/price-alerts`, `api/market-scanner` | Covered | Paged >=80 + `search`/`searchTerm` filter |
 | `api/api-clients` | Covered | List/scopes; CreateApiClientResponse; regenerate-secret; activate/deactivate |
 | `api/json-bins` | Covered | Paged search; CRUD; code-exists; by-code; content; expire; share/revoke |
 | `api/public/json-bins/share/{token}` | Covered | Anonymous shared bin payload |
@@ -71,15 +71,15 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/developer-tools/cmsx-proxy/test` | Covered | Typed diagnostic envelope; proxy request is deliberately not sent in demo mode |
 | `api/expense-tracker/*` | Covered | Typed dashboard and CRUD responses backed by in-memory demo seed |
 | `api/external-data/market/dashboard` | Covered | Typed MarketDashboardResponseDto with unavailable demo values; Home renders without null nested data |
-| `api/external-data/market/commodities\|currencies\|cryptocurrencies` | Covered | nested `*ResponseDto.Data` ≥80 |
-| `api/external-data/market/coingecko/coins-list` | Covered | nested list ≥80 |
+| `api/external-data/market/commodities\|currencies\|cryptocurrencies` | Covered | nested `*ResponseDto.Data` >=80 |
+| `api/external-data/market/coingecko/coins-list` | Covered | nested list >=80 |
 | `api/external-data/market/coingecko/markets/{id}` | Covered | CoinGeckoCoinMarketResponseDto |
-| `api/external-data/bank-interest-rates` | Covered | nested grid ≥80 |
-| `api/external-data/sacombank/exchange-rates` | Covered | nested rates ≥80 |
-| `api/external-data/market/vndirect/change-prices` | Covered | VnDirectChangePricesResponseDto.Data ≥80 |
-| `api/external-data/market/vndirect/top-stocks` | Covered | VnDirectTopStocksResponseDto.Data ≥80 |
-| `api/external-data/mexc/contract-ticker` | Covered | MexcContractTickersResponseDto.Data ≥80 |
-| `api/external-data/mexc/spot-ticker-24hr` | Covered | MexcSpotTicker24HrResponseDto.Data ≥80 |
+| `api/external-data/bank-interest-rates` | Covered | nested grid >=80 |
+| `api/external-data/sacombank/exchange-rates` | Covered | nested rates >=80 |
+| `api/external-data/market/vndirect/change-prices` | Covered | VnDirectChangePricesResponseDto.Data >=80 |
+| `api/external-data/market/vndirect/top-stocks` | Covered | VnDirectTopStocksResponseDto.Data >=80 |
+| `api/external-data/mexc/contract-ticker` | Covered | MexcContractTickersResponseDto.Data >=80 |
+| `api/external-data/mexc/spot-ticker-24hr` | Covered | MexcSpotTicker24HrResponseDto.Data >=80 |
 | `api/external-data/mexc/contract-depth\|spot-depth/{symbol}` | Covered | OrderBookDepthResponseDto |
 | `api/external-data/mexc/contract-kline\|spot-klines/{symbol}` | Covered | KlineSeriesResponseDto |
 | `api/external-data/mexc/funding-rate` | Covered | FundingRatesResponseDto |
@@ -94,25 +94,25 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 | `api/external-data/lottery/power-655` | Covered | Power655ResultsResponseDto |
 | `api/external-data/yahoo-finance/vix` | Covered | VixResponseDto |
 | `api/external-data/yahoo-finance/vix/verdict` | Covered | VixVerdictDto (POST) |
-| `api/external-data/tcbs-top10/portfolios` | Covered | TcbsTop10PortfoliosResult (≥80) |
+| `api/external-data/tcbs-top10/portfolios` | Covered | TcbsTop10PortfoliosResult (>=80) |
 | `api/external-data/tcbs-top10/sync` | Covered | SuccessData sync object |
 | `api/external-data/dragon-capital/fund-portfolio/{code}` | Covered | DragonCapitalFundPortfolioDto |
 | `api/external-data/market/24hmoney/transactions/{symbol}/history` | Covered | TwentyFourHMoneyTransactionHistoryResponseDto |
-| `api/external-data/chainbroker/db/funds\|projects\|unlocks` | Covered | Paged ≥80 |
+| `api/external-data/chainbroker/db/funds\|projects\|unlocks` | Covered | Paged >=80 |
 | `api/external-data/chainbroker/sync*` | Covered | SuccessData sync object |
 | `api/trading/suggestion` | Covered | TradeSuggestionDto |
 | `api/trading/verdict` | Covered | TradeVerdictDto |
-| `api/trading/suggestion-history` | Covered | WeeklySuggestionHistoryResultDto (≥80 reports) |
+| `api/trading/suggestion-history` | Covered | WeeklySuggestionHistoryResultDto (>=80 reports) |
 | `api/trading/suggestion-history/evaluate` | Covered | EvaluateWeeklySuggestionPerformanceResultDto |
 | `api/trading/suggestion-history/export` | Covered | CSV bytes + Content-Disposition |
 | `api/trading/weekly-suggestion/run\|run-spot` | Covered | SuccessData started |
-| `api/lottery/power-655/analysis` | Covered | Power655AnalysisResponse (draws ≥80) |
+| `api/lottery/power-655/analysis` | Covered | Power655AnalysisResponse (draws >=80) |
 | `api/lottery/power-655/sync\|predict` | Covered | Success |
 | `api/resumes/mine`, `public/{slug}` | Covered | ResumeDto |
 | `api/resumes/ai/*` | Covered | ResumeAiTextResponse / Report |
 | `api/ai/generate` | Covered | GenerateAiTextResponse |
 | `api/bot-commands/execute` | Covered | BotCommandExecutionDto |
-| `api/slack\|telegram/commands/channels` | Covered | ChannelInfoDto list ≥80 |
+| `api/slack\|telegram/commands/channels` | Covered | ChannelInfoDto list >=80 |
 | `api/slack/commands/execute` | Covered | BotCommandExecutionDto |
 | `api/slack/commands/executions/{id}` | Covered | BotAsyncExecutionStatusDto |
 | `api/notifications/send` | Covered | Success (no data) |
@@ -122,4 +122,4 @@ Force demo: `wwwroot/appsettings.json` → `Api:ForceDemo: true` (Development ma
 
 **Skipped (not HttpClient product surface):** `api/account/external-login-callback` (browser redirect), `api/telegram/webhook` (server inbound).
 
-**Missing:** none for HttpClient REST paths (MEXC WebSocket pages excluded — not HTTP).
+**Missing:** none for HttpClient REST paths (MEXC WebSocket pages excluded -- not HTTP).
