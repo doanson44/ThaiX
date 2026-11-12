@@ -56,6 +56,23 @@ public sealed class PongEngineTests
     }
 
     [Fact]
+    public void Advance_Ball_ShouldStayWithinVerticalBounds()
+    {
+        // Arrange
+        var engine = new PongEngine(new Random(1));
+
+        // Act
+        for (var step = 0; step < 2_000 && !engine.IsFinished; step++)
+        {
+            engine.Advance(1.0 / 60, 0);
+            engine.BallY.Should().BeInRange(PongEngine.BallRadius, PongEngine.BoardHeight - PongEngine.BallRadius);
+        }
+
+        // Assert
+        engine.BallY.Should().BeInRange(PongEngine.BallRadius, PongEngine.BoardHeight - PongEngine.BallRadius);
+    }
+
+    [Fact]
     public void Advance_LargeElapsedTime_ShouldLimitCatchUpSteps()
     {
         // Arrange
