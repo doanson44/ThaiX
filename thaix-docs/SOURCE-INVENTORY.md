@@ -1,6 +1,6 @@
 # Supplied Source Inventory
 
-The user supplied 23 Markdown source files. The audit report records findings for all of them.
+The user supplied 25 Markdown source files. The audit report records findings for all of them.
 This folder publishes refreshed canonical guidance for the high-impact areas listed below; it does
 not claim that every supplied file has been copied one-for-one.
 
