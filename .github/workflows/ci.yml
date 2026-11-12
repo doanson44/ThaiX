@@ -19,7 +19,6 @@ on:
 
 env:
   DOTNET_VERSION: '11.0.x'
-  DOTNET_RUNTIME_VERSION: '11.0.x'
   BUILD_CONFIGURATION: 'Release'
   SOLUTION_PATH: 'ThaiX.slnx'
   PRESENTATION_PROJECT: 'src/ThaiX.Presentation/ThaiX.Presentation.csproj'
