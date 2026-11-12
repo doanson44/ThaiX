@@ -10,6 +10,35 @@
 - `Directory.Packages.props` remains on the ASP.NET Core / EF Core 10 package line. Do not
   upgrade package major versions solely because the SDK changed.
 
+## .NET 11 application migration decision
+
+Do not retarget the solution to `net11.0` yet. The application uses Oracle's
+`MySql.EntityFrameworkCore` provider through `UseMySQL()` for its primary MariaDB/MySQL database.
+As of 2026-11-12, EF Core 11 is stable, but Oracle's `MySql.EntityFrameworkCore` 11.0.0 package is
+still published as `11.0.0-preview`; Oracle's Connector/NET 26.10 documentation describes EF Core
+11 support as preview/RC. This is a production database-provider dependency, so the current
+prerelease provider is not an acceptable basis for a framework migration.
+
+Keep the application and test projects on `net10.0`, keep the Microsoft EF Core / ASP.NET Core
+packages on the 10.0.x line, and retain the .NET 10 runtime image until Oracle publishes a stable
+provider version that explicitly supports EF Core 11 and .NET 11. Do not mix EF Core 11 with the
+current EF Core 10 provider or force an unsupported package graph.
+
+Re-open the migration when all of these are true:
+
+1. Oracle publishes a stable (non-prerelease) `MySql.EntityFrameworkCore` release compatible with
+   EF Core 11 and .NET 11.
+2. The provider's documented Connector/NET and MariaDB/MySQL compatibility covers ThaiX's actual
+   database server and integration-test setup.
+3. All Microsoft ASP.NET Core, EF Core, and test-host packages can be moved to compatible stable
+   11.0.x versions.
+4. The .NET 11 breaking-change review is complete; unit, integration, browser, and publish tests
+   pass using the .NET 11 runtime and container images.
+
+The SDK-only update to 11.0.100 is valid and does not require changing project TFMs. See the
+[.NET 11 breaking changes](https://learn.microsoft.com/dotnet/core/compatibility/11) before the
+future migration.
+
 ## C# language version
 
 The compiler selects the default language version from the target framework, not simply from the
