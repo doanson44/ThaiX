@@ -12,6 +12,22 @@ highest-risk issues are the incomplete MediatR pipeline, incorrect test/database
 an obsolete module-generation workflow, and JWT lifetime assertions not established by the
 validator implementation.
 
+## .NET SDK 11 toolchain audit
+
+The branch pins SDK `11.0.100` in root `global.json`, while all application and test projects
+remain on `net10.0` and C# 14. The first pass found SDK 10 installations in the main GitHub
+Actions workflow, production workflow, Azure Pipelines, and production Docker build stage. Those
+would conflict with `global.json` because SDK roll-forward does not move from major version 10 to
+11. The CI and Docker build stages have been aligned to SDK 11; CI also installs SDK 10 to provide
+the runtime required to execute `net10.0` tests. The ASP.NET runtime image remains 10.0.
+
+The isolated visual-test Docker image intentionally remains on SDK 10 and does not copy root
+`global.json`; it builds and runs the `net10.0` client in the same container. Its README now records
+this exception and corrects the obsolete claim that the repository pins SDK 6 / TFM net6.
+
+No project `TargetFramework`, C# language version, or package major version was changed. The
+SDK-only update does not constitute a .NET 11 application migration.
+
 ## Confirmed stale documents
 
 | Supplied document | Finding | Source evidence | Priority |
