@@ -321,9 +321,12 @@ public sealed class AuthFixture : IAsyncLifetime
         };
         page.Response += (_, response) =>
         {
-            if (response.Status >= 400)
+            var isLoginResponse = GetSafeUrl(response.Url).Contains(
+                "/api/auth/login",
+                StringComparison.OrdinalIgnoreCase);
+            if (response.Status >= 400 || isLoginResponse)
             {
-                LogFixture($"HTTP response error: {response.Status} {response.StatusText} {response.Request.Method} {GetSafeUrl(response.Url)}");
+                LogFixture($"HTTP response: {response.Status} {response.StatusText} {response.Request.Method} {GetSafeUrl(response.Url)}");
             }
         };
     }
