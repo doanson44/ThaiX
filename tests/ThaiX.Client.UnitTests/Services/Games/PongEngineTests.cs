@@ -89,7 +89,7 @@ public sealed class PongEngineTests
     }
 
     [Fact]
-    public void PaddleHit_ShouldIncreaseBallSpeedBySixPercent()
+    public void PaddleHits_ShouldIncreaseBallSpeedBySixPercentEach()
     {
         // Arrange
         var engine = new PongEngine(new Random(1));
@@ -106,6 +106,22 @@ public sealed class PongEngineTests
         // Assert
         engine.RallyHits.Should().Be(2);
         engine.BallSpeed.Should().BeApproximately(initialSpeed * 1.06 * 1.06, 0.001);
+    }
+
+    [Fact]
+    public void PointScored_ShouldResetRallySpeed()
+    {
+        // Arrange
+        var engine = new PongEngine(new Random(1));
+
+        // Act
+        for (var step = 0; step < 2_000 && engine.PlayerScore + engine.AiScore == 0; step++)
+            engine.Advance(1.0 / 60, 0);
+
+        // Assert
+        (engine.PlayerScore + engine.AiScore).Should().Be(1);
+        engine.BallSpeed.Should().Be(320);
+        engine.RallyHits.Should().Be(0);
     }
 
     [Fact]
