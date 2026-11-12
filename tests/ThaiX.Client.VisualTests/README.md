@@ -21,10 +21,13 @@ Docker Desktop required (same as `ThaiX.Tests.API`).
 
 ## Prerequisites
 
-```powershell
-dotnet tool install --global Microsoft.Playwright.CLI
-playwright install chromium
-```
+- .NET 11 SDK
+- Docker Desktop (or a reachable Docker Engine)
+- Internet access on the first run so Playwright can download its matching Chromium headless shell
+
+The visual-test fixture automatically runs Playwright's browser installer before launching Chromium.
+The browser binary is stored in the operating system's Playwright cache, not in the repository.
+No global Playwright CLI or manual browser download is required.
 
 ## Run (recommended)
 
