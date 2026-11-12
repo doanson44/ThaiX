@@ -122,7 +122,7 @@ public static class KlineMapper
 
         if (klines.Count == 0)
         {
-            throw new ArgumentException("No valid stock klines could be mapped.", nameof(raw));
+            throw new ArgumentException("No valid stock klines could be mapped.", nameof(response));
         }
 
         return klines.OrderBy(x => x.Time).ToList();
