@@ -17,9 +17,9 @@ public sealed class FlappyEngine
     private const double FixedStepSeconds = 1.0 / 60.0;
     private const double MaximumElapsedSeconds = FixedStepSeconds * 5;
     private const int MaximumStepsPerAdvance = 5;
-    private const double Gravity = 378;
-    private const double FlapVelocity = -195;
-    private const double PipeSpeed = 90;
+    private const double Gravity = 466.6666666666667;
+    private const double FlapVelocity = -216.66666666666666;
+    private const double PipeSpeed = 100;
     private const double PipeSpawnInterval = 2.85;
     private const double FirstPipeX = 560;
     private const double SpawnPipeX = 740;
