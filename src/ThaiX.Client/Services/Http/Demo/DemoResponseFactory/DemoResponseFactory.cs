@@ -199,19 +199,10 @@ public sealed partial class DemoResponseFactory
             return HandleTypedListResource(method, path, query, pageNumber, pageSize);
         }
 
-        if (method is "POST" or "PUT" or "PATCH" or "DELETE")
-        {
-            return method == "POST"
-                ? DemoEnvelope.SuccessData(Guid.NewGuid())
-                : DemoEnvelope.Success();
-        }
-
-        return DemoEnvelope.SuccessData(new Dictionary<string, object>
-        {
-            ["demo"] = true,
-            ["path"] = path,
-            ["message"] = "Demo placeholder"
-        });
+        return DemoEnvelope.Failure(
+            "DEMO_ENDPOINT_NOT_MAPPED",
+            $"No demo response is configured for {method} {path}.",
+            HttpStatusCode.NotImplemented);
     }
 
     private void EnsureDemoDataForPath(string path)
