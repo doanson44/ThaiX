@@ -210,7 +210,7 @@ else
                 </div>
                 <label class="td-targeting-label">
                     @L[ResourceKeys.Games.TowerDefenseTargeting]
-                    <select class="form-select form-select-sm" value="@tower.Targeting" @onchange="ChangeTargeting">
+                    <select class="form-select form-select-sm" value="@selectedTowerState.Targeting" @onchange="ChangeTargeting">
                         <option value="First">@L[ResourceKeys.Games.TowerDefenseTargetingFirst]</option>
                         <option value="Last">@L[ResourceKeys.Games.TowerDefenseTargetingLast]</option>
                         <option value="Strongest">@L[ResourceKeys.Games.TowerDefenseTargetingStrongest]</option>
