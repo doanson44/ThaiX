@@ -10,6 +10,13 @@
 - `Directory.Packages.props` remains on the ASP.NET Core / EF Core 10 package line. Do not
   upgrade package major versions solely because the SDK changed.
 
+## Support lifecycle
+
+As of 2026-11-12, Microsoft classifies .NET 10 as LTS and .NET 11 as STS. The current support
+policy lists November 14, 2028 as the end-of-support date for both releases. The choice here is
+therefore driven by database-provider compatibility and production stability, not by claiming
+that .NET 10 has a later support date than .NET 11.
+
 ## .NET 11 application migration decision
 
 Do not retarget the solution to `net11.0` yet. The application uses Oracle's
