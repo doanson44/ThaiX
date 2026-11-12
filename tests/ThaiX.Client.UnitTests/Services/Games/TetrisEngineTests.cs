@@ -89,6 +89,23 @@ public sealed class TetrisEngineTests
     }
 
     [Fact]
+    public void RotateClockwise_AtRightWall_ShouldApplyIWallKick()
+    {
+        // Arrange
+        var engine = new TetrisEngine(new FixedRandom());
+        engine.RotateClockwise();
+        for (var i = 0; i < 4; i++)
+            engine.Move(1, 0);
+
+        // Act
+        engine.RotateClockwise();
+
+        // Assert
+        engine.Rotation.Should().Be(2);
+        engine.PieceX.Should().Be(6);
+    }
+
+    [Fact]
     public void Hold_ShouldAllowOnlyOneSwapUntilTheCurrentPieceLocks()
     {
         // Arrange
