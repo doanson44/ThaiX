@@ -14,10 +14,14 @@ public sealed partial class DemoResponseFactory
         if (method == "GET" && path.StartsWith("api/games/leaderboards/", StringComparison.OrdinalIgnoreCase))
         {
             var gameId = path.Split('/', StringSplitOptions.RemoveEmptyEntries).Last();
-            return DemoEnvelope.SuccessData(new GameLeaderboardModel(
-                gameId,
-                GetQueryValue(query, "mode"),
-                Array.Empty<GameLeaderboardEntryModel>()));
+            var mode = GetQueryValue(query, "mode");
+            var entries = new[]
+            {
+                new GameLeaderboardEntryModel("Demo Champion", 9850, DateTime.UtcNow.AddMinutes(-15), 24, mode),
+                new GameLeaderboardEntryModel("Player One", 7420, DateTime.UtcNow.AddHours(-2), 18, mode),
+                new GameLeaderboardEntryModel("Guest Player", 5100, DateTime.UtcNow.AddDays(-1), 9, mode)
+            };
+            return DemoEnvelope.SuccessData(new GameLeaderboardModel(gameId, mode, entries));
         }
 
         if (method == "POST" && path.Equals("api/games/guest-session", StringComparison.OrdinalIgnoreCase))
