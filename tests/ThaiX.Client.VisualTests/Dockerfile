@@ -8,8 +8,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0
 
 WORKDIR /workspace
 
-# Central package versions only — do NOT copy repo global.json / Directory.Build.props
-# (those pin SDK 6 / TFM net6 and break this net10 client).
+# Central package versions only — intentionally omit repo global.json (SDK 11 pin) and
+# Directory.Build.props (warning suppression only). This isolated SDK 10 image builds and runs
+# the net10.0 client with its matching runtime.
 COPY Directory.Packages.props ./
 COPY src/ThaiX.Client/ThaiX.Client.csproj src/ThaiX.Client/
 
