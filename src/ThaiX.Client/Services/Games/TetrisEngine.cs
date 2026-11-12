@@ -20,12 +20,12 @@ public sealed class TetrisEngine
         new Dictionary<TetrisPieceKind, int[][]>
         {
             [TetrisPieceKind.I] = [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.O] = [[0, 1, 1, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.T] = [[0, 1, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.J] = [[1, 0, 0, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.L] = [[0, 0, 1, 0], [1, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.S] = [[0, 1, 1, 0], [1, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [TetrisPieceKind.Z] = [[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+            [TetrisPieceKind.O] = [[1, 1], [1, 1]],
+            [TetrisPieceKind.T] = [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            [TetrisPieceKind.J] = [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            [TetrisPieceKind.L] = [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            [TetrisPieceKind.S] = [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            [TetrisPieceKind.Z] = [[1, 1, 0], [0, 1, 1], [0, 0, 0]]
         };
 
     private static readonly (int X, int Y)[][] JlstzKicks =
