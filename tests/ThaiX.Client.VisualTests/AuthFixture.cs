@@ -48,6 +48,7 @@ public sealed class AuthFixture : IAsyncLifetime
             BaseUrl = _appHost.BaseUrl;
             LogFixture($"VisualTests application host is HTTP-ready at {BaseUrl}.");
 
+            LogFixture("Installing or validating the Playwright Chromium headless shell.");
             var browserInstallExitCode = Microsoft.Playwright.Program.Main(
                 new[] { "install", "chromium", "--only-shell" });
             if (browserInstallExitCode != 0)
@@ -56,6 +57,7 @@ public sealed class AuthFixture : IAsyncLifetime
                     $"Playwright Chromium installation failed with exit code {browserInstallExitCode}.");
             }
 
+            LogFixture("Playwright Chromium headless shell is ready.");
             LogFixture("Creating Playwright and launching the shared Chromium browser.");
             Playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             Browser = await Playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
@@ -665,7 +667,14 @@ public sealed class AuthFixture : IAsyncLifetime
     {
         if (Browser is not null)
         {
-            await Browser.CloseAsync();
+            try
+            {
+                await Browser.CloseAsync();
+            }
+            catch (PlaywrightException ex)
+            {
+                LogFixture($"Browser close during fixture cleanup failed: {ex.Message}");
+            }
         }
 
         Playwright?.Dispose();
