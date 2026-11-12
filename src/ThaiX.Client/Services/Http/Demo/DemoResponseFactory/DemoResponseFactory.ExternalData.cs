@@ -317,14 +317,16 @@ public sealed partial class DemoResponseFactory
         if (path.Contains("mexc/funding-rate/history/", StringComparison.OrdinalIgnoreCase))
         {
             var symbol = path.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? "BTC_USDT";
+            var requestedPage = int.TryParse(GetQueryValue(query, "pageNum"), out var pageNum) ? Math.Max(1, pageNum) : pageNumber;
+            var requestedPageSize = int.TryParse(GetQueryValue(query, "pageSize"), out var requestedSize) ? Math.Clamp(requestedSize, 1, 100) : 12;
             var startTime = long.TryParse(GetQueryValue(query, "startTime"), out var start) ? start : DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeMilliseconds();
             var endTime = long.TryParse(GetQueryValue(query, "endTime"), out var end) ? end : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-            var rows = Enumerable.Range(0, 12)
+            var rows = Enumerable.Range(0, requestedPageSize)
                 .Select(i => new MexcContractFundingRateHistoryItemDto
                 {
                     Symbol = symbol,
                     FundingRate = 0.0001m * (i - 4),
-                    SettleTime = startTime + (endTime - startTime) * (i + 1) / 12,
+                    SettleTime = startTime + (endTime - startTime) * (i + 1) / requestedPageSize,
                     CollectCycle = 8
                 })
                 .ToList();
@@ -332,11 +334,11 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.SuccessData(new MexcContractFundingRateHistoryResponseDto
             {
                 Symbol = symbol,
-                PageNum = pageNumber,
-                PageSize = rows.Count,
+                PageNum = requestedPage,
+                PageSize = requestedPageSize,
                 TotalCount = rows.Count,
                 TotalPage = 1,
-                CurrentPage = pageNumber,
+                CurrentPage = requestedPage,
                 Data = rows,
                 Success = true,
                 Message = "Demo mode"
