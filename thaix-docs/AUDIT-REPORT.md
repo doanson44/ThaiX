@@ -29,6 +29,23 @@ this exception and corrects the obsolete claim that the repository pins SDK 6 / 
 No project `TargetFramework`, C# language version, or package major version was changed. The
 SDK-only update does not constitute a .NET 11 application migration.
 
+## .NET 11 target-framework migration decision
+
+The target-framework migration was evaluated against the actual ThaiX dependency graph and is
+intentionally deferred. All projects currently target `net10.0`; the central package file pins
+ASP.NET Core and EF Core 10.0.15 and Oracle `MySql.EntityFrameworkCore` 10.0.12. The application
+registers that provider through `UseMySQL()` for its primary database. Although EF Core 11.0.0 is
+stable, Oracle's available `MySql.EntityFrameworkCore` 11.0.0 package remains prerelease and the
+Connector/NET 26.10 support table describes EF Core 11 support as preview/RC. Retargeting the
+solution now would put its primary database provider on a prerelease compatibility path.
+
+Decision: keep all application and test projects on `net10.0`, keep EF Core / ASP.NET Core on the
+10.0.x package line, and keep the ASP.NET runtime image on 10.0. Continue using the stable .NET
+11.0.100 SDK for build tooling. Revisit the target migration only after a stable Oracle provider
+supports EF Core 11 and .NET 11, then review .NET 11 breaking changes and execute the full test,
+container, and publish matrix. No project TFM, package version, database schema, or migration file
+was changed for this decision.
+
 ## Confirmed stale documents
 
 | Supplied document | Finding | Source evidence | Priority |
