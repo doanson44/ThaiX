@@ -1,6 +1,6 @@
 # ThaiX Repository Guidelines
 
-You are working on the ThaiX solution — a .NET 10 / C# 14 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend. The repository pins .NET SDK 11.0.100 in `global.json`; all current projects still target `net10.0` and therefore default to C# 14. Install the .NET 10 runtime as well when running `net10.0` applications and tests.
+You are working on the ThaiX solution — a .NET 11 / C# 15 Clean Architecture + DDD + CQRS application with Blazor WASM frontend and Minimal API backend. The repository pins .NET SDK 11.0.100 in `global.json`; all application and test projects target `net11.0` and therefore default to C# 15. The .NET 11 SDK installation includes the runtime required to run `net11.0` applications and tests.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ src/
 
 ## Technology Stack
 
-.NET 10 / C# 14 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 10 + MySQL/MariaDB | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
+.NET 11 / C# 15 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 11 + MySQL/MariaDB (Oracle provider 11.0.0-preview; prerelease) | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
 
 ## Mandatory Dependency Rules
 
