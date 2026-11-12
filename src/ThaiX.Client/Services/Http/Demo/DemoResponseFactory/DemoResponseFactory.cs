@@ -38,6 +38,28 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.Text("Healthy (demo)");
         }
 
+        if (path.Equals("api/public/donate-config", StringComparison.OrdinalIgnoreCase) && method == "GET")
+        {
+            return DemoEnvelope.Json(new ThaiX.Client.Models.PublicDonateConfigurationResponse
+            {
+                Success = true,
+                Data = new ThaiX.Client.Models.PublicDonateConfiguration { Enabled = false }
+            });
+        }
+
+        if (path.Equals("api/developer-tools/cmsx-proxy/test", StringComparison.OrdinalIgnoreCase) && method == "POST")
+        {
+            return DemoEnvelope.SuccessData(new
+            {
+                ProxyStatusCode = 200,
+                ProxyReasonPhrase = "OK",
+                TargetStatusCode = (int?)null,
+                TargetReasonPhrase = "Not executed in demo mode",
+                Body = "Demo mode: the proxy request was not sent.",
+                DurationMs = 0L
+            });
+        }
+
         if (path.StartsWith("api/games", StringComparison.OrdinalIgnoreCase))
         {
             return await HandleGamesAsync(method, path, query, request, cancellationToken);
