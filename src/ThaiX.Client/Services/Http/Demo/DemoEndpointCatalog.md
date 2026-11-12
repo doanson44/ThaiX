@@ -81,8 +81,10 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/external-data/mexc/contract-ticker` | Covered | MexcContractTickersResponseDto.Data >=80 |
 | `api/external-data/mexc/spot-ticker-24hr` | Covered | MexcSpotTicker24HrResponseDto.Data >=80 |
 | `api/external-data/mexc/contract-depth\|spot-depth/{symbol}` | Covered | OrderBookDepthResponseDto |
-| `api/external-data/mexc/contract-kline\|spot-klines/{symbol}` | Covered | KlineSeriesResponseDto |
-| `api/external-data/mexc/funding-rate` | Covered | FundingRatesResponseDto |\n| `api/external-data/mexc/funding-rate/history/{symbol}` | Covered | MexcContractFundingRateHistoryResponseDto with paged settlement history |
+| `api/external-data/mexc/contract-kline/{symbol}` | Covered | KlineSeriesResponseDto by interval; MexcContractKlineResponseDto for start/end range |
+| `api/external-data/mexc/spot-klines/{symbol}` | Covered | KlineSeriesResponseDto |
+| `api/external-data/mexc/funding-rate` | Covered | FundingRatesResponseDto |
+| `api/external-data/mexc/funding-rate/history/{symbol}` | Covered | MexcContractFundingRateHistoryResponseDto with paged settlement history |
 | `api/external-data/binance/funding-rates` | Covered | FundingRatesResponseDto |
 | `api/external-data/binance/*-ticker-24hr` | Covered | ExchangeTicker24HrResponseDto |
 | `api/external-data/binance/*-depth/{symbol}` | Covered | OrderBookDepthResponseDto |
@@ -93,7 +95,12 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/external-data/market/24hmoney/transactions/{symbol}` | Covered | TwentyFourHMoneyTransactionsResponseDto (live list) |
 | `api/external-data/lottery/power-655` | Covered | Power655ResultsResponseDto |
 | `api/external-data/yahoo-finance/vix` | Covered | VixResponseDto |
-| `api/external-data/yahoo-finance/vix/verdict` | Covered | VixVerdictDto (POST) |\n| `api/external-data/mexc/gold-analysis` | Covered | MexcGoldAnalysisResponseDto with 60 OHLCV candles and technical indicators |\n| `api/external-data/mexc/bitcoin-analysis` | Covered | MexcBitcoinAnalysisResponseDto with 60 OHLCV candles and technical indicators |\n| `api/external-data/investing/vnindex/analysis` | Covered | VnIndexAnalysisResponseDto with 60-point history and technical indicators |\n| `api/external-data/investing/vnindex/analysis/verdict` | Covered | VnIndexVerdictResponseDto with non-empty commentary (POST) |\n| `api/external-data/market/assessment` | Covered | CombinedMarketAssessmentResponseDto with cross-market commentary (POST) |
+| `api/external-data/yahoo-finance/vix/verdict` | Covered | VixVerdictDto (POST) |
+| `api/external-data/mexc/gold-analysis` | Covered | MexcGoldAnalysisResponseDto with 60 OHLCV candles and technical indicators |
+| `api/external-data/mexc/bitcoin-analysis` | Covered | MexcBitcoinAnalysisResponseDto with 60 OHLCV candles and technical indicators |
+| `api/external-data/investing/vnindex/analysis` | Covered | VnIndexAnalysisResponseDto with 60-point history and technical indicators |
+| `api/external-data/investing/vnindex/analysis/verdict` | Covered | VnIndexVerdictResponseDto with non-empty commentary (POST) |
+| `api/external-data/market/assessment` | Covered | CombinedMarketAssessmentResponseDto with cross-market commentary (POST) |
 | `api/external-data/tcbs-top10/portfolios` | Covered | TcbsTop10PortfoliosResult (>=80) |
 | `api/external-data/tcbs-top10/sync` | Covered | SuccessData sync object |
 | `api/external-data/dragon-capital/fund-portfolio/{code}` | Covered | DragonCapitalFundPortfolioDto |
