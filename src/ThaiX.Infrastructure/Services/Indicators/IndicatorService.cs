@@ -1,4 +1,5 @@
 using Skender.Stock.Indicators;
+using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Trading;
 
 namespace ThaiX.Infrastructure.Services.Indicators;
@@ -123,7 +124,7 @@ public sealed class IndicatorService : IIndicatorService
         }
     }
 
-    private static decimal ToDecimal(double value) => Convert.ToDecimal(value);
+    private static decimal ToDecimal(double value) => DecimalConversionHelper.ToDecimalPreservingLegacyPrecision(value);
 
     private sealed record IndicatorProfile(
         int MinimumBars,
