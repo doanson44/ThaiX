@@ -435,14 +435,10 @@ public sealed partial class DemoResponseFactory
             }));
         }
 
-        return DemoEnvelope.SuccessData(new
-        {
-            success = true,
-            message = "Demo mode",
-            data = Array.Empty<object>(),
-            demo = true,
-            path
-        });
+        return DemoEnvelope.Failure(
+            "DEMO_EXTERNAL_DATA_ENDPOINT_NOT_MAPPED",
+            $"No demo response is configured for GET {path}.",
+            System.Net.HttpStatusCode.NotImplemented);
     }
 
     private static List<PriceComparisonPeriodDto> BuildPriceComparisonPeriods()
