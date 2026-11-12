@@ -190,10 +190,10 @@ public sealed class AuthFixture : IAsyncLifetime
                 $"Login submit button ready. Count: {await loginSubmitButton.CountAsync()}, " +
                 $"enabled: {await loginSubmitButton.IsEnabledAsync()}.");
 
-            // Blazor performs client-side navigation; do not make the click action wait for navigation.
-            LogFixture("Dispatching login submit click.");
-            await loginSubmitButton.DispatchEventAsync("click");
-            LogFixture("Login submit click dispatched.");
+            // Use a real browser click so Radzen validation and the form submit pipeline run.
+            LogFixture("Clicking the login submit button.");
+            await loginSubmitButton.ClickAsync(new LocatorClickOptions { Timeout = 15000 });
+            LogFixture("Login submit click completed.");
 
             LogFixture("Waiting for the Blazor route and auth token.");
             await page.WaitForFunctionAsync(
