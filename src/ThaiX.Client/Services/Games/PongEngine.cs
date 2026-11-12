@@ -56,7 +56,7 @@ public sealed class PongEngine
     {
         _accumulator = 0;
         _aiReactionElapsed = 0;
-        _aiTargetY = (BoardHeight - PaddleHeight) / 2.0;
+        _aiTargetY = BoardHeight / 2.0;
         PlayerPaddleY = AiPaddleY = _aiTargetY;
         PlayerScore = AiScore = 0;
         RallyHits = 0;
@@ -192,7 +192,7 @@ public sealed class PongEngine
             return;
         }
 
-        _aiTargetY = (BoardHeight - PaddleHeight) / 2.0;
+        _aiTargetY = BoardHeight / 2.0;
         _aiReactionElapsed = 0;
         RallyHits = 0;
         Serve();
