@@ -7,7 +7,7 @@ applyTo: "src/ThaiX.Infrastructure/**"
 
 ## EF Core
 
-- Keep the application on `net10.0` / EF Core 10 until Oracle publishes a stable `MySql.EntityFrameworkCore` provider for EF Core 11 and .NET 11. Do not use the current 11.0.0-preview provider in production.
+- Keep the application on `net11.0` / EF Core 11 until Oracle publishes a stable `MySql.EntityFrameworkCore` provider for EF Core 11 and .NET 11. Do not use the current 11.0.0-preview provider in production.
 
 - All data access through `ApplicationDbContext` implementing `IApplicationDbContext`.
 - Entity configurations in `Persistence/Configurations/`.
