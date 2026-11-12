@@ -1,7 +1,7 @@
 # Testing Rules
 
-Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Test projects currently target
-`net10.0`, so the .NET 10 runtime must also be installed to execute them. See
+Use the repository-pinned .NET SDK 11.0.100 from root `global.json`. Test projects target
+`net11.0`; the .NET 11 SDK includes the matching runtime. See
 [`SDK-11-TOOLCHAIN.md`](../SDK-11-TOOLCHAIN.md).
 
 ## Organization
