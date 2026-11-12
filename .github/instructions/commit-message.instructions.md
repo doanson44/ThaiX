@@ -82,7 +82,6 @@ Do not add trailers that are unsupported by the repository workflow.
 ## Agent behavior
 
 - Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
-- Create a new branch from `master` before implementation.
 - When a PR is requested, commit the finished changes and open the PR against `master`; do not merge unless requested.
 - Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
 - Prefer one focused commit over a mixed commit containing unrelated changes.

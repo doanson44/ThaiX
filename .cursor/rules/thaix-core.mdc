@@ -25,7 +25,6 @@ Apply these rules in every task:
 
 ## Agent Delivery Workflow
 
-- Create a new branch from `master` before every implementation or repository-maintenance change.
 - If the user requests a PR, commit the completed changes and open the PR against `master`; do not merge unless requested.
 - Do not ask for confirmation when the task is clear; ask only for blocking ambiguity or required destructive actions.
 

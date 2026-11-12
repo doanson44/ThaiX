@@ -83,7 +83,6 @@ Do not add trailers that are unsupported by the repository workflow.
 ## Agent behavior
 
 - Do not create commits unless committing is part of the user's requested workflow (for example, opening a PR).
-- Create a new branch from `master` before implementation.
 - When a PR is requested, commit the finished changes and open the PR against `master`; do not merge unless requested.
 - Before committing, inspect the staged diff and ensure the commit contains one coherent logical change.
 - Prefer one focused commit over a mixed commit containing unrelated changes.
@@ -139,9 +138,8 @@ When rungs conflict with ThaiX project rules, ThaiX wins on structure:
 
 ## Agent Delivery Workflow
 
-- For every implementation or repository-maintenance task, create and switch to a new branch from the current `master` before changing files.
 - Inspect affected source and applicable instructions before editing; keep the diff focused.
 - Run the narrowest relevant verification and report actual commands/results.
-- When the user requests a pull request, commit the completed changes on the task branch and open a PR targeting `master`. Do not merge unless explicitly requested.
+- When the user requests a pull request, create a task branch from `master`, commit the completed changes on it, and open a PR targeting `master`. Do not merge unless explicitly requested.
 - Keep agent instructions synchronized across the runtime directories that exist in this checkout, following `.github/AGENT_SYNC_POLICY.md`.
 - Do not ask for confirmation when scope and implementation path are clear; ask only for a genuinely blocking ambiguity or required destructive external action.

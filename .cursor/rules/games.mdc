@@ -63,7 +63,7 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
 - Browser smoke: `GamesSmokeTests` (Playwright). The fixture needs Docker. Without Docker, start
   the client with `dotnet run --launch-profile visual-tests` in `src/ThaiX.Client` and set
   `APP_BASE_URL=http://localhost:5201` and `VISUAL_SKIP_AUTH_LOGIN=true`. The Playwright browser
-  must be installed once with `bin/Debug/net10.0/playwright.ps1 install chromium`.
+  must be installed once with `bin/Debug/net11.0/playwright.ps1 install chromium`.
 - `GamesSmokeTests` locates the board by the `.game-canvas` class; keep that class on the wrapper.
 
 ## Open items from PR #153
