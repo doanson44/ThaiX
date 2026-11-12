@@ -83,10 +83,11 @@ checked. Verify examples against the target feature before copy/paste.
 
 ## Verification scope
 
-Inspected the repository guidelines, current Application DI pipeline, Infrastructure DI/provider
-registration, JWT validation extension, permission constants, client permission constants,
-integration test factory, and maintained agent skills. No production code, database, migrations,
-or runtime configuration was changed. This is a documentation-only refresh.
+At the time of the initial documentation audit, inspected the repository guidelines, current
+Application DI pipeline, Infrastructure DI/provider registration, JWT validation extension,
+permission constants, client permission constants, integration test factory, and maintained agent
+skills. That initial audit did not change production code, the database, migrations, or runtime
+configuration.
 
 
 ## Follow-up: .NET 11 framework migration
@@ -111,3 +112,38 @@ and [Connector/NET EF Core support matrix](https://dev.mysql.com/doc/connector-n
 
 Build and tests were not run in this editing environment. Treat the migration as implemented but
 not verified until restore, build, unit, integration, visual, and publish checks pass.
+
+
+## Follow-up: .NET 10 and .NET 11 API review
+
+Reviewed the official .NET 10 and .NET 11 announcements and checked the relevant capabilities
+against the current ThaiX source:
+
+- .NET 10 Blazor WebAssembly response streaming: the client already reads API payloads through
+  `HttpContent.ReadFromJsonAsync` in `ApiResponseReader`; no replacement transport was needed.
+- .NET 10 Minimal API validation: ThaiX already uses FluentValidation through the MediatR pipeline.
+  The built-in DataAnnotations validation path was not added in parallel.
+- .NET 11 C# 15 union types: replaced the Kline transport's untyped `object` payload with the
+  `KlineRawResponse` union. The mapper now has compiler-checked cases for contract crypto, spot
+  crypto, and stock payloads.
+- .NET 11 decimal/binary floating-point conversion behavior: .NET 11 now converts the exact binary
+  value to decimal with one rounding step. ThaiX's indicator, VIX EMA, and MEXC fundraising-score
+  paths previously relied on the legacy 15-significant-digit conversion behavior. Added
+  `DecimalConversionHelper` using invariant `G15` formatting to preserve those existing results
+  intentionally, and added unit coverage for representative finite and non-finite inputs.
+- .NET 11 EF Core query translation and join improvements were reviewed, but no speculative query
+  rewrite was made. ThaiX's Oracle MySQL EF Core provider remains prerelease, so provider support
+  must be verified before adopting provider-sensitive query changes.
+
+.NET 10 remains the LTS option (supported through November 10, 2028); .NET 11 is an STS release
+with two years of support. These lifecycle differences should be considered independently from
+the code-level refactors.
+
+References:
+- [Announcing .NET 10](https://devblogs.microsoft.com/dotnet/announcing-dotnet-10/)
+- [Announcing .NET 11](https://devblogs.microsoft.com/dotnet/announcing-dotnet-11/)
+- [Decimal and BigInteger floating-point conversions are correctly rounded](https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/11/decimal-biginteger-floating-point-conversions)
+
+Added unit tests for decimal conversion compatibility and integration-project tests for all three
+Kline union cases. Build and tests have not been run in this editing environment; compilation and
+test execution remain required before treating the refactor as verified.
