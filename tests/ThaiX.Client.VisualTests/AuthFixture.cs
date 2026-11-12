@@ -19,6 +19,12 @@ public sealed class AuthFixture : IAsyncLifetime
     private const string LoginPasswordSelector =
         "input[name='password'], input[name='Password'], input[type='password']";
 
+    private static readonly object LogGate = new();
+    private static readonly string LogFilePath = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "TestResults",
+        "visual-tests.log");
+
     private readonly ClientAppHost _appHost = new();
     private string? _authStorageStatePath;
     private string? _publicStorageStatePath;
@@ -340,7 +346,25 @@ public sealed class AuthFixture : IAsyncLifetime
 
     private static void LogFixture(string message)
     {
-        Console.WriteLine($"[ThaiX.VisualTests] {DateTimeOffset.Now:O} {message}");
+        var entry = $"[ThaiX.VisualTests] {DateTimeOffset.Now:O} {message}";
+        Console.WriteLine(entry);
+
+        try
+        {
+            lock (LogGate)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(LogFilePath)!);
+                File.AppendAllText(LogFilePath, entry + Environment.NewLine);
+            }
+        }
+        catch (IOException)
+        {
+            // Diagnostics must never fail a visual test.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Console output remains available when the log file cannot be written.
+        }
     }
 
     private static async Task<string> GetAuthenticationDiagnosticsAsync(IPage page)
