@@ -7,7 +7,8 @@ You are working on the ThaiX solution.
 
 ## Technology Stack
 
-- .NET 10 / C# 14
+- Application target: .NET 10 / C# 14
+- Build toolchain: .NET SDK 11.0.100 (`global.json`); keep project TFMs at `net10.0` unless a separate framework migration is requested.
 - ASP.NET Core (Minimal API)
 - Blazor WebAssembly (ThaiX.Client)
 - EF Core 10 + MySQL/MariaDB
