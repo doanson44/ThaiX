@@ -75,6 +75,7 @@ public sealed class TetrisEngine
     public int Level => Lines / 10 + 1;
     public TetrisPieceKind? HeldPiece { get; private set; }
     public TetrisPieceKind NextPiece => PeekNext();
+    public int[][] NextShape => SpawnShapes[NextPiece];
     public bool CanHold { get; private set; } = true;
     public bool IsFinished { get; private set; }
 
