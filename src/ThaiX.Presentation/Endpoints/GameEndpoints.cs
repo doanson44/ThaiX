@@ -4,6 +4,8 @@ using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Games;
 using ThaiX.Application.Features.Games.Commands.SubmitGameScore;
+using ThaiX.Application.Features.Games.Commands.SaveTowerDefenseGold;
+using ThaiX.Application.Features.Games.Queries.GetTowerDefenseGold;
 using ThaiX.Application.Features.Games.Queries.GetGameLeaderboard;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
@@ -15,6 +17,39 @@ public static class GameEndpoints
     public static void MapGameEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/games").WithTags("Games");
+
+        group.MapGet("/tower-defense/gold", async (
+            ClaimsPrincipal user,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            if (!TryGetUserId(user, out var userId))
+                return Results.Unauthorized();
+
+            var gold = await mediator.Send(new GetTowerDefenseGoldQuery(userId), cancellationToken);
+            var response = ApiResponse<int?>.SuccessResult(gold);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization();
+
+        group.MapPut("/tower-defense/gold", async (
+            SaveTowerDefenseGoldRequest request,
+            ClaimsPrincipal user,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            if (!TryGetUserId(user, out var userId))
+                return Results.Unauthorized();
+
+            await mediator.Send(new SaveTowerDefenseGoldCommand(userId, request.Gold), cancellationToken);
+            var response = ApiResponse.SuccessResult();
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization();
 
         group.MapGet("/leaderboards/{gameId}", async (
             string gameId,
@@ -112,7 +147,16 @@ public static class GameEndpoints
         .AllowAnonymous()
         .RequireRateLimiting("GamesLeaderboard");
     }
+
+    private static bool TryGetUserId(ClaimsPrincipal user, out Guid userId)
+    {
+        var subject = user.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? user.FindFirstValue("sub");
+        return Guid.TryParse(subject, out userId);
+    }
 }
+
+public sealed record SaveTowerDefenseGoldRequest(int Gold);
 
 public sealed record SubmitGameScoreRequest(
     string GameId,
