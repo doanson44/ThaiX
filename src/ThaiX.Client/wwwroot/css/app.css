@@ -4,11 +4,49 @@
     --tx-font-body: 'IBM Plex Sans', 'Segoe UI', sans-serif;
     --tx-font-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
-    --tx-accent: #2563eb;
-    --tx-accent-light: #60a5fa;
-    --tx-accent-dark: #1d4ed8;
-    --tx-positive: #10b981;
-    --tx-negative: #f43f5e;
+    /* Primitive tokens */
+    --tx-blue-50: #eff6ff;
+    --tx-blue-100: #dbeafe;
+    --tx-blue-300: #93c5fd;
+    --tx-blue-400: #60a5fa;
+    --tx-blue-500: #3b82f6;
+    --tx-blue-600: #2563eb;
+    --tx-blue-700: #1d4ed8;
+    --tx-blue-800: #1e40af;
+    --tx-blue-900: #1e3a8a;
+    --tx-navy-950: #020617;
+    --tx-green-500: #10b981;
+    --tx-amber-500: #f59e0b;
+    --tx-rose-500: #f43f5e;
+    --tx-steel-500: #5b7c99;
+    --tx-space-1: 0.25rem;
+    --tx-space-2: 0.5rem;
+    --tx-space-3: 0.75rem;
+    --tx-space-4: 1rem;
+    --tx-space-6: 1.5rem;
+    --tx-space-8: 2rem;
+    --tx-radius-sm: 0.25rem;
+    --tx-radius-md: 0.375rem;
+    --tx-radius-lg: 0.5rem;
+    --tx-duration-fast: 150ms;
+    --tx-duration-normal: 200ms;
+
+    /* Semantic tokens */
+    --tx-accent: var(--tx-blue-600);
+    --tx-accent-light: var(--tx-blue-400);
+    --tx-accent-dark: var(--tx-blue-700);
+    --tx-positive: var(--tx-green-500);
+    --tx-warning: var(--tx-amber-500);
+    --tx-negative: var(--tx-rose-500);
+    --tx-info: var(--tx-steel-500);
+
+    /* Component tokens */
+    --tx-button-bg: var(--tx-accent);
+    --tx-button-fg: #ffffff;
+    --tx-button-hover-bg: var(--tx-accent-dark);
+    --tx-focus-ring: var(--tx-blue-400);
+    --tx-control-radius: var(--tx-radius-md);
+    --tx-card-radius: var(--tx-radius-lg);
 
     /* Resume surface — public pages + admin preview dialog (dark default) */
     --resume-bg: #05070b;
@@ -27,9 +65,9 @@
     --rz-primary-lighter: rgba(37, 99, 235, 0.2);
     --rz-primary-dark: var(--tx-accent-dark);
     --rz-primary-darker: #1e3a8a;
-    --rz-on-primary: #071426;
-    --rz-on-primary-light: #071426;
-    --rz-on-primary-lighter: var(--tx-accent-light);
+    --rz-on-primary: #ffffff;
+    --rz-on-primary-light: #ffffff;
+    --rz-on-primary-lighter: #071426;
     --rz-on-primary-dark: #ffffff;
     --rz-on-primary-darker: #ffffff;
     /* Keep Radzen DataGrid loading feedback neutral while retaining the blue spinner. */
@@ -171,7 +209,7 @@ html[data-bs-theme="light"] .rz-tabview-nav {
 }
 
 html[data-bs-theme="light"] .auth-layout {
-    background: radial-gradient(circle at 80% 50%, #fff7ed 0%, #f5f5f4 80%);
+    background: radial-gradient(circle at 80% 50%, #eff6ff 0%, #f5f5f4 80%);
 }
 
 html[data-bs-theme="light"] .auth-card {
