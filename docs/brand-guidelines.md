@@ -54,7 +54,8 @@ claimed to be an exact Canva token extraction.
 | Primary | `--tx-accent` | `#2563EB` | Primary actions, active navigation, links |
 | Primary hover | `--tx-accent-dark` | `#1D4ED8` | Hover and active emphasis |
 | Primary light | `--tx-accent-light` | `#60A5FA` | Soft highlights and hover accents |
-| Navy | `--tx-navy-950` | `#020617` | Deep brand surface |
+| Navy | `--tx-navy-900` | `#0B1220` | Primary dark surface |
+| Deep navy | `--tx-navy-950` | `#020617` | Deep brand surface |
 | Success | `--tx-positive` | `#10B981` | Successful operations and positive values |
 | Warning | `--tx-warning` | `#F59E0B` | Warnings and caution |
 | Danger | `--tx-negative` | `#F43F5E` | Errors, destructive states, negative values |
