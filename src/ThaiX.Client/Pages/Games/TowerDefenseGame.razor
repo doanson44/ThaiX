@@ -304,12 +304,19 @@ else
                             <strong>@(cost?.ToString() ?? L[ResourceKeys.Games.TdMaxed].Value)</strong>
                         </button>
                     }
+                    <button type="button" class="btn btn-sm btn-outline-info" tabindex="-1" disabled="@(_movingTower is not null)" @onclick="ArmMove">
+                        <kbd>M</kbd> @L[ResourceKeys.Games.TdMove]
+                    </button>
                     <button type="button" class="btn btn-sm btn-outline-light" tabindex="-1" @onclick="CycleTarget">
                         <kbd>T</kbd> @L[ResourceKeys.Games.TdTargeting, L[TargetLabel(chosen.Mode)].Value]
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-warning" tabindex="-1" @onclick="SellSelected">
                         <kbd>X</kbd> @L[ResourceKeys.Games.TdSell, match.SellValue(chosen)]
                     </button>
+                    @if (_movingTower is not null)
+                    {
+                        <small class="text-info">@L[ResourceKeys.Games.TdMoveHint]</small>
+                    }
                 </div>
             }
             else if (_buildKind is { } buildKind)
@@ -347,6 +354,7 @@ else
     private TowerDefenseMatch? _match;
     private TowerKind? _buildKind = TowerKind.Gunner;
     private Tower? _selectedTower;
+    private Tower? _movingTower;
     private int _mapIndex;
     private int _difficultyIndex = 1;
     private int _cursor;
@@ -402,6 +410,7 @@ else
 
         _match = null;
         _selectedTower = null;
+        _movingTower = null;
         _airstrikeArmed = false;
         _speed = 1;
         if (!IsUnlocked(_mapIndex))
@@ -434,10 +443,11 @@ else
             case "f": Upgrade(UpgradeTrack.FireRate); break;
             case "x": SellSelected(); break;
             case "t": CycleTarget(); break;
+            case "m": ArmMove(); break;
             case "n": CallWave(); break;
             case "a": ToggleAirstrike(); break;
             case "g": ToggleSpeed(); break;
-            case "escape": _selectedTower = null; _buildKind = null; _airstrikeArmed = false; break;
+            case "escape": _selectedTower = null; _movingTower = null; _buildKind = null; _airstrikeArmed = false; break;
         }
 
         _cursor = row * TowerDefenseMatch.Columns + column;
@@ -464,6 +474,7 @@ else
         _cursor = _match.FirstFreeCell(3 * TowerDefenseMatch.Columns + 4);
         _buildKind = map.RequiredTower ?? TowerKind.Gunner;
         _selectedTower = null;
+        _movingTower = null;
         _airstrikeArmed = false;
         RestartClock();
         StartLoop(TowerDefenseMatch.TickMilliseconds, Tick);
@@ -532,6 +543,7 @@ else
 
         _buildKind = kind;
         _selectedTower = null;
+        _movingTower = null;
         _airstrikeArmed = false;
     }
 
@@ -541,6 +553,18 @@ else
             return;
 
         _cursor = cell;
+        if (_movingTower is { } moving)
+        {
+            if (_match.Move(moving, cell))
+            {
+                _selectedTower = moving;
+                _movingTower = null;
+                _buildKind = null;
+            }
+
+            return;
+        }
+
         if (_airstrikeArmed)
         {
             _match.Airstrike(TowerDefenseMatch.CellX(cell), TowerDefenseMatch.CellY(cell));
@@ -563,10 +587,23 @@ else
             _match!.Upgrade(tower, track);
     }
 
+    private void ArmMove()
+    {
+        if (CanPlay && _selectedTower is { } tower)
+        {
+            _movingTower = tower;
+            _buildKind = null;
+            _airstrikeArmed = false;
+        }
+    }
+
     private void SellSelected()
     {
         if (CanPlay && _selectedTower is { } tower && _match!.Sell(tower))
+        {
             _selectedTower = null;
+            _movingTower = null;
+        }
     }
 
     private void CycleTarget()
@@ -584,7 +621,10 @@ else
     private void ToggleAirstrike()
     {
         if (CanPlay)
+        {
+            _movingTower = null;
             _airstrikeArmed = !_airstrikeArmed && _match!.State == MatchState.Running && _match.AirstrikeReady;
+        }
     }
 
     private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
