@@ -3,7 +3,7 @@ namespace ThaiX.Client.Services.Games.TowerDefense;
 public sealed class Tower
 {
     public required int Id { get; init; }
-    public required int Cell { get; init; }
+    public required int Cell { get; set; }
     public required TowerSpec Spec { get; init; }
     public int[] Levels { get; } = new int[3];
     public int Invested { get; set; }
@@ -52,7 +52,7 @@ public sealed class TowerDefenseMatch
     public const int PopupTicks = 24;
     public const int AirstrikeCooldownTicks = 1200;
     public const int AirstrikeRadius = 70;
-    public const int InterWaveDelayTicks = 151;
+    public const int InterWaveDelayTicks = 300;
 
     private const int ChillTicks = 30;
     private const int ShotTicks = 3;
@@ -84,12 +84,13 @@ public sealed class TowerDefenseMatch
     private int _airstrikeReadyAt = FirstAirstrikeTick;
     private int _autoWaveAt;
 
-    public TowerDefenseMatch(MapSpec map, DifficultySpec difficulty, bool endless)
+    public TowerDefenseMatch(MapSpec map, DifficultySpec difficulty, bool endless, int startingGoldBonus = 0)
     {
         Map = map;
         Difficulty = difficulty;
         Endless = endless;
-        Gold = difficulty.StartGold;
+        Gold = difficulty.StartGold + Math.Max(0, startingGoldBonus)
+            + (map.RequiredTower is { } required ? TowerDefenseData.Tower(required).Cost : 0);
         Lives = difficulty.Lives;
         _roads = [.. map.Routes.Select(route =>
             route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0)).ToArray())];
@@ -116,6 +117,7 @@ public sealed class TowerDefenseMatch
     public bool AirstrikeReady => Tick >= _airstrikeReadyAt;
     public double AirstrikeCharge => AirstrikeReady ? 1 : 1 - (_airstrikeReadyAt - Tick) / (double)AirstrikeCooldownTicks;
     public int FinalScore => Math.Min(MaxScore, Score);
+    public int MissionReward => Gold + 100 + Wave * 10 + Lives * 5;
     public IReadOnlyList<WaveGroup> NextWaveGroups => TowerDefenseData.WaveGroups(Wave + 1);
     public bool NextWaveCountdownActive => State == MatchState.Planning && _autoWaveAt > Tick && HasMoreWaves;
     public int NextWaveCountdownSeconds => NextWaveCountdownActive
@@ -135,15 +137,44 @@ public sealed class TowerDefenseMatch
     public int FirstFreeCell(int preferred) =>
         Enumerable.Range(0, Columns * Rows).OrderBy(cell => Math.Abs(cell - preferred)).First(cell => !IsBlocked(cell));
 
-    public double Range(Tower tower) => tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
+    public double Range(Tower tower)
+    {
+        var range = tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
+        if (tower.Spec.Effect == TowerEffect.SupportRange)
+            return range;
 
-    public double Damage(Tower tower) => tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        return range + _towers
+            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportRange
+                && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
+                    <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
+            .Sum(support => support.Spec.SupportValue);
+    }
+
+    public double Damage(Tower tower)
+    {
+        var damage = tower.Spec.SupportValue * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+        if (tower.Spec.IsSupport)
+            return damage;
+
+        damage = tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+
+        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        return damage + _towers
+            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportDamage
+                && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
+                    <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
+            .Sum(support => support.Spec.SupportValue * (1 + DamagePerLevel * support.Level(UpgradeTrack.Damage)));
+    }
 
     public int CooldownTicks(Tower tower) =>
         Math.Max(2, (int)Math.Round(tower.Spec.Cooldown * (1 - CooldownPerLevel * tower.Level(UpgradeTrack.FireRate))));
 
     public int? UpgradeCost(Tower tower, UpgradeTrack track)
     {
+        if (tower.Spec.IsSupport && track == UpgradeTrack.FireRate)
+            return null;
+
         var level = tower.Level(track);
         return level >= MaxLevel ? null : (int)(Math.Ceiling(tower.Spec.Cost * UpgradeCostFactor * (level + 1) / 5) * 5);
     }
@@ -153,13 +184,23 @@ public sealed class TowerDefenseMatch
     public Tower? Build(int cell, TowerKind kind)
     {
         var spec = TowerDefenseData.Tower(kind);
-        if (IsOver || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
+        if (IsOver || (Map.RequiredTower is { } required && kind != required)
+            || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
             return null;
 
         Gold -= spec.Cost;
         var tower = new Tower { Id = _nextTowerId++, Cell = cell, Spec = spec, Invested = spec.Cost };
         _towers.Add(tower);
         return tower;
+    }
+
+    public bool Move(Tower tower, int cell)
+    {
+        if (IsOver || !_towers.Contains(tower) || IsBlocked(cell) || TowerAt(cell) is not null)
+            return false;
+
+        tower.Cell = cell;
+        return true;
     }
 
     public bool Upgrade(Tower tower, UpgradeTrack track)
@@ -300,6 +341,9 @@ public sealed class TowerDefenseMatch
 
     private void Fire(Tower tower)
     {
+        if (tower.Spec.IsSupport)
+            return;
+
         if (tower.Cooldown > 0)
         {
             tower.Cooldown--;
@@ -401,7 +445,7 @@ public sealed class TowerDefenseMatch
         if (State != MatchState.Running || _spawnIndex < _spawns.Count || _enemies.Count > 0)
             return;
 
-        Score += Wave * 25;
+        Score += Wave * 20;
         if (!Endless && Wave >= TowerDefenseData.CampaignWaves)
         {
             Score += Lives * 100;

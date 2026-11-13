@@ -286,5 +286,86 @@ public sealed class GameEndpointsTests : IntegrationTestBase
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
+
+    [Fact]
+    public async Task GetTowerDefenseGold_ShouldReturnUnauthorized_WhenUserIsAnonymous()
+    {
+        // Arrange
+        Client.DefaultRequestHeaders.Authorization = null;
+
+        // Act
+        var response = await Client.GetAsync("/api/games/tower-defense/gold");
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/gold",
+            new { Gold = 500 });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task SaveTowerDefenseGold_ShouldPersistBalance_WhenUserIsAuthenticated()
+    {
+        // Arrange
+        var email = $"tower-defense-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email);
+        await AuthenticateAsync(email);
+        const int gold = 1_250;
+
+        // Act
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/gold",
+            new { Gold = gold });
+        var getResponse = await Client.GetAsync("/api/games/tower-defense/gold");
+        var envelope = await ReadResponseAsync<int?>(getResponse);
+
+        // Assert
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        envelope.Data.Should().Be(gold);
+    }
+
+    [Fact]
+    public async Task GetTowerDefenseGold_ShouldNotExposeAnotherUsersBalance_WhenUserChanges()
+    {
+        // Arrange
+        var firstEmail = $"tower-defense-first-{Guid.NewGuid():N}@thaix.test";
+        var secondEmail = $"tower-defense-second-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(firstEmail);
+        await CreateTestUserAsync(secondEmail);
+        await AuthenticateAsync(firstEmail);
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/gold",
+            new { Gold = 900 });
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Act
+        await AuthenticateAsync(secondEmail);
+        var getResponse = await Client.GetAsync("/api/games/tower-defense/gold");
+        var envelope = await ReadResponseAsync<int?>(getResponse);
+
+        // Assert
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        envelope.Data.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task SaveTowerDefenseGold_ShouldReturnBadRequest_WhenGoldIsNegative()
+    {
+        // Arrange
+        var email = $"tower-defense-invalid-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email);
+        await AuthenticateAsync(email);
+
+        // Act
+        var response = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/gold",
+            new { Gold = -1 });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     #endregion
 }

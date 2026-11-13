@@ -139,6 +139,7 @@ builder.Services.AddScoped<IBlogService, BlogService>();
 builder.Services.AddScoped<ThaiX.Client.Services.ApiClients.IApiClientService, ThaiX.Client.Services.ApiClients.ApiClientService>();
 builder.Services.AddScoped<IJsonBinService, JsonBinService>();
 builder.Services.AddScoped<IGameLeaderboardClient, GameLeaderboardClient>();
+builder.Services.AddScoped<IGameProgressClient, GameProgressClient>();
 builder.Services.AddScoped<GameScoreStore>();
 builder.Services.AddScoped<IPublicHtmlPageService, PublicHtmlPageService>();
 builder.Services.AddScoped<IToolStateStore, ToolStateStore>();

@@ -2197,8 +2197,8 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 20 đợt bộ binh, xe cơ giới và trực thăng. Xây, nâng cấp, bán tháp và gọi không kích.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn bản đồ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-6) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 14 nhiệm vụ và các thử thách thưởng. Kiếm điểm War-Mart để mua 10 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn nhiệm vụ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-9 và 0) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T), di chuyển (M) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Chiến thắng nhiệm vụ để nhận điểm, mua tháp nâng cao, tăng tiền khởi đầu và mở thử thách thưởng trong War-Mart. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>
@@ -2207,6 +2207,10 @@
   <data name="Games.TowerTesla" xml:space="preserve"><value>Cuộn Tesla</value></data>
   <data name="Games.TowerFlame" xml:space="preserve"><value>Súng phun lửa</value></data>
   <data name="Games.TowerSlow" xml:space="preserve"><value>Trường làm chậm</value></data>
+  <data name="Games.TowerParticleBeam" xml:space="preserve"><value>Pháo hạt</value></data>
+  <data name="Games.TowerPlasmaCannon" xml:space="preserve"><value>Pháo plasma</value></data>
+  <data name="Games.TowerRadar" xml:space="preserve"><value>Tháp radar</value></data>
+  <data name="Games.TowerPowerAmplifier" xml:space="preserve"><value>Bộ khuếch đại công suất</value></data>
   <data name="Games.EnemySoldier" xml:space="preserve"><value>Lính bộ binh</value></data>
   <data name="Games.EnemyArmored" xml:space="preserve"><value>Lính thiết giáp</value></data>
   <data name="Games.EnemyJeep" xml:space="preserve"><value>Xe jeep</value></data>
@@ -2219,14 +2223,43 @@
   <data name="Games.DifficultyEasy" xml:space="preserve"><value>Dễ</value></data>
   <data name="Games.DifficultyNormal" xml:space="preserve"><value>Thường</value></data>
   <data name="Games.DifficultyHard" xml:space="preserve"><value>Khó</value></data>
-  <data name="Games.Td.ModeCampaign" xml:space="preserve"><value>Chiến dịch (20 đợt)</value></data>
+  <data name="Games.Td.ModeCampaign" xml:space="preserve"><value>Chiến dịch (14 nhiệm vụ)</value></data>
   <data name="Games.Td.ModeEndless" xml:space="preserve"><value>Vô tận</value></data>
   <data name="Games.Td.MenuTitle" xml:space="preserve"><value>Chọn nhiệm vụ</value></data>
-  <data name="Games.Td.Map" xml:space="preserve"><value>Bản đồ</value></data>
+  <data name="Games.Td.Map" xml:space="preserve"><value>Nhiệm vụ</value></data>
   <data name="Games.Td.Difficulty" xml:space="preserve"><value>Độ khó</value></data>
   <data name="Games.Td.Mode" xml:space="preserve"><value>Chế độ</value></data>
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Triển khai</value></data>
-  <data name="Games.Td.MapLocked" xml:space="preserve"><value>Đã khóa: hãy thắng {0} trước</value></data>
+  <data name="Games.Td.MapLocked" xml:space="preserve"><value>Đã khóa: hãy hoàn thành {0} trước</value></data>
+  <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.Td.GoldSyncFailed" xml:space="preserve"><value>Gold đang được giữ trên thiết bị vì chưa đồng bộ được với tài khoản. Hãy thử lại khi API hoạt động.</value></data>
+  <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>Điểm War-Mart: {0}</value></data>
+  <data name="Games.Td.Buy" xml:space="preserve"><value>Mua</value></data>
+  <data name="Games.Td.Unlocked" xml:space="preserve"><value>Đã mở khóa</value></data>
+  <data name="Games.Td.Move" xml:space="preserve"><value>Di chuyển</value></data>
+  <data name="Games.Td.MoveHint" xml:space="preserve"><value>Chọn một ô trống để di chuyển tháp này.</value></data>
+  <data name="Games.Td.StartFunds" xml:space="preserve"><value>Tăng vĩnh viễn tiền khởi đầu +200</value></data>
+  <data name="Games.Td.StartFundsOwned" xml:space="preserve"><value>Tiền khởi đầu cộng thêm: +{0}</value></data>
+  <data name="Games.Td.SupportRange" xml:space="preserve"><value>Tăng tầm bắn</value></data>
+  <data name="Games.Td.SupportDamage" xml:space="preserve"><value>Tăng sát thương</value></data>
+  <data name="Games.Td.Mission01" xml:space="preserve"><value>Nhiệm vụ 01 - Bãi tập huấn</value></data>
+  <data name="Games.Td.Mission02" xml:space="preserve"><value>Nhiệm vụ 02 - Vượt sông</value></data>
+  <data name="Games.Td.Mission03" xml:space="preserve"><value>Nhiệm vụ 03 - Giao tranh</value></data>
+  <data name="Games.Td.Mission04" xml:space="preserve"><value>Nhiệm vụ 04 - Đèo cao</value></data>
+  <data name="Games.Td.Mission05" xml:space="preserve"><value>Nhiệm vụ 05 - Đường sa mạc</value></data>
+  <data name="Games.Td.Mission06" xml:space="preserve"><value>Nhiệm vụ 06 - Sườn núi băng</value></data>
+  <data name="Games.Td.Mission07" xml:space="preserve"><value>Nhiệm vụ 07 - Tuyến tiếp tế</value></data>
+  <data name="Games.Td.Mission08" xml:space="preserve"><value>Nhiệm vụ 08 - Tiền đồn</value></data>
+  <data name="Games.Td.Mission09" xml:space="preserve"><value>Nhiệm vụ 09 - Hẻm núi</value></data>
+  <data name="Games.Td.Mission10" xml:space="preserve"><value>Nhiệm vụ 10 - Thung lũng thép</value></data>
+  <data name="Games.Td.Mission11" xml:space="preserve"><value>Nhiệm vụ 11 - Tuần đêm</value></data>
+  <data name="Games.Td.Mission12" xml:space="preserve"><value>Nhiệm vụ 12 - Đường ven biển</value></data>
+  <data name="Games.Td.Mission13" xml:space="preserve"><value>Nhiệm vụ 13 - Hai mặt trận</value></data>
+  <data name="Games.Td.Mission14" xml:space="preserve"><value>Nhiệm vụ 14 - Trận chiến cuối</value></data>
+  <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Thưởng - Chiến dịch bắn tỉa</value></data>
+  <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Thưởng - Phòng thủ đến cùng</value></data>
+  <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Nhiệm vụ thưởng</value></data>
+  <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Mua với {0} điểm trong War-Mart</value></data>
   <data name="Games.Td.StartWave" xml:space="preserve"><value>Bắt đầu đợt</value></data>
   <data name="Games.Td.WaveOf" xml:space="preserve"><value>Đợt {0}/{1}</value></data>
   <data name="Games.Td.WaveEndless" xml:space="preserve"><value>Đợt {0}</value></data>
