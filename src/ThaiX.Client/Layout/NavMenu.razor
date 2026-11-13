@@ -2,22 +2,22 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<ThaiX.Client.Localization.SharedResource> L
 
 <RadzenPanelMenu class="h-100">
-    <RadzenPanelMenuItem Text="@L[RK.Menu.Home]" Icon="home" Path="/" />
-    <RadzenPanelMenuItem Text="@L[RK.Blog.Public.ListTitle]" Icon="article" Path="blog" />
-    <RadzenPanelMenuItem Text="@L[RK.Menu.Tools]" Icon="build" Path="tools" />
-    <RadzenPanelMenuItem Text="@L[RK.Games.Title]" Icon="sports_esports" Path="games" />
+    <RadzenPanelMenuItem Path="/" ><Template><span class="tx-nav-item"><ThaiXIcon Name="home" /><span>@L[RK.Menu.Home]</span></span></Template></RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Path="blog" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Blog.Public.ListTitle]</span></span></Template></RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Path="tools" ><Template><span class="tx-nav-item"><ThaiXIcon Name="settings" /><span>@L[RK.Menu.Tools]</span></span></Template></RadzenPanelMenuItem>
+    <RadzenPanelMenuItem Path="games" ><Template><span class="tx-nav-item"><ThaiXIcon Name="gamepad" /><span>@L[RK.Games.Title]</span></span></Template></RadzenPanelMenuItem>
 
-    <RadzenPanelMenuItem Text="@L[RK.Menu.MarketData]" Icon="trending_up" Expanded="false">
-        <RadzenPanelMenuItem Text="@L[RK.BankInterestRates.Title]" Path="market-data/bank-interest-rates" Icon="account_balance" />
-        <RadzenPanelMenuItem Text="@L[RK.BankDepositRates.Title]" Path="market-data/bank-deposit-rates" Icon="savings" />
-        <RadzenPanelMenuItem Text="@L[RK.SacombankExchangeRates.Title]" Path="market-data/sacombank-exchange-rates" Icon="currency_exchange" />
-        <RadzenPanelMenuItem Text="@L[RK.MexcSpotTicker24Hr.SocketTitle]" Path="market-data/mexc/spot-ticker-socket" Icon="sensors" />
+    <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.Menu.MarketData]</span></span></Template>
+        <RadzenPanelMenuItem Path="market-data/bank-interest-rates" ><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.BankInterestRates.Title]</span></span></Template></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="market-data/bank-deposit-rates" ><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.BankDepositRates.Title]</span></span></Template></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="market-data/sacombank-exchange-rates" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.SacombankExchangeRates.Title]</span></span></Template></RadzenPanelMenuItem>
+        <RadzenPanelMenuItem Path="market-data/mexc/spot-ticker-socket" ><Template><span class="tx-nav-item"><ThaiXIcon Name="server" /><span>@L[RK.MexcSpotTicker24Hr.SocketTitle]</span></span></Template></RadzenPanelMenuItem>
         @* Pages with [Authorize] — only list when signed in *@
         <AuthorizeView>
             <Authorized>
-                <RadzenPanelMenuItem Text="@L[RK.MexcContractTickers.SocketTitle]" Path="market-data/mexc/contract-ticker-socket" Icon="sensors" />
-                <RadzenPanelMenuItem Text="@L[RK.TcbsTop10.Title]" Path="market-data/tcbs-top10" Icon="bar_chart" />
-                <RadzenPanelMenuItem Text="@L[RK.Power655.Title]" Path="market-data/power-655-analysis" Icon="casino" />
+                <RadzenPanelMenuItem Path="market-data/mexc/contract-ticker-socket" ><Template><span class="tx-nav-item"><ThaiXIcon Name="server" /><span>@L[RK.MexcContractTickers.SocketTitle]</span></span></Template></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Path="market-data/tcbs-top10" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.TcbsTop10.Title]</span></span></Template></RadzenPanelMenuItem>
+                <RadzenPanelMenuItem Path="market-data/power-655-analysis" ><Template><span class="tx-nav-item"><ThaiXIcon Name="gamepad" /><span>@L[RK.Power655.Title]</span></span></Template></RadzenPanelMenuItem>
             </Authorized>
         </AuthorizeView>
     </RadzenPanelMenuItem>
@@ -27,21 +27,21 @@
 
             @if (auth.User.HasClaim("scope", PermissionNames.MasterDataRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.MarketResearch]" Icon="lab_profile" Expanded="false">
-                    <RadzenPanelMenuItem Text="@L[RK.VnDirectTopStocks.Title]" Path="market-research/vndirect/top-stocks" Icon="trending_up" />
-                    <RadzenPanelMenuItem Text="@L[RK.MexcContractTickers.Title]" Path="market-research/mexc/contract-ticker" Icon="trending_up" />
-                    <RadzenPanelMenuItem Text="@L[RK.MexcSpotTicker24Hr.Title]" Path="market-research/mexc/spot-ticker" Icon="trending_up" />
-                    <RadzenPanelMenuItem Text="@L[RK.CoinGecko.Title]" Path="market-research/coingecko" Icon="currency_bitcoin" />
-                    <RadzenPanelMenuItem Text="@L[RK.DragonCapitalFunds.Title]" Path="market-research/dragon-capital" Icon="account_balance" />
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.Menu.MarketResearch]</span></span></Template>
+                    <RadzenPanelMenuItem Path="market-research/vndirect/top-stocks" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.VnDirectTopStocks.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/mexc/contract-ticker" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.MexcContractTickers.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/mexc/spot-ticker" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.MexcSpotTicker24Hr.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/coingecko" ><Template><span class="tx-nav-item"><ThaiXIcon Name="cube" /><span>@L[RK.CoinGecko.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/dragon-capital" ><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.DragonCapitalFunds.Title]</span></span></Template></RadzenPanelMenuItem>
                 </RadzenPanelMenuItem>
             }
 
             @if (auth.User.HasClaim("scope", PermissionNames.ChainBrokerDataRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.ChainBroker]" Icon="hub" Expanded="false">
-                    <RadzenPanelMenuItem Text="@L[RK.ChainBrokerFunds.Title]" Path="market-research/chainbroker/funds" Icon="account_balance_wallet" />
-                    <RadzenPanelMenuItem Text="@L[RK.ChainBrokerProjects.Title]" Path="market-research/chainbroker/projects" Icon="rocket_launch" />
-                    <RadzenPanelMenuItem Text="@L[RK.ChainBrokerUnlocks.Title]" Path="market-research/chainbroker/unlocks" Icon="lock_open" />
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="share" /><span>@L[RK.Menu.ChainBroker]</span></span></Template>
+                    <RadzenPanelMenuItem Path="market-research/chainbroker/funds" ><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.ChainBrokerFunds.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/chainbroker/projects" ><Template><span class="tx-nav-item"><ThaiXIcon Name="lightning" /><span>@L[RK.ChainBrokerProjects.Title]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="market-research/chainbroker/unlocks" ><Template><span class="tx-nav-item"><ThaiXIcon Name="lock" /><span>@L[RK.ChainBrokerUnlocks.Title]</span></span></Template></RadzenPanelMenuItem>
                 </RadzenPanelMenuItem>
             }
 
@@ -50,62 +50,62 @@
                 || auth.User.HasClaim("scope", PermissionNames.MarketScannerRuleRead)
                 || auth.User.HasClaim("scope", PermissionNames.ExpenseTransactionRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.PortfolioGroup]" Icon="account_balance_wallet" Expanded="false">
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.Menu.PortfolioGroup]</span></span></Template>
                     @if (auth.User.HasClaim("scope", PermissionNames.PortfolioRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.Portfolios]" Icon="pie_chart" Path="portfolio/list" />
+                        <RadzenPanelMenuItem Path="portfolio/list" ><Template><span class="tx-nav-item"><ThaiXIcon Name="analytics" /><span>@L[RK.Menu.Portfolios]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.PriceAlertRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.PriceAlerts.Title]" Icon="notifications_active" Path="portfolio/price-alerts" />
+                        <RadzenPanelMenuItem Path="portfolio/price-alerts" ><Template><span class="tx-nav-item"><ThaiXIcon Name="bell" /><span>@L[RK.PriceAlerts.Title]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.MarketScannerRuleRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.MarketScanner.Title]" Icon="radar" Path="portfolio/market-scanner-rules" />
+                        <RadzenPanelMenuItem Path="portfolio/market-scanner-rules" ><Template><span class="tx-nav-item"><ThaiXIcon Name="search" /><span>@L[RK.MarketScanner.Title]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.ExpenseTransactionRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.ExpenseTracker]" Icon="receipt_long" Path="portfolio/expense-tracker" />
+                        <RadzenPanelMenuItem Path="portfolio/expense-tracker" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.ExpenseTracker]</span></span></Template></RadzenPanelMenuItem>
                     }
                 </RadzenPanelMenuItem>
             }
 
             @if (auth.User.HasClaim("scope", PermissionNames.ContactRead) || auth.User.HasClaim("scope", PermissionNames.NoteRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.Crm]" Icon="contacts" Expanded="false">
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="team" /><span>@L[RK.Menu.Crm]</span></span></Template>
                     @if (auth.User.HasClaim("scope", PermissionNames.ContactRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.Contacts]" Icon="contacts" Path="crm/contacts" />
+                        <RadzenPanelMenuItem Path="crm/contacts" ><Template><span class="tx-nav-item"><ThaiXIcon Name="team" /><span>@L[RK.Menu.Contacts]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.NoteRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.Notes]" Icon="sticky_note_2" Path="crm/notes" />
+                        <RadzenPanelMenuItem Path="crm/notes" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.Notes]</span></span></Template></RadzenPanelMenuItem>
                     }
                 </RadzenPanelMenuItem>
             }
 
             @if (auth.User.HasClaim("scope", PermissionNames.MasterDataRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.MasterData]" Icon="folder" Expanded="false">
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.MasterDataCountries]" Icon="public" Path="master-data/countries" />
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.MasterDataCities]" Icon="location_city" Path="master-data/cities" />
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.MasterDataDistricts]" Icon="map" Path="master-data/districts" />
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.MasterDataBanks]" Icon="account_balance" Path="master-data/banks" />
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.MasterData]</span></span></Template>
+                    <RadzenPanelMenuItem Path="master-data/countries" ><Template><span class="tx-nav-item"><ThaiXIcon Name="globe" /><span>@L[RK.Menu.MasterDataCountries]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="master-data/cities" ><Template><span class="tx-nav-item"><ThaiXIcon Name="globe" /><span>@L[RK.Menu.MasterDataCities]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="master-data/districts" ><Template><span class="tx-nav-item"><ThaiXIcon Name="globe" /><span>@L[RK.Menu.MasterDataDistricts]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="master-data/banks" ><Template><span class="tx-nav-item"><ThaiXIcon Name="wallet" /><span>@L[RK.Menu.MasterDataBanks]</span></span></Template></RadzenPanelMenuItem>
                 </RadzenPanelMenuItem>
             }
 
             @if (auth.User.HasClaim("scope", PermissionNames.SystemAdmin)
                 || auth.User.HasClaim("scope", PermissionNames.NotificationScheduleRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.NotificationCenter]" Icon="notifications" Expanded="false">
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="bell" /><span>@L[RK.Menu.NotificationCenter]</span></span></Template>
                     @if (auth.User.HasClaim("scope", PermissionNames.SystemAdmin))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.NotificationSender]" Icon="send" Path="notifications/sender" />
+                        <RadzenPanelMenuItem Path="notifications/sender" ><Template><span class="tx-nav-item"><ThaiXIcon Name="share" /><span>@L[RK.Menu.NotificationSender]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.SystemAdmin)
                         || auth.User.HasClaim("scope", PermissionNames.NotificationScheduleRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.NotificationSchedules]" Icon="schedule" Path="notifications/schedules" />
+                        <RadzenPanelMenuItem Path="notifications/schedules" ><Template><span class="tx-nav-item"><ThaiXIcon Name="calendar" /><span>@L[RK.Menu.NotificationSchedules]</span></span></Template></RadzenPanelMenuItem>
                     }
                 </RadzenPanelMenuItem>
             }
@@ -113,14 +113,14 @@
             @if (auth.User.HasClaim("scope", PermissionNames.ApiClientRead)
                 || auth.User.HasClaim("scope", PermissionNames.CredentialAccountRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.Security]" Icon="security" Expanded="false">
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="shield-check" /><span>@L[RK.Menu.Security]</span></span></Template>
                     @if (auth.User.HasClaim("scope", PermissionNames.ApiClientRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.ApiClients]" Icon="vpn_key" Path="security/api-clients" />
+                        <RadzenPanelMenuItem Path="security/api-clients" ><Template><span class="tx-nav-item"><ThaiXIcon Name="lock" /><span>@L[RK.Menu.ApiClients]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.CredentialAccountRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.CredentialAccounts]" Icon="key" Path="security/credential-accounts" />
+                        <RadzenPanelMenuItem Path="security/credential-accounts" ><Template><span class="tx-nav-item"><ThaiXIcon Name="lock" /><span>@L[RK.Menu.CredentialAccounts]</span></span></Template></RadzenPanelMenuItem>
                     }
                 </RadzenPanelMenuItem>
             }
@@ -132,50 +132,50 @@
                 || auth.User.HasClaim("scope", PermissionNames.JsonBinRead)
                 || auth.User.HasClaim("scope", PermissionNames.FileRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.Administration]" Icon="admin_panel_settings" Expanded="false">
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="settings" /><span>@L[RK.Menu.Administration]</span></span></Template>
                     @if (auth.User.HasClaim("scope", PermissionNames.UserRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.Users]" Icon="groups" Path="admin/users" />
+                        <RadzenPanelMenuItem Path="admin/users" ><Template><span class="tx-nav-item"><ThaiXIcon Name="team" /><span>@L[RK.Menu.Users]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.SystemAdmin))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.CommandTester]" Icon="terminal" Path="admin/command-tester" />
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.AiTester]" Icon="psychology" Path="admin/ai-tester" />
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.CmsxProxyTester]" Icon="http" Path="admin/cmsx-proxy-tester" />
+                        <RadzenPanelMenuItem Path="admin/command-tester" ><Template><span class="tx-nav-item"><ThaiXIcon Name="server" /><span>@L[RK.Menu.CommandTester]</span></span></Template></RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Path="admin/ai-tester" ><Template><span class="tx-nav-item"><ThaiXIcon Name="ai-chip" /><span>@L[RK.Menu.AiTester]</span></span></Template></RadzenPanelMenuItem>
+                        <RadzenPanelMenuItem Path="admin/cmsx-proxy-tester" ><Template><span class="tx-nav-item"><ThaiXIcon Name="link" /><span>@L[RK.Menu.CmsxProxyTester]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.SystemViewLogs))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.SystemLogs]" Icon="description" Path="admin/system-logs" />
+                        <RadzenPanelMenuItem Path="admin/system-logs" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.SystemLogs]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.JsonBinRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.JsonBins]" Icon="data_object" Path="admin/json-bins" />
+                        <RadzenPanelMenuItem Path="admin/json-bins" ><Template><span class="tx-nav-item"><ThaiXIcon Name="database" /><span>@L[RK.Menu.JsonBins]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.FileRead))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.PublicHtmlPages]" Icon="html" Path="admin/public-html" />
+                        <RadzenPanelMenuItem Path="admin/public-html" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.PublicHtmlPages]</span></span></Template></RadzenPanelMenuItem>
                     }
                     @if (auth.User.HasClaim("scope", PermissionNames.ResumeWrite))
                     {
-                        <RadzenPanelMenuItem Text="@L[RK.Menu.Resume]" Icon="badge" Path="admin/resume" />
+                        <RadzenPanelMenuItem Path="admin/resume" ><Template><span class="tx-nav-item"><ThaiXIcon Name="user" /><span>@L[RK.Menu.Resume]</span></span></Template></RadzenPanelMenuItem>
                     }
                 </RadzenPanelMenuItem>
             }
 
             @if (auth.User.HasClaim("scope", PermissionNames.BlogRead))
             {
-                <RadzenPanelMenuItem Text="@L[RK.Menu.Blog]" Icon="article" Expanded="false">
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.BlogPosts]" Icon="description" Path="admin/blog/posts" />
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.BlogCategories]" Icon="category" Path="admin/blog/categories" />
-                    <RadzenPanelMenuItem Text="@L[RK.Menu.BlogTags]" Icon="sell" Path="admin/blog/tags" />
+                <RadzenPanelMenuItem Expanded="false"><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.Blog]</span></span></Template>
+                    <RadzenPanelMenuItem Path="admin/blog/posts" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.BlogPosts]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="admin/blog/categories" ><Template><span class="tx-nav-item"><ThaiXIcon Name="applications" /><span>@L[RK.Menu.BlogCategories]</span></span></Template></RadzenPanelMenuItem>
+                    <RadzenPanelMenuItem Path="admin/blog/tags" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.BlogTags]</span></span></Template></RadzenPanelMenuItem>
                 </RadzenPanelMenuItem>
             }
 
-            <RadzenPanelMenuItem Text="@L[RK.Menu.Profile]" Icon="account_circle" Path="account/profile" />
+            <RadzenPanelMenuItem Path="account/profile" ><Template><span class="tx-nav-item"><ThaiXIcon Name="user" /><span>@L[RK.Menu.Profile]</span></span></Template></RadzenPanelMenuItem>
         </Authorized>
         <NotAuthorized>
-            <RadzenPanelMenuItem Text="@L[RK.Menu.Login]" Icon="login" Path="auth/login" />
-            <RadzenPanelMenuItem Text="@L[RK.Menu.Register]" Icon="person_add" Path="auth/register" />
+            <RadzenPanelMenuItem Path="auth/login" ><Template><span class="tx-nav-item"><ThaiXIcon Name="user" /><span>@L[RK.Menu.Login]</span></span></Template></RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Path="auth/register" ><Template><span class="tx-nav-item"><ThaiXIcon Name="team" /><span>@L[RK.Menu.Register]</span></span></Template></RadzenPanelMenuItem>
         </NotAuthorized>
     </AuthorizeView>
 </RadzenPanelMenu>
