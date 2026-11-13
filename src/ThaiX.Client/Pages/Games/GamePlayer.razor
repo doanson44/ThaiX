@@ -22,12 +22,12 @@ else
 {
     <RadzenStack Gap="1rem" Class="game-player">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <RadzenButton Text="@L[ResourceKeys.Games.BackToGames]" Icon="arrow_back" ButtonStyle="ButtonStyle.Light"
+            <ThaiXButton Text="@L[ResourceKeys.Games.BackToGames]" Icon="arrow_back" ButtonStyle="ButtonStyle.Light"
                           Click="BackToGames" />
             <div class="d-flex gap-2">
-                <RadzenButton Text="@L[ResourceKeys.Games.Restart]" Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
+                <ThaiXButton Text="@L[ResourceKeys.Games.Restart]" Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
                               Click="RestartAsync" />
-                <RadzenButton Text="@(_isPaused ? L[ResourceKeys.Games.Resume] : L[ResourceKeys.Games.Pause])"
+                <ThaiXButton Text="@(_isPaused ? L[ResourceKeys.Games.Resume] : L[ResourceKeys.Games.Pause])"
                               Icon="@(_isPaused ? "play_arrow" : "pause")" ButtonStyle="ButtonStyle.Light"
                               Click="TogglePauseAsync" />
             </div>
@@ -67,7 +67,7 @@ else
                         <div class="game-overlay-box">
                             @if (_isFinished)
                             {
-                                <strong>@L[ResourceKeys.Games.GameOver]</strong>
+                                <strong>@L[_pendingWon ? ResourceKeys.Games.Victory : ResourceKeys.Games.GameOver]</strong>
                                 <span class="game-overlay-score">@L[Game.ScoreKey]: @_pendingScore.ToString("N0")</span>
                                 <small>@L[ResourceKeys.Games.RestartHint]</small>
                             }
@@ -82,7 +82,7 @@ else
             @if (Game.Id == "minesweeper")
             {
                 <div class="minesweeper-flag-control">
-                    <RadzenButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
+                    <ThaiXButton Text="@(_flagMode ? L[ResourceKeys.Games.FlagModeOn] : L[ResourceKeys.Games.FlagModeOff])"
                                   Icon="flag" ButtonStyle="@(_flagMode ? ButtonStyle.Primary : ButtonStyle.Light)"
                                   Click="@(() => _flagMode = !_flagMode)" Class="minesweeper-flag-button" />
                 </div>
@@ -93,12 +93,12 @@ else
             }
             @if (!string.IsNullOrWhiteSpace(_statusMessage))
             {
-                <RadzenAlert AlertStyle="@(_syncFailed ? AlertStyle.Warning : AlertStyle.Info)" Variant="Variant.Flat" Class="mt-3 mb-0">
+                <ThaiXAlert AlertStyle="@(_syncFailed ? AlertStyle.Warning : AlertStyle.Info)" Variant="Variant.Flat" Class="mt-3 mb-0">
                     @_statusMessage
-                </RadzenAlert>
+                </ThaiXAlert>
                 @if (_syncFailed)
                 {
-                    <RadzenButton Text="@L[ResourceKeys.Games.RetrySync]" Icon="refresh"
+                    <ThaiXButton Text="@L[ResourceKeys.Games.RetrySync]" Icon="refresh"
                                   ButtonStyle="ButtonStyle.Secondary" Click="RetrySyncAsync" Class="mt-2" />
                 }
             }
@@ -147,10 +147,10 @@ else
                 <RadzenTextBox @bind-Value="_guestName" Placeholder="@L[ResourceKeys.Games.GuestNickname]"
                                Class="w-100 mb-2" MaxLength="24" />
                 <div class="d-flex flex-wrap gap-2">
-                    <RadzenButton Text="@L[ResourceKeys.Games.JoinLeaderboard]" Icon="leaderboard"
+                    <ThaiXButton Text="@L[ResourceKeys.Games.JoinLeaderboard]" Icon="leaderboard"
                                   ButtonStyle="ButtonStyle.Primary" Disabled="@(!IsGuestNameValid)"
                                   Click="JoinLeaderboardAsync" />
-                    <RadzenButton Text="@L[ResourceKeys.Games.LocalOnly]" ButtonStyle="ButtonStyle.Light"
+                    <ThaiXButton Text="@L[ResourceKeys.Games.LocalOnly]" ButtonStyle="ButtonStyle.Light"
                                   Click="KeepLocalAsync" />
                 </div>
             </RadzenCard>
@@ -161,7 +161,7 @@ else
                 <h2 class="h6 mb-0">@L[ResourceKeys.Games.History]</h2>
                 @if (_localScores.History.Count > 10)
                 {
-                    <RadzenButton Text="@(_showAllHistory ? L[ResourceKeys.Games.ShowRecentHistory] : L[ResourceKeys.Games.ViewAllHistory])"
+                    <ThaiXButton Text="@(_showAllHistory ? L[ResourceKeys.Games.ShowRecentHistory] : L[ResourceKeys.Games.ViewAllHistory])"
                                   ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="ToggleHistory" />
                 }
             </div>
@@ -199,6 +199,7 @@ else
     private string? _pendingMode;
     private Guid _pendingRunId;
     private decimal _pendingScore;
+    private bool _pendingWon;
     private int _pendingDuration;
     private string? _loadedGameId;
     private string? _mountedGameId;
@@ -298,7 +299,8 @@ else
         _isFinished = true;
         _pendingRunId = Guid.NewGuid();
         _pendingScore = result.Score;
-        _gameStatusMessage = $"{L[ResourceKeys.Games.GameOver].Value}: {L[ResourceKeys.Games.Score].Value} {_pendingScore:N0}";
+        _pendingWon = result.Won;
+        _gameStatusMessage = $"{L[result.Won ? ResourceKeys.Games.Victory : ResourceKeys.Games.GameOver].Value}: {L[ResourceKeys.Games.Score].Value} {_pendingScore:N0}";
         _pendingDuration = Math.Clamp(result.DurationSeconds, 1, 86_400);
         _pendingMode = result.Mode;
         _localScores = await ScoreStore.SaveAsync(Game.Id, _pendingRunId, _pendingScore, _pendingDuration, _pendingMode);

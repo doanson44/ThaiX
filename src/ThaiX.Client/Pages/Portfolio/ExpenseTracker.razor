@@ -513,11 +513,11 @@
         <div class="d-flex gap-1">
             @if (_canWrite.GetValueOrDefault(section))
             {
-                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(_ => onEdit())" />
+                <ThaiXButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(_ => onEdit())" />
             }
             @if (_canDelete.GetValueOrDefault(section))
             {
-                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(_ => onDelete())" />
+                <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(_ => onDelete())" />
             }
         </div>
     };

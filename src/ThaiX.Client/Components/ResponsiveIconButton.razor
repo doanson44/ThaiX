@@ -1,8 +1,6 @@
 @inherits ThaiXPageBase
 
-<RadzenButton Text="@DisplayText"
-              Icon="@Icon"
-              ButtonStyle="@ButtonStyle"
+<RadzenButton ButtonStyle="@ButtonStyle"
               ButtonType="@ButtonType"
               Size="@Size"
               IsBusy="@IsBusy"
@@ -10,7 +8,19 @@
               title="@AccessibleName"
               aria-label="@AccessibleName"
               class="@Class"
-              Click="@Click" />
+              @attributes="AdditionalAttributes"
+              Click="@Click">
+    <ChildContent>
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
+        }
+        @if (DisplayText is not null)
+        {
+            <span>@DisplayText</span>
+        }
+    </ChildContent>
+</RadzenButton>
 
 @code {
     [Parameter]
@@ -40,7 +50,9 @@
     [Parameter]
     public EventCallback Click { get; set; }
 
-    private string? DisplayText => Viewport.IsMobile ? null : Text;
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    private string? DisplayText => Viewport.IsMobile ? null : Text;
     private string AccessibleName => string.IsNullOrWhiteSpace(Text) ? Icon : Text;
 }

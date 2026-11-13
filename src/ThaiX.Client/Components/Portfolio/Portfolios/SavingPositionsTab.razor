@@ -59,12 +59,12 @@
                         <div class="d-flex gap-1">
                             @if (CanWrite && item.Status == "Active")
                             {
-                                <RadzenButton Icon="money_off" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
+                                <ThaiXButton Icon="money_off" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
                                               Click="@(() => ConfirmWithdrawAsync(item))" />
                             }
                             @if (CanDelete)
                             {
-                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
                                               Click="@(() => ConfirmDeleteAsync(item))" />
                             }
                         </div>

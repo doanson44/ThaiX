@@ -89,7 +89,7 @@
                                         <RadzenText Class="small text-muted me-1 flex-shrink-0">@group.Category</RadzenText>
                                         @foreach (var cmd in group.Commands)
                                         {
-                                            <RadzenButton Text="@cmd"
+                                            <ThaiXButton Text="@cmd"
                                                           Size="ButtonSize.ExtraSmall"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Click="@(() => FillCommand(cmd))"
@@ -118,7 +118,7 @@
                                      AlignItems="AlignItems.Center"
                                      Gap="0.5rem"
                                      Wrap="FlexWrap.Wrap">
-                            <RadzenButton Text="@L[RK.SlackCommands.ExecuteButton]"
+                            <ThaiXButton Text="@L[RK.SlackCommands.ExecuteButton]"
                                           Icon="play_arrow"
                                           ButtonStyle="ButtonStyle.Primary"
                                           ButtonType="ButtonType.Submit"
@@ -126,7 +126,7 @@
                                           Disabled="@_isExecuting"
                                           BusyText="@L[RK.Common.Loading]"
                                           Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
-                            <RadzenButton Text="@L[RK.Common.Refresh]"
+                            <ThaiXButton Text="@L[RK.Common.Refresh]"
                                           Icon="refresh"
                                           ButtonStyle="ButtonStyle.Light"
                                           Click="@ResetExecutionForm"

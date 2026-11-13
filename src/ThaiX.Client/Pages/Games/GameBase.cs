@@ -6,7 +6,7 @@ using ThaiX.Client.Localization;
 
 namespace ThaiX.Client.Pages.Games;
 
-public readonly record struct GameResult(decimal Score, int DurationSeconds, string? Mode);
+public readonly record struct GameResult(decimal Score, int DurationSeconds, string? Mode, bool Won = false);
 
 /// <summary>
 /// Shared lifecycle for the game boards hosted by <see cref="GamePlayer"/>: restart, pause-aware
@@ -85,14 +85,14 @@ public abstract class GameBase : ComponentBase, IDisposable
         _pausedAt = IsPaused ? _startedAt : null;
     }
 
-    protected void Finish(decimal score, string? mode = null)
+    protected void Finish(decimal score, string? mode = null, bool won = false)
     {
         if (Finished)
             return;
 
         Finished = true;
         StopLoop();
-        _ = OnCompleted.InvokeAsync(new GameResult(score, ElapsedSeconds, mode));
+        _ = OnCompleted.InvokeAsync(new GameResult(score, ElapsedSeconds, mode, won));
     }
 
     /// <summary>Runs <paramref name="tick"/> on a fixed interval while the game is playable.</summary>

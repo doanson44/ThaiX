@@ -18,7 +18,7 @@
             <div class="d-flex flex-wrap gap-2">
                 <RadzenTextBox @bind-Value="_guestName" Placeholder="@L[ResourceKeys.Games.GuestNickname]"
                                MaxLength="24" />
-                <RadzenButton Text="@L[ResourceKeys.Games.JoinLeaderboard]" Icon="leaderboard"
+                <ThaiXButton Text="@L[ResourceKeys.Games.JoinLeaderboard]" Icon="leaderboard"
                               ButtonStyle="ButtonStyle.Primary" Disabled="@(!IsGuestNameValid)"
                               Click="EnableGuestLeaderboardAsync" />
             </div>
@@ -38,7 +38,7 @@
     <div class="d-flex flex-wrap gap-2" role="group" aria-label="@L[ResourceKeys.Games.Title]">
         @foreach (var category in _categories)
         {
-            <RadzenButton Text="@L[category.Key]" ButtonStyle="@(_selectedCategory == category.Id ? ButtonStyle.Primary : ButtonStyle.Light)"
+            <ThaiXButton Text="@L[category.Key]" ButtonStyle="@(_selectedCategory == category.Id ? ButtonStyle.Primary : ButtonStyle.Light)"
                           Size="ButtonSize.Small" Click="@(() => _selectedCategory = category.Id)" />
         }
     </div>
@@ -59,11 +59,11 @@
                     <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
                         <RadzenCard Class="h-100 game-card">
                             <div class="d-flex align-items-start gap-3">
-                                <div class="game-icon" aria-hidden="true"><RadzenIcon Icon="@game.Icon" /></div>
+                                <div class="game-icon" aria-hidden="true"><ThaiXIcon Icon="@game.Icon" /></div>
                                 <div class="flex-grow-1 min-w-0">
                                     <h3 class="h5 mb-1">@L[game.TitleKey]</h3>
                                     <p class="text-muted small mb-3">@L[game.DescriptionKey]</p>
-                                    <RadzenButton Text="@L[ResourceKeys.Games.Play]" Icon="play_arrow"
+                                    <ThaiXButton Text="@L[ResourceKeys.Games.Play]" Icon="play_arrow"
                                                   ButtonStyle="ButtonStyle.Primary" Click="@(() => OpenGame(game.Id))" />
                                 </div>
                             </div>

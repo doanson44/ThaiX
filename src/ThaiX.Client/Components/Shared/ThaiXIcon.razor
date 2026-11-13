@@ -1,0 +1,50 @@
+<svg class="tx-icon @Class"
+     width="@Size"
+     height="@Size"
+     viewBox="0 0 24 24"
+     fill="currentColor"
+     preserveAspectRatio="xMidYMid meet"
+     role="@(HasTitle ? "img" : null)"
+     aria-hidden="@(HasTitle ? null : "true")"
+     focusable="false"
+     @attributes="AdditionalAttributes">
+    @if (HasTitle)
+    {
+        <title>@Title</title>
+    }
+  <use href="@SpriteReference" />
+</svg>
+
+@code {
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Icon
+    {
+        get => Name;
+        set
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                Name = value;
+        }
+    }
+
+    [Parameter]
+    public string Size { get; set; } = "1em";
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool HasTitle => !string.IsNullOrWhiteSpace(Title);
+
+    private string ResolvedName => ThaixIcons.Resolve(string.IsNullOrWhiteSpace(Name) ? Icon : Name);
+
+    private string SpriteReference => $"{ThaixIcons.SpritePath}#{ResolvedName}";
+}

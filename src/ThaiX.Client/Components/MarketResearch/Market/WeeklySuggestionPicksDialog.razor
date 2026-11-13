@@ -20,9 +20,9 @@
                         AllowSorting="true"
                         Density="Density.Compact">
             <EmptyTemplate>
-                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @L[RK.Common.NoDataFound]
-                </RadzenAlert>
+                </ThaiXAlert>
             </EmptyTemplate>
             <Columns>
                 <RadzenDataGridColumn MinWidth="5rem" TItem="PickRow" Property="Rank" Title="@L[RK.WeeklySuggestionHistory.Rank]" />
@@ -64,7 +64,7 @@ else
 }
 
 <div class="d-flex justify-content-end mt-3">
-    <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+    <ThaiXButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
 </div>
 
 @code {

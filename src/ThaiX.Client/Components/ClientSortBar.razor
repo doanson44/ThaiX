@@ -19,14 +19,14 @@
 
         @if (HasSort)
         {
-            <RadzenButton Icon="@(Ascending ? "arrow_upward" : "arrow_downward")"
+            <ThaiXButton Icon="@(Ascending ? "arrow_upward" : "arrow_downward")"
                           ButtonStyle="ButtonStyle.Light"
                           Click="ToggleDirectionAsync"
                           title="@(Ascending ? AscendingLabel : DescendingLabel)" />
         }
         else
         {
-            <RadzenButton Text="−"
+            <ThaiXButton Text="−"
                           ButtonStyle="ButtonStyle.Light"
                           Disabled="true"
                           Class="tx-sort-direction-idle"

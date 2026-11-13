@@ -95,7 +95,7 @@
                                  AlignItems="AlignItems.Center"
                                  Gap="0.5rem"
                                  Wrap="FlexWrap.Wrap">
-                        <RadzenButton Text="@L[RK.Common.Save]"
+                        <ThaiXButton Text="@L[RK.Common.Save]"
                                       Icon="send"
                                       ButtonStyle="ButtonStyle.Primary"
                                       ButtonType="ButtonType.Submit"
@@ -103,7 +103,7 @@
                                       Disabled="@_isSubmitting"
                                       BusyText="@L[RK.Common.Loading]"
                                       Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
-                        <RadzenButton Text="@L[RK.Common.Cancel]"
+                        <ThaiXButton Text="@L[RK.Common.Cancel]"
                                       Icon="refresh"
                                       ButtonStyle="ButtonStyle.Light"
                                       Click="@ResetForm"

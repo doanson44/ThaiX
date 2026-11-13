@@ -30,9 +30,9 @@
         }
     </div>
     <div class="d-flex flex-wrap justify-content-end gap-2">
-        <RadzenButton Text="@L[RK.Common.Cancel]" Icon="close" ButtonStyle="ButtonStyle.Light"
+        <ThaiXButton Text="@L[RK.Common.Cancel]" Icon="close" ButtonStyle="ButtonStyle.Light"
                       Disabled="@_isSubmitting" Click="@Cancel" />
-        <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
+        <ThaiXButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
                       Disabled="@(_isSubmitting || _selectedFile is null)" Click="@UploadAsync" />
     </div>
 </RadzenStack>

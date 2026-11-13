@@ -12,15 +12,15 @@
             @L[RK.PermissionExplorer.Summary, SelectedSet.Count, _permissions.Count]
         </RadzenText>
         <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
-            <RadzenButton Text="@L[RK.PermissionExplorer.All]"
+            <ThaiXButton Text="@L[RK.PermissionExplorer.All]"
                           Size="ButtonSize.Small"
                           ButtonStyle="@(_filter == PermissionFilter.All ? ButtonStyle.Primary : ButtonStyle.Light)"
                           Click="@(() => SetFilter(PermissionFilter.All))" />
-            <RadzenButton Text="@L[RK.PermissionExplorer.Granted]"
+            <ThaiXButton Text="@L[RK.PermissionExplorer.Granted]"
                           Size="ButtonSize.Small"
                           ButtonStyle="@(_filter == PermissionFilter.Granted ? ButtonStyle.Primary : ButtonStyle.Light)"
                           Click="@(() => SetFilter(PermissionFilter.Granted))" />
-            <RadzenButton Text="@L[RK.PermissionExplorer.Missing]"
+            <ThaiXButton Text="@L[RK.PermissionExplorer.Missing]"
                           Size="ButtonSize.Small"
                           ButtonStyle="@(_filter == PermissionFilter.Missing ? ButtonStyle.Primary : ButtonStyle.Light)"
                           Click="@(() => SetFilter(PermissionFilter.Missing))" />
@@ -48,7 +48,7 @@
                                          AlignItems="AlignItems.Center"
                                          JustifyContent="JustifyContent.SpaceBetween"
                                          Gap="0.5rem">
-                                <RadzenButton Text="@group.DisplayName"
+                                <ThaiXButton Text="@group.DisplayName"
                                               Icon="@(_collapsedGroups.Contains(group.Name) ? "keyboard_arrow_right" : "keyboard_arrow_down")"
                                               ButtonStyle="ButtonStyle.Light"
                                               Variant="Variant.Text"

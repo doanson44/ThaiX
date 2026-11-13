@@ -100,6 +100,14 @@ public sealed class GameScoreStore(IJSRuntime jsRuntime)
     public Task SetGuestChoiceAsync(bool join) =>
         jsRuntime.InvokeVoidAsync("localStorage.setItem", GuestChoiceKey, join ? "joined" : "declined").AsTask();
 
+    public Task<string?> GetProgressAsync(string gameId) =>
+        jsRuntime.InvokeAsync<string?>("localStorage.getItem", GetProgressKey(gameId)).AsTask();
+
+    public Task SetProgressAsync(string gameId, string value) =>
+        jsRuntime.InvokeVoidAsync("localStorage.setItem", GetProgressKey(gameId), value).AsTask();
+
+    private static string GetProgressKey(string gameId) => $"ThaiX.Games.Progress.{gameId}";
+
     private static string GetScoreKey(string gameId) => $"ThaiX.Games.Scores.{gameId}";
 
     private static bool IsCumulativeWinGame(string gameId) =>

@@ -37,13 +37,13 @@
 
             <RadzenColumn Size="12">
                 <div class="d-flex flex-wrap gap-2">
-                    <RadzenButton Text="@L[RK.Common.Save]"
+                    <ThaiXButton Text="@L[RK.Common.Save]"
                                   Icon="save"
                                   ButtonType="ButtonType.Submit"
                                   ButtonStyle="ButtonStyle.Primary"
                                   IsBusy="@_isSaving"
                                   Disabled="@_isSaving" />
-                    <RadzenButton Text="@L[RK.Common.Close]"
+                    <ThaiXButton Text="@L[RK.Common.Close]"
                                   Icon="close"
                                   ButtonStyle="ButtonStyle.Light"
                                   Click="@(() => DialogService.Close(false))" />

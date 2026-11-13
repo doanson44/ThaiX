@@ -56,13 +56,13 @@
                          Gap="0.5rem"
                          Wrap="FlexWrap.Wrap"
                          Class="ThaiX-calc__actions">
-                <RadzenButton Text="@L[RK.Calc.Calculate]"
+                <ThaiXButton Text="@L[RK.Calc.Calculate]"
                               Icon="calculate"
                               ButtonStyle="ButtonStyle.Primary"
                               Class="@(Viewport.IsMobile ? "w-100" : null)"
                               Click="Calculate"
                               aria-label="@L[RK.Calc.Calculate]" />
-                <RadzenButton Text="@L[RK.Calc.Reset]"
+                <ThaiXButton Text="@L[RK.Calc.Reset]"
                               Icon="restart_alt"
                               ButtonStyle="ButtonStyle.Light"
                               Class="@(Viewport.IsMobile ? "w-100" : null)"
@@ -76,14 +76,14 @@
         <RadzenStack Gap="0.75rem" Class="ThaiX-calc__results">
             @if (Tool.Category == ToolCategory.Risk)
             {
-                <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
+                <ThaiXAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
                     @L[RK.Calc.RiskDisclaimer]
-                </RadzenAlert>
+                </ThaiXAlert>
             }
 
             @if (!string.IsNullOrWhiteSpace(_warning))
             {
-                <RadzenAlert AlertStyle="AlertStyle.Warning"
+                <ThaiXAlert AlertStyle="AlertStyle.Warning"
                              Shade="Shade.Lighter"
                              Variant="Variant.Flat"
                              AllowClose="true"
@@ -91,7 +91,7 @@
                              Class="ThaiX-tools__alert">
                     <strong>@L[RK.Tools.ValidationTitle]</strong>
                     <div class="rz-mt-1 text-break">@_warning</div>
-                </RadzenAlert>
+                </ThaiXAlert>
             }
 
             <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.Subtitle2 : TextStyle.Subtitle1)" Class="mb-0">

@@ -19,7 +19,7 @@
 
     @if (!string.IsNullOrWhiteSpace(_error))
     {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="rz-mb-3">@_error</RadzenAlert>
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="rz-mb-3">@_error</ThaiXAlert>
     }
 
     @if (_isLoading || !_hasLoaded || _totalCount > 0)

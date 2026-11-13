@@ -14,15 +14,15 @@
     }
     else if (_success)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" class="w-100">
+        <ThaiXAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" class="w-100">
             @L[RK.Auth.LoginSuccess]
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else
     {
-        <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" class="w-100">
+        <ThaiXAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" class="w-100">
             @L[RK.Account.ExternalLoginFailed]
-        </RadzenAlert>
+        </ThaiXAlert>
         <div class="mt-3">
             <RadzenLink Path="/auth/login" Text="@L[RK.Auth.LoginLinkGoToLogin]" />
         </div>

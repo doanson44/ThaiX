@@ -13,16 +13,16 @@
         }
         else if (_recoveryCodes is { Length: > 0 })
         {
-            <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" ShowIcon="true">
+            <ThaiXAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" ShowIcon="true">
                 @L[RK.Account.EnableAuthenticatorSuccess]
-            </RadzenAlert>
+            </ThaiXAlert>
 
             <RadzenCard Variant="Variant.Outlined">
                 <RadzenStack Gap="0.5rem">
                     <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.TwoFactorRecoveryCodesNew]</RadzenText>
-                    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                    <ThaiXAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
                         @L[RK.Account.TwoFactorRecoveryCodesWarning]
-                    </RadzenAlert>
+                    </ThaiXAlert>
                     <div class="recovery-code-grid">
                         @foreach (var code in _recoveryCodes)
                         {
@@ -32,7 +32,7 @@
                 </RadzenStack>
             </RadzenCard>
 
-            <RadzenButton Text="@L[RK.Account.TwoFactorBackToStatus]"
+            <ThaiXButton Text="@L[RK.Account.TwoFactorBackToStatus]"
                           Icon="arrow_back"
                           Click="BackToStatusAsync"
                           ButtonStyle="ButtonStyle.Primary" />
@@ -70,14 +70,14 @@
                                                  Popup="false" />
 
                         <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                            <RadzenButton Text="@L[RK.Account.EnableAuthenticatorVerify]"
+                            <ThaiXButton Text="@L[RK.Account.EnableAuthenticatorVerify]"
                                           Icon="verified"
                                           ButtonType="ButtonType.Submit"
                                           Disabled="@_isSubmitting"
                                           IsBusy="@_isSubmitting"
                                           BusyText="@L[RK.Common.Loading]"
                                           ButtonStyle="ButtonStyle.Success" />
-                            <RadzenButton Text="@L[RK.Common.Cancel]"
+                            <ThaiXButton Text="@L[RK.Common.Cancel]"
                                           Icon="close"
                                           Click="BackToStatusAsync"
                                           ButtonStyle="ButtonStyle.Light" />
@@ -90,7 +90,7 @@
     else
     {
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
-            <RadzenButton Text="@L[RK.Common.Refresh]" Icon="refresh" Click="LoadStatusAsync" ButtonStyle="ButtonStyle.Light" />
+            <ThaiXButton Text="@L[RK.Common.Refresh]" Icon="refresh" Click="LoadStatusAsync" ButtonStyle="ButtonStyle.Light" />
         </RadzenStack>
 
         @if (_isLoading)
@@ -117,24 +117,24 @@
             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
                 @if (!_status.Is2faEnabled)
                 {
-                    <RadzenButton Text="@L[RK.Account.TwoFactorSetup]"
+                    <ThaiXButton Text="@L[RK.Account.TwoFactorSetup]"
                                   Icon="phonelink_setup"
                                   Click="StartAuthenticatorSetupAsync"
                                   ButtonStyle="ButtonStyle.Success" />
                 }
                 else
                 {
-                    <RadzenButton Text="@L[RK.Account.TwoFactorDisable]"
+                    <ThaiXButton Text="@L[RK.Account.TwoFactorDisable]"
                                   Icon="security"
                                   Click="DisableTwoFactorAsync"
                                   ButtonStyle="ButtonStyle.Danger" />
 
-                    <RadzenButton Text="@L[RK.Account.TwoFactorResetKey]"
+                    <ThaiXButton Text="@L[RK.Account.TwoFactorResetKey]"
                                   Icon="restart_alt"
                                   Click="ResetAuthenticatorAsync"
                                   ButtonStyle="ButtonStyle.Warning" />
 
-                    <RadzenButton Text="@L[RK.Account.TwoFactorGenerateCodes]"
+                    <ThaiXButton Text="@L[RK.Account.TwoFactorGenerateCodes]"
                                   Icon="vpn_key"
                                   Click="GenerateRecoveryCodesAsync"
                                   ButtonStyle="ButtonStyle.Info" />
@@ -146,9 +146,9 @@
                 <RadzenCard Variant="Variant.Outlined">
                     <RadzenStack Gap="0.5rem">
                         <RadzenText TextStyle="TextStyle.H6">@L[RK.Account.TwoFactorRecoveryCodesNew]</RadzenText>
-                        <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                        <ThaiXAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
                             @L[RK.Account.TwoFactorRecoveryCodesWarning]
-                        </RadzenAlert>
+                        </ThaiXAlert>
                         <div class="recovery-code-grid">
                             @foreach (var code in _recoveryCodes)
                             {

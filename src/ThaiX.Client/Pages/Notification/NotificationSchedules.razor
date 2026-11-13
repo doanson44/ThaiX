@@ -80,9 +80,9 @@
                 }
                 else if (_errorMessage is not null)
                 {
-                    <RadzenAlert AlertStyle="AlertStyle.Danger" Class="mb-3">
+                    <ThaiXAlert AlertStyle="AlertStyle.Danger" Class="mb-3">
                         <RadzenText>@L[RK.NotificationSchedules.LoadFailed] @_errorMessage</RadzenText>
-                    </RadzenAlert>
+                    </ThaiXAlert>
                     <ResponsiveIconButton Text="@L[RK.NotificationSchedules.Retry]"
                                   Icon="refresh"
                                   ButtonStyle="ButtonStyle.Primary"
@@ -146,12 +146,12 @@
                                                   Sortable="false">
                                 <Template Context="item">
                                     <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
-                                        <RadzenButton Icon="edit"
+                                        <ThaiXButton Icon="edit"
                                                       ButtonStyle="ButtonStyle.Light"
                                                       Size="ButtonSize.Small"
                                                       aria-label="@L[RK.NotificationSchedules.Action.Edit]"
                                                       Click="@(() => OpenEdit(item.Id))" />
-                                        <RadzenButton Icon="play_arrow"
+                                        <ThaiXButton Icon="play_arrow"
                                                       ButtonStyle="ButtonStyle.Success"
                                                       Size="ButtonSize.Small"
                                                       Disabled="@(!CanRunNow(item.Status))"
@@ -159,7 +159,7 @@
                                                       Click="@(() => RunNow(item.Id))" />
                                         @if (item.Status == ScheduleStatuses.Active)
                                         {
-                                            <RadzenButton Icon="pause"
+                                            <ThaiXButton Icon="pause"
                                                           ButtonStyle="ButtonStyle.Warning"
                                                           Size="ButtonSize.Small"
                                                           aria-label="@L[RK.NotificationSchedules.Action.Pause]"
@@ -167,13 +167,13 @@
                                         }
                                         else if (item.Status == ScheduleStatuses.Paused)
                                         {
-                                            <RadzenButton Icon="play_circle"
+                                            <ThaiXButton Icon="play_circle"
                                                           ButtonStyle="ButtonStyle.Secondary"
                                                           Size="ButtonSize.Small"
                                                           aria-label="@L[RK.NotificationSchedules.Action.Activate]"
                                                           Click="@(() => Activate(item.Id))" />
                                         }
-                                        <RadzenButton Icon="delete"
+                                        <ThaiXButton Icon="delete"
                                                       ButtonStyle="ButtonStyle.Danger"
                                                       Size="ButtonSize.Small"
                                                       aria-label="@L[RK.Common.Delete]"

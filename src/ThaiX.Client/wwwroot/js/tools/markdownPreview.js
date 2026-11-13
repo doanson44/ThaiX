@@ -44,7 +44,7 @@ window.ThaiXEnsureMermaid = async function () {
             mainBkg: '#292524',
             nodeBorder: '#78716c',
             clusterBkg: '#1c1917',
-            titleColor: '#f59e0b',
+            titleColor: '#2563eb',
             edgeLabelBackground: '#1c1917'
         } : undefined,
         er: { useMaxWidth: true }
@@ -159,7 +159,7 @@ window.ThaiXBuildRichPreviewHtml = function (clone) {
 body{font-family:Calibri,Arial,sans-serif;font-size:11pt;line-height:1.5;color:#1c1917;background:#ffffff;}
 h1,h2,h3,h4,h5,h6{font-family:Georgia,'Times New Roman',serif;color:#1c1917;margin:0.8em 0 0.35em;}
 p{margin:0.45em 0;}
-a{color:#b45309;}
+a{color:#2563eb;}
 pre{background:#f5f5f4;border:1px solid #d6d3d1;padding:8pt;white-space:pre-wrap;font-family:Consolas,'Courier New',monospace;font-size:9pt;color:#1c1917;}
 code{font-family:Consolas,'Courier New',monospace;background:#f5f5f4;color:#1c1917;}
 blockquote{border-left:3pt solid #d6d3d1;margin:0.5em 0;padding:0.15em 0 0.15em 10pt;color:#57534e;}

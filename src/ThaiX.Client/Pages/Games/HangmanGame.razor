@@ -18,7 +18,7 @@
         var words = L[ResourceKeys.Games.HangmanWords].Value
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
-        _word = words.Length > 0 ? words[Random.Shared.Next(words.Length)].ToUpperInvariant() : "THAIX";
+        _word = words.Length > 0 ? words[Random.Shared.Next(words.Length)].ToUpperInvariant() : "ThaiX";
         _guessed.Clear();
         _wrong = 0;
     }

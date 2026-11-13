@@ -28,18 +28,19 @@
         </div>
 
         <div class="auth-brand">
-            Thai<span class="auth-brand-accent">X</span>
+            <img src="favicon.svg" alt="" class="auth-brand-mark" />
+            <span>Thai<span class="auth-brand-accent">X</span></span>
         </div>
 
         @if (ApiConnectivity.IsDemoMode)
         {
-            <RadzenAlert AlertStyle="AlertStyle.Warning"
+            <ThaiXAlert AlertStyle="AlertStyle.Warning"
                          Variant="Variant.Flat"
                          Shade="Shade.Lighter"
                          AllowClose="false"
                          class="rz-mb-3">
                 @L[RK.Common.DemoModeBanner]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
 
         <div class="auth-body">

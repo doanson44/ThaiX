@@ -18,7 +18,7 @@
     <RadzenStack Gap="1rem">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
-                <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => Navigation.NavigateTo("/admin/blog/posts"))" />
+                <ThaiXButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => Navigation.NavigateTo("/admin/blog/posts"))" />
                 <RadzenText TextStyle="TextStyle.H5" Class="mb-0">@(Id.HasValue ? L[RK.Blog.Posts.EditPostTitle] : L[RK.Blog.Posts.NewPostTitle])</RadzenText>
                 @if (_post is not null)
                 {
@@ -174,7 +174,7 @@
                                     @foreach (var tag in _selectedTags)
                                     {
                                         <RadzenBadge Text="@tag.Name" BadgeStyle="BadgeStyle.Info" IsPill="true">
-                                            <RadzenButton Icon="close" Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Light"
+                                            <ThaiXButton Icon="close" Size="ButtonSize.ExtraSmall" ButtonStyle="ButtonStyle.Light"
                                                           Click="@(() => _selectedTags.Remove(tag))" />
                                         </RadzenBadge>
                                     }

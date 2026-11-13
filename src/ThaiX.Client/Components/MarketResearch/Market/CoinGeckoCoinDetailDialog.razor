@@ -15,9 +15,9 @@
     }
     else if (_errorMessage is not null)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+        <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @_errorMessage
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else if (_market is not null)
     {
@@ -55,7 +55,7 @@
         </RadzenStack>
     }
 
-    <RadzenButton Text="@L[RK.Common.Close]"
+    <ThaiXButton Text="@L[RK.Common.Close]"
                   ButtonStyle="ButtonStyle.Light"
                   Class="w-100"
                   Click="@Close" />

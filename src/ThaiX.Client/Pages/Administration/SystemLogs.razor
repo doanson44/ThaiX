@@ -24,7 +24,7 @@
                                 Class="mb-0">@L[RK.SystemLogs.Title]</RadzenText>
                     <RadzenText Class="text-muted">@L[RK.SystemLogs.Description]</RadzenText>
                 </div>
-                <RadzenButton Text="@L[RK.Common.Refresh]"
+                <ThaiXButton Text="@L[RK.Common.Refresh]"
                               Icon="refresh"
                               ButtonStyle="ButtonStyle.Light"
                               Click="@LoadFilesAsync"
@@ -33,12 +33,12 @@
 
             @if (!string.IsNullOrWhiteSpace(_errorMessage))
             {
-                <RadzenAlert AlertStyle="AlertStyle.Danger"
+                <ThaiXAlert AlertStyle="AlertStyle.Danger"
                              Variant="Variant.Flat"
                              Shade="Shade.Lighter"
                              AllowClose="true">
                     @_errorMessage
-                </RadzenAlert>
+                </ThaiXAlert>
             }
 
             @if (_isLoading)
@@ -73,13 +73,13 @@
                                 <RadzenStack Orientation="Orientation.Horizontal"
                                              Gap="0.5rem"
                                              Wrap="FlexWrap.Wrap">
-                                    <RadzenButton Text="@L[RK.SystemLogs.Preview]"
+                                    <ThaiXButton Text="@L[RK.SystemLogs.Preview]"
                                                   Icon="visibility"
                                                   ButtonStyle="ButtonStyle.Light"
                                                   Size="ButtonSize.Small"
                                                   Click="@(() => PreviewAsync(file))"
                                                   Disabled="@_isPreviewLoading" />
-                                    <RadzenButton Text="@L[RK.SystemLogs.Download]"
+                                    <ThaiXButton Text="@L[RK.SystemLogs.Download]"
                                                   Icon="download"
                                                   ButtonStyle="ButtonStyle.Secondary"
                                                   Size="ButtonSize.Small"
@@ -103,7 +103,7 @@
                              JustifyContent="JustifyContent.SpaceBetween"
                              Wrap="FlexWrap.Wrap">
                     <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@_selectedFile.FileName</RadzenText>
-                    <RadzenButton Text="@L[RK.SystemLogs.ClosePreview]"
+                    <ThaiXButton Text="@L[RK.SystemLogs.ClosePreview]"
                                   Icon="close"
                                   ButtonStyle="ButtonStyle.Light"
                                   Size="ButtonSize.Small"
@@ -118,12 +118,12 @@
                 {
                     @if (_preview.IsTruncated)
                     {
-                        <RadzenAlert AlertStyle="AlertStyle.Warning"
+                        <ThaiXAlert AlertStyle="AlertStyle.Warning"
                                      Variant="Variant.Flat"
                                      Shade="Shade.Lighter"
                                      AllowClose="false">
                             @L[RK.SystemLogs.PreviewTruncated]
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     }
                     <pre class="border rounded p-3 bg-body-tertiary overflow-auto mb-0"
                          style="white-space: pre-wrap; overflow-wrap: anywhere; max-height: 60vh;">@_preview.Content</pre>

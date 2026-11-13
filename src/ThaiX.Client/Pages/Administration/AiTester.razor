@@ -57,7 +57,7 @@
                                      AlignItems="AlignItems.Center"
                                      Gap="0.5rem"
                                      Wrap="FlexWrap.Wrap">
-                            <RadzenButton Text="@L[AiTesterKeys.GenerateButton]"
+                            <ThaiXButton Text="@L[AiTesterKeys.GenerateButton]"
                                           Icon="auto_awesome"
                                           ButtonStyle="ButtonStyle.Primary"
                                           ButtonType="ButtonType.Submit"
@@ -65,7 +65,7 @@
                                           Disabled="@_isGenerating"
                                           BusyText="@L[RK.Common.Loading]"
                                           Class="@(Viewport.IsMobile ? "w-100" : string.Empty)" />
-                            <RadzenButton Text="@L[RK.Common.Refresh]"
+                            <ThaiXButton Text="@L[RK.Common.Refresh]"
                                           Icon="refresh"
                                           ButtonStyle="ButtonStyle.Light"
                                           Click="@ResetForm"

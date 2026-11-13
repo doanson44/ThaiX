@@ -50,7 +50,7 @@
         <RadzenLabel Text="@L[RK.TradingSuggestion.EnableAiVerdict]" />
     </RadzenStack>
 
-    <RadzenButton Text="@L[RK.TradingSuggestion.Run]"
+    <ThaiXButton Text="@L[RK.TradingSuggestion.Run]"
                   Click="FetchSuggestionAsync"
                   Disabled="_isLoading"
                   ButtonStyle="ButtonStyle.Primary" />
@@ -61,9 +61,9 @@
     }
     else if (!string.IsNullOrWhiteSpace(_error))
     {
-        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+        <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @_error
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else if (_result is not null)
     {
@@ -89,9 +89,9 @@
             }
             else if (!string.IsNullOrWhiteSpace(_verdictError))
             {
-                <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @_verdictError
-                </RadzenAlert>
+                </ThaiXAlert>
             }
             else if (_verdict is not null)
             {
@@ -115,9 +115,9 @@
                 }
                 else if (!string.IsNullOrWhiteSpace(_priceComparisonError))
                 {
-                    <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
+                    <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
                         @_priceComparisonError
-                    </RadzenAlert>
+                    </ThaiXAlert>
                 }
                 else if (_priceComparison is { Count: > 0 })
                 {
@@ -167,9 +167,9 @@
                 }
                 else if (_priceComparison is { Count: 0 })
                 {
-                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
+                    <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mt-2">
                         @L[RK.TradingSuggestion.PriceComparisonNoData]
-                    </RadzenAlert>
+                    </ThaiXAlert>
                 }
             </div>
         }

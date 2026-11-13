@@ -51,15 +51,15 @@
             }
             else if (state.HasError)
             {
-                <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @L[RK.DragonCapitalFunds.LoadFailed]
-                </RadzenAlert>
+                </ThaiXAlert>
             }
             else if (state.Data is null || !state.Data.Top10Holdings.Any())
             {
-                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @L[RK.DragonCapitalFunds.NoDataFound]
-                </RadzenAlert>
+                </ThaiXAlert>
             }
             else
             {

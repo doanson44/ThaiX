@@ -27,7 +27,7 @@
             </div>
             @if (_canWrite)
             {
-                <RadzenButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
+                <ThaiXButton Text="@L[RK.PublicHtmlPages.Upload]" Icon="upload_file" ButtonStyle="ButtonStyle.Primary"
                               Click="@OpenUploadDialogAsync" />
             }
         </div>
@@ -70,14 +70,14 @@
                 @if (_pages.Count == 0)
                 {
                     <div class="py-4 text-center">
-                        <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                        <ThaiXIcon Icon="description" Style="font-size: 2.5rem; opacity: 0.7;" />
                         <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoPages]</RadzenText>
                     </div>
                 }
                 else if (!FilteredPages.Any())
                 {
                     <div class="py-4 text-center">
-                        <RadzenIcon Icon="search_off" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                        <ThaiXIcon Icon="search_off" Style="font-size: 2.5rem; opacity: 0.7;" />
                         <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoFilteredPages]</RadzenText>
                     </div>
                 }
@@ -87,7 +87,7 @@
                         <article class="public-html-item">
                             <div class="public-html-item-main">
                                 <div class="public-html-code-icon" aria-hidden="true">
-                                    <RadzenIcon Icon="code" />
+                                    <ThaiXIcon Icon="code" />
                                 </div>
                                 <div class="public-html-item-details">
                                     <div class="public-html-item-title">@item.Title</div>
@@ -95,11 +95,11 @@
                                     {
                                         <RadzenTextBox @bind-Value="item.EditSlug" Class="w-100 mt-1" MaxLength="80" />
                                         <div class="d-flex gap-2 mt-1">
-                                            <RadzenButton Icon="check" Text="@L[RK.PublicHtmlPages.Rename]" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="check" Text="@L[RK.PublicHtmlPages.Rename]" Size="ButtonSize.Small"
                                                           ButtonStyle="ButtonStyle.Primary"
                                                           Disabled="@(_busyPageIds.Contains(item.Id) || string.IsNullOrWhiteSpace(item.EditSlug) || item.EditSlug == item.Slug)"
                                                           Click="@(() => RenameAsync(item))" />
-                                            <RadzenButton Icon="close" Text="@L[RK.Common.Cancel]" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="close" Text="@L[RK.Common.Cancel]" Size="ButtonSize.Small"
                                                           ButtonStyle="ButtonStyle.Light" Disabled="@_busyPageIds.Contains(item.Id)"
                                                           Click="@(() => CancelRename(item))" />
                                         </div>
@@ -119,23 +119,23 @@
                                 </span>
                                 @if (item.IsPublished && !ApiConnectivityState.IsDemoMode)
                                 {
-                                    <RadzenButton Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
+                                    <ThaiXButton Icon="open_in_new" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
                                                   title="@L[RK.PublicHtmlPages.View].Value"
                                                   Click="@(() => Navigation.NavigateTo($"/html/{Uri.EscapeDataString(item.Slug)}", true))" />
                                 }
                                 @if (_canWrite)
                                 {
-                                    <RadzenButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
+                                    <ThaiXButton Icon="edit" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
                                                   title="@L[RK.PublicHtmlPages.Rename].Value"
                                                   Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => BeginRename(item))" />
-                                    <RadzenButton Icon="@(item.IsPublished ? "visibility_off" : "publish")" Size="ButtonSize.Small"
+                                    <ThaiXButton Icon="@(item.IsPublished ? "visibility_off" : "publish")" Size="ButtonSize.Small"
                                                   ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
                                                   title="@(item.IsPublished ? L[RK.PublicHtmlPages.Unpublish].Value : L[RK.PublicHtmlPages.Publish].Value)"
                                                   Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => TogglePublishedAsync(item))" />
                                 }
                                 @if (_canDelete)
                                 {
-                                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
+                                    <ThaiXButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Light" Variant="Variant.Text"
                                                   title="@L[RK.PublicHtmlPages.Delete].Value"
                                                   Disabled="@_busyPageIds.Contains(item.Id)" Click="@(() => DeleteAsync(item))" />
                                 }

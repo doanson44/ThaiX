@@ -41,9 +41,9 @@
         }
         else if (!_filteredTickers.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.MexcContractTickers.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
     </RadzenStack>
 
@@ -115,7 +115,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn MinWidth="9.375rem" TItem="MexcContractTickerDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]">
                         <Template Context="ticker">
-                            <RadzenButton Size="ButtonSize.Small"
+                            <ThaiXButton Size="ButtonSize.Small"
                                           Icon="insights"
                                           Text="@L[RK.TradingSuggestion.Action]"
                                           Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.Crypto))" />
@@ -174,7 +174,7 @@
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.MinAskPrice]: @ticker.MinAskPrice?.ToString()</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.RiseFallValue)">@L[RK.MexcContractTickers.RiseFallValue]: @FormatSignedRawValue(ticker.RiseFallValue)</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcContractTickers.Timestamp]: @(ticker.Timestamp.HasValue && ticker.Timestamp > 0 ? DateTimeOffset.FromUnixTimeMilliseconds(ticker.Timestamp.Value).LocalDateTime.ToString("g") : "-")</RadzenText>
-                        <RadzenButton Size="ButtonSize.Small"
+                        <ThaiXButton Size="ButtonSize.Small"
                                       Icon="insights"
                                       Text="@L[RK.TradingSuggestion.Action]"
                                       Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.Crypto))" />

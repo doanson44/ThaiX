@@ -30,21 +30,21 @@
 
     const tools = [
         {
-            name: "thaix_get_public_api_documentation",
+            name: "ThaiX_get_public_api_documentation",
             description: "Read the ThaiX API documentation, including the routes documented as anonymously accessible.",
             inputSchema: emptyInputSchema,
             annotations: { readOnlyHint: true },
             execute: async (_input, signal) => await fetchPublicText("/api.md", signal)
         },
         {
-            name: "thaix_get_authentication_guide",
+            name: "ThaiX_get_authentication_guide",
             description: "Read ThaiX authentication guidance and its documented JWT machine-client flow.",
             inputSchema: emptyInputSchema,
             annotations: { readOnlyHint: true },
             execute: async (_input, signal) => await fetchPublicText("/auth.md", signal)
         },
         {
-            name: "thaix_get_health_status",
+            name: "ThaiX_get_health_status",
             description: "Retrieve the public ThaiX service health response.",
             inputSchema: emptyInputSchema,
             annotations: { readOnlyHint: true },

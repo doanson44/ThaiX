@@ -21,9 +21,9 @@
     }
     else if (_model is null)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
             @L[RK.JsonBins.NotFound]
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else
     {
@@ -34,7 +34,7 @@
                          Wrap="FlexWrap.Wrap"
                          Gap="0.5rem">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
-                    <RadzenButton Icon="arrow_back"
+                    <ThaiXButton Icon="arrow_back"
                                   ButtonStyle="ButtonStyle.Light"
                                   Size="ButtonSize.Small"
                                   Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
@@ -84,12 +84,12 @@
                                     </RadzenFormField>
                                     @if (!string.IsNullOrWhiteSpace(_codeHint))
                                     {
-                                        <RadzenAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
+                                        <ThaiXAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
                                                      Shade="Shade.Lighter"
                                                      AllowClose="false"
                                                      Class="rz-mt-2">
                                             @_codeHint
-                                        </RadzenAlert>
+                                        </ThaiXAlert>
                                     }
                                 </RadzenColumn>
                                 <RadzenColumn Size="12" SizeMD="6">
@@ -126,7 +126,7 @@
                                 <RadzenLabel Text="@L[RK.JsonBins.ShareLink]" />
                                 <div class="d-flex gap-2 align-items-start">
                                     <RadzenTextBox Value="@_shareUrl" ReadOnly="true" Class="w-100 font-monospace text-break" />
-                                    <RadzenButton Icon="content_copy"
+                                    <ThaiXButton Icon="content_copy"
                                                   ButtonStyle="ButtonStyle.Light"
                                                   Click="@CopyShareUrlAsync"
                                                   title="@L[RK.Common.Copy]"

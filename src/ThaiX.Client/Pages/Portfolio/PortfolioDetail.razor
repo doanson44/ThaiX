@@ -18,7 +18,7 @@
     <RadzenStack Gap="1rem">
 
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-            <RadzenButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+            <ThaiXButton Icon="arrow_back" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                           Click="@(() => Navigation.NavigateTo("/portfolio/list"))" />
             <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H5)" class="mb-0">
                 @(_portfolio?.Name ?? L[RK.Common.Loading])
@@ -31,21 +31,21 @@
 
         @if (_loadError)
         {
-            <RadzenAlert AlertStyle="AlertStyle.Danger">@L[RK.Portfolios.LoadFailed]</RadzenAlert>
+            <ThaiXAlert AlertStyle="AlertStyle.Danger">@L[RK.Portfolios.LoadFailed]</ThaiXAlert>
         }
         else if (_portfolio is not null)
         {
             <RadzenTabs>
                 <Tabs>
-                    <RadzenTabsItem Text="@L[RK.AssetPositions.CryptoTitle]" Icon="currency_bitcoin">
+                    <ThaiXTabsItem Text="@L[RK.AssetPositions.CryptoTitle]"  Icon="currency_bitcoin">
                         <CryptoPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
-                    </RadzenTabsItem>
-                    <RadzenTabsItem Text="@L[RK.AssetPositions.StockTitle]" Icon="show_chart">
+                    </ThaiXTabsItem>
+                    <ThaiXTabsItem Text="@L[RK.AssetPositions.StockTitle]"  Icon="show_chart">
                         <StockPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
-                    </RadzenTabsItem>
-                    <RadzenTabsItem Text="@L[RK.AssetPositions.SavingTitle]" Icon="savings">
+                    </ThaiXTabsItem>
+                    <ThaiXTabsItem Text="@L[RK.AssetPositions.SavingTitle]"  Icon="savings">
                         <SavingPositionsTab PortfolioId="Id" CanWrite="_canWrite" CanDelete="_canDelete" />
-                    </RadzenTabsItem>
+                    </ThaiXTabsItem>
                 </Tabs>
             </RadzenTabs>
         }

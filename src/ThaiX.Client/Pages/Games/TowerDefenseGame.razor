@@ -1,471 +1,510 @@
 @inherits GameBase
+@using ThaiX.Client.Services.Games.TowerDefense
+@inject GameScoreStore ScoreStore
 
-<svg class="game-svg" viewBox="0 0 480 424">
-    <defs>
-        <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
-            <rect width="48" height="48" fill="#4f7d39" />
-            <path d="M6 11l2 -5 2 5M30 23l2 -5 2 5M16 39l2 -5 2 5M40 44l2 -5 2 5" fill="none" stroke="#3d652b" stroke-width="1.5" />
-            <circle cx="24" cy="8" r="1.5" fill="#6f9f4f" />
-            <circle cx="39" cy="30" r="1.5" fill="#6f9f4f" />
-            <circle cx="8" cy="27" r="1.5" fill="#6f9f4f" />
-        </pattern>
-        <g id="td-tree">
-            <circle r="19" fill="#14532d" />
-            <circle cx="-4" cy="-4" r="13" fill="#166534" />
-            <circle cx="3" cy="-7" r="7" fill="#15803d" />
-        </g>
-        <g id="td-rock">
-            <path d="M-14 7L-10 -9L3 -14L14 -4L11 10L-3 14Z" fill="#78716c" stroke="#44403c" stroke-width="1.5" />
-            <path d="M-10 -9L3 -14L5 -2L-6 2Z" fill="#a8a29e" />
-        </g>
-        <g id="td-base">
-            <circle r="17" fill="#44403c" stroke="#d6b98c" stroke-width="6" stroke-dasharray="9 2" />
-            <circle r="13" fill="#57534e" />
-        </g>
-        <g id="td-gun">
-            <rect x="4" y="-5" width="17" height="3" rx="1" fill="#1f2937" />
-            <rect x="4" y="2" width="17" height="3" rx="1" fill="#1f2937" />
-            <rect x="-9" y="-8" width="17" height="16" rx="4" fill="#4d7c0f" stroke="#1a2e05" stroke-width="1.5" />
-            <circle cx="-2" r="3.5" fill="#365314" />
-        </g>
-        <g id="td-cannon">
-            <rect x="2" y="-4" width="19" height="8" rx="2" fill="#1f2937" />
-            <rect x="17" y="-5.5" width="5" height="11" rx="1" fill="#111827" />
-            <circle r="11" fill="#3f6212" stroke="#1a2e05" stroke-width="1.5" />
-            <circle r="5" fill="#65a30d" />
-        </g>
-        <g id="td-frost">
-            <rect x="4" y="-3" width="14" height="6" rx="2" fill="#0e7490" />
-            <circle r="11" fill="#0891b2" stroke="#164e63" stroke-width="1.5" />
-            <path d="M0 -7L2 -2L7 0L2 2L0 7L-2 2L-7 0L-2 -2Z" fill="#cffafe" />
-        </g>
-        <g id="td-soldier">
-            <ellipse rx="4.5" ry="8" fill="#b45309" stroke="#451a03" />
-            <rect x="1" y="3" width="11" height="2" rx="1" fill="#111827" />
-            <circle r="4.5" fill="#7f1d1d" stroke="#450a0a" />
-        </g>
-        <g id="td-jeep">
-            <rect x="-11" y="-9" width="6" height="18" rx="1.5" fill="#1c1917" />
-            <rect x="5" y="-9" width="6" height="18" rx="1.5" fill="#1c1917" />
-            <rect x="-13" y="-6.5" width="26" height="13" rx="3" fill="#c2853a" stroke="#713f12" />
-            <rect x="2" y="-5" width="4" height="10" rx="1" fill="#1e293b" />
-            <rect x="-10" y="-4.5" width="8" height="9" rx="1" fill="#92400e" />
-        </g>
-        <g id="td-tank">
-            <rect x="-17" y="-13" width="34" height="7" rx="2" fill="#1c1917" />
-            <rect x="-17" y="6" width="34" height="7" rx="2" fill="#1c1917" />
-            <rect x="-15" y="-9" width="30" height="18" rx="2" fill="#7f1d1d" stroke="#450a0a" stroke-width="1.5" />
-            <rect x="2" y="-2" width="20" height="4" rx="1" fill="#292524" />
-            <circle r="7" fill="#991b1b" stroke="#450a0a" stroke-width="1.5" />
-        </g>
-    </defs>
+@if (_match is null)
+{
+    <div class="td-menu" @onkeydown:stopPropagation>
+        <h2 class="td-menu-title">@L[ResourceKeys.Games.TdMenuTitle]</h2>
+        <div role="group" aria-label="@L[ResourceKeys.Games.TdMap]">
+            <div class="td-menu-label">@L[ResourceKeys.Games.TdMap]</div>
+            <div class="td-choices">
+                @for (var i = 0; i < TowerDefenseData.Maps.Count; i++)
+                {
+                    var index = i;
+                    var locked = !IsUnlocked(index);
+                    <button type="button" class="td-choice @(_mapIndex == index ? "is-active" : "")" aria-pressed="@(_mapIndex == index)"
+                            disabled="@locked" @onclick="() => _mapIndex = index">
+                        <span>@L[TowerDefenseData.Maps[index].NameKey]</span>
+                        @if (locked)
+                        {
+                            <small>@L[ResourceKeys.Games.TdMapLocked, L[TowerDefenseData.Maps[index - 1].NameKey].Value]</small>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+        <div role="group" aria-label="@L[ResourceKeys.Games.TdDifficulty]">
+            <div class="td-menu-label">@L[ResourceKeys.Games.TdDifficulty]</div>
+            <div class="td-choices">
+                @for (var i = 0; i < TowerDefenseData.Difficulties.Count; i++)
+                {
+                    var index = i;
+                    <button type="button" class="td-choice @(_difficultyIndex == index ? "is-active" : "")" aria-pressed="@(_difficultyIndex == index)"
+                            @onclick="() => _difficultyIndex = index">
+                        @L[TowerDefenseData.Difficulties[index].NameKey]
+                    </button>
+                }
+            </div>
+        </div>
+        <div role="group" aria-label="@L[ResourceKeys.Games.TdMode]">
+            <div class="td-menu-label">@L[ResourceKeys.Games.TdMode]</div>
+            <div class="td-choices">
+                <button type="button" class="td-choice @(!_endless ? "is-active" : "")" aria-pressed="@(!_endless)" @onclick="() => _endless = false">
+                    @L[ResourceKeys.Games.TdModeCampaign]
+                </button>
+                <button type="button" class="td-choice @(_endless ? "is-active" : "")" aria-pressed="@_endless" @onclick="() => _endless = true">
+                    @L[ResourceKeys.Games.TdModeEndless]
+                </button>
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary td-deploy" @onclick="Deploy">@L[ResourceKeys.Games.TdStartMission]</button>
+    </div>
+}
+else
+{
+    var match = _match;
+    <svg class="game-svg" viewBox="0 0 480 376">
+        <defs>
+            <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
+                <rect width="48" height="48" fill="#4f7d39" />
+                <path d="M6 11l2 -5 2 5M30 23l2 -5 2 5M16 39l2 -5 2 5M40 44l2 -5 2 5" fill="none" stroke="#3d652b" stroke-width="1.5" />
+                <circle cx="24" cy="8" r="1.5" fill="#6f9f4f" />
+                <circle cx="39" cy="30" r="1.5" fill="#6f9f4f" />
+                <circle cx="8" cy="27" r="1.5" fill="#6f9f4f" />
+            </pattern>
+            <g id="td-base">
+                <circle r="17" fill="#44403c" stroke="#d6b98c" stroke-width="6" stroke-dasharray="9 2" />
+                <circle r="13" fill="#57534e" />
+            </g>
+        </defs>
 
-    <rect y="40" width="480" height="336" fill="url(#td-grass)" />
-    <polyline points="@RoadPoints" fill="none" stroke="#5f4a2c" stroke-width="42" stroke-linejoin="round" />
-    <polyline points="@RoadPoints" fill="none" stroke="#a3824f" stroke-width="36" stroke-linejoin="round" />
-    <polyline points="@RoadPoints" fill="none" stroke="#b6935c" stroke-width="18" stroke-linejoin="round" stroke-dasharray="14 10" />
-    @for (var i = 0; i < Columns * Rows; i++)
-    {
-        if (!Blocked.Contains(i))
+        <rect y="40" width="480" height="336" fill="url(#td-grass)" />
+        @foreach (var points in _roadPoints)
         {
-            <rect class="g-hit" x="@(CellX(i) - 21)" y="@(CellY(i) - 21)" width="42" height="42" rx="6"
-                  fill="#0b1220" fill-opacity="0.14" stroke="#ecfccb" stroke-opacity="0.2" @onclick="_cellClicks[i]" />
+            <polyline points="@points" fill="none" stroke="#5f4a2c" stroke-width="42" stroke-linejoin="round" />
+            <polyline points="@points" fill="none" stroke="#a3824f" stroke-width="36" stroke-linejoin="round" />
+            <polyline points="@points" fill="none" stroke="#b6935c" stroke-width="18" stroke-linejoin="round" stroke-dasharray="14 10" />
         }
-    }
-
-    <g pointer-events="none">
-        @foreach (var (cell, sprite) in Scenery)
+        @for (var i = 0; i < TowerDefenseMatch.Columns * TowerDefenseMatch.Rows; i++)
         {
-            <use href="@sprite" x="@CellX(cell)" y="@CellY(cell)" />
+            var blocked = match.IsBlocked(i);
+            <rect class="g-hit" x="@(TowerDefenseMatch.CellX(i) - 21)" y="@(TowerDefenseMatch.CellY(i) - 21)" width="42" height="42" rx="6"
+                  fill="@(blocked ? "transparent" : "#0b1220")" fill-opacity="@(blocked ? "0" : "0.14")"
+                  stroke="@(blocked ? "none" : "#ecfccb")" stroke-opacity="0.2" @onclick="_cellClicks[i]" />
         }
-        @foreach (var tower in _towers)
-        {
-            <g transform="translate(@CellX(tower.Cell) @CellY(tower.Cell))">
-                <use href="#td-base" />
-                <g transform="rotate(@Px(tower.Angle))">
-                    <use href="@Types[tower.Type].Sprite" />
-                    @if (tower.FlashUntil > _tick)
+
+        <g pointer-events="none">
+            @foreach (var cell in match.Map.Trees)
+            {
+                <use href="@Href("leaf")" x="@(TowerDefenseMatch.CellX(cell) - 17)" y="@(TowerDefenseMatch.CellY(cell) - 17)" width="34" height="34" style="color:#14532d" />
+            }
+            @foreach (var cell in match.Map.Rocks)
+            {
+                <use href="@Href("cube")" x="@(TowerDefenseMatch.CellX(cell) - 14)" y="@(TowerDefenseMatch.CellY(cell) - 14)" width="28" height="28" style="color:#a8a29e" />
+            }
+            @foreach (var endY in match.Roads.Select(road => road[^1].Y).Distinct())
+            {
+                <rect x="456" y="@Px(endY - 26)" width="22" height="52" rx="5" fill="#44403c" stroke="#1c1917" stroke-width="2" />
+                <use href="@Href("home")" x="457" y="@Px(endY - 10)" width="20" height="20" style="color:#60a5fa" />
+            }
+            @if (_selectedTower is { } selected)
+            {
+                <circle cx="@TowerDefenseMatch.CellX(selected.Cell)" cy="@TowerDefenseMatch.CellY(selected.Cell)" r="@Px(match.Range(selected))"
+                        fill="#facc15" fill-opacity="0.12" stroke="#facc15" stroke-opacity="0.7" stroke-dasharray="5 4" />
+                <rect x="@(TowerDefenseMatch.CellX(selected.Cell) - 22)" y="@(TowerDefenseMatch.CellY(selected.Cell) - 22)" width="44" height="44" rx="7"
+                      fill="none" stroke="#facc15" stroke-width="2.5" />
+            }
+            @foreach (var placed in match.Towers)
+            {
+                var placedSpec = placed.Spec;
+                var pips = placed.Levels.Sum();
+                <g transform="translate(@TowerDefenseMatch.CellX(placed.Cell) @TowerDefenseMatch.CellY(placed.Cell))">
+                    <use href="#td-base" />
+                    <use href="@Href(placedSpec.Icon)" x="-12" y="-12" width="24" height="24" style="color:@placedSpec.Color" />
+                    @if (placed.FlashUntil > match.Tick && placedSpec.Effect is TowerEffect.Single or TowerEffect.Splash)
                     {
-                        <path d="M22 0L31 -5L28 0L31 5Z" fill="#fde047" />
+                        <g transform="rotate(@Px(placed.Angle))">
+                            <path d="M22 0L31 -5L28 0L31 5Z" fill="@(placedSpec.ShotColor ?? placedSpec.Color)" />
+                        </g>
+                    }
+                    @for (var pip = 0; pip < pips; pip++)
+                    {
+                        <circle cx="@Px((pip - (pips - 1) / 2.0) * 4.6)" cy="19" r="1.8" fill="#facc15" stroke="#713f12" stroke-width="0.6" />
                     }
                 </g>
-                @for (var pip = 0; pip < tower.Level; pip++)
-                {
-                    <circle cx="@Px((pip - (tower.Level - 1) / 2.0) * 8)" cy="19" r="3" fill="#facc15" stroke="#713f12" />
-                }
-            </g>
-        }
-        @foreach (var enemy in _enemies)
-        {
-            <g transform="translate(@Px(enemy.X) @Px(enemy.Y))">
-                <use href="@enemy.Type.Sprite" transform="rotate(@Px(enemy.Angle))" />
-                @if (enemy.SlowTicks > 0)
-                {
-                    <circle r="@(enemy.Type.Radius + 3)" fill="#a5f3fc" fill-opacity="0.45" />
-                }
-                @if (enemy.Health < enemy.MaxHealth)
-                {
-                    <rect x="-10" y="@(-enemy.Type.Radius - 8)" width="20" height="3" fill="#450a0a" />
-                    <rect x="-10" y="@(-enemy.Type.Radius - 8)" width="@Px(20 * enemy.Health / enemy.MaxHealth)" height="3" fill="#4ade80" />
-                }
-            </g>
-        }
-        @* The base the enemies are heading for, at the end of the road. *@
-        <rect x="456" y="278" width="22" height="52" rx="5" fill="#44403c" stroke="#1c1917" stroke-width="2" />
-        <rect x="460" y="282" width="14" height="44" rx="3" fill="#78716c" />
-        <circle cx="467" cy="304" r="6" fill="#2563eb" stroke="#dbeafe" stroke-width="1.5" />
-        @foreach (var shot in _shots)
-        {
-            <line x1="@Px(shot.X1)" y1="@Px(shot.Y1)" x2="@Px(shot.X2)" y2="@Px(shot.Y2)" stroke="@shot.Color" stroke-width="2" stroke-linecap="round" />
-        }
-        @foreach (var blast in _blasts)
-        {
-            var age = (_tick - blast.Start) / (double)BlastTicks;
-            <circle cx="@Px(blast.X)" cy="@Px(blast.Y)" r="@Px(blast.Radius * (0.3 + 0.7 * age))" opacity="@Px(1 - age)"
-                    fill="@(blast.Ring ? "none" : blast.Color)" stroke="@blast.Color" stroke-width="2" />
-        }
-        <rect class="g-cursor" x="@(CellX(_cursor) - 21)" y="@(CellY(_cursor) - 21)" width="42" height="42" rx="6" />
-        @if (!Blocked.Contains(_cursor))
-        {
-            <circle cx="@CellX(_cursor)" cy="@CellY(_cursor)" r="@Px(CursorRange)" fill="none" stroke="#f8fafc" stroke-opacity="0.55" stroke-dasharray="4 4" />
-        }
-    </g>
-
-    <rect width="480" height="40" fill="#0b1220" />
-    <rect y="376" width="480" height="48" fill="#0b1220" />
-    <text class="g-muted" x="60" y="20">@L[ResourceKeys.Games.Wave]: @_wave</text>
-    <text x="180" y="20" fill="#fca5a5">@L[ResourceKeys.Games.Lives]: @_lives</text>
-    <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @_gold</text>
-    <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @_score</text>
-    @for (var i = 0; i < Types.Length; i++)
-    {
-        var type = i;
-        <g class="g-hit" @onclick="() => _selected = type">
-            <rect x="@(i * 160 + 4)" y="380" width="152" height="40" rx="8" fill="#1e293b" stroke="@(i == _selected ? "#facc15" : "#334155")" stroke-width="2" />
-            <g transform="translate(@(i * 160 + 26) 400) scale(0.75)">
-                <use href="#td-base" />
-                <use href="@Types[i].Sprite" />
-            </g>
-            <text x="@(i * 160 + 100)" y="392" font-size="13">@(i + 1). @L[Types[i].NameKey]</text>
-            <text x="@(i * 160 + 100)" y="409" font-size="13" fill="#facc15">@Types[i].Cost</text>
+            }
+            @foreach (var enemy in match.Enemies.OrderBy(item => item.Spec.IsFlying))
+            {
+                var enemySpec = enemy.Spec;
+                <g transform="translate(@Px(enemy.X) @Px(enemy.Y))">
+                    @if (enemySpec.IsFlying)
+                    {
+                        <ellipse cx="0" cy="@(enemySpec.Radius + 6)" rx="@(enemySpec.Radius - 2)" ry="3" fill="#0b1220" fill-opacity="0.35" />
+                    }
+                    <use href="@Href(enemySpec.Icon)" x="@(-enemySpec.GlyphSize / 2)" y="@(-enemySpec.GlyphSize / 2)" width="@enemySpec.GlyphSize" height="@enemySpec.GlyphSize"
+                         style="color:@(enemy.HitUntil > match.Tick ? "#ffffff" : enemySpec.Color)" />
+                    @if (enemy.SlowTicks > 0)
+                    {
+                        <circle r="@(enemySpec.Radius + 3)" fill="#a5f3fc" fill-opacity="0.45" />
+                    }
+                    @if (enemy.Health < enemy.MaxHealth)
+                    {
+                        <rect x="-10" y="@(-enemySpec.Radius - 8)" width="20" height="3" fill="#450a0a" />
+                        <rect x="-10" y="@(-enemySpec.Radius - 8)" width="@Px(20 * Math.Max(0, enemy.Health) / enemy.MaxHealth)" height="3" fill="#4ade80" />
+                    }
+                </g>
+            }
+            @foreach (var shot in match.Shots)
+            {
+                <line x1="@Px(shot.X1)" y1="@Px(shot.Y1)" x2="@Px(shot.X2)" y2="@Px(shot.Y2)" stroke="@shot.Color" stroke-width="2" stroke-linecap="round" />
+            }
+            @foreach (var blast in match.Blasts)
+            {
+                var age = (match.Tick - blast.Start) / (double)TowerDefenseMatch.BlastTicks;
+                <circle cx="@Px(blast.X)" cy="@Px(blast.Y)" r="@Px(blast.Radius * (0.3 + 0.7 * age))" opacity="@Px(1 - age)"
+                        fill="@(blast.Ring ? "none" : blast.Color)" stroke="@blast.Color" stroke-width="2" />
+            }
+            @foreach (var popup in match.Popups)
+            {
+                var age = match.Tick - popup.Start;
+                @:<text x="@Px(popup.X)" y="@Px(popup.Y - 10 - age * 0.8)" fill="@popup.Color" opacity="@Px(1 - age / (double)TowerDefenseMatch.PopupTicks)" font-size="12">@popup.Text</text>
+            }
+            <rect class="g-cursor" x="@(TowerDefenseMatch.CellX(_cursor) - 21)" y="@(TowerDefenseMatch.CellY(_cursor) - 21)" width="42" height="42" rx="6" />
+            @if (_airstrikeArmed)
+            {
+                <circle cx="@TowerDefenseMatch.CellX(_cursor)" cy="@TowerDefenseMatch.CellY(_cursor)" r="@TowerDefenseMatch.AirstrikeRadius"
+                        fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-dasharray="6 4" />
+            }
+            else if (CursorRange is { } cursorRange)
+            {
+                <circle cx="@TowerDefenseMatch.CellX(_cursor)" cy="@TowerDefenseMatch.CellY(_cursor)" r="@Px(cursorRange)" fill="none" stroke="#f8fafc" stroke-opacity="0.55" stroke-dasharray="4 4" />
+            }
         </g>
-    }
-</svg>
+
+        <rect width="480" height="40" fill="#0b1220" />
+        <text class="g-muted" x="60" y="20">@WaveLabel</text>
+        @if (match.NextWaveCountdownActive)
+        {
+            @:<text x="60" y="34" fill="#93c5fd" font-size="12">@L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]</text>
+        }
+        <text x="180" y="20" fill="#fca5a5">@L[ResourceKeys.Games.Lives]: @match.Lives</text>
+        <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @match.Gold</text>
+        <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @match.Score</text>
+        @if (_airstrikeArmed)
+        {
+            <rect y="40" width="480" height="22" fill="#7f1d1d" fill-opacity="0.85" pointer-events="none" />
+            @:<text x="240" y="51" fill="#fee2e2" font-size="13" pointer-events="none">@L[ResourceKeys.Games.TdAirstrikeArmed]</text>
+        }
+    </svg>
+
+    <div class="td-panel" @onmousedown:preventDefault>
+        <div class="td-actions">
+            <button type="button" class="btn btn-sm btn-primary" tabindex="-1" disabled="@(!CanCallWave)" @onclick="CallWave">
+                <kbd>N</kbd> @L[ResourceKeys.Games.TdStartWave]
+            </button>
+            <button type="button" class="btn btn-sm @(_airstrikeArmed ? "btn-danger" : "btn-outline-danger")" tabindex="-1"
+                    disabled="@(!_airstrikeArmed && !(match.State == MatchState.Running && match.AirstrikeReady))" @onclick="ToggleAirstrike">
+                <kbd>A</kbd> @(match.AirstrikeReady ? L[ResourceKeys.Games.TdAirstrike].Value : L[ResourceKeys.Games.TdAirstrikeCharging, (int)(match.AirstrikeCharge * 100)].Value)
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" tabindex="-1" @onclick="ToggleSpeed">
+                <kbd>G</kbd> @L[ResourceKeys.Games.TdSpeed, _speed]
+            </button>
+            @if (CanCallWave)
+            {
+                <small class="td-next">
+                    @if (match.NextWaveCountdownActive)
+                    {
+                        @L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]
+                        <span> · </span>
+                    }
+                    @L[ResourceKeys.Games.TdNextWave, NextWaveSummary]
+                </small>
+            }
+        </div>
+
+        <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
+            @foreach (var option in TowerDefenseData.Towers)
+            {
+                var kind = option.Kind;
+                <button type="button" tabindex="-1" class="td-tower @(_buildKind == kind ? "is-active" : "") @(match.Gold < option.Cost ? "is-poor" : "")"
+                        aria-pressed="@(_buildKind == kind)" @onclick="() => SelectBuild(kind)">
+                    <ThaiXIcon Name="@option.Icon" Size="1.5rem" style="@($"color:{option.Color}")" />
+                    <span class="td-name"><kbd>@((int)kind + 1)</kbd> @L[option.NameKey]</span>
+                    <span class="td-cost">@option.Cost</span>
+                </button>
+            }
+        </div>
+
+        <div class="td-info">
+            @if (_selectedTower is { } chosen)
+            {
+                <div class="td-info-head">
+                    <strong>@L[chosen.Spec.NameKey]</strong>
+                    <span class="td-stats">
+                        @L[ResourceKeys.Games.TdUpgradeDamage] @match.Damage(chosen).ToString("0.#") &middot;
+                        @L[ResourceKeys.Games.TdUpgradeRange] @match.Range(chosen).ToString("0") &middot;
+                        @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s
+                    </span>
+                    <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                </div>
+                <div class="td-upgrades">
+                    @foreach (var track in Enum.GetValues<UpgradeTrack>())
+                    {
+                        var current = track;
+                        var cost = match.UpgradeCost(chosen, current);
+                        <button type="button" class="btn btn-sm btn-outline-info" tabindex="-1"
+                                disabled="@(cost is null || match.Gold < cost)" @onclick="() => Upgrade(current)">
+                            <kbd>@UpgradeKey(current)</kbd> @L[UpgradeLabel(current)]
+                            <small>@L[ResourceKeys.Games.TdLevel, chosen.Level(current)]</small>
+                            <strong>@(cost?.ToString() ?? L[ResourceKeys.Games.TdMaxed].Value)</strong>
+                        </button>
+                    }
+                    <button type="button" class="btn btn-sm btn-outline-light" tabindex="-1" @onclick="CycleTarget">
+                        <kbd>T</kbd> @L[ResourceKeys.Games.TdTargeting, L[TargetLabel(chosen.Mode)].Value]
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-warning" tabindex="-1" @onclick="SellSelected">
+                        <kbd>X</kbd> @L[ResourceKeys.Games.TdSell, match.SellValue(chosen)]
+                    </button>
+                </div>
+            }
+            else if (_buildKind is { } buildKind)
+            {
+                var buildSpec = TowerDefenseData.Tower(buildKind);
+                <div class="td-info-head">
+                    <strong>@L[buildSpec.NameKey]</strong>
+                    <span class="td-stats">
+                        @L[ResourceKeys.Games.TdUpgradeDamage] @buildSpec.Damage.ToString("0.#") &middot;
+                        @L[ResourceKeys.Games.TdUpgradeRange] @buildSpec.Range.ToString("0") &middot;
+                        @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s
+                    </span>
+                    <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                </div>
+                <small class="text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
+            }
+            else
+            {
+                <small class="text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
+            }
+        </div>
+    </div>
+}
 
 @code {
-    private const int Columns = 10;
-    private const int Rows = 7;
-    private const int CellSize = 48;
-    private const int Top = 40;
-    private const int TickMilliseconds = 33;
-    private const int FirstWaveTicks = 150;
-    private const int WaveBreakTicks = 90;
-    private const int SpawnTicks = 22;
-    private const int ShotTicks = 3;
-    private const int BlastTicks = 8;
-    private const int ChillTicks = 30;
-    private const int MaxLevel = 3;
-    private const int RangePerLevel = 12;
-    private const int SplashRadius = 36;
-    private const int BarrelLength = 22;
-    private const int StartLives = 10;
-    private const int StartGold = 150;
-    private const int MaxScore = 100_000;
-    private const int Cannon = 1;
-    private const int Frost = 2;
+    private const string GameKey = "tower-defense";
 
-    private static readonly TowerType[] Types =
-    [
-        new(ResourceKeys.Games.TowerGun, "#td-gun", 50, 105, 8, 12, "#fde047"),
-        new(ResourceKeys.Games.TowerCannon, "#td-cannon", 100, 90, 20, 36, "#fed7aa"),
-        new(ResourceKeys.Games.TowerFrost, "#td-frost", 75, 90, 2, 20, null)
-    ];
-
-    private static readonly EnemyType Soldier = new("#td-soldier", 8, 1, 1, 10, 1, "#e7e5e4");
-    private static readonly EnemyType Jeep = new("#td-jeep", 11, 0.7, 1.5, 10, 1, "#fb923c");
-    private static readonly EnemyType Tank = new("#td-tank", 15, 8, 0.8, 100, 5, "#fb923c");
-
-    // The road in cell coordinates; it enters and leaves one cell outside the board.
-    private static readonly (int Column, int Row)[] Route = [(-1, 1), (7, 1), (7, 3), (2, 3), (2, 5), (10, 5)];
-
-    private static readonly (double X, double Y)[] Road =
-        [.. Route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0))];
-
-    private static readonly double RoadLength =
-        Road.Zip(Road.Skip(1), (from, to) => double.Hypot(to.X - from.X, to.Y - from.Y)).Sum();
-
-    private static readonly string RoadPoints = string.Join(' ', Road.Select(point => $"{Px(point.X)},{Px(point.Y)}"));
-
-    private static readonly (int Cell, string Sprite)[] Scenery =
-    [
-        (9, "#td-tree"), (19, "#td-tree"), (50, "#td-tree"), (60, "#td-tree"), (30, "#td-rock"), (39, "#td-rock")
-    ];
-
-    // Cells that cannot hold a tower: the road and the scenery.
-    private static readonly HashSet<int> Blocked = [.. RoadCells(), .. Scenery.Select(item => item.Cell)];
-
-    private readonly List<Tower> _towers = [];
-    private readonly List<Enemy> _enemies = [];
-    private readonly List<Shot> _shots = [];
-    private readonly List<Blast> _blasts = [];
+    private readonly HashSet<string> _cleared = [];
     private Action[] _cellClicks = [];
+    private string[] _roadPoints = [];
+    private TowerDefenseMatch? _match;
+    private TowerKind? _buildKind = TowerKind.Gunner;
+    private Tower? _selectedTower;
+    private int _mapIndex;
+    private int _difficultyIndex = 1;
     private int _cursor;
-    private int _selected;
-    private int _wave;
-    private int _toSpawn;
-    private int _timer;
-    private int _tick;
-    private int _lives;
-    private int _gold;
-    private int _score;
+    private int _speed = 1;
+    private bool _endless;
+    private bool _airstrikeArmed;
 
-    private double CursorRange =>
-        _towers.Find(candidate => candidate.Cell == _cursor) is { } tower ? Range(tower) : Types[_selected].Range;
+    private string WaveLabel => _match!.Endless
+        ? L[ResourceKeys.Games.TdWaveEndless, _match.Wave].Value
+        : L[ResourceKeys.Games.TdWaveOf, _match.Wave, _match.TotalWaves].Value;
+
+    private bool CanCallWave =>
+        CanPlay && _match is { State: MatchState.Planning } match && (match.Endless || match.Wave < TowerDefenseData.CampaignWaves);
+
+    private string NextWaveSummary => string.Join(", ", _match!.NextWaveGroups
+        .Select(group => $"{group.Count}x {L[TowerDefenseData.Enemy(group.Kind).NameKey].Value}"));
+
+    private double? CursorRange =>
+        _match!.TowerAt(_cursor) is { } tower ? _match.Range(tower)
+        : _buildKind is { } kind && !_match.IsBlocked(_cursor) ? TowerDefenseData.Tower(kind).Range
+        : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var saved = await ScoreStore.GetProgressAsync(GameKey);
+            foreach (var id in (saved ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                if (TowerDefenseData.Maps.Any(map => map.Id == id))
+                    _cleared.Add(id);
+            }
+        }
+        catch (JSException)
+        {
+        }
+    }
 
     protected override void Reset()
     {
         // Cached so the per-tick render does not hand the renderer a new handler for every cell.
         if (_cellClicks.Length == 0)
-            _cellClicks = [.. Enumerable.Range(0, Columns * Rows).Select(cell => (Action)(() => Build(cell)))];
+            _cellClicks = [.. Enumerable.Range(0, TowerDefenseMatch.Columns * TowerDefenseMatch.Rows).Select(cell => (Action)(() => ActivateCell(cell)))];
 
-        _towers.Clear();
-        _enemies.Clear();
-        _shots.Clear();
-        _blasts.Clear();
-        _cursor = 2 * Columns + 4;
-        _selected = 0;
-        _wave = 0;
-        _tick = 0;
-        _lives = StartLives;
-        _gold = StartGold;
-        _score = 0;
-        StartWave(FirstWaveTicks);
-        StartLoop(TickMilliseconds, Tick);
+        _match = null;
+        _selectedTower = null;
+        _airstrikeArmed = false;
+        _speed = 1;
+        if (!IsUnlocked(_mapIndex))
+            _mapIndex = 0;
     }
 
     protected override void OnKey(string key)
     {
-        var (column, row) = (_cursor % Columns, _cursor / Columns);
+        if (_match is null)
+        {
+            if (key is "enter" or " ")
+                Deploy();
+
+            return;
+        }
+
+        var (column, row) = (_cursor % TowerDefenseMatch.Columns, _cursor / TowerDefenseMatch.Columns);
         switch (key)
         {
             case "arrowleft": column = Math.Max(0, column - 1); break;
-            case "arrowright": column = Math.Min(Columns - 1, column + 1); break;
+            case "arrowright": column = Math.Min(TowerDefenseMatch.Columns - 1, column + 1); break;
             case "arrowup": row = Math.Max(0, row - 1); break;
-            case "arrowdown": row = Math.Min(Rows - 1, row + 1); break;
-            case "1" or "2" or "3": _selected = key[0] - '1'; break;
-            case "enter" or " ": Build(_cursor); break;
+            case "arrowdown": row = Math.Min(TowerDefenseMatch.Rows - 1, row + 1); break;
+            case "1" or "2" or "3" or "4" or "5" or "6": SelectBuild((TowerKind)(key[0] - '1')); break;
+            case "enter" or " ": ActivateCell(_cursor); break;
+            case "d": Upgrade(UpgradeTrack.Damage); break;
+            case "r": Upgrade(UpgradeTrack.Range); break;
+            case "f": Upgrade(UpgradeTrack.FireRate); break;
+            case "x": SellSelected(); break;
+            case "t": CycleTarget(); break;
+            case "n": CallWave(); break;
+            case "a": ToggleAirstrike(); break;
+            case "g": ToggleSpeed(); break;
+            case "escape": _selectedTower = null; _buildKind = null; _airstrikeArmed = false; break;
         }
 
-        _cursor = row * Columns + column;
+        _cursor = row * TowerDefenseMatch.Columns + column;
     }
 
-    // Builds the selected tower on an empty cell, or upgrades the tower already standing there.
-    private void Build(int cell)
+    private bool IsUnlocked(int mapIndex) => mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
+
+    private void Deploy()
     {
-        if (!CanPlay)
+        if (!IsUnlocked(_mapIndex))
             return;
 
-        _cursor = cell;
-        if (Blocked.Contains(cell))
-            return;
-
-        var tower = _towers.Find(candidate => candidate.Cell == cell);
-        var cost = tower is null ? Types[_selected].Cost : Types[tower.Type].Cost * tower.Level;
-        if (_gold < cost || tower?.Level == MaxLevel)
-            return;
-
-        _gold -= cost;
-        if (tower is null)
-            _towers.Add(new Tower { Cell = cell, Type = _selected });
-        else
-            tower.Level++;
+        var map = TowerDefenseData.Maps[_mapIndex];
+        _match = new TowerDefenseMatch(map, TowerDefenseData.Difficulties[_difficultyIndex], _endless);
+        _roadPoints = [.. _match.Roads.Select(road => string.Join(' ', road.Select(point => $"{Px(point.X)},{Px(point.Y)}")))];
+        _cursor = _match.FirstFreeCell(3 * TowerDefenseMatch.Columns + 4);
+        _buildKind = TowerKind.Gunner;
+        _selectedTower = null;
+        _airstrikeArmed = false;
+        RestartClock();
+        StartLoop(TowerDefenseMatch.TickMilliseconds, Tick);
     }
 
     private void Tick()
     {
-        _tick++;
-        _shots.RemoveAll(shot => shot.ExpiresAt <= _tick);
-        _blasts.RemoveAll(blast => _tick - blast.Start >= BlastTicks);
-        Spawn();
+        for (var i = 0; i < _speed && !_match!.IsOver; i++)
+            _match!.Advance();
 
-        foreach (var enemy in _enemies)
+        if (!_match!.IsOver)
+            return;
+
+        var won = _match.State == MatchState.Won;
+        if (won && _cleared.Add(_match.Map.Id))
+            _ = SaveProgressAsync();
+
+        var mode = $"{_match.Difficulty.Id}-{(_match.Endless ? "endless" : "campaign")}";
+        Finish(_match.FinalScore, mode, won);
+    }
+
+    private async Task SaveProgressAsync()
+    {
+        try
         {
-            enemy.Distance += enemy.Speed * (enemy.SlowTicks > 0 ? 0.5 : 1);
-            enemy.SlowTicks = Math.Max(0, enemy.SlowTicks - 1);
-            var (x, y) = GameLogic.PointOnPath(Road, enemy.Distance);
-            if (x != enemy.X || y != enemy.Y)
-                enemy.Angle = Degrees(x - enemy.X, y - enemy.Y);
-
-            (enemy.X, enemy.Y) = (x, y);
+            await ScoreStore.SetProgressAsync(GameKey, string.Join(',', _cleared.Order()));
         }
-
-        _lives = Math.Max(0, _lives - _enemies.RemoveAll(enemy => enemy.Distance >= RoadLength));
-        if (_lives == 0)
+        catch (JSException)
         {
-            Finish(Math.Min(_score, MaxScore));
+        }
+    }
+
+    private void SelectBuild(TowerKind kind)
+    {
+        if (!CanPlay)
+            return;
+
+        _buildKind = kind;
+        _selectedTower = null;
+        _airstrikeArmed = false;
+    }
+
+    private void ActivateCell(int cell)
+    {
+        if (!CanPlay || _match is null)
+            return;
+
+        _cursor = cell;
+        if (_airstrikeArmed)
+        {
+            _match.Airstrike(TowerDefenseMatch.CellX(cell), TowerDefenseMatch.CellY(cell));
+            _airstrikeArmed = false;
             return;
         }
 
-        foreach (var tower in _towers)
-            Fire(tower);
-
-        foreach (var enemy in _enemies)
+        if (_match.TowerAt(cell) is { } tower)
         {
-            if (enemy.Health > 0)
-                continue;
-
-            _gold += (5 + _wave) * enemy.Type.Gold;
-            _score += enemy.Type.Score;
-            _blasts.Add(new Blast(enemy.X, enemy.Y, enemy.Type.Radius * 1.8, enemy.Type.DeathColor, false, _tick));
-        }
-
-        _enemies.RemoveAll(enemy => enemy.Health <= 0);
-    }
-
-    // Enemies of a wave enter one by one; the next wave starts once the board is clear.
-    private void Spawn()
-    {
-        if (_toSpawn == 0)
-        {
-            if (_enemies.Count == 0 && --_timer <= 0)
-                StartWave(0);
-
+            _selectedTower = tower;
             return;
         }
 
-        if (--_timer > 0)
-            return;
-
-        _toSpawn--;
-        _timer = _toSpawn > 0 ? SpawnTicks : WaveBreakTicks;
-
-        // Every fifth wave ends with a tank, and jeeps join the column from wave three.
-        var type = _wave % 5 == 0 && _toSpawn == 0 ? Tank : _wave >= 3 && _toSpawn % 4 == 1 ? Jeep : Soldier;
-        var health = 40 * Math.Pow(1.18, _wave - 1) * type.Health;
-        _enemies.Add(new Enemy
-        {
-            Type = type,
-            X = Road[0].X,
-            Y = Road[0].Y,
-            Health = health,
-            MaxHealth = health,
-            Speed = (1.3 + Math.Min(_wave, 20) * 0.04) * type.Speed
-        });
+        _selectedTower = _buildKind is { } kind ? _match.Build(cell, kind) : null;
     }
 
-    private void StartWave(int delayTicks)
+    private void Upgrade(UpgradeTrack track)
     {
-        _wave++;
-        _toSpawn = 6 + _wave;
-        _timer = delayTicks;
+        if (CanPlay && _selectedTower is { } tower)
+            _match!.Upgrade(tower, track);
     }
 
-    private void Fire(Tower tower)
+    private void SellSelected()
     {
-        if (tower.Cooldown > 0)
-        {
-            tower.Cooldown--;
-            return;
-        }
-
-        var type = Types[tower.Type];
-        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
-        var range = Range(tower);
-        var target = _enemies
-            .Where(enemy => enemy.Health > 0 && double.Hypot(enemy.X - x, enemy.Y - y) <= range)
-            .MaxBy(enemy => enemy.Distance);
-        if (target is null)
-            return;
-
-        tower.Cooldown = type.Cooldown;
-        tower.Angle = Degrees(target.X - x, target.Y - y);
-        if (type.ShotColor is not null)
-        {
-            var radians = tower.Angle * Math.PI / 180;
-            tower.FlashUntil = _tick + ShotTicks;
-            _shots.Add(new Shot(x + BarrelLength * Math.Cos(radians), y + BarrelLength * Math.Sin(radians),
-                target.X, target.Y, type.ShotColor, _tick + ShotTicks));
-        }
-
-        // The gun hits its target only, the cannon splashes around it, frost chills its whole range.
-        var (centerX, centerY, radius) = tower.Type switch
-        {
-            Cannon => (target.X, target.Y, SplashRadius),
-            Frost => (x, y, range),
-            _ => (target.X, target.Y, 0d)
-        };
-        if (radius > 0)
-            _blasts.Add(new Blast(centerX, centerY, radius, tower.Type == Frost ? "#a5f3fc" : "#fb923c", tower.Type == Frost, _tick));
-
-        foreach (var enemy in _enemies)
-        {
-            if (double.Hypot(enemy.X - centerX, enemy.Y - centerY) > radius)
-                continue;
-
-            enemy.Health -= type.Damage * tower.Level;
-            if (tower.Type == Frost)
-                enemy.SlowTicks = ChillTicks;
-        }
+        if (CanPlay && _selectedTower is { } tower && _match!.Sell(tower))
+            _selectedTower = null;
     }
 
-    private static double Range(Tower tower) => Types[tower.Type].Range + (tower.Level - 1) * RangePerLevel;
-
-    private static double Degrees(double dx, double dy) => Math.Atan2(dy, dx) * 180 / Math.PI;
-
-    private static int CellX(int cell) => cell % Columns * CellSize + CellSize / 2;
-
-    private static int CellY(int cell) => Top + cell / Columns * CellSize + CellSize / 2;
-
-    private static HashSet<int> RoadCells()
+    private void CycleTarget()
     {
-        var cells = new HashSet<int>();
-        for (var i = 1; i < Route.Length; i++)
-        {
-            var (column, row) = Route[i - 1];
-            var (endColumn, endRow) = Route[i];
-            while (true)
-            {
-                if (column is >= 0 and < Columns)
-                    cells.Add(row * Columns + column);
-                if ((column, row) == (endColumn, endRow))
-                    break;
-
-                column += Math.Sign(endColumn - column);
-                row += Math.Sign(endRow - row);
-            }
-        }
-
-        return cells;
+        if (CanPlay && _selectedTower is { } tower)
+            _match!.CycleTarget(tower);
     }
 
-    private sealed record TowerType(string NameKey, string Sprite, int Cost, double Range, double Damage, int Cooldown, string? ShotColor);
-
-    private sealed record EnemyType(string Sprite, int Radius, double Health, double Speed, int Score, int Gold, string DeathColor);
-
-    private readonly record struct Shot(double X1, double Y1, double X2, double Y2, string Color, int ExpiresAt);
-
-    private readonly record struct Blast(double X, double Y, double Radius, string Color, bool Ring, int Start);
-
-    private sealed class Tower
+    private void CallWave()
     {
-        public int Cell { get; init; }
-        public int Type { get; init; }
-        public int Level { get; set; } = 1;
-        public int Cooldown { get; set; }
-        public double Angle { get; set; }
-        public int FlashUntil { get; set; }
+        if (CanCallWave)
+            _match!.StartWave();
     }
 
-    private sealed class Enemy
+    private void ToggleAirstrike()
     {
-        public required EnemyType Type { get; init; }
-        public double Distance { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Angle { get; set; }
-        public double Health { get; set; }
-        public double MaxHealth { get; init; }
-        public double Speed { get; init; }
-        public int SlowTicks { get; set; }
+        if (CanPlay)
+            _airstrikeArmed = !_airstrikeArmed && _match!.State == MatchState.Running && _match.AirstrikeReady;
     }
+
+    private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
+
+    private static string Href(string icon) => $"{ThaixIcons.SpritePath}#{icon}";
+
+    private static double ShotsPerSecond(int cooldownTicks) => 1000.0 / (TowerDefenseMatch.TickMilliseconds * (cooldownTicks + 1));
+
+    private static string UpgradeKey(UpgradeTrack track) => track switch
+    {
+        UpgradeTrack.Damage => "D",
+        UpgradeTrack.Range => "R",
+        _ => "F"
+    };
+
+    private static string UpgradeLabel(UpgradeTrack track) => track switch
+    {
+        UpgradeTrack.Damage => ResourceKeys.Games.TdUpgradeDamage,
+        UpgradeTrack.Range => ResourceKeys.Games.TdUpgradeRange,
+        _ => ResourceKeys.Games.TdUpgradeFireRate
+    };
+
+    private static string TargetLabel(TargetMode mode) => mode switch
+    {
+        TargetMode.Strongest => ResourceKeys.Games.TdTargetStrongest,
+        TargetMode.Closest => ResourceKeys.Games.TdTargetClosest,
+        _ => ResourceKeys.Games.TdTargetFirst
+    };
 }

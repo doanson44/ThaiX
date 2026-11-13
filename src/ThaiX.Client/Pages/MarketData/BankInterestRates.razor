@@ -41,7 +41,7 @@
                     @L[RK.BankInterestRates.Subtitle]
                 </RadzenText>
             </RadzenStack>
-            <RadzenButton Icon="calculate"
+            <ThaiXButton Icon="calculate"
                           Text="@L[RK.BankInterestRates.CompoundInterestCalculator]"
                           ButtonStyle="ButtonStyle.Primary"
                           Size="ButtonSize.Medium"
@@ -62,9 +62,9 @@
             }
             else if (!_filteredBanks.Any())
             {
-                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @L[RK.Common.NoDataFound]
-                </RadzenAlert>
+                </ThaiXAlert>
             }
             else
             {
@@ -103,7 +103,7 @@
                                      AlignItems="AlignItems.Center"
                                      JustifyContent="JustifyContent.End"
                                      Gap="0.35rem">
-                            <RadzenButton Icon="chevron_left"
+                            <ThaiXButton Icon="chevron_left"
                                           ButtonStyle="ButtonStyle.Light"
                                           Size="ButtonSize.Small"
                                           Disabled="@(_pageIndex <= 0)"
@@ -112,7 +112,7 @@
                             <RadzenText TextStyle="TextStyle.Caption" Class="text-muted mb-0 text-nowrap">
                                 @string.Format(L[RK.VnDirectChangePrices.PageOf], _pageIndex + 1, TotalPages)
                             </RadzenText>
-                            <RadzenButton Icon="chevron_right"
+                            <ThaiXButton Icon="chevron_right"
                                           ButtonStyle="ButtonStyle.Light"
                                           Size="ButtonSize.Small"
                                           Disabled="@(_pageIndex >= TotalPages - 1)"
@@ -199,9 +199,9 @@
                                 PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                                 PageSizeOptions="@(new[] { 10, 25, 50, 100 })">
                     <EmptyTemplate>
-                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                             @L[RK.Common.NoDataFound]
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     </EmptyTemplate>
                     <Columns>
                         <RadzenDataGridColumn TItem="BankInterestRateGridItemDto"

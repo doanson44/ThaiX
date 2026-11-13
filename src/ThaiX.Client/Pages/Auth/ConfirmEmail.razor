@@ -20,18 +20,18 @@
 }
 else if (_confirmed)
 {
-    <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" ShowIcon="true">
+    <ThaiXAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat" ShowIcon="true">
         @L[RK.Account.ConfirmEmailSuccess]
-    </RadzenAlert>
+    </ThaiXAlert>
     <div class="mt-3">
         <RadzenLink Path="/auth/login" Text="@L[RK.Auth.LoginLinkGoToLogin]" />
     </div>
 }
 else
 {
-    <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" ShowIcon="true">
+    <ThaiXAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" ShowIcon="true">
         @_errorMessage
-    </RadzenAlert>
+    </ThaiXAlert>
     <div class="mt-3">
         <RadzenLink Path="/auth/login" Text="@L[RK.Auth.LoginLinkGoToLogin]" />
     </div>

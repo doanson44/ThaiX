@@ -155,11 +155,11 @@
                          Gap="0.5rem"
                          JustifyContent="JustifyContent.End"
                          Wrap="FlexWrap.Wrap">
-                <RadzenButton Text="@L[RK.Common.Cancel]"
+                <ThaiXButton Text="@L[RK.Common.Cancel]"
                               ButtonStyle="ButtonStyle.Secondary"
                               Click="@Cancel"
                               Disabled="@_isSubmitting" />
-                <RadzenButton Text="@(_isEdit ? L[RK.NotificationSchedules.Action.Update] : L[RK.NotificationSchedules.Action.Create])"
+                <ThaiXButton Text="@(_isEdit ? L[RK.NotificationSchedules.Action.Update] : L[RK.NotificationSchedules.Action.Create])"
                               ButtonType="ButtonType.Submit"
                               ButtonStyle="ButtonStyle.Primary"
                               Disabled="@_isSubmitting" />
