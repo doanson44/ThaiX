@@ -16,7 +16,7 @@
                      Class="ThaiX-tools__header">
             <RadzenStack Gap="0.25rem" Class="ThaiX-tools__title-block">
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="ThaiX-tools__title-row">
-                    <RadzenButton Icon="arrow_back"
+                    <ThaiXButton Icon="arrow_back"
                                   ButtonStyle="ButtonStyle.Light"
                                   Size="ButtonSize.Small"
                                   Click="@(() => Navigation.NavigateTo("/tools"))"
@@ -53,9 +53,9 @@
             </RadzenStack>
         </RadzenStack>
 
-        <RadzenAlert AlertStyle="AlertStyle.Info" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
+        <ThaiXAlert AlertStyle="AlertStyle.Info" Shade="Shade.Lighter" AllowClose="false" Class="ThaiX-tools__alert">
             @L[_privacyMessageKey]
-        </RadzenAlert>
+        </ThaiXAlert>
 
         @if (!string.IsNullOrWhiteSpace(_shareUrl))
         {
@@ -66,7 +66,7 @@
                              AlignItems="@(Viewport.IsMobile ? AlignItems.Stretch : AlignItems.Start)"
                              Class="w-100">
                     <RadzenTextBox Value="@_shareUrl" ReadOnly="true" Class="w-100 font-monospace ThaiX-tools__share-url" />
-                    <RadzenButton Icon="content_copy"
+                    <ThaiXButton Icon="content_copy"
                                   Text="@(Viewport.IsMobile ? L[RK.Common.Copy].Value : null)"
                                   ButtonStyle="ButtonStyle.Light"
                                   Click="@CopyShareUrlAsync"

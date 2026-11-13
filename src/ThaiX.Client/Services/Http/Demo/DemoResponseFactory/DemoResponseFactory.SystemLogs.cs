@@ -7,7 +7,7 @@ namespace ThaiX.Client.Services.Http.Demo;
 
 public sealed partial class DemoResponseFactory
 {
-    private static readonly string DemoLogFileName = "thaix-demo.log";
+    private static readonly string DemoLogFileName = "ThaiX-demo.log";
 
     private HttpResponseMessage HandleSystemLogs(string method, string path)
     {

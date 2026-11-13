@@ -59,7 +59,7 @@
             }
 
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                <RadzenButton Text="@L[RK.Users.Create]"
+                <ThaiXButton Text="@L[RK.Users.Create]"
                               Icon="person_add"
                               ButtonType="ButtonType.Submit"
                               ButtonStyle="ButtonStyle.Primary"
@@ -124,7 +124,7 @@ else
                                                 <RadzenText class="mb-0">@_linkedContact.DisplayName</RadzenText>
                                                 @if (!IsViewMode)
                                                 {
-                                                    <RadzenButton Icon="link_off"
+                                                    <ThaiXButton Icon="link_off"
                                                                   ButtonStyle="ButtonStyle.Light"
                                                                   Size="ButtonSize.Small"
                                                                   Text="@L[RK.Users.UnlinkContact]"
@@ -144,7 +144,7 @@ else
                             @if (!IsViewMode)
                             {
                                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                                    <RadzenButton Text="@L[RK.Common.Save]"
+                                    <ThaiXButton Text="@L[RK.Common.Save]"
                                                   Icon="save"
                                                   ButtonType="ButtonType.Submit"
                                                   ButtonStyle="ButtonStyle.Primary"
@@ -175,7 +175,7 @@ else
                                         @if (_canManagePermissions)
                                         {
                                             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                                                <RadzenButton Text="@L[RK.Users.ApplyPermissions]"
+                                                <ThaiXButton Text="@L[RK.Users.ApplyPermissions]"
                                                               Icon="admin_panel_settings"
                                                               ButtonType="ButtonType.Submit"
                                                               ButtonStyle="ButtonStyle.Primary"
@@ -218,7 +218,7 @@ else
                                 </RadzenCard>
 
                                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                                    <RadzenButton Text="@L[RK.Users.ApplyLockout]"
+                                    <ThaiXButton Text="@L[RK.Users.ApplyLockout]"
                                                   Icon="lock"
                                                   ButtonType="ButtonType.Submit"
                                                   ButtonStyle="ButtonStyle.Warning"
@@ -255,7 +255,7 @@ else
                                 </RadzenCard>
 
                                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-                                    <RadzenButton Text="@L[RK.Users.ResetPassword]"
+                                    <ThaiXButton Text="@L[RK.Users.ResetPassword]"
                                                   Icon="password"
                                                   ButtonType="ButtonType.Submit"
                                                   ButtonStyle="ButtonStyle.Danger"
@@ -265,9 +265,9 @@ else
 
                                 @if (!string.IsNullOrWhiteSpace(_temporaryPasswordResult))
                                 {
-                                    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                                    <ThaiXAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
                                         @L[RK.Users.TemporaryPassword] @_temporaryPasswordResult
-                                    </RadzenAlert>
+                                    </ThaiXAlert>
                                 }
                             </RadzenStack>
                         </RadzenTemplateForm>

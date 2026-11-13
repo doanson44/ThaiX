@@ -10,9 +10,9 @@
 <RadzenCard Class="h-100 w-100">
     @if (!Data.Success)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @(Data.Message ?? L[RK.BitcoinMarket.LoadFailed])
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else
     {

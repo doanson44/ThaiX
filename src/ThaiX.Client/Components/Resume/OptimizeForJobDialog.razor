@@ -12,7 +12,7 @@
     </RadzenFormField>
 
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-        <RadzenButton Text="@L[RK.Resume.Analyze]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Primary"
+        <ThaiXButton Text="@L[RK.Resume.Analyze]" Icon="auto_awesome" ButtonStyle="ButtonStyle.Primary"
                       IsBusy="@_isAnalyzing" Disabled="@(_isAnalyzing || string.IsNullOrWhiteSpace(_jobDescription))"
                       Click="AnalyzeAsync" />
     </RadzenStack>
@@ -25,7 +25,7 @@
     }
 
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-        <RadzenButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+        <ThaiXButton Text="@L[RK.Common.Close]" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
     </RadzenStack>
 </RadzenStack>
 

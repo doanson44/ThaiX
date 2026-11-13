@@ -25,7 +25,7 @@
         <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
             @L[RK.MexcSpotTicker24Hr.Title]
         </RadzenText>
-        <RadzenButton Text="@L[RK.MexcSpotTicker24Hr.RunWeeklySuggestionJob]"
+        <ThaiXButton Text="@L[RK.MexcSpotTicker24Hr.RunWeeklySuggestionJob]"
                       Icon="play_arrow"
                       ButtonStyle="ButtonStyle.Secondary"
                       Size="ButtonSize.Small"
@@ -58,9 +58,9 @@
         }
         else if (!_filteredTickers.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.MexcSpotTicker24Hr.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
     </RadzenStack>
 
@@ -155,7 +155,7 @@
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="MexcSpotTicker24HrDto" Property="Count" Title="@L[RK.MexcSpotTicker24Hr.Count]" />
                     <RadzenDataGridColumn MinWidth="9.375rem" TItem="MexcSpotTicker24HrDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]">
                         <Template Context="ticker">
-                            <RadzenButton Size="ButtonSize.Small"
+                            <ThaiXButton Size="ButtonSize.Small"
                                           Icon="insights"
                                           Text="@L[RK.TradingSuggestion.Action]"
                                           Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.CryptoSpot))" />
@@ -213,7 +213,7 @@
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.OpenTime]: @(DateTimeOffset.FromUnixTimeMilliseconds(ticker.OpenTime).LocalDateTime.ToString("g"))</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.CloseTime]: @(DateTimeOffset.FromUnixTimeMilliseconds(ticker.CloseTime).LocalDateTime.ToString("g"))</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.MexcSpotTicker24Hr.Count]: @(ticker.Count?.ToString() ?? "-")</RadzenText>
-                        <RadzenButton Size="ButtonSize.Small"
+                        <ThaiXButton Size="ButtonSize.Small"
                                       Icon="insights"
                                       Text="@L[RK.TradingSuggestion.Action]"
                                       Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol, MarketType.CryptoSpot))" />

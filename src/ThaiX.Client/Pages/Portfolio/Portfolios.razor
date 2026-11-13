@@ -115,20 +115,20 @@
                             <RadzenDataGridColumn TItem="PortfolioListItemDto" Title="@L[RK.Contacts.Actions]" Sortable="false" Width="140px">
                                 <Template Context="item">
                                     <div class="d-flex gap-1">
-                                        <RadzenButton Icon="visibility"
+                                        <ThaiXButton Icon="visibility"
                                                       ButtonStyle="ButtonStyle.Info"
                                                       Size="ButtonSize.Small"
                                                       Click="@(() => Navigation.NavigateTo($"/portfolio/{item.Id}"))" />
                                         @if (_canWrite)
                                         {
-                                            <RadzenButton Icon="edit"
+                                            <ThaiXButton Icon="edit"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Size="ButtonSize.Small"
                                                           Click="@(() => OpenEditDialogAsync(item))" />
                                         }
                                         @if (_canDelete)
                                         {
-                                            <RadzenButton Icon="delete"
+                                            <ThaiXButton Icon="delete"
                                                           ButtonStyle="ButtonStyle.Danger"
                                                           Size="ButtonSize.Small"
                                                           Click="@(() => ConfirmDeleteAsync(item))" />

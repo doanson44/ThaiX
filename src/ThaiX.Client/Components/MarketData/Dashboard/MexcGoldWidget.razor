@@ -18,9 +18,9 @@
     }
     else if (_data is null || !_data.Success)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @(_data?.Message ?? L[RK.GoldMarket.LoadFailed])
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else
     {

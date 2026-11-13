@@ -1,0 +1,62 @@
+<RadzenAlert AlertStyle="@AlertStyle"
+             Variant="@Variant"
+             Shade="@Shade"
+             AllowClose="@AllowClose"
+             Close="@Close"
+             ShowIcon="false"
+             Size="@Size"
+             Class="@Class"
+             Style="@Style"
+             @attributes="AdditionalAttributes">
+    <ChildContent>
+        @if (ShowIcon)
+        {
+            <ThaiXIcon Name="@IconName" Class="rz-alert-icon tx-alert-glyph me-2" Size="1.25rem" />
+        }
+        @ChildContent
+    </ChildContent>
+</RadzenAlert>
+
+@code {
+    [Parameter]
+    public AlertStyle AlertStyle { get; set; } = AlertStyle.Primary;
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+
+    [Parameter]
+    public Shade Shade { get; set; } = Shade.Default;
+
+    [Parameter]
+    public bool AllowClose { get; set; }
+
+    [Parameter]
+    public EventCallback Close { get; set; }
+
+    [Parameter]
+    public bool ShowIcon { get; set; } = true;
+
+    [Parameter]
+    public AlertSize Size { get; set; } = AlertSize.Medium;
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string IconName => AlertStyle switch
+    {
+        AlertStyle.Success => "check_circle",
+        AlertStyle.Warning => "warning",
+        AlertStyle.Danger => "cancel",
+        AlertStyle.Info => "insights",
+        _ => "alert"
+    };
+}

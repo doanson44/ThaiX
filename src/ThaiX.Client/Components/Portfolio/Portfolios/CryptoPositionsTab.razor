@@ -24,7 +24,7 @@
             {
                 <small class="text-muted">@_lastPriceUpdate.Value.ToLocalTime().ToString("HH:mm")</small>
             }
-            <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
+            <ThaiXButton Icon="refresh" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.ExtraSmall"
                           Click="@RefreshPricesAsync" Disabled="@_pricesLoading"
                           title="@L[RK.AssetPositions.RefreshPrices]" />
             @if (CanWrite)
@@ -97,12 +97,12 @@
                         <div class="d-flex gap-1">
                             @if (CanWrite && !item.IsClosed)
                             {
-                                <RadzenButton Icon="add" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small"
+                                <ThaiXButton Icon="add" ButtonStyle="ButtonStyle.Info" Size="ButtonSize.Small"
                                               Click="@(() => OpenAddTransactionDialogAsync(item))" />
                             }
                             @if (CanDelete)
                             {
-                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
                                               Click="@(() => ConfirmDeleteAsync(item))" />
                             }
                         </div>

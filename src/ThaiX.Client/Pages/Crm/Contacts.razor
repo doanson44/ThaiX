@@ -52,7 +52,7 @@
                                            Placeholder="@L[RK.Contacts.SearchPlaceholder]"
                                            Change="@(_ => ApplyFiltersAsync())" />
                             <InputGroupSearchButton Click="@ApplyFiltersAsync" />
-                            <RadzenButton Icon="close"
+                            <ThaiXButton Icon="close"
                                           ButtonStyle="ButtonStyle.Light"
                                           Click="@ResetFiltersAsync"
                                           aria-label="@L[RK.Common.Cancel]" />
@@ -68,12 +68,12 @@
                     <RadzenColumn Size="12" SizeMD="6">
                         <RadzenLabel Text="@L[RK.Contacts.FilterArchive]" />
                         <RadzenDropDown TValue="string"
-                                        @bind-Value="_archiveFilter"
-                                        Data="@ArchiveFilterOptions"
+                                        Value="@_archiveFilter"
+                                        ValueChanged="@OnArchiveFilterChangedAsync"
+                                        Data="@_archiveFilterOptions"
                                         TextProperty="Label"
                                         ValueProperty="Value"
-                                        class="w-100"
-                                        Change="@(_ => ApplyFiltersAsync())" />
+                                        class="w-100" />
                     </RadzenColumn>
 
                     @if (_canWrite)
@@ -136,7 +136,7 @@
                         <Columns>
                             <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.AvatarUrl]" Width="60px">
                                 <Template>
-                                    <RadzenIcon Icon="person" />
+                                    <ThaiXIcon Icon="person" />
                                 </Template>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ContactListItemDto" Property="DisplayName" Title="@L[RK.Contacts.Name]" />
@@ -146,7 +146,7 @@
                                     {
                                         <span class="d-inline-flex align-items-center gap-1">
                                             <a href="mailto:@item.PrimaryEmail" class="text-decoration-none">@item.PrimaryEmail</a>
-                                            <RadzenButton Icon="content_copy"
+                                            <ThaiXButton Icon="content_copy"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Variant="Variant.Flat"
                                                           Size="ButtonSize.ExtraSmall"
@@ -162,7 +162,7 @@
                                     {
                                         <span class="d-inline-flex align-items-center gap-1">
                                             <a href="tel:@item.PrimaryPhone" class="text-decoration-none">@item.PrimaryPhone</a>
-                                            <RadzenButton Icon="content_copy"
+                                            <ThaiXButton Icon="content_copy"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Variant="Variant.Flat"
                                                           Size="ButtonSize.ExtraSmall"
@@ -182,14 +182,14 @@
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.Actions]" Width="130px" Sortable="false" Filterable="false">
                                 <Template Context="item">
-                                    <RadzenButton Icon="@(_canWrite ? "edit" : "visibility")"
+                                    <ThaiXButton Icon="@(_canWrite ? "edit" : "visibility")"
                                                   ButtonStyle="@(_canWrite ? ButtonStyle.Primary : ButtonStyle.Light)"
                                                   Variant="Variant.Flat"
                                                   Size="ButtonSize.Small"
                                                   Click="@(() => OpenContactDialogAsync(item, _canWrite ? Edit : View))" />
                                     @if (_canDelete)
                                     {
-                                        <RadzenButton Icon="delete"
+                                        <ThaiXButton Icon="delete"
                                                       ButtonStyle="ButtonStyle.Danger"
                                                       Variant="Variant.Flat"
                                                       Size="ButtonSize.Small"
@@ -220,7 +220,7 @@
                                     <RadzenStack Gap="0.75rem">
                                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                                             <div class="d-flex align-items-center gap-2">
-                                                <RadzenIcon Icon="person" />
+                                                <ThaiXIcon Icon="person" />
                                                 <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@item.DisplayName</RadzenText>
                                             </div>
                                             <RadzenBadge Text="@(item.IsArchived ? L[RK.Contacts.FilterArchiveArchived] : L[RK.Contacts.FilterArchiveActive])"
@@ -284,12 +284,20 @@
     private string? _tagFilter;
     private string _archiveFilter = "active";
     private IBrowserFile? _selectedFile;
+    private IReadOnlyList<ArchiveFilterOption> _archiveFilterOptions = [];
 
     protected override async Task OnInitializedAsync()
     {
         var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
         _canWrite = user.HasClaim("scope", PermissionNames.ContactWrite);
         _canDelete = user.HasClaim("scope", PermissionNames.ContactDelete);
+
+        _archiveFilterOptions =
+        [
+            new("all", L[RK.Contacts.FilterArchiveAll].Value),
+            new("active", L[RK.Contacts.FilterArchiveActive].Value),
+            new("archived", L[RK.Contacts.FilterArchiveArchived].Value)
+        ];
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -299,7 +307,11 @@
             return;
         }
 
-        if (_grid is not null)
+        if (Viewport.IsMobile)
+        {
+            await LoadDataAsync(new LoadDataArgs { Skip = 0, Top = _pageSize });
+        }
+        else if (_grid is not null)
         {
             await _grid.Reload();
         }
@@ -349,6 +361,17 @@
     {
         _currentPage = 1;
         await ReloadAsync();
+    }
+
+    private async Task OnArchiveFilterChangedAsync(string value)
+    {
+        if (string.Equals(_archiveFilter, value, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _archiveFilter = value;
+        await ApplyFiltersAsync();
     }
 
     private async Task ResetFiltersAsync()
@@ -540,13 +563,6 @@
             CloseDialogOnOverlayClick = false
         };
     }
-
-    private IReadOnlyList<ArchiveFilterOption> ArchiveFilterOptions =>
-    [
-        new("all", L[RK.Contacts.FilterArchiveAll].Value),
-        new("active", L[RK.Contacts.FilterArchiveActive].Value),
-        new("archived", L[RK.Contacts.FilterArchiveArchived].Value)
-    ];
 
     private static bool? ParseArchiveFilter(string value) => value switch
     {

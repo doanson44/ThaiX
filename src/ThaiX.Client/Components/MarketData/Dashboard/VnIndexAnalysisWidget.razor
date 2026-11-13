@@ -29,9 +29,9 @@
                     }
                     else if (_analysis is null || !_analysis.Success)
                     {
-                        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                             @(_analysis?.Message ?? L[RK.VnIndexAnalysis.LoadFailed])
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     }
                     else
                     {
@@ -147,9 +147,9 @@
                         }
                         else
                         {
-                            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                                 @L[RK.VnIndexAnalysis.NeutralNote]
-                            </RadzenAlert>
+                            </ThaiXAlert>
                         }
     
                     }

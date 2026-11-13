@@ -20,7 +20,7 @@
                      Wrap="FlexWrap.Wrap"
                      Gap="0.5rem">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
-                <RadzenButton Icon="arrow_back"
+                <ThaiXButton Icon="arrow_back"
                               ButtonStyle="ButtonStyle.Light"
                               Size="ButtonSize.Small"
                               Click="@(() => Navigation.NavigateTo("/admin/json-bins"))" />
@@ -59,12 +59,12 @@
                             </RadzenFormField>
                             @if (!string.IsNullOrWhiteSpace(_codeHint))
                             {
-                                <RadzenAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
+                                <ThaiXAlert AlertStyle="@(_codeAvailable ? AlertStyle.Success : AlertStyle.Danger)"
                                              Shade="Shade.Lighter"
                                              AllowClose="false"
                                              Class="rz-mt-2">
                                     @_codeHint
-                                </RadzenAlert>
+                                </ThaiXAlert>
                             }
                         </RadzenColumn>
                         <RadzenColumn Size="12" SizeMD="6">

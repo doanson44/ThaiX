@@ -28,14 +28,14 @@
         }
 
         <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-            <RadzenButton Text="@L[RK.Account.PersonalDataDownload]"
+            <ThaiXButton Text="@L[RK.Account.PersonalDataDownload]"
                           Icon="download"
                           Click="DownloadDataAsFileAsync"
                           Disabled="@(_isDownloading || _personalData is null)"
                           IsBusy="@_isDownloading"
                           ButtonStyle="ButtonStyle.Primary" />
 
-            <RadzenButton Text="@L[RK.Account.PersonalDataDelete]"
+            <ThaiXButton Text="@L[RK.Account.PersonalDataDelete]"
                           Icon="delete_forever"
                           Click="@(() => _showDeleteConfirm = true)"
                           ButtonStyle="ButtonStyle.Danger" />
@@ -46,21 +46,21 @@
     {
         <RadzenCard Variant="Variant.Outlined" class="border border-danger border-2">
             <RadzenStack Gap="0.75rem">
-                <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat">
+                <ThaiXAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat">
                     @L[RK.Account.PersonalDataDeleteWarning]
-                </RadzenAlert>
+                </ThaiXAlert>
 
                 <RadzenLabel Text="@L[RK.Auth.Password]" />
                 <RadzenPassword @bind-Value="_deletePassword" class="w-100" />
 
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                    <RadzenButton Text="@L[RK.Account.PersonalDataDeleteConfirm]"
+                    <ThaiXButton Text="@L[RK.Account.PersonalDataDeleteConfirm]"
                                   Icon="delete_forever"
                                   Click="DeleteAccountAsync"
                                   Disabled="@_isDeleting"
                                   IsBusy="@_isDeleting"
                                   ButtonStyle="ButtonStyle.Danger" />
-                    <RadzenButton Text="@L[RK.Common.Cancel]"
+                    <ThaiXButton Text="@L[RK.Common.Cancel]"
                                   Click="@(() => _showDeleteConfirm = false)"
                                   ButtonStyle="ButtonStyle.Light" />
                 </RadzenStack>

@@ -1,0 +1,89 @@
+<RadzenButton ButtonStyle="@ButtonStyle"
+              ButtonType="@ButtonType"
+              Size="@Size"
+              Variant="@Variant"
+              Shade="@Shade"
+              IsBusy="@IsBusy"
+              Disabled="@Disabled"
+              @attributes="@ForwardedAttributes"
+              class="@Class"
+              style="@Style"
+              Click="@Click">
+    <ChildContent>
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
+        }
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrWhiteSpace(Text))
+        {
+            <span>@Text</span>
+        }
+    </ChildContent>
+</RadzenButton>
+
+@code {
+    [Parameter]
+    public string? Text { get; set; }
+
+    [Parameter]
+    public string? Icon { get; set; }
+
+    [Parameter]
+    public ButtonStyle ButtonStyle { get; set; } = ButtonStyle.Primary;
+
+    [Parameter]
+    public ButtonType ButtonType { get; set; } = ButtonType.Button;
+
+    [Parameter]
+    public ButtonSize Size { get; set; } = ButtonSize.Medium;
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+
+    [Parameter]
+    public Shade Shade { get; set; } = Shade.Default;
+
+    [Parameter]
+    public bool IsBusy { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? AriaLabel { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> Click { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private Dictionary<string, object> ForwardedAttributes
+    {
+        get
+        {
+            var attributes = AdditionalAttributes is null
+                ? new Dictionary<string, object>()
+                : new Dictionary<string, object>(AdditionalAttributes);
+            if (!string.IsNullOrWhiteSpace(Title)) attributes["title"] = Title;
+            if (!string.IsNullOrWhiteSpace(AriaLabel)) attributes["aria-label"] = AriaLabel;
+            return attributes;
+        }
+    }
+}

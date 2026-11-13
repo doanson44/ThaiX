@@ -14,8 +14,8 @@
 <RadzenText TextStyle="TextStyle.H4">@L[RK.Auth.LoginTitle]</RadzenText>
 
 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" class="mb-3">
-    <RadzenButton Text="@L[RK.Auth.LoginWithPassword]" ButtonType="ButtonType.Button" ButtonStyle="@(!_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(false))" />
-    <RadzenButton Text="@L[RK.Auth.LoginWithEmailOtp]" ButtonType="ButtonType.Button" ButtonStyle="@(_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(true))" />
+    <ThaiXButton Text="@L[RK.Auth.LoginWithPassword]" ButtonType="ButtonType.Button" ButtonStyle="@(!_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(false))" />
+    <ThaiXButton Text="@L[RK.Auth.LoginWithEmailOtp]" ButtonType="ButtonType.Button" ButtonStyle="@(_useEmailOtp ? ButtonStyle.Primary : ButtonStyle.Light)" Click="@(() => SetLoginMode(true))" />
 </RadzenStack>
 
 @if (!_useEmailOtp)
@@ -52,7 +52,7 @@
     </div>
 
     <div class="mb-3">
-        <RadzenButton Text="@L[RK.Auth.Login]"
+        <ThaiXButton Text="@L[RK.Auth.Login]"
                       Icon="login"
                       ButtonType="ButtonType.Submit"
                       Disabled="@_isSubmitting"
@@ -70,7 +70,7 @@ else
             <RadzenLabel Text="@L[RK.Auth.Email]" class="mb-1" />
             <RadzenTextBox @bind-Value="_otpEmail" Placeholder="@L[RK.Auth.EmailPlaceholder]" class="w-100" />
         </div>
-        <RadzenButton Text="@EmailOtpRequestLabel"
+        <ThaiXButton Text="@EmailOtpRequestLabel"
                       Icon="mail"
                       ButtonType="ButtonType.Button"
                       Click="OnRequestEmailOtpAsync"
@@ -91,7 +91,7 @@ else
                 <RadzenCheckBox TValue="bool" @bind-Value="_otpRememberMe" Name="otpRememberMe" />
                 <RadzenLabel Text="@L[RK.Auth.RememberMe]" Component="otpRememberMe" />
             </div>
-            <RadzenButton Text="@L[RK.Auth.EmailOtpVerify]"
+            <ThaiXButton Text="@L[RK.Auth.EmailOtpVerify]"
                           Icon="verified"
                           ButtonType="ButtonType.Button"
                           Click="OnVerifyEmailOtpAsync"
@@ -118,7 +118,7 @@ else
 {
     <div class="auth-divider">@L[RK.Auth.ExternalLoginOr]</div>
 
-    <RadzenButton Text="@L[RK.Auth.ExternalLoginGoogle]"
+    <ThaiXButton Text="@L[RK.Auth.ExternalLoginGoogle]"
                   Icon="g_mobiledata"
                   ButtonType="ButtonType.Button"
                   Click="LoginWithGoogle"

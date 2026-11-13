@@ -27,9 +27,9 @@
 
     @if (_loadErrorMessage is not null)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mb-3">
+        <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter" Class="mb-3">
             @_loadErrorMessage
-        </RadzenAlert>
+        </ThaiXAlert>
     }
 
     @if (_updatedAtText is not null)
@@ -148,9 +148,9 @@
 
         @if (!rates.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.Common.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
         else
         {
@@ -217,9 +217,9 @@
                             PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
                             PageSizeOptions="@(new[] { 10, 25, 50, 100 })">
                 <EmptyTemplate>
-                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                         @L[RK.Common.NoDataFound]
-                    </RadzenAlert>
+                    </ThaiXAlert>
                 </EmptyTemplate>
                 <Columns>
                     <RadzenDataGridColumn TItem="BankDepositRateItemDto"

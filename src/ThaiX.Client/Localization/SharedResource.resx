@@ -2161,6 +2161,7 @@
   <data name="Games.ConnectFour.Description" xml:space="preserve"><value>Connect four discs before the computer does.</value></data>
   <data name="Games.ConnectFour.Instructions" xml:space="preserve"><value>Use left/right and Enter, or select a column. Connect four horizontally, vertically, or diagonally.</value></data>
   <data name="Games.GameOver" xml:space="preserve"><value>Game over</value></data>
+  <data name="Games.Victory" xml:space="preserve"><value>Victory!</value></data>
   <data name="Games.Paused" xml:space="preserve"><value>Paused</value></data>
   <data name="Games.RestartHint" xml:space="preserve"><value>Restart to play again</value></data>
   <data name="Games.Passed" xml:space="preserve"><value>Passed</value></data>
@@ -2170,7 +2171,7 @@
   <data name="Games.YouAreX" xml:space="preserve"><value>You are X</value></data>
   <data name="Games.YouAreYellow" xml:space="preserve"><value>You are yellow</value></data>
   <data name="Games.WordleWords" xml:space="preserve"><value>CRANE,PLANT,BRICK,SOUND,MANGO,STONE,GRAPE,LIGHT,BRAIN,HOUSE,WATER,CLOUD,FLAME,TRAIN,MOUSE,CHAIR,BEACH,MUSIC,PAPER,CANDY,DREAM,HEART,WORLD,PEACH,FROST,TIGER,ZEBRA,APPLE,LEMON,SUGAR,ROAST,CHESS,CROWN,SPICE,BLEND,STORM,GRASS,SMILE,NIGHT,PLATE,GREEN,RADIO,SHINE,BREAD,SPACE,FRAME,ALBUM,TRACE,SHARE</value></data>
-  <data name="Games.HangmanWords" xml:space="preserve"><value>THAIX,BRICK,PLANT,SOUND,MANGO,GARDEN,PLANET,PUZZLE,ORANGE,KEYBOARD,THUNDER,RAINBOW,JOURNEY,CAPTURE,DIAMOND,LIBRARY,HORIZON,COMPASS,FOREST,ROCKET,CASTLE,WINTER,MARKET,POCKET,STREAM</value></data>
+  <data name="Games.HangmanWords" xml:space="preserve"><value>ThaiX,BRICK,PLANT,SOUND,MANGO,GARDEN,PLANET,PUZZLE,ORANGE,KEYBOARD,THUNDER,RAINBOW,JOURNEY,CAPTURE,DIAMOND,LIBRARY,HORIZON,COMPASS,FOREST,ROCKET,CASTLE,WINTER,MARKET,POCKET,STREAM</value></data>
   <data name="Games.TypingPassage" xml:space="preserve"><value>The best way to learn a new skill is to practice a little every day. Stay focused, keep a steady pace, and improve one step at a time.</value></data>
   <data name="Games.TypingDifficulty" xml:space="preserve"><value>Difficulty</value></data>
   <data name="Games.TypingEasy" xml:space="preserve"><value>Easy</value></data>
@@ -2197,12 +2198,90 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Place gun turrets along the road and stop the enemy column before it reaches your base.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a tower at the bottom or press 1-3, then select an empty tile to build it. Select a tower to upgrade it up to level 3; an upgrade costs the tower price times its level. Arrow keys move the cursor and Enter builds. Every enemy that reaches the end of the road costs a life.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 14 missions and bonus challenges. Earn War-Mart credits to buy 10 tower types, upgrade damage, range and fire rate, and call in airstrikes.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a mission, difficulty and mode, then deploy. Choose a tower (keys 1-9 and 0) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T), move it (M) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Win missions to earn credits, buy advanced towers, increase starting funds and unlock bonus challenges in the War-Mart. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
-  <data name="Games.TowerGun" xml:space="preserve"><value>Machine gun</value></data>
-  <data name="Games.TowerCannon" xml:space="preserve"><value>Cannon</value></data>
-  <data name="Games.TowerFrost" xml:space="preserve"><value>Frost</value></data>
+  <data name="Games.TowerSniper" xml:space="preserve"><value>Sniper</value></data>
+  <data name="Games.TowerRocket" xml:space="preserve"><value>Rocket launcher</value></data>
+  <data name="Games.TowerTesla" xml:space="preserve"><value>Tesla coil</value></data>
+  <data name="Games.TowerFlame" xml:space="preserve"><value>Flamethrower</value></data>
+  <data name="Games.TowerSlow" xml:space="preserve"><value>Slow field</value></data>
+  <data name="Games.TowerParticleBeam" xml:space="preserve"><value>Particle beam</value></data>
+  <data name="Games.TowerPlasmaCannon" xml:space="preserve"><value>Plasma cannon</value></data>
+  <data name="Games.TowerRadar" xml:space="preserve"><value>Radar tower</value></data>
+  <data name="Games.TowerPowerAmplifier" xml:space="preserve"><value>Power amplifier</value></data>
+  <data name="Games.EnemySoldier" xml:space="preserve"><value>Soldier</value></data>
+  <data name="Games.EnemyArmored" xml:space="preserve"><value>Armored trooper</value></data>
+  <data name="Games.EnemyJeep" xml:space="preserve"><value>Jeep</value></data>
+  <data name="Games.EnemyHelicopter" xml:space="preserve"><value>Helicopter</value></data>
+  <data name="Games.EnemyTank" xml:space="preserve"><value>Tank</value></data>
+  <data name="Games.EnemyBoss" xml:space="preserve"><value>Heavy tank (boss)</value></data>
+  <data name="Games.MapJungle" xml:space="preserve"><value>Jungle Road</value></data>
+  <data name="Games.MapSwitchback" xml:space="preserve"><value>Switchback</value></data>
+  <data name="Games.MapCrossfire" xml:space="preserve"><value>Crossfire</value></data>
+  <data name="Games.DifficultyEasy" xml:space="preserve"><value>Easy</value></data>
+  <data name="Games.DifficultyNormal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Games.DifficultyHard" xml:space="preserve"><value>Hard</value></data>
+  <data name="Games.Td.ModeCampaign" xml:space="preserve"><value>Campaign (14 missions)</value></data>
+  <data name="Games.Td.ModeEndless" xml:space="preserve"><value>Endless</value></data>
+  <data name="Games.Td.MenuTitle" xml:space="preserve"><value>Choose your mission</value></data>
+  <data name="Games.Td.Map" xml:space="preserve"><value>Mission</value></data>
+  <data name="Games.Td.Difficulty" xml:space="preserve"><value>Difficulty</value></data>
+  <data name="Games.Td.Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Games.Td.StartMission" xml:space="preserve"><value>Deploy</value></data>
+  <data name="Games.Td.MapLocked" xml:space="preserve"><value>Locked: clear {0} first</value></data>
+  <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.Td.GoldSyncFailed" xml:space="preserve"><value>Gold will stay on this device until account sync succeeds. Please retry when the API is available.</value></data>
+  <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>War-Mart credits: {0}</value></data>
+  <data name="Games.Td.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="Games.Td.Unlocked" xml:space="preserve"><value>Unlocked</value></data>
+  <data name="Games.Td.Move" xml:space="preserve"><value>Move</value></data>
+  <data name="Games.Td.MoveHint" xml:space="preserve"><value>Choose an empty tile to reposition this tower.</value></data>
+  <data name="Games.Td.StartFunds" xml:space="preserve"><value>Permanent starting funds +200</value></data>
+  <data name="Games.Td.StartFundsOwned" xml:space="preserve"><value>Starting funds bonus: +{0}</value></data>
+  <data name="Games.Td.SupportRange" xml:space="preserve"><value>Range bonus</value></data>
+  <data name="Games.Td.SupportDamage" xml:space="preserve"><value>Damage bonus</value></data>
+  <data name="Games.Td.Mission01" xml:space="preserve"><value>Mission 01 - Training Ground</value></data>
+  <data name="Games.Td.Mission02" xml:space="preserve"><value>Mission 02 - River Crossing</value></data>
+  <data name="Games.Td.Mission03" xml:space="preserve"><value>Mission 03 - Crossfire</value></data>
+  <data name="Games.Td.Mission04" xml:space="preserve"><value>Mission 04 - Highland Pass</value></data>
+  <data name="Games.Td.Mission05" xml:space="preserve"><value>Mission 05 - Desert Route</value></data>
+  <data name="Games.Td.Mission06" xml:space="preserve"><value>Mission 06 - Frozen Ridge</value></data>
+  <data name="Games.Td.Mission07" xml:space="preserve"><value>Mission 07 - Supply Line</value></data>
+  <data name="Games.Td.Mission08" xml:space="preserve"><value>Mission 08 - Outpost</value></data>
+  <data name="Games.Td.Mission09" xml:space="preserve"><value>Mission 09 - Canyon Run</value></data>
+  <data name="Games.Td.Mission10" xml:space="preserve"><value>Mission 10 - Iron Valley</value></data>
+  <data name="Games.Td.Mission11" xml:space="preserve"><value>Mission 11 - Night Watch</value></data>
+  <data name="Games.Td.Mission12" xml:space="preserve"><value>Mission 12 - Coastal Road</value></data>
+  <data name="Games.Td.Mission13" xml:space="preserve"><value>Mission 13 - Twin Fronts</value></data>
+  <data name="Games.Td.Mission14" xml:space="preserve"><value>Mission 14 - Final Stand</value></data>
+  <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Bonus - Sniper Operations</value></data>
+  <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Bonus - Last Stand</value></data>
+  <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Bonus missions</value></data>
+  <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Buy for {0} credits in War-Mart</value></data>
+  <data name="Games.Td.StartWave" xml:space="preserve"><value>Start wave</value></data>
+  <data name="Games.Td.WaveOf" xml:space="preserve"><value>Wave {0}/{1}</value></data>
+  <data name="Games.Td.WaveEndless" xml:space="preserve"><value>Wave {0}</value></data>
+  <data name="Games.Td.NextWave" xml:space="preserve"><value>Next: {0}</value></data>
+  <data name="Games.Td.NextWaveIn" xml:space="preserve"><value>Next wave in {0}s (N to start now)</value></data>
+  <data name="Games.Td.Airstrike" xml:space="preserve"><value>Airstrike</value></data>
+  <data name="Games.Td.AirstrikeArmed" xml:space="preserve"><value>Pick a tile to bomb</value></data>
+  <data name="Games.Td.AirstrikeCharging" xml:space="preserve"><value>Recharging {0}%</value></data>
+  <data name="Games.Td.Speed" xml:space="preserve"><value>Speed x{0}</value></data>
+  <data name="Games.Td.Sell" xml:space="preserve"><value>Sell for {0}</value></data>
+  <data name="Games.Td.UpgradeDamage" xml:space="preserve"><value>Damage</value></data>
+  <data name="Games.Td.UpgradeRange" xml:space="preserve"><value>Range</value></data>
+  <data name="Games.Td.UpgradeFireRate" xml:space="preserve"><value>Fire rate</value></data>
+  <data name="Games.Td.Maxed" xml:space="preserve"><value>Max</value></data>
+  <data name="Games.Td.Level" xml:space="preserve"><value>Lv {0}</value></data>
+  <data name="Games.Td.Targeting" xml:space="preserve"><value>Target: {0}</value></data>
+  <data name="Games.Td.TargetFirst" xml:space="preserve"><value>First</value></data>
+  <data name="Games.Td.TargetStrongest" xml:space="preserve"><value>Strongest</value></data>
+  <data name="Games.Td.TargetClosest" xml:space="preserve"><value>Closest</value></data>
+  <data name="Games.Td.GroundOnly" xml:space="preserve"><value>Ground targets only</value></data>
+  <data name="Games.Td.AirAndGround" xml:space="preserve"><value>Air and ground targets</value></data>
+  <data name="Games.Td.SelectHint" xml:space="preserve"><value>Pick a tower, then a free tile. Select a built tower to upgrade or sell it.</value></data>
+  <data name="Games.TowerGun" xml:space="preserve"><value>Gunner</value></data>
 </root>

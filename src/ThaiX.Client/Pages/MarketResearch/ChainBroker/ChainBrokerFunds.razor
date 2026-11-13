@@ -20,7 +20,7 @@
         </RadzenText>
         @if (_canSync)
         {
-            <RadzenButton Text="@L[RK.ChainBrokerFunds.SyncButton]"
+            <ThaiXButton Text="@L[RK.ChainBrokerFunds.SyncButton]"
                           Icon="sync"
                           ButtonStyle="ButtonStyle.Secondary"
                           Size="ButtonSize.Small"
@@ -45,9 +45,9 @@
         }
         else if (!_filtered.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.ChainBrokerFunds.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
     </RadzenStack>
 

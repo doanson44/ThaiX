@@ -61,27 +61,10 @@ public sealed partial class DemoResponseFactory
         {
             return DemoEnvelope.SuccessData(new MarketDashboardResponseDto
             {
-                Vix = new VixResponseDto
-                {
-                    Symbol = "^VIX",
-                    Success = false,
-                    Message = "Market dashboard data is unavailable in demo mode."
-                },
-                VnIndex = new VnIndexAnalysisResponseDto
-                {
-                    Success = false,
-                    Message = "Market dashboard data is unavailable in demo mode."
-                },
-                Bitcoin = new MexcBitcoinAnalysisResponseDto
-                {
-                    Success = false,
-                    Message = "Market dashboard data is unavailable in demo mode."
-                },
-                Gold = new MexcGoldAnalysisResponseDto
-                {
-                    Success = false,
-                    Message = "Market dashboard data is unavailable in demo mode."
-                }
+                Vix = DemoDataGenerators.DemoVix(),
+                VnIndex = DemoDataGenerators.DemoVnIndexAnalysis(),
+                Bitcoin = DemoDataGenerators.DemoBitcoinAnalysis(),
+                Gold = DemoDataGenerators.DemoGoldAnalysis()
             });
         }
 

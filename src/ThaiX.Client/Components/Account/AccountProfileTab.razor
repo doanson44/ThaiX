@@ -12,9 +12,9 @@
 }
 else if (_profile is null)
 {
-    <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" class="rz-mt-3">
+    <ThaiXAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" class="rz-mt-3">
         @L[RK.Profile.LoadFailed]
-    </RadzenAlert>
+    </ThaiXAlert>
 }
 else
 {
@@ -82,7 +82,7 @@ else
                         {
                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
                                 <RadzenText>@(login.ProviderDisplayName ?? login.LoginProvider)</RadzenText>
-                                <RadzenButton Text="@L[RK.Account.ExternalLoginsRemove]"
+                                <ThaiXButton Text="@L[RK.Account.ExternalLoginsRemove]"
                                               Icon="link_off"
                                               ButtonStyle="ButtonStyle.Danger"
                                               Variant="Variant.Text"

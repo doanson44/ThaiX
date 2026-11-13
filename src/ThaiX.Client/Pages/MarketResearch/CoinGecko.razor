@@ -19,9 +19,9 @@
 
         @if (_listErrorMessage is not null)
         {
-            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @_listErrorMessage
-            </RadzenAlert>
+            </ThaiXAlert>
         }
 
         @if (Viewport.IsMobile)
@@ -36,9 +36,9 @@
                     }
                     else if (!_coins.Any())
                     {
-                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                             @L[RK.Common.NoDataFound]
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     }
                     else
                     {
@@ -51,16 +51,16 @@
 
                         @if (!FilteredMobileCoins.Any())
                         {
-                            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                                 @L[RK.Common.NoDataFound]
-                            </RadzenAlert>
+                            </ThaiXAlert>
                         }
                         else
                         {
                             <RadzenStack Gap="0.5rem">
                                 @foreach (var coin in FilteredMobileCoins.Take(80))
                                 {
-                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                    <ThaiXButton ButtonStyle="ButtonStyle.Light"
                                                   Variant="Variant.Outlined"
                                                   Icon="chevron_right"
                                                   IconPos="IconPos.Right"
@@ -87,9 +87,9 @@
                         }
                         else if (!_coins.Any())
                         {
-                            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                                 @L[RK.Common.NoDataFound]
-                            </RadzenAlert>
+                            </ThaiXAlert>
                         }
                         else
                         {
@@ -108,7 +108,7 @@
                                                           Property="Name"
                                                           Title="@L[RK.CoinGecko.CoinName]">
                                         <Template Context="coin">
-                                            <RadzenButton ButtonStyle="@(IsCoinSelected(coin) ? ButtonStyle.Primary : ButtonStyle.Light)"
+                                            <ThaiXButton ButtonStyle="@(IsCoinSelected(coin) ? ButtonStyle.Primary : ButtonStyle.Light)"
                                                           Variant="@(IsCoinSelected(coin) ? Variant.Filled : Variant.Flat)"
                                                           Text="@($"{coin.Name} ({coin.Symbol.ToUpperInvariant()})")"
                                                           Click="@(async () => await SelectCoinAsync(coin))"
@@ -173,15 +173,15 @@
         }
         else if (_detailErrorMessage is not null)
         {
-            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @_detailErrorMessage
-            </RadzenAlert>
+            </ThaiXAlert>
         }
         else if (_selectedCoinMarket?.Data is null)
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.CoinGecko.SelectCoinHint]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
         else
         {

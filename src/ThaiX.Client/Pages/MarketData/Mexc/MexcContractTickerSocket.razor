@@ -43,7 +43,7 @@
             <RadzenText TextStyle="TextStyle.H6">@L[RK.MexcDemoTrading.OpenPositions]</RadzenText>
             @if (_portfolio.Positions.Count == 0)
             {
-                <RadzenAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter">@L[RK.MexcDemoTrading.NoOpenPositions]</RadzenAlert>
+                <ThaiXAlert AlertStyle="AlertStyle.Info" Variant="Variant.Flat" Shade="Shade.Lighter">@L[RK.MexcDemoTrading.NoOpenPositions]</ThaiXAlert>
             }
             else
             {
@@ -130,7 +130,7 @@
                                         @positionPnl.ToString("+0.00;-0.00;0.00") USDT
                                     </RadzenText>
                                 </RadzenStack>
-                                <RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]"
+                                <ThaiXButton Text="@L[RK.MexcDemoTrading.ClosePosition]"
                                               ButtonStyle="ButtonStyle.Danger"
                                               Size="ButtonSize.Medium"
                                               Class="w-100"
@@ -159,7 +159,7 @@
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.FundingSettlements]"><Template Context="position">@GetFundingSettlementCount(position)</Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.LiquidationStatus]"><Template Context="position"><span style="@GetLiquidationStatusStyle(position)">@GetLiquidationStatusText(position)</span></Template></RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DemoFuturesPosition" Title="@L[RK.MexcDemoTrading.UnrealizedPnl]"><Template Context="position"><span style="@PnlStyle(GetPositionPnl(position))">@GetPositionPnl(position).ToString("+0.00;-0.00;0.00")</span></Template></RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><RadzenButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DemoFuturesPosition" Title=""><Template Context="position"><ThaiXButton Text="@L[RK.MexcDemoTrading.ClosePosition]" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => ClosePositionAsync(position.Id))" /></Template></RadzenDataGridColumn>
                             </Columns>
                         </RadzenDataGrid>
                     </div>
@@ -175,8 +175,8 @@
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap">
                     <RadzenText TextStyle="TextStyle.H6" Class="mb-0">@L[RK.MexcDemoTrading.Title]</RadzenText>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                        <RadzenButton Icon="restart_alt" Text="@L[RK.MexcDemoTrading.Reset]" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Size="ButtonSize.Small" Disabled="@(!_portfolioLoaded)" Click="@ResetDemoPortfolioAsync" />
-                        <RadzenButton Icon="settings" Text="@L[RK.MexcDemoTrading.Settings]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@OpenSettingsAsync" />
+                        <ThaiXButton Icon="restart_alt" Text="@L[RK.MexcDemoTrading.Reset]" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Outlined" Size="ButtonSize.Small" Disabled="@(!_portfolioLoaded)" Click="@ResetDemoPortfolioAsync" />
+                        <ThaiXButton Icon="settings" Text="@L[RK.MexcDemoTrading.Settings]" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@OpenSettingsAsync" />
                     </RadzenStack>
                 </RadzenStack>
                 <RadzenRow Gap="0.75rem">
@@ -221,9 +221,9 @@
         }
         else if (!_allTickers.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.MexcContractTickers.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
     </RadzenStack>
 
@@ -267,17 +267,17 @@
                     <RadzenDataGridColumn TItem="MexcContractTickerDto" Title="" Sortable="false" Filterable="false" Width="10rem">
                         <Template Context="ticker">
                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.25rem">
-                                <RadzenButton Icon="push_pin"
+                                <ThaiXButton Icon="push_pin"
                                               ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
                                               Variant="Variant.Text"
                                               Size="ButtonSize.Small"
                                               title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
                                               Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
-                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]"
+                                <ThaiXButton Text="@L[RK.MexcDemoTrading.Buy]"
                                               ButtonStyle="ButtonStyle.Success"
                                               Size="ButtonSize.Small"
                                               Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
-                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]"
+                                <ThaiXButton Text="@L[RK.MexcDemoTrading.Sell]"
                                               ButtonStyle="ButtonStyle.Danger"
                                               Size="ButtonSize.Small"
                                               Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
@@ -327,17 +327,17 @@
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Wrap="FlexWrap.Wrap" Gap="0.5rem">
                             <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
                             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.25rem">
-                                <RadzenButton Icon="push_pin"
+                                <ThaiXButton Icon="push_pin"
                                               ButtonStyle="@(IsPinned(ticker.Symbol) ? ButtonStyle.Primary : ButtonStyle.Light)"
                                               Variant="Variant.Text"
                                               Size="ButtonSize.Small"
                                               title="@L[IsPinned(ticker.Symbol) ? RK.MexcContractTickers.Unpin : RK.MexcContractTickers.Pin]"
                                               Click="@(() => TogglePinnedAsync(ticker.Symbol))" />
-                                <RadzenButton Text="@L[RK.MexcDemoTrading.Buy]"
+                                <ThaiXButton Text="@L[RK.MexcDemoTrading.Buy]"
                                               ButtonStyle="ButtonStyle.Success"
                                               Size="ButtonSize.Small"
                                               Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Long))" />
-                                <RadzenButton Text="@L[RK.MexcDemoTrading.Sell]"
+                                <ThaiXButton Text="@L[RK.MexcDemoTrading.Sell]"
                                               ButtonStyle="ButtonStyle.Danger"
                                               Size="ButtonSize.Small"
                                               Click="@(() => OpenPositionAsync(ticker, DemoPositionSide.Short))" />
@@ -363,7 +363,7 @@
 </RadzenCard>
 
 @code {
-    private const string PinnedStorageKey = "thaix:mexc:contract-ticker:pinned";
+    private const string PinnedStorageKey = "ThaiX:mexc:contract-ticker:pinned";
     private const string PinnedJsonBinName = "MEXC Contract Pinned Tickers";
     private const string PinnedJsonBinCodeSuffix = "MEXC_CONTRACT_PINNED";
     private string _activePinnedStorageKey = PinnedStorageKey;
@@ -380,7 +380,7 @@
     private List<MexcContractTickerDto> _mobileViewTickers = [];
     private RadzenDataGrid<MexcContractTickerDto>? _dataGrid;
     private bool _isLoading = true;
-    private const string DemoPortfolioStorageKey = "thaix:mexc:contract-futures-demo:v1";
+    private const string DemoPortfolioStorageKey = "ThaiX:mexc:contract-futures-demo:v1";
     private const string DemoPortfolioJsonBinName = "MEXC Contract Futures Demo Portfolio";
     private const string DemoPortfolioJsonBinCodeSuffix = "MEXC_CONTRACT_FUTURES_DEMO";
     private DemoFuturesPortfolio _portfolio = new();

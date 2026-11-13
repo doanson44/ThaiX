@@ -1,5 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">ThaiX</title>
   <rect width="64" height="64" rx="16" fill="#0B1220"/>
-  <path d="M13 15h24v8h-8v26h-8V23h-8z" fill="#F8FAFC"/>
-  <path d="M38 15h9l-5.5 13L48 49h-9l-4-12-4 12h-9l6.5-21-5.5-13h9l3 10z" fill="#38BDF8"/>
+  <path d="M15 13h12l25 38H40L15 13Z" fill="#60A5FA"/>
+  <path d="M49 13H37L12 51h12L49 13Z" fill="#FFFFFF"/>
+  <path d="M25 28h14l6 9H31l-6-9Z" fill="#2563EB"/>
 </svg>

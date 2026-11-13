@@ -9,29 +9,29 @@
     }
 
     <div class="ThaiX-md-editor__toolbar" role="toolbar" aria-label="@L[RK.Tools.MarkdownPreview.Toolbar]">
-        <RadzenButton Icon="title" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="title" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Heading]" Click="@(() => WrapAsync("# ", "", "Heading"))" Disabled="@Disabled" />
-        <RadzenButton Icon="format_bold" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_bold" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Bold]" Click="@(() => WrapAsync("**", "**", "bold"))" Disabled="@Disabled" />
-        <RadzenButton Icon="format_italic" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_italic" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Italic]" Click="@(() => WrapAsync("*", "*", "italic"))" Disabled="@Disabled" />
-        <RadzenButton Icon="format_strikethrough" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_strikethrough" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Strike]" Click="@(() => WrapAsync("~~", "~~", "text"))" Disabled="@Disabled" />
         <span class="ThaiX-md-editor__sep" aria-hidden="true"></span>
-        <RadzenButton Icon="format_quote" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_quote" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Quote]" Click="@(() => WrapAsync("> ", "", "quote"))" Disabled="@Disabled" />
-        <RadzenButton Icon="format_list_bulleted" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_list_bulleted" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.BulletList]" Click="@(() => WrapAsync("- ", "", "item"))" Disabled="@Disabled" />
-        <RadzenButton Icon="format_list_numbered" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="format_list_numbered" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.NumberedList]" Click="@(() => WrapAsync("1. ", "", "item"))" Disabled="@Disabled" />
         <span class="ThaiX-md-editor__sep" aria-hidden="true"></span>
-        <RadzenButton Icon="code" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="code" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.InlineCode]" Click="@(() => WrapAsync("`", "`", "code"))" Disabled="@Disabled" />
-        <RadzenButton Icon="terminal" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="terminal" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.CodeBlock]" Click="@(() => WrapAsync("```\n", "\n```", "code"))" Disabled="@Disabled" />
-        <RadzenButton Icon="link" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="link" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.Link]" Click="@(() => WrapAsync("[", "](https://)", "text"))" Disabled="@Disabled" />
-        <RadzenButton Icon="remove" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
+        <ThaiXButton Icon="remove" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Small"
                       title="@L[RK.Tools.MarkdownPreview.HorizontalRule]" Click="@(() => InsertAsync("\n\n---\n\n"))" Disabled="@Disabled" />
     </div>
 

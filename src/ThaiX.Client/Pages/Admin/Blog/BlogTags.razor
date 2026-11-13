@@ -57,7 +57,7 @@
                             {
                                 <RadzenDataGridColumn TItem="TagDto" Title="" Width="100px" Sortable="false" Filterable="false">
                                     <Template Context="item">
-                                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
+                                        <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
                                     </Template>
                                 </RadzenDataGridColumn>
                             }
@@ -87,7 +87,7 @@
                                             <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@item.Name</RadzenText>
                                             @if (_canDelete)
                                             {
-                                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
+                                                <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteAsync(item))" />
                                             }
                                         </div>
                                         <RadzenText class="text-muted small mb-0">@item.Slug</RadzenText>

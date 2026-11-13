@@ -24,7 +24,7 @@
         <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-0">
             @L[RK.VnDirectTopStocks.Title]
         </RadzenText>
-        <RadzenButton Text="@L[RK.VnDirectTopStocks.RunWeeklySuggestionJob]"
+        <ThaiXButton Text="@L[RK.VnDirectTopStocks.RunWeeklySuggestionJob]"
                       Icon="play_arrow"
                       ButtonStyle="ButtonStyle.Secondary"
                       Size="ButtonSize.Small"
@@ -64,9 +64,9 @@
         }
         else if (!_filteredStocks.Any())
         {
-            <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                 @L[RK.VnDirectTopStocks.NoDataFound]
-            </RadzenAlert>
+            </ThaiXAlert>
         }
     </RadzenStack>
 
@@ -196,7 +196,7 @@
                     <RadzenDataGridColumn MinWidth="12.5rem" TItem="VnDirectTopStockDto" Property="PtVolAvgCr5D" Title="@L[RK.VnDirectTopStocks.PtVolAvgCr5D]" />
                     <RadzenDataGridColumn MinWidth="9.375rem" TItem="VnDirectTopStockDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]">
                         <Template Context="stock">
-                            <RadzenButton Size="ButtonSize.Small"
+                            <ThaiXButton Size="ButtonSize.Small"
                                           Icon="insights"
                                           Text="@L[RK.TradingSuggestion.Action]"
                                           Click="@(() => OpenTradeSuggestionAsync(stock.Code, MarketType.Stock, stock.LastPrice, stock.InTcbsAllTimeHoldings))" />
@@ -280,7 +280,7 @@
                             <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolSumCr5D]: @stock.PtVolSumCr5D</RadzenText>
                             <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtValAvgCr5D]: @stock.PtValAvgCr5D</RadzenText>
                             <RadzenText TextStyle="TextStyle.Body2">@L[RK.VnDirectTopStocks.PtVolAvgCr5D]: @stock.PtVolAvgCr5D</RadzenText>
-                            <RadzenButton Size="ButtonSize.Small"
+                            <ThaiXButton Size="ButtonSize.Small"
                                           Icon="insights"
                                           Text="@L[RK.TradingSuggestion.Action]"
                                           Click="@(() => OpenTradeSuggestionAsync(stock.Code, MarketType.Stock, stock.LastPrice, stock.InTcbsAllTimeHoldings))" />

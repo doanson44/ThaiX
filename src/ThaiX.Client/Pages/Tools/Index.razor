@@ -36,7 +36,7 @@
                                         Style="cursor: pointer;"
                                         @onclick="@(() => Navigation.NavigateTo($"/tools/{tool.Slug}"))">
                                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.75rem" AlignItems="AlignItems.Start" Class="ThaiX-tools-hub__card-inner">
-                                    <RadzenIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
+                                    <ThaiXIcon Icon="@tool.Icon" Class="ThaiX-tools-hub__card-icon" />
                                     <RadzenStack Gap="0.25rem" Class="ThaiX-tools-hub__card-text">
                                         <RadzenText TextStyle="TextStyle.Subtitle2" Class="mb-0">@L[tool.TitleKey]</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Body2" Class="text-muted mb-0">@L[tool.DescriptionKey]</RadzenText>

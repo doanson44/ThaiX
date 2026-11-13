@@ -15,27 +15,27 @@
 
         <AuthorizeView>
             <Authorized Context="auth">
-                <RadzenAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat">
+                <ThaiXAlert AlertStyle="AlertStyle.Success" Variant="Variant.Flat">
                     @L[RK.HomePage.AuthenticatedAs] @auth.User.FindFirst("email")?.Value
-                </RadzenAlert>
+                </ThaiXAlert>
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                    <RadzenButton Text="@L[RK.Menu.Profile]" Icon="account_circle" ButtonStyle="ButtonStyle.Primary"
+                    <ThaiXButton Text="@L[RK.Menu.Profile]" Icon="account_circle" ButtonStyle="ButtonStyle.Primary"
                                   Click="@(() => Navigation.NavigateTo("/account/profile"))" />
                     @if (auth.User.HasClaim("scope", PermissionNames.UserRead))
                     {
-                        <RadzenButton Text="@L[RK.Menu.Users]" Icon="groups" ButtonStyle="ButtonStyle.Info"
+                        <ThaiXButton Text="@L[RK.Menu.Users]" Icon="groups" ButtonStyle="ButtonStyle.Info"
                                       Click="@(() => Navigation.NavigateTo("/admin/users"))" />
                     }
                 </RadzenStack>
             </Authorized>
             <NotAuthorized>
-                <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
+                <ThaiXAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat">
                     @L[RK.HomePage.NotAuthenticated]
-                </RadzenAlert>
+                </ThaiXAlert>
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                    <RadzenButton Text="@L[RK.Menu.Login]" Icon="login" ButtonStyle="ButtonStyle.Primary"
+                    <ThaiXButton Text="@L[RK.Menu.Login]" Icon="login" ButtonStyle="ButtonStyle.Primary"
                                   Click="@(() => Navigation.NavigateTo("/auth/login"))" />
-                    <RadzenButton Text="@L[RK.Menu.Register]" Icon="person_add" ButtonStyle="ButtonStyle.Light"
+                    <ThaiXButton Text="@L[RK.Menu.Register]" Icon="person_add" ButtonStyle="ButtonStyle.Light"
                                   Click="@(() => Navigation.NavigateTo("/auth/register"))" />
                 </RadzenStack>
             </NotAuthorized>
@@ -50,9 +50,9 @@
     }
     else if (_marketDashboard is null)
     {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
             @L[RK.MarketDashboard.LoadFailed]
-        </RadzenAlert>
+        </ThaiXAlert>
     }
     else
     {
@@ -81,7 +81,7 @@
                     <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H2" Class="mb-0">
                         @L[RK.Vix.AiAssessmentTitle]
                     </RadzenText>
-                    <RadzenButton Text="@L[RK.Vix.GetAiAssessment]" Icon="auto_awesome"
+                    <ThaiXButton Text="@L[RK.Vix.GetAiAssessment]" Icon="auto_awesome"
                                   ButtonStyle="ButtonStyle.Primary" Click="GetAiAssessmentAsync"
                                   Disabled="@(!CanGetAiAssessment || _isLoadingAiAssessment)" />
                     @if (_isLoadingAiAssessment)
@@ -90,9 +90,9 @@
                     }
                     else if (!string.IsNullOrWhiteSpace(_aiAssessmentError))
                     {
-                        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        <ThaiXAlert AlertStyle="AlertStyle.Warning" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                             @_aiAssessmentError
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     }
                     else if (_aiAssessment is not null)
                     {

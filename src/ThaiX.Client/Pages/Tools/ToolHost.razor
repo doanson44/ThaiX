@@ -19,9 +19,9 @@
 @if (_tool is null)
 {
     <div class="container-fluid py-2">
-        <RadzenAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
+        <ThaiXAlert AlertStyle="AlertStyle.Warning" Shade="Shade.Lighter" AllowClose="false">
             @L[RK.Tools.NotFound]
-        </RadzenAlert>
+        </ThaiXAlert>
     </div>
 }
 else
@@ -59,7 +59,7 @@ else
         {
         @if (!string.IsNullOrWhiteSpace(_warning))
         {
-            <RadzenAlert AlertStyle="AlertStyle.Warning"
+            <ThaiXAlert AlertStyle="AlertStyle.Warning"
                          Shade="Shade.Lighter"
                          Variant="Variant.Flat"
                          AllowClose="true"
@@ -67,7 +67,7 @@ else
                          class="rz-mb-2">
                 <strong>@L[RK.Tools.ValidationTitle]</strong>
                 <div class="rz-mt-1">@_warning</div>
-            </RadzenAlert>
+            </ThaiXAlert>
         }
 
         @if (IsMarkdownPreview())
@@ -80,7 +80,7 @@ else
                                  JustifyContent="JustifyContent.SpaceBetween"
                                  Wrap="FlexWrap.Wrap"
                                  Gap="0.5rem">
-                        <RadzenButton Icon="edit_note"
+                        <ThaiXButton Icon="edit_note"
                                       Text="@L[RK.Tools.MarkdownPreview.ShowEditor]"
                                       ButtonStyle="ButtonStyle.Light"
                                       Size="ButtonSize.Small"
@@ -89,13 +89,13 @@ else
                                       aria-label="@L[RK.Tools.MarkdownPreview.ShowEditor]"
                                       Class="ThaiX-md-preview-edit" />
                         <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
-                            <RadzenButton Icon="content_copy"
+                            <ThaiXButton Icon="content_copy"
                                           Text="@L[RK.Tools.MarkdownPreview.CopyAll]"
                                           ButtonStyle="ButtonStyle.Light"
                                           Size="ButtonSize.Small"
                                           Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
                                           Click="CopyPreviewTextAsync" />
-                            <RadzenButton Icon="code"
+                            <ThaiXButton Icon="code"
                                           Text="@L[RK.Tools.MarkdownPreview.CopyHtml]"
                                           ButtonStyle="ButtonStyle.Light"
                                           Size="ButtonSize.Small"
@@ -126,13 +126,13 @@ else
                                      Class="mb-1">
                             <RadzenLabel Text="@L[RK.Tools.MarkdownPreview.Preview]" Class="mb-0" />
                             <RadzenStack Orientation="Orientation.Horizontal" Gap="0.35rem" Wrap="FlexWrap.Wrap">
-                                <RadzenButton Icon="content_copy"
+                                <ThaiXButton Icon="content_copy"
                                               Text="@L[RK.Tools.MarkdownPreview.CopyAll]"
                                               ButtonStyle="ButtonStyle.Light"
                                               Size="ButtonSize.Small"
                                               Disabled="@(string.IsNullOrWhiteSpace(_previewHtml))"
                                               Click="CopyPreviewTextAsync" />
-                                <RadzenButton Icon="code"
+                                <ThaiXButton Icon="code"
                                               Text="@L[RK.Tools.MarkdownPreview.CopyHtml]"
                                               ButtonStyle="ButtonStyle.Light"
                                               Size="ButtonSize.Small"
@@ -156,7 +156,7 @@ else
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start"
                                  Wrap="FlexWrap.Wrap" Gap="1rem">
                         <div class="ThaiX-qr-preview border rounded p-3">@((MarkupString)_qrSvg)</div>
-                        <RadzenButton Icon="download" Text="@L[RK.Tools.QrDownload]"
+                        <ThaiXButton Icon="download" Text="@L[RK.Tools.QrDownload]"
                                       ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small"
                                       Disabled="@_busy" Click="DownloadQrAsync" />
                     </RadzenStack>
@@ -252,7 +252,7 @@ else
                 @{
                     OnToolRenderError(ex);
                 }
-                <RadzenAlert AlertStyle="AlertStyle.Warning"
+                <ThaiXAlert AlertStyle="AlertStyle.Warning"
                              Shade="Shade.Lighter"
                              Variant="Variant.Flat"
                              AllowClose="true"
@@ -260,7 +260,7 @@ else
                              class="rz-mb-2">
                     <strong>@L[RK.Tools.ValidationTitle]</strong>
                     <div class="rz-mt-1">@(string.IsNullOrWhiteSpace(_warning) ? L[RK.Tools.ValidationGeneric] : _warning)</div>
-                </RadzenAlert>
+                </ThaiXAlert>
             </ErrorContent>
         </ErrorBoundary>
         </ChildContent>

@@ -19,18 +19,18 @@
                     @bind-SelectedIndex="_selectedTabIndex"
                     Change="OnTabChanged">
             <Tabs>
-                <RadzenTabsItem Text="@L[RK.Profile.Title]" Icon="account_circle">
+                <ThaiXTabsItem Text="@L[RK.Profile.Title]"  Icon="account_circle">
                     <AccountProfileTab />
-                </RadzenTabsItem>
-                <RadzenTabsItem Text="@L[RK.Profile.ChangePassword]" Icon="password">
+                </ThaiXTabsItem>
+                <ThaiXTabsItem Text="@L[RK.Profile.ChangePassword]"  Icon="password">
                     <AccountChangePasswordTab />
-                </RadzenTabsItem>
-                <RadzenTabsItem Text="@L[RK.Account.TwoFactorTitle]" Icon="security">
+                </ThaiXTabsItem>
+                <ThaiXTabsItem Text="@L[RK.Account.TwoFactorTitle]"  Icon="security">
                     <AccountTwoFactorTab ShowSetupOnLoad="@_showAuthenticatorSetup" />
-                </RadzenTabsItem>
-                <RadzenTabsItem Text="@L[RK.Account.PersonalDataTitle]" Icon="folder_shared">
+                </ThaiXTabsItem>
+                <ThaiXTabsItem Text="@L[RK.Account.PersonalDataTitle]"  Icon="folder_shared">
                     <AccountPersonalDataTab />
-                </RadzenTabsItem>
+                </ThaiXTabsItem>
             </Tabs>
         </RadzenTabs>
     </RadzenStack>

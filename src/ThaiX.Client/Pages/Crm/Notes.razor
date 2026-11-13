@@ -75,19 +75,19 @@
                          Gap="0.5rem"
                          Wrap="FlexWrap.Wrap"
                          AlignItems="AlignItems.Center">
-                <RadzenButton Text="@L[RK.Notes.FilterAll]"
+                <ThaiXButton Text="@L[RK.Notes.FilterAll]"
                               ButtonStyle="@(_currentFilter == NoteFilterType.All ? ButtonStyle.Primary : ButtonStyle.Light)"
                               Size="ButtonSize.Small"
                               Click="@(() => ChangeFilterAsync(NoteFilterType.All))" />
-                <RadzenButton Text="@L[RK.Notes.FilterPinned]"
+                <ThaiXButton Text="@L[RK.Notes.FilterPinned]"
                               ButtonStyle="@(_currentFilter == NoteFilterType.Pinned ? ButtonStyle.Primary : ButtonStyle.Light)"
                               Size="ButtonSize.Small"
                               Click="@(() => ChangeFilterAsync(NoteFilterType.Pinned))" />
-                <RadzenButton Text="@L[RK.Notes.FilterArchived]"
+                <ThaiXButton Text="@L[RK.Notes.FilterArchived]"
                               ButtonStyle="@(_currentFilter == NoteFilterType.Archived ? ButtonStyle.Primary : ButtonStyle.Light)"
                               Size="ButtonSize.Small"
                               Click="@(() => ChangeFilterAsync(NoteFilterType.Archived))" />
-                <RadzenButton Text="@L[RK.Notes.FilterTrash]"
+                <ThaiXButton Text="@L[RK.Notes.FilterTrash]"
                               ButtonStyle="@(_currentFilter == NoteFilterType.Trash ? ButtonStyle.Primary : ButtonStyle.Light)"
                               Size="ButtonSize.Small"
                               Click="@(() => ChangeFilterAsync(NoteFilterType.Trash))" />
@@ -108,9 +108,9 @@
         else if (!_notes.Any())
         {
             <RadzenCard>
-                <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                     @L[RK.Notes.NoNotes]
-                </RadzenAlert>
+                </ThaiXAlert>
             </RadzenCard>
         }
         else
@@ -148,7 +148,7 @@
                                         {
                                             if (_canWrite)
                                             {
-                                                <RadzenButton Icon="@(note.IsPinned ? "keep_off" : "keep")"
+                                                <ThaiXButton Icon="@(note.IsPinned ? "keep_off" : "keep")"
                                                               Size="ButtonSize.Small"
                                                               ButtonStyle="ButtonStyle.Light"
                                                               Title="@(note.IsPinned ? L[RK.Notes.Unpin] : L[RK.Notes.Pin])"
@@ -156,7 +156,7 @@
 
                                                 @if (_currentFilter != NoteFilterType.Archived)
                                                 {
-                                                    <RadzenButton Icon="archive"
+                                                    <ThaiXButton Icon="archive"
                                                                   Size="ButtonSize.Small"
                                                                   ButtonStyle="ButtonStyle.Light"
                                                                   Title="@L[RK.Notes.Archive]"
@@ -164,14 +164,14 @@
                                                 }
                                                 else
                                                 {
-                                                    <RadzenButton Icon="unarchive"
+                                                    <ThaiXButton Icon="unarchive"
                                                                   Size="ButtonSize.Small"
                                                                   ButtonStyle="ButtonStyle.Light"
                                                                   Title="@L[RK.Notes.Unarchive]"
                                                                   Click="@(async () => await ToggleArchiveAsync(note))" />
                                                 }
 
-                                                <RadzenButton Icon="edit"
+                                                <ThaiXButton Icon="edit"
                                                               Size="ButtonSize.Small"
                                                               ButtonStyle="ButtonStyle.Light"
                                                               Title="@L[RK.Notes.EditNote]"
@@ -180,7 +180,7 @@
 
                                             if (_canDelete)
                                             {
-                                                <RadzenButton Icon="delete"
+                                                <ThaiXButton Icon="delete"
                                                               Size="ButtonSize.Small"
                                                               ButtonStyle="ButtonStyle.Light"
                                                               Title="@L[RK.Notes.Delete]"
@@ -205,7 +205,7 @@
                                         {
                                             if (_canWrite)
                                             {
-                                                <RadzenButton Icon="restore_from_trash"
+                                                <ThaiXButton Icon="restore_from_trash"
                                                               Size="ButtonSize.Small"
                                                               ButtonStyle="ButtonStyle.Light"
                                                               Title="@L[RK.Notes.Restore]"
@@ -223,14 +223,14 @@
             @if (_totalCount > _pageSize)
             {
                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0.5rem">
-                    <RadzenButton Icon="chevron_left"
+                    <ThaiXButton Icon="chevron_left"
                                   ButtonStyle="ButtonStyle.Light"
                                   Disabled="@(_currentPage <= 1)"
                                   Click="@LoadPrevPageAsync" />
                     <RadzenText TextStyle="TextStyle.Body2" class="align-self-center">
                         @_currentPage / @_totalPages
                     </RadzenText>
-                    <RadzenButton Icon="chevron_right"
+                    <ThaiXButton Icon="chevron_right"
                                   ButtonStyle="ButtonStyle.Light"
                                   Disabled="@(_currentPage >= _totalPages)"
                                   Click="@LoadNextPageAsync" />

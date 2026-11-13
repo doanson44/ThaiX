@@ -14,7 +14,7 @@
 }
 
 ::deep .tx-footer-link {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     text-decoration: none;
 }
 

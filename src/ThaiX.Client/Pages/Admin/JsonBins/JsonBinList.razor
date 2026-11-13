@@ -102,12 +102,12 @@
                                     <div class="d-flex flex-wrap gap-1">
                                         @if (_canWrite)
                                         {
-                                            <RadzenButton Icon="edit"
+                                            <ThaiXButton Icon="edit"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Size="ButtonSize.Small"
                                                           title="@L[RK.JsonBins.Edit]"
                                                           Click="@(() => Navigation.NavigateTo($"/admin/json-bins/{row.Id}"))" />
-                                            <RadzenButton Icon="delete"
+                                            <ThaiXButton Icon="delete"
                                                           ButtonStyle="ButtonStyle.Danger"
                                                           Size="ButtonSize.Small"
                                                           title="@L[RK.Common.Delete]"
@@ -115,7 +115,7 @@
                                         }
                                         else
                                         {
-                                            <RadzenButton Icon="visibility"
+                                            <ThaiXButton Icon="visibility"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Size="ButtonSize.Small"
                                                           title="@L[RK.Common.View]"

@@ -106,23 +106,23 @@
                             <RadzenDataGridColumn TItem="PostListItemDto" Title="" Width="220px" Sortable="false" Filterable="false">
                                 <Template Context="item">
                                     <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem" Wrap="FlexWrap.Wrap">
-                                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                        <ThaiXButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                                                       Click="@(() => Navigation.NavigateTo($"/admin/blog/posts/{item.Id}"))" />
-                                        <RadzenButton Icon="content_copy" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                        <ThaiXButton Icon="content_copy" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                                                       Click="@(() => DuplicateAsync(item))" />
                                         @if (item.Status is "Draft" or "Scheduled")
                                         {
-                                            <RadzenButton Icon="publish" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="publish" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small"
                                                           Click="@(() => PublishAsync(item))" />
                                         }
                                         @if (item.Status is "Published" or "Scheduled")
                                         {
-                                            <RadzenButton Icon="unpublished" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="unpublished" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
                                                           Click="@(() => UnpublishAsync(item))" />
                                         }
                                         @if (_canDelete)
                                         {
-                                            <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
                                                           Click="@(() => DeleteAsync(item))" />
                                         }
                                     </RadzenStack>
@@ -163,23 +163,23 @@
                                     @if (_canWrite)
                                     {
                                         <div class="d-flex flex-wrap gap-2">
-                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                                                           Click="@(() => Navigation.NavigateTo($"/admin/blog/posts/{item.Id}"))" />
-                                            <RadzenButton Icon="content_copy" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+                                            <ThaiXButton Icon="content_copy" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
                                                           Click="@(() => DuplicateAsync(item))" />
                                             @if (item.Status is "Draft" or "Scheduled")
                                             {
-                                                <RadzenButton Icon="publish" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small"
+                                                <ThaiXButton Icon="publish" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Small"
                                                               Click="@(() => PublishAsync(item))" />
                                             }
                                             @if (item.Status is "Published" or "Scheduled")
                                             {
-                                                <RadzenButton Icon="unpublished" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
+                                                <ThaiXButton Icon="unpublished" ButtonStyle="ButtonStyle.Warning" Size="ButtonSize.Small"
                                                               Click="@(() => UnpublishAsync(item))" />
                                             }
                                             @if (_canDelete)
                                             {
-                                                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
+                                                <ThaiXButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small"
                                                               Click="@(() => DeleteAsync(item))" />
                                             }
                                         </div>

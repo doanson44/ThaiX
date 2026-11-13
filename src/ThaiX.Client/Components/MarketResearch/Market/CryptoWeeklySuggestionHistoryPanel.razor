@@ -48,9 +48,9 @@
                             Class="@(Viewport.IsTablet ? "responsive-grid" : string.Empty)"
                             IsLoading="@_isLoadingHistory">
                 <EmptyTemplate>
-                    <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                         @L[RK.Common.NoDataFound]
-                    </RadzenAlert>
+                    </ThaiXAlert>
                 </EmptyTemplate>
                 <Columns>
                     <RadzenDataGridColumn MinWidth="10rem" TItem="WeeklySuggestionHistoryReportDto" Property="RunAtUtc" Title="@L[RK.WeeklySuggestionHistory.RunAt]" />
@@ -60,7 +60,7 @@
                     <RadzenDataGridColumn Width="8.5rem" TItem="WeeklySuggestionHistoryReportDto" Filterable="false" Sortable="false" Title="@L[RK.WeeklySuggestionHistory.TemplateFiles]">
                         <Template Context="report">
                             <div class="d-flex gap-1 flex-nowrap">
-                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                <ThaiXButton Size="ButtonSize.ExtraSmall"
                                               Icon="download"
                                               ButtonStyle="ButtonStyle.Light"
                                               title="@L[RK.WeeklySuggestionHistory.DownloadCsv]"
@@ -68,7 +68,7 @@
                                               Disabled="@(_isDownloadingTemplate)"
                                               IsBusy="@IsDownloadBusy(report, FormatCsv)"
                                               Click="@(() => DownloadTemplateAsync(report, FormatCsv))" />
-                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                <ThaiXButton Size="ButtonSize.ExtraSmall"
                                               Icon="description"
                                               ButtonStyle="ButtonStyle.Secondary"
                                               title="@L[RK.WeeklySuggestionHistory.DownloadMarkdown]"
@@ -76,7 +76,7 @@
                                               Disabled="@(_isDownloadingTemplate)"
                                               IsBusy="@IsDownloadBusy(report, FormatMarkdown)"
                                               Click="@(() => DownloadTemplateAsync(report, FormatMarkdown))" />
-                                <RadzenButton Size="ButtonSize.ExtraSmall"
+                                <ThaiXButton Size="ButtonSize.ExtraSmall"
                                               Icon="visibility"
                                               ButtonStyle="ButtonStyle.Success"
                                               title="@L[RK.WeeklySuggestionHistory.ViewPicks]"
@@ -109,9 +109,9 @@
                                 Density="Density.Compact"
                                 Class="@(Viewport.IsTablet ? "responsive-grid" : string.Empty)">
                     <EmptyTemplate>
-                        <RadzenAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                        <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
                             @L[RK.Common.NoDataFound]
-                        </RadzenAlert>
+                        </ThaiXAlert>
                     </EmptyTemplate>
                     <Columns>
                         <RadzenDataGridColumn MinWidth="8.75rem" TItem="EvaluatedWeeklySuggestionDto" Property="Symbol" Title="@L[RK.WeeklySuggestionHistory.Symbol]" />

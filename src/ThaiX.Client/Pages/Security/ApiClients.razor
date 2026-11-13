@@ -109,14 +109,14 @@
                                         <div class="d-flex flex-wrap gap-1">
                                             @if (_canWrite)
                                             {
-                                                <RadzenButton Icon="edit"
+                                                <ThaiXButton Icon="edit"
                                                               ButtonStyle="ButtonStyle.Light"
                                                               Size="ButtonSize.Small"
                                                               Click="@(() => OpenEditDialogAsync(item))"
                                                               title="@L[RK.ApiClients.ActionEdit]" />
                                                 @if (item.IsActive)
                                                 {
-                                                    <RadzenButton Icon="pause_circle"
+                                                    <ThaiXButton Icon="pause_circle"
                                                                   ButtonStyle="ButtonStyle.Warning"
                                                                   Size="ButtonSize.Small"
                                                                   Click="@(() => DeactivateAsync(item))"
@@ -124,13 +124,13 @@
                                                 }
                                                 else
                                                 {
-                                                    <RadzenButton Icon="play_circle"
+                                                    <ThaiXButton Icon="play_circle"
                                                                   ButtonStyle="ButtonStyle.Success"
                                                                   Size="ButtonSize.Small"
                                                                   Click="@(() => ActivateAsync(item))"
                                                                   title="@L[RK.ApiClients.ActionActivate]" />
                                                 }
-                                                <RadzenButton Icon="vpn_key"
+                                                <ThaiXButton Icon="vpn_key"
                                                               ButtonStyle="ButtonStyle.Secondary"
                                                               Size="ButtonSize.Small"
                                                               Click="@(() => ConfirmRegenerateSecretAsync(item))"
@@ -138,7 +138,7 @@
                                             }
                                             @if (_canManageScopes)
                                             {
-                                                <RadzenButton Icon="shield"
+                                                <ThaiXButton Icon="shield"
                                                               ButtonStyle="ButtonStyle.Info"
                                                               Size="ButtonSize.Small"
                                                               Click="@(() => OpenScopesDialogAsync(item))"
@@ -146,7 +146,7 @@
                                             }
                                             @if (_canDelete)
                                             {
-                                                <RadzenButton Icon="delete"
+                                                <ThaiXButton Icon="delete"
                                                               ButtonStyle="ButtonStyle.Danger"
                                                               Size="ButtonSize.Small"
                                                               Click="@(() => ConfirmDeleteAsync(item))"

@@ -82,14 +82,14 @@
                                     <div class="d-flex gap-1">
                                         @if (_canWrite)
                                         {
-                                            <RadzenButton Icon="edit"
+                                            <ThaiXButton Icon="edit"
                                                           ButtonStyle="ButtonStyle.Light"
                                                           Size="ButtonSize.Small"
                                                           Click="@(() => OpenEditDialogAsync(item))" />
                                         }
                                         @if (_canDelete)
                                         {
-                                            <RadzenButton Icon="delete"
+                                            <ThaiXButton Icon="delete"
                                                           ButtonStyle="ButtonStyle.Danger"
                                                           Size="ButtonSize.Small"
                                                           Click="@(() => ConfirmDeleteAsync(item))" />
