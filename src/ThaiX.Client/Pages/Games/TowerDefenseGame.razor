@@ -192,10 +192,6 @@ else
                     {
                         <circle r="@(enemySpec.Radius + 3)" fill="#a5f3fc" fill-opacity="0.45" />
                     }
-                    @if (enemy.PoisonTicks > 0)
-                    {
-                        <circle r="@(enemySpec.Radius + 5)" fill="none" stroke="#86efac" stroke-width="2" />
-                    }
                     @if (enemy.Health < enemy.MaxHealth)
                     {
                         <rect x="-10" y="@(-enemySpec.Radius - 8)" width="20" height="3" fill="#450a0a" />
@@ -291,11 +287,21 @@ else
                 <div class="td-info-head">
                     <strong>@L[chosen.Spec.NameKey]</strong>
                     <span class="td-stats">
-                        @L[ResourceKeys.Games.TdUpgradeDamage] @match.Damage(chosen).ToString("0.#") &middot;
-                        @L[ResourceKeys.Games.TdUpgradeRange] @match.Range(chosen).ToString("0") &middot;
-                        @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s
+                        @if (chosen.Spec.IsSupport)
+                        {
+                            @L[chosen.Spec.Effect == TowerEffect.SupportRange ? ResourceKeys.Games.TdSupportRange : ResourceKeys.Games.TdSupportDamage] @match.Damage(chosen).ToString("0.#")
+                        }
+                        else
+                        {
+                            @L[ResourceKeys.Games.TdUpgradeDamage] @match.Damage(chosen).ToString("0.#") &middot;
+                            @L[ResourceKeys.Games.TdUpgradeRange] @match.Range(chosen).ToString("0") &middot;
+                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s
+                        }
                     </span>
-                    <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                    @if (!chosen.Spec.IsSupport)
+                    {
+                        <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                    }
                 </div>
                 <div class="td-upgrades">
                     @foreach (var track in Enum.GetValues<UpgradeTrack>())
@@ -330,11 +336,21 @@ else
                 <div class="td-info-head">
                     <strong>@L[buildSpec.NameKey]</strong>
                     <span class="td-stats">
-                        @L[ResourceKeys.Games.TdUpgradeDamage] @buildSpec.Damage.ToString("0.#") &middot;
-                        @L[ResourceKeys.Games.TdUpgradeRange] @buildSpec.Range.ToString("0") &middot;
-                        @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s
+                        @if (buildSpec.IsSupport)
+                        {
+                            @L[buildSpec.Effect == TowerEffect.SupportRange ? ResourceKeys.Games.TdSupportRange : ResourceKeys.Games.TdSupportDamage] @buildSpec.SupportValue.ToString("0.#")
+                        }
+                        else
+                        {
+                            @L[ResourceKeys.Games.TdUpgradeDamage] @buildSpec.Damage.ToString("0.#") &middot;
+                            @L[ResourceKeys.Games.TdUpgradeRange] @buildSpec.Range.ToString("0") &middot;
+                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s
+                        }
                     </span>
-                    <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                    @if (!buildSpec.IsSupport)
+                    {
+                        <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                    }
                 </div>
                 <small class="text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
             }
