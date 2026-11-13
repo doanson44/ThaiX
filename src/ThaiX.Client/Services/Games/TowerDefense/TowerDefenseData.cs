@@ -170,6 +170,10 @@ public static class TowerDefenseData
 
     public static EnemySpec Enemy(EnemyKind kind) => Enemies[(int)kind];
 
+    public const int StartingFundsIncrement = 200;
+
+    public static int StartingFundsUpgradeCost(int currentBonus) => 250 + Math.Max(0, currentBonus / StartingFundsIncrement) * 250;
+
     public static int TowerUnlockCost(TowerKind kind) => kind switch
     {
         TowerKind.Shotgun => 250,
