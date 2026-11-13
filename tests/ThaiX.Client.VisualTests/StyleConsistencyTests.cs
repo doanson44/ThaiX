@@ -153,10 +153,27 @@ public class StyleConsistencyTests
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-positive').trim().toLowerCase()");
                 var negative = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-negative').trim().toLowerCase()");
+                var primaryForeground = await page.EvaluateAsync<string>(
+                    "() => getComputedStyle(document.documentElement).getPropertyValue('--rz-on-primary').trim().toLowerCase()");
+                var primaryContrast = await page.EvaluateAsync<double>(@"() => {
+                    const toLuminance = (hex) => {
+                        const rgb = hex.match(/[a-f0-9]{2}/gi).map(value => parseInt(value, 16) / 255);
+                        const linear = rgb.map(value => value <= 0.04045
+                            ? value / 12.92
+                            : Math.pow((value + 0.055) / 1.055, 2.4));
+                        return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+                    };
+                    const foreground = toLuminance(primaryForeground);
+                    const background = toLuminance('#2563eb');
+                    return (Math.max(foreground, background) + 0.05)
+                        / (Math.min(foreground, background) + 0.05);
+                }");
 
                 Assert.Equal("#2563eb", accent);
                 Assert.Equal("#10b981", positive);
                 Assert.Equal("#f43f5e", negative);
+                Assert.Equal("#ffffff", primaryForeground);
+                Assert.True(primaryContrast >= 4.5, $"Primary button contrast is {primaryContrast:F2}:1.");
             },
             item => item.RequiresAuth,
             _ => (1280, 800),
