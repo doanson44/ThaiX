@@ -23,7 +23,7 @@
 <RadzenLayout class="min-vh-100 tx-main-layout">
     <RadzenHeader>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0" class="rz-px-2 rz-px-md-4 w-100">
-            <RadzenSidebarToggle Click="@SidebarToggle" />
+            <RadzenButton Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@SidebarToggle"><ThaiXIcon Name="menu" /></RadzenButton>
             <a href="/"
                class="header-brand flex-grow-1 text-truncate rz-ms-1"
                aria-label="@L[RK.App.Title]"
@@ -87,7 +87,7 @@
                    class="tx-sidebar-overlay">
         <div class="tx-sidebar-inner d-flex flex-column h-100">
             <RadzenStack AlignItems="AlignItems.End" class="rz-p-2 flex-shrink-0">
-                <RadzenButton Icon="west" Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@(() => sidebarExpanded = false)" />
+                <RadzenButton Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@(() => sidebarExpanded = false)"><ThaiXIcon Name="arrow-left" /></RadzenButton>
             </RadzenStack>
             <div class="tx-sidebar-nav-scroll flex-grow-1 rz-overflow-auto">
                 <NavMenu />
@@ -120,7 +120,7 @@
                 </div>
                 <AuthorizeView>
                     <Authorized>
-                        <RadzenButton Icon="logout"
+                        <ResponsiveIconButton Icon="logout"
                                       Text="@L[RK.Menu.Logout]"
                                       ButtonStyle="ButtonStyle.Light"
                                       Size="ButtonSize.Small"
