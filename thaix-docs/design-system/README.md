@@ -54,8 +54,10 @@ existing ThaiX logo, not an exact token export from Canva:
 | `--tx-font-body` | IBM Plex Sans | Application content |
 | `--tx-font-mono` | IBM Plex Mono | Code and numeric detail |
 
-The Bootstrap and Radzen primary colors are mapped from the same ThaiX accent tokens in
-`wwwroot/css/app.css`. Do not define a second primary palette in individual pages.
+The canonical brand reference is `docs/brand-guidelines.md`. The runtime stylesheet
+`src/ThaiX.Client/wwwroot/css/app.css` implements primitive, semantic, and component token
+layers, then maps the same ThaiX accent to Bootstrap and Radzen. Do not define a second
+primary palette in individual pages.
 
 ## Implementation rules
 
@@ -77,6 +79,7 @@ The Bootstrap and Radzen primary colors are mapped from the same ThaiX accent to
 
 ## Current integration
 
+- `docs/brand-guidelines.md` records the operational brand baseline and its inferred values.
 - Global Radzen and Bootstrap primary colors now use the ThaiX blue identity.
 - Existing semantic success, danger, and informational colors remain distinct.
 - Display typography now uses the existing IBM Plex Sans family instead of a serif face.
@@ -84,6 +87,7 @@ The Bootstrap and Radzen primary colors are mapped from the same ThaiX accent to
   application title.
 - Existing Radzen navigation icons remain in place; their module-level mapping is recorded
   in `ICON-CATALOG.md`.
+- Shared component states and responsive rules are recorded in `COMPONENTS.md`.
 
 ## Known gaps before calling this a complete design system
 
