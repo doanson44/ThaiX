@@ -43,6 +43,39 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
+    public void StartingFundsUpgradeCost_IncreasesForEachPermanentPurchase()
+    {
+        // Arrange
+        var costs = new[]
+        {
+            TowerDefenseData.StartingFundsUpgradeCost(0),
+            TowerDefenseData.StartingFundsUpgradeCost(200),
+            TowerDefenseData.StartingFundsUpgradeCost(400)
+        };
+
+        // Act
+        var increment = TowerDefenseData.StartingFundsIncrement;
+
+        // Assert
+        costs.Should().Equal(new[] { 250, 500, 750 });
+        increment.Should().Be(200);
+    }
+
+    [Fact]
+    public void Match_StartsWithPurchasedStartingFundsBonus()
+    {
+        // Arrange
+        var difficulty = TowerDefenseData.Difficulties[1];
+        const int bonus = 400;
+
+        // Act
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], difficulty, endless: false, bonus);
+
+        // Assert
+        match.Gold.Should().Be(difficulty.StartGold + bonus);
+    }
+
+    [Fact]
     public void BioChemicalTower_UsesPoisonEffect()
     {
         // Arrange
