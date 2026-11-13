@@ -114,8 +114,8 @@
     --bs-success-rgb: 16, 185, 129;
     --bs-danger: var(--tx-negative);
     --bs-danger-rgb: 244, 63, 94;
-    --bs-warning: var(--tx-accent);
-    --bs-warning-rgb: 37, 99, 235;
+    --bs-warning: var(--tx-warning);
+    --bs-warning-rgb: 245, 158, 11;
     --bs-info: #5b7c99;
     --bs-info-rgb: 91, 124, 153;
 
