@@ -192,4 +192,27 @@ public class StyleConsistencyTests
             _ => (1280, 800),
             item => item.Route);
     }
+    [Fact]
+    public async Task Shell_UsesThaiXIconSpriteAndBrandMark()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/", 1280, 800);
+
+            var iconCount = await page.Locator("svg.tx-icon use[href^='/icons/system-design.svg#']").CountAsync();
+            var faviconHref = await page.Locator("link[rel='icon']").GetAttributeAsync("href");
+            var symbolCount = await page.EvaluateAsync<int>(@"async () => {
+                const response = await fetch('/icons/system-design.svg');
+                if (!response.ok) return 0;
+                const source = await response.text();
+                return (source.match(/<symbol id=/g) ?? []).length;
+            }");
+
+            Assert.True(iconCount > 0, "The application shell should render ThaiX system icons.");
+            Assert.Equal("favicon.svg?v=2", faviconHref);
+            Assert.Equal(31, symbolCount);
+        }
+    }
+
 }
