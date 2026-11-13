@@ -88,7 +88,7 @@ primary palette in individual pages.
 - The navigation, profile menu, shell controls, shared responsive action buttons, and selected
   page-level icons use the ThaiX icon library.
 - Existing Radzen navigation icons remain the default for generic controls. A shared
-  `ThaiXIcon` component and 31 currentColor glyphs are available for ThaiX-specific
+  `ThaiXIcon` component and 32 currentColor glyphs are available for ThaiX-specific
   visual identity; the extracted set is cataloged in `ICON-CATALOG.md`.
 - Shared component states and responsive rules are recorded in `COMPONENTS.md`.
 
