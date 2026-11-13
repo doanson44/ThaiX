@@ -136,7 +136,7 @@
                         <Columns>
                             <RadzenDataGridColumn TItem="ContactListItemDto" Title="@L[RK.Contacts.AvatarUrl]" Width="60px">
                                 <Template>
-                                    <RadzenIcon Icon="person" />
+                                    <ThaiXIcon Name="person" />
                                 </Template>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="ContactListItemDto" Property="DisplayName" Title="@L[RK.Contacts.Name]" />
@@ -220,7 +220,7 @@
                                     <RadzenStack Gap="0.75rem">
                                         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                                             <div class="d-flex align-items-center gap-2">
-                                                <RadzenIcon Icon="person" />
+                                                <ThaiXIcon Name="person" />
                                                 <RadzenText TextStyle="TextStyle.Subtitle1" class="mb-0">@item.DisplayName</RadzenText>
                                             </div>
                                             <RadzenBadge Text="@(item.IsArchived ? L[RK.Contacts.FilterArchiveArchived] : L[RK.Contacts.FilterArchiveActive])"
