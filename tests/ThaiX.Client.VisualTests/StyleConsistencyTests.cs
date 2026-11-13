@@ -153,6 +153,8 @@ public class StyleConsistencyTests
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-positive').trim().toLowerCase()");
                 var negative = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-negative').trim().toLowerCase()");
+                var warning = await page.EvaluateAsync<string>(
+                    "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-warning').trim().toLowerCase()");
                 var primaryForeground = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--rz-on-primary').trim().toLowerCase()");
                 var primaryContrast = await page.EvaluateAsync<double>(@"foreground => {
@@ -172,6 +174,7 @@ public class StyleConsistencyTests
                 Assert.Equal("#2563eb", accent);
                 Assert.Equal("#10b981", positive);
                 Assert.Equal("#f43f5e", negative);
+                Assert.Equal("#f59e0b", warning);
                 var lightPrimaryForeground = await page.EvaluateAsync<string>(@"() => {
                     document.documentElement.setAttribute('data-bs-theme', 'light');
                     return getComputedStyle(document.documentElement)
