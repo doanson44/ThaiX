@@ -119,3 +119,46 @@ Before adding any extracted asset to `src/ThaiX.Client/wwwroot`:
 - Use a stable kebab-case filename and document the source board.
 - Verify rendering in both themes and at mobile/tablet/desktop sizes.
 - Do not replace an existing icon globally until every usage has been checked.
+
+## Extracted runtime icon set
+
+The first runtime extraction is available at `src/ThaiX.Client/wwwroot/icons/system.svg`.
+It contains 14 monochrome system glyphs traced from the embedded raster glyphs in the
+`System & Navigation` board and normalized to a 24 x 24 viewBox:
+
+| Name | Meaning |
+|---|---|
+| `home` | Home |
+| `dashboard` | Dashboard |
+| `applications` | Applications |
+| `workspace` | Workspace |
+| `calendar` | Calendar |
+| `clock` | Clock |
+| `history` | History |
+| `bookmark` | Bookmark |
+| `favorites` | Favorites |
+| `help` | Help |
+| `profile` | Profile |
+| `language` | Language |
+| `theme` | Theme |
+| `fullscreen` | Fullscreen |
+
+Use the shared Blazor component:
+
+```razor
+<ThaiXIcon Name="home" Size="1.25rem" Title="Home" />
+<ThaiXIcon Name="dashboard" Class="text-primary" />
+```
+
+The component renders an external SVG symbol with `currentColor`, so it inherits the
+surrounding text color and remains theme-aware. Provide `Title` when the icon conveys
+meaning by itself; omit it when the icon is decorative and the surrounding control has
+its own accessible name.
+
+The archive also contains 1,214 additional embedded image occurrences across domain,
+media, and Tower Defense boards. Those are not silently treated as vector icons: the
+source artboards embed PNG images, not editable vector paths, for those assets. They
+require a separate asset pass to classify semantic names, decide which belong in the
+UI icon set versus game illustrations, and retain their raster fidelity or explicitly
+trace them to vectors. The current runtime extraction is therefore the reusable system
+icon foundation, not the complete 32-board asset conversion.
