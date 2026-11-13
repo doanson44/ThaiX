@@ -83,10 +83,12 @@ primary palette in individual pages.
 - Global Radzen and Bootstrap primary colors now use the ThaiX blue identity.
 - Existing semantic success, danger, and informational colors remain distinct.
 - Display typography now uses the existing IBM Plex Sans family instead of a serif face.
-- The main application header and authentication layout display the existing ThaiX favicon
-  mark beside the localized/application title.
+- The main application header and authentication layout display the updated ThaiX X-mark
+  favicon beside the localized/application title.
+- The navigation, profile menu, shell controls, shared responsive action buttons, and selected
+  page-level icons use the ThaiX icon library.
 - Existing Radzen navigation icons remain the default for generic controls. A shared
-  `ThaiXIcon` component and 14 currentColor system glyphs are available for ThaiX-specific
+  `ThaiXIcon` component and 31 currentColor glyphs are available for ThaiX-specific
   visual identity; the extracted set is cataloged in `ICON-CATALOG.md`.
 - Shared component states and responsive rules are recorded in `COMPONENTS.md`.
 
