@@ -155,7 +155,7 @@ public class StyleConsistencyTests
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-negative').trim().toLowerCase()");
                 var primaryForeground = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--rz-on-primary').trim().toLowerCase()");
-                var primaryContrast = await page.EvaluateAsync<double>(@"() => {
+                var primaryContrast = await page.EvaluateAsync<double>(@"foreground => {
                     const toLuminance = (hex) => {
                         const rgb = hex.match(/[a-f0-9]{2}/gi).map(value => parseInt(value, 16) / 255);
                         const linear = rgb.map(value => value <= 0.04045
@@ -163,10 +163,10 @@ public class StyleConsistencyTests
                             : Math.pow((value + 0.055) / 1.055, 2.4));
                         return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
                     };
-                    const foreground = toLuminance(primaryForeground);
+                    const foregroundLuminance = toLuminance(foreground);
                     const background = toLuminance('#2563eb');
-                    return (Math.max(foreground, background) + 0.05)
-                        / (Math.min(foreground, background) + 0.05);
+                    return (Math.max(foregroundLuminance, background) + 0.05)
+                        / (Math.min(foregroundLuminance, background) + 0.05);
                 }");
 
                 Assert.Equal("#2563eb", accent);
