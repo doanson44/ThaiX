@@ -89,7 +89,8 @@ public sealed class TowerDefenseMatch
         Map = map;
         Difficulty = difficulty;
         Endless = endless;
-        Gold = difficulty.StartGold + Math.Max(0, startingGoldBonus);
+        Gold = difficulty.StartGold + Math.Max(0, startingGoldBonus)
+            + (map.RequiredTower is { } required ? TowerDefenseData.Tower(required).Cost : 0);
         Lives = difficulty.Lives;
         _roads = [.. map.Routes.Select(route =>
             route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0)).ToArray())];
