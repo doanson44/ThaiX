@@ -3,7 +3,7 @@ namespace ThaiX.Client.Services.Games.TowerDefense;
 public sealed class Tower
 {
     public required int Id { get; init; }
-    public required int Cell { get; init; }
+    public required int Cell { get; set; }
     public required TowerSpec Spec { get; init; }
     public int[] Levels { get; } = new int[3];
     public int Invested { get; set; }
@@ -164,6 +164,15 @@ public sealed class TowerDefenseMatch
         var tower = new Tower { Id = _nextTowerId++, Cell = cell, Spec = spec, Invested = spec.Cost };
         _towers.Add(tower);
         return tower;
+    }
+
+    public bool Move(Tower tower, int cell)
+    {
+        if (IsOver || !_towers.Contains(tower) || IsBlocked(cell) || TowerAt(cell) is not null)
+            return false;
+
+        tower.Cell = cell;
+        return true;
     }
 
     public bool Upgrade(Tower tower, UpgradeTrack track)
