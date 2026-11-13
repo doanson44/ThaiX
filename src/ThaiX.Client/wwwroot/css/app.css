@@ -107,7 +107,7 @@ html[data-bs-theme="dark"] body {
     background-image: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0) 45%);
 }
 
-/* Light theme — keep amber accent; soften surfaces for daylight readability */
+/* Light theme — keep ThaiX blue accent; soften surfaces for daylight readability */
 html[data-bs-theme="light"] body {
     background-color: #fafaf9;
     background-image: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 45%);
