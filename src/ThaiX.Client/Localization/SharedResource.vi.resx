@@ -2197,8 +2197,8 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 20 đợt bộ binh, xe cơ giới và trực thăng. Xây, nâng cấp, bán tháp và gọi không kích.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn bản đồ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-6) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 20 đợt tấn công. Triển khai 10 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn bản đồ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-9 và 0) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>
@@ -2207,6 +2207,10 @@
   <data name="Games.TowerTesla" xml:space="preserve"><value>Cuộn Tesla</value></data>
   <data name="Games.TowerFlame" xml:space="preserve"><value>Súng phun lửa</value></data>
   <data name="Games.TowerSlow" xml:space="preserve"><value>Trường làm chậm</value></data>
+  <data name="Games.TowerShotgun" xml:space="preserve"><value>Đội súng shotgun</value></data>
+  <data name="Games.TowerMachineGun" xml:space="preserve"><value>Súng máy</value></data>
+  <data name="Games.TowerBioChemical" xml:space="preserve"><value>Hóa chất sinh học</value></data>
+  <data name="Games.TowerHeatRay" xml:space="preserve"><value>Tia nhiệt</value></data>
   <data name="Games.EnemySoldier" xml:space="preserve"><value>Lính bộ binh</value></data>
   <data name="Games.EnemyArmored" xml:space="preserve"><value>Lính thiết giáp</value></data>
   <data name="Games.EnemyJeep" xml:space="preserve"><value>Xe jeep</value></data>
