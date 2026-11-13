@@ -191,6 +191,8 @@ public static class ResourceKeys
         public const string TdUnlocked = "Games.Td.Unlocked";
         public const string TdMove = "Games.Td.Move";
         public const string TdMoveHint = "Games.Td.MoveHint";
+        public const string TdStartFunds = "Games.Td.StartFunds";
+        public const string TdStartFundsOwned = "Games.Td.StartFundsOwned";
         public const string EnemySoldier = "Games.EnemySoldier";
         public const string EnemyArmored = "Games.EnemyArmored";
         public const string EnemyJeep = "Games.EnemyJeep";
