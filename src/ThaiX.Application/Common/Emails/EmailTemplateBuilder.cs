@@ -3,8 +3,8 @@ using ThaiX.Application.Common.Models;
 namespace ThaiX.Application.Common.Emails;
 
 /// <summary>
-/// Wraps transactional email content in the "dark-finance" brand shell (see
-/// docs/implement-plans/audit-checklist-dark-finance.md) so every ThaiX email looks like
+/// Wraps transactional email content in the ThaiX brand shell (see
+/// docs/brand-guidelines.md) so every ThaiX email looks like
 /// one product instead of ad-hoc inline HTML per call site. Uses table-based layout and
 /// web-safe fonts only, since most mail clients strip &lt;style&gt; blocks and won't load
 /// custom web fonts.
