@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Common.Interfaces;
+using ThaiX.Application.Features.Games.Queries.GetTowerDefenseGold;
 using ThaiX.Domain.Aggregates.JsonBin;
 
 namespace ThaiX.Application.Features.Games.Commands.SaveTowerDefenseGold;
