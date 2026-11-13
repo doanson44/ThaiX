@@ -163,10 +163,10 @@ public static class ResourceKeys
         public const string TowerTesla = "Games.TowerTesla";
         public const string TowerFlame = "Games.TowerFlame";
         public const string TowerSlow = "Games.TowerSlow";
-        public const string TowerShotgun = "Games.TowerShotgun";
-        public const string TowerMachineGun = "Games.TowerMachineGun";
-        public const string TowerBioChemical = "Games.TowerBioChemical";
-        public const string TowerHeatRay = "Games.TowerHeatRay";
+        public const string TowerParticleBeam = "Games.TowerParticleBeam";
+        public const string TowerPlasmaCannon = "Games.TowerPlasmaCannon";
+        public const string TowerRadar = "Games.TowerRadar";
+        public const string TowerPowerAmplifier = "Games.TowerPowerAmplifier";
         public const string TdMission01 = "Games.Td.Mission01";
         public const string TdMission02 = "Games.Td.Mission02";
         public const string TdMission03 = "Games.Td.Mission03";
@@ -193,6 +193,8 @@ public static class ResourceKeys
         public const string TdMoveHint = "Games.Td.MoveHint";
         public const string TdStartFunds = "Games.Td.StartFunds";
         public const string TdStartFundsOwned = "Games.Td.StartFundsOwned";
+        public const string TdSupportRange = "Games.Td.SupportRange";
+        public const string TdSupportDamage = "Games.Td.SupportDamage";
         public const string EnemySoldier = "Games.EnemySoldier";
         public const string EnemyArmored = "Games.EnemyArmored";
         public const string EnemyJeep = "Games.EnemyJeep";
