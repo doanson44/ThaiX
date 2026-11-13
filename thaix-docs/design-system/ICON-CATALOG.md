@@ -120,45 +120,67 @@ Before adding any extracted asset to `src/ThaiX.Client/wwwroot`:
 - Verify rendering in both themes and at mobile/tablet/desktop sizes.
 - Do not replace an existing icon globally until every usage has been checked.
 
-## Extracted runtime icon set
+## Runtime icon library
 
-The first runtime extraction is available at `src/ThaiX.Client/wwwroot/icons/system.svg`.
-It contains 14 monochrome, editable vector glyphs recreated from the named visual
-references in the `System & Navigation` board and normalized to a 24 x 24 viewBox:
+The production sprite is `src/ThaiX.Client/wwwroot/icons/system-design.svg`. It contains
+28 glyphs traced from the 28 white system glyph assets embedded in the `ThaiX Icon System`
+artboard, normalized to a 24 x 24 viewBox and converted to monochrome vector paths using
+`currentColor`. Three additional utility glyphs (`menu`, `arrow-left`, `logout`) support
+the application shell.
 
 | Name | Meaning |
 |---|---|
 | `home` | Home |
-| `dashboard` | Dashboard |
-| `applications` | Applications |
-| `workspace` | Workspace |
-| `calendar` | Calendar |
-| `clock` | Clock |
-| `history` | History |
-| `bookmark` | Bookmark |
-| `favorites` | Favorites |
-| `help` | Help |
-| `profile` | Profile |
-| `language` | Language |
-| `theme` | Theme |
-| `fullscreen` | Fullscreen |
+| `analytics` | Analytics and metrics |
+| `team` | People and teams |
+| `wallet` | Wallet and finance |
+| `database` | Data storage |
+| `document` | Documents and articles |
+| `shield-check` | Security and verification |
+| `ai-chip` | Artificial intelligence |
+| `cube` | Products and assets |
+| `link` | Links and integrations |
+| `gamepad` | Games |
+| `video` | Video and media |
+| `image` | Images |
+| `settings` | Settings |
+| `globe` | Global and language |
+| `leaf` | Sustainability |
+| `lightning` | Automation and speed |
+| `cart` | Commerce |
+| `bell` | Notifications |
+| `alert` | Warning and attention |
+| `lock` | Access control |
+| `cloud` | Cloud |
+| `server` | Infrastructure |
+| `search` | Search |
+| `chat` | Communication |
+| `heart` | Favorites |
+| `user` | User profile |
+| `share` | Sharing |
+| `menu` | Navigation menu |
+| `arrow-left` | Back and close navigation |
+| `logout` | Sign out |
 
-Use the shared Blazor component:
+Use the shared component:
 
 ```razor
 <ThaiXIcon Name="home" Size="1.25rem" Title="Home" />
-<ThaiXIcon Name="dashboard" Class="text-primary" />
+<ThaiXIcon Name="analytics" Class="text-primary" />
 ```
 
-The component renders an external SVG symbol with `currentColor`, so it inherits the
-surrounding text color and remains theme-aware. Provide `Title` when the icon conveys
-meaning by itself; omit it when the icon is decorative and the surrounding control has
-its own accessible name.
+The component accepts the canonical glyph names and a compatibility map for common legacy
+Radzen/Material icon names. Unknown legacy names resolve to the generic `cube` glyph so
+the page does not fall back to a second icon family. A meaningful standalone icon should
+receive `Title`; decorative icons inside a labelled control remain hidden from assistive
+technology.
 
-The archive also contains 1,214 additional embedded image occurrences across domain,
-media, and Tower Defense boards. Those are not silently treated as vector icons: the
-source artboards embed PNG images, not editable vector paths, for those assets. They
-require a separate asset pass to classify semantic names, decide which belong in the
-UI icon set versus game illustrations, and retain their raster fidelity or explicitly
-trace them to vectors. The current runtime extraction is therefore the reusable system
-icon foundation, not the complete 32-board asset conversion.
+The application navigation and profile menu now use the ThaiX glyphs. The shared
+`ResponsiveIconButton` also renders the ThaiX set, covering actions across pages that use
+that shared component. Remaining direct Radzen controls are being migrated incrementally;
+Radzen remains available for non-icon component behavior.
+
+The original artboards contain 1,228 embedded image elements, many of which are branded
+variants, domain illustrations, or Tower Defense sprites. They are not all interchangeable
+UI glyphs. Keep those source assets classified separately rather than adding every raster
+illustration to the system icon sprite.
