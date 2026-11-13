@@ -295,9 +295,13 @@ public sealed class GameEndpointsTests : IntegrationTestBase
 
         // Act
         var response = await Client.GetAsync("/api/games/tower-defense/gold");
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/gold",
+            new { Gold = 500 });
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
