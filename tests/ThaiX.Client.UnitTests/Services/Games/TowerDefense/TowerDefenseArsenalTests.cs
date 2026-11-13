@@ -69,9 +69,24 @@ public sealed class TowerDefenseArsenalTests
         }).ToArray();
 
         // Assert
-        maps.Should().HaveCount(14);
+        maps.Where(map => !map.IsBonus).Should().HaveCount(14);
+        maps.Where(map => map.IsBonus).Should().HaveCount(2);
         maps.Select(map => map.Id).Should().OnlyHaveUniqueItems();
         collisions.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void BonusSniperMission_RequiresTheSniperTower()
+    {
+        // Arrange
+        var mission = TowerDefenseData.Maps.Single(map => map.Id == "bonus-sniper");
+
+        // Act
+        var requiredTower = mission.RequiredTower;
+
+        // Assert
+        mission.IsBonus.Should().BeTrue();
+        requiredTower.Should().Be(TowerKind.Sniper);
     }
 
     [Fact]
