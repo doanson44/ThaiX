@@ -100,8 +100,13 @@
     grid-row: span 2;
 }
 
-.td-tower.is-active {
+ .td-tower.is-active {
     border-color: #facc15;
+}
+
+.td-tower:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
 }
 
 .td-tower.is-poor .td-cost {
