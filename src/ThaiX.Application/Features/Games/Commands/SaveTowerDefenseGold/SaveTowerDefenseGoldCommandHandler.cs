@@ -35,7 +35,7 @@ public sealed class SaveTowerDefenseGoldCommandHandler(IApplicationDbContext con
         }
         else
         {
-            bin.ReplaceContent(content, "text/plain", isCompressed: false);
+            bin.ReplaceContent(content, "application/json", isCompressed: false);
         }
 
         await context.SaveChangesAsync(cancellationToken);
