@@ -107,6 +107,41 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
+    public void Move_TowerToFreeTile_UpdatesItsPosition()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], TowerDefenseData.Difficulties[1], endless: false);
+        var origin = match.FirstFreeCell(0);
+        var destination = Enumerable.Range(0, TowerDefenseMatch.Columns * TowerDefenseMatch.Rows)
+            .First(cell => cell != origin && !match.IsBlocked(cell));
+
+        var tower = match.Build(origin, TowerKind.Gunner);
+
+        // Act
+        var moved = match.Move(tower!, destination);
+
+        // Assert
+        moved.Should().BeTrue();
+        tower!.Cell.Should().Be(destination);
+        match.TowerAt(origin).Should().BeNull();
+        match.TowerAt(destination).Should().BeSameAs(tower);
+    }
+
+    [Fact]
+    public void Move_TowerOntoRoad_IsRejected()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], TowerDefenseData.Difficulties[1], endless: false);
+        var tower = match.Build(match.FirstFreeCell(0), TowerKind.Gunner);
+
+        // Act
+        var moved = match.Move(tower!, 10);
+
+        // Assert
+        moved.Should().BeFalse();
+    }
+
+    [Fact]
     public void InterWaveDelay_MissionBreak_IsApproximatelyTenSeconds()
     {
         // Arrange
