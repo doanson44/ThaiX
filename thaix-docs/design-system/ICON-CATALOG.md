@@ -123,8 +123,8 @@ Before adding any extracted asset to `src/ThaiX.Client/wwwroot`:
 ## Extracted runtime icon set
 
 The first runtime extraction is available at `src/ThaiX.Client/wwwroot/icons/system.svg`.
-It contains 14 monochrome system glyphs traced from the embedded raster glyphs in the
-`System & Navigation` board and normalized to a 24 x 24 viewBox:
+It contains 14 monochrome, editable vector glyphs recreated from the named visual
+references in the `System & Navigation` board and normalized to a 24 x 24 viewBox:
 
 | Name | Meaning |
 |---|---|
