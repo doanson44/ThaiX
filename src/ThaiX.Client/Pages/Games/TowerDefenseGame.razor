@@ -226,7 +226,7 @@ else
                         aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
                     <ThaiXIcon Name="@option.Icon" Size="1.5rem" style="@($"color:{option.Color}")" />
                     <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
-                    <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdTowerLocked, TowerUnlockMission(kind)].Value)</span>
+                    <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdTowerLocked, TowerDefenseData.UnlockMission(kind)].Value)</span>
                 </button>
             }
         </div>
@@ -383,16 +383,7 @@ else
 
     private bool IsUnlocked(int mapIndex) => mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
 
-    private bool IsTowerUnlocked(TowerKind kind) => _cleared.Count >= TowerUnlockMission(kind);
-
-    private static int TowerUnlockMission(TowerKind kind) => kind switch
-    {
-        TowerKind.Shotgun => 1,
-        TowerKind.MachineGun => 3,
-        TowerKind.BioChemical => 5,
-        TowerKind.HeatRay => 7,
-        _ => 0
-    };
+    private bool IsTowerUnlocked(TowerKind kind) => _cleared.Count >= TowerDefenseData.UnlockMission(kind);
 
     private void Deploy()
     {
