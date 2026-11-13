@@ -1,6 +1,6 @@
 # ThaiX Design System
 
-Status: INITIAL IMPLEMENTATION
+Status: FOUNDATION IMPLEMENTED; FULL VISUAL ROLLOUT PENDING
 Source: user-provided `THAIX-design.zip` (32 SVG artboards)
 Target: `src/ThaiX.Client` (Blazor WebAssembly, Radzen, Bootstrap 5.3)
 
