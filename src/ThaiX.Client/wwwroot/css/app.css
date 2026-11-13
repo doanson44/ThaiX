@@ -67,7 +67,7 @@
     --rz-primary-dark: var(--tx-accent-dark);
     --rz-primary-darker: #1e3a8a;
     --rz-on-primary: #ffffff;
-    --rz-on-primary-light: #ffffff;
+    --rz-on-primary-light: #071426;
     --rz-on-primary-lighter: #ffffff;
     --rz-on-primary-dark: #ffffff;
     --rz-on-primary-darker: #ffffff;
@@ -154,7 +154,7 @@ html[data-bs-theme="light"] body {
 
 html[data-bs-theme="light"] {
     --rz-on-primary: #ffffff;
-    --rz-on-primary-light: #ffffff;
+    --rz-on-primary-light: #071426;
     --rz-on-primary-lighter: #071426;
     --rz-primary-lighter: rgba(37, 99, 235, 0.18);
     --rz-grid-loading-indicator-background-color: rgba(250, 250, 249, 0.82);
