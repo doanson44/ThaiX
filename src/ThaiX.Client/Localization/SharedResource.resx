@@ -2250,6 +2250,10 @@
   <data name="Games.Td.Mission12" xml:space="preserve"><value>Mission 12 - Coastal Road</value></data>
   <data name="Games.Td.Mission13" xml:space="preserve"><value>Mission 13 - Twin Fronts</value></data>
   <data name="Games.Td.Mission14" xml:space="preserve"><value>Mission 14 - Final Stand</value></data>
+  <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Bonus - Sniper Operations</value></data>
+  <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Bonus - Last Stand</value></data>
+  <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Bonus missions</value></data>
+  <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Buy for {0} credits in War-Mart</value></data>
   <data name="Games.Td.StartWave" xml:space="preserve"><value>Start wave</value></data>
   <data name="Games.Td.WaveOf" xml:space="preserve"><value>Wave {0}/{1}</value></data>
   <data name="Games.Td.WaveEndless" xml:space="preserve"><value>Wave {0}</value></data>
