@@ -26,6 +26,27 @@ claimed to be an exact Canva token extraction.
 - The design archive includes a larger brand board; a replacement mark should only be
   introduced after an individual clean asset is exported and visually verified.
 
+## Quick Reference
+
+| Primary Color | #2563EB |
+| Secondary Color | #0B1220 |
+| Accent Color | #60A5FA |
+
+### Primary Colors
+
+| Primary Blue | #2563EB |
+| Primary Light | #60A5FA |
+| Primary Dark | #1D4ED8 |
+
+### Secondary Colors
+
+| Navy | #0B1220 |
+| Deep Navy | #020617 |
+
+### Accent Colors
+
+| Sky Blue | #60A5FA |
+
 ## Color palette
 
 | Role | Token | Hex | Usage |
