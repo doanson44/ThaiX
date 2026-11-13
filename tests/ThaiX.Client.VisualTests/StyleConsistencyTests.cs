@@ -211,7 +211,7 @@ public class StyleConsistencyTests
 
             Assert.True(iconCount > 0, "The application shell should render ThaiX system icons.");
             Assert.Equal("favicon.svg?v=2", faviconHref);
-            Assert.Equal(31, symbolCount);
+            Assert.Equal(32, symbolCount);
         }
     }
 
