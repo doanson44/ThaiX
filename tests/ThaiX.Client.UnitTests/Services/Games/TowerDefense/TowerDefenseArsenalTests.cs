@@ -38,7 +38,7 @@ public sealed class TowerDefenseArsenalTests
 
         // Assert
         unlocks.Should().BeInAscendingOrder();
-        unlocks.Should().Equal(250, 500, 750, 1000);
+        unlocks.Should().Equal(new[] { 250, 500, 750, 1000 });
         startingTowerUnlocks.Should().HaveCount(6);
     }
 
