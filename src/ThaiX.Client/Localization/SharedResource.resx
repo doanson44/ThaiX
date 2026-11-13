@@ -2198,7 +2198,7 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base through 20 waves. Deploy 10 tower types, upgrade their damage, range and fire rate, and call in airstrikes.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 14 missions. Unlock 10 tower types, upgrade damage, range and fire rate, and call in airstrikes.</value></data>
   <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a map, difficulty and mode, then deploy. Choose a tower (keys 1-9 and 0) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
@@ -2224,14 +2224,29 @@
   <data name="Games.DifficultyEasy" xml:space="preserve"><value>Easy</value></data>
   <data name="Games.DifficultyNormal" xml:space="preserve"><value>Normal</value></data>
   <data name="Games.DifficultyHard" xml:space="preserve"><value>Hard</value></data>
-  <data name="Games.Td.ModeCampaign" xml:space="preserve"><value>Campaign (20 waves)</value></data>
+  <data name="Games.Td.ModeCampaign" xml:space="preserve"><value>Campaign (14 missions)</value></data>
   <data name="Games.Td.ModeEndless" xml:space="preserve"><value>Endless</value></data>
   <data name="Games.Td.MenuTitle" xml:space="preserve"><value>Choose your mission</value></data>
-  <data name="Games.Td.Map" xml:space="preserve"><value>Map</value></data>
+  <data name="Games.Td.Map" xml:space="preserve"><value>Mission</value></data>
   <data name="Games.Td.Difficulty" xml:space="preserve"><value>Difficulty</value></data>
   <data name="Games.Td.Mode" xml:space="preserve"><value>Mode</value></data>
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Deploy</value></data>
-  <data name="Games.Td.MapLocked" xml:space="preserve"><value>Locked: win {0} first</value></data>
+  <data name="Games.Td.MapLocked" xml:space="preserve"><value>Locked: clear {0} first</value></data>
+  <data name="Games.Td.TowerLocked" xml:space="preserve"><value>Clear {0} missions to unlock</value></data>
+  <data name="Games.Td.Mission01" xml:space="preserve"><value>Mission 01 - Training Ground</value></data>
+  <data name="Games.Td.Mission02" xml:space="preserve"><value>Mission 02 - River Crossing</value></data>
+  <data name="Games.Td.Mission03" xml:space="preserve"><value>Mission 03 - Crossfire</value></data>
+  <data name="Games.Td.Mission04" xml:space="preserve"><value>Mission 04 - Highland Pass</value></data>
+  <data name="Games.Td.Mission05" xml:space="preserve"><value>Mission 05 - Desert Route</value></data>
+  <data name="Games.Td.Mission06" xml:space="preserve"><value>Mission 06 - Frozen Ridge</value></data>
+  <data name="Games.Td.Mission07" xml:space="preserve"><value>Mission 07 - Supply Line</value></data>
+  <data name="Games.Td.Mission08" xml:space="preserve"><value>Mission 08 - Outpost</value></data>
+  <data name="Games.Td.Mission09" xml:space="preserve"><value>Mission 09 - Canyon Run</value></data>
+  <data name="Games.Td.Mission10" xml:space="preserve"><value>Mission 10 - Iron Valley</value></data>
+  <data name="Games.Td.Mission11" xml:space="preserve"><value>Mission 11 - Night Watch</value></data>
+  <data name="Games.Td.Mission12" xml:space="preserve"><value>Mission 12 - Coastal Road</value></data>
+  <data name="Games.Td.Mission13" xml:space="preserve"><value>Mission 13 - Twin Fronts</value></data>
+  <data name="Games.Td.Mission14" xml:space="preserve"><value>Mission 14 - Final Stand</value></data>
   <data name="Games.Td.StartWave" xml:space="preserve"><value>Start wave</value></data>
   <data name="Games.Td.WaveOf" xml:space="preserve"><value>Wave {0}/{1}</value></data>
   <data name="Games.Td.WaveEndless" xml:space="preserve"><value>Wave {0}</value></data>
