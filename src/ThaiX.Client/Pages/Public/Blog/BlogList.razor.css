@@ -84,7 +84,7 @@
 }
 
 .blog-index__category {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     font-weight: 600;
 }
 
@@ -100,7 +100,7 @@
 
 .blog-index__row:hover .blog-index__post-title,
 .blog-index__row:focus-visible .blog-index__post-title {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
 }
 
 .blog-index__summary {
@@ -124,7 +124,7 @@
 
 .blog-index__row:hover .blog-index__arrow,
 .blog-index__row:focus-visible .blog-index__arrow {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     transform: translateX(0.2rem);
 }
 
@@ -141,7 +141,7 @@
 
 .blog-index__empty-eyebrow {
     margin: 0 0 0.75rem;
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     font-family: var(--tx-font-mono, ui-monospace, monospace);
     font-size: 0.72rem;
     font-weight: 600;
@@ -173,11 +173,11 @@
     align-items: center;
     margin-top: 1.5rem;
     padding: 0.45rem 0;
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     font-size: 0.9rem;
     font-weight: 600;
     text-decoration: none;
-    border-bottom: 1px solid color-mix(in srgb, var(--tx-accent, #f59e0b) 45%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--tx-accent, #2563eb) 45%, transparent);
     transition: color 0.15s ease, border-color 0.15s ease;
 }
 
