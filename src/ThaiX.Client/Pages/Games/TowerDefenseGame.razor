@@ -18,7 +18,16 @@
                         <span>@L[TowerDefenseData.Maps[index].NameKey]</span>
                         @if (locked)
                         {
-                            <small>@L[ResourceKeys.Games.TdMapLocked, L[TowerDefenseData.Maps[index - 1].NameKey].Value]</small>
+                            <small>
+                                @if (TowerDefenseData.Maps[index].IsBonus)
+                                {
+                                    @L[ResourceKeys.Games.TdBonusLocked, TowerDefenseData.Maps[index].UnlockCost]
+                                }
+                                else
+                                {
+                                    @L[ResourceKeys.Games.TdMapLocked, L[TowerDefenseData.Maps[index - 1].NameKey].Value]
+                                }
+                            </small>
                         }
                     </button>
                 }
@@ -69,6 +78,21 @@
                                 <strong>@(unlocked ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {cost}")</strong>
                             </button>
                         }
+                    </div>
+                    <div>
+                        <div class="td-menu-label">@L[ResourceKeys.Games.TdBonusMissions]</div>
+                        <div class="td-choices">
+                            @foreach (var mission in TowerDefenseData.Maps.Where(map => map.IsBonus))
+                            {
+                                var bonus = mission;
+                                var purchased = _bonusMissions.Contains(bonus.Id);
+                                <button type="button" class="td-choice td-shop-item" disabled="@(purchased || _warMartCredits < bonus.UnlockCost)" @onclick="() => BuyBonusMission(bonus.Id)">
+                                    <ThaiXIcon Name="target" Size="1.25rem" />
+                                    <span>@L[bonus.NameKey]</span>
+                                    <strong>@(purchased ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {bonus.UnlockCost}")</strong>
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             }
@@ -315,6 +339,7 @@ else
 
     private readonly HashSet<string> _cleared = [];
     private readonly HashSet<TowerKind> _unlockedTowers = [];
+    private readonly HashSet<string> _bonusMissions = [];
     private int _warMartCredits;
     private bool _showWarMart;
     private Action[] _cellClicks = [];
@@ -356,6 +381,9 @@ else
                 else if (token.StartsWith("tower:", StringComparison.Ordinal)
                     && Enum.TryParse<TowerKind>(token[6..], out var kind))
                     _unlockedTowers.Add(kind);
+                else if (token.StartsWith("bonus:", StringComparison.Ordinal)
+                    && TowerDefenseData.Maps.Any(map => map.IsBonus && map.Id == token[6..]))
+                    _bonusMissions.Add(token[6..]);
                 else if (token.StartsWith("credits:", StringComparison.Ordinal)
                     && int.TryParse(token[8..], out var credits))
                     _warMartCredits = Math.Max(0, credits);
@@ -415,7 +443,13 @@ else
         _cursor = row * TowerDefenseMatch.Columns + column;
     }
 
-    private bool IsUnlocked(int mapIndex) => mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
+    private bool IsUnlocked(int mapIndex)
+    {
+        var mission = TowerDefenseData.Maps[mapIndex];
+        return mission.IsBonus
+            ? _bonusMissions.Contains(mission.Id)
+            : mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
+    }
 
     private bool IsTowerUnlocked(TowerKind kind) => TowerDefenseData.TowerUnlockCost(kind) == 0 || _unlockedTowers.Contains(kind);
 
@@ -428,7 +462,7 @@ else
         _match = new TowerDefenseMatch(map, TowerDefenseData.Difficulties[_difficultyIndex], _endless);
         _roadPoints = [.. _match.Roads.Select(road => string.Join(' ', road.Select(point => $"{Px(point.X)},{Px(point.Y)}")))];
         _cursor = _match.FirstFreeCell(3 * TowerDefenseMatch.Columns + 4);
-        _buildKind = TowerKind.Gunner;
+        _buildKind = map.RequiredTower ?? TowerKind.Gunner;
         _selectedTower = null;
         _airstrikeArmed = false;
         RestartClock();
@@ -460,6 +494,7 @@ else
         {
             var progress = _cleared.Order()
                 .Concat(_unlockedTowers.Order().Select(kind => $"tower:{kind}"))
+                .Concat(_bonusMissions.Order().Select(id => $"bonus:{id}"))
                 .Append($"credits:{_warMartCredits}");
             await ScoreStore.SetProgressAsync(GameKey, string.Join(',', progress));
         }
@@ -479,9 +514,20 @@ else
         await SaveProgressAsync();
     }
 
+    private async Task BuyBonusMission(string missionId)
+    {
+        var mission = TowerDefenseData.Maps.FirstOrDefault(map => map.Id == missionId && map.IsBonus);
+        if (mission is null || _bonusMissions.Contains(missionId) || _warMartCredits < mission.UnlockCost)
+            return;
+
+        _warMartCredits -= mission.UnlockCost;
+        _bonusMissions.Add(missionId);
+        await SaveProgressAsync();
+    }
+
     private void SelectBuild(TowerKind kind)
     {
-        if (!CanPlay || !IsTowerUnlocked(kind))
+        if (!CanPlay || !IsTowerUnlocked(kind) || (_match?.Map.RequiredTower is { } required && kind != required))
             return;
 
         _buildKind = kind;
