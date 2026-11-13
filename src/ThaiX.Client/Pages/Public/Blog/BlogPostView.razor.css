@@ -11,7 +11,7 @@
 
 .blog-post__back:hover,
 .blog-post__back:focus-visible {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     outline: none;
 }
 
