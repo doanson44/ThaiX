@@ -2237,6 +2237,8 @@
   <data name="Games.Td.Unlocked" xml:space="preserve"><value>Đã mở khóa</value></data>
   <data name="Games.Td.Move" xml:space="preserve"><value>Di chuyển</value></data>
   <data name="Games.Td.MoveHint" xml:space="preserve"><value>Chọn một ô trống để di chuyển tháp này.</value></data>
+  <data name="Games.Td.StartFunds" xml:space="preserve"><value>Tăng vĩnh viễn tiền khởi đầu +200</value></data>
+  <data name="Games.Td.StartFundsOwned" xml:space="preserve"><value>Tiền khởi đầu cộng thêm: +{0}</value></data>
   <data name="Games.Td.Mission01" xml:space="preserve"><value>Nhiệm vụ 01 - Bãi tập huấn</value></data>
   <data name="Games.Td.Mission02" xml:space="preserve"><value>Nhiệm vụ 02 - Vượt sông</value></data>
   <data name="Games.Td.Mission03" xml:space="preserve"><value>Nhiệm vụ 03 - Giao tranh</value></data>
