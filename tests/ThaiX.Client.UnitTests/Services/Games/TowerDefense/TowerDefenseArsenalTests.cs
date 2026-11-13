@@ -5,7 +5,7 @@ namespace ThaiX.Client.UnitTests.Services.Games.TowerDefense;
 public sealed class TowerDefenseArsenalTests
 {
     [Fact]
-    public void Towers_ShouldExposeTenUniqueKinds()
+    public void TowerCatalog_ContainsTenUniqueKinds()
     {
         // Arrange
         var towers = TowerDefenseData.Towers;
@@ -20,7 +20,7 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void UnlockMission_ShouldProgressAdvancedTowersAcrossCampaign()
+    public void UnlockMission_AdvancedTowers_UsesProgressiveThresholds()
     {
         // Arrange
         var unlocks = new[]
@@ -43,7 +43,7 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void BioChemicalTower_ShouldUsePoisonEffect()
+    public void BioChemicalTower_UsesPoisonEffect()
     {
         // Arrange
         var tower = TowerDefenseData.Tower(TowerKind.BioChemical);
@@ -56,7 +56,7 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void Maps_ShouldContainFourteenMissionsWithNoObstaclesOnRoads()
+    public void Maps_ContainFourteenMissions_KeepObstaclesOffRoads()
     {
         // Arrange
         var maps = TowerDefenseData.Maps;
@@ -75,7 +75,7 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void InterWaveDelay_ShouldBeApproximatelyTenSeconds()
+    public void InterWaveDelay_MissionBreak_IsApproximatelyTenSeconds()
     {
         // Arrange
         var delayMilliseconds = TowerDefenseMatch.InterWaveDelayTicks * TowerDefenseMatch.TickMilliseconds;
