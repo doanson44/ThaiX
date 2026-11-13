@@ -156,7 +156,8 @@ public sealed class TowerDefenseMatch
     public Tower? Build(int cell, TowerKind kind)
     {
         var spec = TowerDefenseData.Tower(kind);
-        if (IsOver || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
+        if (IsOver || (Map.RequiredTower is { } required && kind != required)
+            || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
             return null;
 
         Gold -= spec.Cost;
