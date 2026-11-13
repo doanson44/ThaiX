@@ -1,12 +1,12 @@
 /* ===== Dark-Finance design tokens ===== */
 :root {
-    --tx-font-display: 'Fraunces', Georgia, serif;
+    --tx-font-display: 'IBM Plex Sans', 'Segoe UI', sans-serif;
     --tx-font-body: 'IBM Plex Sans', 'Segoe UI', sans-serif;
     --tx-font-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
-    --tx-accent: #f59e0b;
-    --tx-accent-light: #fbbf24;
-    --tx-accent-dark: #b45309;
+    --tx-accent: #2563eb;
+    --tx-accent-light: #60a5fa;
+    --tx-accent-dark: #1d4ed8;
     --tx-positive: #10b981;
     --tx-negative: #f43f5e;
 
@@ -21,18 +21,18 @@
     --resume-toolbar-border: rgba(255, 255, 255, 0.12);
     --resume-toolbar-fg: #a8a29e;
 
-    /* Re-theme Radzen's primary/success/danger to the dark-finance palette */
+    /* Re-theme Radzen's primary/success/danger to the ThaiX blue brand palette */
     --rz-primary: var(--tx-accent);
     --rz-primary-light: var(--tx-accent-light);
-    --rz-primary-lighter: rgba(245, 158, 11, 0.2);
+    --rz-primary-lighter: rgba(37, 99, 235, 0.2);
     --rz-primary-dark: var(--tx-accent-dark);
-    --rz-primary-darker: #92400e;
-    --rz-on-primary: #1a1207;
-    --rz-on-primary-light: #1a1207;
+    --rz-primary-darker: #1e3a8a;
+    --rz-on-primary: #071426;
+    --rz-on-primary-light: #071426;
     --rz-on-primary-lighter: var(--tx-accent-light);
     --rz-on-primary-dark: #ffffff;
     --rz-on-primary-darker: #ffffff;
-    /* Keep Radzen DataGrid loading feedback neutral while retaining the amber spinner. */
+    /* Keep Radzen DataGrid loading feedback neutral while retaining the blue spinner. */
     --rz-grid-loading-indicator-background-color: rgba(38, 37, 39, 0.78);
     --rz-grid-loading-indicator-background-opacity: 1;
     --rz-grid-loading-indicator-color: var(--rz-primary);
@@ -54,7 +54,7 @@
     --rz-on-danger-light: #250a0e;
 
     /* Radzen's default --rz-info (#12a4f5, a bright saturated blue) reads as an
-       off-palette "rainbow" accent next to amber/emerald/rose. Muted to a
+       off-palette "rainbow" accent next to blue/emerald/rose. Muted to a
        desaturated steel-blue so "Info" stays visually distinct from Primary
        (used across the app for 2FA/permission/secondary-action badges and
        buttons) without breaking the restrained color system. */
@@ -71,13 +71,13 @@
        bugs (blue "final amount" card, blue permission badges) in earlier
        phases. Retheme'd once here instead of chasing every usage site. */
     --bs-primary: var(--tx-accent);
-    --bs-primary-rgb: 245, 158, 11;
+    --bs-primary-rgb: 37, 99, 235;
     --bs-success: var(--tx-positive);
     --bs-success-rgb: 16, 185, 129;
     --bs-danger: var(--tx-negative);
     --bs-danger-rgb: 244, 63, 94;
     --bs-warning: var(--tx-accent);
-    --bs-warning-rgb: 245, 158, 11;
+    --bs-warning-rgb: 37, 99, 235;
     --bs-info: #5b7c99;
     --bs-info-rgb: 91, 124, 153;
 
@@ -88,8 +88,8 @@
     --rz-tabs-border: none;
     --rz-tabs-background-color: transparent;
     --rz-tabs-tab-background-color: transparent;
-    --rz-tabs-tab-hover-background-color: rgba(245, 158, 11, 0.08);
-    --rz-tabs-tab-focus-background-color: rgba(245, 158, 11, 0.12);
+    --rz-tabs-tab-hover-background-color: rgba(37, 99, 235, 0.08);
+    --rz-tabs-tab-focus-background-color: rgba(37, 99, 235, 0.12);
     --rz-tabs-tab-selected-background-color: transparent;
     --rz-tabs-tab-selected-color: var(--rz-primary);
     --rz-tabs-tab-selected-top-border-color: var(--rz-primary);
@@ -102,21 +102,21 @@ html, body {
 
 /* Radzen's standard-dark-base theme ships a multi-color decorative blob
    background on `body` (pink/blue/purple/gold) that violates the restrained
-   dark-finance palette. Replace it with a single subtle amber vignette. */
+   ThaiX blue brand palette. Replace it with a single subtle blue vignette. */
 html[data-bs-theme="dark"] body {
-    background-image: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.06) 0%, rgba(245, 158, 11, 0) 45%);
+    background-image: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.06) 0%, rgba(37, 99, 235, 0) 45%);
 }
 
 /* Light theme — keep amber accent; soften surfaces for daylight readability */
 html[data-bs-theme="light"] body {
     background-color: #fafaf9;
-    background-image: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0) 45%);
+    background-image: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0) 45%);
 }
 
 html[data-bs-theme="light"] {
-    --rz-on-primary: #1a1207;
-    --rz-on-primary-light: #1a1207;
-    --rz-primary-lighter: rgba(245, 158, 11, 0.18);
+    --rz-on-primary: #071426;
+    --rz-on-primary-light: #071426;
+    --rz-primary-lighter: rgba(37, 99, 235, 0.18);
     --rz-grid-loading-indicator-background-color: rgba(250, 250, 249, 0.82);
     --rz-grid-loading-indicator-background-opacity: 1;
     --rz-grid-loading-indicator-color: var(--rz-primary);
@@ -142,23 +142,23 @@ html[data-bs-theme="light"] {
     --rz-panel-menu-item-color: #44403c;
     --rz-panel-menu-item-background-color: transparent;
     --rz-panel-menu-item-hover-color: #1c1917;
-    --rz-panel-menu-item-hover-background-color: rgba(245, 158, 11, 0.08);
-    --rz-panel-menu-item-active-color: #b45309;
-    --rz-panel-menu-item-active-background-color: rgba(245, 158, 11, 0.12);
-    --rz-panel-menu-item-active-indicator: var(--tx-accent, #f59e0b);
+    --rz-panel-menu-item-hover-background-color: rgba(37, 99, 235, 0.08);
+    --rz-panel-menu-item-active-color: #1d4ed8;
+    --rz-panel-menu-item-active-background-color: rgba(37, 99, 235, 0.12);
+    --rz-panel-menu-item-active-indicator: var(--tx-accent, #2563eb);
     --rz-panel-menu-icon-color: #57534e;
     --rz-panel-menu-item-2nd-level-color: #57534e;
     --rz-panel-menu-item-2nd-level-background-color: #fafaf9;
     --rz-panel-menu-item-2nd-level-hover-color: #1c1917;
-    --rz-panel-menu-item-2nd-level-hover-background-color: rgba(245, 158, 11, 0.1);
-    --rz-panel-menu-item-2nd-level-active-color: #b45309;
-    --rz-panel-menu-item-2nd-level-active-background-color: rgba(245, 158, 11, 0.14);
+    --rz-panel-menu-item-2nd-level-hover-background-color: rgba(37, 99, 235, 0.1);
+    --rz-panel-menu-item-2nd-level-active-color: #1d4ed8;
+    --rz-panel-menu-item-2nd-level-active-background-color: rgba(37, 99, 235, 0.14);
     --rz-panel-menu-item-3rd-level-color: #57534e;
     --rz-panel-menu-item-3rd-level-background-color: #f5f5f4;
     --rz-panel-menu-item-3rd-level-hover-color: #1c1917;
-    --rz-panel-menu-item-3rd-level-hover-background-color: rgba(245, 158, 11, 0.1);
-    --rz-panel-menu-item-3rd-level-active-color: #b45309;
-    --rz-panel-menu-item-3rd-level-active-background-color: rgba(245, 158, 11, 0.14);
+    --rz-panel-menu-item-3rd-level-hover-background-color: rgba(37, 99, 235, 0.1);
+    --rz-panel-menu-item-3rd-level-active-color: #1d4ed8;
+    --rz-panel-menu-item-3rd-level-active-background-color: rgba(37, 99, 235, 0.14);
 }
 
 html[data-bs-theme="light"] .rz-layout .rz-sidebar.tx-sidebar-overlay {
@@ -167,7 +167,7 @@ html[data-bs-theme="light"] .rz-layout .rz-sidebar.tx-sidebar-overlay {
 }
 
 html[data-bs-theme="light"] .rz-tabview-nav {
-    border-bottom-color: rgba(180, 83, 9, 0.2);
+    border-bottom-color: rgba(29, 78, 216, 0.2);
 }
 
 html[data-bs-theme="light"] .auth-layout {
@@ -237,7 +237,7 @@ h1, h2, h3, h4, h5, h6,
    top-positioned tabs with border-top-width / negative margins for the folder look). */
 .rz-tabview-nav {
     gap: 0.25rem;
-    border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+    border-bottom: 1px solid rgba(37, 99, 235, 0.15);
     background-color: transparent;
 }
 
@@ -282,7 +282,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .rz-layout.tx-main-layout .rz-header {
-    border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+    border-bottom: 1px solid rgba(37, 99, 235, 0.15);
 }
 
 .rz-layout .rz-sidebar.tx-sidebar-overlay {
@@ -305,7 +305,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .tx-sidebar-settings {
-    border-top: 1px solid rgba(245, 158, 11, 0.15);
+    border-top: 1px solid rgba(37, 99, 235, 0.15);
     padding: 0.5rem 0.75rem;
 }
 
@@ -418,7 +418,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.1), 0 0 0 0.25rem rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.1), 0 0 0 0.25rem rgba(37, 99, 235, 0.5);
 }
 
 .valid.modified:not([type=checkbox]) {
@@ -482,7 +482,7 @@ a, .btn-link {
     }
 
         .loading-progress circle:last-child {
-            stroke: var(--tx-accent, #f59e0b);
+            stroke: var(--tx-accent, #2563eb);
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }
@@ -721,7 +721,7 @@ html[data-bs-theme="light"] .ThaiX-md-preview {
 }
 
 .ThaiX-md-preview a {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
 }
 
 html[data-bs-theme="dark"] .ThaiX-md-preview pre,
@@ -852,7 +852,7 @@ html[data-bs-theme="light"] .ThaiX-md-preview td {
 }
 
 .ThaiX-md-editor__page:focus {
-    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.45);
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.45);
 }
 
 .ThaiX-md-editor__page::placeholder {
