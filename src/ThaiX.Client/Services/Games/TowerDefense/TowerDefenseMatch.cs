@@ -118,6 +118,7 @@ public sealed class TowerDefenseMatch
     public bool AirstrikeReady => Tick >= _airstrikeReadyAt;
     public double AirstrikeCharge => AirstrikeReady ? 1 : 1 - (_airstrikeReadyAt - Tick) / (double)AirstrikeCooldownTicks;
     public int FinalScore => Math.Min(MaxScore, Score);
+    public int MissionReward => 100 + Wave * 10 + Lives * 5;
     public IReadOnlyList<WaveGroup> NextWaveGroups => TowerDefenseData.WaveGroups(Wave + 1);
     public bool NextWaveCountdownActive => State == MatchState.Planning && _autoWaveAt > Tick && HasMoreWaves;
     public int NextWaveCountdownSeconds => NextWaveCountdownActive
