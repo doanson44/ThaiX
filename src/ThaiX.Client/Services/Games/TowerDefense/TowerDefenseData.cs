@@ -163,6 +163,15 @@ public static class TowerDefenseData
 
     public static EnemySpec Enemy(EnemyKind kind) => Enemies[(int)kind];
 
+    public static int UnlockMission(TowerKind kind) => kind switch
+    {
+        TowerKind.Shotgun => 1,
+        TowerKind.MachineGun => 3,
+        TowerKind.BioChemical => 5,
+        TowerKind.HeatRay => 7,
+        _ => 0
+    };
+
     /// <summary>Wave composition; after the campaign the table repeats with growing groups (endless mode).</summary>
     public static IReadOnlyList<WaveGroup> WaveGroups(int wave)
     {
