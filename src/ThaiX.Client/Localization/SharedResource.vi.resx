@@ -2235,6 +2235,8 @@
   <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>Điểm War-Mart: {0}</value></data>
   <data name="Games.Td.Buy" xml:space="preserve"><value>Mua</value></data>
   <data name="Games.Td.Unlocked" xml:space="preserve"><value>Đã mở khóa</value></data>
+  <data name="Games.Td.Move" xml:space="preserve"><value>Di chuyển</value></data>
+  <data name="Games.Td.MoveHint" xml:space="preserve"><value>Chọn một ô trống để di chuyển tháp này.</value></data>
   <data name="Games.Td.Mission01" xml:space="preserve"><value>Nhiệm vụ 01 - Bãi tập huấn</value></data>
   <data name="Games.Td.Mission02" xml:space="preserve"><value>Nhiệm vụ 02 - Vượt sông</value></data>
   <data name="Games.Td.Mission03" xml:space="preserve"><value>Nhiệm vụ 03 - Giao tranh</value></data>
