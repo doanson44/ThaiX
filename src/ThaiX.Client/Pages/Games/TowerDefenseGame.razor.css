@@ -5,6 +5,19 @@
     color: #f8fafc;
 }
 
+.td-sprite-bank {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.td-unit-icon {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
 .td-menu-title {
     margin: 0;
     font-size: 1.25rem;
@@ -14,6 +27,34 @@
     margin-bottom: 0.375rem;
     color: #94a3b8;
     font-size: 0.8125rem;
+}
+
+.td-mission-group {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.td-mission-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.td-mission-heading .td-menu-label {
+    margin-bottom: 0;
+}
+
+.td-mission-choices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0.5rem;
+}
+
+.td-mission-choice {
+    width: 100%;
+    min-width: 0;
 }
 
 .td-choices {
@@ -65,6 +106,30 @@
     font-size: 0.8125rem;
 }
 
+.td-match-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-areas:
+        "board towers"
+        "panel towers";
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.td-match-layout .game-svg {
+    grid-area: board;
+    min-width: 0;
+}
+
+.td-match-layout .td-towers {
+    grid-area: towers;
+    align-self: start;
+}
+
+.td-match-layout .td-panel {
+    grid-area: panel;
+}
+
 .td-actions {
     display: flex;
     flex-wrap: wrap;
@@ -79,7 +144,7 @@
 
 .td-towers {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 6.5rem), 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.375rem;
 }
 
@@ -94,9 +159,10 @@
     background: #1e293b;
     color: #f8fafc;
     text-align: left;
+    transition: opacity 120ms ease;
 }
 
-.td-tower ::deep svg {
+.td-tower svg {
     grid-row: span 2;
 }
 
@@ -107,6 +173,10 @@
 .td-tower:disabled {
     opacity: 0.55;
     cursor: not-allowed;
+}
+
+.td-tower.is-poor:not(:disabled) {
+    opacity: 0.45;
 }
 
 .td-tower.is-poor .td-cost {
@@ -161,11 +231,6 @@ button:disabled kbd {
     opacity: 0.6;
 }
 
-.td-warmart {
-    display: grid;
-    gap: 0.5rem;
-}
-
 .td-warmart-panel {
     display: grid;
     gap: 0.5rem;
@@ -183,6 +248,14 @@ button:disabled kbd {
 
 .td-shop-item {
     grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
+}
+
+.td-shop-choices {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0.5rem;
 }
 
 .td-shop-item strong {
@@ -196,4 +269,18 @@ button:disabled kbd {
     gap: 0.5rem;
     padding-top: 0.5rem;
     border-top: 1px solid #334155;
+}
+
+@media (max-width: 767.98px) {
+    .td-match-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "board"
+            "panel"
+            "towers";
+    }
+
+    .td-towers {
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    }
 }
