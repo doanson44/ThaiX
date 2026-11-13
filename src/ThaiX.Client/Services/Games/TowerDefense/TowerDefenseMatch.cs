@@ -28,6 +28,8 @@ public sealed class Enemy
     public double Y { get; set; }
     public int SlowTicks { get; set; }
     public int HitUntil { get; set; }
+    public int PoisonTicks { get; set; }
+    public double PoisonDamage { get; set; }
 
     public double Progress => Distance / PathLength;
 }
@@ -52,7 +54,7 @@ public sealed class TowerDefenseMatch
     public const int PopupTicks = 24;
     public const int AirstrikeCooldownTicks = 1200;
     public const int AirstrikeRadius = 70;
-    public const int InterWaveDelayTicks = 151;
+    public const int InterWaveDelayTicks = 300;
 
     private const int ChillTicks = 30;
     private const int ShotTicks = 3;
@@ -255,6 +257,7 @@ public sealed class TowerDefenseMatch
         foreach (var tower in _towers)
             Fire(tower);
 
+        ApplyPoison();
         ResolveDeaths();
         CheckWaveEnd();
     }
@@ -348,6 +351,12 @@ public sealed class TowerDefenseMatch
                 }
 
                 break;
+            case TowerEffect.Poison:
+                Hit(target, damage * 0.35);
+                target.PoisonTicks = 120;
+                target.PoisonDamage = damage * 0.25;
+                _shots.Add(new Shot(x, y, target.X, target.Y, color, Tick + ShotTicks));
+                break;
             case TowerEffect.Slow:
                 _blasts.Add(new Blast(x, y, range, color, true, Tick));
                 foreach (var enemy in candidates)
@@ -374,6 +383,16 @@ public sealed class TowerDefenseMatch
             var (x, y) = (current.X, current.Y);
             current = candidates.Where(enemy => !hit.Contains(enemy) && double.Hypot(enemy.X - x, enemy.Y - y) <= ChainRange)
                 .MinBy(enemy => double.Hypot(enemy.X - x, enemy.Y - y));
+        }
+    }
+
+    private void ApplyPoison()
+    {
+        foreach (var enemy in _enemies.Where(enemy => enemy.PoisonTicks > 0))
+        {
+            enemy.PoisonTicks--;
+            if (enemy.PoisonTicks % 30 == 0)
+                Hit(enemy, enemy.PoisonDamage);
         }
     }
 
