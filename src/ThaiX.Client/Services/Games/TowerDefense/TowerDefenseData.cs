@@ -56,11 +56,11 @@ public static class TowerDefenseData
     [
         new(TowerKind.Gunner, ResourceKeys.Games.TowerGun, "settings", "#bef264", 50, 100, 7, 9,
             TowerEffect.Single, true, true, 1, 0.6, 0.8, "#fde047"),
-        new(TowerKind.Sniper, ResourceKeys.Games.TowerSniper, "search", "#fca5a5", 125, 200, 60, 45,
+        new(TowerKind.Sniper, ResourceKeys.Games.TowerSniper, "search", "#fca5a5", 400, 200, 60, 45,
             TowerEffect.Single, true, true, 1.5, 0.8, 1, "#f8fafc"),
         new(TowerKind.Rocket, ResourceKeys.Games.TowerRocket, "alert", "#fb923c", 150, 115, 28, 40,
             TowerEffect.Splash, true, false, 0.8, 1.3, 0, "#fed7aa"),
-        new(TowerKind.Tesla, ResourceKeys.Games.TowerTesla, "lightning", "#c4b5fd", 140, 95, 14, 22,
+        new(TowerKind.Tesla, ResourceKeys.Games.TowerTesla, "lightning", "#c4b5fd", 250, 95, 14, 22,
             TowerEffect.Chain, true, true, 1, 0.9, 1, "#c4b5fd"),
         new(TowerKind.Flamethrower, ResourceKeys.Games.TowerFlame, "heart", "#fdba74", 110, 62, 4, 3,
             TowerEffect.Burn, true, false, 0.5, 1.6, 0, "#fb923c"),
