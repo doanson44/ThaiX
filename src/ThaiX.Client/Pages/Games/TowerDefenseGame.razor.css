@@ -160,3 +160,33 @@ kbd {
 button:disabled kbd {
     opacity: 0.6;
 }
+
+.td-warmart {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.td-warmart-panel {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #854d0e;
+    border-radius: 0.5rem;
+    background: #1c1917;
+}
+
+.td-warmart-balance {
+    margin-left: 0.375rem;
+    color: #facc15;
+    font-weight: 700;
+}
+
+.td-shop-item {
+    grid-template-columns: auto minmax(0, 1fr);
+}
+
+.td-shop-item strong {
+    grid-column: 2;
+    color: #facc15;
+    font-size: 0.75rem;
+}
