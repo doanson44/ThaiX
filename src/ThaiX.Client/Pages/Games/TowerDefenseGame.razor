@@ -87,7 +87,7 @@
                                 var bonus = mission;
                                 var purchased = _bonusMissions.Contains(bonus.Id);
                                 <button type="button" class="td-choice td-shop-item" disabled="@(purchased || _warMartCredits < bonus.UnlockCost)" @onclick="() => BuyBonusMission(bonus.Id)">
-                                    <ThaiXIcon Name="target" Size="1.25rem" />
+                                    <ThaiXIcon Name="military_tech" Size="1.25rem" />
                                     <span>@L[bonus.NameKey]</span>
                                     <strong>@(purchased ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {bonus.UnlockCost}")</strong>
                                 </button>
