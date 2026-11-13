@@ -43,7 +43,7 @@ else
             </div>
             @if (Game.Id == "typing-speed")
             {
-                <div class="mb-3">
+                <div class="game-typing-difficulty mb-3">
                     <label for="typing-difficulty" class="form-label">@L[ResourceKeys.Games.TypingDifficulty]</label>
                     <select id="typing-difficulty" class="form-select" value="@_typingDifficulty" @onchange="OnTypingDifficultyChanged">
                         <option value="@TypingDifficulty.Easy">@L[ResourceKeys.Games.TypingEasy]</option>
