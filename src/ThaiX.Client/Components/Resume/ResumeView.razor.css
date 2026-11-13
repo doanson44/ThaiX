@@ -30,8 +30,8 @@
 }
 
 .resume-links a:hover {
-    color: var(--tx-accent, #f59e0b);
-    border-color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
+    border-color: var(--tx-accent, #2563eb);
 }
 
 .resume-section {
@@ -86,7 +86,7 @@
 }
 
 .resume-entry a {
-    color: var(--tx-accent, #f59e0b);
+    color: var(--tx-accent, #2563eb);
     font-size: 0.85rem;
 }
 
