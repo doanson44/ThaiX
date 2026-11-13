@@ -84,13 +84,13 @@ public static class TowerDefenseData
 
     public static readonly IReadOnlyList<MapSpec> Maps =
     [
-        new("mission-01", ResourceKeys.Games.TdMission01,
+        new("jungle", ResourceKeys.Games.TdMission01,
             [[(-1, 1), (7, 1), (7, 3), (2, 3), (2, 5), (10, 5)]],
             [9, 19, 50, 60], [30, 39]),
-        new("mission-02", ResourceKeys.Games.TdMission02,
+        new("switchback", ResourceKeys.Games.TdMission02,
             [[(-1, 0), (8, 0), (8, 2), (1, 2), (1, 4), (8, 4), (8, 6), (10, 6)]],
             [9, 20, 29, 40], [34, 55, 60]),
-        new("mission-03", ResourceKeys.Games.TdMission03,
+        new("crossfire", ResourceKeys.Games.TdMission03,
             [[(-1, 0), (6, 0), (6, 2), (3, 2), (3, 3), (10, 3)], [(-1, 6), (6, 6), (6, 4), (3, 4), (3, 3), (10, 3)]],
             [18, 21, 40, 59], [41, 58]),
         new("mission-04", ResourceKeys.Games.TdMission04,
