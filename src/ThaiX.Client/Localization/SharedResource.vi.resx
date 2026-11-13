@@ -2197,8 +2197,8 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 14 nhiệm vụ. Mở khóa 10 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn nhiệm vụ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-9 và 0) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Các tháp nâng cao được mở khóa khi hoàn thành nhiệm vụ. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 14 nhiệm vụ. Kiếm điểm War-Mart để mua 10 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn nhiệm vụ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-9 và 0) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Chiến thắng nhiệm vụ để nhận điểm và mua tháp nâng cao trong War-Mart. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>
