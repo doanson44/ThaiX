@@ -120,11 +120,19 @@ else
     <svg class="game-svg" viewBox="0 0 480 376">
         <defs>
             <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
-                <rect width="48" height="48" fill="#4f7d39" />
-                <path d="M6 11l2 -5 2 5M30 23l2 -5 2 5M16 39l2 -5 2 5M40 44l2 -5 2 5" fill="none" stroke="#3d652b" stroke-width="1.5" />
-                <circle cx="24" cy="8" r="1.5" fill="#6f9f4f" />
-                <circle cx="39" cy="30" r="1.5" fill="#6f9f4f" />
-                <circle cx="8" cy="27" r="1.5" fill="#6f9f4f" />
+                <rect width="48" height="48" fill="#526f32" />
+                <path d="M4 13l2 -6 2 6M13 34l2 -5 2 5M28 17l2 -6 2 6M39 40l2 -6 2 6M43 9l1 -4 2 4" fill="none" stroke="#405c29" stroke-width="1.5" />
+                <path d="M19 7l2 -3 2 3M31 37l2 -4 2 4M7 43l2 -4 2 4" fill="none" stroke="#78934a" stroke-width="1.2" />
+                <circle cx="24" cy="8" r="1.5" fill="#81994c" />
+                <circle cx="39" cy="25" r="1.5" fill="#81994c" />
+                <circle cx="8" cy="27" r="1.5" fill="#81994c" />
+                <circle cx="28" cy="44" r="1" fill="#344f25" />
+            </pattern>
+            <pattern id="td-road" width="34" height="30" patternUnits="userSpaceOnUse">
+                <rect width="34" height="30" fill="#a88a5a" />
+                <path d="M-4 7L8 3L16 9L12 16L0 17ZM17 0L29 2L35 9L27 14L16 9ZM5 20L17 17L24 23L20 31L7 29ZM25 17L37 15L40 24L31 30L22 25Z"
+                      fill="#b99b6b" stroke="#8d7149" stroke-width="1" />
+                <path d="M8 3L12 8M27 2L25 8M17 17L15 23M31 30L29 24" stroke="#d0b181" stroke-width="1" opacity="0.65" />
             </pattern>
             <g id="td-base">
                 <circle r="17" fill="#44403c" stroke="#d6b98c" stroke-width="6" stroke-dasharray="9 2" />
@@ -135,9 +143,10 @@ else
         <rect y="40" width="480" height="336" fill="url(#td-grass)" />
         @foreach (var points in _roadPoints)
         {
-            <polyline points="@points" fill="none" stroke="#5f4a2c" stroke-width="42" stroke-linejoin="round" />
-            <polyline points="@points" fill="none" stroke="#a3824f" stroke-width="36" stroke-linejoin="round" />
-            <polyline points="@points" fill="none" stroke="#b6935c" stroke-width="18" stroke-linejoin="round" stroke-dasharray="14 10" />
+            <polyline points="@points" fill="none" stroke="#3f3426" stroke-width="50" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline points="@points" fill="none" stroke="#765a36" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline points="@points" fill="none" stroke="url(#td-road)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+            <polyline points="@points" fill="none" stroke="#d0b181" stroke-opacity="0.45" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 12" />
         }
         @for (var i = 0; i < TowerDefenseMatch.Columns * TowerDefenseMatch.Rows; i++)
         {
