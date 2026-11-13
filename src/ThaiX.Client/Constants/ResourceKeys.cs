@@ -163,6 +163,10 @@ public static class ResourceKeys
         public const string TowerTesla = "Games.TowerTesla";
         public const string TowerFlame = "Games.TowerFlame";
         public const string TowerSlow = "Games.TowerSlow";
+        public const string TowerShotgun = "Games.TowerShotgun";
+        public const string TowerMachineGun = "Games.TowerMachineGun";
+        public const string TowerBioChemical = "Games.TowerBioChemical";
+        public const string TowerHeatRay = "Games.TowerHeatRay";
         public const string EnemySoldier = "Games.EnemySoldier";
         public const string EnemyArmored = "Games.EnemyArmored";
         public const string EnemyJeep = "Games.EnemyJeep";
