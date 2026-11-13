@@ -14,7 +14,7 @@ namespace ThaiX.Client.VisualTests;
 /// Renders the *real* Telegram/Slack/Email formatter output (no hand-copied markup) into a
 /// single static preview page mocking each channel's native chrome, then screenshots it with
 /// Playwright. Telegram/Slack are text+JSON APIs with no browser surface of their own, so this
-/// is how the redesigned "dark-finance" notification templates get visually verified without a
+/// is how the ThaiX notification templates get visually verified without a
 /// live bot token or Slack workspace.
 /// </summary>
 public sealed class NotificationDesignPreviewTests
@@ -163,7 +163,7 @@ public sealed class NotificationDesignPreviewTests
             <title>ThaiX Notification Design Preview</title>
             <style>
                 body { margin:0; padding:32px; background:#05070b; font-family:'Segoe UI',Arial,sans-serif; color:#e6e8ec; }
-                h1 { font-family:Georgia,serif; font-size:26px; color:#f59e0b; margin:0 0 4px; }
+                h1 { font-family:Georgia,serif; font-size:26px; color:#2563eb; margin:0 0 4px; }
                 h2 { font-size:14px; text-transform:uppercase; letter-spacing:1px; color:#5b6272; margin:40px 0 16px; font-weight:600; }
                 .channel-row { display:flex; gap:20px; margin-bottom:28px; }
                 .channel-col { flex:1; min-width:0; }
@@ -181,7 +181,7 @@ public sealed class NotificationDesignPreviewTests
                 /* Slack mock chrome */
                 .sl-app { background:#1a1d21; border-radius:12px; padding:16px; }
                 .sl-msg-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
-                .sl-avatar { width:28px; height:28px; border-radius:6px; background:#f59e0b; color:#1a1207; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px; }
+                .sl-avatar { width:28px; height:28px; border-radius:6px; background:#2563eb; color:#ffffff; font-weight:700; display:flex; align-items:center; justify-content:center; font-size:13px; }
                 .sl-sender { font-weight:700; font-size:13.5px; color:#fff; }
                 .sl-badge { font-size:10px; background:#2b2f36; color:#9a9ea6; padding:1px 5px; border-radius:3px; }
                 .sl-attachment { border-left:4px solid #5b7c99; background:#22252b; border-radius:0 6px 6px 0; padding:10px 14px; }
