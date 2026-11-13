@@ -11,18 +11,16 @@
     }
     @if (IsKnownIcon)
     {
-        <use href="@($"/icons/system.svg#{Name}")" />
+        <use href="@($"/icons/system-design.svg#{Name}")" />
     }
 </svg>
 
 @code {
     private static readonly HashSet<string> KnownIcons =
     [
-        "home", "dashboard", "applications", "workspace", "calendar", "clock",
-        "history", "bookmark", "favorites", "help", "profile", "language",
-        "theme", "fullscreen", "analytics", "team", "wallet", "database",
-        "document", "shield-check", "ai-chip", "cube", "link", "gamepad",
-        "video", "image", "globe", "leaf", "lightning", "cart", "bell",
+        "home", "analytics", "team", "wallet", "database", "document",
+        "shield-check", "ai-chip", "cube", "link", "gamepad", "video",
+        "image", "settings", "globe", "leaf", "lightning", "cart", "bell",
         "alert", "lock", "cloud", "server", "search", "chat", "heart",
         "user", "share"
     ];
