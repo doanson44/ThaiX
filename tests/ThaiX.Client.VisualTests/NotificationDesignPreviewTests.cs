@@ -163,7 +163,7 @@ public sealed class NotificationDesignPreviewTests
             <title>ThaiX Notification Design Preview</title>
             <style>
                 body { margin:0; padding:32px; background:#05070b; font-family:'Segoe UI',Arial,sans-serif; color:#e6e8ec; }
-                h1 { font-family:Georgia,serif; font-size:26px; color:#2563eb; margin:0 0 4px; }
+                h1 { font-family:'Segoe UI',Arial,sans-serif; font-size:26px; color:#2563eb; margin:0 0 4px; }
                 h2 { font-size:14px; text-transform:uppercase; letter-spacing:1px; color:#5b6272; margin:40px 0 16px; font-weight:600; }
                 .channel-row { display:flex; gap:20px; margin-bottom:28px; }
                 .channel-col { flex:1; min-width:0; }
