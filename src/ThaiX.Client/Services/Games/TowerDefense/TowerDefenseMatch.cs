@@ -86,12 +86,12 @@ public sealed class TowerDefenseMatch
     private int _airstrikeReadyAt = FirstAirstrikeTick;
     private int _autoWaveAt;
 
-    public TowerDefenseMatch(MapSpec map, DifficultySpec difficulty, bool endless)
+    public TowerDefenseMatch(MapSpec map, DifficultySpec difficulty, bool endless, int startingGoldBonus = 0)
     {
         Map = map;
         Difficulty = difficulty;
         Endless = endless;
-        Gold = difficulty.StartGold;
+        Gold = difficulty.StartGold + Math.Max(0, startingGoldBonus);
         Lives = difficulty.Lives;
         _roads = [.. map.Routes.Select(route =>
             route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0)).ToArray())];
