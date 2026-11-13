@@ -163,12 +163,12 @@ public static class TowerDefenseData
 
     public static EnemySpec Enemy(EnemyKind kind) => Enemies[(int)kind];
 
-    public static int UnlockMission(TowerKind kind) => kind switch
+    public static int TowerUnlockCost(TowerKind kind) => kind switch
     {
-        TowerKind.Shotgun => 1,
-        TowerKind.MachineGun => 3,
-        TowerKind.BioChemical => 5,
-        TowerKind.HeatRay => 7,
+        TowerKind.Shotgun => 250,
+        TowerKind.MachineGun => 500,
+        TowerKind.BioChemical => 750,
+        TowerKind.HeatRay => 1000,
         _ => 0
     };
 
