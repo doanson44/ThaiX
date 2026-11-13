@@ -2,13 +2,13 @@ using ThaiX.Client.Constants;
 
 namespace ThaiX.Client.Services.Games.TowerDefense;
 
-public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField, Shotgun, MachineGun, BioChemical, HeatRay }
+public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField, ParticleBeam, PlasmaCannon, Radar, PowerAmplifier }
 
 public enum EnemyKind { Soldier, Armored, Jeep, Helicopter, Tank, Boss }
 
 public enum EnemyClass { Infantry, Vehicle, Air }
 
-public enum TowerEffect { Single, Splash, Chain, Burn, Slow, Poison }
+public enum TowerEffect { Single, Splash, Chain, Burn, Slow, SupportRange, SupportDamage }
 
 public enum UpgradeTrack { Damage, Range, FireRate }
 
@@ -18,8 +18,11 @@ public enum MatchState { Planning, Running, Won, Lost }
 
 public sealed record TowerSpec(
     TowerKind Kind, string NameKey, string Icon, string Color, int Cost, double Range, double Damage, int Cooldown,
-    TowerEffect Effect, bool HitsGround, bool HitsAir, double VsInfantry, double VsVehicle, double VsAir, string? ShotColor)
+    TowerEffect Effect, bool HitsGround, bool HitsAir, double VsInfantry, double VsVehicle, double VsAir, string? ShotColor,
+    double SupportValue = 0)
 {
+    public bool IsSupport => Effect is TowerEffect.SupportRange or TowerEffect.SupportDamage;
+
     public bool CanHit(EnemyClass enemyClass) => enemyClass == EnemyClass.Air ? HitsAir : HitsGround;
 
     public double Multiplier(EnemyClass enemyClass) => enemyClass switch
@@ -63,14 +66,14 @@ public static class TowerDefenseData
             TowerEffect.Burn, true, false, 0.5, 1.6, 0, "#fb923c"),
         new(TowerKind.SlowField, ResourceKeys.Games.TowerSlow, "cloud", "#67e8f9", 80, 85, 1, 20,
             TowerEffect.Slow, true, true, 1, 1, 1, null),
-        new(TowerKind.Shotgun, ResourceKeys.Games.TowerShotgun, "sports_esports", "#fbbf24", 85, 72, 18, 16,
-            TowerEffect.Splash, true, false, 1.5, 0.7, 0, "#fde68a"),
-        new(TowerKind.MachineGun, ResourceKeys.Games.TowerMachineGun, "settings", "#a3e635", 115, 118, 5, 3,
-            TowerEffect.Single, true, true, 1, 0.8, 0.7, "#bef264"),
-        new(TowerKind.BioChemical, ResourceKeys.Games.TowerBioChemical, "cloud", "#86efac", 130, 92, 7, 20,
-            TowerEffect.Poison, true, false, 1.2, 0.8, 0, "#86efac"),
-        new(TowerKind.HeatRay, ResourceKeys.Games.TowerHeatRay, "visibility", "#fb7185", 180, 190, 40, 30,
-            TowerEffect.Single, true, true, 1, 1.1, 0.9, "#fda4af")
+        new(TowerKind.ParticleBeam, ResourceKeys.Games.TowerParticleBeam, "visibility", "#fb7185", 450, 220, 120, 60,
+            TowerEffect.Single, true, true, 1.2, 1.5, 1, "#fda4af"),
+        new(TowerKind.PlasmaCannon, ResourceKeys.Games.TowerPlasmaCannon, "apps", "#c4b5fd", 600, 140, 70, 45,
+            TowerEffect.Splash, true, false, 0.9, 1.6, 0, "#ddd6fe"),
+        new(TowerKind.Radar, ResourceKeys.Games.TowerRadar, "search", "#67e8f9", 350, 145, 0, 0,
+            TowerEffect.SupportRange, false, false, 1, 1, 1, null, 20),
+        new(TowerKind.PowerAmplifier, ResourceKeys.Games.TowerPowerAmplifier, "military_tech", "#fde047", 400, 130, 0, 0,
+            TowerEffect.SupportDamage, false, false, 1, 1, 1, null, 5)
     ];
 
     public static readonly IReadOnlyList<EnemySpec> Enemies =
@@ -176,10 +179,10 @@ public static class TowerDefenseData
 
     public static int TowerUnlockCost(TowerKind kind) => kind switch
     {
-        TowerKind.Shotgun => 250,
-        TowerKind.MachineGun => 500,
-        TowerKind.BioChemical => 750,
-        TowerKind.HeatRay => 1000,
+        TowerKind.Radar => 250,
+        TowerKind.PowerAmplifier => 350,
+        TowerKind.ParticleBeam => 500,
+        TowerKind.PlasmaCannon => 750,
         _ => 0
     };
 
