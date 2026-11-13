@@ -187,6 +187,7 @@ public static class ResourceKeys
         public const string TdBonusLocked = "Games.Td.BonusLocked";
         public const string TdWarMart = "Games.Td.WarMart";
         public const string TdWarMartCredits = "Games.Td.WarMartCredits";
+        public const string TdGoldSyncFailed = "Games.Td.GoldSyncFailed";
         public const string TdBuy = "Games.Td.Buy";
         public const string TdUnlocked = "Games.Td.Unlocked";
         public const string TdMove = "Games.Td.Move";
