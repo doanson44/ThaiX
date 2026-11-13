@@ -20,25 +20,25 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void UnlockMission_AdvancedTowers_UsesProgressiveThresholds()
+    public void TowerUnlockCost_AdvancedTowers_UsesProgressivePrices()
     {
         // Arrange
         var unlocks = new[]
         {
-            TowerDefenseData.UnlockMission(TowerKind.Shotgun),
-            TowerDefenseData.UnlockMission(TowerKind.MachineGun),
-            TowerDefenseData.UnlockMission(TowerKind.BioChemical),
-            TowerDefenseData.UnlockMission(TowerKind.HeatRay)
+            TowerDefenseData.TowerUnlockCost(TowerKind.Shotgun),
+            TowerDefenseData.TowerUnlockCost(TowerKind.MachineGun),
+            TowerDefenseData.TowerUnlockCost(TowerKind.BioChemical),
+            TowerDefenseData.TowerUnlockCost(TowerKind.HeatRay)
         };
 
         // Act
         var startingTowerUnlocks = Enum.GetValues<TowerKind>()
-            .Where(kind => TowerDefenseData.UnlockMission(kind) == 0)
+            .Where(kind => TowerDefenseData.TowerUnlockCost(kind) == 0)
             .ToArray();
 
         // Assert
         unlocks.Should().BeInAscendingOrder();
-        unlocks.Should().Equal(1, 3, 5, 7);
+        unlocks.Should().Equal(250, 500, 750, 1000);
         startingTowerUnlocks.Should().HaveCount(6);
     }
 
