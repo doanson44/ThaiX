@@ -74,3 +74,18 @@ needed. It references the external SVG symbol sprite at `/icons/system.svg` and 
 The `Name` parameter must match a symbol ID in the sprite. Use `Title` for a standalone
 meaningful icon; omit it for decorative icons inside an already-labelled control. Keep
 Radzen icons as the default for generic component actions and controls.
+
+
+## ThaiX icon component
+
+`ThaiXIcon` renders the design-derived SVG symbol set from
+`wwwroot/icons/system-design.svg`. It accepts canonical names, legacy Radzen icon names
+through a compatibility map, optional sizing, CSS class/style, and an accessible title.
+
+```razor
+<ThaiXIcon Name="home" Size="1.25rem" Title="Home" />
+<ThaiXIcon Name="analytics" Class="text-primary" />
+```
+
+The component is now used by the full navigation tree, profile menu, application shell
+controls, shared responsive action buttons, and migrated page-level icon instances.
