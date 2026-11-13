@@ -2198,8 +2198,8 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 20 waves of infantry, vehicles and helicopters. Build, upgrade and sell towers, and call in airstrikes.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a map, difficulty and mode, then deploy. Choose a tower (keys 1-6) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base through 20 waves. Deploy 10 tower types, upgrade their damage, range and fire rate, and call in airstrikes.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a map, difficulty and mode, then deploy. Choose a tower (keys 1-9 and 0) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
@@ -2208,6 +2208,10 @@
   <data name="Games.TowerTesla" xml:space="preserve"><value>Tesla coil</value></data>
   <data name="Games.TowerFlame" xml:space="preserve"><value>Flamethrower</value></data>
   <data name="Games.TowerSlow" xml:space="preserve"><value>Slow field</value></data>
+  <data name="Games.TowerShotgun" xml:space="preserve"><value>Shotgun squad</value></data>
+  <data name="Games.TowerMachineGun" xml:space="preserve"><value>Machine gun</value></data>
+  <data name="Games.TowerBioChemical" xml:space="preserve"><value>Bio-chemical</value></data>
+  <data name="Games.TowerHeatRay" xml:space="preserve"><value>Heat ray</value></data>
   <data name="Games.EnemySoldier" xml:space="preserve"><value>Soldier</value></data>
   <data name="Games.EnemyArmored" xml:space="preserve"><value>Armored trooper</value></data>
   <data name="Games.EnemyJeep" xml:space="preserve"><value>Jeep</value></data>
