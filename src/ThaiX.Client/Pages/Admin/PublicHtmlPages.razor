@@ -70,14 +70,14 @@
                 @if (_pages.Count == 0)
                 {
                     <div class="py-4 text-center">
-                        <RadzenIcon Icon="description" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                        <ThaiXIcon Name="description" Class="text-secondary" Style="font-size: 2.5rem;" />
                         <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoPages]</RadzenText>
                     </div>
                 }
                 else if (!FilteredPages.Any())
                 {
                     <div class="py-4 text-center">
-                        <RadzenIcon Icon="search_off" IconStyle="IconStyle.Secondary" Style="font-size: 2.5rem;" />
+                        <ThaiXIcon Name="search_off" Class="text-secondary" Style="font-size: 2.5rem;" />
                         <RadzenText TextStyle="TextStyle.Body1" Class="mt-2 mb-0">@L[RK.PublicHtmlPages.NoFilteredPages]</RadzenText>
                     </div>
                 }
@@ -87,7 +87,7 @@
                         <article class="public-html-item">
                             <div class="public-html-item-main">
                                 <div class="public-html-code-icon" aria-hidden="true">
-                                    <RadzenIcon Icon="code" />
+                                    <ThaiXIcon Name="code" />
                                 </div>
                                 <div class="public-html-item-details">
                                     <div class="public-html-item-title">@item.Title</div>
