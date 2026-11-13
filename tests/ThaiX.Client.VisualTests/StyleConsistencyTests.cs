@@ -157,6 +157,8 @@ public class StyleConsistencyTests
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-warning').trim().toLowerCase()");
                 var primaryForeground = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--rz-on-primary').trim().toLowerCase()");
+                var primaryLightForeground = await page.EvaluateAsync<string>(
+                    "() => getComputedStyle(document.documentElement).getPropertyValue('--rz-on-primary-light').trim().toLowerCase()");
                 var primaryContrast = await page.EvaluateAsync<double>(@"foreground => {
                     const toLuminance = (hex) => {
                         const rgb = hex.match(/[a-f0-9]{2}/gi).map(value => parseInt(value, 16) / 255);
@@ -182,6 +184,7 @@ public class StyleConsistencyTests
                 }");
 
                 Assert.Equal("#ffffff", primaryForeground);
+                Assert.Equal("#071426", primaryLightForeground);
                 Assert.Equal("#ffffff", lightPrimaryForeground);
                 Assert.True(primaryContrast >= 4.5, $"Primary button contrast is {primaryContrast:F2}:1.");
             },
