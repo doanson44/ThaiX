@@ -100,7 +100,7 @@
     grid-row: span 2;
 }
 
- .td-tower.is-active {
+.td-tower.is-active {
     border-color: #facc15;
 }
 
