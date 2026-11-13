@@ -59,3 +59,18 @@ new page-specific CSS.
 The design archive does not specify exact button heights, card shadows, table row heights,
 dialog dimensions, or complete component anatomy. These values should be calibrated against
 the rendered application and its existing Radzen defaults, not guessed from the icon boards.
+
+## ThaiXIcon
+
+Use `ThaiXIcon` for the shared ThaiX system glyph set when a brand-specific icon is
+needed. It references the external SVG symbol sprite at `/icons/system.svg` and inherits
+`currentColor` from its surrounding component.
+
+```razor
+<ThaiXIcon Name="home" Size="1.25rem" Title="Home" />
+<ThaiXIcon Name="dashboard" Class="text-primary" />
+```
+
+The `Name` parameter must match a symbol ID in the sprite. Use `Title` for a standalone
+meaningful icon; omit it for decorative icons inside an already-labelled control. Keep
+Radzen icons as the default for generic component actions and controls.
