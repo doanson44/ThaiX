@@ -69,10 +69,26 @@ public sealed class TowerDefenseArsenalTests
         const int bonus = 400;
 
         // Act
-        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], difficulty, endless: false, bonus);
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], difficulty, endless: false, startingGoldBonus: bonus);
 
         // Assert
         match.Gold.Should().Be(difficulty.StartGold + bonus);
+    }
+
+    [Fact]
+    public void MissionReward_IncludesUnspentStartingGold()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[1],
+            endless: false);
+
+        // Act
+        var reward = match.MissionReward;
+
+        // Assert
+        reward.Should().Be(match.Gold + 100 + match.Wave * 10 + match.Lives * 5);
     }
 
     [Fact]
