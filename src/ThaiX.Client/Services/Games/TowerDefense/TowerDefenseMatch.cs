@@ -401,7 +401,7 @@ public sealed class TowerDefenseMatch
         if (State != MatchState.Running || _spawnIndex < _spawns.Count || _enemies.Count > 0)
             return;
 
-        Score += Wave * 25;
+        Score += Wave * 20;
         if (!Endless && Wave >= TowerDefenseData.CampaignWaves)
         {
             Score += Lives * 100;
