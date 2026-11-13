@@ -90,6 +90,23 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
+    public void Build_SniperBonusMission_RejectsOtherTowerKinds()
+    {
+        // Arrange
+        var mission = TowerDefenseData.Maps.Single(map => map.Id == "bonus-sniper");
+        var match = new TowerDefenseMatch(mission, TowerDefenseData.Difficulties[1], endless: false);
+        var cell = match.FirstFreeCell(0);
+
+        // Act
+        var rejected = match.Build(cell, TowerKind.Gunner);
+        var accepted = match.Build(cell, TowerKind.Sniper);
+
+        // Assert
+        rejected.Should().BeNull();
+        accepted.Should().NotBeNull();
+    }
+
+    [Fact]
     public void InterWaveDelay_MissionBreak_IsApproximatelyTenSeconds()
     {
         // Arrange
