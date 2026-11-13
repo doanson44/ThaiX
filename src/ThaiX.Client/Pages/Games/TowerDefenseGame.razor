@@ -498,8 +498,9 @@ else
             return;
 
         var won = _match.State == MatchState.Won;
-        if (won && _cleared.Add(_match.Map.Id))
+        if (won)
         {
+            _cleared.Add(_match.Map.Id);
             _warMartCredits += _match.MissionReward;
             _ = SaveProgressAsync();
         }
