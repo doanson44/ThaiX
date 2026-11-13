@@ -267,7 +267,7 @@ else
         </div>
 
         <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
-            @foreach (var option in TowerDefenseData.Towers)
+            @foreach (var option in TowerDefenseData.Towers.Where(option => match.Map.RequiredTower is null || option.Kind == match.Map.RequiredTower))
             {
                 var kind = option.Kind;
                 var unlocked = IsTowerUnlocked(kind);
