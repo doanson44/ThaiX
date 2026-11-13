@@ -2,13 +2,13 @@ using ThaiX.Client.Constants;
 
 namespace ThaiX.Client.Services.Games.TowerDefense;
 
-public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField }
+public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField, Shotgun, MachineGun, BioChemical, HeatRay }
 
 public enum EnemyKind { Soldier, Armored, Jeep, Helicopter, Tank, Boss }
 
 public enum EnemyClass { Infantry, Vehicle, Air }
 
-public enum TowerEffect { Single, Splash, Chain, Burn, Slow }
+public enum TowerEffect { Single, Splash, Chain, Burn, Slow, Poison }
 
 public enum UpgradeTrack { Damage, Range, FireRate }
 
@@ -61,7 +61,15 @@ public static class TowerDefenseData
         new(TowerKind.Flamethrower, ResourceKeys.Games.TowerFlame, "heart", "#fdba74", 110, 62, 4, 3,
             TowerEffect.Burn, true, false, 0.5, 1.6, 0, "#fb923c"),
         new(TowerKind.SlowField, ResourceKeys.Games.TowerSlow, "cloud", "#67e8f9", 80, 85, 1, 20,
-            TowerEffect.Slow, true, true, 1, 1, 1, null)
+            TowerEffect.Slow, true, true, 1, 1, 1, null),
+        new(TowerKind.Shotgun, ResourceKeys.Games.TowerShotgun, "sports_esports", "#fbbf24", 85, 72, 18, 16,
+            TowerEffect.Splash, true, false, 1.5, 0.7, 0, "#fde68a"),
+        new(TowerKind.MachineGun, ResourceKeys.Games.TowerMachineGun, "settings", "#a3e635", 115, 118, 5, 3,
+            TowerEffect.Single, true, true, 1, 0.8, 0.7, "#bef264"),
+        new(TowerKind.BioChemical, ResourceKeys.Games.TowerBioChemical, "cloud", "#86efac", 130, 92, 7, 20,
+            TowerEffect.Poison, true, false, 1.2, 0.8, 0, "#86efac"),
+        new(TowerKind.HeatRay, ResourceKeys.Games.TowerHeatRay, "visibility", "#fb7185", 180, 190, 40, 30,
+            TowerEffect.Single, true, true, 1, 1.1, 0.9, "#fda4af")
     ];
 
     public static readonly IReadOnlyList<EnemySpec> Enemies =
