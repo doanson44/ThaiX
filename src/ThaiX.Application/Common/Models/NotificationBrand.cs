@@ -3,13 +3,14 @@ using ThaiX.Domain.Aggregates.Notifications;
 namespace ThaiX.Application.Common.Models;
 
 /// <summary>
-/// Shared "dark-finance" brand tokens (see docs/implement-plans/audit-checklist-dark-finance.md)
+/// Shared ThaiX brand tokens (see docs/brand-guidelines.md)
 /// so Telegram, Slack, and Email notifications stay visually consistent instead of each
 /// picking their own emoji/colors.
 /// </summary>
 public static class NotificationBrand
 {
-    public const string AccentHex = "#f59e0b";
+    public const string AccentHex = "#2563eb";
+    public const string WarningHex = "#f59e0b";
     public const string PositiveHex = "#10b981";
     public const string NegativeHex = "#f43f5e";
     public const string InfoHex = "#5b7c99";
@@ -32,7 +33,7 @@ public static class NotificationBrand
 
     public static string SeverityColorHex(NotificationSeverity severity) => severity switch
     {
-        NotificationSeverity.Warning => AccentHex,
+        NotificationSeverity.Warning => WarningHex,
         NotificationSeverity.Error => NegativeHex,
         NotificationSeverity.Critical => NegativeHex,
         _ => InfoHex
