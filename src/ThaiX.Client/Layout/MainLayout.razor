@@ -59,20 +59,20 @@
                                 }
                             </Template>
                             <ChildContent>
-                                <RadzenProfileMenuItem Text="@L[RK.Menu.Profile]" Value="@RouteSegments.Profile" Icon="account_circle" />
-                                <RadzenProfileMenuItem Text="@L[RK.Menu.ChangePassword]" Value="@RouteSegments.ChangePassword" Icon="key" />
-                                <RadzenProfileMenuItem Text="@L[RK.Menu.TwoFactor]" Value="@RouteSegments.TwoFa" Icon="security" />
-                                <RadzenProfileMenuItem Text="@L[RK.Menu.PersonalData]" Value="@RouteSegments.PersonalData" Icon="folder_shared" />
+                                <RadzenProfileMenuItem Value="@RouteSegments.Profile" ><Template><span class="tx-nav-item"><ThaiXIcon Name="user" /><span>@L[RK.Menu.Profile]</span></span></Template></RadzenProfileMenuItem>
+                                <RadzenProfileMenuItem Value="@RouteSegments.ChangePassword" ><Template><span class="tx-nav-item"><ThaiXIcon Name="lock" /><span>@L[RK.Menu.ChangePassword]</span></span></Template></RadzenProfileMenuItem>
+                                <RadzenProfileMenuItem Value="@RouteSegments.TwoFa" ><Template><span class="tx-nav-item"><ThaiXIcon Name="shield-check" /><span>@L[RK.Menu.TwoFactor]</span></span></Template></RadzenProfileMenuItem>
+                                <RadzenProfileMenuItem Value="@RouteSegments.PersonalData" ><Template><span class="tx-nav-item"><ThaiXIcon Name="document" /><span>@L[RK.Menu.PersonalData]</span></span></Template></RadzenProfileMenuItem>
                                 @if (!string.IsNullOrWhiteSpace(_userProfile?.ResumeSlug))
                                 {
-                                    <RadzenProfileMenuItem Text="@L[RK.Menu.PublicResume]" Value="profile/public-resume" Icon="open_in_new" />
+                                    <RadzenProfileMenuItem Value="profile/public-resume" ><Template><span class="tx-nav-item"><ThaiXIcon Name="link" /><span>@L[RK.Menu.PublicResume]</span></span></Template></RadzenProfileMenuItem>
                                 }
-                                <RadzenProfileMenuItem Text="@L[RK.Menu.Logout]" Value="@RouteSegments.Logout" Icon="logout" />
+                                <RadzenProfileMenuItem Value="@RouteSegments.Logout" ><Template><span class="tx-nav-item"><ThaiXIcon Name="share" /><span>@L[RK.Menu.Logout]</span></span></Template></RadzenProfileMenuItem>
                             </ChildContent>
                         </RadzenProfileMenu>
                     </Authorized>
                     <NotAuthorized>
-                        <RadzenButton Icon="login"
+                        <ResponsiveIconButton Icon="user"
                                       ButtonStyle="ButtonStyle.Light"
                                       Size="ButtonSize.Small"
                                       Click="@(() => Navigation.NavigateTo("/auth/login"))" />
