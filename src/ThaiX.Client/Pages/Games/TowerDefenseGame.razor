@@ -1,6 +1,11 @@
 @inherits GameBase
 @using ThaiX.Client.Services.Games.TowerDefense
+@using ThaiX.Client.Services.Http.Demo
 @inject GameScoreStore ScoreStore
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IGameProgressClient GameProgressClient
+@inject ApiConnectivityState ConnectivityState
+@inject ILogger<TowerDefenseGame> Logger
 
 @if (_match is null)
 {
@@ -66,6 +71,10 @@
             {
                 <div class="td-warmart-panel">
                     <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
+                @if (_goldSyncFailed)
+                {
+                    <small class="text-warning">@L[ResourceKeys.Games.TdGoldSyncFailed]</small>
+                }
                     <div class="td-choices">
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
                             <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
@@ -371,6 +380,8 @@ else
     private int _warMartCredits;
     private int _bonusStartingGold;
     private bool _showWarMart;
+    private bool _isAuthenticated;
+    private bool _goldSyncFailed;
     private Action[] _cellClicks = [];
     private string[] _roadPoints = [];
     private TowerDefenseMatch? _match;
@@ -425,6 +436,28 @@ else
         }
         catch (JSException)
         {
+        }
+
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isAuthenticated = auth.User.Identity?.IsAuthenticated == true;
+        if (_isAuthenticated && !ConnectivityState.IsDemoMode)
+        {
+            try
+            {
+                var savedGold = await GameProgressClient.GetTowerDefenseGoldAsync();
+                if (savedGold.HasValue)
+                    _warMartCredits = savedGold.Value;
+                else
+                    await GameProgressClient.SaveTowerDefenseGoldAsync(_warMartCredits);
+
+                await SaveProgressAsync(syncGold: false);
+                _goldSyncFailed = false;
+            }
+            catch (Exception exception)
+            {
+                _goldSyncFailed = true;
+                Logger.LogWarning(exception, "Could not load the authenticated tower defense gold balance.");
+            }
         }
     }
 
@@ -508,7 +541,7 @@ else
         StartLoop(TowerDefenseMatch.TickMilliseconds, Tick);
     }
 
-    private void Tick()
+    private async void Tick()
     {
         if (_match is null || _resultRecorded)
             return;
@@ -525,14 +558,14 @@ else
         {
             _cleared.Add(_match.Map.Id);
             _warMartCredits += _match.MissionReward;
-            _ = SaveProgressAsync();
         }
 
+        await SaveProgressAsync();
         var mode = $"{_match.Difficulty.Id}-{(_match.Endless ? "endless" : "campaign")}";
         Finish(_match.FinalScore, mode, won);
     }
 
-    private async Task SaveProgressAsync()
+    private async Task SaveProgressAsync(bool syncGold = true)
     {
         try
         {
@@ -543,8 +576,23 @@ else
                 .Append($"startfunds:{_bonusStartingGold}");
             await ScoreStore.SetProgressAsync(GameKey, string.Join(',', progress));
         }
-        catch (JSException)
+        catch (JSException exception)
         {
+            Logger.LogWarning(exception, "Could not save local tower defense progress.");
+        }
+
+        if (!syncGold || !_isAuthenticated || ConnectivityState.IsDemoMode)
+            return;
+
+        try
+        {
+            await GameProgressClient.SaveTowerDefenseGoldAsync(_warMartCredits);
+            _goldSyncFailed = false;
+        }
+        catch (Exception exception)
+        {
+            _goldSyncFailed = true;
+            Logger.LogWarning(exception, "Could not save authenticated tower defense gold.");
         }
     }
 
