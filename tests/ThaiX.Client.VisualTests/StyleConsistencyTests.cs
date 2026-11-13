@@ -167,7 +167,7 @@ public class StyleConsistencyTests
                     const background = toLuminance('#2563eb');
                     return (Math.max(foregroundLuminance, background) + 0.05)
                         / (Math.min(foregroundLuminance, background) + 0.05);
-                }");
+                }", primaryForeground);
 
                 Assert.Equal("#2563eb", accent);
                 Assert.Equal("#10b981", positive);
