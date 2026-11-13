@@ -48,6 +48,31 @@
                 </button>
             </div>
         </div>
+        <div class="td-warmart">
+            <button type="button" class="btn btn-outline-warning" aria-expanded="@_showWarMart" @onclick="() => _showWarMart = !_showWarMart">
+                <ThaiXIcon Name="cart" Size="1rem" /> @L[ResourceKeys.Games.TdWarMart]
+                <span class="td-warmart-balance">@_warMartCredits</span>
+            </button>
+            @if (_showWarMart)
+            {
+                <div class="td-warmart-panel">
+                    <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
+                    <div class="td-choices">
+                        @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
+                        {
+                            var kind = option.Kind;
+                            var cost = TowerDefenseData.TowerUnlockCost(kind);
+                            var unlocked = _unlockedTowers.Contains(kind);
+                            <button type="button" class="td-choice td-shop-item" disabled="@(unlocked || _warMartCredits < cost)" @onclick="() => BuyTower(kind)">
+                                <ThaiXIcon Name="@option.Icon" Size="1.25rem" style="@($"color:{option.Color}")" />
+                                <span>@L[option.NameKey]</span>
+                                <strong>@(unlocked ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {cost}")</strong>
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
         <button type="button" class="btn btn-primary td-deploy" @onclick="Deploy">@L[ResourceKeys.Games.TdStartMission]</button>
     </div>
 }
@@ -226,7 +251,7 @@ else
                         aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
                     <ThaiXIcon Name="@option.Icon" Size="1.5rem" style="@($"color:{option.Color}")" />
                     <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
-                    <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdTowerLocked, TowerDefenseData.UnlockMission(kind)].Value)</span>
+                    <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdWarMart].Value)</span>
                 </button>
             }
         </div>
@@ -289,6 +314,9 @@ else
     private const string GameKey = "tower-defense";
 
     private readonly HashSet<string> _cleared = [];
+    private readonly HashSet<TowerKind> _unlockedTowers = [];
+    private int _warMartCredits;
+    private bool _showWarMart;
     private Action[] _cellClicks = [];
     private string[] _roadPoints = [];
     private TowerDefenseMatch? _match;
@@ -321,10 +349,16 @@ else
         try
         {
             var saved = await ScoreStore.GetProgressAsync(GameKey);
-            foreach (var id in (saved ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            foreach (var token in (saved ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
-                if (TowerDefenseData.Maps.Any(map => map.Id == id))
-                    _cleared.Add(id);
+                if (TowerDefenseData.Maps.Any(map => map.Id == token))
+                    _cleared.Add(token);
+                else if (token.StartsWith("tower:", StringComparison.Ordinal)
+                    && Enum.TryParse<TowerKind>(token[6..], out var kind))
+                    _unlockedTowers.Add(kind);
+                else if (token.StartsWith("credits:", StringComparison.Ordinal)
+                    && int.TryParse(token[8..], out var credits))
+                    _warMartCredits = Math.Max(0, credits);
             }
         }
         catch (JSException)
@@ -383,7 +417,7 @@ else
 
     private bool IsUnlocked(int mapIndex) => mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
 
-    private bool IsTowerUnlocked(TowerKind kind) => _cleared.Count >= TowerDefenseData.UnlockMission(kind);
+    private bool IsTowerUnlocked(TowerKind kind) => TowerDefenseData.TowerUnlockCost(kind) == 0 || _unlockedTowers.Contains(kind);
 
     private void Deploy()
     {
@@ -411,7 +445,10 @@ else
 
         var won = _match.State == MatchState.Won;
         if (won && _cleared.Add(_match.Map.Id))
+        {
+            _warMartCredits += _match.MissionReward;
             _ = SaveProgressAsync();
+        }
 
         var mode = $"{_match.Difficulty.Id}-{(_match.Endless ? "endless" : "campaign")}";
         Finish(_match.FinalScore, mode, won);
@@ -421,11 +458,25 @@ else
     {
         try
         {
-            await ScoreStore.SetProgressAsync(GameKey, string.Join(',', _cleared.Order()));
+            var progress = _cleared.Order()
+                .Concat(_unlockedTowers.Order().Select(kind => $"tower:{kind}"))
+                .Append($"credits:{_warMartCredits}");
+            await ScoreStore.SetProgressAsync(GameKey, string.Join(',', progress));
         }
         catch (JSException)
         {
         }
+    }
+
+    private async Task BuyTower(TowerKind kind)
+    {
+        var cost = TowerDefenseData.TowerUnlockCost(kind);
+        if (cost <= 0 || _unlockedTowers.Contains(kind) || _warMartCredits < cost)
+            return;
+
+        _warMartCredits -= cost;
+        _unlockedTowers.Add(kind);
+        await SaveProgressAsync();
     }
 
     private void SelectBuild(TowerKind kind)
