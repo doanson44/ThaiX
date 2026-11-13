@@ -53,6 +53,10 @@
 
 /* ── Brand Logo ── */
 .auth-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
     font-family: var(--tx-font-display, sans-serif);
     font-size: 1.75rem;
     font-weight: 700;
@@ -61,6 +65,13 @@
     margin-top: 0.5rem;
     letter-spacing: -0.5px;
     color: #fff;
+}
+
+.auth-brand-mark {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    border-radius: 0.5rem;
 }
 
 .auth-brand-accent {
