@@ -172,7 +172,14 @@ public class StyleConsistencyTests
                 Assert.Equal("#2563eb", accent);
                 Assert.Equal("#10b981", positive);
                 Assert.Equal("#f43f5e", negative);
+                var lightPrimaryForeground = await page.EvaluateAsync<string>(@"() => {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                    return getComputedStyle(document.documentElement)
+                        .getPropertyValue('--rz-on-primary').trim().toLowerCase();
+                }");
+
                 Assert.Equal("#ffffff", primaryForeground);
+                Assert.Equal("#ffffff", lightPrimaryForeground);
                 Assert.True(primaryContrast >= 4.5, $"Primary button contrast is {primaryContrast:F2}:1.");
             },
             item => item.RequiresAuth,
