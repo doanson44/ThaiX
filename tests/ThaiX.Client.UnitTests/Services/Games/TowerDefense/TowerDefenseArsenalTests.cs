@@ -25,10 +25,10 @@ public sealed class TowerDefenseArsenalTests
         // Arrange
         var unlocks = new[]
         {
-            TowerDefenseData.TowerUnlockCost(TowerKind.Shotgun),
-            TowerDefenseData.TowerUnlockCost(TowerKind.MachineGun),
-            TowerDefenseData.TowerUnlockCost(TowerKind.BioChemical),
-            TowerDefenseData.TowerUnlockCost(TowerKind.HeatRay)
+            TowerDefenseData.TowerUnlockCost(TowerKind.Radar),
+            TowerDefenseData.TowerUnlockCost(TowerKind.PowerAmplifier),
+            TowerDefenseData.TowerUnlockCost(TowerKind.ParticleBeam),
+            TowerDefenseData.TowerUnlockCost(TowerKind.PlasmaCannon)
         };
 
         // Act
@@ -38,7 +38,7 @@ public sealed class TowerDefenseArsenalTests
 
         // Assert
         unlocks.Should().BeInAscendingOrder();
-        unlocks.Should().Equal(new[] { 250, 500, 750, 1000 });
+        unlocks.Should().Equal(new[] { 250, 350, 500, 750 });
         startingTowerUnlocks.Should().HaveCount(6);
     }
 
@@ -92,16 +92,43 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void BioChemicalTower_UsesPoisonEffect()
+    public void RadarTower_ProvidesRangeSupport()
     {
         // Arrange
-        var tower = TowerDefenseData.Tower(TowerKind.BioChemical);
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[1],
+            endless: false,
+            startingGoldBonus: 500);
+        var gunner = match.Build(0, TowerKind.Gunner);
+        var radar = match.Build(1, TowerKind.Radar);
 
         // Act
-        var effect = tower.Effect;
+        var range = match.Range(gunner!);
 
         // Assert
-        effect.Should().Be(TowerEffect.Poison);
+        radar.Should().NotBeNull();
+        range.Should().Be(TowerDefenseData.Tower(TowerKind.Gunner).Range + 20);
+    }
+
+    [Fact]
+    public void PowerAmplifier_IncreasesNearbyTowerDamage()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[1],
+            endless: false,
+            startingGoldBonus: 500);
+        var gunner = match.Build(0, TowerKind.Gunner);
+        var amplifier = match.Build(1, TowerKind.PowerAmplifier);
+
+        // Act
+        var damage = match.Damage(gunner!);
+
+        // Assert
+        amplifier.Should().NotBeNull();
+        damage.Should().Be(TowerDefenseData.Tower(TowerKind.Gunner).Damage + 5);
     }
 
     [Fact]
