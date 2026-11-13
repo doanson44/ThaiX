@@ -2249,6 +2249,10 @@
   <data name="Games.Td.Mission12" xml:space="preserve"><value>Nhiệm vụ 12 - Đường ven biển</value></data>
   <data name="Games.Td.Mission13" xml:space="preserve"><value>Nhiệm vụ 13 - Hai mặt trận</value></data>
   <data name="Games.Td.Mission14" xml:space="preserve"><value>Nhiệm vụ 14 - Trận chiến cuối</value></data>
+  <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Thưởng - Chiến dịch bắn tỉa</value></data>
+  <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Thưởng - Phòng thủ đến cùng</value></data>
+  <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Nhiệm vụ thưởng</value></data>
+  <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Mua với {0} điểm trong War-Mart</value></data>
   <data name="Games.Td.StartWave" xml:space="preserve"><value>Bắt đầu đợt</value></data>
   <data name="Games.Td.WaveOf" xml:space="preserve"><value>Đợt {0}/{1}</value></data>
   <data name="Games.Td.WaveEndless" xml:space="preserve"><value>Đợt {0}</value></data>
