@@ -4,17 +4,28 @@
      viewBox="0 0 24 24"
      role="@(HasTitle ? "img" : null)"
      aria-hidden="@(HasTitle ? null : "true")"
-     focusable="false"
-     style="color: inherit;">
+     focusable="false">
     @if (HasTitle)
     {
         <title>@Title</title>
     }
-    <use href="@($"{SpritePath}#{Name}")" />
+    @if (IsKnownIcon)
+    {
+        <use href="@($"/icons/system.svg#{Name}")" />
+    }
 </svg>
 
 @code {
-    private const string SpritePath = "/icons/system.svg";
+    private static readonly HashSet<string> KnownIcons =
+    [
+        "home", "dashboard", "applications", "workspace", "calendar", "clock",
+        "history", "bookmark", "favorites", "help", "profile", "language",
+        "theme", "fullscreen", "analytics", "team", "wallet", "database",
+        "document", "shield-check", "ai-chip", "cube", "link", "gamepad",
+        "video", "image", "globe", "leaf", "lightning", "cart", "bell",
+        "alert", "lock", "cloud", "server", "search", "chat", "heart",
+        "user", "share"
+    ];
 
     [Parameter, EditorRequired]
     public string Name { get; set; } = string.Empty;
@@ -29,4 +40,5 @@
     public string? Class { get; set; }
 
     private bool HasTitle => !string.IsNullOrWhiteSpace(Title);
+    private bool IsKnownIcon => KnownIcons.Contains(Name);
 }
