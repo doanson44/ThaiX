@@ -137,7 +137,7 @@ public class StyleConsistencyTests
     }
 
     [Fact]
-    public async Task Pages_DesignTokens_MatchDarkFinancePalette()
+    public async Task Pages_DesignTokens_MatchThaiXBrandPalette()
     {
         var cases = RouteCatalog.DesignTokenSampleRoutes.ToList();
 
@@ -154,7 +154,7 @@ public class StyleConsistencyTests
                 var negative = await page.EvaluateAsync<string>(
                     "() => getComputedStyle(document.documentElement).getPropertyValue('--tx-negative').trim().toLowerCase()");
 
-                Assert.Equal("#f59e0b", accent);
+                Assert.Equal("#2563eb", accent);
                 Assert.Equal("#10b981", positive);
                 Assert.Equal("#f43f5e", negative);
             },
