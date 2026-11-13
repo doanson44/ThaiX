@@ -560,9 +560,9 @@ else
             _warMartCredits += _match.MissionReward;
         }
 
-        await SaveProgressAsync();
         var mode = $"{_match.Difficulty.Id}-{(_match.Endless ? "endless" : "campaign")}";
         Finish(_match.FinalScore, mode, won);
+        await SaveProgressAsync();
     }
 
     private async Task SaveProgressAsync(bool syncGold = true)
