@@ -45,14 +45,14 @@
                                                    FallbackIcon="person"
                                                    FallbackClass="safe-image-fallback rounded-circle bg-light">
                                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                <RadzenIcon Icon="person" style="font-size: 2rem; color: var(--rz-base-400);" />
+                                                <ThaiXIcon Name="user" Style="font-size: 2rem; color: var(--rz-base-400);" />
                                             </div>
                                         </SafeImage>
                                         @if (IsEditMode && EditContactId is not null)
                                         {
                                             <label class="btn btn-sm btn-outline-primary position-absolute bottom-0 end-0 mb-0 me-0 rounded-circle p-1" style="cursor: pointer;" title="@L[RK.Contacts.ChangeAvatar]">
                                                 <InputFile Accept="image/jpeg,image/png,image/webp" OnChange="HandleAvatarFileSelected" style="display: none;" />
-                                                <RadzenIcon Icon="camera_alt" />
+                                                <ThaiXIcon Name="image" />
                                             </label>
                                         }
                                     </div>
