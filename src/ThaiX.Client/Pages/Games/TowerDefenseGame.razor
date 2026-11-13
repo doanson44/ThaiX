@@ -67,6 +67,11 @@
                 <div class="td-warmart-panel">
                     <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
                     <div class="td-choices">
+                        <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
+                            <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
+                            <span>@L[ResourceKeys.Games.TdStartFunds]</span>
+                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] · @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
+                        </button>
                         @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
                         {
                             var kind = option.Kind;
@@ -348,6 +353,7 @@ else
     private readonly HashSet<TowerKind> _unlockedTowers = [];
     private readonly HashSet<string> _bonusMissions = [];
     private int _warMartCredits;
+    private int _bonusStartingGold;
     private bool _showWarMart;
     private Action[] _cellClicks = [];
     private string[] _roadPoints = [];
@@ -395,6 +401,9 @@ else
                 else if (token.StartsWith("credits:", StringComparison.Ordinal)
                     && int.TryParse(token[8..], out var credits))
                     _warMartCredits = Math.Max(0, credits);
+                else if (token.StartsWith("startfunds:", StringComparison.Ordinal)
+                    && int.TryParse(token[11..], out var startingFunds))
+                    _bonusStartingGold = Math.Max(0, startingFunds);
             }
         }
         catch (JSException)
@@ -469,7 +478,7 @@ else
             return;
 
         var map = TowerDefenseData.Maps[_mapIndex];
-        _match = new TowerDefenseMatch(map, TowerDefenseData.Difficulties[_difficultyIndex], _endless);
+        _match = new TowerDefenseMatch(map, TowerDefenseData.Difficulties[_difficultyIndex], _endless, _bonusStartingGold);
         _roadPoints = [.. _match.Roads.Select(road => string.Join(' ', road.Select(point => $"{Px(point.X)},{Px(point.Y)}")))];
         _cursor = _match.FirstFreeCell(3 * TowerDefenseMatch.Columns + 4);
         _buildKind = map.RequiredTower ?? TowerKind.Gunner;
@@ -506,12 +515,24 @@ else
             var progress = _cleared.Order()
                 .Concat(_unlockedTowers.Order().Select(kind => $"tower:{kind}"))
                 .Concat(_bonusMissions.Order().Select(id => $"bonus:{id}"))
-                .Append($"credits:{_warMartCredits}");
+                .Append($"credits:{_warMartCredits}")
+                .Append($"startfunds:{_bonusStartingGold}");
             await ScoreStore.SetProgressAsync(GameKey, string.Join(',', progress));
         }
         catch (JSException)
         {
         }
+    }
+
+    private async Task BuyStartingFunds()
+    {
+        var cost = TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold);
+        if (_warMartCredits < cost)
+            return;
+
+        _warMartCredits -= cost;
+        _bonusStartingGold += TowerDefenseData.StartingFundsIncrement;
+        await SaveProgressAsync();
     }
 
     private async Task BuyTower(TowerKind kind)
