@@ -181,7 +181,10 @@ public static class ResourceKeys
         public const string TdMission12 = "Games.Td.Mission12";
         public const string TdMission13 = "Games.Td.Mission13";
         public const string TdMission14 = "Games.Td.Mission14";
-        public const string TdTowerLocked = "Games.Td.TowerLocked";
+        public const string TdWarMart = "Games.Td.WarMart";
+        public const string TdWarMartCredits = "Games.Td.WarMartCredits";
+        public const string TdBuy = "Games.Td.Buy";
+        public const string TdUnlocked = "Games.Td.Unlocked";
         public const string EnemySoldier = "Games.EnemySoldier";
         public const string EnemyArmored = "Games.EnemyArmored";
         public const string EnemyJeep = "Games.EnemyJeep";
