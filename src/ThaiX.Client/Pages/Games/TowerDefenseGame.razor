@@ -367,6 +367,7 @@ else
     private int _speed = 1;
     private bool _endless;
     private bool _airstrikeArmed;
+    private bool _resultRecorded;
 
     private string WaveLabel => _match!.Endless
         ? L[ResourceKeys.Games.TdWaveEndless, _match.Wave].Value
@@ -421,6 +422,7 @@ else
         _selectedTower = null;
         _movingTower = null;
         _airstrikeArmed = false;
+        _resultRecorded = false;
         _speed = 1;
         if (!IsUnlocked(_mapIndex))
             _mapIndex = 0;
@@ -485,18 +487,23 @@ else
         _selectedTower = null;
         _movingTower = null;
         _airstrikeArmed = false;
+        _resultRecorded = false;
         RestartClock();
         StartLoop(TowerDefenseMatch.TickMilliseconds, Tick);
     }
 
     private void Tick()
     {
-        for (var i = 0; i < _speed && !_match!.IsOver; i++)
-            _match!.Advance();
-
-        if (!_match!.IsOver)
+        if (_match is null || _resultRecorded)
             return;
 
+        for (var i = 0; i < _speed && !_match.IsOver; i++)
+            _match!.Advance();
+
+        if (!_match.IsOver)
+            return;
+
+        _resultRecorded = true;
         var won = _match.State == MatchState.Won;
         if (won)
         {
