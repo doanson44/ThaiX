@@ -1226,3 +1226,30 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
 .tx-main-content .rz-tabview-nav > li {
     flex: 0 0 auto;
 }
+
+
+/* ThaiX design-system icon primitives */
+.tx-icon {
+    display: inline-block;
+    flex: 0 0 auto;
+    vertical-align: -0.125em;
+    overflow: visible;
+    color: inherit;
+}
+.tx-nav-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+}
+.tx-nav-item > .tx-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--rz-panel-menu-icon-color, currentColor);
+}
+.tx-brand-mark {
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 auto;
+    border-radius: 0.5rem;
+}
