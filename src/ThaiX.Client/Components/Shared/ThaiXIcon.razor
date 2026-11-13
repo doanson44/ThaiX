@@ -4,14 +4,15 @@
      viewBox="0 0 24 24"
      role="@(HasTitle ? "img" : null)"
      aria-hidden="@(HasTitle ? null : "true")"
-     focusable="false">
+     focusable="false"
+     style="@Style">
     @if (HasTitle)
     {
         <title>@Title</title>
     }
-    @if (IsKnownIcon)
+    @if (ResolvedName is not null)
     {
-        <use href="@($"/icons/system-design.svg#{Name}")" />
+        <use href="@($"/icons/system-design.svg#{ResolvedName}")" />
     }
 </svg>
 
