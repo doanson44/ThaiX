@@ -152,11 +152,11 @@ public sealed class TowerDefenseMatch
 
     public double Damage(Tower tower)
     {
-        var damage = tower.Spec.IsSupport
-            ? tower.Spec.SupportValue * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage))
-            : tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
-        if (tower.Spec.Effect == TowerEffect.SupportDamage)
+        var damage = tower.Spec.SupportValue * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+        if (tower.Spec.IsSupport)
             return damage;
+
+        damage = tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
 
         var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
         return damage + _towers
@@ -171,6 +171,9 @@ public sealed class TowerDefenseMatch
 
     public int? UpgradeCost(Tower tower, UpgradeTrack track)
     {
+        if (tower.Spec.IsSupport && track == UpgradeTrack.FireRate)
+            return null;
+
         var level = tower.Level(track);
         return level >= MaxLevel ? null : (int)(Math.Ceiling(tower.Spec.Cost * UpgradeCostFactor * (level + 1) / 5) * 5);
     }
