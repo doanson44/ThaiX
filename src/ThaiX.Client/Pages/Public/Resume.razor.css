@@ -27,8 +27,8 @@
 }
 
 .resume-download-btn {
-    background: var(--tx-accent, #f59e0b);
-    color: var(--rz-on-primary, #1a1207);
+    background: var(--tx-accent, #2563eb);
+    color: var(--rz-on-primary, #ffffff);
     border: none;
     border-radius: 8px;
     padding: 0.6rem 1.2rem;
@@ -38,7 +38,7 @@
 }
 
 .resume-download-btn:hover {
-    background: var(--tx-accent-light, #fbbf24);
+    background: var(--tx-accent-light, #60a5fa);
 }
 
 @media print {
