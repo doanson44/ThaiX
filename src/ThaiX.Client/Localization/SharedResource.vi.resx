@@ -2098,6 +2098,8 @@
   <data name="Games.Restart" xml:space="preserve"><value>Chơi lại</value></data>
   <data name="Games.Pause" xml:space="preserve"><value>Tạm dừng</value></data>
   <data name="Games.Resume" xml:space="preserve"><value>Tiếp tục</value></data>
+  <data name="Games.Fullscreen" xml:space="preserve"><value>Bật toàn màn hình</value></data>
+  <data name="Games.ExitFullscreen" xml:space="preserve"><value>Thoát toàn màn hình</value></data>
   <data name="Games.GuestPrompt" xml:space="preserve"><value>Bạn có muốn dùng biệt danh để tham gia bảng xếp hạng toàn cầu không? Lịch sử vẫn được lưu trên thiết bị.</value></data>
   <data name="Games.GuestNickname" xml:space="preserve"><value>Biệt danh</value></data>
   <data name="Games.JoinLeaderboard" xml:space="preserve"><value>Tham gia bảng xếp hạng</value></data>

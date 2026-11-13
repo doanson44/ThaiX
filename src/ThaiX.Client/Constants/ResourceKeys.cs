@@ -55,6 +55,8 @@ public static class ResourceKeys
         public const string Restart = "Games.Restart";
         public const string Pause = "Games.Pause";
         public const string Resume = "Games.Resume";
+        public const string Fullscreen = "Games.Fullscreen";
+        public const string ExitFullscreen = "Games.ExitFullscreen";
         public const string GuestPrompt = "Games.GuestPrompt";
         public const string GuestNickname = "Games.GuestNickname";
         public const string JoinLeaderboard = "Games.JoinLeaderboard";

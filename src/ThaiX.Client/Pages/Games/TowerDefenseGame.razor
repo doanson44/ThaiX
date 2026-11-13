@@ -7,18 +7,88 @@
 @inject ApiConnectivityState ConnectivityState
 @inject ILogger<TowerDefenseGame> Logger
 
+<svg class="td-sprite-bank" aria-hidden="true">
+    <defs>
+        <symbol id="td-tower-gunner" viewBox="0 0 161 128"><image href="/images/games/tower-defense/tower-gunner.png" width="161" height="128" /></symbol>
+        <symbol id="td-tower-sniper" viewBox="0 0 161 128"><image href="/images/games/tower-defense/tower-sniper.png" width="161" height="128" /></symbol>
+        <symbol id="td-tower-rocket" viewBox="0 0 161 170"><image href="/images/games/tower-defense/tower-rocket.png" width="161" height="170" /></symbol>
+        <symbol id="td-tower-tesla" viewBox="0 0 109 128"><image href="/images/games/tower-defense/tower-tesla.png" width="109" height="128" /></symbol>
+        <symbol id="td-tower-flamethrower" viewBox="0 0 108 128"><image href="/images/games/tower-defense/tower-flamethrower.png" width="108" height="128" /></symbol>
+        <symbol id="td-tower-slowfield" viewBox="0 0 144 107"><image href="/images/games/tower-defense/tower-slowfield.png" width="144" height="107" /></symbol>
+        <symbol id="td-tower-particlebeam" viewBox="0 0 197 171"><image href="/images/games/tower-defense/tower-particlebeam.png" width="197" height="171" /></symbol>
+        <symbol id="td-tower-plasmacannon" viewBox="0 0 179 171"><image href="/images/games/tower-defense/tower-plasmacannon.png" width="179" height="171" /></symbol>
+        <symbol id="td-tower-radar" viewBox="0 0 108 128"><image href="/images/games/tower-defense/tower-radar.png" width="108" height="128" /></symbol>
+        <symbol id="td-tower-poweramplifier" viewBox="0 0 143 128"><image href="/images/games/tower-defense/tower-poweramplifier.png" width="143" height="128" /></symbol>
+        <symbol id="td-enemy-soldier" viewBox="0 0 126 107"><image href="/images/games/tower-defense/enemy-soldier.png" width="126" height="107" /></symbol>
+        <symbol id="td-enemy-armored" viewBox="0 0 161 107"><image href="/images/games/tower-defense/enemy-armored.png" width="161" height="107" /></symbol>
+        <symbol id="td-enemy-jeep" viewBox="0 0 126 107"><image href="/images/games/tower-defense/enemy-jeep.png" width="126" height="107" /></symbol>
+        <symbol id="td-enemy-helicopter" viewBox="0 0 162 107"><image href="/images/games/tower-defense/enemy-helicopter.png" width="162" height="107" /></symbol>
+        <symbol id="td-enemy-tank" viewBox="0 0 179 107"><image href="/images/games/tower-defense/enemy-tank.png" width="179" height="107" /></symbol>
+        <symbol id="td-enemy-boss" viewBox="0 0 108 107"><image href="/images/games/tower-defense/enemy-boss.png" width="108" height="107" /></symbol>
+    </defs>
+</svg>
+
 @if (_match is null)
 {
     <div class="td-menu" @onkeydown:stopPropagation>
         <h2 class="td-menu-title">@L[ResourceKeys.Games.TdMenuTitle]</h2>
-        <div role="group" aria-label="@L[ResourceKeys.Games.TdMap]">
-            <div class="td-menu-label">@L[ResourceKeys.Games.TdMap]</div>
-            <div class="td-choices">
+        <div class="td-mission-group" role="group" aria-label="@L[ResourceKeys.Games.TdMap]">
+            <div class="td-mission-heading">
+                <div class="td-menu-label">@L[ResourceKeys.Games.TdMap]</div>
+                <button type="button" class="btn btn-outline-warning" aria-expanded="@_showWarMart" @onclick="() => _showWarMart = !_showWarMart">
+                    <ThaiXIcon Name="cart" Size="1rem" /> @L[ResourceKeys.Games.TdWarMart]
+                    <span class="td-warmart-balance">@_warMartCredits</span>
+                </button>
+            </div>
+            @if (_showWarMart)
+            {
+                <div class="td-warmart-panel">
+                    <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
+                    @if (_goldSyncFailed)
+                    {
+                        <small class="text-warning">@L[ResourceKeys.Games.TdGoldSyncFailed]</small>
+                    }
+                    <div class="td-shop-choices">
+                        <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
+                            <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
+                            <span>@L[ResourceKeys.Games.TdStartFunds]</span>
+                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] <span aria-hidden="true">&#183;</span> @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
+                        </button>
+                        @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
+                        {
+                            var kind = option.Kind;
+                            var cost = TowerDefenseData.TowerUnlockCost(kind);
+                            var unlocked = _unlockedTowers.Contains(kind);
+                            <button type="button" class="td-choice td-shop-item" disabled="@(unlocked || _warMartCredits < cost)" @onclick="() => BuyTower(kind)">
+                                <svg class="td-unit-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="@($"#td-tower-{kind.ToString().ToLowerInvariant()}")" width="100%" height="100%" /></svg>
+                                <span>@L[option.NameKey]</span>
+                                <strong>@(unlocked ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {cost}")</strong>
+                            </button>
+                        }
+                    </div>
+                    <div class="td-bonus-missions">
+                        <div class="td-menu-label">@L[ResourceKeys.Games.TdBonusMissions]</div>
+                        <div class="td-shop-choices">
+                            @foreach (var mission in TowerDefenseData.Maps.Where(map => map.IsBonus))
+                            {
+                                var bonus = mission;
+                                var purchased = _bonusMissions.Contains(bonus.Id);
+                                <button type="button" class="td-choice td-shop-item" disabled="@(purchased || _warMartCredits < bonus.UnlockCost)" @onclick="() => BuyBonusMission(bonus.Id)">
+                                    <ThaiXIcon Name="military_tech" Size="1.25rem" />
+                                    <span>@L[bonus.NameKey]</span>
+                                    <strong>@(purchased ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {bonus.UnlockCost}")</strong>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="td-mission-choices">
                 @for (var i = 0; i < TowerDefenseData.Maps.Count; i++)
                 {
                     var index = i;
                     var locked = !IsUnlocked(index);
-                    <button type="button" class="td-choice @(_mapIndex == index ? "is-active" : "")" aria-pressed="@(_mapIndex == index)"
+                    <button type="button" class="td-choice td-mission-choice @(_mapIndex == index ? "is-active" : "")" aria-pressed="@(_mapIndex == index)"
                             disabled="@locked" @onclick="() => _mapIndex = index">
                         <span>@L[TowerDefenseData.Maps[index].NameKey]</span>
                         @if (locked)
@@ -62,61 +132,13 @@
                 </button>
             </div>
         </div>
-        <div class="td-warmart">
-            <button type="button" class="btn btn-outline-warning" aria-expanded="@_showWarMart" @onclick="() => _showWarMart = !_showWarMart">
-                <ThaiXIcon Name="cart" Size="1rem" /> @L[ResourceKeys.Games.TdWarMart]
-                <span class="td-warmart-balance">@_warMartCredits</span>
-            </button>
-            @if (_showWarMart)
-            {
-                <div class="td-warmart-panel">
-                    <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
-                @if (_goldSyncFailed)
-                {
-                    <small class="text-warning">@L[ResourceKeys.Games.TdGoldSyncFailed]</small>
-                }
-                    <div class="td-choices">
-                        <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
-                            <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
-                            <span>@L[ResourceKeys.Games.TdStartFunds]</span>
-                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] <span aria-hidden="true">&#183;</span> @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
-                        </button>
-                        @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
-                        {
-                            var kind = option.Kind;
-                            var cost = TowerDefenseData.TowerUnlockCost(kind);
-                            var unlocked = _unlockedTowers.Contains(kind);
-                            <button type="button" class="td-choice td-shop-item" disabled="@(unlocked || _warMartCredits < cost)" @onclick="() => BuyTower(kind)">
-                                <ThaiXIcon Name="@option.Icon" Size="1.25rem" style="@($"color:{option.Color}")" />
-                                <span>@L[option.NameKey]</span>
-                                <strong>@(unlocked ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {cost}")</strong>
-                            </button>
-                        }
-                    </div>
-                    <div class="td-bonus-missions">
-                        <div class="td-menu-label">@L[ResourceKeys.Games.TdBonusMissions]</div>
-                        <div class="td-choices">
-                            @foreach (var mission in TowerDefenseData.Maps.Where(map => map.IsBonus))
-                            {
-                                var bonus = mission;
-                                var purchased = _bonusMissions.Contains(bonus.Id);
-                                <button type="button" class="td-choice td-shop-item" disabled="@(purchased || _warMartCredits < bonus.UnlockCost)" @onclick="() => BuyBonusMission(bonus.Id)">
-                                    <ThaiXIcon Name="military_tech" Size="1.25rem" />
-                                    <span>@L[bonus.NameKey]</span>
-                                    <strong>@(purchased ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {bonus.UnlockCost}")</strong>
-                                </button>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
         <button type="button" class="btn btn-primary td-deploy" @onclick="Deploy">@L[ResourceKeys.Games.TdStartMission]</button>
     </div>
 }
 else
 {
     var match = _match;
+    <div class="td-match-layout">
     <svg class="game-svg" viewBox="0 0 480 376">
         <defs>
             <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
@@ -195,7 +217,7 @@ else
                 var pips = placed.Levels.Sum();
                 <g transform="translate(@TowerDefenseMatch.CellX(placed.Cell) @TowerDefenseMatch.CellY(placed.Cell))">
                     <use href="#td-base" />
-                    <use href="@Href(placedSpec.Icon)" x="-12" y="-12" width="24" height="24" style="color:@placedSpec.Color" />
+                    <use href="@($"#td-tower-{placedSpec.Kind.ToString().ToLowerInvariant()}")" x="-12" y="-12" width="24" height="24" />
                     @if (placed.FlashUntil > match.Tick && placedSpec.Effect is TowerEffect.Single or TowerEffect.Splash)
                     {
                         <g transform="rotate(@Px(placed.Angle))">
@@ -216,7 +238,7 @@ else
                     {
                         <ellipse cx="0" cy="@(enemySpec.Radius + 6)" rx="@(enemySpec.Radius - 2)" ry="3" fill="#0b1220" fill-opacity="0.35" />
                     }
-                    <use href="@Href(enemySpec.Icon)" x="@(-enemySpec.GlyphSize / 2)" y="@(-enemySpec.GlyphSize / 2)" width="@enemySpec.GlyphSize" height="@enemySpec.GlyphSize"
+                    <use href="@($"#td-enemy-{enemySpec.Kind.ToString().ToLowerInvariant()}")" x="@(-enemySpec.GlyphSize / 2)" y="@(-enemySpec.GlyphSize / 2)" width="@enemySpec.GlyphSize" height="@enemySpec.GlyphSize"
                          style="color:@(enemy.HitUntil > match.Tick ? "#ffffff" : enemySpec.Color)" />
                     @if (enemy.SlowTicks > 0)
                     {
@@ -272,6 +294,20 @@ else
         }
     </svg>
 
+    <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
+        @foreach (var option in TowerDefenseData.Towers.Where(option => match.Map.RequiredTower is null || option.Kind == match.Map.RequiredTower))
+        {
+            var kind = option.Kind;
+            var unlocked = IsTowerUnlocked(kind);
+            <button type="button" tabindex="-1" class="td-tower @(_buildKind == kind ? "is-active" : "") @(match.Gold < option.Cost ? "is-poor" : "")"
+                    aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
+                <svg class="td-unit-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="@($"#td-tower-{kind.ToString().ToLowerInvariant()}")" width="100%" height="100%" /></svg>
+                <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
+                <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdWarMart].Value)</span>
+            </button>
+        }
+    </div>
+
     <div class="td-panel" @onmousedown:preventDefault>
         <div class="td-actions">
             <button type="button" class="btn btn-sm btn-primary" tabindex="-1" disabled="@(!CanCallWave)" @onclick="CallWave">
@@ -294,20 +330,6 @@ else
                     }
                     @L[ResourceKeys.Games.TdNextWave, NextWaveSummary]
                 </small>
-            }
-        </div>
-
-        <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
-            @foreach (var option in TowerDefenseData.Towers.Where(option => match.Map.RequiredTower is null || option.Kind == match.Map.RequiredTower))
-            {
-                var kind = option.Kind;
-                var unlocked = IsTowerUnlocked(kind);
-                <button type="button" tabindex="-1" class="td-tower @(_buildKind == kind ? "is-active" : "") @(match.Gold < option.Cost ? "is-poor" : "")"
-                        aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
-                    <ThaiXIcon Name="@option.Icon" Size="1.5rem" style="@($"color:{option.Color}")" />
-                    <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
-                    <span class="td-cost">@(unlocked ? option.Cost.ToString() : L[ResourceKeys.Games.TdWarMart].Value)</span>
-                </button>
             }
         </div>
 
@@ -389,6 +411,7 @@ else
                 <small class="text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
             }
         </div>
+    </div>
     </div>
 }
 

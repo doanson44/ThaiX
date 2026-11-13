@@ -7,6 +7,45 @@
     min-width: 0;
 }
 
+.game-fullscreen-host:fullscreen {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 1rem;
+    background: #0b1220;
+}
+
+.game-fullscreen-host:fullscreen ::deep .game-stage {
+    width: 100%;
+    max-width: none;
+    max-height: 100%;
+    overflow: auto;
+}
+
+.game-fullscreen-host:fullscreen .game-controls,
+.game-fullscreen-host:fullscreen .game-canvas {
+    width: min(100%, 90vw);
+}
+
+.game-fullscreen-host:fullscreen .game-canvas ::deep .game-svg {
+    max-height: 82vh;
+}
+
+.game-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    width: min(100%, 45rem);
+    margin: 0 auto 0.5rem;
+}
+
+.game-fullscreen-button {
+    min-width: 2.5rem;
+}
+
 .game-instructions {
     display: flex;
     flex-wrap: wrap;

@@ -4,13 +4,15 @@
 @using ThaiX.Client.Models.Games
 @using ThaiX.Client.Services.Api
 @using ThaiX.Client.Services.Games
-@implements IDisposable
+@implements IAsyncDisposable
 @inherits ThaiXPageBase
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject GameScoreStore ScoreStore
 @inject IGameLeaderboardClient LeaderboardClient
+@inject IJSRuntime JS
+@inject ILogger<GamePlayer> Logger
 
 <PageTitle>@(Game is null ? L[ResourceKeys.Games.Title].Value : L[Game.TitleKey].Value) - ThaiX</PageTitle>
 
@@ -21,16 +23,9 @@
 else
 {
     <RadzenStack Gap="1rem" Class="game-player">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <ThaiXButton Text="@L[ResourceKeys.Games.BackToGames]" Icon="arrow_back" ButtonStyle="ButtonStyle.Light"
                           Click="BackToGames" />
-            <div class="d-flex gap-2">
-                <ThaiXButton Text="@L[ResourceKeys.Games.Restart]" Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
-                              Click="RestartAsync" />
-                <ThaiXButton Text="@(_isPaused ? L[ResourceKeys.Games.Resume] : L[ResourceKeys.Games.Pause])"
-                              Icon="@(_isPaused ? "play_arrow" : "pause")" ButtonStyle="ButtonStyle.Light"
-                              Click="TogglePauseAsync" />
-            </div>
         </div>
 
         <div>
@@ -40,6 +35,7 @@ else
             <p class="text-muted mb-0">@L[Game.DescriptionKey]</p>
         </div>
 
+        <div @ref="_fullscreenTarget" class="game-fullscreen-host">
         <RadzenCard Class="game-stage">
             <div id="game-instructions" class="game-instructions mb-3">
                 <strong>@L[ResourceKeys.Games.Instructions]:</strong>
@@ -56,6 +52,18 @@ else
                     </select>
                 </div>
             }
+            <div class="game-controls">
+                <ThaiXButton Text="@L[ResourceKeys.Games.Restart]" Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
+                              Click="RestartAsync" />
+                <ThaiXButton Text="@(_isPaused ? L[ResourceKeys.Games.Resume] : L[ResourceKeys.Games.Pause])"
+                              Icon="@(_isPaused ? "play_arrow" : "pause")" ButtonStyle="ButtonStyle.Light"
+                              Click="TogglePauseAsync" />
+                <ThaiXButton Icon="@(_isFullscreen ? "fullscreen_exit" : "fullscreen")"
+                              Title="@L[_isFullscreen ? ResourceKeys.Games.ExitFullscreen : ResourceKeys.Games.Fullscreen]"
+                              AriaLabel="@L[_isFullscreen ? ResourceKeys.Games.ExitFullscreen : ResourceKeys.Games.Fullscreen]"
+                              aria-pressed="@_isFullscreen" ButtonStyle="ButtonStyle.Light"
+                              Class="game-fullscreen-button" Click="ToggleFullscreenAsync" />
+            </div>
             <div @ref="_stage" class="game-canvas" tabindex="0" role="application" data-game-keys
                  aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"
                  @onkeydown="@(e => ActiveGame?.HandleKey(e.Key))"
@@ -103,6 +111,7 @@ else
                 }
             }
         </RadzenCard>
+        </div>
 
         <RadzenRow Gap="1rem">
             <RadzenColumn Size="12" SizeMD="4">
@@ -191,7 +200,10 @@ else
     [Parameter] public string GameId { get; set; } = string.Empty;
 
     private ElementReference _stage;
+    private ElementReference _fullscreenTarget;
     private DynamicComponent? _board;
+    private IJSObjectReference? _fullscreenModule;
+    private DotNetObjectReference<GamePlayer>? _fullscreenCallback;
     private GameLocalScoreState _localScores = new();
     private IReadOnlyList<GameLeaderboardEntryModel> _leaderboard = [];
     private GameDefinition? Game;
@@ -212,6 +224,7 @@ else
         && _guestName.Trim().Length is >= 2 and <= 24
         && _guestName.Trim().All(character => char.IsLetterOrDigit(character) || " @._+-".Contains(character));
     private bool _isPaused;
+    private bool _isFullscreen;
     private bool _isFinished;
     private bool _flagMode;
     private TypingDifficulty _typingDifficulty = TypingDifficulty.Medium;
@@ -281,6 +294,7 @@ else
         if (firstRender)
         {
             await Viewport.InitializeAsync();
+            await InitializeFullscreenAsync();
             StateHasChanged();
         }
 
@@ -473,5 +487,86 @@ else
             await _stage.FocusAsync(preventScroll: true);
     }
 
-    public void Dispose() => Viewport.OnBreakpointChanged -= StateHasChanged;
+    private async Task InitializeFullscreenAsync()
+    {
+        const string moduleSource = """
+            const listeners = new WeakMap();
+
+            export function observeFullscreen(element, dotnetRef) {
+                const listener = () => dotnetRef.invokeMethodAsync("OnFullscreenChanged", document.fullscreenElement === element);
+                document.addEventListener("fullscreenchange", listener);
+                listeners.set(element, listener);
+                listener();
+            }
+
+            export async function toggleFullscreen(element) {
+                if (document.fullscreenElement === element) {
+                    await document.exitFullscreen();
+                } else {
+                    await element.requestFullscreen();
+                }
+            }
+
+            export function disposeFullscreen(element) {
+                const listener = listeners.get(element);
+                if (listener) document.removeEventListener("fullscreenchange", listener);
+                listeners.delete(element);
+            }
+            """;
+
+        try
+        {
+            var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(moduleSource));
+            _fullscreenModule = await JS.InvokeAsync<IJSObjectReference>("import", $"data:text/javascript;base64,{base64}");
+            _fullscreenCallback = DotNetObjectReference.Create(this);
+            await _fullscreenModule.InvokeVoidAsync("observeFullscreen", _fullscreenTarget, _fullscreenCallback);
+        }
+        catch (JSException exception)
+        {
+            Logger.LogWarning(exception, "Unable to initialize fullscreen for game {GameId}", GameId);
+        }
+    }
+
+    private async Task ToggleFullscreenAsync()
+    {
+        if (_fullscreenModule is null)
+            return;
+
+        try
+        {
+            await _fullscreenModule.InvokeVoidAsync("toggleFullscreen", _fullscreenTarget);
+        }
+        catch (JSException exception)
+        {
+            Logger.LogWarning(exception, "Unable to toggle fullscreen for game {GameId}", GameId);
+        }
+    }
+
+    [JSInvokable]
+    public Task OnFullscreenChanged(bool isFullscreen)
+    {
+        _isFullscreen = isFullscreen;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Viewport.OnBreakpointChanged -= StateHasChanged;
+
+        try
+        {
+            if (_fullscreenModule is not null)
+            {
+                await _fullscreenModule.InvokeVoidAsync("disposeFullscreen", _fullscreenTarget);
+                await _fullscreenModule.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        finally
+        {
+            _fullscreenCallback?.Dispose();
+        }
+    }
 }

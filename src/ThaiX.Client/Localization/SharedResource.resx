@@ -2099,6 +2099,8 @@
   <data name="Games.Restart" xml:space="preserve"><value>Restart</value></data>
   <data name="Games.Pause" xml:space="preserve"><value>Pause</value></data>
   <data name="Games.Resume" xml:space="preserve"><value>Resume</value></data>
+  <data name="Games.Fullscreen" xml:space="preserve"><value>Enter fullscreen</value></data>
+  <data name="Games.ExitFullscreen" xml:space="preserve"><value>Exit fullscreen</value></data>
   <data name="Games.GuestPrompt" xml:space="preserve"><value>Join the global leaderboard with a nickname? Your local history is saved either way.</value></data>
   <data name="Games.GuestNickname" xml:space="preserve"><value>Nickname</value></data>
   <data name="Games.JoinLeaderboard" xml:space="preserve"><value>Join leaderboard</value></data>
