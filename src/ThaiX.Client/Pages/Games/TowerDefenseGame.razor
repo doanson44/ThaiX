@@ -70,7 +70,7 @@
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
                             <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
                             <span>@L[ResourceKeys.Games.TdStartFunds]</span>
-                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] &middot; @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
+                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] <span aria-hidden="true">&#183;</span> @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
                         </button>
                         @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
                         {
@@ -260,7 +260,7 @@ else
                     @if (match.NextWaveCountdownActive)
                     {
                         @L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]
-                        <span> &middot; </span>
+                        <span> <span aria-hidden="true">&#183;</span> </span>
                     }
                     @L[ResourceKeys.Games.TdNextWave, NextWaveSummary]
                 </small>
@@ -293,9 +293,9 @@ else
                         }
                         else
                         {
-                            @L[ResourceKeys.Games.TdUpgradeDamage] @match.Damage(chosen).ToString("0.#") &middot;
-                            @L[ResourceKeys.Games.TdUpgradeRange] @match.Range(chosen).ToString("0") &middot;
-                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s
+                            @L[ResourceKeys.Games.TdUpgradeDamage] @match.Damage(chosen).ToString("0.#") <span aria-hidden="true">&#183;</span>
+                            @L[ResourceKeys.Games.TdUpgradeRange] @match.Range(chosen).ToString("0") <span aria-hidden="true">&#183;</span>
+                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")<span aria-hidden="true">/s</span>
                         }
                     </span>
                     @if (!chosen.Spec.IsSupport)
@@ -342,9 +342,9 @@ else
                         }
                         else
                         {
-                            @L[ResourceKeys.Games.TdUpgradeDamage] @buildSpec.Damage.ToString("0.#") &middot;
-                            @L[ResourceKeys.Games.TdUpgradeRange] @buildSpec.Range.ToString("0") &middot;
-                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s
+                            @L[ResourceKeys.Games.TdUpgradeDamage] @buildSpec.Damage.ToString("0.#") <span aria-hidden="true">&#183;</span>
+                            @L[ResourceKeys.Games.TdUpgradeRange] @buildSpec.Range.ToString("0") <span aria-hidden="true">&#183;</span>
+                            @L[ResourceKeys.Games.TdUpgradeFireRate] @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")<span aria-hidden="true">/s</span>
                         }
                     </span>
                     @if (!buildSpec.IsSupport)
