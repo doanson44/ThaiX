@@ -2232,7 +2232,10 @@
   <data name="Games.Td.Mode" xml:space="preserve"><value>Mode</value></data>
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Deploy</value></data>
   <data name="Games.Td.MapLocked" xml:space="preserve"><value>Locked: clear {0} first</value></data>
-  <data name="Games.Td.TowerLocked" xml:space="preserve"><value>Clear {0} missions to unlock</value></data>
+  <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>War-Mart credits: {0}</value></data>
+  <data name="Games.Td.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="Games.Td.Unlocked" xml:space="preserve"><value>Unlocked</value></data>
   <data name="Games.Td.Mission01" xml:space="preserve"><value>Mission 01 - Training Ground</value></data>
   <data name="Games.Td.Mission02" xml:space="preserve"><value>Mission 02 - River Crossing</value></data>
   <data name="Games.Td.Mission03" xml:space="preserve"><value>Mission 03 - Crossfire</value></data>
