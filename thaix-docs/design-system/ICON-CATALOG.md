@@ -125,7 +125,7 @@ Before adding any extracted asset to `src/ThaiX.Client/wwwroot`:
 The production sprite is `src/ThaiX.Client/wwwroot/icons/system-design.svg`. It contains
 28 glyphs traced from the 28 white system glyph assets embedded in the `ThaiX Icon System`
 artboard, normalized to a 24 x 24 viewBox and converted to monochrome vector paths using
-`currentColor`. Three additional utility glyphs (`menu`, `arrow-left`, `logout`) support
+`currentColor`. Four additional utility/navigation glyphs (`calendar`, `menu`, `arrow-left`, `logout`) support
 the application shell.
 
 | Name | Meaning |
@@ -158,6 +158,7 @@ the application shell.
 | `heart` | Favorites |
 | `user` | User profile |
 | `share` | Sharing |
+| `calendar` | Schedules and dates |
 | `menu` | Navigation menu |
 | `arrow-left` | Back and close navigation |
 | `logout` | Sign out |
