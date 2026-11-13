@@ -2232,6 +2232,7 @@
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Triển khai</value></data>
   <data name="Games.Td.MapLocked" xml:space="preserve"><value>Đã khóa: hãy hoàn thành {0} trước</value></data>
   <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.Td.GoldSyncFailed" xml:space="preserve"><value>Gold đang được giữ trên thiết bị vì chưa đồng bộ được với tài khoản. Hãy thử lại khi API hoạt động.</value></data>
   <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>Điểm War-Mart: {0}</value></data>
   <data name="Games.Td.Buy" xml:space="preserve"><value>Mua</value></data>
   <data name="Games.Td.Unlocked" xml:space="preserve"><value>Đã mở khóa</value></data>
