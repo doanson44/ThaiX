@@ -67,11 +67,11 @@ public static class TowerDefenseData
     public static readonly IReadOnlyList<EnemySpec> Enemies =
     [
         new(EnemyKind.Soldier, ResourceKeys.Games.EnemySoldier, "user", "#7f1d1d", 18, EnemyClass.Infantry, 1, 1, 1, 10, 1, 8, "#e7e5e4"),
-        new(EnemyKind.Armored, ResourceKeys.Games.EnemyArmored, "shield-check", "#365314", 20, EnemyClass.Infantry, 2.5, 0.85, 2, 25, 1, 9, "#d9f99d"),
+        new(EnemyKind.Armored, ResourceKeys.Games.EnemyArmored, "shield-check", "#365314", 20, EnemyClass.Infantry, 2.5, 0.85, 2, 20, 1, 9, "#d9f99d"),
         new(EnemyKind.Jeep, ResourceKeys.Games.EnemyJeep, "cart", "#9a3412", 24, EnemyClass.Vehicle, 1.2, 1.9, 2, 20, 1, 11, "#fb923c"),
         new(EnemyKind.Helicopter, ResourceKeys.Games.EnemyHelicopter, "video", "#1e3a8a", 26, EnemyClass.Air, 3, 1.5, 4, 40, 2, 12, "#93c5fd"),
         new(EnemyKind.Tank, ResourceKeys.Games.EnemyTank, "cube", "#450a0a", 30, EnemyClass.Vehicle, 10, 0.8, 5, 100, 3, 15, "#fb923c"),
-        new(EnemyKind.Boss, ResourceKeys.Games.EnemyBoss, "ai-chip", "#4a044e", 38, EnemyClass.Vehicle, 50, 0.6, 30, 500, 5, 19, "#e879f9")
+        new(EnemyKind.Boss, ResourceKeys.Games.EnemyBoss, "ai-chip", "#4a044e", 38, EnemyClass.Vehicle, 50, 0.6, 30, 100, 5, 19, "#e879f9")
     ];
 
     public static readonly IReadOnlyList<MapSpec> Maps =
