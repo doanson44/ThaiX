@@ -159,11 +159,23 @@ else
         <g pointer-events="none">
             @foreach (var cell in match.Map.Trees)
             {
-                <use href="@Href("leaf")" x="@(TowerDefenseMatch.CellX(cell) - 17)" y="@(TowerDefenseMatch.CellY(cell) - 17)" width="34" height="34" style="color:#14532d" />
+                <g transform="translate(@TowerDefenseMatch.CellX(cell) @TowerDefenseMatch.CellY(cell))">
+                    <ellipse cy="9" rx="17" ry="7" fill="#263b20" opacity="0.55" />
+                    <circle cx="-6" cy="1" r="11" fill="#24532d" />
+                    <circle cx="5" cy="-5" r="12" fill="#326b35" />
+                    <circle cx="8" cy="5" r="9" fill="#477c3b" />
+                    <circle cx="-2" cy="-9" r="4" fill="#78964a" />
+                </g>
             }
             @foreach (var cell in match.Map.Rocks)
             {
-                <use href="@Href("cube")" x="@(TowerDefenseMatch.CellX(cell) - 14)" y="@(TowerDefenseMatch.CellY(cell) - 14)" width="28" height="28" style="color:#a8a29e" />
+                <g transform="translate(@TowerDefenseMatch.CellX(cell) @TowerDefenseMatch.CellY(cell))">
+                    <ellipse cy="9" rx="14" ry="5" fill="#292524" opacity="0.45" />
+                    <path d="M-13 7L-10 -5L-2 -13L8 -9L14 3L8 10L-7 11Z" fill="#78716c" stroke="#44403c" stroke-width="1.5" />
+                    <path d="M-10 -5L-2 -13L8 -9L1 -2Z" fill="#a8a29e" />
+                    <path d="M1 -2L8 -9L14 3L8 10Z" fill="#57534e" />
+                    <path d="M-8 2L-2 -2" stroke="#d6d3d1" stroke-width="1.2" opacity="0.7" />
+                </g>
             }
             @foreach (var endY in match.Roads.Select(road => road[^1].Y).Distinct())
             {
