@@ -26,6 +26,39 @@
         "user", "share"
     ];
 
+    private static readonly IReadOnlyDictionary<string, string> IconAliases =
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["check_circle"] = "shield-check",
+            ["verified"] = "shield-check",
+            ["cancel"] = "alert",
+            ["search_off"] = "search",
+            ["code"] = "document",
+            ["chevron_right"] = "link",
+            ["camera_alt"] = "image",
+            ["person"] = "user",
+            ["account_circle"] = "user",
+            ["groups"] = "team",
+            ["sports_esports"] = "gamepad",
+            ["article"] = "document",
+            ["description"] = "document",
+            ["account_balance"] = "wallet",
+            ["account_balance_wallet"] = "wallet",
+            ["trending_up"] = "analytics",
+            ["bar_chart"] = "analytics",
+            ["notifications"] = "bell",
+            ["notifications_active"] = "bell",
+            ["security"] = "shield-check",
+            ["lock"] = "lock",
+            ["settings"] = "settings",
+            ["public"] = "globe",
+            ["psychology"] = "ai-chip",
+            ["database"] = "database",
+            ["cloud"] = "cloud",
+            ["search"] = "search",
+            ["share"] = "share"
+        };
+
     [Parameter, EditorRequired]
     public string Name { get; set; } = string.Empty;
 
@@ -38,6 +71,12 @@
     [Parameter]
     public string? Class { get; set; }
 
+    [Parameter]
+    public string? Style { get; set; }
+
+    private string? ResolvedName =>
+        KnownIcons.Contains(Name) ? Name :
+        IconAliases.TryGetValue(Name, out var alias) ? alias : "cube";
+
     private bool HasTitle => !string.IsNullOrWhiteSpace(Title);
-    private bool IsKnownIcon => KnownIcons.Contains(Name);
 }
