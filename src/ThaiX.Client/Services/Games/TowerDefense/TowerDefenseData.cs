@@ -39,7 +39,8 @@ public sealed record EnemySpec(
 
 public sealed record WaveGroup(EnemyKind Kind, int Count, int IntervalTicks);
 
-public sealed record MapSpec(string Id, string NameKey, (int Column, int Row)[][] Routes, int[] Trees, int[] Rocks);
+public sealed record MapSpec(string Id, string NameKey, (int Column, int Row)[][] Routes, int[] Trees, int[] Rocks,
+    TowerKind? RequiredTower = null, bool IsBonus = false, int UnlockCost = 0);
 
 public sealed record DifficultySpec(string Id, string NameKey, int Lives, int StartGold, double HealthMultiplier, double GoldMultiplier);
 
@@ -125,7 +126,13 @@ public static class TowerDefenseData
             [17, 22, 29, 54], [11, 57]),
         new("mission-14", ResourceKeys.Games.TdMission14,
             [[(-1, 2), (3, 2), (3, 0), (7, 0), (7, 5), (10, 5)], [(-1, 4), (2, 4), (2, 6), (8, 6), (8, 5), (10, 5)]],
-            [16, 31], [12, 54])
+            [16, 31], [12, 54]),
+        new("bonus-sniper", ResourceKeys.Games.TdBonusSniper,
+            [[(-1, 3), (2, 3), (2, 0), (7, 0), (7, 5), (10, 5)]],
+            [], [], TowerKind.Sniper, true, 700),
+        new("bonus-endurance", ResourceKeys.Games.TdBonusEndurance,
+            [[(-1, 0), (8, 0), (8, 6), (1, 6), (1, 3), (10, 3)]],
+            [], [], null, true, 900)
     ];
 
     public static readonly IReadOnlyList<DifficultySpec> Difficulties =
