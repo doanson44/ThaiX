@@ -85,8 +85,9 @@ primary palette in individual pages.
 - Display typography now uses the existing IBM Plex Sans family instead of a serif face.
 - The main application header and authentication layout display the existing ThaiX favicon
   mark beside the localized/application title.
-- Existing Radzen navigation icons remain in place; their module-level mapping is recorded
-  in `ICON-CATALOG.md`.
+- Existing Radzen navigation icons remain the default for generic controls. A shared
+  `ThaiXIcon` component and 14 currentColor system glyphs are available for ThaiX-specific
+  visual identity; the extracted set is cataloged in `ICON-CATALOG.md`.
 - Shared component states and responsive rules are recorded in `COMPONENTS.md`.
 
 ## Known gaps before calling this a complete design system
