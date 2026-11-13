@@ -28,8 +28,6 @@ public sealed class Enemy
     public double Y { get; set; }
     public int SlowTicks { get; set; }
     public int HitUntil { get; set; }
-    public int PoisonTicks { get; set; }
-    public double PoisonDamage { get; set; }
 
     public double Progress => Distance / PathLength;
 }
@@ -138,9 +136,35 @@ public sealed class TowerDefenseMatch
     public int FirstFreeCell(int preferred) =>
         Enumerable.Range(0, Columns * Rows).OrderBy(cell => Math.Abs(cell - preferred)).First(cell => !IsBlocked(cell));
 
-    public double Range(Tower tower) => tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
+    public double Range(Tower tower)
+    {
+        var range = tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
+        if (tower.Spec.Effect == TowerEffect.SupportRange)
+            return range;
 
-    public double Damage(Tower tower) => tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        return range + _towers
+            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportRange
+                && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
+                    <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
+            .Sum(support => support.Spec.SupportValue);
+    }
+
+    public double Damage(Tower tower)
+    {
+        var damage = tower.Spec.IsSupport
+            ? tower.Spec.SupportValue * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage))
+            : tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
+        if (tower.Spec.Effect == TowerEffect.SupportDamage)
+            return damage;
+
+        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        return damage + _towers
+            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportDamage
+                && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
+                    <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
+            .Sum(support => support.Spec.SupportValue * (1 + DamagePerLevel * support.Level(UpgradeTrack.Damage)));
+    }
 
     public int CooldownTicks(Tower tower) =>
         Math.Max(2, (int)Math.Round(tower.Spec.Cooldown * (1 - CooldownPerLevel * tower.Level(UpgradeTrack.FireRate))));
@@ -268,7 +292,6 @@ public sealed class TowerDefenseMatch
         foreach (var tower in _towers)
             Fire(tower);
 
-        ApplyPoison();
         ResolveDeaths();
         CheckWaveEnd();
     }
@@ -314,6 +337,9 @@ public sealed class TowerDefenseMatch
 
     private void Fire(Tower tower)
     {
+        if (tower.Spec.IsSupport)
+            return;
+
         if (tower.Cooldown > 0)
         {
             tower.Cooldown--;
@@ -362,12 +388,6 @@ public sealed class TowerDefenseMatch
                 }
 
                 break;
-            case TowerEffect.Poison:
-                Hit(target, damage * 0.35);
-                target.PoisonTicks = 120;
-                target.PoisonDamage = damage * 0.25;
-                _shots.Add(new Shot(x, y, target.X, target.Y, color, Tick + ShotTicks));
-                break;
             case TowerEffect.Slow:
                 _blasts.Add(new Blast(x, y, range, color, true, Tick));
                 foreach (var enemy in candidates)
@@ -394,16 +414,6 @@ public sealed class TowerDefenseMatch
             var (x, y) = (current.X, current.Y);
             current = candidates.Where(enemy => !hit.Contains(enemy) && double.Hypot(enemy.X - x, enemy.Y - y) <= ChainRange)
                 .MinBy(enemy => double.Hypot(enemy.X - x, enemy.Y - y));
-        }
-    }
-
-    private void ApplyPoison()
-    {
-        foreach (var enemy in _enemies.Where(enemy => enemy.PoisonTicks > 0))
-        {
-            enemy.PoisonTicks--;
-            if (enemy.PoisonTicks % 30 == 0)
-                Hit(enemy, enemy.PoisonDamage);
         }
     }
 
