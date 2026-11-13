@@ -304,7 +304,7 @@ else
                     }
                 </div>
                 <div class="td-upgrades">
-                    @foreach (var track in Enum.GetValues<UpgradeTrack>())
+                    @foreach (var track in Enum.GetValues<UpgradeTrack>().Where(track => !chosen.Spec.IsSupport || track != UpgradeTrack.FireRate))
                     {
                         var current = track;
                         var cost = match.UpgradeCost(chosen, current);
