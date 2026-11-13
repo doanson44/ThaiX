@@ -31,8 +31,8 @@ large page backgrounds or copied wholesale into the runtime asset directory.
 - Primary identity: blue with deep navy and neutral surfaces.
 - Typography: IBM Plex Sans for display and body; IBM Plex Mono for code and numeric
   data. Keep tabular/numeric information legible.
-- Semantic status colors: green for positive/success, rose for negative/danger, and
-  desaturated steel blue for informational states.
+- Semantic status colors: green for positive/success, amber for warning, rose for
+  negative/danger, and desaturated steel blue for informational states.
 - Finance, market, and analytics screens should remain information-dense and restrained.
 - Gaming screens may use the supplied Tower Defense artwork as domain-specific content;
   they must not change the global application chrome or semantic status colors.
@@ -83,8 +83,8 @@ primary palette in individual pages.
 - Global Radzen and Bootstrap primary colors now use the ThaiX blue identity.
 - Existing semantic success, danger, and informational colors remain distinct.
 - Display typography now uses the existing IBM Plex Sans family instead of a serif face.
-- The main application header displays the existing ThaiX favicon mark beside the localized
-  application title.
+- The main application header and authentication layout display the existing ThaiX favicon
+  mark beside the localized/application title.
 - Existing Radzen navigation icons remain in place; their module-level mapping is recorded
   in `ICON-CATALOG.md`.
 - Shared component states and responsive rules are recorded in `COMPONENTS.md`.
