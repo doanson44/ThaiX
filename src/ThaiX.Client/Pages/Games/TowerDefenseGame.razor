@@ -138,6 +138,10 @@ else
                     {
                         <circle r="@(enemySpec.Radius + 3)" fill="#a5f3fc" fill-opacity="0.45" />
                     }
+                    @if (enemy.PoisonTicks > 0)
+                    {
+                        <circle r="@(enemySpec.Radius + 5)" fill="none" stroke="#86efac" stroke-width="2" />
+                    }
                     @if (enemy.Health < enemy.MaxHealth)
                     {
                         <rect x="-10" y="@(-enemySpec.Radius - 8)" width="20" height="3" fill="#450a0a" />
@@ -220,7 +224,7 @@ else
                 <button type="button" tabindex="-1" class="td-tower @(_buildKind == kind ? "is-active" : "") @(match.Gold < option.Cost ? "is-poor" : "")"
                         aria-pressed="@(_buildKind == kind)" @onclick="() => SelectBuild(kind)">
                     <ThaiXIcon Name="@option.Icon" Size="1.5rem" style="@($"color:{option.Color}")" />
-                    <span class="td-name"><kbd>@((int)kind + 1)</kbd> @L[option.NameKey]</span>
+                    <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
                     <span class="td-cost">@option.Cost</span>
                 </button>
             }
@@ -358,7 +362,9 @@ else
             case "arrowright": column = Math.Min(TowerDefenseMatch.Columns - 1, column + 1); break;
             case "arrowup": row = Math.Max(0, row - 1); break;
             case "arrowdown": row = Math.Min(TowerDefenseMatch.Rows - 1, row + 1); break;
-            case "1" or "2" or "3" or "4" or "5" or "6": SelectBuild((TowerKind)(key[0] - '1')); break;
+            case "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0":
+                SelectBuild((TowerKind)(key == "0" ? 9 : key[0] - '1'));
+                break;
             case "enter" or " ": ActivateCell(_cursor); break;
             case "d": Upgrade(UpgradeTrack.Damage); break;
             case "r": Upgrade(UpgradeTrack.Range); break;
@@ -484,6 +490,8 @@ else
     private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
 
     private static string Href(string icon) => $"{ThaixIcons.SpritePath}#{icon}";
+
+    private static string TowerKey(TowerKind kind) => (int)kind == 9 ? "0" : ((int)kind + 1).ToString();
 
     private static double ShotsPerSecond(int cooldownTicks) => 1000.0 / (TowerDefenseMatch.TickMilliseconds * (cooldownTicks + 1));
 
