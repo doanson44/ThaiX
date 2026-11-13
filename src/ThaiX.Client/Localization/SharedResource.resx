@@ -2238,6 +2238,8 @@
   <data name="Games.Td.Unlocked" xml:space="preserve"><value>Unlocked</value></data>
   <data name="Games.Td.Move" xml:space="preserve"><value>Move</value></data>
   <data name="Games.Td.MoveHint" xml:space="preserve"><value>Choose an empty tile to reposition this tower.</value></data>
+  <data name="Games.Td.StartFunds" xml:space="preserve"><value>Permanent starting funds +200</value></data>
+  <data name="Games.Td.StartFundsOwned" xml:space="preserve"><value>Starting funds bonus: +{0}</value></data>
   <data name="Games.Td.Mission01" xml:space="preserve"><value>Mission 01 - Training Ground</value></data>
   <data name="Games.Td.Mission02" xml:space="preserve"><value>Mission 02 - River Crossing</value></data>
   <data name="Games.Td.Mission03" xml:space="preserve"><value>Mission 03 - Crossfire</value></data>
