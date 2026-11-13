@@ -19,7 +19,7 @@ public static class EmailTemplateBuilder
             ? string.Empty
             : $"""
                <div style="margin-top:28px;text-align:center;">
-                 <a href="{cta.Url}" style="display:inline-block;padding:12px 32px;background:{NotificationBrand.AccentHex};color:#1a1207;font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;font-family:'Segoe UI',Arial,sans-serif;">{cta.Label}</a>
+                 <a href="{cta.Url}" style="display:inline-block;padding:12px 32px;background:{NotificationBrand.AccentHex};color:#ffffff;font-weight:600;font-size:14px;text-decoration:none;border-radius:8px;font-family:'Segoe UI',Arial,sans-serif;">{cta.Label}</a>
                </div>
                """;
 
@@ -34,12 +34,12 @@ public static class EmailTemplateBuilder
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;">
                 <tr>
                   <td style="padding-bottom:24px;text-align:center;">
-                    <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;color:{NotificationBrand.AccentHex};letter-spacing:0.5px;">ThaiX</span>
+                    <span style="font-family:'Segoe UI',Arial,sans-serif;font-size:22px;font-weight:700;color:{NotificationBrand.AccentHex};letter-spacing:0.5px;">ThaiX</span>
                   </td>
                 </tr>
                 <tr>
                   <td style="background:{NotificationBrand.SurfaceHex};border:1px solid {NotificationBrand.SurfaceBorderHex};border-radius:12px;padding:32px 28px;">
-                    <h1 style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:{NotificationBrand.TextPrimaryHex};">{heading}</h1>
+                    <h1 style="margin:0 0 14px;font-family:'Segoe UI',Arial,sans-serif;font-size:20px;font-weight:700;color:{NotificationBrand.TextPrimaryHex};">{heading}</h1>
                     <div style="font-size:14px;line-height:1.7;color:{NotificationBrand.TextMutedHex};">{bodyHtml}</div>
                     {ctaHtml}
                     {footNoteHtml}
