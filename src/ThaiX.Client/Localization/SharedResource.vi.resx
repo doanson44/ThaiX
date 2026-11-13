@@ -2207,10 +2207,10 @@
   <data name="Games.TowerTesla" xml:space="preserve"><value>Cuộn Tesla</value></data>
   <data name="Games.TowerFlame" xml:space="preserve"><value>Súng phun lửa</value></data>
   <data name="Games.TowerSlow" xml:space="preserve"><value>Trường làm chậm</value></data>
-  <data name="Games.TowerShotgun" xml:space="preserve"><value>Đội súng shotgun</value></data>
-  <data name="Games.TowerMachineGun" xml:space="preserve"><value>Súng máy</value></data>
-  <data name="Games.TowerBioChemical" xml:space="preserve"><value>Hóa chất sinh học</value></data>
-  <data name="Games.TowerHeatRay" xml:space="preserve"><value>Tia nhiệt</value></data>
+  <data name="Games.TowerParticleBeam" xml:space="preserve"><value>Pháo hạt</value></data>
+  <data name="Games.TowerPlasmaCannon" xml:space="preserve"><value>Pháo plasma</value></data>
+  <data name="Games.TowerRadar" xml:space="preserve"><value>Tháp radar</value></data>
+  <data name="Games.TowerPowerAmplifier" xml:space="preserve"><value>Bộ khuếch đại công suất</value></data>
   <data name="Games.EnemySoldier" xml:space="preserve"><value>Lính bộ binh</value></data>
   <data name="Games.EnemyArmored" xml:space="preserve"><value>Lính thiết giáp</value></data>
   <data name="Games.EnemyJeep" xml:space="preserve"><value>Xe jeep</value></data>
@@ -2239,6 +2239,8 @@
   <data name="Games.Td.MoveHint" xml:space="preserve"><value>Chọn một ô trống để di chuyển tháp này.</value></data>
   <data name="Games.Td.StartFunds" xml:space="preserve"><value>Tăng vĩnh viễn tiền khởi đầu +200</value></data>
   <data name="Games.Td.StartFundsOwned" xml:space="preserve"><value>Tiền khởi đầu cộng thêm: +{0}</value></data>
+  <data name="Games.Td.SupportRange" xml:space="preserve"><value>Tăng tầm bắn</value></data>
+  <data name="Games.Td.SupportDamage" xml:space="preserve"><value>Tăng sát thương</value></data>
   <data name="Games.Td.Mission01" xml:space="preserve"><value>Nhiệm vụ 01 - Bãi tập huấn</value></data>
   <data name="Games.Td.Mission02" xml:space="preserve"><value>Nhiệm vụ 02 - Vượt sông</value></data>
   <data name="Games.Td.Mission03" xml:space="preserve"><value>Nhiệm vụ 03 - Giao tranh</value></data>
