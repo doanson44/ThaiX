@@ -31,7 +31,7 @@
 }
 
 .resume-layout-theme-select:focus {
-    border-color: var(--tx-accent, #f59e0b);
+    border-color: var(--tx-accent, #2563eb);
 }
 
 .resume-layout-theme-select option {
