@@ -70,7 +70,7 @@
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
                             <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
                             <span>@L[ResourceKeys.Games.TdStartFunds]</span>
-                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] · @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
+                            <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] &middot; @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
                         </button>
                         @foreach (var option in TowerDefenseData.Towers.Where(tower => TowerDefenseData.TowerUnlockCost(tower.Kind) > 0))
                         {
