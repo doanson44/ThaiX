@@ -2233,6 +2233,7 @@
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Deploy</value></data>
   <data name="Games.Td.MapLocked" xml:space="preserve"><value>Locked: clear {0} first</value></data>
   <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.Td.GoldSyncFailed" xml:space="preserve"><value>Gold will stay on this device until account sync succeeds. Please retry when the API is available.</value></data>
   <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>War-Mart credits: {0}</value></data>
   <data name="Games.Td.Buy" xml:space="preserve"><value>Buy</value></data>
   <data name="Games.Td.Unlocked" xml:space="preserve"><value>Unlocked</value></data>
