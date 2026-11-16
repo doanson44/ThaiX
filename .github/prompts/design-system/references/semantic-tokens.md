@@ -26,9 +26,9 @@ Purpose-based aliases referencing primitive tokens.
 
 ```css
 :root {
-  --color-primary: var(--color-blue-600);
-  --color-primary-hover: var(--color-blue-700);
-  --color-primary-active: var(--color-blue-800);
+  --color-primary: var(--color-amber-500);
+  --color-primary-hover: var(--color-amber-600);
+  --color-primary-active: var(--color-amber-700);
   --color-primary-foreground: white;
 }
 ```
@@ -213,3 +213,6 @@ Semantic tokens enable instant theme switching:
 // Toggle dark mode
 document.documentElement.classList.toggle('dark');
 ```
+
+
+ThaiX runtime primary: `--tx-accent` = `#F59E0B`, light `#FBBF24`, dark `#D97706`. Status tokens remain independent.

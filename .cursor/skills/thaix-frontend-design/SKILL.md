@@ -86,3 +86,8 @@ Before finishing any ThaiX frontend task, confirm all items below:
 - "Create a new admin positions list page in ThaiX" -> start with `create-list-page`
 - "Make this Razor widget usable on mobile" -> start with `responsive-razor`
 - "This ThaiX page works but looks bland; improve the UX" -> use `thaix-frontend-design`, then route to `ui-ux-pro-max` and `frontend-design`
+
+
+## Global Brand Color
+
+Use ThaiX semantic tokens from `src/ThaiX.Client/wwwroot/css/app.css`. Global primary is Amber (`--tx-accent: #F59E0B`), light `#FBBF24`, dark `#D97706`. Do not introduce page-local blue primary colors or hardcoded blue primary fallbacks. Keep status tokens independent.

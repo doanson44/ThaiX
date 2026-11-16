@@ -34,10 +34,10 @@ Component (component-specific)
 **Example:**
 ```css
 /* Primitive */
---color-blue-600: #2563EB;
+--color-amber-500: #F59E0B;
 
 /* Semantic */
---color-primary: var(--color-blue-600);
+--color-primary: var(--color-amber-500);
 
 /* Component */
 --button-bg: var(--color-primary);
@@ -237,3 +237,8 @@ assets/designs/slides/claudekit-pitch-251223.html
 4. Use HSL format for opacity control
 5. Document every token's purpose
 6. **Slides must import design-tokens.css and use var() exclusively**
+
+
+## ThaiX Brand Primary
+
+For ThaiX application UI, the canonical primary accent is amber, not blue. Use `--tx-accent` from `src/ThaiX.Client/wwwroot/css/app.css`; baseline `#F59E0B`, light `#FBBF24`, dark `#D97706`. Keep blue primitives only for domain-specific or informational use; do not define a blue global primary.

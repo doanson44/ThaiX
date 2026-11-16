@@ -7,7 +7,7 @@
 
 | Element | Value |
 |---------|-------|
-| Primary Color | #2563EB |
+| Primary Color | #F59E0B |
 | Secondary Color | #8B5CF6 |
 | Primary Font | Inter |
 | Voice | Professional, Helpful, Clear |
@@ -20,8 +20,8 @@
 
 | Name | Hex | RGB | Usage |
 |------|-----|-----|-------|
-| Primary Blue | #2563EB | rgb(37,99,235) | CTAs, headers, links |
-| Primary Dark | #1D4ED8 | rgb(29,78,216) | Hover states, emphasis |
+| Primary Amber | #F59E0B | rgb(245,158,11) | CTAs, headers, links |
+| Primary Dark | #D97706 | rgb(217,119,6) | Hover states, emphasis |
 
 ### Secondary Colors
 
@@ -195,8 +195,8 @@ Minimum clear space = height of the logo icon (mark)
 
 | Type | Background | Text | Border Radius |
 |------|------------|------|---------------|
-| Primary | #2563EB | #FFFFFF | 8px |
-| Secondary | Transparent | #2563EB | 8px |
+| Primary | #F59E0B | #FFFFFF | 8px |
+| Secondary | Transparent | #F59E0B | 8px |
 | Tertiary | Transparent | #6B7280 | 8px |
 
 ### Spacing Scale
@@ -273,3 +273,11 @@ Always prepend to image generation prompts:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | {DATE} | Initial guidelines |
+
+
+## ThaiX Brand Primary
+
+ThaiX application UI uses Amber `#F59E0B` as the global primary accent, with light `#FBBF24`, dark `#D97706`, and dark-ink foreground `#1A1207`. Use the shared runtime token `--tx-accent`; do not prescribe blue as the global primary. Keep semantic status colors and domain-specific data colors independent.
+
+
+ThaiX baseline: Amber `#F59E0B` is the global primary accent; use dark ink `#1A1207` on primary surfaces. Keep status colors semantically distinct and do not promote blue to the global primary.

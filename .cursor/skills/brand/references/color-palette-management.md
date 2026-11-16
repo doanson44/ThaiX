@@ -32,16 +32,16 @@ Semantic Colors (4)
 ```markdown
 | Name | Hex | RGB | HSL | Usage |
 |------|-----|-----|-----|-------|
-| Primary Blue | #2563EB | rgb(37,99,235) | hsl(217,91%,53%) | CTAs, links |
+| Primary Amber | #F59E0B | rgb(245,158,11) | hsl(38,92%,50%) | CTAs, links |
 ```
 
 ### CSS Variables
 ```css
 :root {
   /* Primary */
-  --color-primary: #2563EB;
+  --color-primary: #F59E0B;
   --color-primary-light: #3B82F6;
-  --color-primary-dark: #1D4ED8;
+  --color-primary-dark: #D97706;
 
   /* Secondary */
   --color-secondary: #8B5CF6;
@@ -60,12 +60,12 @@ Semantic Colors (4)
 ```javascript
 colors: {
   primary: {
-    DEFAULT: '#2563EB',
+    DEFAULT: '#F59E0B',
     50: '#EFF6FF',
     100: '#DBEAFE',
     500: '#3B82F6',
-    600: '#2563EB',
-    700: '#1D4ED8',
+    600: '#F59E0B',
+    700: '#D97706',
   }
 }
 ```
@@ -124,9 +124,9 @@ Parse markdown to extract:
 {
   "compliance": 85,
   "colors": {
-    "brand": ["#2563EB", "#8B5CF6", "#FFFFFF"],
+    "brand": ["#F59E0B", "#8B5CF6", "#FFFFFF"],
     "offBrand": ["#FF5500"],
-    "dominant": "#2563EB"
+    "dominant": "#F59E0B"
   },
   "issues": [
     "Off-brand color #FF5500 detected (15% coverage)",
@@ -153,7 +153,7 @@ Parse markdown to extract:
 
 ### Tech/SaaS
 ```
-Primary: #2563EB (Blue)
+Primary: #F59E0B (Amber)
 Secondary: #8B5CF6 (Purple)
 Accent: #10B981 (Emerald)
 Background: #F9FAFB
@@ -184,3 +184,13 @@ Text: #0F172A
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - [Tailwind Color Reference](https://tailwindcss.com/docs/customizing-colors)
 - [Color Hunt](https://colorhunt.co) - Curated palettes
+
+
+### ThaiX Primary Palette
+
+- Primary: Amber `#F59E0B`
+- Hover/dark: `#D97706`
+- Light highlight: `#FBBF24`
+- On-primary foreground: dark ink `#1A1207`
+- Runtime source: `src/ThaiX.Client/wwwroot/css/app.css` (`--tx-accent`)
+- Do not use blue as the global primary; retain it only for domain-specific or informational meaning.
