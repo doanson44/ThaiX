@@ -150,7 +150,7 @@ public sealed class TowerDefenseArsenalTests
         var builtTowers = attackTowers.Select((spec, index) => match.Build(freeCells[index], spec.Kind)).ToArray();
 
         // Assert
-        builtTowers.Should().OnlyContain(tower => tower is not null);
+        builtTowers.Should().OnlyContain(tower => tower != null);
         foreach (var tower in builtTowers)
             match.Damage(tower!).Should().Be(tower!.Spec.Damage * 2);
     }
