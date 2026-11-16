@@ -117,7 +117,7 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
         // Aggregate in the database before transferring data. Grouping by date preserves
         // the boundaries needed to calculate each look-back period without loading every tick.
         var oldestFrom = Periods[^1].From(anchor.Value);
-        var aggregates = await _dbContext.TwentyFourHMoneyTransactions
+        var rows = await _dbContext.TwentyFourHMoneyTransactions
             .AsNoTracking()
             .Where(t => t.Symbol == symbol && t.TradeDate >= oldestFrom && t.TradeDate <= anchor.Value)
             .GroupBy(t => new { t.TradeDate, t.Price })
@@ -130,12 +130,28 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
             })
             .ToListAsync(cancellationToken);
 
+        var aggregates = rows
+            .Select(row => new PriceComparisonAggregate(
+                row.TradeDate,
+                row.Price,
+                row.TransactionCount,
+                row.Volume))
+            .ToList();
+
+        return BuildPriceComparison(aggregates, anchor.Value, currentPrice);
+    }
+
+    internal static List<PriceComparisonPeriodDto> BuildPriceComparison(
+        IReadOnlyList<PriceComparisonAggregate> aggregates,
+        DateOnly anchor,
+        decimal currentPrice)
+    {
         var result = new List<PriceComparisonPeriodDto>(Periods.Length);
         foreach (var (label, fromFn) in Periods)
         {
-            var fromDate = fromFn(anchor.Value);
+            var fromDate = fromFn(anchor);
             var inWindow = aggregates
-                .Where(row => row.TradeDate >= fromDate && row.TradeDate <= anchor.Value)
+                .Where(row => row.TradeDate >= fromDate && row.TradeDate <= anchor)
                 .ToList();
 
             var totalVolume = inWindow.Sum(row => row.Volume);
@@ -172,7 +188,7 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
             {
                 Period = label,
                 FromDate = fromDate,
-                ToDate = anchor.Value,
+                ToDate = anchor,
                 TransactionCount = inWindow.Sum(row => (long)row.TransactionCount),
                 TotalVolume = totalVolume,
                 BetterVolume = betterVolume,
@@ -189,3 +205,9 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
         return result;
     }
 }
+
+internal sealed record PriceComparisonAggregate(
+    DateOnly TradeDate,
+    decimal Price,
+    int TransactionCount,
+    long Volume);
