@@ -91,3 +91,8 @@ node scripts/inject-brand-context.cjs --json | head -20
 1. Parse subcommand from `$ARGUMENTS` (first word)
 2. Load corresponding `references/{subcommand}.md`
 3. Execute with remaining arguments
+
+
+## ThaiX Brand Primary
+
+ThaiX application UI uses Amber `#F59E0B` as the global primary accent, with light `#FBBF24`, dark `#D97706`, and dark-ink foreground `#1A1207`. Use the shared runtime token `--tx-accent`; do not prescribe blue as the global primary. Keep semantic status colors and domain-specific data colors independent.

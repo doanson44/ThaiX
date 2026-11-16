@@ -8,6 +8,10 @@ Raw design values - foundation of the design system.
 
 ```css
 :root {
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+  --color-amber-700: #B45309;
   --color-gray-50:  #F9FAFB;
   --color-gray-100: #F3F4F6;
   --color-gray-200: #E5E7EB;
@@ -22,7 +26,7 @@ Raw design values - foundation of the design system.
 }
 ```
 
-### Primary Colors (Blue)
+### Brand Primary Colors (Amber)
 
 ```css
 :root {

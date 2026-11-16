@@ -35,7 +35,7 @@ Raw design values without semantic meaning.
   --color-gray-50: #F9FAFB;
   --color-gray-900: #111827;
   --color-blue-500: #3B82F6;
-  --color-blue-600: #2563EB;
+  --color-amber-500: #F59E0B;
 
   /* Spacing (4px base) */
   --space-1: 0.25rem;  /* 4px */
@@ -70,7 +70,7 @@ Purpose-based aliases that reference primitives.
   --color-foreground: var(--color-gray-900);
 
   /* Primary */
-  --color-primary: var(--color-blue-600);
+  --color-primary: var(--color-amber-500);
   --color-primary-hover: var(--color-blue-700);
 
   /* Secondary */
@@ -187,18 +187,18 @@ Or single file with layer comments:
 
 Before (flat):
 ```css
---button-primary-bg: #2563EB;
+--button-primary-bg: #F59E0B;
 --button-secondary-bg: #F3F4F6;
 ```
 
 After (three-layer):
 ```css
 /* Primitive */
---color-blue-600: #2563EB;
+--color-amber-500: #F59E0B;
 --color-gray-100: #F3F4F6;
 
 /* Semantic */
---color-primary: var(--color-blue-600);
+--color-primary: var(--color-amber-500);
 --color-secondary: var(--color-gray-100);
 
 /* Component */
@@ -222,3 +222,6 @@ Token JSON format (W3C Design Tokens Community Group):
   }
 }
 ```
+
+
+For ThaiX, map the semantic primary token to amber (`#F59E0B`) rather than blue. Keep primitive blue values available for non-brand domain colors only.
