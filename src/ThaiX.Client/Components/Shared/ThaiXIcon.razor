@@ -1,19 +1,10 @@
-<svg class="tx-icon @Class"
-     width="@Size"
-     height="@Size"
-     viewBox="0 0 24 24"
-     fill="currentColor"
-     preserveAspectRatio="xMidYMid meet"
-     role="@(HasTitle ? "img" : null)"
-     aria-hidden="@(HasTitle ? null : "true")"
-     focusable="false"
-     @attributes="AdditionalAttributes">
-    @if (HasTitle)
-    {
-        <title>@Title</title>
-    }
-  <use href="@SpriteReference" />
-</svg>
+<RadzenIcon Icon="@ResolvedName"
+            Class="@Class"
+            Style="@ResolvedStyle"
+            title="@Title"
+            role="@(HasTitle ? "img" : null)"
+            aria-hidden="@(HasTitle ? null : "true")"
+            @attributes="AdditionalAttributes" />
 
 @code {
     [Parameter]
@@ -39,6 +30,9 @@
     [Parameter]
     public string? Class { get; set; }
 
+    [Parameter]
+    public string? Style { get; set; }
+
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
@@ -46,5 +40,20 @@
 
     private string ResolvedName => ThaixIcons.Resolve(string.IsNullOrWhiteSpace(Name) ? Icon : Name);
 
-    private string SpriteReference => $"{ThaixIcons.SpritePath}#{ResolvedName}";
+    private string ResolvedStyle
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(Style) &&
+                Style.Contains("font-size:", StringComparison.OrdinalIgnoreCase))
+            {
+                return Style;
+            }
+
+            var size = string.IsNullOrWhiteSpace(Size) ? "1em" : Size;
+            return string.IsNullOrWhiteSpace(Style)
+                ? $"font-size: {size};"
+                : $"{Style.Trim().TrimEnd(';')}; font-size: {size};";
+        }
+    }
 }

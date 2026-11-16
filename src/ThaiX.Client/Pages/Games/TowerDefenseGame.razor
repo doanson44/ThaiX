@@ -36,7 +36,7 @@
             <div class="td-mission-heading">
                 <div class="td-menu-label">@L[ResourceKeys.Games.TdMap]</div>
                 <button type="button" class="btn btn-outline-warning" aria-expanded="@_showWarMart" @onclick="() => _showWarMart = !_showWarMart">
-                    <ThaiXIcon Name="cart" Size="1rem" /> @L[ResourceKeys.Games.TdWarMart]
+                    <GameIcon Name="cart" Size="1rem" /> @L[ResourceKeys.Games.TdWarMart]
                     <span class="td-warmart-balance">@_warMartCredits</span>
                 </button>
             </div>
@@ -50,7 +50,7 @@
                     }
                     <div class="td-shop-choices">
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
-                            <ThaiXIcon Name="account_balance_wallet" Size="1.25rem" />
+                            <GameIcon Name="account_balance_wallet" Size="1.25rem" />
                             <span>@L[ResourceKeys.Games.TdStartFunds]</span>
                             <strong>@L[ResourceKeys.Games.TdStartFundsOwned, _bonusStartingGold] <span aria-hidden="true">&#183;</span> @L[ResourceKeys.Games.TdBuy] @TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold)</strong>
                         </button>
@@ -74,7 +74,7 @@
                                 var bonus = mission;
                                 var purchased = _bonusMissions.Contains(bonus.Id);
                                 <button type="button" class="td-choice td-shop-item" disabled="@(purchased || _warMartCredits < bonus.UnlockCost)" @onclick="() => BuyBonusMission(bonus.Id)">
-                                    <ThaiXIcon Name="military_tech" Size="1.25rem" />
+                                    <GameIcon Name="military_tech" Size="1.25rem" />
                                     <span>@L[bonus.NameKey]</span>
                                     <strong>@(purchased ? L[ResourceKeys.Games.TdUnlocked].Value : $"{L[ResourceKeys.Games.TdBuy].Value} {bonus.UnlockCost}")</strong>
                                 </button>
@@ -307,7 +307,7 @@ else
                 <span class="td-cost">@option.Cost</span>
                 @if (!unlocked)
                 {
-                    <span class="td-tower-lock" aria-hidden="true"><ThaiXIcon Name="lock" Size="0.75rem" /></span>
+                    <span class="td-tower-lock" aria-hidden="true"><GameIcon Name="lock" Size="0.75rem" /></span>
                 }
             </button>
         }

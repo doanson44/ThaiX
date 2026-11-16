@@ -1251,9 +1251,9 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     gap: 0.625rem;
     min-width: 0;
 }
-.tx-nav-item > .tx-icon {
-    width: 1.125rem;
-    height: 1.125rem;
+.tx-nav-item > .rzi {
+    flex: 0 0 auto;
+    font-size: 1.125rem;
     color: var(--rz-panel-menu-icon-color, currentColor);
 }
 .tx-brand-mark {
@@ -1273,14 +1273,6 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     flex: 0 0 auto;
     vertical-align: middle;
 }
-
-/* ThaiX: suppress Material ligature glyphs where ThaiX replaced markup */
-.rz-button .rzi,
-.rz-button-icon,
-.rz-alert .rzi:not(.tx-icon) {
-    display: none !important;
-}
-
 
 /* Amber primary requires dark foreground text for readable contrast. */
 .btn-primary {
