@@ -13,7 +13,7 @@
     --tx-blue-600: #2563eb;
     --tx-blue-700: #1d4ed8;
     --tx-blue-800: #1e40af;
-    --tx-blue-900: #1e3a8a
+    --tx-blue-900: #1e3a8a;
     --tx-navy-900: #0b1220;
     --tx-navy-950: #020617;
     --tx-green-500: #10b981;
@@ -45,7 +45,7 @@
 
     /* Component tokens */
     --tx-button-bg: var(--tx-accent);
-    --tx-button-fg: #ffffff;
+    --tx-button-fg: #1a1207;
     --tx-button-hover-bg: var(--tx-accent-dark);
     --tx-focus-ring: var(--tx-amber-400);
     --tx-control-radius: var(--tx-radius-md);
