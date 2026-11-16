@@ -24,7 +24,7 @@ public sealed class ThaixIconsTests
 
     [Theory]
     [InlineData("ai-chip", "memory")]
-    [InlineData("regular_expression", "regex")]
+    [InlineData("alert", "info")]
     [InlineData("gamepad", "sports_esports")]
     public void Resolve_ShouldReturnRadzenAlias_WhenLegacyNameIsUsed(
         string iconName,
@@ -39,31 +39,21 @@ public sealed class ThaixIconsTests
         result.Should().Be(expectedGlyph);
     }
 
-    [Fact]
-    public void UsesCustomFallback_ShouldReturnTrue_WhenOnlyGameSpecificGlyphIsAvailable()
-    {
-        // Arrange
-
-        // Act
-        var result = ThaixIcons.UsesCustomFallback("bomb");
-
-        // Assert
-        result.Should().BeTrue();
-    }
-
     [Theory]
-    [InlineData("home")]
+    [InlineData("bomb")]
     [InlineData("regular_expression")]
-    [InlineData("settings")]
-    public void UsesCustomFallback_ShouldReturnFalse_WhenCommonIconLibraryCanRender(
+    [InlineData("military_tech")]
+    [InlineData("sports_tennis")]
+    public void Resolve_ShouldPreserveMaterialSymbolNames_WhenRadzenSupportsIcon(
         string iconName)
     {
         // Arrange
 
         // Act
-        var result = ThaixIcons.UsesCustomFallback(ThaixIcons.Resolve(iconName));
+        var result = ThaixIcons.Resolve(iconName);
 
         // Assert
-        result.Should().BeFalse();
+        result.Should().Be(iconName);
+        ThaixIcons.ResolveBootstrapIcon(iconName).Should().BeNull();
     }
 }

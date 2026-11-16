@@ -2,8 +2,6 @@ namespace ThaiX.Client.Services.Ui;
 
 public static class ThaixIcons
 {
-    public const string SpritePath = "/icons/thaix.svg";
-
     private static readonly IReadOnlyDictionary<string, string> BootstrapIcons =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
@@ -59,6 +57,7 @@ public static class ThaixIcons
     private static readonly IReadOnlyDictionary<string, string> RadzenAliases =
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["alert"] = "info",
             ["ai-chip"] = "memory",
             ["calendar"] = "calendar_month",
             ["cube"] = "category",
@@ -66,18 +65,11 @@ public static class ThaixIcons
             ["gamepad"] = "sports_esports",
             ["globe"] = "public",
             ["lightning"] = "bolt",
-            ["regular_expression"] = "regex",
             ["server"] = "dns",
             ["shield-check"] = "verified_user",
             ["team"] = "groups",
             ["user"] = "person",
             ["wallet"] = "account_balance_wallet"
-        };
-
-    private static readonly HashSet<string> CustomFallbackIcons =
-        new(StringComparer.Ordinal)
-        {
-            "bomb"
         };
 
     public static string Resolve(string? name)
@@ -96,9 +88,4 @@ public static class ThaixIcons
         return BootstrapIcons.TryGetValue(name, out var icon) ? icon : null;
     }
 
-    public static bool UsesCustomFallback(string? name) =>
-        !string.IsNullOrWhiteSpace(name) && CustomFallbackIcons.Contains(name);
-
-    public static bool Exists(string? name) =>
-        !string.IsNullOrWhiteSpace(name);
 }
