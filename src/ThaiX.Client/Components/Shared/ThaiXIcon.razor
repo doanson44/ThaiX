@@ -1,10 +1,12 @@
-<i @if (BootstrapIcon is not null)
-       class="bi bi-@BootstrapIcon @Class"
+@if (BootstrapIcon is not null)
+{
+    <i class="bi bi-@BootstrapIcon @Class"
        style="@ResolvedStyle"
        title="@Title"
        role="@(HasTitle ? "img" : null)"
        aria-hidden="@(HasTitle ? null : "true")"
        @attributes="AdditionalAttributes"></i>
+}
 else if (UseCustomFallback)
 {
     <svg class="tx-icon @Class"
