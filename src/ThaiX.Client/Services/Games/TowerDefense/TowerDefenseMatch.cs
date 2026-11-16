@@ -160,11 +160,13 @@ public sealed class TowerDefenseMatch
         damage = tower.Spec.Damage * (1 + DamagePerLevel * tower.Level(UpgradeTrack.Damage));
 
         var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
-        return damage + _towers
+        damage += _towers
             .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportDamage
                 && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
                     <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
             .Sum(support => support.Spec.SupportValue * (1 + DamagePerLevel * support.Level(UpgradeTrack.Damage)));
+
+        return Difficulty.Id == "easy" ? damage * 2 : damage;
     }
 
     public int CooldownTicks(Tower tower) =>
