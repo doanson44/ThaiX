@@ -28,4 +28,8 @@
         <ProjectReference Include="..\ThaiX.Domain\ThaiX.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="ThaiX.Application.UnitTests" />
+    </ItemGroup>
+
 </Project>
