@@ -11,7 +11,6 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
 {
     private static readonly Regex SymbolRegex = new(@"^[A-Za-z0-9]{1,10}$", RegexOptions.Compiled);
 
-    // Look-back windows, widest last (used to bound the single fetch query).
     private static readonly (string Label, Func<DateOnly, DateOnly> From)[] Periods =
     [
         ("1D", anchor => anchor),
@@ -115,41 +114,73 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
             return null;
         }
 
-        // Fetch once across the widest (1Y) window, then slice per-period in memory --
-        // cheaper than issuing 6 separate aggregate queries against the same rows.
+        // Aggregate in the database before transferring data. Grouping by date preserves
+        // the boundaries needed to calculate each look-back period without loading every tick.
         var oldestFrom = Periods[^1].From(anchor.Value);
-
         var rows = await _dbContext.TwentyFourHMoneyTransactions
             .AsNoTracking()
             .Where(t => t.Symbol == symbol && t.TradeDate >= oldestFrom && t.TradeDate <= anchor.Value)
-            .Select(t => new { t.TradeDate, t.Price, t.MatchQuantity })
+            .GroupBy(t => new { t.TradeDate, t.Price })
+            .Select(group => new
+            {
+                group.Key.TradeDate,
+                group.Key.Price,
+                TransactionCount = group.Count(),
+                Volume = group.Sum(transaction => transaction.MatchQuantity)
+            })
             .ToListAsync(cancellationToken);
 
+        var aggregates = rows
+            .Select(row => new PriceComparisonAggregate(
+                row.TradeDate,
+                row.Price,
+                row.TransactionCount,
+                row.Volume))
+            .ToList();
+
+        return BuildPriceComparison(aggregates, anchor.Value, currentPrice);
+    }
+
+    internal static List<PriceComparisonPeriodDto> BuildPriceComparison(
+        IReadOnlyList<PriceComparisonAggregate> aggregates,
+        DateOnly anchor,
+        decimal currentPrice)
+    {
         var result = new List<PriceComparisonPeriodDto>(Periods.Length);
         foreach (var (label, fromFn) in Periods)
         {
-            var fromDate = fromFn(anchor.Value);
-            var inWindow = rows.Where(r => r.TradeDate >= fromDate && r.TradeDate <= anchor.Value).ToList();
+            var fromDate = fromFn(anchor);
+            var inWindow = aggregates
+                .Where(row => row.TradeDate >= fromDate && row.TradeDate <= anchor)
+                .ToList();
 
-            var totalVolume = inWindow.Sum(r => r.MatchQuantity);
-            var betterVolume = inWindow.Where(r => r.Price > currentPrice).Sum(r => r.MatchQuantity);
-            var worseVolume = inWindow.Where(r => r.Price < currentPrice).Sum(r => r.MatchQuantity);
+            var totalVolume = inWindow.Sum(row => row.Volume);
+            var betterVolume = inWindow.Where(row => row.Price > currentPrice).Sum(row => row.Volume);
+            var worseVolume = inWindow.Where(row => row.Price < currentPrice).Sum(row => row.Volume);
             var equalVolume = totalVolume - betterVolume - worseVolume;
-            var weightedSum = inWindow.Sum(r => r.Price * r.MatchQuantity);
+            var weightedSum = inWindow.Sum(row => row.Price * row.Volume);
 
             var top3Highest = inWindow
-                .Where(r => r.Price > currentPrice)
-                .GroupBy(r => r.Price)
-                .Select(g => new PriceVolumePointDto { Price = g.Key, Volume = g.Sum(r => r.MatchQuantity) })
-                .OrderByDescending(p => p.Price)
+                .Where(row => row.Price > currentPrice)
+                .GroupBy(row => row.Price)
+                .Select(group => new PriceVolumePointDto
+                {
+                    Price = group.Key,
+                    Volume = group.Sum(row => row.Volume)
+                })
+                .OrderByDescending(point => point.Price)
                 .Take(3)
                 .ToList();
 
             var top3Lowest = inWindow
-                .Where(r => r.Price < currentPrice)
-                .GroupBy(r => r.Price)
-                .Select(g => new PriceVolumePointDto { Price = g.Key, Volume = g.Sum(r => r.MatchQuantity) })
-                .OrderBy(p => p.Price)
+                .Where(row => row.Price < currentPrice)
+                .GroupBy(row => row.Price)
+                .Select(group => new PriceVolumePointDto
+                {
+                    Price = group.Key,
+                    Volume = group.Sum(row => row.Volume)
+                })
+                .OrderBy(point => point.Price)
                 .Take(3)
                 .ToList();
 
@@ -157,8 +188,8 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
             {
                 Period = label,
                 FromDate = fromDate,
-                ToDate = anchor.Value,
-                TransactionCount = inWindow.Count,
+                ToDate = anchor,
+                TransactionCount = inWindow.Sum(row => (long)row.TransactionCount),
                 TotalVolume = totalVolume,
                 BetterVolume = betterVolume,
                 WorseVolume = worseVolume,
@@ -174,3 +205,9 @@ public sealed class GetTwentyFourHMoneyTransactionHistoryQueryHandler
         return result;
     }
 }
+
+internal sealed record PriceComparisonAggregate(
+    DateOnly TradeDate,
+    decimal Price,
+    int TransactionCount,
+    long Volume);
