@@ -1234,17 +1234,6 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
 }
 
 
-/* ThaiX design-system icon primitives */
-.tx-icon {
-    display: inline-block;
-    flex: 0 0 auto;
-    vertical-align: -0.125em;
-    overflow: visible;
-    color: inherit;
-    fill: currentColor;
-    shape-rendering: geometricPrecision;
-    -webkit-font-smoothing: antialiased;
-}
 .tx-nav-item {
     display: inline-flex;
     align-items: center;
