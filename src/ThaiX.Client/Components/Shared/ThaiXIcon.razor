@@ -1,10 +1,40 @@
-<RadzenIcon Icon="@ResolvedName"
-            Class="@Class"
-            Style="@ResolvedStyle"
-            title="@Title"
-            role="@(HasTitle ? "img" : null)"
-            aria-hidden="@(HasTitle ? null : "true")"
-            @attributes="AdditionalAttributes" />
+<i @if (BootstrapIcon is not null)
+       class="bi bi-@BootstrapIcon @Class"
+       style="@ResolvedStyle"
+       title="@Title"
+       role="@(HasTitle ? "img" : null)"
+       aria-hidden="@(HasTitle ? null : "true")"
+       @attributes="AdditionalAttributes"></i>
+else if (UseCustomFallback)
+{
+    <svg class="tx-icon @Class"
+         width="@Size"
+         height="@Size"
+         viewBox="0 0 24 24"
+         fill="currentColor"
+         preserveAspectRatio="xMidYMid meet"
+         role="@(HasTitle ? "img" : null)"
+         aria-hidden="@(HasTitle ? null : "true")"
+         focusable="false"
+         style="@Style"
+         @attributes="AdditionalAttributes">
+        @if (HasTitle)
+        {
+            <title>@Title</title>
+        }
+        <use href="@SpriteReference" />
+    </svg>
+}
+else
+{
+    <RadzenIcon Icon="@ResolvedName"
+                Class="@Class"
+                Style="@ResolvedStyle"
+                title="@Title"
+                role="@(HasTitle ? "img" : null)"
+                aria-hidden="@(HasTitle ? null : "true")"
+                @attributes="AdditionalAttributes" />
+}
 
 @code {
     [Parameter]
@@ -39,6 +69,13 @@
     private bool HasTitle => !string.IsNullOrWhiteSpace(Title);
 
     private string ResolvedName => ThaixIcons.Resolve(string.IsNullOrWhiteSpace(Name) ? Icon : Name);
+
+    private string? BootstrapIcon =>
+        ThaixIcons.ResolveBootstrapIcon(string.IsNullOrWhiteSpace(Name) ? Icon : Name);
+
+    private bool UseCustomFallback => ThaixIcons.UsesCustomFallback(ResolvedName);
+
+    private string SpriteReference => $"{ThaixIcons.SpritePath}#{ResolvedName}";
 
     private string ResolvedStyle
     {

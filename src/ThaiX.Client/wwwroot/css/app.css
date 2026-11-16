@@ -1251,6 +1251,7 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     gap: 0.625rem;
     min-width: 0;
 }
+.tx-nav-item > .bi,
 .tx-nav-item > .rzi {
     flex: 0 0 auto;
     font-size: 1.125rem;
@@ -1269,10 +1270,6 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
     gap: 0.375rem;
 }
 
-.tx-alert-glyph {
-    flex: 0 0 auto;
-    vertical-align: middle;
-}
 
 /* Amber primary requires dark foreground text for readable contrast. */
 .btn-primary {
