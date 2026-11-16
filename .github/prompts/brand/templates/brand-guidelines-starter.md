@@ -273,3 +273,8 @@ Always prepend to image generation prompts:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | {DATE} | Initial guidelines |
+
+
+## ThaiX Brand Primary
+
+ThaiX application UI uses Amber `#F59E0B` as the global primary accent, with light `#FBBF24`, dark `#D97706`, and dark-ink foreground `#1A1207`. Use the shared runtime token `--tx-accent`; do not prescribe blue as the global primary. Keep semantic status colors and domain-specific data colors independent.
