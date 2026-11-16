@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Services.Scoring;
 using ThaiX.Application.Features.ExternalData.Funds.Queries.GetDragonCapitalFundPortfolio;
@@ -21,15 +22,18 @@ public sealed class GetVnDirectTopStocksQueryHandler
     private readonly IExternalDataService _externalDataService;
     private readonly IMediator _mediator;
     private readonly IStockScoringPipeline _stockScoringPipeline;
+    private readonly ILogger<GetVnDirectTopStocksQueryHandler> _logger;
 
     public GetVnDirectTopStocksQueryHandler(
         IExternalDataService externalDataService,
         IMediator mediator,
-        IStockScoringPipeline stockScoringPipeline)
+        IStockScoringPipeline stockScoringPipeline,
+        ILogger<GetVnDirectTopStocksQueryHandler> logger)
     {
         _externalDataService = externalDataService;
         _mediator = mediator;
         _stockScoringPipeline = stockScoringPipeline;
+        _logger = logger;
     }
 
     public async Task<VnDirectTopStocksResponse> Handle(
@@ -96,7 +100,7 @@ public sealed class GetVnDirectTopStocksQueryHandler
         var eventsTask = _mediator.Send(new GetVnDirectEventsQuery(), cancellationToken);
         var tcbsTask = _mediator.Send(new GetTcbsTop10PortfoliosQuery(), cancellationToken);
         var dragonTasks = DragonFundCodes
-            .Select(code => _mediator.Send(new GetDragonCapitalFundPortfolioQuery { FundCode = code }, cancellationToken))
+            .Select(code => GetDragonCapitalFundPortfolioAsync(code, cancellationToken))
             .ToList();
 
         await Task.WhenAll(cipLongTask, cipShortTask, eventsTask, tcbsTask);
@@ -168,6 +172,36 @@ public sealed class GetVnDirectTopStocksQueryHandler
             Success = true,
             Message = "Success"
         };
+    }
+
+    private async Task<DragonCapitalFundPortfolioResponse> GetDragonCapitalFundPortfolioAsync(
+        string fundCode,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _mediator.Send(
+                new GetDragonCapitalFundPortfolioQuery { FundCode = fundCode },
+                cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "GetVnDirectTopStocksQuery: Dragon Capital enrichment failed for fund {FundCode}; continuing without this fund",
+                fundCode);
+
+            return new DragonCapitalFundPortfolioResponse
+            {
+                FundCode = fundCode,
+                Success = false,
+                Message = "Dragon Capital portfolio data is temporarily unavailable."
+            };
+        }
     }
 
     private static IReadOnlyDictionary<string, VnDirectTechnicalSignalDto> BuildTechnicalLookup(VnDirectTechnicalSignalsResponse response)
