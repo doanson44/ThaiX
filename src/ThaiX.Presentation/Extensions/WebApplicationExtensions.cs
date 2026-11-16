@@ -456,6 +456,7 @@ public static class WebApplicationExtensions
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "ThaiX API v1");
             options.RoutePrefix = "swagger";
             options.DocumentTitle = "ThaiX API Documentation";
+            options.HeadContent = """<link rel="icon" type="image/svg+xml" href="/favicon.svg" />""";
             options.DefaultModelsExpandDepth(-1);
         });
 
@@ -482,6 +483,7 @@ public static class WebApplicationExtensions
                     app.Services.GetRequiredService<Microsoft.AspNetCore.DataProtection.IDataProtectionProvider>())
             },
             AppPath = hangfireConfig.Dashboard.AppPath,
+            FaviconPath = "/favicon.svg",
             StatsPollingInterval = hangfireConfig.Dashboard.StatsPollingInterval,
             DisplayStorageConnectionString = hangfireConfig.Dashboard.DisplayStorageConnectionString,
             IsReadOnlyFunc = _ => hangfireConfig.Dashboard.ReadOnly
