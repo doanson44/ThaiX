@@ -1,5 +1,7 @@
 using Hangfire;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using ThaiX.Application.Common.Interfaces;
@@ -14,12 +16,14 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 
 /// <summary>
 /// Hangfire recurring job that runs on a configured schedule.
-/// Retrieves MEXC spot tickers with composite scores, selects top USDT-pair candidates,
-/// then computes trade suggestions per timeframe and sends a notification.
+/// Retrieves MEXC spot tickers with composite scores, selects USDT-pair candidates
+/// above a score threshold (up to a max per timeframe), then computes trade
+/// suggestions per timeframe and sends a notification.
 /// </summary>
 public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
 {
-    private const int TopCount = 5;
+    private const decimal MinCompositeScore = 75m;
+    private const int MaxPicksPerTimeframe = 5;
     private const int CandidateScanLimit = 50;
     private static readonly IReadOnlyList<TimeframeRequest> TimeframeRequests =
     [
@@ -34,6 +38,7 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
     private readonly INotificationRouter _notificationRouter;
     private readonly IBackgroundJobClient _backgroundJobClient;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MexcSpotWeeklySuggestionJob> _logger;
 
     public MexcSpotWeeklySuggestionJob(
@@ -41,6 +46,7 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
         INotificationRouter notificationRouter,
         IBackgroundJobClient backgroundJobClient,
         IDateTimeProvider dateTimeProvider,
+        IServiceScopeFactory scopeFactory,
         IHangfireJobState hangfireJobState,
         ILogger<MexcSpotWeeklySuggestionJob> logger) : base(hangfireJobState, logger)
     {
@@ -48,6 +54,7 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
         _notificationRouter = notificationRouter;
         _backgroundJobClient = backgroundJobClient;
         _dateTimeProvider = dateTimeProvider;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -114,6 +121,9 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
                 timeframeResults.Add(timeframeResult);
             }
 
+            var previousSymbols = await LoadPreviousSymbolsAsync(cancellationToken);
+            var comparisons = BuildComparisons(timeframeResults, previousSymbols);
+
             var elapsed = (int)(DateTime.UtcNow - started).TotalSeconds;
             var hasAnyPick = timeframeResults.Any(x => x.Picked > 0);
             EnqueuePersistReport(started, elapsed, timeframeResults);
@@ -131,9 +141,9 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
                     [
                         new() { Label = "Run", Value = BuildHeaderLine() },
                         new() { Label = "Duration", Value = $"{elapsed}s" },
-                        new() { Label = "Picks", Value = $"{timeframeResults.Sum(x => x.Picked)}/{TopCount * TimeframeRequests.Count}" }
+                        new() { Label = "Picks", Value = $"{timeframeResults.Sum(x => x.Picked)} (score > {MinCompositeScore:0}, max {MaxPicksPerTimeframe})" }
                     ],
-                    Sections = BuildSections(BuildHeaderLine(), elapsed, timeframeResults)
+                    Sections = BuildSections(BuildHeaderLine(), elapsed, timeframeResults, comparisons)
                 }
             };
 
@@ -193,12 +203,14 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
 
         for (var i = 0; i < candidates.Count; i++)
         {
-            if (picked >= TopCount)
+            var coin = candidates[i];
+
+            // Candidates are score-descending; stop once the threshold is no longer met.
+            if (coin.CompositeScore <= MinCompositeScore)
             {
                 break;
             }
 
-            var coin = candidates[i];
             scanned++;
 
             try
@@ -222,6 +234,11 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
 
                 picked++;
                 suggestions.Add((picked, coin.Symbol, coin.CompositeScore, suggestion));
+
+                if (picked >= MaxPicksPerTimeframe)
+                {
+                    break;
+                }
             }
             catch (Exception ex)
             {
@@ -243,7 +260,8 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
     private static IReadOnlyList<NotificationSection> BuildSections(
         string runTime,
         int elapsedSeconds,
-        IReadOnlyList<TimeframeRunResult> timeframeResults)
+        IReadOnlyList<TimeframeRunResult> timeframeResults,
+        IReadOnlyDictionary<string, TimeframeComparison> comparisons)
     {
         var sections = new List<NotificationSection>
         {
@@ -254,9 +272,19 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
         {
             sections.Add(new NotificationSection
             {
-                Title = $"Timeframe: {tf.Timeframe} ({tf.Picked}/{TopCount} picked, scanned {tf.Scanned}/{tf.TotalCandidates})",
+                Title = $"Timeframe: {tf.Timeframe} ({tf.Picked} picked, scanned {tf.Scanned}/{tf.TotalCandidates})",
                 Text = string.Empty
             });
+
+            if (comparisons.TryGetValue(tf.Timeframe, out var comparison))
+            {
+                var added = comparison.Added.Count > 0 ? string.Join(", ", comparison.Added) : "-";
+                var removed = comparison.Removed.Count > 0 ? string.Join(", ", comparison.Removed) : "-";
+                sections.Add(new NotificationSection
+                {
+                    Text = $"vs previous run - Added: {added} | Removed: {removed}"
+                });
+            }
 
             if (tf.Suggestions.Count == 0)
             {
@@ -308,6 +336,65 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
         return !string.Equals(suggestion.Signal, "None", StringComparison.OrdinalIgnoreCase);
     }
 
+    private async Task<IReadOnlyDictionary<string, HashSet<string>>> LoadPreviousSymbolsAsync(CancellationToken cancellationToken)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+        var previousReport = await db.WeeklySuggestionReports
+            .AsNoTracking()
+            .Where(x => x.AssetClass == SuggestionAssetClass.Crypto
+                && x.ReportType == SuggestionReportType.TopSuggestionsWeekly)
+            .OrderByDescending(x => x.RunAtUtc)
+            .Select(x => new { x.Id })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (previousReport is null)
+        {
+            return new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        var items = await db.WeeklySuggestionReportItems
+            .AsNoTracking()
+            .Where(x => x.ReportId == previousReport.Id)
+            .Select(x => new { x.Timeframe, x.Symbol })
+            .ToListAsync(cancellationToken);
+
+        return items
+            .GroupBy(x => x.Timeframe, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => new HashSet<string>(g.Select(x => x.Symbol), StringComparer.OrdinalIgnoreCase),
+                StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static IReadOnlyDictionary<string, TimeframeComparison> BuildComparisons(
+        IReadOnlyList<TimeframeRunResult> timeframeResults,
+        IReadOnlyDictionary<string, HashSet<string>> previousSymbols)
+    {
+        var comparisons = new Dictionary<string, TimeframeComparison>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tf in timeframeResults)
+        {
+            var current = tf.Suggestions
+                .Select(s => s.Symbol.ToUpperInvariant())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            previousSymbols.TryGetValue(tf.Timeframe, out var previous);
+            previous ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            comparisons[tf.Timeframe] = new TimeframeComparison(
+                current.Except(previous, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .ToList(),
+                previous.Except(current, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+                    .ToList());
+        }
+
+        return comparisons;
+    }
+
     private void EnqueuePersistReport(
         DateTime runAtUtc,
         int elapsedSeconds,
@@ -338,7 +425,8 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
             RunAtUtc: runAtUtc,
             ElapsedSeconds: elapsedSeconds,
             CandidateScanLimit: CandidateScanLimit,
-            TopCount: TopCount,
+            // TopCount records the per-timeframe cap; the score gate is MinCompositeScore.
+            TopCount: MaxPicksPerTimeframe,
             AssetClass: SuggestionAssetClass.Crypto,
             ReportType: SuggestionReportType.TopSuggestionsWeekly,
             Status: status,
@@ -351,6 +439,8 @@ public sealed class MexcSpotWeeklySuggestionJob : HangfireJobBase
     private sealed record TimeframeRequest(string Timeframe, bool UseLongTermTimeframe);
 
     private sealed record CoinCandidate(string Symbol, decimal CompositeScore);
+
+    private sealed record TimeframeComparison(IReadOnlyList<string> Added, IReadOnlyList<string> Removed);
 
     private sealed record TimeframeRunResult(
         string Timeframe,

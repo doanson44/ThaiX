@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using ThaiX.Application.Common.Caching;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
+using ThaiX.Application.Strategies;
 using ThaiX.Domain.Aggregates.Lottery;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Infrastructure.Persistence;
@@ -204,7 +205,7 @@ public sealed class Power655PredictJob : HangfireJobBase
         }
 
         var result = await GeneratePredictionAsync(
-            predictionType, officialDraws, individualFrequency, ntupleCandidates, cancellationToken);
+            drawDate, predictionType, officialDraws, individualFrequency, ntupleCandidates, cancellationToken);
 
         if (result.Numbers.Count != 6)
         {
@@ -238,12 +239,18 @@ public sealed class Power655PredictJob : HangfireJobBase
     }
 
     private async Task<PredictionResult> GeneratePredictionAsync(
+        DateOnly drawDate,
         PredictionType predictionType,
         IReadOnlyList<Power655Result> officialDraws,
         IReadOnlyDictionary<int, int> individualFrequency,
         IReadOnlyList<NtupleCandidate> ntupleCandidates,
         CancellationToken cancellationToken)
     {
+        if (predictionType == PredictionType.Pick6)
+        {
+            return GeneratePick6Roulette(drawDate, individualFrequency);
+        }
+
         var n = (int)predictionType;
 
         // Top N-tuple is always the fixed base for Pick3/Pick4/Pick5
@@ -294,7 +301,7 @@ public sealed class Power655PredictJob : HangfireJobBase
                 fillNumbers);
         }
 
-        // Pick6 fallback: top 6 hot numbers
+        // Safety fallback (only reachable when no N-tuple exists): top 6 hot numbers
         {
             var top6 = hotNumbers.Take(6).Select(x => x.number).OrderBy(x => x).ToList();
             return new PredictionResult(
@@ -302,6 +309,22 @@ public sealed class Power655PredictJob : HangfireJobBase
                 0,
                 "Top 6 most frequent numbers (AI failed or not available).");
         }
+    }
+
+    private static PredictionResult GeneratePick6Roulette(
+        DateOnly drawDate,
+        IReadOnlyDictionary<int, int> individualFrequency)
+    {
+        var seed = drawDate.DayNumber;
+        var rng = new Random(seed);
+        var picked = RouletteWheelSelector.SelectWithoutReplacement(individualFrequency, 6, rng)
+            .OrderBy(n => n)
+            .ToList();
+
+        return new PredictionResult(
+            picked,
+            0,
+            $"Roulette wheel: 55 numbers weighted by historical frequency, 6 spins without replacement (seed {seed}).");
     }
 
     private async Task<PredictionResult?> TryAiPredictionAsync(
@@ -351,10 +374,6 @@ public sealed class Power655PredictJob : HangfireJobBase
                 "together with 20 hottest + 20 coldest individual numbers (with frequencies). " +
                 "Your task: select exactly 1 additional number from the hot/cold pools to complete a full 6-number set. " +
                 "Return strict JSON only: {\"extra_numbers\":[n6],\"reasoning\":\"...\"}. " +
-                "All numbers must be unique, 1-55, sorted ascending.",
-            PredictionType.Pick6 => "You are a lottery analysis AI. I will provide 20 hottest + 20 coldest individual numbers (with frequencies) from Power 6/55 history. " +
-                "Your task: select the best 6-number combination from these pools (or any numbers 1-55). " +
-                "Return strict JSON only: {\"numbers\":[n1,n2,n3,n4,n5,n6],\"reasoning\":\"...\"}. " +
                 "All numbers must be unique, 1-55, sorted ascending.",
             _ => "Return strict JSON only."
         };
@@ -420,13 +439,6 @@ public sealed class Power655PredictJob : HangfireJobBase
             sb.AppendLine($"(must NOT be any of: {string.Join(", ", fixedSet)}).");
             sb.AppendLine($"Put them in 'extra_numbers' and explain your reasoning.");
         }
-        else
-        {
-            sb.AppendLine("YOUR TASK:");
-            sb.AppendLine("Select the best 6-number combination from the hot/cold pools above (or any 1-55).");
-            sb.AppendLine("Put them in 'numbers' and explain your reasoning.");
-        }
-
         return sb.ToString();
     }
 
