@@ -302,6 +302,10 @@ public static class DependencyInjection
                 Attempts = hangfireConfig.RetryAttempts,
                 LogEvents = true
             })
+            .UseFilter(new FailedJobExpirationFilter(TimeSpan.FromDays(hangfireConfig.FailedJobExpirationDays))
+            {
+                Order = 1
+            })
             .UseSqlServerStorage(hangfireConnectionString, new SqlServerStorageOptions
             {
                 QueuePollInterval = hangfireConfig.Storage.QueuePollInterval,

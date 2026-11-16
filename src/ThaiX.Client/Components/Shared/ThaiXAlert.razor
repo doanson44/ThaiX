@@ -3,16 +3,12 @@
              Shade="@Shade"
              AllowClose="@AllowClose"
              Close="@Close"
-             ShowIcon="false"
+             ShowIcon="@ShowIcon"
              Size="@Size"
              Class="@Class"
              Style="@Style"
              @attributes="AdditionalAttributes">
     <ChildContent>
-        @if (ShowIcon)
-        {
-            <ThaiXIcon Name="@IconName" Class="rz-alert-icon tx-alert-glyph me-2" Size="1.25rem" />
-        }
         @ChildContent
     </ChildContent>
 </RadzenAlert>
@@ -51,12 +47,4 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
-    private string IconName => AlertStyle switch
-    {
-        AlertStyle.Success => "check_circle",
-        AlertStyle.Warning => "warning",
-        AlertStyle.Danger => "cancel",
-        AlertStyle.Info => "insights",
-        _ => "alert"
-    };
 }

@@ -6,6 +6,7 @@ public sealed class HangfireConfiguration
     public bool Enabled { get; set; } = true;
     public string SchemaName { get; set; } = "hangfire";
     public int RetryAttempts { get; set; } = 2;
+    public int FailedJobExpirationDays { get; set; } = 7;
     public HangfireServerConfiguration Server { get; set; } = new();
     public HangfireStorageConfiguration Storage { get; set; } = new();
     public HangfireDashboardConfiguration Dashboard { get; set; } = new();

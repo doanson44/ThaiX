@@ -202,7 +202,7 @@ else
             @foreach (var endY in match.Roads.Select(road => road[^1].Y).Distinct())
             {
                 <rect x="456" y="@Px(endY - 26)" width="22" height="52" rx="5" fill="#44403c" stroke="#1c1917" stroke-width="2" />
-                <use href="@Href("home")" x="457" y="@Px(endY - 10)" width="20" height="20" style="color:#60a5fa" />
+                <foreignObject x="457" y="@Px(endY - 10)" width="20" height="20"><span xmlns="http://www.w3.org/1999/xhtml" class="bi bi-house-fill" style="font-size:20px;color:#60a5fa"></span></foreignObject>
             }
             @if (_selectedTower is { } selected)
             {
@@ -775,7 +775,6 @@ else
 
     private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
 
-    private static string Href(string icon) => $"{ThaixIcons.SpritePath}#{icon}";
 
     private static string TowerKey(TowerKind kind) => (int)kind == 9 ? "0" : ((int)kind + 1).ToString();
 
