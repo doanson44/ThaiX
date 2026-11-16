@@ -184,7 +184,7 @@ public sealed class GetVnDirectTopStocksQueryHandler
                 new GetDragonCapitalFundPortfolioQuery { FundCode = fundCode },
                 cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
         }
