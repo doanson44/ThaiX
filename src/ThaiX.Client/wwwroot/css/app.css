@@ -113,6 +113,10 @@
        phases. Retheme'd once here instead of chasing every usage site. */
     --bs-primary: var(--tx-accent);
     --bs-primary-rgb: 245, 158, 11;
+    --bs-link-color: var(--tx-accent-dark);
+    --bs-link-color-rgb: 180, 83, 9;
+    --bs-link-hover-color: var(--tx-accent);
+    --bs-link-hover-color-rgb: 245, 158, 11;
     --bs-success: var(--tx-positive);
     --bs-success-rgb: 16, 185, 129;
     --bs-danger: var(--tx-negative);
@@ -1279,9 +1283,18 @@ html[data-bs-theme="light"] .ThaiX-md-editor__sep {
 
 
 /* Amber primary requires dark foreground text for readable contrast. */
-.btn-primary,
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active {
-    color: #1a1207;
+.btn-primary {
+    --bs-btn-color: #1a1207;
+    --bs-btn-bg: var(--tx-accent);
+    --bs-btn-border-color: var(--tx-accent);
+    --bs-btn-hover-color: #1a1207;
+    --bs-btn-hover-bg: var(--tx-accent-dark);
+    --bs-btn-hover-border-color: var(--tx-accent-dark);
+    --bs-btn-focus-shadow-rgb: 245, 158, 11;
+    --bs-btn-active-color: #1a1207;
+    --bs-btn-active-bg: var(--tx-accent-dark);
+    --bs-btn-active-border-color: var(--tx-accent-dark);
+    --bs-btn-disabled-color: #1a1207;
+    --bs-btn-disabled-bg: var(--tx-accent);
+    --bs-btn-disabled-border-color: var(--tx-accent);
 }
