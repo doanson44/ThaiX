@@ -132,6 +132,58 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
+    public void EasyDifficulty_DoublesDamageForEveryAttackTower()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties.Single(difficulty => difficulty.Id == "easy"),
+            endless: false,
+            startingGoldBonus: 5000);
+        var attackTowers = TowerDefenseData.Towers.Where(tower => !tower.IsSupport).ToArray();
+        var freeCells = Enumerable.Range(0, TowerDefenseMatch.Columns * TowerDefenseMatch.Rows)
+            .Where(cell => !match.IsBlocked(cell))
+            .Take(attackTowers.Length)
+            .ToArray();
+
+        // Act
+        var builtTowers = attackTowers.Select((spec, index) => match.Build(freeCells[index], spec.Kind)).ToArray();
+
+        // Assert
+        builtTowers.Should().OnlyContain(tower => tower is not null);
+        foreach (var tower in builtTowers)
+            match.Damage(tower!).Should().Be(tower!.Spec.Damage * 2);
+    }
+
+    [Fact]
+    public void EasyDifficulty_KeepsTowerAndUpgradePricesUnchanged()
+    {
+        // Arrange
+        var easy = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties.Single(difficulty => difficulty.Id == "easy"),
+            endless: false,
+            startingGoldBonus: 5000);
+        var normal = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties.Single(difficulty => difficulty.Id == "normal"),
+            endless: false,
+            startingGoldBonus: 5000);
+        var spec = TowerDefenseData.Tower(TowerKind.Gunner);
+        var easyTower = easy.Build(easy.FirstFreeCell(0), spec.Kind);
+        var normalTower = normal.Build(normal.FirstFreeCell(0), spec.Kind);
+
+        // Act
+        var easyUpgradeCost = easy.UpgradeCost(easyTower!, UpgradeTrack.Damage);
+        var normalUpgradeCost = normal.UpgradeCost(normalTower!, UpgradeTrack.Damage);
+
+        // Assert
+        easyTower!.Invested.Should().Be(spec.Cost);
+        easyUpgradeCost.Should().Be(normalUpgradeCost);
+        easyUpgradeCost.Should().Be((int)(Math.Ceiling(spec.Cost * 0.5 / 5) * 5));
+    }
+
+    [Fact]
     public void Maps_ContainFourteenMissions_KeepObstaclesOffRoads()
     {
         // Arrange
