@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Games;
+
 namespace ThaiX.Application.Features.Games.Queries.GetTowerDefenseProgress;
 
 public sealed class GetTowerDefenseProgressQueryHandler(IApplicationDbContext context)
