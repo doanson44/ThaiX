@@ -91,6 +91,8 @@
 .game-fullscreen-host:fullscreen .game-canvas ::deep .td-match-layout {
     width: 100%;
     height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .game-controls {
