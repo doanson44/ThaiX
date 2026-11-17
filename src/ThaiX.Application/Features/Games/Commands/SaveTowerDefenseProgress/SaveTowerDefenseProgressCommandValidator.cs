@@ -1,4 +1,5 @@
 using FluentValidation;
+using ThaiX.Application.Features.Games;
 using ThaiX.Application.Common.Constants;
 
 namespace ThaiX.Application.Features.Games.Commands.SaveTowerDefenseProgress;
@@ -37,7 +38,7 @@ public sealed class SaveTowerDefenseProgressCommandValidator : AbstractValidator
 
             RuleFor(command => command.Progress.BonusMissions)
                 .NotNull()
-                .Must(items => items.Length <= 32)
+                .Must(items => items is { Length: <= 32 } && items.All(item => !string.IsNullOrWhiteSpace(item) && item.Length <= 64))
                 .WithErrorCode(ErrorCodes.INVALID_RANGE);
         });
     }
