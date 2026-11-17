@@ -44,9 +44,9 @@
             {
                 <div class="td-warmart-panel">
                     <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
-                    @if (_goldSyncFailed)
+                    @if (_progressSyncFailed)
                     {
-                        <small class="text-warning">@L[ResourceKeys.Games.TdGoldSyncFailed]</small>
+                        <small class="text-warning">@L[ResourceKeys.Games.TdProgressSyncFailed]</small>
                     }
                     <div class="td-shop-choices">
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
@@ -434,7 +434,7 @@ else
     private int _bonusStartingGold;
     private bool _showWarMart;
     private bool _isAuthenticated;
-    private bool _goldSyncFailed;
+    private bool _progressSyncFailed;
     private Action[] _cellClicks = [];
     private string[] _roadPoints = [];
     private TowerDefenseMatch? _match;
@@ -497,19 +497,49 @@ else
         {
             try
             {
-                var savedGold = await GameProgressClient.GetTowerDefenseGoldAsync();
-                if (savedGold.HasValue)
-                    _warMartCredits = savedGold.Value;
-                else
-                    await GameProgressClient.SaveTowerDefenseGoldAsync(_warMartCredits);
+                var savedProgress = await GameProgressClient.GetTowerDefenseProgressAsync();
+                if (savedProgress is not null)
+                {
+                    _cleared.Clear();
+                    foreach (var missionId in savedProgress.ClearedMissions)
+                    {
+                        if (TowerDefenseData.Maps.Any(map => !map.IsBonus && map.Id == missionId))
+                            _cleared.Add(missionId);
+                    }
 
-                await SaveProgressAsync(syncGold: false);
-                _goldSyncFailed = false;
+                    _unlockedTowers.Clear();
+                    foreach (var towerName in savedProgress.UnlockedTowers)
+                    {
+                        if (Enum.TryParse<TowerKind>(towerName, out var kind)
+                            && TowerDefenseData.TowerUnlockCost(kind) > 0)
+                            _unlockedTowers.Add(kind);
+                    }
+
+                    _bonusMissions.Clear();
+                    foreach (var missionId in savedProgress.BonusMissions)
+                    {
+                        if (TowerDefenseData.Maps.Any(map => map.IsBonus && map.Id == missionId))
+                            _bonusMissions.Add(missionId);
+                    }
+
+                    _warMartCredits = Math.Max(0, savedProgress.Credits);
+                    _bonusStartingGold = Math.Max(0, savedProgress.BonusStartingGold);
+                }
+                else
+                {
+                    var savedGold = await GameProgressClient.GetTowerDefenseGoldAsync();
+                    if (savedGold.HasValue)
+                        _warMartCredits = savedGold.Value;
+
+                    await SaveProgressAsync();
+                }
+
+                _progressSyncFailed = false;
             }
             catch (Exception exception)
             {
-                _goldSyncFailed = true;
-                Logger.LogWarning(exception, "Could not load the authenticated tower defense gold balance.");
+                _progressSyncFailed = true;
+                Logger.LogWarning(exception, "Could not load the authenticated tower defense progress.");
             }
         }
     }
@@ -618,34 +648,41 @@ else
         await SaveProgressAsync();
     }
 
-    private async Task SaveProgressAsync(bool syncGold = true)
+    private async Task SaveProgressAsync(bool syncAccount = true)
     {
+        var progress = new TowerDefenseProgressModel(
+            _warMartCredits,
+            _bonusStartingGold,
+            [.. _cleared.Order()],
+            [.. _unlockedTowers.Order().Select(kind => kind.ToString())],
+            [.. _bonusMissions.Order()]);
+
         try
         {
-            var progress = _cleared.Order()
-                .Concat(_unlockedTowers.Order().Select(kind => $"tower:{kind}"))
-                .Concat(_bonusMissions.Order().Select(id => $"bonus:{id}"))
-                .Append($"credits:{_warMartCredits}")
-                .Append($"startfunds:{_bonusStartingGold}");
-            await ScoreStore.SetProgressAsync(GameKey, string.Join(',', progress));
+            var localProgress = progress.ClearedMissions
+                .Concat(progress.UnlockedTowers.Select(kind => $"tower:{kind}"))
+                .Concat(progress.BonusMissions.Select(id => $"bonus:{id}"))
+                .Append($"credits:{progress.Credits}")
+                .Append($"startfunds:{progress.BonusStartingGold}");
+            await ScoreStore.SetProgressAsync(GameKey, string.Join(',', localProgress));
         }
         catch (JSException exception)
         {
             Logger.LogWarning(exception, "Could not save local tower defense progress.");
         }
 
-        if (!syncGold || !_isAuthenticated || ConnectivityState.IsDemoMode)
+        if (!syncAccount || !_isAuthenticated || ConnectivityState.IsDemoMode)
             return;
 
         try
         {
-            await GameProgressClient.SaveTowerDefenseGoldAsync(_warMartCredits);
-            _goldSyncFailed = false;
+            await GameProgressClient.SaveTowerDefenseProgressAsync(progress);
+            _progressSyncFailed = false;
         }
         catch (Exception exception)
         {
-            _goldSyncFailed = true;
-            Logger.LogWarning(exception, "Could not save authenticated tower defense gold.");
+            _progressSyncFailed = true;
+            Logger.LogWarning(exception, "Could not save authenticated tower defense progress.");
         }
     }
 
