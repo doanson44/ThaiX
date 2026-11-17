@@ -434,7 +434,7 @@ else
     private int _bonusStartingGold;
     private bool _showWarMart;
     private bool _isAuthenticated;
-    private bool _goldSyncFailed;
+    private bool _progressSyncFailed;
     private Action[] _cellClicks = [];
     private string[] _roadPoints = [];
     private TowerDefenseMatch? _match;
@@ -534,11 +534,11 @@ else
                     await SaveProgressAsync();
                 }
 
-                _goldSyncFailed = false;
+                _progressSyncFailed = false;
             }
             catch (Exception exception)
             {
-                _goldSyncFailed = true;
+                _progressSyncFailed = true;
                 Logger.LogWarning(exception, "Could not load the authenticated tower defense progress.");
             }
         }
@@ -677,11 +677,11 @@ else
         try
         {
             await GameProgressClient.SaveTowerDefenseProgressAsync(progress);
-            _goldSyncFailed = false;
+            _progressSyncFailed = false;
         }
         catch (Exception exception)
         {
-            _goldSyncFailed = true;
+            _progressSyncFailed = true;
             Logger.LogWarning(exception, "Could not save authenticated tower defense progress.");
         }
     }
