@@ -288,6 +288,93 @@ public sealed class GameEndpointsTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task GetTowerDefenseProgress_ShouldReturnUnauthorized_WhenUserIsAnonymous()
+    {
+        // Arrange
+        Client.DefaultRequestHeaders.Authorization = null;
+
+        // Act
+        var getResponse = await Client.GetAsync("/api/games/tower-defense/progress");
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/progress",
+            new
+            {
+                Credits = 500,
+                BonusStartingGold = 200,
+                ClearedMissions = new[] { "jungle" },
+                UnlockedTowers = new[] { "Radar" },
+                BonusMissions = Array.Empty<string>()
+            });
+
+        // Assert
+        getResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task SaveTowerDefenseProgress_ShouldPersistAllAccountState_WhenUserIsAuthenticated()
+    {
+        // Arrange
+        var email = $"tower-defense-progress-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email);
+        await AuthenticateAsync(email);
+        var progress = new
+        {
+            Credits = 1_250,
+            BonusStartingGold = 400,
+            ClearedMissions = new[] { "jungle", "switchback" },
+            UnlockedTowers = new[] { "Radar", "PowerAmplifier" },
+            BonusMissions = new[] { "bonus-sniper" }
+        };
+
+        // Act
+        var saveResponse = await Client.PutAsJsonAsync("/api/games/tower-defense/progress", progress);
+        var getResponse = await Client.GetAsync("/api/games/tower-defense/progress");
+        var envelope = await ReadResponseAsync<TowerDefenseProgressDto>(getResponse);
+
+        // Assert
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        envelope.Data.Should().NotBeNull();
+        envelope.Data!.Credits.Should().Be(progress.Credits);
+        envelope.Data.BonusStartingGold.Should().Be(progress.BonusStartingGold);
+        envelope.Data.ClearedMissions.Should().BeEquivalentTo(progress.ClearedMissions);
+        envelope.Data.UnlockedTowers.Should().BeEquivalentTo(progress.UnlockedTowers);
+        envelope.Data.BonusMissions.Should().BeEquivalentTo(progress.BonusMissions);
+    }
+
+    [Fact]
+    public async Task GetTowerDefenseProgress_ShouldNotExposeAnotherUsersProgress_WhenUserChanges()
+    {
+        // Arrange
+        var firstEmail = $"tower-defense-progress-first-{Guid.NewGuid():N}@thaix.test";
+        var secondEmail = $"tower-defense-progress-second-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(firstEmail);
+        await CreateTestUserAsync(secondEmail);
+        await AuthenticateAsync(firstEmail);
+        var saveResponse = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/progress",
+            new
+            {
+                Credits = 900,
+                BonusStartingGold = 200,
+                ClearedMissions = new[] { "jungle" },
+                UnlockedTowers = new[] { "Radar" },
+                BonusMissions = Array.Empty<string>()
+            });
+        saveResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        // Act
+        await AuthenticateAsync(secondEmail);
+        var getResponse = await Client.GetAsync("/api/games/tower-defense/progress");
+        var envelope = await ReadResponseAsync<TowerDefenseProgressDto?>(getResponse);
+
+        // Assert
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        envelope.Data.Should().BeNull();
+    }
+
+    [Fact]
     public async Task GetTowerDefenseGold_ShouldReturnUnauthorized_WhenUserIsAnonymous()
     {
         // Arrange
