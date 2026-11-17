@@ -139,6 +139,7 @@ else
 {
     var match = _match;
     <div class="td-match-layout">
+    <div class="td-board">
     <svg class="game-svg" viewBox="0 0 480 376">
         <defs>
             <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
@@ -289,21 +290,33 @@ else
             }
         </g>
 
-        <rect width="480" height="40" fill="#0b1220" />
-        <text class="g-muted" x="60" y="20">@WaveLabel</text>
-        @if (match.NextWaveCountdownActive)
-        {
-            @:<text x="60" y="34" fill="#93c5fd" font-size="12">@L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]</text>
-        }
-        <text x="180" y="20" fill="#fca5a5">@L[ResourceKeys.Games.Lives]: @match.Lives</text>
-        <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @match.Gold</text>
-        <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @match.Score</text>
-        @if (_airstrikeArmed)
-        {
-            <rect y="40" width="480" height="22" fill="#7f1d1d" fill-opacity="0.85" pointer-events="none" />
-            @:<text x="240" y="51" fill="#fee2e2" font-size="13" pointer-events="none">@L[ResourceKeys.Games.TdAirstrikeArmed]</text>
-        }
     </svg>
+    <div class="td-hud" aria-label="@L[ResourceKeys.Games.TdStartWave]">
+        <div class="td-hud-item td-hud-wave">
+            <strong>@WaveLabel</strong>
+            @if (match.NextWaveCountdownActive)
+            {
+                <small>@L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]</small>
+            }
+        </div>
+        <div class="td-hud-item td-hud-lives">
+            <span>@L[ResourceKeys.Games.Lives]</span>
+            <strong>@match.Lives</strong>
+        </div>
+        <div class="td-hud-item td-hud-gold">
+            <span>@L[ResourceKeys.Games.Gold]</span>
+            <strong>@match.Gold</strong>
+        </div>
+        <div class="td-hud-item td-hud-score">
+            <span>@L[ResourceKeys.Games.Score]</span>
+            <strong>@match.Score</strong>
+        </div>
+    </div>
+    @if (_airstrikeArmed)
+    {
+        <div class="td-airstrike-banner" role="status">@L[ResourceKeys.Games.TdAirstrikeArmed]</div>
+    }
+    </div>
 
     <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
         @foreach (var option in TowerDefenseData.Towers.Where(option => match.Map.RequiredTower is null || option.Kind == match.Map.RequiredTower))
@@ -638,7 +651,7 @@ else
         }
 
         _cursor = row * TowerDefenseMatch.Columns + column;
-        if (_pendingBuildCell is not null && key is "arrowleft" or "arrowright" or "arrowup" or "arrowdown")
+        if (_pendingBuildCell is not null && key is ("arrowleft" or "arrowright" or "arrowup" or "arrowdown"))
             _pendingBuildCell = _cursor;
     }
 
