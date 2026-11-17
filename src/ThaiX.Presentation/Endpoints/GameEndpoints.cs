@@ -5,7 +5,9 @@ using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Games;
 using ThaiX.Application.Features.Games.Commands.SubmitGameScore;
 using ThaiX.Application.Features.Games.Commands.SaveTowerDefenseGold;
+using ThaiX.Application.Features.Games.Commands.SaveTowerDefenseProgress;
 using ThaiX.Application.Features.Games.Queries.GetTowerDefenseGold;
+using ThaiX.Application.Features.Games.Queries.GetTowerDefenseProgress;
 using ThaiX.Application.Features.Games.Queries.GetGameLeaderboard;
 using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Models;
@@ -45,6 +47,41 @@ public static class GameEndpoints
                 return Results.Unauthorized();
 
             await mediator.Send(new SaveTowerDefenseGoldCommand(userId, request.Gold), cancellationToken);
+            var response = ApiResponse.SuccessResult();
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization();
+
+        group.MapGet("/tower-defense/progress", async (
+            ClaimsPrincipal user,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            if (!TryGetUserId(user, out var userId))
+                return Results.Unauthorized();
+
+            var progress = await mediator.Send(
+                new GetTowerDefenseProgressQuery(userId), cancellationToken);
+            var response = ApiResponse<TowerDefenseProgressDto?>.SuccessResult(progress);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization();
+
+        group.MapPut("/tower-defense/progress", async (
+            TowerDefenseProgressDto progress,
+            ClaimsPrincipal user,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            if (!TryGetUserId(user, out var userId))
+                return Results.Unauthorized();
+
+            await mediator.Send(
+                new SaveTowerDefenseProgressCommand(userId, progress), cancellationToken);
             var response = ApiResponse.SuccessResult();
             response.Metadata.CorrelationId = httpContext.GetCorrelationId();
             return Results.Ok(response);
