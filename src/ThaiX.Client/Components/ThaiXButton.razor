@@ -10,20 +10,26 @@
               class="@Class"
               style="@Style"
               Click="@Click">
-    <ChildContent>
-        @if (!string.IsNullOrWhiteSpace(Icon))
-        {
-            <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
-        }
-        @if (ChildContent is not null)
-        {
-            @ChildContent
-        }
-        else if (!string.IsNullOrWhiteSpace(Text))
-        {
-            <span>@Text</span>
-        }
-    </ChildContent>
+    @if (!IsBusy)
+    {
+        <ChildContent>
+            @if (ChildContent is not null)
+            {
+                @ChildContent
+            }
+            else
+            {
+                @if (!string.IsNullOrWhiteSpace(Icon))
+                {
+                    <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
+                }
+                @if (!string.IsNullOrWhiteSpace(Text))
+                {
+                    <span>@Text</span>
+                }
+            }
+        </ChildContent>
+    }
 </RadzenButton>
 
 @code {
