@@ -12,23 +12,21 @@
               Click="@Click">
     @if (!IsBusy)
     {
-        <ChildContent>
-            @if (ChildContent is not null)
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(Icon))
             {
-                @ChildContent
+                <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
             }
-            else
+            @if (!string.IsNullOrWhiteSpace(Text))
             {
-                @if (!string.IsNullOrWhiteSpace(Icon))
-                {
-                    <ThaiXIcon Name="@Icon" Class="rz-button-icon-left me-1" />
-                }
-                @if (!string.IsNullOrWhiteSpace(Text))
-                {
-                    <span>@Text</span>
-                }
+                <span>@Text</span>
             }
-        </ChildContent>
+        }
     }
 </RadzenButton>
 
