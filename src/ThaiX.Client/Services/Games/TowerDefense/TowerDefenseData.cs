@@ -52,6 +52,8 @@ public static class TowerDefenseData
 {
     public const int CampaignWaves = 20;
 
+    public static bool IsEndlessRewardWave(int wave) => wave > 0 && wave % CampaignWaves == 0;
+
     public static readonly IReadOnlyList<TowerSpec> Towers =
     [
         new(TowerKind.Gunner, ResourceKeys.Games.TowerGun, "settings", "#bef264", 50, 100, 7, 9,

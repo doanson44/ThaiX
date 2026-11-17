@@ -506,6 +506,7 @@ else
     private int _difficultyIndex = 1;
     private int _cursor;
     private int _speed = 1;
+    private int _lastRewardedEndlessWave;
     private bool _endless;
     private bool _airstrikeArmed;
     private bool _resultRecorded;
@@ -622,6 +623,7 @@ else
         _pendingBuildCell = null;
         _airstrikeArmed = false;
         _resultRecorded = false;
+        _lastRewardedEndlessWave = 0;
         _speed = 1;
         if (!IsUnlocked(_mapIndex))
             _mapIndex = 0;
@@ -719,6 +721,7 @@ else
         _pendingBuildCell = null;
         _airstrikeArmed = false;
         _resultRecorded = false;
+        _lastRewardedEndlessWave = 0;
         RestartClock();
         StartLoop(TowerDefenseMatch.TickMilliseconds, Tick);
     }
@@ -730,6 +733,16 @@ else
 
         for (var i = 0; i < _speed && !_match.IsOver; i++)
             _match!.Advance();
+
+        if (_match.Endless
+            && _match.State == MatchState.Planning
+            && TowerDefenseData.IsEndlessRewardWave(_match.Wave)
+            && _match.Wave > _lastRewardedEndlessWave)
+        {
+            _lastRewardedEndlessWave = _match.Wave;
+            _warMartCredits += _match.MissionReward;
+            await SaveProgressAsync();
+        }
 
         if (!_match.IsOver)
             return;

@@ -70,6 +70,11 @@ else
                                 <strong>@L[_pendingWon ? ResourceKeys.Games.Victory : ResourceKeys.Games.GameOver]</strong>
                                 <span class="game-overlay-score">@L[Game.ScoreKey]: @_pendingScore.ToString("N0")</span>
                                 <small>@L[ResourceKeys.Games.RestartHint]</small>
+                                @if (!_pendingWon)
+                                {
+                                    <ThaiXButton Text="@L[ResourceKeys.Games.Restart]" Icon="replay"
+                                                  ButtonStyle="ButtonStyle.Primary" Click="ReplayAsync" />
+                                }
                                 @if (_pendingWon && ActiveGame is TowerDefenseGame towerDefense)
                                 {
                                     <div class="d-flex flex-wrap justify-content-center gap-2 mt-2">
@@ -483,6 +488,10 @@ else
         await RestartAsync();
         (ActiveGame as TowerDefenseGame)?.StartMission(nextMission);
     }
+
+    private Task ReplayAsync() => ActiveGame is TowerDefenseGame
+        ? StartTowerDefenseMissionAsync(false)
+        : RestartAsync();
 
     private async Task TogglePauseAsync()
     {
