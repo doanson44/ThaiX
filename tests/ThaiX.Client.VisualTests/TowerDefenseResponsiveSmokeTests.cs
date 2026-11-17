@@ -65,10 +65,10 @@ public sealed class TowerDefenseResponsiveSmokeTests
             // Assert
             Assert.NotNull(boardBox);
             Assert.NotNull(hudBox);
-            Assert.InRange(Math.Abs(hudBox.X - boardBox.X), 0, 1);
-            Assert.InRange(Math.Abs(hudBox.Y - boardBox.Y), 0, 1);
-            Assert.InRange(Math.Abs(hudBox.Width - boardBox.Width), 0, 1);
-            Assert.InRange(Math.Abs(hudBox.Height - boardBox.Width / 12), 0, 2);
+            Assert.InRange(Math.Abs(hudBox.X - boardBox.X), 0d, 1d);
+            Assert.InRange(Math.Abs(hudBox.Y - boardBox.Y), 0d, 1d);
+            Assert.InRange(Math.Abs(hudBox.Width - boardBox.Width), 0d, 1d);
+            Assert.InRange(Math.Abs(hudBox.Height - boardBox.Width / 12), 0d, 2d);
         }
     }
 
