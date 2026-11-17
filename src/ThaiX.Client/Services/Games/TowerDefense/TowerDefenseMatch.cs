@@ -11,6 +11,8 @@ public sealed class Tower
     public double Angle { get; set; }
     public int FlashUntil { get; set; }
     public TargetMode Mode { get; set; }
+    public int Kills { get; set; }
+    public double DamageDealt { get; set; }
 
     public int Level(UpgradeTrack track) => Levels[(int)track];
 }
@@ -28,6 +30,7 @@ public sealed class Enemy
     public double Y { get; set; }
     public int SlowTicks { get; set; }
     public int HitUntil { get; set; }
+    public Tower? LastHitBy { get; set; }
 
     public double Progress => Distance / PathLength;
 }
@@ -137,15 +140,21 @@ public sealed class TowerDefenseMatch
     public int FirstFreeCell(int preferred) =>
         Enumerable.Range(0, Columns * Rows).OrderBy(cell => Math.Abs(cell - preferred)).First(cell => !IsBlocked(cell));
 
-    public double Range(Tower tower)
+    public double Range(Tower tower) =>
+        EffectiveRange(tower.Cell, tower.Spec, tower.Level(UpgradeTrack.Range));
+
+    public double RangeAt(int cell, TowerKind kind) =>
+        EffectiveRange(cell, TowerDefenseData.Tower(kind), 0);
+
+    private double EffectiveRange(int cell, TowerSpec spec, int rangeLevel)
     {
-        var range = tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
-        if (tower.Spec.Effect == TowerEffect.SupportRange)
+        var range = spec.Range * (1 + RangePerLevel * rangeLevel);
+        if (spec.Effect == TowerEffect.SupportRange)
             return range;
 
-        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        var (x, y) = (CellX(cell), CellY(cell));
         return range + _towers
-            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportRange
+            .Where(support => support.Spec.Effect == TowerEffect.SupportRange
                 && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
                     <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
             .Sum(support => support.Spec.SupportValue);
@@ -183,13 +192,22 @@ public sealed class TowerDefenseMatch
 
     public int SellValue(Tower tower) => (int)(tower.Invested * SellRatio);
 
-    public Tower? Build(int cell, TowerKind kind)
+    public bool CanBuild(int cell, TowerKind kind)
     {
         var spec = TowerDefenseData.Tower(kind);
-        if (IsOver || (Map.RequiredTower is { } required && kind != required)
-            || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
+        return !IsOver
+            && (Map.RequiredTower is null || Map.RequiredTower == kind)
+            && !IsBlocked(cell)
+            && TowerAt(cell) is null
+            && Gold >= spec.Cost;
+    }
+
+    public Tower? Build(int cell, TowerKind kind)
+    {
+        if (!CanBuild(cell, kind))
             return null;
 
+        var spec = TowerDefenseData.Tower(kind);
         Gold -= spec.Cost;
         var tower = new Tower { Id = _nextTowerId++, Cell = cell, Spec = spec, Invested = spec.Cost };
         _towers.Add(tower);
@@ -334,10 +352,14 @@ public sealed class TowerDefenseMatch
             (enemy.X, enemy.Y) = GameLogic.PointOnPath(enemy.Path, enemy.Distance);
         }
 
-        foreach (var leaked in _enemies.Where(enemy => enemy.Distance >= enemy.PathLength).ToList())
+        for (var i = _enemies.Count - 1; i >= 0; i--)
         {
+            var leaked = _enemies[i];
+            if (leaked.Distance < leaked.PathLength)
+                continue;
+
             Lives = Math.Max(0, Lives - leaked.Spec.LifeCost);
-            _enemies.Remove(leaked);
+            _enemies.RemoveAt(i);
         }
     }
 
@@ -354,17 +376,22 @@ public sealed class TowerDefenseMatch
 
         var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
         var range = Range(tower);
-        var candidates = _enemies.Where(enemy => enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
-            && double.Hypot(enemy.X - x, enemy.Y - y) <= range).ToList();
-        if (candidates.Count == 0)
-            return;
 
-        var target = tower.Mode switch
+        // Find candidates without allocating a list when no enemy is in range.
+        Enemy? target = null;
+        var candidateCount = 0;
+        foreach (var enemy in _enemies)
         {
-            TargetMode.Strongest => candidates.MaxBy(enemy => enemy.Health)!,
-            TargetMode.Closest => candidates.MinBy(enemy => double.Hypot(enemy.X - x, enemy.Y - y))!,
-            _ => candidates.MaxBy(enemy => enemy.Progress)!
-        };
+            if (enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
+                && double.Hypot(enemy.X - x, enemy.Y - y) <= range)
+            {
+                candidateCount++;
+                target = target is null ? enemy : BetterTarget(tower.Mode, target, enemy, x, y);
+            }
+        }
+
+        if (target is null)
+            return;
 
         tower.Cooldown = CooldownTicks(tower);
         tower.Angle = Math.Atan2(target.Y - y, target.X - x) * 180 / Math.PI;
@@ -374,71 +401,120 @@ public sealed class TowerDefenseMatch
         switch (tower.Spec.Effect)
         {
             case TowerEffect.Single:
-                Hit(target, damage * tower.Spec.Multiplier(target.Spec.Class));
+                Hit(target, damage * tower.Spec.Multiplier(target.Spec.Class), tower);
                 _shots.Add(new Shot(x, y, target.X, target.Y, color, Tick + ShotTicks));
                 break;
             case TowerEffect.Splash:
                 _shots.Add(new Shot(x, y, target.X, target.Y, color, Tick + ShotTicks));
                 _blasts.Add(new Blast(target.X, target.Y, SplashRadius, color, false, Tick));
-                foreach (var enemy in candidates.Where(enemy => double.Hypot(enemy.X - target.X, enemy.Y - target.Y) <= SplashRadius))
-                    Hit(enemy, damage * tower.Spec.Multiplier(enemy.Spec.Class));
+                foreach (var enemy in _enemies)
+                {
+                    if (enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
+                        && double.Hypot(enemy.X - x, enemy.Y - y) <= range
+                        && double.Hypot(enemy.X - target.X, enemy.Y - target.Y) <= SplashRadius)
+                        Hit(enemy, damage * tower.Spec.Multiplier(enemy.Spec.Class), tower);
+                }
+
                 break;
             case TowerEffect.Chain:
-                ChainLightning(tower, target, candidates, damage, color);
+                ChainLightning(tower, target, damage, color, x, y, range);
                 break;
             case TowerEffect.Burn:
-                foreach (var enemy in candidates)
+                foreach (var enemy in _enemies)
                 {
-                    Hit(enemy, damage * tower.Spec.Multiplier(enemy.Spec.Class));
-                    _shots.Add(new Shot(x, y, enemy.X, enemy.Y, color, Tick + ShotTicks));
+                    if (enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
+                        && double.Hypot(enemy.X - x, enemy.Y - y) <= range)
+                    {
+                        Hit(enemy, damage * tower.Spec.Multiplier(enemy.Spec.Class), tower);
+                        _shots.Add(new Shot(x, y, enemy.X, enemy.Y, color, Tick + ShotTicks));
+                    }
                 }
 
                 break;
             case TowerEffect.Slow:
                 _blasts.Add(new Blast(x, y, range, color, true, Tick));
-                foreach (var enemy in candidates)
+                foreach (var enemy in _enemies)
                 {
-                    Hit(enemy, damage);
-                    enemy.SlowTicks = ChillTicks;
+                    if (enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
+                        && double.Hypot(enemy.X - x, enemy.Y - y) <= range)
+                    {
+                        Hit(enemy, damage, tower);
+                        enemy.SlowTicks = ChillTicks;
+                    }
                 }
 
                 break;
         }
     }
 
-    private void ChainLightning(Tower tower, Enemy first, List<Enemy> candidates, double damage, string color)
+    private static Enemy BetterTarget(TargetMode mode, Enemy current, Enemy candidate, double towerX, double towerY) =>
+        mode switch
+        {
+            TargetMode.Strongest => candidate.Health > current.Health ? candidate : current,
+            TargetMode.Closest => double.Hypot(candidate.X - towerX, candidate.Y - towerY)
+                < double.Hypot(current.X - towerX, current.Y - towerY) ? candidate : current,
+            _ => candidate.Progress > current.Progress ? candidate : current
+        };
+
+    private void ChainLightning(Tower tower, Enemy first, double damage, string color,
+        double towerX, double towerY, double range)
     {
-        double fromX = CellX(tower.Cell), fromY = CellY(tower.Cell);
+        double fromX = towerX, fromY = towerY;
         Enemy? current = first;
         var hit = new HashSet<Enemy>();
         for (var link = 0; link <= ChainLinks && current is not null; link++)
         {
             hit.Add(current);
-            Hit(current, damage * tower.Spec.Multiplier(current.Spec.Class));
+            Hit(current, damage * tower.Spec.Multiplier(current.Spec.Class), tower);
             _shots.Add(new Shot(fromX, fromY, current.X, current.Y, color, Tick + ShotTicks));
             (fromX, fromY) = (current.X, current.Y);
-            var (x, y) = (current.X, current.Y);
-            current = candidates.Where(enemy => !hit.Contains(enemy) && double.Hypot(enemy.X - x, enemy.Y - y) <= ChainRange)
-                .MinBy(enemy => double.Hypot(enemy.X - x, enemy.Y - y));
+            var (cx, cy) = (current.X, current.Y);
+            current = null;
+            var bestDist = double.MaxValue;
+            foreach (var enemy in _enemies)
+            {
+                if (hit.Contains(enemy) || enemy.Health <= 0 || !tower.Spec.CanHit(enemy.Spec.Class))
+                    continue;
+
+                // Must be within chain range AND the tower's firing range
+                var dist = double.Hypot(enemy.X - cx, enemy.Y - cy);
+                if (dist <= ChainRange && dist < bestDist
+                    && double.Hypot(enemy.X - towerX, enemy.Y - towerY) <= range)
+                {
+                    bestDist = dist;
+                    current = enemy;
+                }
+            }
         }
     }
 
-    private void Hit(Enemy enemy, double amount)
+    private void Hit(Enemy enemy, double amount, Tower? source = null)
     {
         enemy.Health -= amount;
         enemy.HitUntil = Tick + 2;
+        if (source is not null)
+        {
+            source.DamageDealt += amount;
+            enemy.LastHitBy = source;
+        }
     }
 
     private void ResolveDeaths()
     {
-        foreach (var enemy in _enemies.Where(enemy => enemy.Health <= 0).ToList())
+        for (var i = _enemies.Count - 1; i >= 0; i--)
         {
+            var enemy = _enemies[i];
+            if (enemy.Health > 0)
+                continue;
+
             var gold = (int)Math.Round((5 + Wave) * enemy.Spec.GoldMultiplier * Difficulty.GoldMultiplier);
             Gold += gold;
             Score += enemy.Spec.Score;
+            if (enemy.LastHitBy is { } killer)
+                killer.Kills++;
             _blasts.Add(new Blast(enemy.X, enemy.Y, enemy.Spec.Radius * 1.8, enemy.Spec.DeathColor, false, Tick));
             AddPopup(enemy.X, enemy.Y, $"+{gold}", "#facc15");
-            _enemies.Remove(enemy);
+            _enemies.RemoveAt(i);
         }
     }
 

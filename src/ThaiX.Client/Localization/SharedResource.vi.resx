@@ -2098,8 +2098,6 @@
   <data name="Games.Restart" xml:space="preserve"><value>Chơi lại</value></data>
   <data name="Games.Pause" xml:space="preserve"><value>Tạm dừng</value></data>
   <data name="Games.Resume" xml:space="preserve"><value>Tiếp tục</value></data>
-  <data name="Games.Fullscreen" xml:space="preserve"><value>Bật toàn màn hình</value></data>
-  <data name="Games.ExitFullscreen" xml:space="preserve"><value>Thoát toàn màn hình</value></data>
   <data name="Games.GuestPrompt" xml:space="preserve"><value>Bạn có muốn dùng biệt danh để tham gia bảng xếp hạng toàn cầu không? Lịch sử vẫn được lưu trên thiết bị.</value></data>
   <data name="Games.GuestNickname" xml:space="preserve"><value>Biệt danh</value></data>
   <data name="Games.JoinLeaderboard" xml:space="preserve"><value>Tham gia bảng xếp hạng</value></data>
@@ -2275,6 +2273,8 @@
   <data name="Games.Td.UpgradeDamage" xml:space="preserve"><value>Sát thương</value></data>
   <data name="Games.Td.UpgradeRange" xml:space="preserve"><value>Tầm bắn</value></data>
   <data name="Games.Td.UpgradeFireRate" xml:space="preserve"><value>Tốc độ bắn</value></data>
+  <data name="Games.Td.Dps" xml:space="preserve"><value>DPS</value></data>
+  <data name="Games.Td.Kills" xml:space="preserve"><value>Hạ gục</value></data>
   <data name="Games.Td.Maxed" xml:space="preserve"><value>Tối đa</value></data>
   <data name="Games.Td.Level" xml:space="preserve"><value>Cấp {0}</value></data>
   <data name="Games.Td.Targeting" xml:space="preserve"><value>Mục tiêu: {0}</value></data>

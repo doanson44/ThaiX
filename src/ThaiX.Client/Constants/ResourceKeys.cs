@@ -55,8 +55,6 @@ public static class ResourceKeys
         public const string Restart = "Games.Restart";
         public const string Pause = "Games.Pause";
         public const string Resume = "Games.Resume";
-        public const string Fullscreen = "Games.Fullscreen";
-        public const string ExitFullscreen = "Games.ExitFullscreen";
         public const string GuestPrompt = "Games.GuestPrompt";
         public const string GuestNickname = "Games.GuestNickname";
         public const string JoinLeaderboard = "Games.JoinLeaderboard";
@@ -231,6 +229,8 @@ public static class ResourceKeys
         public const string TdUpgradeDamage = "Games.Td.UpgradeDamage";
         public const string TdUpgradeRange = "Games.Td.UpgradeRange";
         public const string TdUpgradeFireRate = "Games.Td.UpgradeFireRate";
+        public const string TdDps = "Games.Td.Dps";
+        public const string TdKills = "Games.Td.Kills";
         public const string TdMaxed = "Games.Td.Maxed";
         public const string TdLevel = "Games.Td.Level";
         public const string TdTargeting = "Games.Td.Targeting";

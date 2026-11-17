@@ -139,6 +139,7 @@ else
 {
     var match = _match;
     <div class="td-match-layout">
+    <div class="td-board">
     <svg class="game-svg" viewBox="0 0 480 376">
         <defs>
             <pattern id="td-grass" width="48" height="48" patternUnits="userSpaceOnUse">
@@ -211,6 +212,21 @@ else
                 <rect x="@(TowerDefenseMatch.CellX(selected.Cell) - 22)" y="@(TowerDefenseMatch.CellY(selected.Cell) - 22)" width="44" height="44" rx="7"
                       fill="none" stroke="#facc15" stroke-width="2.5" />
             }
+            @if (_pendingBuildCell is { } pendingCell && _buildKind is { } pendingKind)
+            {
+                var placementValid = CanConfirmPlacement;
+                <circle cx="@TowerDefenseMatch.CellX(pendingCell)" cy="@TowerDefenseMatch.CellY(pendingCell)"
+                        r="@Px(match.RangeAt(pendingCell, pendingKind))"
+                        fill="@(placementValid ? "#facc15" : "#ef4444")" fill-opacity="0.1"
+                        stroke="@(placementValid ? "#facc15" : "#ef4444")" stroke-opacity="0.85" stroke-dasharray="5 4" />
+                <rect x="@(TowerDefenseMatch.CellX(pendingCell) - 22)" y="@(TowerDefenseMatch.CellY(pendingCell) - 22)"
+                      width="44" height="44" rx="7" fill="none"
+                      stroke="@(placementValid ? "#facc15" : "#ef4444")" stroke-width="2.5" />
+                <g class="td-placement-ghost" opacity="0.4" transform="translate(@TowerDefenseMatch.CellX(pendingCell) @TowerDefenseMatch.CellY(pendingCell))">
+                    <use href="#td-base" />
+                    <use href="@($"#td-tower-{pendingKind.ToString().ToLowerInvariant()}")" x="-12" y="-12" width="24" height="24" />
+                </g>
+            }
             @foreach (var placed in match.Towers)
             {
                 var placedSpec = placed.Spec;
@@ -272,27 +288,65 @@ else
                 <circle cx="@TowerDefenseMatch.CellX(_cursor)" cy="@TowerDefenseMatch.CellY(_cursor)" r="@TowerDefenseMatch.AirstrikeRadius"
                         fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" stroke-dasharray="6 4" />
             }
-            else if (CursorRange is { } cursorRange)
+            else if (_pendingBuildCell is null && CursorRange is { } cursorRange)
             {
                 <circle cx="@TowerDefenseMatch.CellX(_cursor)" cy="@TowerDefenseMatch.CellY(_cursor)" r="@Px(cursorRange)" fill="none" stroke="#f8fafc" stroke-opacity="0.55" stroke-dasharray="4 4" />
             }
         </g>
 
-        <rect width="480" height="40" fill="#0b1220" />
-        <text class="g-muted" x="60" y="20">@WaveLabel</text>
-        @if (match.NextWaveCountdownActive)
+        @if (_pendingBuildCell is { } popCell && _buildKind is not null)
         {
-            @:<text x="60" y="34" fill="#93c5fd" font-size="12">@L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]</text>
+            var placementValid = CanConfirmPlacement;
+            var px = TowerDefenseMatch.CellX(popCell);
+            var py = TowerDefenseMatch.CellY(popCell);
+            var popY = Math.Min(py + 16, 366);
+            var popX = Math.Clamp(px, 28, 452);
+            <g class="td-placement-popover" transform="translate(@popX @popY)">
+                <rect x="-20" y="-9" width="40" height="18" rx="9" fill="#0f172a" fill-opacity="0.9" stroke="@(placementValid ? "#38bdf8" : "#64748b")" stroke-width="1" />
+                <g class="td-popover-btn td-popover-confirm @(placementValid ? "td-btn-confirm" : "td-btn-disabled")"
+                   role="button" aria-label="@L[ResourceKeys.Common.Confirm]"
+                   @onclick="ConfirmPlacement" @onclick:stopPropagation="true">
+                    <circle cx="-9" cy="0" r="11" fill="transparent" />
+                    <circle cx="-9" cy="0" r="6.5" fill="@(placementValid ? "#16a34a" : "#334155")" stroke="@(placementValid ? "#22c55e" : "#475569")" stroke-width="1" />
+                    <path d="M-12 0.2 L-9.6 2.4 L-6 -1.6" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <g class="td-popover-btn td-popover-cancel td-btn-cancel"
+                   role="button" aria-label="@L[ResourceKeys.Common.Cancel]"
+                   @onclick="CancelPlacement" @onclick:stopPropagation="true">
+                    <circle cx="9" cy="0" r="11" fill="transparent" />
+                    <circle cx="9" cy="0" r="6.5" fill="#dc2626" stroke="#ef4444" stroke-width="1" />
+                    <path d="M6.6 -2.4 L11.4 2.4 M11.4 -2.4 L6.6 2.4" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
+                </g>
+            </g>
         }
-        <text x="180" y="20" fill="#fca5a5">@L[ResourceKeys.Games.Lives]: @match.Lives</text>
-        <text x="300" y="20" fill="#facc15">@L[ResourceKeys.Games.Gold]: @match.Gold</text>
-        <text class="g-muted" x="420" y="20">@L[ResourceKeys.Games.Score]: @match.Score</text>
-        @if (_airstrikeArmed)
-        {
-            <rect y="40" width="480" height="22" fill="#7f1d1d" fill-opacity="0.85" pointer-events="none" />
-            @:<text x="240" y="51" fill="#fee2e2" font-size="13" pointer-events="none">@L[ResourceKeys.Games.TdAirstrikeArmed]</text>
-        }
+
     </svg>
+    <div class="td-hud" role="group" aria-label="@L[ResourceKeys.Games.TdMenuTitle]">
+        <div class="td-hud-item td-hud-wave">
+            <strong>@WaveLabel</strong>
+            @if (match.NextWaveCountdownActive)
+            {
+                <small>@L[ResourceKeys.Games.TdNextWaveIn, match.NextWaveCountdownSeconds]</small>
+            }
+        </div>
+        <div class="td-hud-item td-hud-lives">
+            <span>@L[ResourceKeys.Games.Lives]</span>
+            <strong>@match.Lives</strong>
+        </div>
+        <div class="td-hud-item td-hud-gold">
+            <span>@L[ResourceKeys.Games.Gold]</span>
+            <strong>@match.Gold</strong>
+        </div>
+        <div class="td-hud-item td-hud-score">
+            <span>@L[ResourceKeys.Games.Score]</span>
+            <strong>@match.Score</strong>
+        </div>
+    </div>
+    @if (_airstrikeArmed)
+    {
+        <div class="td-airstrike-banner" role="status">@L[ResourceKeys.Games.TdAirstrikeArmed]</div>
+    }
+    </div>
 
     <div class="td-towers" role="group" aria-label="@L[ResourceKeys.Games.TowerGun]">
         @foreach (var option in TowerDefenseData.Towers.Where(option => match.Map.RequiredTower is null || option.Kind == match.Map.RequiredTower))
@@ -355,6 +409,10 @@ else
                             <span>@L[ResourceKeys.Games.TdUpgradeRange]: @match.Range(chosen).ToString("0")</span>
                             <span aria-hidden="true">&#183;</span>
                             <span>@L[ResourceKeys.Games.TdUpgradeFireRate]: @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdDps]: @((match.Damage(chosen) * ShotsPerSecond(match.CooldownTicks(chosen))).ToString("0.#"))</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdKills]: @chosen.Kills</span>
                         }
                     </span>
                     @if (!chosen.Spec.IsSupport)
@@ -406,6 +464,8 @@ else
                             <span>@L[ResourceKeys.Games.TdUpgradeRange]: @buildSpec.Range.ToString("0")</span>
                             <span aria-hidden="true">&#183;</span>
                             <span>@L[ResourceKeys.Games.TdUpgradeFireRate]: @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdDps]: @((buildSpec.Damage * ShotsPerSecond(buildSpec.Cooldown)).ToString("0.#"))</span>
                         }
                     </span>
                     @if (!buildSpec.IsSupport)
@@ -441,6 +501,7 @@ else
     private TowerKind? _buildKind = TowerKind.Gunner;
     private Tower? _selectedTower;
     private Tower? _movingTower;
+    private int? _pendingBuildCell;
     private int _mapIndex;
     private int _difficultyIndex = 1;
     private int _cursor;
@@ -456,12 +517,17 @@ else
     private bool CanCallWave =>
         CanPlay && _match is { State: MatchState.Planning } match && (match.Endless || match.Wave < TowerDefenseData.CampaignWaves);
 
+    private bool CanConfirmPlacement =>
+        CanPlay && _match is not null && _pendingBuildCell is { } cell
+            && _buildKind is { } kind && _match.CanBuild(cell, kind);
+
     private string NextWaveSummary => string.Join(", ", _match!.NextWaveGroups
         .Select(group => $"{group.Count}x {L[TowerDefenseData.Enemy(group.Kind).NameKey].Value}"));
 
     private double? CursorRange =>
         _match!.TowerAt(_cursor) is { } tower ? _match.Range(tower)
-        : _buildKind is { } kind && !_match.IsBlocked(_cursor) ? TowerDefenseData.Tower(kind).Range
+        : _buildKind is { } kind && (!_match.IsBlocked(_cursor) || _pendingBuildCell == _cursor)
+            ? _match.RangeAt(_cursor, kind)
         : null;
 
     protected override async Task OnInitializedAsync()
@@ -553,6 +619,7 @@ else
         _match = null;
         _selectedTower = null;
         _movingTower = null;
+        _pendingBuildCell = null;
         _airstrikeArmed = false;
         _resultRecorded = false;
         _speed = 1;
@@ -578,9 +645,16 @@ else
             case "arrowup": row = Math.Max(0, row - 1); break;
             case "arrowdown": row = Math.Min(TowerDefenseMatch.Rows - 1, row + 1); break;
             case "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0":
-                SelectBuild((TowerKind)(key == "0" ? 9 : key[0] - '1'));
+                var kindIndex = key == "0" ? 9 : key[0] - '1';
+                if (Enum.IsDefined(typeof(TowerKind), kindIndex))
+                    SelectBuild((TowerKind)kindIndex);
                 break;
-            case "enter" or " ": ActivateCell(_cursor); break;
+            case "enter" or " ":
+                if (_pendingBuildCell is not null)
+                    ConfirmPlacement();
+                else
+                    ActivateCell(_cursor);
+                break;
             case "d": Upgrade(UpgradeTrack.Damage); break;
             case "r": Upgrade(UpgradeTrack.Range); break;
             case "f": Upgrade(UpgradeTrack.FireRate); break;
@@ -590,10 +664,18 @@ else
             case "n": CallWave(); break;
             case "a": ToggleAirstrike(); break;
             case "g": ToggleSpeed(); break;
-            case "escape": _selectedTower = null; _movingTower = null; _buildKind = null; _airstrikeArmed = false; break;
+            case "escape":
+                _selectedTower = null;
+                _movingTower = null;
+                _pendingBuildCell = null;
+                _buildKind = null;
+                _airstrikeArmed = false;
+                break;
         }
 
         _cursor = row * TowerDefenseMatch.Columns + column;
+        if (_pendingBuildCell is not null && key is ("arrowleft" or "arrowright" or "arrowup" or "arrowdown"))
+            _pendingBuildCell = _cursor;
     }
 
     private bool IsUnlocked(int mapIndex)
@@ -618,6 +700,7 @@ else
         _buildKind = map.RequiredTower ?? TowerKind.Gunner;
         _selectedTower = null;
         _movingTower = null;
+        _pendingBuildCell = null;
         _airstrikeArmed = false;
         _resultRecorded = false;
         RestartClock();
@@ -727,6 +810,7 @@ else
         _buildKind = kind;
         _selectedTower = null;
         _movingTower = null;
+        _pendingBuildCell = null;
         _airstrikeArmed = false;
     }
 
@@ -742,6 +826,7 @@ else
             {
                 _selectedTower = moving;
                 _movingTower = null;
+                _pendingBuildCell = null;
                 _buildKind = null;
             }
 
@@ -757,12 +842,26 @@ else
 
         if (_match.TowerAt(cell) is { } tower)
         {
+            _pendingBuildCell = null;
             _selectedTower = tower;
             return;
         }
 
-        _selectedTower = _buildKind is { } kind ? _match.Build(cell, kind) : null;
+        _selectedTower = null;
+        _pendingBuildCell = _buildKind is not null ? cell : null;
     }
+
+    private void ConfirmPlacement()
+    {
+        if (!CanConfirmPlacement || _match is null || _buildKind is not { } kind
+            || _pendingBuildCell is not { } cell)
+            return;
+
+        _selectedTower = _match.Build(cell, kind);
+        _pendingBuildCell = null;
+    }
+
+    private void CancelPlacement() => _pendingBuildCell = null;
 
     private void Upgrade(UpgradeTrack track)
     {
@@ -775,6 +874,7 @@ else
         if (CanPlay && _selectedTower is { } tower)
         {
             _movingTower = tower;
+            _pendingBuildCell = null;
             _buildKind = null;
             _airstrikeArmed = false;
         }
@@ -806,11 +906,12 @@ else
         if (CanPlay)
         {
             _movingTower = null;
+            _pendingBuildCell = null;
             _airstrikeArmed = !_airstrikeArmed && _match!.State == MatchState.Running && _match.AirstrikeReady;
         }
     }
 
-    private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
+    private void ToggleSpeed() => _speed = _speed >= 3 ? 1 : _speed + 1;
 
 
     private static string TowerKey(TowerKind kind) => (int)kind == 9 ? "0" : ((int)kind + 1).ToString();
