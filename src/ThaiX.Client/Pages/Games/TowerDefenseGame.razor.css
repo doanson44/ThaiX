@@ -122,6 +122,7 @@
 
 .td-board {
     position: relative;
+    touch-action: none;
     grid-area: board;
     min-width: 0;
     overflow: hidden;
@@ -344,6 +345,7 @@
     .td-towers {
         display: flex;
         overflow-x: auto;
+        touch-action: pan-x;
         overscroll-behavior-inline: contain;
         scroll-snap-type: x proximity;
         scrollbar-width: thin;
