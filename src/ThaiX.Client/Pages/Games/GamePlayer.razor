@@ -64,7 +64,7 @@ else
                               aria-pressed="@_isFullscreen" ButtonStyle="ButtonStyle.Light"
                               Class="game-fullscreen-button" Click="ToggleFullscreenAsync" />
             </div>
-            <div @ref="_stage" class="game-canvas" tabindex="0" role="application" data-game-keys
+            <div @ref="_stage" class="game-canvas @(Game.Id == "tower-defense" ? "td-game-canvas" : string.Empty)" tabindex="0" role="application" data-game-keys
                  aria-label="@L[Game.TitleKey]" aria-describedby="game-instructions"
                  @onkeydown="@(e => ActiveGame?.HandleKey(e.Key))"
                  @onkeyup="@(e => ActiveGame?.HandleKey(e.Key, released: true))">
