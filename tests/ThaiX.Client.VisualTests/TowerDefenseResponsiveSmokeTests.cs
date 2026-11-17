@@ -90,8 +90,8 @@ public sealed class TowerDefenseResponsiveSmokeTests
             var canvasBox = await page.Locator(".game-canvas").BoundingBoxAsync();
 
             // Assert
-            Assert.Contains("board actions", gridAreas, StringComparison.Ordinal);
-            Assert.Contains("towers info", gridAreas, StringComparison.Ordinal);
+            Assert.True(gridAreas.Contains("board actions", StringComparison.Ordinal));
+            Assert.True(gridAreas.Contains("towers info", StringComparison.Ordinal));
             Assert.NotNull(canvasBox);
             Assert.True(canvasBox.Width <= 844);
         }
