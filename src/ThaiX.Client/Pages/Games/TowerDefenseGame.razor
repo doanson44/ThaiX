@@ -688,6 +688,22 @@ else
 
     private bool IsTowerUnlocked(TowerKind kind) => TowerDefenseData.TowerUnlockCost(kind) == 0 || _unlockedTowers.Contains(kind);
 
+    private int? NextMapIndex =>
+        Enumerable.Range(_mapIndex + 1, Math.Max(0, TowerDefenseData.Maps.Count - _mapIndex - 1))
+            .Where(IsUnlocked).Select(index => (int?)index).FirstOrDefault();
+
+    public bool HasNextMission => NextMapIndex is not null;
+
+    /// <summary>Deploys the current mission, or the next unlocked one, straight after a restart.</summary>
+    public void StartMission(bool nextMission)
+    {
+        if (nextMission && NextMapIndex is { } next)
+            _mapIndex = next;
+
+        Deploy();
+        StateHasChanged();
+    }
+
     private void Deploy()
     {
         if (!IsUnlocked(_mapIndex))
