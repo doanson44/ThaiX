@@ -113,6 +113,10 @@
     color: var(--rz-text-color);
 }
 
+.game-canvas.td-game-canvas {
+    touch-action: auto;
+}
+
 .game-canvas {
     position: relative;
     display: block;
