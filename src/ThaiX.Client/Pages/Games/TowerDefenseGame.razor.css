@@ -119,6 +119,8 @@
 
 .td-board {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     touch-action: none;
     grid-area: board;
     min-width: 0;
@@ -129,20 +131,22 @@
 
 .td-board .game-svg {
     display: block;
+    grid-area: 1 / 1;
     width: 100%;
     height: auto;
     max-height: 75vh;
 }
 
 .td-hud {
-    position: absolute;
     z-index: 1;
-    inset: 0 0 auto;
+    grid-area: 1 / 1;
+    align-self: start;
     display: grid;
     grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
     align-items: center;
     gap: 0.25rem;
-    height: 10.6383%;
+    width: 100%;
+    aspect-ratio: 12 / 1;
     padding-inline: 2.5%;
     background: #0b1220;
     color: #f8fafc;
@@ -189,13 +193,15 @@
 }
 
 .td-airstrike-banner {
-    position: absolute;
     z-index: 2;
-    top: 10.6383%;
-    inset-inline: 0;
+    grid-area: 1 / 1;
+    align-self: start;
     display: grid;
     place-items: center;
-    min-height: 1.375rem;
+    width: 100%;
+    min-height: 1rem;
+    margin-top: 8.3333%;
+    aspect-ratio: 480 / 22;
     background: rgb(127 29 29 / 90%);
     color: #fee2e2;
     font-size: 0.8125rem;
