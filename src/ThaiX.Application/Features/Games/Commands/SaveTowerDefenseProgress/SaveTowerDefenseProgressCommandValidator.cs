@@ -27,12 +27,12 @@ public sealed class SaveTowerDefenseProgressCommandValidator : AbstractValidator
 
             RuleFor(command => command.Progress.ClearedMissions)
                 .NotNull()
-                .Must(items => items.Length <= 100)
+                .Must(items => items is { Length: <= 100 } && items.All(item => !string.IsNullOrWhiteSpace(item) && item.Length <= 64))
                 .WithErrorCode(ErrorCodes.INVALID_RANGE);
 
             RuleFor(command => command.Progress.UnlockedTowers)
                 .NotNull()
-                .Must(items => items.Length <= 32)
+                .Must(items => items is { Length: <= 32 } && items.All(item => !string.IsNullOrWhiteSpace(item) && item.Length <= 64))
                 .WithErrorCode(ErrorCodes.INVALID_RANGE);
 
             RuleFor(command => command.Progress.BonusMissions)
