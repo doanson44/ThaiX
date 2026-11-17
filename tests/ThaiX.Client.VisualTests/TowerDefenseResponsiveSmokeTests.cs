@@ -163,4 +163,31 @@ public sealed class TowerDefenseResponsiveSmokeTests
             Assert.False(string.IsNullOrWhiteSpace(await selectedTowerName.InnerTextAsync()));
         }
     }
+    [Fact]
+    public async Task TowerDefense_KeyboardEscape_CancelsPendingPlacement()
+    {
+        // Arrange
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/tower-defense", 1280, 800, networkIdleTimeoutMs: 0);
+            await page.Locator(".td-deploy").ClickAsync();
+
+            var canvas = page.Locator(".game-canvas");
+            await canvas.FocusAsync();
+            await page.Keyboard.PressAsync("1");
+            await page.Keyboard.PressAsync("Enter");
+
+            var placementActions = page.Locator(".td-placement-actions");
+            await placementActions.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+
+            // Act
+            await page.Keyboard.PressAsync("Escape");
+
+            // Assert
+            await placementActions.WaitForAsync(new() { State = WaitForSelectorState.Hidden });
+            Assert.Equal(0, await placementActions.CountAsync());
+        }
+    }
+
 }
