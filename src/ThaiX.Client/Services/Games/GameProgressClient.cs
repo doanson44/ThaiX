@@ -20,5 +20,22 @@ public sealed class GameProgressClient(HttpClient httpClient) : IGameProgressCli
         await ApiResponseReader.ReadSuccessAsync(response, cancellationToken);
     }
 
+    public async Task<TowerDefenseProgressModel?> GetTowerDefenseProgressAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.GetAsync("api/games/tower-defense/progress", cancellationToken);
+        return await ApiResponseReader.ReadSuccessDataAsync<TowerDefenseProgressModel>(response, cancellationToken);
+    }
+
+    public async Task SaveTowerDefenseProgressAsync(
+        TowerDefenseProgressModel progress,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await httpClient.PutAsJsonAsync(
+            "api/games/tower-defense/progress",
+            progress,
+            cancellationToken);
+        await ApiResponseReader.ReadSuccessAsync(response, cancellationToken);
+    }
+
     private sealed record SaveTowerDefenseGoldRequestModel(int Gold);
 }
