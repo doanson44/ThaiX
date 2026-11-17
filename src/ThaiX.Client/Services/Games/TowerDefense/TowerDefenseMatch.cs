@@ -137,15 +137,21 @@ public sealed class TowerDefenseMatch
     public int FirstFreeCell(int preferred) =>
         Enumerable.Range(0, Columns * Rows).OrderBy(cell => Math.Abs(cell - preferred)).First(cell => !IsBlocked(cell));
 
-    public double Range(Tower tower)
+    public double Range(Tower tower) =>
+        EffectiveRange(tower.Cell, tower.Spec, tower.Level(UpgradeTrack.Range));
+
+    public double RangeAt(int cell, TowerKind kind) =>
+        EffectiveRange(cell, TowerDefenseData.Tower(kind), 0);
+
+    private double EffectiveRange(int cell, TowerSpec spec, int rangeLevel)
     {
-        var range = tower.Spec.Range * (1 + RangePerLevel * tower.Level(UpgradeTrack.Range));
-        if (tower.Spec.Effect == TowerEffect.SupportRange)
+        var range = spec.Range * (1 + RangePerLevel * rangeLevel);
+        if (spec.Effect == TowerEffect.SupportRange)
             return range;
 
-        var (x, y) = (CellX(tower.Cell), CellY(tower.Cell));
+        var (x, y) = (CellX(cell), CellY(cell));
         return range + _towers
-            .Where(support => support != tower && support.Spec.Effect == TowerEffect.SupportRange
+            .Where(support => support.Spec.Effect == TowerEffect.SupportRange
                 && double.Hypot(CellX(support.Cell) - x, CellY(support.Cell) - y)
                     <= support.Spec.Range * (1 + RangePerLevel * support.Level(UpgradeTrack.Range)))
             .Sum(support => support.Spec.SupportValue);
@@ -183,13 +189,22 @@ public sealed class TowerDefenseMatch
 
     public int SellValue(Tower tower) => (int)(tower.Invested * SellRatio);
 
-    public Tower? Build(int cell, TowerKind kind)
+    public bool CanBuild(int cell, TowerKind kind)
     {
         var spec = TowerDefenseData.Tower(kind);
-        if (IsOver || (Map.RequiredTower is { } required && kind != required)
-            || IsBlocked(cell) || TowerAt(cell) is not null || Gold < spec.Cost)
+        return !IsOver
+            && (Map.RequiredTower is null || Map.RequiredTower == kind)
+            && !IsBlocked(cell)
+            && TowerAt(cell) is null
+            && Gold >= spec.Cost;
+    }
+
+    public Tower? Build(int cell, TowerKind kind)
+    {
+        if (!CanBuild(cell, kind))
             return null;
 
+        var spec = TowerDefenseData.Tower(kind);
         Gold -= spec.Cost;
         var tower = new Tower { Id = _nextTowerId++, Cell = cell, Spec = spec, Invested = spec.Cost };
         _towers.Add(tower);
