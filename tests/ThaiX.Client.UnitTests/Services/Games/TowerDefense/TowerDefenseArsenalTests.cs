@@ -127,9 +127,11 @@ public sealed class TowerDefenseArsenalTests
 
         // Act
         var previewRange = match.RangeAt(previewCell, TowerKind.Gunner);
+        var gunner = match.Build(previewCell, TowerKind.Gunner);
 
         // Assert
         previewRange.Should().Be(TowerDefenseData.Tower(TowerKind.Gunner).Range + 20);
+        match.Range(gunner!).Should().Be(previewRange);
     }
 
     [Fact]
