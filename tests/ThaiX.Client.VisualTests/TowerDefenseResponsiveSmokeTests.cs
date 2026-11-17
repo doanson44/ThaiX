@@ -96,6 +96,7 @@ public sealed class TowerDefenseResponsiveSmokeTests
             Assert.True(canvasBox.Width <= 844);
         }
     }
+
     [Fact]
     public async Task TowerDefense_KeyboardPlacement_CanConfirmAndSelectTower()
     {
@@ -123,5 +124,4 @@ public sealed class TowerDefenseResponsiveSmokeTests
             Assert.Equal("Gunner", await selectedTower.InnerTextAsync());
         }
     }
-
 }
