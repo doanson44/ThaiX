@@ -531,7 +531,7 @@ else
                     if (savedGold.HasValue)
                         _warMartCredits = savedGold.Value;
 
-                    await SaveProgressAsync(syncGold: false);
+                    await SaveProgressAsync();
                 }
 
                 _goldSyncFailed = false;
@@ -648,7 +648,7 @@ else
         await SaveProgressAsync();
     }
 
-    private async Task SaveProgressAsync(bool syncGold = true)
+    private async Task SaveProgressAsync(bool syncAccount = true)
     {
         var progress = new TowerDefenseProgressModel(
             _warMartCredits,
@@ -671,7 +671,7 @@ else
             Logger.LogWarning(exception, "Could not save local tower defense progress.");
         }
 
-        if (!syncGold || !_isAuthenticated || ConnectivityState.IsDemoMode)
+        if (!syncAccount || !_isAuthenticated || ConnectivityState.IsDemoMode)
             return;
 
         try
