@@ -149,16 +149,17 @@ public sealed class TowerDefenseResponsiveSmokeTests
             await page.Keyboard.PressAsync("1");
             await page.Keyboard.PressAsync("Enter");
 
-            var confirmButton = page.Locator(".td-placement-actions button").First;
-            await confirmButton.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-            var placementEnabled = await confirmButton.IsEnabledAsync();
+            var popover = page.Locator(".td-placement-popover");
+            await popover.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+            var confirmButton = page.Locator(".td-popover-confirm");
+            var placementDisabled = await confirmButton.EvaluateAsync<bool>("el => el.classList.contains('td-btn-disabled')");
 
-            await page.Keyboard.PressAsync("Enter");
+            await confirmButton.ClickAsync();
             var upgradeActions = page.Locator(".td-upgrades");
             var selectedTowerName = page.Locator(".td-info-head strong");
 
             // Assert
-            Assert.True(placementEnabled);
+            Assert.False(placementDisabled);
             await upgradeActions.WaitForAsync(new() { State = WaitForSelectorState.Visible });
             Assert.False(string.IsNullOrWhiteSpace(await selectedTowerName.InnerTextAsync()));
         }
@@ -178,15 +179,15 @@ public sealed class TowerDefenseResponsiveSmokeTests
             await page.Keyboard.PressAsync("1");
             await page.Keyboard.PressAsync("Enter");
 
-            var placementActions = page.Locator(".td-placement-actions");
-            await placementActions.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+            var popover = page.Locator(".td-placement-popover");
+            await popover.WaitForAsync(new() { State = WaitForSelectorState.Visible });
 
             // Act
             await page.Keyboard.PressAsync("Escape");
 
             // Assert
-            await placementActions.WaitForAsync(new() { State = WaitForSelectorState.Hidden });
-            Assert.Equal(0, await placementActions.CountAsync());
+            await popover.WaitForAsync(new() { State = WaitForSelectorState.Hidden });
+            Assert.Equal(0, await popover.CountAsync());
         }
     }
 

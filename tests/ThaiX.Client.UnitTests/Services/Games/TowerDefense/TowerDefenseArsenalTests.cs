@@ -342,6 +342,31 @@ public sealed class TowerDefenseArsenalTests
         delaySeconds.Should().BeInRange(9, 11);
     }
 
+    [Fact]
+    public void Tower_WhenKillingEnemy_TracksKillsAndDamageDealt()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[0],
+            endless: false,
+            startingGoldBonus: 1000);
+        var towerCell = match.FirstFreeCell(0);
+        var sniper = match.Build(towerCell, TowerKind.Sniper);
+        match.StartWave();
+
+        // Act
+        var maxTicks = 1000;
+        while (match.State == MatchState.Running && sniper!.Kills == 0 && maxTicks-- > 0)
+        {
+            match.Advance();
+        }
+
+        // Assert
+        sniper!.DamageDealt.Should().BeGreaterThan(0);
+        sniper.Kills.Should().BeGreaterThanOrEqualTo(1);
+    }
+
     private static HashSet<int> GetRoadCells(MapSpec map)
     {
         var cells = new HashSet<int>();

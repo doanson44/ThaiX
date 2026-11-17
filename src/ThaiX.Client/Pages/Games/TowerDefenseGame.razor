@@ -222,6 +222,10 @@ else
                 <rect x="@(TowerDefenseMatch.CellX(pendingCell) - 22)" y="@(TowerDefenseMatch.CellY(pendingCell) - 22)"
                       width="44" height="44" rx="7" fill="none"
                       stroke="@(placementValid ? "#facc15" : "#ef4444")" stroke-width="2.5" />
+                <g class="td-placement-ghost" opacity="0.4" transform="translate(@TowerDefenseMatch.CellX(pendingCell) @TowerDefenseMatch.CellY(pendingCell))">
+                    <use href="#td-base" />
+                    <use href="@($"#td-tower-{pendingKind.ToString().ToLowerInvariant()}")" x="-12" y="-12" width="24" height="24" />
+                </g>
             }
             @foreach (var placed in match.Towers)
             {
@@ -289,6 +293,32 @@ else
                 <circle cx="@TowerDefenseMatch.CellX(_cursor)" cy="@TowerDefenseMatch.CellY(_cursor)" r="@Px(cursorRange)" fill="none" stroke="#f8fafc" stroke-opacity="0.55" stroke-dasharray="4 4" />
             }
         </g>
+
+        @if (_pendingBuildCell is { } popCell && _buildKind is not null)
+        {
+            var placementValid = CanConfirmPlacement;
+            var px = TowerDefenseMatch.CellX(popCell);
+            var py = TowerDefenseMatch.CellY(popCell);
+            var popY = Math.Min(py + 16, 366);
+            var popX = Math.Clamp(px, 28, 452);
+            <g class="td-placement-popover" transform="translate(@popX @popY)">
+                <rect x="-20" y="-9" width="40" height="18" rx="9" fill="#0f172a" fill-opacity="0.9" stroke="@(placementValid ? "#38bdf8" : "#64748b")" stroke-width="1" />
+                <g class="td-popover-btn td-popover-confirm @(placementValid ? "td-btn-confirm" : "td-btn-disabled")"
+                   role="button" aria-label="@L[ResourceKeys.Common.Confirm]"
+                   @onclick="ConfirmPlacement" @onclick:stopPropagation="true">
+                    <circle cx="-9" cy="0" r="11" fill="transparent" />
+                    <circle cx="-9" cy="0" r="6.5" fill="@(placementValid ? "#16a34a" : "#334155")" stroke="@(placementValid ? "#22c55e" : "#475569")" stroke-width="1" />
+                    <path d="M-12 0.2 L-9.6 2.4 L-6 -1.6" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <g class="td-popover-btn td-popover-cancel td-btn-cancel"
+                   role="button" aria-label="@L[ResourceKeys.Common.Cancel]"
+                   @onclick="CancelPlacement" @onclick:stopPropagation="true">
+                    <circle cx="9" cy="0" r="11" fill="transparent" />
+                    <circle cx="9" cy="0" r="6.5" fill="#dc2626" stroke="#ef4444" stroke-width="1" />
+                    <path d="M6.6 -2.4 L11.4 2.4 M11.4 -2.4 L6.6 2.4" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" />
+                </g>
+            </g>
+        }
 
     </svg>
     <div class="td-hud" role="group" aria-label="@L[ResourceKeys.Games.TdMenuTitle]">
@@ -379,6 +409,10 @@ else
                             <span>@L[ResourceKeys.Games.TdUpgradeRange]: @match.Range(chosen).ToString("0")</span>
                             <span aria-hidden="true">&#183;</span>
                             <span>@L[ResourceKeys.Games.TdUpgradeFireRate]: @ShotsPerSecond(match.CooldownTicks(chosen)).ToString("0.0")/s</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdDps]: @((match.Damage(chosen) * ShotsPerSecond(match.CooldownTicks(chosen))).ToString("0.#"))</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdKills]: @chosen.Kills</span>
                         }
                     </span>
                     @if (!chosen.Spec.IsSupport)
@@ -430,6 +464,8 @@ else
                             <span>@L[ResourceKeys.Games.TdUpgradeRange]: @buildSpec.Range.ToString("0")</span>
                             <span aria-hidden="true">&#183;</span>
                             <span>@L[ResourceKeys.Games.TdUpgradeFireRate]: @ShotsPerSecond(buildSpec.Cooldown).ToString("0.0")/s</span>
+                            <span aria-hidden="true">&#183;</span>
+                            <span>@L[ResourceKeys.Games.TdDps]: @((buildSpec.Damage * ShotsPerSecond(buildSpec.Cooldown)).ToString("0.#"))</span>
                         }
                     </span>
                     @if (!buildSpec.IsSupport)
@@ -437,22 +473,7 @@ else
                         <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
                     }
                 </div>
-                @if (_pendingBuildCell is not null)
-                {
-                    <div class="td-placement-actions">
-                        <button type="button" class="btn btn-sm btn-primary" tabindex="-1"
-                                disabled="@(!CanConfirmPlacement)" @onclick="ConfirmPlacement">
-                            @L[ResourceKeys.Common.Confirm]
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" tabindex="-1" @onclick="CancelPlacement">
-                            @L[ResourceKeys.Common.Cancel]
-                        </button>
-                    </div>
-                }
-                else
-                {
-                    <small class="td-select-hint text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
-                }
+                <small class="td-select-hint text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
             }
             else
             {
@@ -624,7 +645,9 @@ else
             case "arrowup": row = Math.Max(0, row - 1); break;
             case "arrowdown": row = Math.Min(TowerDefenseMatch.Rows - 1, row + 1); break;
             case "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0":
-                SelectBuild((TowerKind)(key == "0" ? 9 : key[0] - '1'));
+                var kindIndex = key == "0" ? 9 : key[0] - '1';
+                if (Enum.IsDefined(typeof(TowerKind), kindIndex))
+                    SelectBuild((TowerKind)kindIndex);
                 break;
             case "enter" or " ":
                 if (_pendingBuildCell is not null)
@@ -888,7 +911,7 @@ else
         }
     }
 
-    private void ToggleSpeed() => _speed = _speed == 1 ? 2 : 1;
+    private void ToggleSpeed() => _speed = _speed >= 3 ? 1 : _speed + 1;
 
 
     private static string TowerKey(TowerKind kind) => (int)kind == 9 ? "0" : ((int)kind + 1).ToString();

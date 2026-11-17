@@ -29,7 +29,7 @@ public sealed class TowerDefenseResponsiveLayoutTests
         // Arrange
         var root = RepoRoot.Resolve();
         var cssPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games", "TowerDefenseGame.razor.css");
-        var css = File.ReadAllText(cssPath);
+        var css = File.ReadAllText(cssPath).Replace("\r\n", "\n");
 
         // Act
         var hasPortraitBreakpoint = css.Contains(
@@ -53,7 +53,7 @@ public sealed class TowerDefenseResponsiveLayoutTests
         // Arrange
         var root = RepoRoot.Resolve();
         var cssPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games", "TowerDefenseGame.razor.css");
-        var css = File.ReadAllText(cssPath);
+        var css = File.ReadAllText(cssPath).Replace("\r\n", "\n");
 
         // Act
         var hasLandscapeBreakpoint = css.Contains(
@@ -74,9 +74,9 @@ public sealed class TowerDefenseResponsiveLayoutTests
         var gamePlayerPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games", "GamePlayer.razor");
         var gamePlayerCssPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games", "GamePlayer.razor.css");
         var towerDefenseCssPath = Path.Combine(root, "src", "ThaiX.Client", "Pages", "Games", "TowerDefenseGame.razor.css");
-        var gamePlayer = File.ReadAllText(gamePlayerPath);
-        var gamePlayerCss = File.ReadAllText(gamePlayerCssPath);
-        var towerDefenseCss = File.ReadAllText(towerDefenseCssPath);
+        var gamePlayer = File.ReadAllText(gamePlayerPath).Replace("\r\n", "\n");
+        var gamePlayerCss = File.ReadAllText(gamePlayerCssPath).Replace("\r\n", "\n");
+        var towerDefenseCss = File.ReadAllText(towerDefenseCssPath).Replace("\r\n", "\n");
 
         // Act
         var hasScopedCanvasClass = gamePlayer.Contains("td-game-canvas", StringComparison.Ordinal);
