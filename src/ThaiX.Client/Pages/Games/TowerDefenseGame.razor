@@ -46,7 +46,7 @@
                     <strong>@L[ResourceKeys.Games.TdWarMartCredits, _warMartCredits]</strong>
                     @if (_progressSyncFailed)
                     {
-                        <small class="text-warning">@L[ResourceKeys.Games.TdGoldSyncFailed]</small>
+                        <small class="text-warning">@L[ResourceKeys.Games.TdProgressSyncFailed]</small>
                     }
                     <div class="td-shop-choices">
                         <button type="button" class="td-choice td-shop-item" disabled="@(_warMartCredits < TowerDefenseData.StartingFundsUpgradeCost(_bonusStartingGold))" @onclick="BuyStartingFunds">
