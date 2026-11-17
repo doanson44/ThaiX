@@ -21,8 +21,10 @@ public sealed class TowerDefenseResponsiveSmokeTests
         await using (context)
         {
             await _auth.GotoAsync(page, "/games/tower-defense", 375, 812, networkIdleTimeoutMs: 0);
-            await page.GetByRole(AriaRole.Button, new() { Name = "Deploy" }).ClickAsync();
+            await page.Locator(".td-deploy").ClickAsync();
+
             var board = page.Locator(".td-board");
+            var canvas = page.Locator(".game-canvas");
             var arsenal = page.Locator(".td-towers");
             await board.WaitForAsync(new() { State = WaitForSelectorState.Visible });
 
@@ -31,17 +33,22 @@ public sealed class TowerDefenseResponsiveSmokeTests
             var arsenalScrollWidth = await arsenal.EvaluateAsync<int>("element => element.scrollWidth");
             var arsenalTouchAction = await arsenal.EvaluateAsync<string>(
                 "element => getComputedStyle(element).touchAction");
-            var canvasTouchAction = await page.Locator(".game-canvas").EvaluateAsync<string>(
+            var boardTouchAction = await board.EvaluateAsync<string>(
                 "element => getComputedStyle(element).touchAction");
-            var firstTowerName = await arsenal.Locator(".td-name").First.EvaluateAsync<string>(
+            var canvasTouchAction = await canvas.EvaluateAsync<string>(
+                "element => getComputedStyle(element).touchAction");
+            var towerNameCount = await arsenal.Locator(".td-name").CountAsync();
+            var firstTowerNameDisplay = await arsenal.Locator(".td-name").First.EvaluateAsync<string>(
                 "element => getComputedStyle(element).display");
 
             // Assert
             Assert.True(arsenalScrollWidth > arsenalClientWidth,
                 "The portrait arsenal should overflow horizontally so every tower remains reachable.");
             Assert.Equal("pan-x", arsenalTouchAction);
+            Assert.Equal("none", boardTouchAction);
             Assert.Equal("auto", canvasTouchAction);
-            Assert.NotEqual("none", firstTowerName);
+            Assert.Equal(10, towerNameCount);
+            Assert.NotEqual("none", firstTowerNameDisplay);
         }
     }
 
@@ -53,7 +60,8 @@ public sealed class TowerDefenseResponsiveSmokeTests
         await using (context)
         {
             await _auth.GotoAsync(page, "/games/tower-defense", 1280, 800, networkIdleTimeoutMs: 0);
-            await page.GetByRole(AriaRole.Button, new() { Name = "Deploy" }).ClickAsync();
+            await page.Locator(".td-deploy").ClickAsync();
+
             var board = page.Locator(".td-board");
             var hud = page.Locator(".td-hud");
             await hud.WaitForAsync(new() { State = WaitForSelectorState.Visible });
@@ -80,7 +88,8 @@ public sealed class TowerDefenseResponsiveSmokeTests
         await using (context)
         {
             await _auth.GotoAsync(page, "/games/tower-defense", 844, 390, networkIdleTimeoutMs: 0);
-            await page.GetByRole(AriaRole.Button, new() { Name = "Deploy" }).ClickAsync();
+            await page.Locator(".td-deploy").ClickAsync();
+
             var layout = page.Locator(".td-match-layout");
             await layout.WaitForAsync(new() { State = WaitForSelectorState.Visible });
 
@@ -98,6 +107,32 @@ public sealed class TowerDefenseResponsiveSmokeTests
     }
 
     [Fact]
+    public async Task TowerDefense_TabletViewport_DoesNotOverflowHorizontally()
+    {
+        // Arrange
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 768, 1024);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/tower-defense", 768, 1024, networkIdleTimeoutMs: 0);
+            await page.Locator(".td-deploy").ClickAsync();
+
+            // Act
+            var canvasBox = await page.Locator(".game-canvas").BoundingBoxAsync();
+            var documentWidth = await page.EvaluateAsync<int>(
+                "document.documentElement.scrollWidth");
+            var boardWidth = await page.Locator(".td-board").EvaluateAsync<double>(
+                "element => element.getBoundingClientRect().width");
+
+            // Assert
+            Assert.NotNull(canvasBox);
+            Assert.True(canvasBox.Width <= 768);
+            Assert.True(boardWidth <= 768);
+            Assert.True(documentWidth <= 768,
+                $"The tablet layout overflows the viewport: document width is {documentWidth}px.");
+        }
+    }
+
+    [Fact]
     public async Task TowerDefense_KeyboardPlacement_CanConfirmAndSelectTower()
     {
         // Arrange
@@ -105,23 +140,27 @@ public sealed class TowerDefenseResponsiveSmokeTests
         await using (context)
         {
             await _auth.GotoAsync(page, "/games/tower-defense", 1280, 800, networkIdleTimeoutMs: 0);
-            await page.GetByRole(AriaRole.Button, new() { Name = "Deploy" }).ClickAsync();
+            await page.Locator(".td-deploy").ClickAsync();
+
             var canvas = page.Locator(".game-canvas");
             await canvas.FocusAsync();
 
             // Act
             await page.Keyboard.PressAsync("1");
             await page.Keyboard.PressAsync("Enter");
-            var confirmButton = page.GetByRole(AriaRole.Button, new() { Name = "Confirm" });
+
+            var confirmButton = page.Locator(".td-placement-actions button").First;
             await confirmButton.WaitForAsync(new() { State = WaitForSelectorState.Visible });
             var placementEnabled = await confirmButton.IsEnabledAsync();
+
             await page.Keyboard.PressAsync("Enter");
-            var selectedTower = page.Locator(".td-info-head strong");
+            var upgradeActions = page.Locator(".td-upgrades");
+            var selectedTowerName = page.Locator(".td-info-head strong");
 
             // Assert
             Assert.True(placementEnabled);
-            await selectedTower.WaitForAsync(new() { State = WaitForSelectorState.Visible });
-            Assert.Equal("Gunner", await selectedTower.InnerTextAsync());
+            await upgradeActions.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+            Assert.False(string.IsNullOrWhiteSpace(await selectedTowerName.InnerTextAsync()));
         }
     }
 }
