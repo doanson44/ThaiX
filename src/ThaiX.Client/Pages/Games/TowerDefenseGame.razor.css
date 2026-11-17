@@ -419,7 +419,7 @@
         align-items: start;
     }
 
-    .td-board .game-svg {
+    .td-match-layout .td-board .game-svg {
         width: min(100%, 105vh);
         max-height: 92vh;
     }
