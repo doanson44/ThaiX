@@ -638,6 +638,8 @@ else
         }
 
         _cursor = row * TowerDefenseMatch.Columns + column;
+        if (_pendingBuildCell is not null && key is "arrowleft" or "arrowright" or "arrowup" or "arrowdown")
+            _pendingBuildCell = _cursor;
     }
 
     private bool IsUnlocked(int mapIndex)
