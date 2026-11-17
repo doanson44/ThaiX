@@ -112,6 +112,64 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
+    public void RangeAt_AttackTower_IncludesNearbyRadarSupport()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[1],
+            endless: false,
+            startingGoldBonus: 1000);
+        var radarCell = match.FirstFreeCell(0);
+        var previewCell = Enumerable.Range(0, TowerDefenseMatch.Columns * TowerDefenseMatch.Rows)
+            .First(cell => cell != radarCell && !match.IsBlocked(cell));
+        match.Build(radarCell, TowerKind.Radar);
+
+        // Act
+        var previewRange = match.RangeAt(previewCell, TowerKind.Gunner);
+
+        // Assert
+        previewRange.Should().Be(TowerDefenseData.Tower(TowerKind.Gunner).Range + 20);
+    }
+
+    [Fact]
+    public void RangeAt_RadarTower_DoesNotApplyItsOwnSupportBonus()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(
+            TowerDefenseData.Maps[0],
+            TowerDefenseData.Difficulties[1],
+            endless: false,
+            startingGoldBonus: 1000);
+        var cell = match.FirstFreeCell(0);
+
+        // Act
+        var previewRange = match.RangeAt(cell, TowerKind.Radar);
+
+        // Assert
+        previewRange.Should().Be(TowerDefenseData.Tower(TowerKind.Radar).Range);
+    }
+
+    [Fact]
+    public void CanBuild_UsesSameRulesAsBuild()
+    {
+        // Arrange
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], TowerDefenseData.Difficulties[1], endless: false);
+        var cell = match.FirstFreeCell(0);
+
+        // Act
+        var canBuild = match.CanBuild(cell, TowerKind.Gunner);
+        var built = match.Build(cell, TowerKind.Gunner);
+
+        // Assert
+        canBuild.Should().BeTrue();
+        built.Should().NotBeNull();
+        match.CanBuild(cell, TowerKind.Gunner).Should().BeFalse();
+        match.CanBuild(10, TowerKind.Gunner).Should().BeFalse();
+        match.CanBuild(match.FirstFreeCell(1), TowerKind.Sniper).Should().BeFalse();
+    }
+
+    [Fact]
     public void PowerAmplifier_IncreasesNearbyTowerDamage()
     {
         // Arrange
