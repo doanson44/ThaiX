@@ -96,4 +96,32 @@ public sealed class TowerDefenseResponsiveSmokeTests
             Assert.True(canvasBox.Width <= 844);
         }
     }
+    [Fact]
+    public async Task TowerDefense_KeyboardPlacement_CanConfirmAndSelectTower()
+    {
+        // Arrange
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/tower-defense", 1280, 800, networkIdleTimeoutMs: 0);
+            await page.GetByRole(AriaRole.Button, new() { Name = "Deploy" }).ClickAsync();
+            var canvas = page.Locator(".game-canvas");
+            await canvas.FocusAsync();
+
+            // Act
+            await page.Keyboard.PressAsync("1");
+            await page.Keyboard.PressAsync("Enter");
+            var confirmButton = page.GetByRole(AriaRole.Button, new() { Name = "Confirm" });
+            await confirmButton.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+            var placementEnabled = await confirmButton.IsEnabledAsync();
+            await page.Keyboard.PressAsync("Enter");
+            var selectedTower = page.Locator(".td-info-head strong");
+
+            // Assert
+            Assert.True(placementEnabled);
+            await selectedTower.WaitForAsync(new() { State = WaitForSelectorState.Visible });
+            Assert.Equal("Gunner", await selectedTower.InnerTextAsync());
+        }
+    }
+
 }
