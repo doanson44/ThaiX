@@ -39,4 +39,21 @@ public sealed class TowerDefenseScoringTests
         match.Score.Should().Be(20);
         (match.FinalScore % 10).Should().Be(0);
     }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(19, false)]
+    [InlineData(20, true)]
+    [InlineData(40, true)]
+    [InlineData(41, false)]
+    public void IsEndlessRewardWave_ShouldMatchEveryTwentiethWave(int wave, bool expected)
+    {
+        // Arrange
+
+        // Act
+        var isRewardWave = TowerDefenseData.IsEndlessRewardWave(wave);
+
+        // Assert
+        isRewardWave.Should().Be(expected);
+    }
 }
