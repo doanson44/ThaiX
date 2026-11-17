@@ -2231,6 +2231,8 @@
   <data name="Games.Td.Mode" xml:space="preserve"><value>Chế độ</value></data>
   <data name="Games.Td.StartMission" xml:space="preserve"><value>Triển khai</value></data>
   <data name="Games.Td.MapLocked" xml:space="preserve"><value>Đã khóa: hãy hoàn thành {0} trước</value></data>
+  <data name="Games.Td.ReplayMission" xml:space="preserve"><value>Chơi lại màn này</value></data>
+  <data name="Games.Td.NextMission" xml:space="preserve"><value>Màn tiếp theo</value></data>
   <data name="Games.Td.WarMart" xml:space="preserve"><value>War-Mart</value></data>
   <data name="Games.Td.ProgressSyncFailed" xml:space="preserve"><value>Tiến trình đang được giữ trên thiết bị vì chưa đồng bộ được với tài khoản. Hãy thử lại khi API hoạt động.</value></data>
   <data name="Games.Td.WarMartCredits" xml:space="preserve"><value>Điểm War-Mart: {0}</value></data>

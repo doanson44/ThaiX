@@ -216,6 +216,8 @@ public static class ResourceKeys
         public const string TdMode = "Games.Td.Mode";
         public const string TdStartMission = "Games.Td.StartMission";
         public const string TdMapLocked = "Games.Td.MapLocked";
+        public const string TdReplayMission = "Games.Td.ReplayMission";
+        public const string TdNextMission = "Games.Td.NextMission";
         public const string TdStartWave = "Games.Td.StartWave";
         public const string TdWaveOf = "Games.Td.WaveOf";
         public const string TdWaveEndless = "Games.Td.WaveEndless";
