@@ -116,10 +116,6 @@
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
-.td-panel {
-    display: contents;
-}
-
 .td-board {
     position: relative;
     touch-action: none;
