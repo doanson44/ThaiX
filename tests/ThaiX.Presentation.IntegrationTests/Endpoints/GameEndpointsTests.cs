@@ -344,6 +344,30 @@ public sealed class GameEndpointsTests : IntegrationTestBase
     }
 
     [Fact]
+    public async Task SaveTowerDefenseProgress_ShouldReturnBadRequest_WhenCreditsAreNegative()
+    {
+        // Arrange
+        var email = $"tower-defense-progress-invalid-{Guid.NewGuid():N}@thaix.test";
+        await CreateTestUserAsync(email);
+        await AuthenticateAsync(email);
+
+        // Act
+        var response = await Client.PutAsJsonAsync(
+            "/api/games/tower-defense/progress",
+            new
+            {
+                Credits = -1,
+                BonusStartingGold = 0,
+                ClearedMissions = Array.Empty<string>(),
+                UnlockedTowers = Array.Empty<string>(),
+                BonusMissions = Array.Empty<string>()
+            });
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task GetTowerDefenseProgress_ShouldNotExposeAnotherUsersProgress_WhenUserChanges()
     {
         // Arrange
