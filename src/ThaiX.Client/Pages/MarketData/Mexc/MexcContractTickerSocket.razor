@@ -439,7 +439,7 @@
     {
         var normalized = NormalizeExchangeSymbol(symbol);
         return normalized.EndsWith("USDT", StringComparison.Ordinal)
-            && !normalized.Equals("STOCKUSDT", StringComparison.Ordinal);
+            && !normalized.Contains("STOCKUSDT", StringComparison.Ordinal);
     }
 
     private async Task OnRequireBybitChangedAsync(bool value)
