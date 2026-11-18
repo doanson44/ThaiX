@@ -1,5 +1,55 @@
 namespace ThaiX.Client.Models.ExternalData;
 
+public sealed record BinanceFuturesTicker24HrResponseDto
+{
+    public List<BinanceFuturesTickerDto> Data { get; init; } = [];
+    public string? Message { get; init; }
+    public bool Success { get; init; }
+}
+
+public sealed record BinanceFuturesTickerDto
+{
+    public string Symbol { get; init; } = string.Empty;
+    public decimal? PriceChange { get; init; }
+    public decimal? PriceChangePercent { get; init; }
+    public decimal? WeightedAvgPrice { get; init; }
+    public decimal? LastPrice { get; init; }
+    public decimal? LastQty { get; init; }
+    public decimal? OpenPrice { get; init; }
+    public decimal? HighPrice { get; init; }
+    public decimal? LowPrice { get; init; }
+    public decimal? Volume { get; init; }
+    public decimal? QuoteVolume { get; init; }
+    public long OpenTime { get; init; }
+    public long CloseTime { get; init; }
+    public long FirstId { get; init; }
+    public long LastId { get; init; }
+    public long Count { get; init; }
+}
+
+public sealed record BybitLinearTickersResponseDto
+{
+    public List<BybitLinearTickerDto> Data { get; init; } = [];
+    public string? Message { get; init; }
+    public bool Success { get; init; }
+}
+
+public sealed record BybitLinearTickerDto
+{
+    public string Symbol { get; init; } = string.Empty;
+    public string? LastPrice { get; init; }
+    public string? IndexPrice { get; init; }
+    public string? MarkPrice { get; init; }
+    public string? Price24hPcnt { get; init; }
+    public string? HighPrice24h { get; init; }
+    public string? LowPrice24h { get; init; }
+    public string? Volume24h { get; init; }
+    public string? Turnover24h { get; init; }
+    public string? OpenInterest { get; init; }
+    public string? FundingRate { get; init; }
+    public string? NextFundingTime { get; init; }
+}
+
 public sealed record ExchangeTicker24HrResponseDto
 {
     public List<ExchangeTicker24HrDto> Data { get; init; } = [];

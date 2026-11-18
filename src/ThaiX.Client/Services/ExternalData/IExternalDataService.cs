@@ -52,6 +52,8 @@ public interface IExternalDataService
     Task<ApiResponse<OrderBookDepthResponseDto>> GetBinanceSpotDepthAsync(string symbol, CancellationToken cancellationToken = default);
     Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBinanceSpotTicker24HrAsync(string? symbol = null, CancellationToken cancellationToken = default);
 
+    Task<ApiResponse<BinanceFuturesTicker24HrResponseDto>> GetBinanceFuturesContractTickersAsync(CancellationToken cancellationToken = default);
+    Task<ApiResponse<BybitLinearTickersResponseDto>> GetBybitLinearContractTickersAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBybitLinearTickersAsync(CancellationToken cancellationToken = default);
     Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBybitSpotTickersAsync(CancellationToken cancellationToken = default);
 

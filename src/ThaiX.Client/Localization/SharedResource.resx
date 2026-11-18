@@ -2293,4 +2293,33 @@
   <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Exchange settings saved</value></data>
   <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Failed to save exchange settings</value></data>
   <data name="Mexc.ContractTickers.FutureOnly" xml:space="preserve"><value>USDT futures only</value></data>
+  <data name="Binance.ContractTickers.Title" xml:space="preserve"><value>Binance Futures Contract Tickers</value></data>
+  <data name="Binance.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Search Binance futures symbol...</value></data>
+  <data name="Binance.ContractTickers.NoDataFound" xml:space="preserve"><value>No Binance futures tickers found.</value></data>
+  <data name="Binance.ContractTickers.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="Binance.ContractTickers.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="Binance.ContractTickers.PriceChange" xml:space="preserve"><value>Price Change</value></data>
+  <data name="Binance.ContractTickers.PriceChangePercent" xml:space="preserve"><value>24h Change (%)</value></data>
+  <data name="Binance.ContractTickers.WeightedAvgPrice" xml:space="preserve"><value>Weighted Average Price</value></data>
+  <data name="Binance.ContractTickers.OpenPrice" xml:space="preserve"><value>Open Price</value></data>
+  <data name="Binance.ContractTickers.HighPrice" xml:space="preserve"><value>24h High</value></data>
+  <data name="Binance.ContractTickers.LowPrice" xml:space="preserve"><value>24h Low</value></data>
+  <data name="Binance.ContractTickers.Volume" xml:space="preserve"><value>Base Volume</value></data>
+  <data name="Binance.ContractTickers.QuoteVolume" xml:space="preserve"><value>Quote Volume</value></data>
+  <data name="Binance.ContractTickers.TradeCount" xml:space="preserve"><value>Trade Count</value></data>
+  <data name="Bybit.ContractTickers.Title" xml:space="preserve"><value>Bybit Linear Contract Tickers</value></data>
+  <data name="Bybit.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Search Bybit linear symbol...</value></data>
+  <data name="Bybit.ContractTickers.NoDataFound" xml:space="preserve"><value>No Bybit linear tickers found.</value></data>
+  <data name="Bybit.ContractTickers.Symbol" xml:space="preserve"><value>Symbol</value></data>
+  <data name="Bybit.ContractTickers.LastPrice" xml:space="preserve"><value>Last Price</value></data>
+  <data name="Bybit.ContractTickers.PriceChangePercent" xml:space="preserve"><value>24h Change (%)</value></data>
+  <data name="Bybit.ContractTickers.IndexPrice" xml:space="preserve"><value>Index Price</value></data>
+  <data name="Bybit.ContractTickers.MarkPrice" xml:space="preserve"><value>Mark Price</value></data>
+  <data name="Bybit.ContractTickers.HighPrice24h" xml:space="preserve"><value>24h High</value></data>
+  <data name="Bybit.ContractTickers.LowPrice24h" xml:space="preserve"><value>24h Low</value></data>
+  <data name="Bybit.ContractTickers.Volume24h" xml:space="preserve"><value>24h Volume</value></data>
+  <data name="Bybit.ContractTickers.Turnover24h" xml:space="preserve"><value>24h Turnover</value></data>
+  <data name="Bybit.ContractTickers.OpenInterest" xml:space="preserve"><value>Open Interest</value></data>
+  <data name="Bybit.ContractTickers.FundingRate" xml:space="preserve"><value>Funding Rate</value></data>
+  <data name="Bybit.ContractTickers.NextFundingTime" xml:space="preserve"><value>Next Funding Time</value></data>
 </root>

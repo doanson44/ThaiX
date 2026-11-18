@@ -41,6 +41,8 @@ public static class RouteSegments
     public const string CoinGecko = "market-research/coingecko";
     public const string VnDirectTopStocks = "market-research/vndirect/top-stocks";
     public const string MexcContractTicker = "market-research/mexc/contract-ticker";
+    public const string BinanceContractTicker = "market-research/binance/contract-ticker";
+    public const string BybitContractTicker = "market-research/bybit/contract-ticker";
     public const string MexcSpotTicker = "market-research/mexc/spot-ticker";
     public const string DragonCapitalFunds = "market-research/dragon-capital";
     public const string ChainBroker = "market-research/chainbroker";

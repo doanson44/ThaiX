@@ -320,6 +320,22 @@ public sealed class ExternalDataService : IExternalDataService
             cancellationToken);
     }
 
+    public Task<ApiResponse<BinanceFuturesTicker24HrResponseDto>> GetBinanceFuturesContractTickersAsync(
+        CancellationToken cancellationToken = default) =>
+        GetEnvelopeCachedAsync<BinanceFuturesTicker24HrResponseDto>(
+            CacheGroups.ExternalExchangeBinance,
+            "binance/futures-ticker-24hr",
+            ClientCacheTtl.Ticker,
+            cancellationToken);
+
+    public Task<ApiResponse<BybitLinearTickersResponseDto>> GetBybitLinearContractTickersAsync(
+        CancellationToken cancellationToken = default) =>
+        GetEnvelopeCachedAsync<BybitLinearTickersResponseDto>(
+            CacheGroups.ExternalExchangeBybit,
+            "bybit/linear-tickers",
+            ClientCacheTtl.Ticker,
+            cancellationToken);
+
     public Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBybitLinearTickersAsync(
         CancellationToken cancellationToken = default) =>
         GetEnvelopeCachedAsync<ExchangeTicker24HrResponseDto>(
