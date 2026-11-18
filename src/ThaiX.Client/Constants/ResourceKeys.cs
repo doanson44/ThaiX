@@ -1209,6 +1209,43 @@ public static class ResourceKeys
         public const string FutureOnly = "Mexc.ContractTickers.FutureOnly";
     }
 
+    public static class BinanceContractTickers
+    {
+        public const string Title = "Binance.ContractTickers.Title";
+        public const string SearchPlaceholder = "Binance.ContractTickers.SearchPlaceholder";
+        public const string NoDataFound = "Binance.ContractTickers.NoDataFound";
+        public const string Symbol = "Binance.ContractTickers.Symbol";
+        public const string LastPrice = "Binance.ContractTickers.LastPrice";
+        public const string PriceChange = "Binance.ContractTickers.PriceChange";
+        public const string PriceChangePercent = "Binance.ContractTickers.PriceChangePercent";
+        public const string WeightedAvgPrice = "Binance.ContractTickers.WeightedAvgPrice";
+        public const string OpenPrice = "Binance.ContractTickers.OpenPrice";
+        public const string HighPrice = "Binance.ContractTickers.HighPrice";
+        public const string LowPrice = "Binance.ContractTickers.LowPrice";
+        public const string Volume = "Binance.ContractTickers.Volume";
+        public const string QuoteVolume = "Binance.ContractTickers.QuoteVolume";
+        public const string TradeCount = "Binance.ContractTickers.TradeCount";
+    }
+
+    public static class BybitContractTickers
+    {
+        public const string Title = "Bybit.ContractTickers.Title";
+        public const string SearchPlaceholder = "Bybit.ContractTickers.SearchPlaceholder";
+        public const string NoDataFound = "Bybit.ContractTickers.NoDataFound";
+        public const string Symbol = "Bybit.ContractTickers.Symbol";
+        public const string LastPrice = "Bybit.ContractTickers.LastPrice";
+        public const string PriceChangePercent = "Bybit.ContractTickers.PriceChangePercent";
+        public const string IndexPrice = "Bybit.ContractTickers.IndexPrice";
+        public const string MarkPrice = "Bybit.ContractTickers.MarkPrice";
+        public const string HighPrice24h = "Bybit.ContractTickers.HighPrice24h";
+        public const string LowPrice24h = "Bybit.ContractTickers.LowPrice24h";
+        public const string Volume24h = "Bybit.ContractTickers.Volume24h";
+        public const string Turnover24h = "Bybit.ContractTickers.Turnover24h";
+        public const string OpenInterest = "Bybit.ContractTickers.OpenInterest";
+        public const string FundingRate = "Bybit.ContractTickers.FundingRate";
+        public const string NextFundingTime = "Bybit.ContractTickers.NextFundingTime";
+    }
+
     public static class MexcSpotTicker24Hr
     {
         public const string Title = "Mexc.SpotTicker24Hr.Title";
