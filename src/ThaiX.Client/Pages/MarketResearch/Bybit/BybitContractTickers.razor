@@ -229,7 +229,11 @@
     private static string GetTrendClass(string? value)
     {
         var parsed = ParseDecimal(value);
-        return parsed > 0 ? "text-success fw-semibold" : parsed < 0 ? "text-danger fw-semibold" : string.Empty;
+        return parsed.HasValue && parsed.Value > 0
+            ? "text-success fw-semibold"
+            : parsed.HasValue && parsed.Value < 0
+                ? "text-danger fw-semibold"
+                : string.Empty;
     }
 
     private async Task OpenTradeSuggestionAsync(string symbol)
