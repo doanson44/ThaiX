@@ -1,6 +1,6 @@
 namespace ThaiX.Client.Models.MarketScanner;
 
-public sealed class MarketScannerExchangeSettingsModel
+public sealed record MarketScannerExchangeSettingsModel
 {
     public bool RequiredBybit { get; set; }
     public bool RequiredBinance { get; set; }
