@@ -1,0 +1,246 @@
+@page "/market-research/bybit/contract-ticker"
+@using System.Globalization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Models.Trading
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inject ILogger<BybitContractTickers> Logger
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-3">
+        @L[RK.BybitContractTickers.Title]
+    </RadzenText>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <div>
+            <label class="rz-label mb-1">@L[RK.BybitContractTickers.SearchPlaceholder]</label>
+            <AsyncSearchSelect TItem="BybitLinearTickerDto"
+                               Value="@_selectedSymbol"
+                               ValueChanged="OnSelectedSymbolChanged"
+                               LoadDataAsync="LoadTickersAsync"
+                               GetText="@(x => x.Symbol)"
+                               GetValue="@(x => x.Symbol)"
+                               Placeholder="@L[RK.BybitContractTickers.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filteredTickers.Any())
+        {
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.BybitContractTickers.NoDataFound]
+            </ThaiXAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="BybitLinearTickerDto"
+                            Data="@_filteredTickers"
+                            Count="@_filteredTickers.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="Symbol" Title="@L[RK.BybitContractTickers.Symbol]" MinWidth="9rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="LastPrice" Title="@L[RK.BybitContractTickers.LastPrice]" MinWidth="10rem">
+                        <Template Context="ticker"><RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@FormatValue(ticker.LastPrice)</RadzenText></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="Price24hPcnt" Title="@L[RK.BybitContractTickers.PriceChangePercent]" MinWidth="10rem">
+                        <Template Context="ticker"><span class="@GetTrendClass(ticker.Price24hPcnt)">@FormatSignedValue(ticker.Price24hPcnt)%</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="IndexPrice" Title="@L[RK.BybitContractTickers.IndexPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="MarkPrice" Title="@L[RK.BybitContractTickers.MarkPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="HighPrice24h" Title="@L[RK.BybitContractTickers.HighPrice24h]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="LowPrice24h" Title="@L[RK.BybitContractTickers.LowPrice24h]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="Volume24h" Title="@L[RK.BybitContractTickers.Volume24h]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="Turnover24h" Title="@L[RK.BybitContractTickers.Turnover24h]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="OpenInterest" Title="@L[RK.BybitContractTickers.OpenInterest]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="FundingRate" Title="@L[RK.BybitContractTickers.FundingRate]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="NextFundingTime" Title="@L[RK.BybitContractTickers.NextFundingTime]" MinWidth="11rem" />
+                    <RadzenDataGridColumn TItem="BybitLinearTickerDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]" MinWidth="9rem">
+                        <Template Context="ticker">
+                            <ThaiXButton Size="ButtonSize.Small" Icon="insights" Text="@L[RK.TradingSuggestion.Action]"
+                                         Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="BybitLinearTickerDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filteredTickers" Context="ticker" OverscanCount="5">
+                <RadzenCard Class="p-3 mb-3">
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@L[RK.BybitContractTickers.LastPrice]: @FormatValue(ticker.LastPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@L[RK.BybitContractTickers.PriceChangePercent]: @FormatSignedValue(ticker.Price24hPcnt)%</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.IndexPrice]: @FormatValue(ticker.IndexPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.MarkPrice]: @FormatValue(ticker.MarkPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.HighPrice24h]: @FormatValue(ticker.HighPrice24h)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.LowPrice24h]: @FormatValue(ticker.LowPrice24h)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.Volume24h]: @FormatValue(ticker.Volume24h)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.Turnover24h]: @FormatValue(ticker.Turnover24h)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.OpenInterest]: @FormatValue(ticker.OpenInterest)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.FundingRate]: @FormatValue(ticker.FundingRate)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.NextFundingTime]: @ticker.NextFundingTime</RadzenText>
+                        <ThaiXButton Size="ButtonSize.Small" Icon="insights" Text="@L[RK.TradingSuggestion.Action]"
+                                     Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol))" />
+                    </RadzenStack>
+                </RadzenCard>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private List<BybitLinearTickerDto> _allTickers = [];
+    private List<BybitLinearTickerDto> _filteredTickers = [];
+    private bool _isLoading;
+    private string? _selectedSymbol;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetBybitLinearContractTickersAsync();
+            if (response is { Success: true, Data: { Success: true } data })
+            {
+                _allTickers = data.Data;
+                _filteredTickers = _allTickers;
+            }
+            else
+            {
+                Logger.LogWarning("Bybit linear ticker endpoint returned no usable data.");
+                _allTickers = [];
+                _filteredTickers = [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load Bybit linear tickers.");
+            _allTickers = [];
+            _filteredTickers = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private IReadOnlyList<SortOption<BybitLinearTickerDto>> SortOptions =>
+    [
+        new("symbol", L[RK.BybitContractTickers.Symbol], x => x.Symbol),
+        new("lastPrice", L[RK.BybitContractTickers.LastPrice], x => ParseDecimal(x.LastPrice)),
+        new("price24hPcnt", L[RK.BybitContractTickers.PriceChangePercent], x => ParseDecimal(x.Price24hPcnt)),
+        new("turnover24h", L[RK.BybitContractTickers.Turnover24h], x => ParseDecimal(x.Turnover24h)),
+        new("openInterest", L[RK.BybitContractTickers.OpenInterest], x => ParseDecimal(x.OpenInterest))
+    ];
+
+    private Task OnSelectedSymbolChanged(string? value)
+    {
+        _selectedSymbol = value;
+        ApplyFilter();
+        return Task.CompletedTask;
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<BybitLinearTickerDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var option = SortOptions.FirstOrDefault(x => x.Key == _sortKey);
+            if (option is not null)
+                result = _sortAscending ? result.OrderBy(option.KeySelector) : result.OrderByDescending(option.KeySelector);
+        }
+
+        _filteredTickers = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+    private void OnSortDirectionChanged(bool ascending) { _sortAscending = ascending; ApplyFilter(); }
+
+    private Task<(IReadOnlyList<BybitLinearTickerDto>, int)> LoadTickersAsync(
+        int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var query = string.IsNullOrWhiteSpace(search)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+        return Task.FromResult<(IReadOnlyList<BybitLinearTickerDto>, int)>(
+            (query.Skip((page - 1) * pageSize).Take(pageSize).ToList(), query.Count));
+    }
+
+    private static decimal? ParseDecimal(string? value) =>
+        decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed) ? parsed : null;
+
+    private static string FormatValue(string? value) => ParseDecimal(value)?.ToString("G", CultureInfo.InvariantCulture) ?? value ?? "-";
+
+    private static string FormatSignedValue(string? value)
+    {
+        var parsed = ParseDecimal(value);
+        if (!parsed.HasValue) return value ?? "-";
+        var formatted = parsed.Value.ToString("G", CultureInfo.InvariantCulture);
+        return parsed.Value > 0 ? $"+{formatted}" : formatted;
+    }
+
+    private static string GetTrendClass(string? value)
+    {
+        var parsed = ParseDecimal(value);
+        return parsed > 0 ? "text-success fw-semibold" : parsed < 0 ? "text-danger fw-semibold" : string.Empty;
+    }
+
+    private async Task OpenTradeSuggestionAsync(string symbol)
+    {
+        await DialogService.OpenAsync<TradeSuggestionDialog>(
+            L[RK.TradingSuggestion.Title],
+            new Dictionary<string, object?>
+            {
+                [nameof(TradeSuggestionDialog.Symbol)] = symbol,
+                [nameof(TradeSuggestionDialog.MarketType)] = MarketType.Crypto
+            },
+            new DialogOptions { Width = "min(680px, 96vw)", CloseDialogOnOverlayClick = true });
+    }
+}
