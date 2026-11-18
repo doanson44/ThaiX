@@ -296,7 +296,8 @@ else
 
         @if (_pendingBuildCell is { } popCell && _buildKind is not null)
         {
-            var placementValid = CanConfirmPlacement;            var px = TowerDefenseMatch.CellX(popCell);
+            var placementValid = CanConfirmPlacement;
+            var px = TowerDefenseMatch.CellX(popCell);
             var py = TowerDefenseMatch.CellY(popCell);
             var popY = Math.Min(py + 16, 366);
             var popX = Math.Clamp(px, 28, 452);
@@ -534,7 +535,8 @@ else
         {
             var saved = await ScoreStore.GetProgressAsync(GameKey);
             foreach (var token in (saved ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            {                if (TowerDefenseData.Maps.Any(map => map.Id == token))
+            {
+                if (TowerDefenseData.Maps.Any(map => map.Id == token))
                     _cleared.Add(token);
                 else if (token.StartsWith("tower:", StringComparison.Ordinal)
                     && Enum.TryParse<TowerKind>(token[6..], out var kind))
@@ -693,7 +695,8 @@ else
     public bool HasNextMission => NextMapIndex is not null;
 
     /// <summary>Deploys the current mission, or the next unlocked one, straight after a restart.</summary>
-    public void StartMission(bool nextMission)    {
+    public void StartMission(bool nextMission)
+    {
         if (nextMission && NextMapIndex is { } next)
             _mapIndex = next;
 
