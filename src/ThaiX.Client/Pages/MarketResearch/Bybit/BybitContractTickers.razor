@@ -71,7 +71,7 @@
                         <Template Context="ticker"><RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@FormatValue(ticker.LastPrice)</RadzenText></Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="Price24hPcnt" Title="@L[RK.BybitContractTickers.PriceChangePercent]" MinWidth="10rem">
-                        <Template Context="ticker"><span class="@GetTrendClass(ticker.Price24hPcnt)">@FormatSignedValue(ticker.Price24hPcnt)%</span></Template>
+                        <Template Context="ticker"><span class="@GetTrendClass(ticker.Price24hPcnt)">@FormatSignedPercentValue(ticker.Price24hPcnt)%</span></Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="IndexPrice" Title="@L[RK.BybitContractTickers.IndexPrice]" MinWidth="10rem" />
                     <RadzenDataGridColumn TItem="BybitLinearTickerDto" Property="MarkPrice" Title="@L[RK.BybitContractTickers.MarkPrice]" MinWidth="10rem" />
@@ -111,7 +111,7 @@
                     <RadzenStack Gap="0.5rem">
                         <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@L[RK.BybitContractTickers.LastPrice]: @FormatValue(ticker.LastPrice)</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@L[RK.BybitContractTickers.PriceChangePercent]: @FormatSignedValue(ticker.Price24hPcnt)%</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.Price24hPcnt)">@L[RK.BybitContractTickers.PriceChangePercent]: @FormatSignedPercentValue(ticker.Price24hPcnt)%</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.IndexPrice]: @FormatValue(ticker.IndexPrice)</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.MarkPrice]: @FormatValue(ticker.MarkPrice)</RadzenText>
                         <RadzenText TextStyle="TextStyle.Body2">@L[RK.BybitContractTickers.HighPrice24h]: @FormatValue(ticker.HighPrice24h)</RadzenText>
@@ -224,6 +224,15 @@
         if (!parsed.HasValue) return value ?? "-";
         var formatted = parsed.Value.ToString("G", CultureInfo.InvariantCulture);
         return parsed.Value > 0 ? $"+{formatted}" : formatted;
+    }
+
+    private static string FormatSignedPercentValue(string? value)
+    {
+        var parsed = ParseDecimal(value);
+        if (!parsed.HasValue) return value ?? "-";
+        var percent = parsed.Value * 100m;
+        var formatted = percent.ToString("G", CultureInfo.InvariantCulture);
+        return percent > 0 ? $"+{formatted}" : formatted;
     }
 
     private static string GetTrendClass(string? value)
