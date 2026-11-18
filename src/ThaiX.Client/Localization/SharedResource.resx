@@ -2288,4 +2288,8 @@
   <data name="Games.Td.AirAndGround" xml:space="preserve"><value>Air and ground targets</value></data>
   <data name="Games.Td.SelectHint" xml:space="preserve"><value>Pick a tower, then a free tile. Select a built tower to upgrade or sell it.</value></data>
   <data name="Games.TowerGun" xml:space="preserve"><value>Gunner</value></data>
+  <data name="MarketScanner.RequiredBybit" xml:space="preserve"><value>Require Bybit Futures listing</value></data>
+  <data name="MarketScanner.RequiredBinance" xml:space="preserve"><value>Require Binance Futures listing</value></data>
+  <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Exchange settings saved</value></data>
+  <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Failed to save exchange settings</value></data>
 </root>
