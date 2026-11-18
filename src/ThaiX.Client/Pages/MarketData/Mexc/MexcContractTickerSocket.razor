@@ -477,9 +477,11 @@
         try
         {
             var response = await ExternalDataService.GetBybitLinearTickersAsync();
-            if (!response.Success || response.Data?.Data is null)
+            if (!response.Success || response.Data is null || !response.Data.Success || response.Data.Data is null)
             {
-                Logger.LogWarning("Could not load Bybit linear symbols for MEXC ticker filtering: {Message}", response.Message);
+                Logger.LogWarning(
+                    "Could not load Bybit linear symbols for MEXC ticker filtering: {Message}",
+                    response.Error?.Message ?? response.Metadata.Message ?? response.Data?.Message);
                 return null;
             }
 
@@ -500,9 +502,11 @@
         try
         {
             var response = await ExternalDataService.GetBinanceFuturesTicker24HrAsync();
-            if (!response.Success || response.Data?.Data is null)
+            if (!response.Success || response.Data is null || !response.Data.Success || response.Data.Data is null)
             {
-                Logger.LogWarning("Could not load Binance futures symbols for MEXC ticker filtering: {Message}", response.Message);
+                Logger.LogWarning(
+                    "Could not load Binance futures symbols for MEXC ticker filtering: {Message}",
+                    response.Error?.Message ?? response.Metadata.Message ?? response.Data?.Message);
                 return null;
             }
 
