@@ -223,7 +223,11 @@
     }
 
     private static string GetTrendClass(decimal? value) =>
-        value > 0 ? "text-success fw-semibold" : value < 0 ? "text-danger fw-semibold" : string.Empty;
+        value.HasValue && value.Value > 0
+            ? "text-success fw-semibold"
+            : value.HasValue && value.Value < 0
+                ? "text-danger fw-semibold"
+                : string.Empty;
 
     private async Task OpenTradeSuggestionAsync(string symbol)
     {
