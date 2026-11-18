@@ -139,10 +139,16 @@ public sealed class MexcMarketScannerJob(
             return;
         }
 
+        var scanTickers = tickers
+            .Where(ticker =>
+                ticker.Symbol.EndsWith("USDT", StringComparison.OrdinalIgnoreCase) &&
+                !IsStockSymbol(ticker.Symbol))
+            .ToArray();
+
         var now = DateTimeOffset.UtcNow;
 
         // 4. Project tickers to snapshots and add to cache
-        foreach (var ticker in tickers)
+        foreach (var ticker in scanTickers)
         {
             var snapshot = new MarketTickerSnapshot
             {
@@ -173,7 +179,7 @@ public sealed class MexcMarketScannerJob(
             var window = TimeSpan.FromMinutes((int)rule.Window);
             var targetReferenceTime = now - window;
 
-            foreach (var ticker in tickers)
+            foreach (var ticker in scanTickers)
             {
                 if (cooldownService.IsOnCooldown(ticker.Symbol, rule.SignalType))
                     continue;
@@ -215,6 +221,10 @@ public sealed class MexcMarketScannerJob(
 
     private static string NormalizeSymbol(string symbol) =>
         symbol.Replace("_", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
+
+    private static bool IsStockSymbol(string symbol) =>
+        symbol.EndsWith("STOCK_USDT", StringComparison.OrdinalIgnoreCase) ||
+        symbol.EndsWith("STOCKUSDT", StringComparison.OrdinalIgnoreCase);
 
     private async Task DispatchSignalAsync(MarketSignalResult signal, CancellationToken cancellationToken)
     {
