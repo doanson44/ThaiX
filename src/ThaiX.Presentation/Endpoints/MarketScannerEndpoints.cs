@@ -18,6 +18,36 @@ public static class MarketScannerEndpoints
 {
     public static void MapMarketScannerEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        var settingsGroup = endpoints.MapGroup("/api/market-scanner/exchange-settings")
+            .WithTags("Market Scanner Rules");
+
+        settingsGroup.MapGet("/", async (
+            ThaiX.Application.Common.Interfaces.IMarketScannerExchangeSettingsService settingsService,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var settings = await settingsService.GetAsync(cancellationToken);
+            var response = ApiResponse<ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings>.SuccessResult(settings);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MarketScannerRuleRead)
+        .WithName("GetMarketScannerExchangeSettings");
+
+        settingsGroup.MapPut("/", async (
+            [FromBody] ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings settings,
+            ThaiX.Application.Common.Interfaces.IMarketScannerExchangeSettingsService settingsService,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            await settingsService.UpdateAsync(settings, cancellationToken);
+            var response = ApiResponse<ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings>.SuccessResult(settings);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MarketScannerRuleWrite)
+        .WithName("UpdateMarketScannerExchangeSettings");
+
         var group = endpoints.MapGroup("/api/market-scanner/rules")
             .WithTags("Market Scanner Rules");
 
