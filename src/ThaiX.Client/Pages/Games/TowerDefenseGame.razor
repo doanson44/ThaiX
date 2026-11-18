@@ -357,8 +357,6 @@ else
                     aria-label="@(unlocked ? $"{L[option.NameKey].Value}, {option.Cost}" : $"{L[option.NameKey].Value}, {option.Cost}, {L[ResourceKeys.Games.TdWarMart].Value}")" title="@L[option.NameKey]"
                     aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
                 <svg class="td-unit-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="@($"#td-tower-{kind.ToString().ToLowerInvariant()}")" width="100%" height="100%" /></svg>
-                <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
-                <span class="td-cost">@option.Cost</span>
                 @if (!unlocked)
                 {
                     <span class="td-tower-lock" aria-hidden="true"><ThaiXIcon Name="lock" Size="0.75rem" /></span>
