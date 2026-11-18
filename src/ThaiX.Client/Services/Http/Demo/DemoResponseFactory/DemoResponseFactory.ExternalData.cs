@@ -1,3 +1,4 @@
+using System.Globalization;
 using ThaiX.Client.Models.ExternalData;
 
 
@@ -5,6 +6,9 @@ namespace ThaiX.Client.Services.Http.Demo;
 
 public sealed partial class DemoResponseFactory
 {
+    private static decimal? ParseDemoDecimal(string? value) =>
+        decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed) ? parsed : null;
+
     private HttpResponseMessage HandleExternalData(string method, string path, string query, int pageNumber, int pageSize)
     {
         if (method == "POST")
@@ -334,9 +338,56 @@ public sealed partial class DemoResponseFactory
             return DemoEnvelope.SuccessData(DemoDataGenerators.DemoFundingRates());
         }
 
-        if (path.Contains("binance/futures-ticker-24hr", StringComparison.OrdinalIgnoreCase) ||
-            path.Contains("binance/spot-ticker-24hr", StringComparison.OrdinalIgnoreCase) ||
-            path.Contains("bybit/linear-tickers", StringComparison.OrdinalIgnoreCase) ||
+        if (path.Contains("binance/futures-ticker-24hr", StringComparison.OrdinalIgnoreCase))
+        {
+            var tickers = DemoDataGenerators.DemoExchangeTickers().Data;
+            return DemoEnvelope.SuccessData(new BinanceFuturesTicker24HrResponseDto
+            {
+                Success = true,
+                Message = "Demo mode",
+                Data = tickers.Select(ticker => new BinanceFuturesTickerDto
+                {
+                    Symbol = ticker.Symbol,
+                    LastPrice = ParseDemoDecimal(ticker.LastPrice),
+                    PriceChange = ParseDemoDecimal(ticker.PriceChange),
+                    PriceChangePercent = ParseDemoDecimal(ticker.PriceChangePercent),
+                    HighPrice = ParseDemoDecimal(ticker.HighPrice),
+                    LowPrice = ParseDemoDecimal(ticker.LowPrice),
+                    Volume = ParseDemoDecimal(ticker.Volume),
+                    QuoteVolume = ParseDemoDecimal(ticker.QuoteVolume),
+                    WeightedAvgPrice = ParseDemoDecimal(ticker.LastPrice),
+                    OpenPrice = ParseDemoDecimal(ticker.LastPrice),
+                    Count = 1000
+                }).ToList()
+            });
+        }
+
+        if (path.Contains("bybit/linear-tickers", StringComparison.OrdinalIgnoreCase))
+        {
+            var tickers = DemoDataGenerators.DemoExchangeTickers().Data;
+            return DemoEnvelope.SuccessData(new BybitLinearTickersResponseDto
+            {
+                Success = true,
+                Message = "Demo mode",
+                Data = tickers.Select(ticker => new BybitLinearTickerDto
+                {
+                    Symbol = ticker.Symbol,
+                    LastPrice = ticker.LastPrice,
+                    Price24hPcnt = ticker.PriceChangePercent,
+                    HighPrice24h = ticker.HighPrice,
+                    LowPrice24h = ticker.LowPrice,
+                    Volume24h = ticker.Volume,
+                    Turnover24h = ticker.QuoteVolume,
+                    IndexPrice = ticker.LastPrice,
+                    MarkPrice = ticker.LastPrice,
+                    OpenInterest = ticker.Volume,
+                    FundingRate = "0.0001",
+                    NextFundingTime = DateTimeOffset.UtcNow.AddHours(8).ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture)
+                }).ToList()
+            });
+        }
+
+        if (path.Contains("binance/spot-ticker-24hr", StringComparison.OrdinalIgnoreCase) ||
             path.Contains("bybit/spot-tickers", StringComparison.OrdinalIgnoreCase))
         {
             var symbol = GetQueryValue(query, "symbol");
