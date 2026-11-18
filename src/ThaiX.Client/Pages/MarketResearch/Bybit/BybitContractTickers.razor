@@ -144,9 +144,9 @@
         try
         {
             var response = await ExternalDataService.GetBybitLinearContractTickersAsync();
-            if (response is { Success: true, Data: { Success: true } data })
+            if (response is { Success: true, Data: not null } && response.Data.Success)
             {
-                _allTickers = data.Data;
+                _allTickers = response.Data.Data ?? [];
                 _filteredTickers = _allTickers;
             }
             else
