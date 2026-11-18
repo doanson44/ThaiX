@@ -296,8 +296,7 @@ else
 
         @if (_pendingBuildCell is { } popCell && _buildKind is not null)
         {
-            var placementValid = CanConfirmPlacement;
-            var px = TowerDefenseMatch.CellX(popCell);
+            var placementValid = CanConfirmPlacement;            var px = TowerDefenseMatch.CellX(popCell);
             var py = TowerDefenseMatch.CellY(popCell);
             var popY = Math.Min(py + 16, 366);
             var popX = Math.Clamp(px, 28, 452);
@@ -357,8 +356,6 @@ else
                     aria-label="@(unlocked ? $"{L[option.NameKey].Value}, {option.Cost}" : $"{L[option.NameKey].Value}, {option.Cost}, {L[ResourceKeys.Games.TdWarMart].Value}")" title="@L[option.NameKey]"
                     aria-pressed="@(_buildKind == kind)" disabled="@(!unlocked)" @onclick="() => SelectBuild(kind)">
                 <svg class="td-unit-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="@($"#td-tower-{kind.ToString().ToLowerInvariant()}")" width="100%" height="100%" /></svg>
-                <span class="td-name"><kbd>@TowerKey(kind)</kbd> @L[option.NameKey]</span>
-                <span class="td-cost">@option.Cost</span>
                 @if (!unlocked)
                 {
                     <span class="td-tower-lock" aria-hidden="true"><ThaiXIcon Name="lock" Size="0.75rem" /></span>
@@ -537,8 +534,7 @@ else
         {
             var saved = await ScoreStore.GetProgressAsync(GameKey);
             foreach (var token in (saved ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            {
-                if (TowerDefenseData.Maps.Any(map => map.Id == token))
+            {                if (TowerDefenseData.Maps.Any(map => map.Id == token))
                     _cleared.Add(token);
                 else if (token.StartsWith("tower:", StringComparison.Ordinal)
                     && Enum.TryParse<TowerKind>(token[6..], out var kind))
@@ -697,8 +693,7 @@ else
     public bool HasNextMission => NextMapIndex is not null;
 
     /// <summary>Deploys the current mission, or the next unlocked one, straight after a restart.</summary>
-    public void StartMission(bool nextMission)
-    {
+    public void StartMission(bool nextMission)    {
         if (nextMission && NextMapIndex is { } next)
             _mapIndex = next;
 
