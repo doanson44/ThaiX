@@ -59,6 +59,20 @@ public sealed class MarketScannerService : IMarketScannerService
         await InvalidateRulesAsync(cancellationToken);
     }
 
+    public async Task<MarketScannerExchangeSettingsModel> GetExchangeSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.GetAsync("api/market-scanner/exchange-settings", cancellationToken);
+        return await ApiResponseReader.ReadSuccessDataAsync<MarketScannerExchangeSettingsModel>(response, cancellationToken);
+    }
+
+    public async Task UpdateExchangeSettingsAsync(
+        MarketScannerExchangeSettingsModel settings,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await _httpClient.PutAsJsonAsync("api/market-scanner/exchange-settings", settings, cancellationToken);
+        await ApiResponseReader.ReadSuccessAsync(response, cancellationToken);
+    }
+
     private async Task<PagedApiResponse<MarketScannerRuleListItemDto>> FetchRulesAsync(string path, CancellationToken cancellationToken)
     {
         using var response = await _httpClient.GetAsync(path, cancellationToken);
