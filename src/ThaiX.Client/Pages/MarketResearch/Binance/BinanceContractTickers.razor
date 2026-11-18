@@ -1,0 +1,239 @@
+@page "/market-research/binance/contract-ticker"
+@using System.Globalization
+@using ThaiX.Client.Models.ExternalData
+@using ThaiX.Client.Services.ExternalData
+@using ThaiX.Client.Localization
+@using ThaiX.Client.Components
+@using ThaiX.Client.Components.MarketResearch.Market
+@using ThaiX.Client.Models.Trading
+@using Microsoft.Extensions.Localization
+@using RK = ThaiX.Client.Constants.ResourceKeys
+@inject IExternalDataService ExternalDataService
+@inject IStringLocalizer<SharedResource> L
+@inject DialogService DialogService
+@inject ILogger<BinanceContractTickers> Logger
+@inherits ThaiXPageBase
+
+<RadzenCard>
+    <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H6 : TextStyle.H4)" TagName="TagName.H1" Class="mb-3">
+        @L[RK.BinanceContractTickers.Title]
+    </RadzenText>
+
+    <RadzenStack Gap="1rem" Class="mb-3">
+        <div>
+            <label class="rz-label mb-1">@L[RK.BinanceContractTickers.SearchPlaceholder]</label>
+            <AsyncSearchSelect TItem="BinanceFuturesTickerDto"
+                               Value="@_selectedSymbol"
+                               ValueChanged="OnSelectedSymbolChanged"
+                               LoadDataAsync="LoadTickersAsync"
+                               GetText="@(x => x.Symbol)"
+                               GetValue="@(x => x.Symbol)"
+                               Placeholder="@L[RK.BinanceContractTickers.SearchPlaceholder]"
+                               SearchPlaceholder="@L[RK.Common.Search]"
+                               LoadingText="@L[RK.Common.Loading]"
+                               EmptyText="@L[RK.Common.NoDataFound]"
+                               MoreHint="@L[RK.MasterData.SelectScrollMore]"
+                               AllowClear="true"
+                               Class="w-100" />
+        </div>
+
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Class="w-100" />
+        }
+        else if (!_filteredTickers.Any())
+        {
+            <ThaiXAlert AlertStyle="AlertStyle.Info" ShowIcon="true" Variant="Variant.Flat" Shade="Shade.Lighter">
+                @L[RK.BinanceContractTickers.NoDataFound]
+            </ThaiXAlert>
+        }
+    </RadzenStack>
+
+    @if (!Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <div style="width: 100%; overflow-x: auto;">
+            <RadzenDataGrid TItem="BinanceFuturesTickerDto"
+                            Data="@_filteredTickers"
+                            Count="@_filteredTickers.Count"
+                            AllowFiltering="true"
+                            FilterMode="FilterMode.Advanced"
+                            AllowSorting="true"
+                            AllowPaging="true"
+                            PageSize="10"
+                            PageSizeOptions="@(new[] { 10, 20, 50, 100 })"
+                            IsLoading="@_isLoading"
+                            ShowPagingSummary="true"
+                            PagingSummaryFormat="@L[RK.Grid.PagingSummaryFormat]"
+                            Class="responsive-grid">
+                <Columns>
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="Symbol" Title="@L[RK.BinanceContractTickers.Symbol]" MinWidth="9rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="LastPrice" Title="@L[RK.BinanceContractTickers.LastPrice]" MinWidth="10rem">
+                        <Template Context="ticker"><RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.PriceChangePercent)">@FormatValue(ticker.LastPrice)</RadzenText></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="PriceChange" Title="@L[RK.BinanceContractTickers.PriceChange]" MinWidth="10rem">
+                        <Template Context="ticker"><span class="@GetTrendClass(ticker.PriceChange)">@FormatSignedValue(ticker.PriceChange)</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="PriceChangePercent" Title="@L[RK.BinanceContractTickers.PriceChangePercent]" MinWidth="10rem">
+                        <Template Context="ticker"><span class="@GetTrendClass(ticker.PriceChangePercent)">@FormatSignedValue(ticker.PriceChangePercent)%</span></Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="WeightedAvgPrice" Title="@L[RK.BinanceContractTickers.WeightedAvgPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="OpenPrice" Title="@L[RK.BinanceContractTickers.OpenPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="HighPrice" Title="@L[RK.BinanceContractTickers.HighPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="LowPrice" Title="@L[RK.BinanceContractTickers.LowPrice]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="Volume" Title="@L[RK.BinanceContractTickers.Volume]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="QuoteVolume" Title="@L[RK.BinanceContractTickers.QuoteVolume]" MinWidth="10rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Property="Count" Title="@L[RK.BinanceContractTickers.TradeCount]" MinWidth="8rem" />
+                    <RadzenDataGridColumn TItem="BinanceFuturesTickerDto" Filterable="false" Sortable="false" Title="@L[RK.TradingSuggestion.Action]" MinWidth="9rem">
+                        <Template Context="ticker">
+                            <ThaiXButton Size="ButtonSize.Small" Icon="insights" Text="@L[RK.TradingSuggestion.Action]"
+                                         Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    }
+
+    @if (Viewport.IsMobile && !_isLoading && _filteredTickers.Any())
+    {
+        <RadzenStack Gap="1rem">
+            <ClientSortBar TItem="BinanceFuturesTickerDto"
+                           Options="@SortOptions"
+                           SortKey="@_sortKey"
+                           SortKeyChanged="OnSortKeyChanged"
+                           Ascending="@_sortAscending"
+                           AscendingChanged="OnSortDirectionChanged"
+                           Label="@L[RK.Common.SortBy]"
+                           Placeholder="@L[RK.Common.SortBy]"
+                           AscendingLabel="@L[RK.Common.Ascending]"
+                           DescendingLabel="@L[RK.Common.Descending]" />
+            <Virtualize Items="@_filteredTickers" Context="ticker" OverscanCount="5">
+                <RadzenCard Class="p-3 mb-3">
+                    <RadzenStack Gap="0.5rem">
+                        <RadzenText TextStyle="TextStyle.Subtitle1"><strong>@ticker.Symbol</strong></RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.PriceChangePercent)">@L[RK.BinanceContractTickers.LastPrice]: @FormatValue(ticker.LastPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.PriceChange)">@L[RK.BinanceContractTickers.PriceChange]: @FormatSignedValue(ticker.PriceChange)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2" Class="@GetTrendClass(ticker.PriceChangePercent)">@L[RK.BinanceContractTickers.PriceChangePercent]: @FormatSignedValue(ticker.PriceChangePercent)%</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.WeightedAvgPrice]: @FormatValue(ticker.WeightedAvgPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.OpenPrice]: @FormatValue(ticker.OpenPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.HighPrice]: @FormatValue(ticker.HighPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.LowPrice]: @FormatValue(ticker.LowPrice)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.Volume]: @FormatValue(ticker.Volume)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.QuoteVolume]: @FormatValue(ticker.QuoteVolume)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body2">@L[RK.BinanceContractTickers.TradeCount]: @ticker.Count.ToString("N0")</RadzenText>
+                        <ThaiXButton Size="ButtonSize.Small" Icon="insights" Text="@L[RK.TradingSuggestion.Action]"
+                                     Click="@(() => OpenTradeSuggestionAsync(ticker.Symbol))" />
+                    </RadzenStack>
+                </RadzenCard>
+            </Virtualize>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+@code {
+    private List<BinanceFuturesTickerDto> _allTickers = [];
+    private List<BinanceFuturesTickerDto> _filteredTickers = [];
+    private bool _isLoading;
+    private string? _selectedSymbol;
+    private string? _sortKey;
+    private bool _sortAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            var response = await ExternalDataService.GetBinanceFuturesContractTickersAsync();
+            if (response is { Success: true, Data: { Success: true } data })
+            {
+                _allTickers = data.Data;
+                _filteredTickers = _allTickers;
+            }
+            else
+            {
+                Logger.LogWarning("Binance futures ticker endpoint returned no usable data.");
+                _allTickers = [];
+                _filteredTickers = [];
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load Binance futures tickers.");
+            _allTickers = [];
+            _filteredTickers = [];
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private IReadOnlyList<SortOption<BinanceFuturesTickerDto>> SortOptions =>
+    [
+        new("symbol", L[RK.BinanceContractTickers.Symbol], x => x.Symbol),
+        new("lastPrice", L[RK.BinanceContractTickers.LastPrice], x => x.LastPrice),
+        new("priceChangePercent", L[RK.BinanceContractTickers.PriceChangePercent], x => x.PriceChangePercent),
+        new("quoteVolume", L[RK.BinanceContractTickers.QuoteVolume], x => x.QuoteVolume),
+        new("count", L[RK.BinanceContractTickers.TradeCount], x => x.Count)
+    ];
+
+    private Task OnSelectedSymbolChanged(string? value)
+    {
+        _selectedSymbol = value;
+        ApplyFilter();
+        return Task.CompletedTask;
+    }
+
+    private void ApplyFilter()
+    {
+        IEnumerable<BinanceFuturesTickerDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+
+        if (!string.IsNullOrEmpty(_sortKey))
+        {
+            var option = SortOptions.FirstOrDefault(x => x.Key == _sortKey);
+            if (option is not null)
+                result = _sortAscending ? result.OrderBy(option.KeySelector) : result.OrderByDescending(option.KeySelector);
+        }
+
+        _filteredTickers = result.ToList();
+    }
+
+    private void OnSortKeyChanged(string? key) { _sortKey = key; ApplyFilter(); }
+    private void OnSortDirectionChanged(bool ascending) { _sortAscending = ascending; ApplyFilter(); }
+
+    private Task<(IReadOnlyList<BinanceFuturesTickerDto>, int)> LoadTickersAsync(
+        int page, int pageSize, string? search, CancellationToken cancellationToken)
+    {
+        var query = string.IsNullOrWhiteSpace(search)
+            ? _allTickers
+            : _allTickers.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+        return Task.FromResult<(IReadOnlyList<BinanceFuturesTickerDto>, int)>(
+            (query.Skip((page - 1) * pageSize).Take(pageSize).ToList(), query.Count));
+    }
+
+    private static string FormatValue(decimal? value) => value?.ToString("G", CultureInfo.InvariantCulture) ?? "-";
+
+    private static string FormatSignedValue(decimal? value)
+    {
+        if (!value.HasValue) return "-";
+        var formatted = FormatValue(value);
+        return value.Value > 0 ? $"+{formatted}" : formatted;
+    }
+
+    private static string GetTrendClass(decimal? value) =>
+        value > 0 ? "text-success fw-semibold" : value < 0 ? "text-danger fw-semibold" : string.Empty;
+
+    private async Task OpenTradeSuggestionAsync(string symbol)
+    {
+        await DialogService.OpenAsync<TradeSuggestionDialog>(
+            L[RK.TradingSuggestion.Title],
+            new Dictionary<string, object?>
+            {
+                [nameof(TradeSuggestionDialog.Symbol)] = symbol,
+                [nameof(TradeSuggestionDialog.MarketType)] = MarketType.Crypto
+            },
+            new DialogOptions { Width = "min(680px, 96vw)", CloseDialogOnOverlayClick = true });
+    }
+}
