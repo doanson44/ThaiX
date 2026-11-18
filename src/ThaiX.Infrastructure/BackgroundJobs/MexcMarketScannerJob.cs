@@ -75,10 +75,11 @@ public sealed class MexcMarketScannerJob(
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
                     var response = await mediator.Send(new GetBybitLinearTickersQuery(), cancellationToken);
-                    if (!response.Success)
+                    if (!response.Success || response.Data.Count == 0)
                         throw new InvalidOperationException(response.Message ?? "Failed to retrieve Bybit linear symbols.");
 
                     return response.Data
+                        .Where(ticker => !string.IsNullOrWhiteSpace(ticker.Symbol))
                         .Select(ticker => NormalizeSymbol(ticker.Symbol))
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 });
@@ -90,14 +91,19 @@ public sealed class MexcMarketScannerJob(
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
                     var response = await mediator.Send(new GetBinanceFuturesTicker24HrQuery(), cancellationToken);
-                    if (!response.Success)
+                    if (!response.Success || response.Data.Count == 0)
                         throw new InvalidOperationException(response.Message ?? "Failed to retrieve Binance futures symbols.");
 
                     return response.Data
+                        .Where(ticker => !string.IsNullOrWhiteSpace(ticker.Symbol))
                         .Select(ticker => NormalizeSymbol(ticker.Symbol))
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 });
             }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
