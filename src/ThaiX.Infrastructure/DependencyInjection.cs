@@ -331,7 +331,8 @@ public static class DependencyInjection
         // Market scanner
         services.Configure<MarketScannerOptions>(configuration.GetSection(MarketScannerOptions.SectionName));
         services.AddSingleton<IMarketSnapshotCache, InMemoryMarketSnapshotCache>();
-        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>();
+        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>()
+            .AddScoped<IMarketScannerExchangeSettingsService, MarketScannerExchangeSettingsService>();
         services.AddTransient<IMarketSignalDetector, PricePumpDetector>();
         services.AddTransient<IMarketSignalDetector, FundingFlipDetector>();
         services.AddTransient<IMarketSignalDetector, FundingMultipleDetector>();
