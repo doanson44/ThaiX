@@ -2292,4 +2292,33 @@
   <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Đã lưu cấu hình sàn</value></data>
   <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Không thể lưu cấu hình sàn</value></data>
   <data name="Mexc.ContractTickers.FutureOnly" xml:space="preserve"><value>Chỉ hợp đồng tương lai USDT</value></data>
+  <data name="Binance.ContractTickers.Title" xml:space="preserve"><value>Hợp đồng tương lai Binance</value></data>
+  <data name="Binance.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Tìm mã hợp đồng Binance...</value></data>
+  <data name="Binance.ContractTickers.NoDataFound" xml:space="preserve"><value>Không tìm thấy dữ liệu hợp đồng Binance.</value></data>
+  <data name="Binance.ContractTickers.Symbol" xml:space="preserve"><value>Mã giao dịch</value></data>
+  <data name="Binance.ContractTickers.LastPrice" xml:space="preserve"><value>Giá cuối</value></data>
+  <data name="Binance.ContractTickers.PriceChange" xml:space="preserve"><value>Mức thay đổi giá</value></data>
+  <data name="Binance.ContractTickers.PriceChangePercent" xml:space="preserve"><value>Thay đổi 24h (%)</value></data>
+  <data name="Binance.ContractTickers.WeightedAvgPrice" xml:space="preserve"><value>Giá trung bình gia quyền</value></data>
+  <data name="Binance.ContractTickers.OpenPrice" xml:space="preserve"><value>Giá mở cửa</value></data>
+  <data name="Binance.ContractTickers.HighPrice" xml:space="preserve"><value>Cao nhất 24h</value></data>
+  <data name="Binance.ContractTickers.LowPrice" xml:space="preserve"><value>Thấp nhất 24h</value></data>
+  <data name="Binance.ContractTickers.Volume" xml:space="preserve"><value>Khối lượng cơ sở</value></data>
+  <data name="Binance.ContractTickers.QuoteVolume" xml:space="preserve"><value>Khối lượng định giá</value></data>
+  <data name="Binance.ContractTickers.TradeCount" xml:space="preserve"><value>Số lượng giao dịch</value></data>
+  <data name="Bybit.ContractTickers.Title" xml:space="preserve"><value>Hợp đồng tương lai Bybit</value></data>
+  <data name="Bybit.ContractTickers.SearchPlaceholder" xml:space="preserve"><value>Tìm mã hợp đồng Bybit...</value></data>
+  <data name="Bybit.ContractTickers.NoDataFound" xml:space="preserve"><value>Không tìm thấy dữ liệu hợp đồng Bybit.</value></data>
+  <data name="Bybit.ContractTickers.Symbol" xml:space="preserve"><value>Mã giao dịch</value></data>
+  <data name="Bybit.ContractTickers.LastPrice" xml:space="preserve"><value>Giá cuối</value></data>
+  <data name="Bybit.ContractTickers.PriceChangePercent" xml:space="preserve"><value>Thay đổi 24h (%)</value></data>
+  <data name="Bybit.ContractTickers.IndexPrice" xml:space="preserve"><value>Giá chỉ số</value></data>
+  <data name="Bybit.ContractTickers.MarkPrice" xml:space="preserve"><value>Giá đánh dấu</value></data>
+  <data name="Bybit.ContractTickers.HighPrice24h" xml:space="preserve"><value>Cao nhất 24h</value></data>
+  <data name="Bybit.ContractTickers.LowPrice24h" xml:space="preserve"><value>Thấp nhất 24h</value></data>
+  <data name="Bybit.ContractTickers.Volume24h" xml:space="preserve"><value>Khối lượng 24h</value></data>
+  <data name="Bybit.ContractTickers.Turnover24h" xml:space="preserve"><value>Giá trị giao dịch 24h</value></data>
+  <data name="Bybit.ContractTickers.OpenInterest" xml:space="preserve"><value>Khối lượng hợp đồng mở</value></data>
+  <data name="Bybit.ContractTickers.FundingRate" xml:space="preserve"><value>Tỷ lệ funding</value></data>
+  <data name="Bybit.ContractTickers.NextFundingTime" xml:space="preserve"><value>Thời điểm funding tiếp theo</value></data>
 </root>

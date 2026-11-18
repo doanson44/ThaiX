@@ -441,6 +441,8 @@
                 "dragon-capital" => L[RK.DragonCapitalFunds.Title],
                 "vndirect" => L[RK.VnDirectTopStocks.Title],
                 "mexc" => L[RK.MexcContractTickers.Title],
+                "binance" => L[RK.BinanceContractTickers.Title],
+                "bybit" => L[RK.BybitContractTickers.Title],
                 "chainbroker" => L[RK.Breadcrumb.ChainBroker],
                 _ => SegmentToTitle(segment)
             };
@@ -515,6 +517,20 @@
                 "spot-ticker-socket" => L[RK.MexcSpotTicker24Hr.SocketTitle],
                 _ => SegmentToTitle(segment)
             };
+        }
+
+        if (parent == "binance")
+        {
+            return segment == "contract-ticker"
+                ? L[RK.BinanceContractTickers.Title]
+                : SegmentToTitle(segment);
+        }
+
+        if (parent == "bybit")
+        {
+            return segment == "contract-ticker"
+                ? L[RK.BybitContractTickers.Title]
+                : SegmentToTitle(segment);
         }
 
         // VnDirect sub-pages (child of market-research)
