@@ -2287,4 +2287,8 @@
   <data name="Games.Td.AirAndGround" xml:space="preserve"><value>Bắn cả mục tiêu trên không</value></data>
   <data name="Games.Td.SelectHint" xml:space="preserve"><value>Chọn một tháp, rồi chọn ô trống. Chọn tháp đã xây để nâng cấp hoặc bán.</value></data>
   <data name="Games.TowerGun" xml:space="preserve"><value>Xạ thủ</value></data>
+  <data name="MarketScanner.RequiredBybit" xml:space="preserve"><value>Yêu cầu niêm yết trên Bybit Futures</value></data>
+  <data name="MarketScanner.RequiredBinance" xml:space="preserve"><value>Yêu cầu niêm yết trên Binance Futures</value></data>
+  <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Đã lưu cấu hình sàn</value></data>
+  <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Không thể lưu cấu hình sàn</value></data>
 </root>
