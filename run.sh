@@ -19,8 +19,11 @@ if ! docker network inspect "${NETWORK_NAME}" >/dev/null 2>&1; then
     docker network create "${NETWORK_NAME}" >/dev/null
 fi
 
-echo "Pulling image ${IMAGE_NAME}:${TAG}..."
-docker pull "${IMAGE_NAME}:${TAG}"
+if docker inspect "${CONTAINER_NAME}" >/dev/null 2>&1; then
+    CURRENT_IMAGE_ID="$(docker inspect --format='{{.Image}}' "${CONTAINER_NAME}")"
+    echo "Tagging current image as ${IMAGE_NAME}:old..."
+    docker image tag "${CURRENT_IMAGE_ID}" "${IMAGE_NAME}:old"
+fi
 
 echo "Waiting for MariaDB container ${DB_CONTAINER_NAME}..."
 if ! docker inspect "${DB_CONTAINER_NAME}" >/dev/null 2>&1; then
@@ -51,6 +54,20 @@ if [ "$(docker ps -aq -f name=^/${CONTAINER_NAME}$)" ]; then
     echo "Stopping and removing existing container..."
     docker rm -f "${CONTAINER_NAME}"
 fi
+
+echo "Removing obsolete ThaiX images before pulling the new image..."
+while IFS= read -r IMAGE_REF; do
+    [ -n "${IMAGE_REF}" ] || continue
+    [ "${IMAGE_REF}" = "${IMAGE_NAME}:old" ] && continue
+    docker image rm "${IMAGE_REF}" || {
+        echo "Warning: could not remove ${IMAGE_REF}; it may be referenced by another container."
+    }
+done < <(docker image ls "${IMAGE_NAME}" --format '{{.Repository}}:{{.Tag}}')
+
+docker image prune -f
+
+echo "Pulling image ${IMAGE_NAME}:${TAG}..."
+docker pull "${IMAGE_NAME}:${TAG}"
 
 echo "Ensuring host directories exist..."
 sudo mkdir -p /srv/thaix/{storage,logs,keys}
@@ -89,8 +106,8 @@ done
 
 echo "Application is ready."
 
-echo "Cleaning up dangling images..."
-docker image prune -f
+echo "Updating latest tag to the deployed image..."
+docker image tag "${IMAGE_NAME}:${TAG}" "${IMAGE_NAME}:latest"
 
 echo "Deployment complete! Checking status:"
 docker ps --filter "name=${CONTAINER_NAME}"
