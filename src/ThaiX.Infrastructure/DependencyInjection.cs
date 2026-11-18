@@ -133,6 +133,7 @@ public static class DependencyInjection
         // Core services
         services
             .AddScoped<IJsonBinService, JsonBinService>()
+            .AddScoped<IMarketScannerExchangeSettingsService, MarketScannerExchangeSettingsService>()
             .AddSingleton<IEncryptionService, AesEncryptionService>()
             .AddSingleton<ICredentialPasswordEncryptionService, CredentialPasswordEncryptionService>()
             .AddSingleton<IDateTimeProvider, DateTimeProviderService>()
@@ -331,8 +332,7 @@ public static class DependencyInjection
         // Market scanner
         services.Configure<MarketScannerOptions>(configuration.GetSection(MarketScannerOptions.SectionName));
         services.AddSingleton<IMarketSnapshotCache, InMemoryMarketSnapshotCache>();
-        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>()
-            .AddScoped<IMarketScannerExchangeSettingsService, MarketScannerExchangeSettingsService>();
+        services.AddSingleton<IMarketSignalCooldownService, InMemoryMarketSignalCooldownService>();
         services.AddTransient<IMarketSignalDetector, PricePumpDetector>();
         services.AddTransient<IMarketSignalDetector, FundingFlipDetector>();
         services.AddTransient<IMarketSignalDetector, FundingMultipleDetector>();
