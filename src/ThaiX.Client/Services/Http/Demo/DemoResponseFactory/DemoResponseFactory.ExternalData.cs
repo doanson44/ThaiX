@@ -382,7 +382,7 @@ public sealed partial class DemoResponseFactory
                     MarkPrice = ticker.LastPrice,
                     OpenInterest = ticker.Volume,
                     FundingRate = "0.0001",
-                    NextFundingTime = DateTimeOffset.UtcNow.AddHours(8).ToUnixTimeMilliseconds().ToString(CultureInfo.InvariantCulture)
+                    NextFundingTime = 1800000000000
                 }).ToList()
             });
         }
