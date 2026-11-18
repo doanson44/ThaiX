@@ -2292,4 +2292,5 @@
   <data name="MarketScanner.RequiredBinance" xml:space="preserve"><value>Require Binance Futures listing</value></data>
   <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Exchange settings saved</value></data>
   <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Failed to save exchange settings</value></data>
+  <data name="Mexc.ContractTickers.FutureOnly" xml:space="preserve"><value>USDT futures only</value></data>
 </root>
