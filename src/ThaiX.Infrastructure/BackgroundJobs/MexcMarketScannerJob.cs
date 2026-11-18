@@ -67,15 +67,15 @@ public sealed class MexcMarketScannerJob(
         HashSet<string>? bybitSymbols = null;
         HashSet<string>? binanceSymbols = null;
 
-        try
+        if (exchangeSettings.RequiredBybit)
         {
-            if (exchangeSettings.RequiredBybit)
+            try
             {
                 bybitSymbols = await memoryCache.GetOrCreateAsync("MarketScanner:BybitLinearSymbols", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
                     var response = await mediator.Send(new GetBybitLinearTickersQuery(), cancellationToken);
-                    if (!response.Success || response.Data.Count == 0)
+                    if (!response.Success)
                         throw new InvalidOperationException(response.Message ?? "Failed to retrieve Bybit linear symbols.");
 
                     return response.Data
@@ -84,14 +84,25 @@ public sealed class MexcMarketScannerJob(
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 });
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MexcMarketScannerJob could not retrieve Bybit symbols; skipping the Bybit filter");
+            }
+        }
 
-            if (exchangeSettings.RequiredBinance)
+        if (exchangeSettings.RequiredBinance)
+        {
+            try
             {
                 binanceSymbols = await memoryCache.GetOrCreateAsync("MarketScanner:BinanceFuturesSymbols", async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
                     var response = await mediator.Send(new GetBinanceFuturesTicker24HrQuery(), cancellationToken);
-                    if (!response.Success || response.Data.Count == 0)
+                    if (!response.Success)
                         throw new InvalidOperationException(response.Message ?? "Failed to retrieve Binance futures symbols.");
 
                     return response.Data
@@ -100,15 +111,14 @@ public sealed class MexcMarketScannerJob(
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
                 });
             }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "MexcMarketScannerJob could not verify required exchange symbols; skipping this run");
-            return;
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "MexcMarketScannerJob could not retrieve Binance symbols; skipping the Binance filter");
+            }
         }
 
         // 3. Fetch MEXC contract tickers (includes funding rate)
@@ -188,10 +198,10 @@ public sealed class MexcMarketScannerJob(
                 foreach (var signal in signals)
                 {
                     var normalizedSymbol = NormalizeSymbol(signal.Symbol);
-                    if (bybitSymbols is not null && !bybitSymbols.Contains(normalizedSymbol))
+                    if (bybitSymbols is { Count: > 0 } && !bybitSymbols.Contains(normalizedSymbol))
                         continue;
 
-                    if (binanceSymbols is not null && !binanceSymbols.Contains(normalizedSymbol))
+                    if (binanceSymbols is { Count: > 0 } && !binanceSymbols.Contains(normalizedSymbol))
                         continue;
 
                     cooldownService.MarkTriggered(signal.Symbol, signal.Type);
