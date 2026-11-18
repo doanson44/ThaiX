@@ -39,6 +39,23 @@
     </RadzenStack>
 
     <RadzenCard Class="mb-3">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem" Wrap="FlexWrap.Wrap">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSwitch Value="@_requireBybit" ValueChanged="OnRequireBybitChangedAsync" />
+                <RadzenLabel Text="@L[RK.MarketScanner.RequiredBybit]" Class="mb-0" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSwitch Value="@_requireBinance" ValueChanged="OnRequireBinanceChangedAsync" />
+                <RadzenLabel Text="@L[RK.MarketScanner.RequiredBinance]" Class="mb-0" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSwitch Value="@_futureOnly" ValueChanged="OnFutureOnlyChanged" />
+                <RadzenLabel Text="@L[RK.MexcContractTickers.FutureOnly]" Class="mb-0" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenCard Class="mb-3">
         <RadzenStack Gap="0.75rem">
             <RadzenText TextStyle="TextStyle.H6">@L[RK.MexcDemoTrading.OpenPositions]</RadzenText>
             @if (_portfolio.Positions.Count == 0)
@@ -400,12 +417,125 @@
     private string? _selectedSymbol;
     private string? _sortKey;
     private bool _sortAscending = true;
+    private bool _requireBybit;
+    private bool _requireBinance;
+    private bool _futureOnly;
+    private HashSet<string>? _bybitSymbols;
+    private HashSet<string>? _binanceSymbols;
 
     private IReadOnlyList<MexcContractTickerDto> DisplayTickers => _displayTickers;
 
+    private IEnumerable<MexcContractTickerDto> FilteredTickers => _allTickers.Where(ticker =>
+        (!_futureOnly || IsFutureOnlySymbol(ticker.Symbol))
+        && (!_requireBybit || _bybitSymbols is not { Count: > 0 }
+            || _bybitSymbols.Contains(NormalizeExchangeSymbol(ticker.Symbol)))
+        && (!_requireBinance || _binanceSymbols is not { Count: > 0 }
+            || _binanceSymbols.Contains(NormalizeExchangeSymbol(ticker.Symbol))));
+
+    private static string NormalizeExchangeSymbol(string? symbol) =>
+        (symbol ?? string.Empty).Trim().Replace("_", string.Empty).ToUpperInvariant();
+
+    private static bool IsFutureOnlySymbol(string? symbol)
+    {
+        var normalized = NormalizeExchangeSymbol(symbol);
+        return normalized.EndsWith("USDT", StringComparison.Ordinal)
+            && !normalized.Equals("STOCKUSDT", StringComparison.Ordinal);
+    }
+
+    private async Task OnRequireBybitChangedAsync(bool value)
+    {
+        _requireBybit = value;
+        if (value && _bybitSymbols is null)
+        {
+            _bybitSymbols = await LoadBybitSymbolsAsync();
+        }
+
+        await RefreshFilteredTickersAsync();
+    }
+
+    private async Task OnRequireBinanceChangedAsync(bool value)
+    {
+        _requireBinance = value;
+        if (value && _binanceSymbols is null)
+        {
+            _binanceSymbols = await LoadBinanceSymbolsAsync();
+        }
+
+        await RefreshFilteredTickersAsync();
+    }
+
+    private Task OnFutureOnlyChanged(bool value)
+    {
+        _futureOnly = value;
+        RefreshDisplayTickers();
+        ApplyMobileView();
+        return ReloadTickerGridAsync();
+    }
+
+    private async Task<HashSet<string>?> LoadBybitSymbolsAsync()
+    {
+        try
+        {
+            var response = await ExternalDataService.GetBybitLinearTickersAsync();
+            if (!response.Success || response.Data?.Data is null)
+            {
+                Logger.LogWarning("Could not load Bybit linear symbols for MEXC ticker filtering: {Message}", response.Message);
+                return null;
+            }
+
+            return response.Data.Data
+                .Select(ticker => NormalizeExchangeSymbol(ticker.Symbol))
+                .Where(symbol => symbol.Length > 0)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not load Bybit linear symbols for MEXC ticker filtering.");
+            return null;
+        }
+    }
+
+    private async Task<HashSet<string>?> LoadBinanceSymbolsAsync()
+    {
+        try
+        {
+            var response = await ExternalDataService.GetBinanceFuturesTicker24HrAsync();
+            if (!response.Success || response.Data?.Data is null)
+            {
+                Logger.LogWarning("Could not load Binance futures symbols for MEXC ticker filtering: {Message}", response.Message);
+                return null;
+            }
+
+            return response.Data.Data
+                .Select(ticker => NormalizeExchangeSymbol(ticker.Symbol))
+                .Where(symbol => symbol.Length > 0)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Could not load Binance futures symbols for MEXC ticker filtering.");
+            return null;
+        }
+    }
+
+    private async Task RefreshFilteredTickersAsync()
+    {
+        RefreshDisplayTickers();
+        ApplyMobileView();
+        await ReloadTickerGridAsync();
+    }
+
+    private async Task ReloadTickerGridAsync()
+    {
+        if (_dataGrid is not null)
+        {
+            await _dataGrid.Reload();
+        }
+    }
+
     private void RefreshDisplayTickers()
     {
-        var tickers = _allTickers
+        var tickers = FilteredTickers
             .Where(ticker => string.IsNullOrWhiteSpace(_selectedSymbol)
                 || ticker.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase))
             .OrderBy(ticker => GetPinnedOrder(ticker.Symbol))
@@ -707,7 +837,6 @@
         foreach (var ticker in tickers)
         {
             if (string.IsNullOrWhiteSpace(ticker.Symbol)
-                || !ticker.Symbol.EndsWith("_USDT", StringComparison.OrdinalIgnoreCase)
                 || !HasValidPrice(ticker.LastPrice))
             {
                 continue;
@@ -1432,9 +1561,10 @@
 
     private void ApplyMobileView()
     {
+        IEnumerable<MexcContractTickerDto> filteredTickers = FilteredTickers;
         IEnumerable<MexcContractTickerDto> result = string.IsNullOrWhiteSpace(_selectedSymbol)
-            ? _allTickers
-            : _allTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
+            ? filteredTickers
+            : filteredTickers.Where(x => x.Symbol.Equals(_selectedSymbol, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrEmpty(_sortKey))
         {
@@ -1456,7 +1586,7 @@
 
     private Task<(IReadOnlyList<MexcContractTickerDto>, int)> LoadSymbolsAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
     {
-        IEnumerable<MexcContractTickerDto> query = _allTickers;
+        IEnumerable<MexcContractTickerDto> query = FilteredTickers;
         if (!string.IsNullOrWhiteSpace(search))
         {
             query = query.Where(x => x.Symbol.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase));
