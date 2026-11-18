@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using System.Globalization;
 using ThaiX.Application.Common.Interfaces;
@@ -7,6 +8,8 @@ using ThaiX.Application.Common.Interfaces.MarketScanner;
 using ThaiX.Application.Common.Models;
 using ThaiX.Application.Common.Models.MarketScanner;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcContractSnapshots;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetBybitLinearTickers;
+using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetBinanceFuturesTicker24Hr;
 using ThaiX.Application.Features.MarketScanner.Queries.GetAllMarketScannerRules;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Infrastructure.Configuration;
@@ -21,6 +24,8 @@ namespace ThaiX.Infrastructure.BackgroundJobs;
 public sealed class MexcMarketScannerJob(
     IMediator mediator,
     IMarketSnapshotCache snapshotCache,
+    IMarketScannerExchangeSettingsService exchangeSettingsService,
+    IMemoryCache memoryCache,
     IEnumerable<IMarketSignalDetector> detectors,
     IMarketSignalCooldownService cooldownService,
     INotificationRouter notificationRouter,
@@ -57,7 +62,50 @@ public sealed class MexcMarketScannerJob(
             return;
         }
 
-        // 2. Fetch MEXC contract tickers (includes funding rate)
+        // 2. Load exchange requirements and refresh enabled exchange symbol lists when their 24-hour cache expires.
+        var exchangeSettings = await exchangeSettingsService.GetAsync(cancellationToken);
+        HashSet<string>? bybitSymbols = null;
+        HashSet<string>? binanceSymbols = null;
+
+        try
+        {
+            if (exchangeSettings.RequiredBybit)
+            {
+                bybitSymbols = await memoryCache.GetOrCreateAsync("MarketScanner:BybitLinearSymbols", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+                    var response = await mediator.Send(new GetBybitLinearTickersQuery(), cancellationToken);
+                    if (!response.Success)
+                        throw new InvalidOperationException(response.Message ?? "Failed to retrieve Bybit linear symbols.");
+
+                    return response.Data
+                        .Select(ticker => NormalizeSymbol(ticker.Symbol))
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                });
+            }
+
+            if (exchangeSettings.RequiredBinance)
+            {
+                binanceSymbols = await memoryCache.GetOrCreateAsync("MarketScanner:BinanceFuturesSymbols", async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(24);
+                    var response = await mediator.Send(new GetBinanceFuturesTicker24HrQuery(), cancellationToken);
+                    if (!response.Success)
+                        throw new InvalidOperationException(response.Message ?? "Failed to retrieve Binance futures symbols.");
+
+                    return response.Data
+                        .Select(ticker => NormalizeSymbol(ticker.Symbol))
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "MexcMarketScannerJob could not verify required exchange symbols; skipping this run");
+            return;
+        }
+
+        // 3. Fetch MEXC contract tickers (includes funding rate)
         IReadOnlyList<MexcContractSnapshotDto> tickers;
         try
         {
@@ -77,7 +125,7 @@ public sealed class MexcMarketScannerJob(
 
         var now = DateTimeOffset.UtcNow;
 
-        // 3. Project tickers to snapshots and add to cache
+        // 4. Project tickers to snapshots and add to cache
         foreach (var ticker in tickers)
         {
             var snapshot = new MarketTickerSnapshot
@@ -92,14 +140,14 @@ public sealed class MexcMarketScannerJob(
             snapshotCache.AddSnapshot(snapshot);
         }
 
-        // 4. Clean up old snapshots
+        // 5. Clean up old snapshots
         var retention = TimeSpan.FromMinutes(_options.MaxSnapshotRetentionMinutes);
         snapshotCache.Cleanup(retention);
 
-        // 5. Build detector lookup by signal type
+        // 6. Build detector lookup by signal type
         var detectorMap = detectors.ToDictionary(d => d.SignalType);
 
-        // 6. Run detectors for each rule against every relevant symbol
+        // 7. Run detectors for each rule against every relevant symbol
         var referenceTolerance = TimeSpan.FromSeconds(30);
         foreach (var rule in rules)
         {
@@ -133,6 +181,13 @@ public sealed class MexcMarketScannerJob(
                 var signals = detector.Detect(rule, comparisonSnapshots);
                 foreach (var signal in signals)
                 {
+                    var normalizedSymbol = NormalizeSymbol(signal.Symbol);
+                    if (bybitSymbols is not null && !bybitSymbols.Contains(normalizedSymbol))
+                        continue;
+
+                    if (binanceSymbols is not null && !binanceSymbols.Contains(normalizedSymbol))
+                        continue;
+
                     cooldownService.MarkTriggered(signal.Symbol, signal.Type);
                     await DispatchSignalAsync(signal, cancellationToken);
                 }
@@ -141,6 +196,9 @@ public sealed class MexcMarketScannerJob(
 
         _logger.LogInformation("MexcMarketScannerJob completed");
     }
+
+    private static string NormalizeSymbol(string symbol) =>
+        symbol.Replace("_", string.Empty, StringComparison.Ordinal).Trim().ToUpperInvariant();
 
     private async Task DispatchSignalAsync(MarketSignalResult signal, CancellationToken cancellationToken)
     {
