@@ -2291,4 +2291,5 @@
   <data name="MarketScanner.RequiredBinance" xml:space="preserve"><value>Yêu cầu niêm yết trên Binance Futures</value></data>
   <data name="MarketScanner.ExchangeSettings.Saved" xml:space="preserve"><value>Đã lưu cấu hình sàn</value></data>
   <data name="MarketScanner.ExchangeSettings.SaveFailed" xml:space="preserve"><value>Không thể lưu cấu hình sàn</value></data>
+  <data name="Mexc.ContractTickers.FutureOnly" xml:space="preserve"><value>Chỉ hợp đồng tương lai USDT</value></data>
 </root>

@@ -22,8 +22,24 @@ public sealed class GetBinanceFuturesTicker24HrQueryHandler
         GetBinanceFuturesTicker24HrQuery request,
         CancellationToken cancellationToken)
     {
-        var apiResponse = await _externalDataService
-            .GetBinanceFuturesTicker24HrAsync<JsonElement>(cancellationToken);
+        JsonElement apiResponse;
+        try
+        {
+            apiResponse = await _externalDataService
+                .GetBinanceFuturesTicker24HrAsync<JsonElement>(cancellationToken);
+        }
+        catch (Exception ex) when (
+            ex is HttpRequestException
+            or TaskCanceledException
+            or JsonException)
+        {
+            return new BinanceFuturesTicker24HrResponse
+            {
+                Data = new List<BinanceFuturesTickerDto>(),
+                Success = false,
+                Message = "Failed to retrieve Binance futures tickers from external API."
+            };
+        }
 
         if (apiResponse.ValueKind is JsonValueKind.Undefined or JsonValueKind.Null)
         {
