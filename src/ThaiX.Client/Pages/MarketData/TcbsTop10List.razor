@@ -289,7 +289,7 @@
     private string GetImageUrl(Guid fileGuid) =>
         ApiConnectivity.IsDemoMode
             ? DemoImageUrls.Chart(fileGuid.ToString("N"))
-            : $"https://iwealthclub.example.invalid/file/file/download?guid={fileGuid}";
+            : $"https://iwealthclub.com.vn/file/file/download?guid={fileGuid}";
 
     private IEnumerable<TcbsTop10AttachmentDto> GetVisibleImages(TcbsTop10PortfolioDto portfolio) =>
         portfolio.Attachments.Where(a => a.Kind == 0).OrderBy(a => a.ImageType);
