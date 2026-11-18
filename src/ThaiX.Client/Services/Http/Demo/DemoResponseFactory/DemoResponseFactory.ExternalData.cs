@@ -373,7 +373,9 @@ public sealed partial class DemoResponseFactory
                 {
                     Symbol = ticker.Symbol,
                     LastPrice = ticker.LastPrice,
-                    Price24hPcnt = ticker.PriceChangePercent,
+                    Price24hPcnt = ParseDemoDecimal(ticker.PriceChangePercent) is { } changePercent
+                        ? (changePercent / 100m).ToString("G", CultureInfo.InvariantCulture)
+                        : null,
                     HighPrice24h = ticker.HighPrice,
                     LowPrice24h = ticker.LowPrice,
                     Volume24h = ticker.Volume,
