@@ -22,4 +22,8 @@ public interface IMarketScannerService
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<MarketScannerExchangeSettingsModel> GetExchangeSettingsAsync(CancellationToken cancellationToken = default);
+
+    Task UpdateExchangeSettingsAsync(MarketScannerExchangeSettingsModel settings, CancellationToken cancellationToken = default);
 }
