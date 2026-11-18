@@ -4,6 +4,8 @@ using System.ComponentModel;
 using ThaiX.Application.Features.MarketScanner.Commands.CreateMarketScannerRule;
 using ThaiX.Application.Features.MarketScanner.Commands.DeleteMarketScannerRule;
 using ThaiX.Application.Features.MarketScanner.Commands.UpdateMarketScannerRule;
+using ThaiX.Application.Features.MarketScanner.Commands.UpdateMarketScannerExchangeSettings;
+using ThaiX.Application.Features.MarketScanner.Queries.GetMarketScannerExchangeSettings;
 using ThaiX.Application.Features.MarketScanner.Queries.GetMarketScannerRules;
 using ThaiX.Domain.Aggregates.MarketScanner;
 using ThaiX.Presentation.Extensions;
@@ -18,6 +20,41 @@ public static class MarketScannerEndpoints
 {
     public static void MapMarketScannerEndpoints(this IEndpointRouteBuilder endpoints)
     {
+        var settingsGroup = endpoints.MapGroup("/api/market-scanner/exchange-settings")
+            .WithTags("Market Scanner Rules");
+
+        settingsGroup.MapGet("/", async (
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            var settings = await mediator.Send(new GetMarketScannerExchangeSettingsQuery(), cancellationToken);
+            var response = ApiResponse<ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings>.SuccessResult(settings);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MarketScannerRuleRead)
+        .WithName("GetMarketScannerExchangeSettings");
+
+        settingsGroup.MapPut("/", async (
+            [FromBody] ThaiX.Application.Features.MarketScanner.Commands.UpdateMarketScannerExchangeSettings.UpdateMarketScannerExchangeSettingsCommand command,
+            IMediator mediator,
+            HttpContext httpContext,
+            CancellationToken cancellationToken) =>
+        {
+            await mediator.Send(command, cancellationToken);
+            var settings = new ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings
+            {
+                RequiredBybit = command.RequiredBybit,
+                RequiredBinance = command.RequiredBinance
+            };
+            var response = ApiResponse<ThaiX.Application.Common.Interfaces.MarketScannerExchangeSettings>.SuccessResult(settings);
+            response.Metadata.CorrelationId = httpContext.GetCorrelationId();
+            return Results.Ok(response);
+        })
+        .RequireAuthorization(Domain.Common.Constants.Permissions.MarketScannerRuleWrite)
+        .WithName("UpdateMarketScannerExchangeSettings");
+
         var group = endpoints.MapGroup("/api/market-scanner/rules")
             .WithTags("Market Scanner Rules");
 
