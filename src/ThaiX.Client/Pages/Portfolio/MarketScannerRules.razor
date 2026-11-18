@@ -52,6 +52,30 @@
                     <RadzenBadge Text="@_totalCount.ToString()" BadgeStyle="BadgeStyle.Info" />
                 </RadzenStack>
 
+                @if (_canWrite)
+                {
+                    <RadzenRow Gap="1rem">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenLabel Text="@L[RK.MarketScanner.RequiredBybit]" />
+                                <RadzenSwitch TValue="bool"
+                                              Value="@_exchangeSettings.RequiredBybit"
+                                              Change="@SetRequiredBybitAsync"
+                                              Disabled="@_isSavingExchangeSettings" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenLabel Text="@L[RK.MarketScanner.RequiredBinance]" />
+                                <RadzenSwitch TValue="bool"
+                                              Value="@_exchangeSettings.RequiredBinance"
+                                              Change="@SetRequiredBinanceAsync"
+                                              Disabled="@_isSavingExchangeSettings" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                }
+
                 @if (!Viewport.IsMobile)
                 {
                     <RadzenDataGrid @ref="_grid"
@@ -174,12 +198,54 @@
     private string? _searchTerm;
     private bool _canWrite;
     private bool _canDelete;
+    private bool _isSavingExchangeSettings;
+    private MarketScannerExchangeSettingsModel _exchangeSettings = new();
 
     protected override async Task OnInitializedAsync()
     {
         var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
         _canWrite = user.HasClaim("scope", PermissionNames.MarketScannerRuleWrite);
         _canDelete = user.HasClaim("scope", PermissionNames.MarketScannerRuleDelete);
+
+        try
+        {
+            _exchangeSettings = await MarketScannerService.GetExchangeSettingsAsync();
+        }
+        catch (ApiException ex)
+        {
+            NotificationService.NotifyError(L[RK.MarketScanner.LoadFailed], ex.GetDisplayDetail());
+        }
+    }
+
+    private Task SetRequiredBybitAsync(bool value) =>
+        UpdateExchangeSettingsAsync(_exchangeSettings with { RequiredBybit = value });
+
+    private Task SetRequiredBinanceAsync(bool value) =>
+        UpdateExchangeSettingsAsync(_exchangeSettings with { RequiredBinance = value });
+
+    private async Task UpdateExchangeSettingsAsync(MarketScannerExchangeSettingsModel settings)
+    {
+        if (_isSavingExchangeSettings)
+            return;
+
+        var previous = _exchangeSettings;
+        _exchangeSettings = settings;
+        _isSavingExchangeSettings = true;
+
+        try
+        {
+            await MarketScannerService.UpdateExchangeSettingsAsync(settings);
+            NotificationService.NotifySuccess(L[RK.MarketScanner.ExchangeSettingsSaved]);
+        }
+        catch (ApiException ex)
+        {
+            _exchangeSettings = previous;
+            NotificationService.NotifyError(L[RK.MarketScanner.ExchangeSettingsSaveFailed], ex.GetDisplayDetail());
+        }
+        finally
+        {
+            _isSavingExchangeSettings = false;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

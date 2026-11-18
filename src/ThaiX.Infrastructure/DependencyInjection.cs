@@ -133,6 +133,7 @@ public static class DependencyInjection
         // Core services
         services
             .AddScoped<IJsonBinService, JsonBinService>()
+            .AddScoped<IMarketScannerExchangeSettingsService, MarketScannerExchangeSettingsService>()
             .AddSingleton<IEncryptionService, AesEncryptionService>()
             .AddSingleton<ICredentialPasswordEncryptionService, CredentialPasswordEncryptionService>()
             .AddSingleton<IDateTimeProvider, DateTimeProviderService>()

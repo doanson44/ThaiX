@@ -1582,6 +1582,10 @@ public static class ResourceKeys
         public const string DeleteSuccess = "MarketScanner.Delete.Success";
         public const string DeleteFailed = "MarketScanner.Delete.Failed";
         public const string ConfirmDelete = "MarketScanner.ConfirmDelete";
+        public const string RequiredBybit = "MarketScanner.RequiredBybit";
+        public const string RequiredBinance = "MarketScanner.RequiredBinance";
+        public const string ExchangeSettingsSaved = "MarketScanner.ExchangeSettings.Saved";
+        public const string ExchangeSettingsSaveFailed = "MarketScanner.ExchangeSettings.SaveFailed";
     }
 
     public static class PriceAlerts
