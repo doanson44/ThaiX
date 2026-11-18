@@ -1206,6 +1206,7 @@ public static class ResourceKeys
         public const string Pin = "Mexc.ContractTickers.Pin";
         public const string Unpin = "Mexc.ContractTickers.Unpin";
         public const string CompositeScore = "Mexc.ContractTickers.CompositeScore";
+        public const string FutureOnly = "Mexc.ContractTickers.FutureOnly";
     }
 
     public static class MexcSpotTicker24Hr
