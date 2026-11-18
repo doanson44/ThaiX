@@ -38,7 +38,8 @@ public sealed class ExternalApiService
         try
         {
             var cached = await _cache.GetAsync<T>(cacheKey, cancellationToken).ConfigureAwait(false);
-            if (cached != null)
+            // Value types (e.g. JsonElement) are never null, so a cache miss returns default(T); compare against default.
+            if (!EqualityComparer<T?>.Default.Equals(cached, default))
             {
                 _logger.LogDebug("External API cache hit. Key={CacheKey}", cacheKey);
                 return cached;
