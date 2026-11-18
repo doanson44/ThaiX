@@ -86,9 +86,11 @@ Force demo: `wwwroot/appsettings.json` -> `Api:ForceDemo: true` (Development may
 | `api/external-data/mexc/funding-rate` | Covered | FundingRatesResponseDto |
 | `api/external-data/mexc/funding-rate/history/{symbol}` | Covered | MexcContractFundingRateHistoryResponseDto with paged settlement history |
 | `api/external-data/binance/funding-rates` | Covered | FundingRatesResponseDto |
-| `api/external-data/binance/futures-ticker-24hr` | Covered | BinanceFuturesTicker24HrResponseDto |\n| `api/external-data/binance/spot-ticker-24hr` | Covered | ExchangeTicker24HrResponseDto |
+| `api/external-data/binance/futures-ticker-24hr` | Covered | BinanceFuturesTicker24HrResponseDto |
+| `api/external-data/binance/spot-ticker-24hr` | Covered | ExchangeTicker24HrResponseDto |
 | `api/external-data/binance/*-depth/{symbol}` | Covered | OrderBookDepthResponseDto |
-| `api/external-data/bybit/linear-tickers` | Covered | BybitLinearTickersResponseDto |\n| `api/external-data/bybit/spot-tickers` | Covered | ExchangeTicker24HrResponseDto |
+| `api/external-data/bybit/linear-tickers` | Covered | BybitLinearTickersResponseDto |
+| `api/external-data/bybit/spot-tickers` | Covered | ExchangeTicker24HrResponseDto |
 | `api/external-data/market/price-history/{symbol}` | Covered | StockPriceHistoryResponseDto |
 | `api/external-data/market/watchlist-price/{symbol}` | Covered | WatchlistPriceResponseDto |
 | `api/external-data/market/vndirect/events\|ratios\|recommendations\|stock-prices\|technical-signals` | Covered | Typed VnDirect*ResponseDto |
