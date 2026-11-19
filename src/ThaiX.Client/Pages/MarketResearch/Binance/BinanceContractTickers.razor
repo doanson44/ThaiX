@@ -229,6 +229,16 @@
                 ? "text-danger fw-semibold"
                 : string.Empty;
 
+    private static string FormatSuggestionSymbol(string symbol)
+    {
+        if (symbol.EndsWith("_USDT", StringComparison.OrdinalIgnoreCase))
+            return symbol;
+
+        return symbol.EndsWith("USDT", StringComparison.OrdinalIgnoreCase)
+            ? $"{symbol[..^4]}_USDT"
+            : symbol;
+    }
+
     private async Task OpenTradeSuggestionAsync(string symbol)
     {
         await DialogService.OpenAsync<TradeSuggestionDialog>(
@@ -236,6 +246,7 @@
             new Dictionary<string, object?>
             {
                 [nameof(TradeSuggestionDialog.Symbol)] = symbol,
+                [nameof(TradeSuggestionDialog.RequestSymbol)] = FormatSuggestionSymbol(symbol),
                 [nameof(TradeSuggestionDialog.MarketType)] = MarketType.Crypto
             },
             new DialogOptions { Width = "min(680px, 96vw)", CloseDialogOnOverlayClick = true });
