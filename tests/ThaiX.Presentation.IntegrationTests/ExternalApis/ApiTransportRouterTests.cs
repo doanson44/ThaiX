@@ -174,7 +174,7 @@ public sealed class ApiTransportRouterTests
         };
     }
 
-    private sealed class ApiEnvelope
+    public sealed class ApiEnvelope
     {
         public List<string> Data { get; init; } = [];
     }
