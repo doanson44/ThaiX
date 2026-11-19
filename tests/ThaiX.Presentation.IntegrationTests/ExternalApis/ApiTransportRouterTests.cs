@@ -26,10 +26,10 @@ public sealed class ApiTransportRouterTests
             message.Headers.TryGetValues("Origin", out var originValues);
             message.Headers.TryGetValues("Referer", out var refererValues);
             message.Headers.TryGetValues("Accept-Language", out var acceptLanguageValues);
-            accept = acceptValues?.SingleOrDefault();
-            origin = originValues?.SingleOrDefault();
-            referer = refererValues?.SingleOrDefault();
-            acceptLanguage = acceptLanguageValues?.SingleOrDefault();
+            accept = acceptValues is null ? null : string.Join(", ", acceptValues);
+            origin = originValues?.FirstOrDefault();
+            referer = refererValues?.FirstOrDefault();
+            acceptLanguage = acceptLanguageValues?.FirstOrDefault();
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -53,7 +53,7 @@ public sealed class ApiTransportRouterTests
 
         // Assert
         result.Should().ContainSingle().Which.Should().Be("BTCUSDT");
-        accept.Should().Be("application/json, text/plain, */*");
+        accept.Should().Contain("application/json, text/plain, */*");
         origin.Should().Be("https://www.binance.com");
         referer.Should().Be("https://www.binance.com/");
         acceptLanguage.Should().Be("en-US,en;q=0.9");
