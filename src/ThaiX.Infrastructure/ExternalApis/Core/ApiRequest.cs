@@ -17,6 +17,9 @@ public sealed class ApiRequest
     /// <summary>When set, overrides global proxy setting. When null, router uses global UseProxy.</summary>
     public bool? UseProxy { get; set; }
 
+    /// <summary>When true, retries an eligible direct GET request through the proxy when it fails or has no data.</summary>
+    public bool EnableProxyFallback { get; set; }
+
     /// <summary>When true, the request is rendered by the headless browser instead of an HTTP client.</summary>
     public bool UseBrowser { get; set; }
 
