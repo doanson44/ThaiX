@@ -358,11 +358,6 @@ public sealed class ProxyTransport : IApiTransport
 
     private string ResolveProxyBaseUrl(string targetUrl)
     {
-        if (IsBinanceRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.BinanceBaseUrl))
-        {
-            return _options.BinanceBaseUrl;
-        }
-
         if (IsInvestingRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.InvestingBaseUrl))
         {
             return _options.InvestingBaseUrl;
@@ -373,8 +368,7 @@ public sealed class ProxyTransport : IApiTransport
 
     private bool UsesCmsxProxy(string targetUrl)
     {
-        return !(IsBinanceRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.BinanceBaseUrl))
-            && !(IsInvestingRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.InvestingBaseUrl));
+        return !(IsInvestingRequest(targetUrl) && !string.IsNullOrWhiteSpace(_options.InvestingBaseUrl));
     }
 
     private void AddProxyAuthentication(HttpRequestMessage message, bool usesCmsxProxy)
@@ -391,11 +385,6 @@ public sealed class ProxyTransport : IApiTransport
         }
 
         message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _options.Token);
-    }
-
-    private static bool IsBinanceRequest(string targetUrl)
-    {
-        return IsHostRequest(targetUrl, "binance.com");
     }
 
     private static bool IsInvestingRequest(string targetUrl)
