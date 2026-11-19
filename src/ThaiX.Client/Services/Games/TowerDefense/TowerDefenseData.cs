@@ -54,6 +54,9 @@ public static class TowerDefenseData
 
     public static bool IsEndlessRewardWave(int wave) => wave > 0 && wave % CampaignWaves == 0;
 
+    public static int EndlessMilestoneGoldBonus(int startingGold) =>
+        (int)Math.Round(Math.Max(0, startingGold) * 0.1, MidpointRounding.AwayFromZero);
+
     public static readonly IReadOnlyList<TowerSpec> Towers =
     [
         new(TowerKind.Gunner, ResourceKeys.Games.TowerGun, "settings", "#bef264", 50, 100, 7, 9,
