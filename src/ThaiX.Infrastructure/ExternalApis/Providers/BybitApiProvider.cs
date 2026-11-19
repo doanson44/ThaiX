@@ -49,6 +49,7 @@ public sealed class BybitApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
         return _apiService.ExecuteAsync<T>(request, cancellationToken);
@@ -69,6 +70,7 @@ public sealed class BybitApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
         return _apiService.ExecuteAsync<T>(request, cancellationToken);
