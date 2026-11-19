@@ -63,6 +63,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -84,6 +85,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -113,6 +115,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -142,6 +145,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -171,6 +175,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -192,6 +197,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
@@ -221,6 +227,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
 
