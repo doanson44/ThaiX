@@ -29,7 +29,7 @@ public sealed class ApiTransportRouterTests
             accept = acceptValues is null ? null : string.Join(", ", acceptValues);
             origin = originValues?.FirstOrDefault();
             referer = refererValues?.FirstOrDefault();
-            acceptLanguage = acceptLanguageValues?.FirstOrDefault();
+            acceptLanguage = acceptLanguageValues is null ? null : string.Join(", ", acceptLanguageValues);
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -56,7 +56,7 @@ public sealed class ApiTransportRouterTests
         accept.Should().Contain("application/json, text/plain, */*");
         origin.Should().Be("https://www.binance.com");
         referer.Should().Be("https://www.binance.com/");
-        acceptLanguage.Should().Be("en-US,en;q=0.9");
+        acceptLanguage.Should().Contain("en-US").And.Contain("en;q=0.9");
         proxyHandler.RequestCount.Should().Be(0);
     }
 
