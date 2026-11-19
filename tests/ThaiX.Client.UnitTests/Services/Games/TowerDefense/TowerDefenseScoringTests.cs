@@ -56,4 +56,35 @@ public sealed class TowerDefenseScoringTests
         // Assert
         isRewardWave.Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData(5000, 500)]
+    [InlineData(150, 15)]
+    [InlineData(0, 0)]
+    [InlineData(-100, 0)]
+    public void EndlessMilestoneGoldBonus_ShouldReturnTenPercentOfInitialGold(int startingGold, int expected)
+    {
+        // Arrange
+
+        // Act
+        var bonus = TowerDefenseData.EndlessMilestoneGoldBonus(startingGold);
+
+        // Assert
+        bonus.Should().Be(expected);
+    }
+
+    [Fact]
+    public void Match_StartsWithStartingGoldIncludingPurchasedBonus()
+    {
+        // Arrange
+        var difficulty = TowerDefenseData.Difficulties[1];
+        const int purchasedBonus = 400;
+
+        // Act
+        var match = new TowerDefenseMatch(TowerDefenseData.Maps[0], difficulty, endless: true, startingGoldBonus: purchasedBonus);
+
+        // Assert
+        match.StartingGold.Should().Be(difficulty.StartGold + purchasedBonus);
+        match.Gold.Should().Be(match.StartingGold);
+    }
 }
