@@ -52,6 +52,27 @@ public sealed class ApiTransportRouterTests
     }
 
     [Fact]
+    public async Task SendAsync_WhenDirectResponseDataCollectionIsEmpty_ShouldFallbackToProxy()
+    {
+        // Arrange
+        var directHandler = new RecordingHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{\"data\":[]}")
+        });
+        var proxyHandler = new RecordingHandler(_ => CreateProxyResponse("{\"data\":[\"BTCUSDT\"]}"));
+        var router = CreateRouter(directHandler, proxyHandler);
+        var request = CreateRequest();
+
+        // Act
+        var result = await router.SendAsync<ApiEnvelope>(request, CancellationToken.None);
+
+        // Assert
+        result!.Data.Should().ContainSingle().Which.Should().Be("BTCUSDT");
+        directHandler.RequestCount.Should().Be(1);
+        proxyHandler.RequestCount.Should().Be(1);
+    }
+
+    [Fact]
     public async Task SendAsync_WhenDirectResponseHasData_ShouldNotUseProxy()
     {
         // Arrange
@@ -151,6 +172,11 @@ public sealed class ApiTransportRouterTests
         {
             Content = new StringContent($$"""{"statusCode":200,"reasonPhrase":"OK","body":{{System.Text.Json.JsonSerializer.Serialize(body)}}}""")
         };
+    }
+
+    private sealed class ApiEnvelope
+    {
+        public List<string> Data { get; init; } = [];
     }
 
     private sealed class RecordingHandler(Func<HttpRequestMessage, HttpResponseMessage> responseFactory)
