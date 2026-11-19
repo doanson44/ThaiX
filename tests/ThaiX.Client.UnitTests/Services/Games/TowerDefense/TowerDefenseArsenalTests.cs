@@ -306,8 +306,11 @@ public sealed class TowerDefenseArsenalTests
 
         // Act
         var groups = TowerDefenseData.WaveGroups(20, mission);
+        var campaignGroups = Enumerable.Range(1, TowerDefenseData.CampaignWaves)
+            .SelectMany(wave => TowerDefenseData.WaveGroups(wave, mission));
 
         // Assert
+        campaignGroups.Should().OnlyContain(group => group.Kind == EnemyKind.Helicopter);
         mission.IsBonus.Should().BeTrue();
         mission.RequiredTower.Should().Be(TowerKind.FlakCannon);
         groups.Should().ContainSingle();
