@@ -13,6 +13,54 @@ public sealed class ApiTransportRouterTests
     private const string BybitUrl = "https://api.bybit.com/v5/market/tickers?category=linear";
 
     [Fact]
+    public async Task SendAsync_WhenRequestHasBrowserHeaders_ShouldForwardThemToDirectApi()
+    {
+        // Arrange
+        string? accept = null;
+        string? origin = null;
+        string? referer = null;
+        string? acceptLanguage = null;
+        var directHandler = new RecordingHandler(message =>
+        {
+            message.Headers.TryGetValues("Accept", out var acceptValues);
+            message.Headers.TryGetValues("Origin", out var originValues);
+            message.Headers.TryGetValues("Referer", out var refererValues);
+            message.Headers.TryGetValues("Accept-Language", out var acceptLanguageValues);
+            accept = acceptValues is null ? null : string.Join(", ", acceptValues);
+            origin = originValues?.FirstOrDefault();
+            referer = refererValues?.FirstOrDefault();
+            acceptLanguage = acceptLanguageValues is null ? null : string.Join(", ", acceptLanguageValues);
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""["BTCUSDT"]""")
+            };
+        });
+        var proxyHandler = new RecordingHandler(_ => throw new InvalidOperationException("Proxy should not be called."));
+        var router = CreateRouter(directHandler, proxyHandler);
+        var request = CreateRequest();
+        request.Url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
+        request.Headers = new Dictionary<string, string>
+        {
+            ["Accept"] = "application/json, text/plain, */*",
+            ["Accept-Language"] = "en-US,en;q=0.9",
+            ["Origin"] = "https://www.binance.com",
+            ["Referer"] = "https://www.binance.com/"
+        };
+
+        // Act
+        var result = await router.SendAsync<List<string>>(request, CancellationToken.None);
+
+        // Assert
+        result.Should().ContainSingle().Which.Should().Be("BTCUSDT");
+        accept.Should().Contain("application/json, text/plain, */*");
+        origin.Should().Be("https://www.binance.com");
+        referer.Should().Be("https://www.binance.com/");
+        acceptLanguage.Should().Contain("en-US").And.Contain("en; q=0.9");
+        proxyHandler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task SendAsync_WhenDirectRequestFails_ShouldFallbackToProxy()
     {
         // Arrange

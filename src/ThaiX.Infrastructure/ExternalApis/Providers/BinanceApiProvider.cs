@@ -18,6 +18,14 @@ public sealed class BinanceApiProvider
     private const string SpotTicker24HrEndpoint = "SpotTicker24Hr";
     private const string SpotTicker24HrBySymbolEndpoint = "SpotTicker24HrBySymbol";
 
+    private static Dictionary<string, string> CreateRequestHeaders() => new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Accept"] = "application/json, text/plain, */*",
+        ["Accept-Language"] = "en-US,en;q=0.9",
+        ["Origin"] = "https://www.binance.com",
+        ["Referer"] = "https://www.binance.com/"
+    };
+
     private readonly ExternalApiService _apiService;
     private readonly ExternalApisOptions _options;
 
@@ -63,6 +71,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -85,6 +94,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -115,6 +125,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -145,6 +156,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -175,6 +187,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -197,6 +210,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
@@ -227,6 +241,7 @@ public sealed class BinanceApiProvider
                 ? TimeSpan.FromSeconds(endpoint.CacheDurationSeconds)
                 : null,
             UseProxy = endpoint.UseProxy,
+            Headers = CreateRequestHeaders(),
             EnableProxyFallback = true,
             TimeoutSeconds = endpoint.TimeoutSeconds > 0 ? endpoint.TimeoutSeconds : 30
         };
