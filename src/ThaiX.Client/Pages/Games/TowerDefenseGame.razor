@@ -19,6 +19,12 @@
         <symbol id="td-tower-plasmacannon" viewBox="0 0 179 171"><image href="/images/games/tower-defense/tower-plasmacannon.png" width="179" height="171" /></symbol>
         <symbol id="td-tower-radar" viewBox="0 0 108 128"><image href="/images/games/tower-defense/tower-radar.png" width="108" height="128" /></symbol>
         <symbol id="td-tower-poweramplifier" viewBox="0 0 143 128"><image href="/images/games/tower-defense/tower-poweramplifier.png" width="143" height="128" /></symbol>
+        <symbol id="td-tower-flakcannon" viewBox="0 0 48 48">
+            <circle cx="24" cy="29" r="15" fill="#334155" stroke="#bae6fd" stroke-width="3" />
+            <path d="M18 28L13 9L18 7L25 24L31 8L36 10L30 29Z" fill="#94a3b8" stroke="#e0f2fe" stroke-width="2" stroke-linejoin="round" />
+            <circle cx="24" cy="29" r="5" fill="#0f172a" stroke="#e0f2fe" stroke-width="2" />
+            <path d="M7 15L3 11M41 15L45 11M24 3V0" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round" />
+        </symbol>
         <symbol id="td-enemy-soldier" viewBox="0 0 126 107"><image href="/images/games/tower-defense/enemy-soldier.png" width="126" height="107" /></symbol>
         <symbol id="td-enemy-armored" viewBox="0 0 161 107"><image href="/images/games/tower-defense/enemy-armored.png" width="161" height="107" /></symbol>
         <symbol id="td-enemy-jeep" viewBox="0 0 126 107"><image href="/images/games/tower-defense/enemy-jeep.png" width="126" height="107" /></symbol>
@@ -415,7 +421,7 @@ else
                     </span>
                     @if (!chosen.Spec.IsSupport)
                     {
-                        <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                        <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : (chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
                     }
                 </div>
                 <div class="td-upgrades">
@@ -468,7 +474,7 @@ else
                     </span>
                     @if (!buildSpec.IsSupport)
                     {
-                        <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : ResourceKeys.Games.TdGroundOnly]</small>
+                        <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : (buildSpec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
                     }
                 </div>
                 <small class="td-select-hint text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
@@ -655,6 +661,7 @@ else
                 else
                     ActivateCell(_cursor);
                 break;
+            case "b": SelectBuild(TowerKind.FlakCannon); break;
             case "d": Upgrade(UpgradeTrack.Damage); break;
             case "r": Upgrade(UpgradeTrack.Range); break;
             case "f": Upgrade(UpgradeTrack.FireRate); break;
