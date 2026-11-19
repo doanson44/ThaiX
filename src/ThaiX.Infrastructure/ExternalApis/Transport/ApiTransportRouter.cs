@@ -143,11 +143,37 @@ public sealed class ApiTransportRouter : IApiTransport
                 || jsonElement.ValueKind == JsonValueKind.Array && jsonElement.GetArrayLength() == 0;
         }
 
-        if (response is not IEnumerable enumerable)
+        if (response is IEnumerable enumerable && IsEmptyEnumerable(enumerable))
         {
-            return false;
+            return true;
         }
 
+        var responseType = response.GetType();
+        var dataProperty = responseType.GetProperty("Data");
+        if (dataProperty is not null)
+        {
+            var data = dataProperty.GetValue(response);
+            if (data is null || data is IEnumerable dataEnumerable && IsEmptyEnumerable(dataEnumerable))
+            {
+                return true;
+            }
+        }
+
+        var bidsProperty = responseType.GetProperty("Bids");
+        var asksProperty = responseType.GetProperty("Asks");
+        if (bidsProperty is not null && asksProperty is not null)
+        {
+            var bids = bidsProperty.GetValue(response) as IEnumerable;
+            var asks = asksProperty.GetValue(response) as IEnumerable;
+            return (bids is null || IsEmptyEnumerable(bids))
+                && (asks is null || IsEmptyEnumerable(asks));
+        }
+
+        return false;
+    }
+
+    private static bool IsEmptyEnumerable(IEnumerable enumerable)
+    {
         var enumerator = enumerable.GetEnumerator();
         try
         {
