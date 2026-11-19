@@ -2197,7 +2197,7 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>XOAY</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>THẢ</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Thủ thành</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 14 nhiệm vụ và các thử thách thưởng. Kiếm điểm War-Mart để mua 10 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Bảo vệ căn cứ qua 14 nhiệm vụ chiến dịch và 3 thử thách thưởng. Kiếm điểm War-Mart để mua 11 loại tháp, nâng cấp sát thương, tầm bắn, tốc độ bắn và gọi không kích.</value></data>
   <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Chọn nhiệm vụ, độ khó và chế độ rồi triển khai. Chọn tháp (phím 1-9, 0 hoặc B để chọn pháo phòng không) và một ô trống để xây. Chọn tháp đã xây để nâng cấp sát thương (D), tầm bắn (R) hoặc tốc độ bắn (F), đổi mục tiêu (T), di chuyển (M) hoặc bán (X). Nhấn N để bắt đầu đợt kế tiếp, A rồi Enter hoặc chọn ô để không kích, G để đổi tốc độ. Phím mũi tên di chuyển con trỏ và Enter để xây hoặc chọn. Chiến thắng nhiệm vụ để nhận điểm, mua tháp nâng cao, tăng tiền khởi đầu và mở thử thách thưởng trong War-Mart. Mỗi quân địch tới cuối đường làm mất mạng; trực thăng bay thẳng qua bản đồ và chỉ một số tháp bắn được.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
@@ -2261,7 +2261,6 @@
   <data name="Games.Td.Mission14" xml:space="preserve"><value>Nhiệm vụ 14 - Trận chiến cuối</value></data>
   <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Thưởng - Chiến dịch bắn tỉa</value></data>
   <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Thưởng - Phòng thủ đến cùng</value></data>
-  <data name="Games.Td.BonusAirDefense" xml:space="preserve"><value>Thưởng - Phòng không</value></data>
   <data name="Games.Td.BonusAirDefense" xml:space="preserve"><value>Thưởng - Phòng không</value></data>
   <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Nhiệm vụ thưởng</value></data>
   <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Mua với {0} điểm trong War-Mart</value></data>
