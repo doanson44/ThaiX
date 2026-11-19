@@ -92,8 +92,9 @@ public sealed class TowerDefenseMatch
         Map = map;
         Difficulty = difficulty;
         Endless = endless;
-        Gold = difficulty.StartGold + Math.Max(0, startingGoldBonus)
+        StartingGold = difficulty.StartGold + Math.Max(0, startingGoldBonus)
             + (map.RequiredTower is { } required ? TowerDefenseData.Tower(required).Cost : 0);
+        Gold = StartingGold;
         Lives = difficulty.Lives;
         _roads = [.. map.Routes.Select(route =>
             route.Select(point => (point.Column * CellSize + CellSize / 2.0, Top + point.Row * CellSize + CellSize / 2.0)).ToArray())];
@@ -103,6 +104,7 @@ public sealed class TowerDefenseMatch
     public MapSpec Map { get; }
     public DifficultySpec Difficulty { get; }
     public bool Endless { get; }
+    public int StartingGold { get; }
     public MatchState State { get; private set; } = MatchState.Planning;
     public int Gold { get; private set; }
     public int Lives { get; private set; }
@@ -532,6 +534,9 @@ public sealed class TowerDefenseMatch
         }
 
         Gold += (int)Math.Round((15 + 3 * Wave) * Difficulty.GoldMultiplier);
+        if (Endless && TowerDefenseData.IsEndlessRewardWave(Wave))
+            Gold += TowerDefenseData.EndlessMilestoneGoldBonus(StartingGold);
+
         State = MatchState.Planning;
         _autoWaveAt = Tick + InterWaveDelayTicks;
     }
