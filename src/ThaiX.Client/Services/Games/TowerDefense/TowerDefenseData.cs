@@ -2,7 +2,7 @@ using ThaiX.Client.Constants;
 
 namespace ThaiX.Client.Services.Games.TowerDefense;
 
-public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField, ParticleBeam, PlasmaCannon, Radar, PowerAmplifier }
+public enum TowerKind { Gunner, Sniper, Rocket, Tesla, Flamethrower, SlowField, ParticleBeam, PlasmaCannon, Radar, PowerAmplifier, FlakCannon }
 
 public enum EnemyKind { Soldier, Armored, Jeep, Helicopter, Tank, Boss }
 
@@ -78,7 +78,9 @@ public static class TowerDefenseData
         new(TowerKind.Radar, ResourceKeys.Games.TowerRadar, "search", "#67e8f9", 350, 145, 0, 0,
             TowerEffect.SupportRange, false, false, 1, 1, 1, null, 20),
         new(TowerKind.PowerAmplifier, ResourceKeys.Games.TowerPowerAmplifier, "military_tech", "#fde047", 400, 130, 0, 0,
-            TowerEffect.SupportDamage, false, false, 1, 1, 1, null, 5)
+            TowerEffect.SupportDamage, false, false, 1, 1, 1, null, 5),
+        new(TowerKind.FlakCannon, ResourceKeys.Games.TowerFlakCannon, "radar", "#67e8f9", 350, 190, 32, 18,
+            TowerEffect.Splash, false, true, 0, 0, 2, "#bae6fd")
     ];
 
     public static readonly IReadOnlyList<EnemySpec> Enemies =
@@ -140,7 +142,10 @@ public static class TowerDefenseData
             [], [], TowerKind.Sniper, true, 700),
         new("bonus-endurance", ResourceKeys.Games.TdBonusEndurance,
             [[(-1, 0), (8, 0), (8, 6), (1, 6), (1, 3), (10, 3)]],
-            [], [], null, true, 900)
+            [], [], null, true, 900),
+        new("bonus-air-defense", ResourceKeys.Games.TdBonusAirDefense,
+            [[(-1, 3), (10, 3)]],
+            [], [], TowerKind.FlakCannon, true, 900)
     ];
 
     public static readonly IReadOnlyList<DifficultySpec> Difficulties =
@@ -188,12 +193,22 @@ public static class TowerDefenseData
         TowerKind.PowerAmplifier => 350,
         TowerKind.ParticleBeam => 500,
         TowerKind.PlasmaCannon => 750,
+        TowerKind.FlakCannon => 600,
         _ => 0
     };
 
     /// <summary>Wave composition; after the campaign the table repeats with growing groups (endless mode).</summary>
-    public static IReadOnlyList<WaveGroup> WaveGroups(int wave)
+    public static IReadOnlyList<WaveGroup> WaveGroups(int wave, MapSpec? map = null)
     {
+        if (map?.Id == "bonus-air-defense")
+        {
+            int[] helicopterCounts = [3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+            var count = helicopterCounts[(wave - 1) % CampaignWaves];
+            if (wave > CampaignWaves)
+                count = (int)Math.Ceiling(count * (1 + (wave - CampaignWaves) * 0.05));
+            return [G(EnemyKind.Helicopter, count, 24)];
+        }
+
         var groups = Waves[(wave - 1) % CampaignWaves];
         if (wave <= CampaignWaves)
             return groups;

@@ -5,7 +5,7 @@ namespace ThaiX.Client.UnitTests.Services.Games.TowerDefense;
 public sealed class TowerDefenseArsenalTests
 {
     [Fact]
-    public void TowerCatalog_ContainsTenUniqueKinds()
+    public void TowerCatalog_ContainsElevenUniqueKinds()
     {
         // Arrange
         var towers = TowerDefenseData.Towers;
@@ -14,7 +14,7 @@ public sealed class TowerDefenseArsenalTests
         var kinds = towers.Select(tower => tower.Kind).ToArray();
 
         // Assert
-        towers.Should().HaveCount(10);
+        towers.Should().HaveCount(11);
         kinds.Should().OnlyHaveUniqueItems();
         Enum.GetValues<TowerKind>().Should().BeEquivalentTo(kinds);
     }
@@ -28,7 +28,8 @@ public sealed class TowerDefenseArsenalTests
             TowerDefenseData.TowerUnlockCost(TowerKind.Radar),
             TowerDefenseData.TowerUnlockCost(TowerKind.PowerAmplifier),
             TowerDefenseData.TowerUnlockCost(TowerKind.ParticleBeam),
-            TowerDefenseData.TowerUnlockCost(TowerKind.PlasmaCannon)
+            TowerDefenseData.TowerUnlockCost(TowerKind.PlasmaCannon),
+            TowerDefenseData.TowerUnlockCost(TowerKind.FlakCannon)
         };
 
         // Act
@@ -37,8 +38,7 @@ public sealed class TowerDefenseArsenalTests
             .ToArray();
 
         // Assert
-        unlocks.Should().BeInAscendingOrder();
-        unlocks.Should().Equal(new[] { 250, 350, 500, 750 });
+        unlocks.Order().Should().Equal(new[] { 250, 350, 500, 600, 750 });
         startingTowerUnlocks.Should().HaveCount(6);
     }
 
@@ -244,7 +244,7 @@ public sealed class TowerDefenseArsenalTests
     }
 
     [Fact]
-    public void Maps_ContainFourteenMissions_KeepObstaclesOffRoads()
+    public void Maps_ContainFourteenCampaignAndThreeBonusMissions_KeepObstaclesOffRoads()
     {
         // Arrange
         var maps = TowerDefenseData.Maps;
@@ -258,7 +258,7 @@ public sealed class TowerDefenseArsenalTests
 
         // Assert
         maps.Where(map => !map.IsBonus).Should().HaveCount(14);
-        maps.Where(map => map.IsBonus).Should().HaveCount(2);
+        maps.Where(map => map.IsBonus).Should().HaveCount(3);
         maps.Select(map => map.Id).Should().OnlyHaveUniqueItems();
         collisions.Should().BeEmpty();
     }
@@ -275,6 +275,65 @@ public sealed class TowerDefenseArsenalTests
         // Assert
         mission.IsBonus.Should().BeTrue();
         requiredTower.Should().Be(TowerKind.Sniper);
+    }
+
+    [Fact]
+    public void FlakCannon_IsAirOnlyAndUsesTheProposedStats()
+    {
+        // Arrange
+        var flak = TowerDefenseData.Tower(TowerKind.FlakCannon);
+
+        // Act
+        var canHitAir = flak.CanHit(EnemyClass.Air);
+        var canHitGround = flak.CanHit(EnemyClass.Infantry);
+
+        // Assert
+        flak.Cost.Should().Be(350);
+        flak.Range.Should().Be(190);
+        flak.Damage.Should().Be(32);
+        flak.Cooldown.Should().Be(18);
+        flak.VsAir.Should().Be(2);
+        canHitAir.Should().BeTrue();
+        canHitGround.Should().BeFalse();
+        TowerDefenseData.TowerUnlockCost(TowerKind.FlakCannon).Should().Be(600);
+    }
+
+    [Fact]
+    public void BonusAirDefenseMission_RequiresFlakAndSpawnsOnlyHelicopters()
+    {
+        // Arrange
+        var mission = TowerDefenseData.Maps.Single(map => map.Id == "bonus-air-defense");
+
+        // Act
+        var groups = TowerDefenseData.WaveGroups(20, mission);
+        var campaignGroups = Enumerable.Range(1, TowerDefenseData.CampaignWaves)
+            .SelectMany(wave => TowerDefenseData.WaveGroups(wave, mission));
+
+        // Assert
+        campaignGroups.Should().OnlyContain(group => group.Kind == EnemyKind.Helicopter);
+        mission.IsBonus.Should().BeTrue();
+        mission.RequiredTower.Should().Be(TowerKind.FlakCannon);
+        groups.Should().ContainSingle();
+        groups[0].Kind.Should().Be(EnemyKind.Helicopter);
+        groups[0].Count.Should().Be(32);
+        TowerDefenseData.WaveGroups(21, mission).Single().Kind.Should().Be(EnemyKind.Helicopter);
+    }
+
+    [Fact]
+    public void Build_AirDefenseBonusMission_RejectsNonFlakTowers()
+    {
+        // Arrange
+        var mission = TowerDefenseData.Maps.Single(map => map.Id == "bonus-air-defense");
+        var match = new TowerDefenseMatch(mission, TowerDefenseData.Difficulties[1], endless: false);
+        var cell = match.FirstFreeCell(0);
+
+        // Act
+        var rejected = match.Build(cell, TowerKind.Gunner);
+        var accepted = match.Build(cell, TowerKind.FlakCannon);
+
+        // Assert
+        rejected.Should().BeNull();
+        accepted.Should().NotBeNull();
     }
 
     [Fact]
