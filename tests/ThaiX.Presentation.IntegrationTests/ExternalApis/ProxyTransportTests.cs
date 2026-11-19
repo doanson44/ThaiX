@@ -45,7 +45,7 @@ public sealed class ProxyTransportTests
             {
                 statusCode = 200,
                 reasonPhrase = "OK",
-                body = "{\\\"serverTime\\\":123}"
+                body = "{\"serverTime\":123}"
             }))
         });
         var transport = CreateTransport(handler);
