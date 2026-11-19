@@ -33,7 +33,7 @@ public sealed class ApiTransportRouterTests
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
-                Content = new StringContent("[\\"BTCUSDT\\"]")
+                Content = new StringContent("""["BTCUSDT"]""")
             };
         });
         var proxyHandler = new RecordingHandler(_ => throw new InvalidOperationException("Proxy should not be called."));
