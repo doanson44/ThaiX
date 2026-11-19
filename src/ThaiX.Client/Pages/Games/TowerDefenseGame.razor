@@ -421,7 +421,7 @@ else
                     </span>
                     @if (!chosen.Spec.IsSupport)
                     {
-                        <small class="text-muted">@L[chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirAndGround : (chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
+                        <small class="text-muted">@L[chosen.Spec.HitsAir && chosen.Spec.HitsGround ? ResourceKeys.Games.TdAirAndGround : (chosen.Spec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
                     }
                 </div>
                 <div class="td-upgrades">
@@ -474,7 +474,7 @@ else
                     </span>
                     @if (!buildSpec.IsSupport)
                     {
-                        <small class="text-muted">@L[buildSpec.HitsAir ? ResourceKeys.Games.TdAirAndGround : (buildSpec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
+                        <small class="text-muted">@L[buildSpec.HitsAir && buildSpec.HitsGround ? ResourceKeys.Games.TdAirAndGround : (buildSpec.HitsAir ? ResourceKeys.Games.TdAirOnly : ResourceKeys.Games.TdGroundOnly)]</small>
                     }
                 </div>
                 <small class="td-select-hint text-muted">@L[ResourceKeys.Games.TdSelectHint]</small>
