@@ -2198,8 +2198,8 @@
   <data name="Games.KeyRotate" xml:space="preserve"><value>ROT</value></data>
   <data name="Games.KeyDrop" xml:space="preserve"><value>DROP</value></data>
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
-  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 14 missions and bonus challenges. Earn War-Mart credits to buy 10 tower types, upgrade damage, range and fire rate, and call in airstrikes.</value></data>
-  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a mission, difficulty and mode, then deploy. Choose a tower (keys 1-9 and 0) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T), move it (M) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Win missions to earn credits, buy advanced towers, increase starting funds and unlock bonus challenges in the War-Mart. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
+  <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 14 campaign missions and 3 bonus challenges. Earn War-Mart credits to buy 11 tower types, upgrade damage, range and fire rate, and call in airstrikes.</value></data>
+  <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a mission, difficulty and mode, then deploy. Choose a tower (keys 1-9, 0 or B for Flak) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T), move it (M) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Win missions to earn credits, buy advanced towers, increase starting funds and unlock bonus challenges in the War-Mart. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
@@ -2212,6 +2212,7 @@
   <data name="Games.TowerPlasmaCannon" xml:space="preserve"><value>Plasma cannon</value></data>
   <data name="Games.TowerRadar" xml:space="preserve"><value>Radar tower</value></data>
   <data name="Games.TowerPowerAmplifier" xml:space="preserve"><value>Power amplifier</value></data>
+  <data name="Games.TowerFlakCannon" xml:space="preserve"><value>Flak Cannon</value></data>
   <data name="Games.EnemySoldier" xml:space="preserve"><value>Soldier</value></data>
   <data name="Games.EnemyArmored" xml:space="preserve"><value>Armored trooper</value></data>
   <data name="Games.EnemyJeep" xml:space="preserve"><value>Jeep</value></data>
@@ -2261,6 +2262,7 @@
   <data name="Games.Td.Mission14" xml:space="preserve"><value>Mission 14 - Final Stand</value></data>
   <data name="Games.Td.BonusSniper" xml:space="preserve"><value>Bonus - Sniper Operations</value></data>
   <data name="Games.Td.BonusEndurance" xml:space="preserve"><value>Bonus - Last Stand</value></data>
+  <data name="Games.Td.BonusAirDefense" xml:space="preserve"><value>Bonus - Air Defense</value></data>
   <data name="Games.Td.BonusMissions" xml:space="preserve"><value>Bonus missions</value></data>
   <data name="Games.Td.BonusLocked" xml:space="preserve"><value>Buy for {0} credits in War-Mart</value></data>
   <data name="Games.Td.StartWave" xml:space="preserve"><value>Start wave</value></data>
@@ -2286,6 +2288,7 @@
   <data name="Games.Td.TargetClosest" xml:space="preserve"><value>Closest</value></data>
   <data name="Games.Td.GroundOnly" xml:space="preserve"><value>Ground targets only</value></data>
   <data name="Games.Td.AirAndGround" xml:space="preserve"><value>Air and ground targets</value></data>
+  <data name="Games.Td.AirOnly" xml:space="preserve"><value>Air targets only</value></data>
   <data name="Games.Td.SelectHint" xml:space="preserve"><value>Pick a tower, then a free tile. Select a built tower to upgrade or sell it.</value></data>
   <data name="Games.TowerGun" xml:space="preserve"><value>Gunner</value></data>
   <data name="MarketScanner.RequiredBybit" xml:space="preserve"><value>Require Bybit Futures listing</value></data>

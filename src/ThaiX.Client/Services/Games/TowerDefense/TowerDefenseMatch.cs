@@ -123,7 +123,7 @@ public sealed class TowerDefenseMatch
     public double AirstrikeCharge => AirstrikeReady ? 1 : 1 - (_airstrikeReadyAt - Tick) / (double)AirstrikeCooldownTicks;
     public int FinalScore => Math.Min(MaxScore, Score);
     public int MissionReward => Gold + 100 + Wave * 10 + Lives * 5;
-    public IReadOnlyList<WaveGroup> NextWaveGroups => TowerDefenseData.WaveGroups(Wave + 1);
+    public IReadOnlyList<WaveGroup> NextWaveGroups => TowerDefenseData.WaveGroups(Wave + 1, Map);
     public bool NextWaveCountdownActive => State == MatchState.Planning && _autoWaveAt > Tick && HasMoreWaves;
     public int NextWaveCountdownSeconds => NextWaveCountdownActive
         ? (int)Math.Ceiling((_autoWaveAt - Tick) * TickMilliseconds / 1000.0)
@@ -262,7 +262,7 @@ public sealed class TowerDefenseMatch
         _spawnIndex = 0;
         _waveTick = 0;
         var at = 0;
-        foreach (var group in TowerDefenseData.WaveGroups(Wave))
+        foreach (var group in TowerDefenseData.WaveGroups(Wave, Map))
         {
             for (var i = 0; i < group.Count; i++)
             {
@@ -408,12 +408,13 @@ public sealed class TowerDefenseMatch
                 break;
             case TowerEffect.Splash:
                 _shots.Add(new Shot(x, y, target.X, target.Y, color, Tick + ShotTicks));
-                _blasts.Add(new Blast(target.X, target.Y, SplashRadius, color, false, Tick));
+                var splashRadius = tower.Spec.Kind == TowerKind.FlakCannon ? 42 : SplashRadius;
+                _blasts.Add(new Blast(target.X, target.Y, splashRadius, color, false, Tick));
                 foreach (var enemy in _enemies)
                 {
                     if (enemy.Health > 0 && tower.Spec.CanHit(enemy.Spec.Class)
                         && double.Hypot(enemy.X - x, enemy.Y - y) <= range
-                        && double.Hypot(enemy.X - target.X, enemy.Y - target.Y) <= SplashRadius)
+                        && double.Hypot(enemy.X - target.X, enemy.Y - target.Y) <= splashRadius)
                         Hit(enemy, damage * tower.Spec.Multiplier(enemy.Spec.Class), tower);
                 }
 

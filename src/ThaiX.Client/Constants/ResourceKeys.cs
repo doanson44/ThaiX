@@ -167,6 +167,7 @@ public static class ResourceKeys
         public const string TowerPlasmaCannon = "Games.TowerPlasmaCannon";
         public const string TowerRadar = "Games.TowerRadar";
         public const string TowerPowerAmplifier = "Games.TowerPowerAmplifier";
+        public const string TowerFlakCannon = "Games.TowerFlakCannon";
         public const string TdMission01 = "Games.Td.Mission01";
         public const string TdMission02 = "Games.Td.Mission02";
         public const string TdMission03 = "Games.Td.Mission03";
@@ -183,6 +184,7 @@ public static class ResourceKeys
         public const string TdMission14 = "Games.Td.Mission14";
         public const string TdBonusSniper = "Games.Td.BonusSniper";
         public const string TdBonusEndurance = "Games.Td.BonusEndurance";
+        public const string TdBonusAirDefense = "Games.Td.BonusAirDefense";
         public const string TdBonusMissions = "Games.Td.BonusMissions";
         public const string TdBonusLocked = "Games.Td.BonusLocked";
         public const string TdWarMart = "Games.Td.WarMart";
@@ -241,6 +243,7 @@ public static class ResourceKeys
         public const string TdTargetClosest = "Games.Td.TargetClosest";
         public const string TdGroundOnly = "Games.Td.GroundOnly";
         public const string TdAirAndGround = "Games.Td.AirAndGround";
+        public const string TdAirOnly = "Games.Td.AirOnly";
         public const string TdSelectHint = "Games.Td.SelectHint";
         public const string Victory = "Games.Victory";
         public const string TowerGun = "Games.TowerGun";
