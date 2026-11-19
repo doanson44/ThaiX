@@ -206,6 +206,9 @@
     public required string Symbol { get; set; }
 
     [Parameter]
+    public string? RequestSymbol { get; set; }
+
+    [Parameter]
     public required MarketType MarketType { get; set; }
 
     [Parameter]
@@ -245,7 +248,7 @@
         {
             var request = new GetTradeSuggestionRequest
             {
-                Symbol = Symbol,
+                Symbol = RequestSymbol ?? Symbol,
                 MarketType = MarketType,
                 Timeframe = timeframe,
                 UseLongTermTimeframe = MarketType == MarketType.Stock && _useLongTermTimeframe
@@ -279,7 +282,7 @@
         {
             _verdict = await ExternalDataService.GetTradeVerdictAsync(new GetTradeVerdictRequest
             {
-                Symbol = Symbol,
+                Symbol = RequestSymbol ?? Symbol,
                 MarketType = MarketType.ToString(),
                 Timeframe = timeframe,
                 Trend = result.Trend,
