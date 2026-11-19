@@ -13,6 +13,48 @@ public sealed class ApiTransportRouterTests
     private const string BybitUrl = "https://api.bybit.com/v5/market/tickers?category=linear";
 
     [Fact]
+    public async Task SendAsync_WhenRequestHasBrowserHeaders_ShouldForwardThemToDirectApi()
+    {
+        // Arrange
+        string? accept = null;
+        string? origin = null;
+        string? referer = null;
+        var directHandler = new RecordingHandler(message =>
+        {
+            message.Headers.TryGetValues("Accept", out var acceptValues);
+            message.Headers.TryGetValues("Origin", out var originValues);
+            message.Headers.TryGetValues("Referer", out var refererValues);
+            accept = acceptValues?.SingleOrDefault();
+            origin = originValues?.SingleOrDefault();
+            referer = refererValues?.SingleOrDefault();
+
+            return new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("[\\"BTCUSDT\\"]")
+            };
+        });
+        var proxyHandler = new RecordingHandler(_ => throw new InvalidOperationException("Proxy should not be called."));
+        var router = CreateRouter(directHandler, proxyHandler);
+        var request = CreateRequest();
+        request.Headers = new Dictionary<string, string>
+        {
+            ["Accept"] = "application/json, text/plain, */*",
+            ["Origin"] = "https://www.binance.com",
+            ["Referer"] = "https://www.binance.com/"
+        };
+
+        // Act
+        var result = await router.SendAsync<List<string>>(request, CancellationToken.None);
+
+        // Assert
+        result.Should().ContainSingle().Which.Should().Be("BTCUSDT");
+        accept.Should().Be("application/json, text/plain, */*");
+        origin.Should().Be("https://www.binance.com");
+        referer.Should().Be("https://www.binance.com/");
+        proxyHandler.RequestCount.Should().Be(0);
+    }
+
+    [Fact]
     public async Task SendAsync_WhenDirectRequestFails_ShouldFallbackToProxy()
     {
         // Arrange
