@@ -19,14 +19,17 @@ public sealed class ApiTransportRouterTests
         string? accept = null;
         string? origin = null;
         string? referer = null;
+        string? acceptLanguage = null;
         var directHandler = new RecordingHandler(message =>
         {
             message.Headers.TryGetValues("Accept", out var acceptValues);
             message.Headers.TryGetValues("Origin", out var originValues);
             message.Headers.TryGetValues("Referer", out var refererValues);
+            message.Headers.TryGetValues("Accept-Language", out var acceptLanguageValues);
             accept = acceptValues?.SingleOrDefault();
             origin = originValues?.SingleOrDefault();
             referer = refererValues?.SingleOrDefault();
+            acceptLanguage = acceptLanguageValues?.SingleOrDefault();
 
             return new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -36,9 +39,11 @@ public sealed class ApiTransportRouterTests
         var proxyHandler = new RecordingHandler(_ => throw new InvalidOperationException("Proxy should not be called."));
         var router = CreateRouter(directHandler, proxyHandler);
         var request = CreateRequest();
+        request.Url = "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT";
         request.Headers = new Dictionary<string, string>
         {
             ["Accept"] = "application/json, text/plain, */*",
+            ["Accept-Language"] = "en-US,en;q=0.9",
             ["Origin"] = "https://www.binance.com",
             ["Referer"] = "https://www.binance.com/"
         };
@@ -51,6 +56,7 @@ public sealed class ApiTransportRouterTests
         accept.Should().Be("application/json, text/plain, */*");
         origin.Should().Be("https://www.binance.com");
         referer.Should().Be("https://www.binance.com/");
+        acceptLanguage.Should().Be("en-US,en;q=0.9");
         proxyHandler.RequestCount.Should().Be(0);
     }
 
