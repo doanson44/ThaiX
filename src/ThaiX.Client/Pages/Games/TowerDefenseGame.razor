@@ -693,7 +693,9 @@ else
             : mapIndex == 0 || _cleared.Contains(TowerDefenseData.Maps[mapIndex - 1].Id);
     }
 
-    private bool IsTowerUnlocked(TowerKind kind) => TowerDefenseData.TowerUnlockCost(kind) == 0 || _unlockedTowers.Contains(kind);
+    private bool IsTowerUnlocked(TowerKind kind) => TowerDefenseData.TowerUnlockCost(kind) == 0
+        || _unlockedTowers.Contains(kind)
+        || (TowerDefenseData.Maps[_mapIndex].RequiredTower == kind && IsUnlocked(_mapIndex));
 
     private int? NextMapIndex =>
         Enumerable.Range(_mapIndex + 1, Math.Max(0, TowerDefenseData.Maps.Count - _mapIndex - 1))
