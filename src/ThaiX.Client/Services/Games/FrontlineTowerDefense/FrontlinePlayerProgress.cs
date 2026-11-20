@@ -121,7 +121,8 @@ public sealed class FrontlinePlayerProgress
     public bool TryPurchase(FrontlineWarMartItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
-        if (Credits < item.Cost)
+        if (item.Cost < 0 || item.ItemId < 0 || string.IsNullOrWhiteSpace(item.Id)
+            || Credits < item.Cost)
             return false;
 
         if (item.Type == FrontlineWarMartItemType.Tower && IsTowerUnlocked(item.ItemId))
