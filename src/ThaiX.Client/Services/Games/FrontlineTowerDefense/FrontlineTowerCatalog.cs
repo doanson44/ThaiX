@@ -80,7 +80,10 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(25, Burn: 2),
             MetalDamageProfile: new FrontlineDamageProfile(12.5, Burn: 5)),
         new("tower11", "Plasma Cannon", 11, 1000, 40, 1, 160, FrontlineTargetMode.Heat, 9000,
-            DamageProfile: new FrontlineDamageProfile(40, Burn: 40)),
+            DamageProfile: new FrontlineDamageProfile(40, Radiation: 20),
+            ProjectileProfile: new FrontlineProjectileProfile(
+                FrontlineProjectileKind.BallisticShell, 1.6, 9, SplashRadius: 80,
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8)),
         new("suptower1", "Napalm Support Strike", 15, 0, 100, 3, 80, FrontlineTargetMode.Near, 6000, true, 6),
         new("suptower2", "Bio-Chemical Support Strike", 14, 0, 50, 3, 60, FrontlineTargetMode.Near, 12000, true, 3),
         new("suptower3", "Support Strike", 13, 0, 50, 8, 60, FrontlineTargetMode.Near, IsSupport: true, ShotLimit: 8)
