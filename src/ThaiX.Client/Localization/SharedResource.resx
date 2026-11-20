@@ -2241,6 +2241,9 @@
   <data name="Games.FrontlineTowerDefense.PlayMission" xml:space="preserve"><value>Play mission</value></data>
   <data name="Games.FrontlineTowerDefense.BestScore" xml:space="preserve"><value>Best score</value></data>
   <data name="Games.FrontlineTowerDefense.BackToMissions" xml:space="preserve"><value>Back to missions</value></data>
+  <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Support towers</value></data>
+  <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Support strike</value></data>
+  <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Support shots remaining</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
