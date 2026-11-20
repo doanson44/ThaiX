@@ -79,12 +79,30 @@ public sealed class FrontlineGridPathfinderTests
     }
 
     [Fact]
-    public void FindPath_WhenStartIsBlocked_ReturnsNull()
+    public void FindPath_WhenStartIsOutsideGrid_CanEnterWalkablePath()
+    {
+        var map = new FrontlineGridMap(new bool[,]
+        {
+            { false, false },
+            { true, false }
+        });
+
+        var path = _pathfinder.FindPath(map, new FrontlineGridPoint(1, -1), new FrontlineGridPoint(1, 0));
+
+        path.Should().Equal(
+            new FrontlineGridPoint(1, -1),
+            new FrontlineGridPoint(1, 0));
+    }
+
+    [Fact]
+    public void FindPath_WhenStartCellIsBlocked_CanLeaveStartCell()
     {
         var map = new FrontlineGridMap(new bool[,] { { false, true } });
 
         var path = _pathfinder.FindPath(map, new FrontlineGridPoint(0, 0), new FrontlineGridPoint(1, 0));
 
-        path.Should().BeNull();
+        path.Should().Equal(
+            new FrontlineGridPoint(0, 0),
+            new FrontlineGridPoint(1, 0));
     }
 }
