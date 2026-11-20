@@ -513,14 +513,6 @@ public sealed class FrontlineGameSimulation
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
-        if (Status == FrontlineGameStatus.Planning
-            && _enemies.Count == 0
-            && _projectiles.Count == 0
-            && _supportProjectiles.Count == 0
-            && _combatTraces.Count == 0
-            && _areaEffects.Count == 0)
-            return;
-
         Tick++;
         if (Status == FrontlineGameStatus.Running)
             MoveEnemies(elapsedUnits);
