@@ -37,6 +37,23 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void UpgradeDamage_WithEnoughFunds_ChargesQuarterOfPurchaseCostAndAddsTwentyPercent()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 500);
+        simulation.TryBuildTower(
+            new FrontlineTowerDefinition("rifle", 100, 50, 10, 5),
+            new FrontlinePoint(25, 25));
+        var tower = simulation.Towers.Single();
+        var funds = 25;
+
+        var upgraded = tower.UpgradeDamage(ref funds);
+
+        upgraded.Should().BeTrue();
+        funds.Should().Be(0);
+        tower.Damage.Should().Be(12);
+    }
+
+    [Fact]
     public void Advance_WhenEnemyEntersTowerRange_ResolvesEnemyAndAwardsReward()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
@@ -64,6 +81,21 @@ public sealed class FrontlineGameSimulationTests
 
         enemy.Health.Should().Be(99.5);
         enemy.BurnDuration.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsWithoutKillScore()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 0.1, 1, 10));
+        var enemy = simulation.Enemies.Single();
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 1000));
+
+        simulation.Advance();
+
+        simulation.Enemies.Should().BeEmpty();
+        simulation.Funds.Should().Be(10);
+        simulation.Score.Should().Be(0);
     }
 
     [Fact]
