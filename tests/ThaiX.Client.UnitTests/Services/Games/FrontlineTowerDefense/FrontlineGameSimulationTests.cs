@@ -165,6 +165,26 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenNoEnemiesArePresent_ContinuesTowerReloading()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 200);
+        var rifle = FrontlineTowerCatalog.Find("tower2")!;
+        simulation.TryBuildTower(rifle.CreateDefinition() with { RateOfFire = 10 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+
+        simulation.Advance(5);
+
+        tower.Loading.Should().Be(50);
+        simulation.Status.Should().Be(FrontlineGameStatus.Planning);
+    }
+
+    [Fact]
     public void Advance_WhenMissileTargetIsNotHeated_DelaysLaunchUntilHeatThreshold()
     {
         var path = new FrontlinePath(
