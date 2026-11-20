@@ -2220,6 +2220,17 @@
   <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Căn cứ bị phá hủy</value></data>
   <data name="Games.FrontlineTowerDefense.RouteUnavailable" xml:space="preserve"><value>Không tìm thấy đường đi hợp lệ cho bản đồ này.</value></data>
   <data name="Games.FrontlineTowerDefense.LevelLocked" xml:space="preserve"><value>Nhiệm vụ này đang bị khóa. Hãy hoàn thành nhiệm vụ trước hoặc mở khóa trong War-Mart.</value></data>
+  <data name="Games.FrontlineTowerDefense.WarMart" xml:space="preserve"><value>Cửa hàng War-Mart</value></data>
+  <data name="Games.FrontlineTowerDefense.Buy" xml:space="preserve"><value>Mua</value></data>
+  <data name="Games.FrontlineTowerDefense.Credits" xml:space="preserve"><value>Tín dụng</value></data>
+  <data name="Games.FrontlineTowerDefense.Owned" xml:space="preserve"><value>Đã sở hữu</value></data>
+  <data name="Games.FrontlineTowerDefense.StartingFundsBonus" xml:space="preserve"><value>Tăng tiền khởi đầu</value></data>
+  <data name="Games.FrontlineTowerDefense.NapalmStrike" xml:space="preserve"><value>Không kích Napalm</value></data>
+  <data name="Games.FrontlineTowerDefense.BioChemicalStrike" xml:space="preserve"><value>Không kích sinh hóa</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 1</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 2</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 3</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission4" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 4</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Bệ phóng tên lửa</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Tháp súng trường</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Tháp bắn tỉa</value></data>
