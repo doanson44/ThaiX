@@ -4,6 +4,8 @@ public sealed class FrontlineSniperMissionSession
 {
     private const double HitRadius = 8.5;
     private readonly FrontlineGameSession _gameSession;
+    private double _loading;
+    private bool _canFire;
 
     public FrontlineSniperMissionSession(
         FrontlineLevelMapDefinition level,
@@ -27,6 +29,7 @@ public sealed class FrontlineSniperMissionSession
     public bool CanStartNextWave => _gameSession.CanStartNextWave;
     public int ShotsFired { get; private set; }
     public int Hits { get; private set; }
+    public bool CanFire => _canFire;
 
     public void Pause() => _gameSession.Pause();
 
@@ -37,18 +40,35 @@ public sealed class FrontlineSniperMissionSession
     public bool SetSpeedMultiplier(double multiplier) =>
         _gameSession.SetSpeedMultiplier(multiplier);
 
-    public void Advance(double elapsedMilliseconds) =>
+    public void Advance(double elapsedMilliseconds)
+    {
+        if (!double.IsFinite(elapsedMilliseconds) || elapsedMilliseconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(elapsedMilliseconds));
+
+        if (State == FrontlineGameSessionState.Playing)
+        {
+            var elapsedUnits = Math.Min(
+                elapsedMilliseconds * 0.08 * _gameSession.SpeedMultiplier,
+                8);
+            _loading += 8 * elapsedUnits;
+            if (_loading >= 100)
+                _canFire = true;
+        }
+
         _gameSession.Advance(elapsedMilliseconds);
+    }
 
     public bool FireAt(FrontlinePoint aim)
     {
         if (State != FrontlineGameSessionState.Playing
+            || !_canFire
             || !double.IsFinite(aim.X)
             || !double.IsFinite(aim.Y)
             || !Simulation.TrySpendFunds(1))
             return false;
 
         ShotsFired++;
+        _canFire = false;
         var target = Simulation.Enemies
             .Where(enemy => Math.Hypot(
                 enemy.Position.X - aim.X,
