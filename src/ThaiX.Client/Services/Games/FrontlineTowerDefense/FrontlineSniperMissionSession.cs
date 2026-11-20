@@ -66,7 +66,7 @@ public sealed class FrontlineSniperMissionSession
             || !_canFire
             || !double.IsFinite(aim.X)
             || !double.IsFinite(aim.Y)
-            || !Simulation.TrySpendFunds(1))
+            || !Simulation.TrySpendSniperShot())
             return false;
 
         ShotsFired++;
