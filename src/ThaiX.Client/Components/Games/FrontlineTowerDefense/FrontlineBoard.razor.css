@@ -302,3 +302,57 @@
     outline: 2px solid #facc15;
     outline-offset: 2px;
 }
+
+
+.frontline-board__area-effect {
+    opacity: 0.22;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+    pointer-events: none;
+}
+
+.frontline-board__area-effect--fire {
+    fill: #f97316;
+    stroke: #fdba74;
+}
+
+.frontline-board__area-effect--poison {
+    fill: #84cc16;
+    stroke: #d9f99d;
+}
+
+.frontline-board__projectile--support {
+    fill: #f8fafc;
+    stroke: #facc15;
+    stroke-width: 1.5;
+}
+
+.frontline-board__trace {
+    fill: none;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+.frontline-board__trace--bullet {
+    stroke: #f8fafc;
+    stroke-width: 1.5;
+    opacity: 0.9;
+}
+
+.frontline-board__trace--shotgun {
+    stroke: #fcd34d;
+    stroke-width: 2;
+    opacity: 0.8;
+}
+
+.frontline-board__trace--lightning {
+    stroke: #67e8f9;
+    stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px #22d3ee);
+}
+
+.frontline-board__trace--beam {
+    stroke: #c4b5fd;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 4px #a78bfa);
+}
