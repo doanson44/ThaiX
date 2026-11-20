@@ -242,6 +242,9 @@ public sealed class FrontlineTower
     public double Range => Definition.Range * (1 + _rangeLevel);
     public double Damage => Definition.Damage * (1 + _damageLevel);
     public double RateOfFire => Definition.RateOfFire * (1 + _rateOfFireLevel);
+    public double DamageUpgradeLevel => _damageLevel;
+    public double RangeUpgradeLevel => _rangeLevel;
+    public double RateOfFireUpgradeLevel => _rateOfFireLevel;
 
     public bool UpgradeDamage(ref int funds) => Upgrade(ref _damageLevel, ref funds);
     public bool UpgradeRange(ref int funds) => Upgrade(ref _rangeLevel, ref funds);
@@ -250,7 +253,7 @@ public sealed class FrontlineTower
     private bool Upgrade(ref double level, ref int funds)
     {
         var cost = (int)Math.Floor(Definition.Cost * 0.25);
-        if (funds < cost)
+        if (level >= 1 || funds < cost)
             return false;
 
         funds -= cost;
