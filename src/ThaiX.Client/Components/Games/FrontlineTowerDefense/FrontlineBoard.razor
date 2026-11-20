@@ -71,11 +71,13 @@
 
     @foreach (var enemy in Simulation.Enemies)
     {
-        <div @key="enemy.Id"
-             class="@GetEnemyClass(enemy)"
-             style="@GetPositionStyle(enemy.Position)"
-             role="img"
-             aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]">
+        <button @key="enemy.Id"
+                type="button"
+                class="@GetEnemyClass(enemy)"
+                style="@GetPositionStyle(enemy.Position)"
+                aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
+                disabled="@(!EnemySelected.HasDelegate)"
+                @onclick="() => EnemySelected.InvokeAsync(enemy.Id)">
             <svg class="frontline-board__enemy-art" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2 21 8v9l-9 5-9-5V8z" class="frontline-board__enemy-shape" />
                 <path d="m8 10 4-3 4 3v5l-4 2-4-2z" class="frontline-board__enemy-detail" />
@@ -83,7 +85,7 @@
             <span class="frontline-board__health">
                 <span style="@GetHealthStyle(enemy)"></span>
             </span>
-        </div>
+        </button>
     }
 </div>
 
@@ -114,6 +116,9 @@
 
     [Parameter]
     public EventCallback<long> TowerSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<long> EnemySelected { get; set; }
 
     private static string GetCellClass(bool isPath, bool isBlocked)
     {
