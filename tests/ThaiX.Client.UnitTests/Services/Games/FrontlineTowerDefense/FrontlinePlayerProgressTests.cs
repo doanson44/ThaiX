@@ -64,8 +64,13 @@ public sealed class FrontlinePlayerProgressTests
     [Fact]
     public void ToLegacySaveData_AndLoad_PreserveProgression()
     {
-        var original = FrontlinePlayerProgress.CreateNew();
-        original.TryPurchase(FrontlineWarMartCatalog.All.Single(item => item.Id == "missile-launcher"));
+        var original = FrontlinePlayerProgress.Load(new FrontlineLegacySaveData(
+            true,
+            10000,
+            500,
+            new int[FrontlinePlayerProgress.TowerSlotCount],
+            new int[FrontlinePlayerProgress.LevelSlotCount]));
+        original.TryPurchase(FrontlineWarMartCatalog.All.Single(item => item.Id == "missile-launcher")).Should().BeTrue();
         original.SaveLevelScore(0, 350);
 
         var restored = FrontlinePlayerProgress.Load(original.ToLegacySaveData());
