@@ -270,7 +270,7 @@ public sealed class FrontlineTower
 
 public sealed class FrontlineGameSimulation
 {
-    private sealed class FrontlineSupportProjectile(
+    public sealed class FrontlineSupportProjectile(
         FrontlinePoint impact,
         double damage,
         FrontlineDamageProfile statusDamage,
@@ -293,7 +293,7 @@ public sealed class FrontlineGameSimulation
         }
     }
 
-    private sealed class FrontlineAreaEffect(
+    public sealed class FrontlineAreaEffect(
         FrontlinePoint position,
         double radius,
         FrontlineDamageProfile damage,
@@ -323,6 +323,7 @@ public sealed class FrontlineGameSimulation
     private readonly List<FrontlineTower> _towers = [];
     private readonly List<FrontlineSupportProjectile> _supportProjectiles = [];
     private readonly List<FrontlineProjectile> _projectiles = [];
+    private readonly List<FrontlineCombatTrace> _combatTraces = [];
     private readonly List<FrontlineAreaEffect> _areaEffects = [];
     private readonly Random _random;
     private long _nextEnemyId = 1;
@@ -361,6 +362,9 @@ public sealed class FrontlineGameSimulation
     public IReadOnlyList<FrontlineEnemy> Enemies => _enemies;
     public IReadOnlyList<FrontlineTower> Towers => _towers;
     public IReadOnlyList<FrontlineProjectile> Projectiles => _projectiles;
+    public IReadOnlyList<FrontlineSupportProjectile> SupportProjectiles => _supportProjectiles;
+    public IReadOnlyList<FrontlineCombatTrace> CombatTraces => _combatTraces;
+    public IReadOnlyList<FrontlineAreaEffect> AreaEffects => _areaEffects;
     public int ActiveProjectileCount => _projectiles.Count;
     public int ActiveSupportProjectileCount => _supportProjectiles.Count;
     public int ActiveAreaEffectCount => _areaEffects.Count;
@@ -506,6 +510,7 @@ public sealed class FrontlineGameSimulation
         if (Status == FrontlineGameStatus.Running)
             MoveEnemies(elapsedUnits);
 
+        AdvanceCombatTraces(elapsedUnits);
         AdvanceProjectiles(elapsedUnits);
         AdvanceSupportProjectiles(elapsedUnits);
         AdvanceAreaEffects(elapsedUnits);
@@ -645,6 +650,19 @@ public sealed class FrontlineGameSimulation
             tower.DamageDealt += damageProfile.DirectDamage;
             if (target.Health <= 0)
                 tower.Kills++;
+
+            var traceKind = tower.Definition.Id switch
+            {
+                "tower4" => FrontlineCombatTraceKind.Lightning,
+                "tower5" => FrontlineCombatTraceKind.Shotgun,
+                "tower6" or "tower11" => FrontlineCombatTraceKind.EnergyBeam,
+                _ => FrontlineCombatTraceKind.Bullet
+            };
+            _combatTraces.Add(new FrontlineCombatTrace(
+                tower.Position,
+                target.Position,
+                traceKind,
+                traceKind == FrontlineCombatTraceKind.Lightning ? 12 : 2));
         }
 
         tower.Loading = 0;
@@ -652,6 +670,15 @@ public sealed class FrontlineGameSimulation
             tower.TargetId = null;
 
         ResolveDeaths();
+    }
+
+    private void AdvanceCombatTraces(double elapsedUnits)
+    {
+        for (var index = _combatTraces.Count - 1; index >= 0; index--)
+        {
+            if (!_combatTraces[index].Advance(elapsedUnits))
+                _combatTraces.RemoveAt(index);
+        }
     }
 
     private void AdvanceProjectiles(double elapsedUnits)
