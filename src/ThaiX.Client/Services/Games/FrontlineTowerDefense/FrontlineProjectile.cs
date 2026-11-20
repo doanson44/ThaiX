@@ -27,7 +27,9 @@ public sealed class FrontlineProjectile
         FrontlineEnemy target,
         FrontlinePoint position,
         FrontlineDamageProfile damage,
-        FrontlineProjectileProfile profile)
+        FrontlineProjectileProfile profile,
+        double initialVelocityX = 0,
+        double initialVelocityY = 0)
     {
         Id = id;
         Owner = owner;
@@ -35,6 +37,8 @@ public sealed class FrontlineProjectile
         Position = position;
         Damage = damage;
         Profile = profile;
+        _velocityX = initialVelocityX;
+        _velocityY = initialVelocityY;
 
         if (profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
@@ -76,42 +80,45 @@ public sealed class FrontlineProjectile
             {
                 var predictedPosition = target.Path.PointAt(
                     target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
-                var horizontalX = predictedPosition.X - Position.X;
-                var horizontalY = predictedPosition.Y - Position.Y;
-                var horizontalDistance = Math.Hypot(horizontalX, horizontalY);
-
-                if (horizontalDistance > 0)
-                {
-                    _velocityX = horizontalX / horizontalDistance * Profile.Speed;
-                    _velocityY = horizontalY / horizontalDistance * Profile.Speed;
-                }
+                SetVelocity(predictedPosition);
             }
 
             return Height < 0;
         }
 
-        var deltaX = target.Position.X - Position.X;
-        var deltaY = target.Position.Y - Position.Y;
-        var distance = Math.Hypot(deltaX, deltaY);
-        var impactDistance = Math.Sqrt(
-            Profile.CollisionRadius * Profile.CollisionRadius + 36);
-
-        if (distance <= impactDistance)
-            return true;
-
-        if (distance <= 0)
-            return true;
-
-        var travelDistance = Math.Min(distance, Profile.Speed * elapsedUnits);
         Position = new FrontlinePoint(
-            Position.X + deltaX / distance * travelDistance,
-            Position.Y + deltaY / distance * travelDistance);
-        return Math.Hypot(
+            Position.X + _velocityX * elapsedUnits,
+            Position.Y + _velocityY * elapsedUnits);
+
+        SetVelocity(target.Position);
+
+        var distance = Math.Hypot(
             target.Position.X - Position.X,
-            target.Position.Y - Position.Y) <= impactDistance;
+            target.Position.Y - Position.Y);
+        var collisionDistance = Profile.Kind == FrontlineProjectileKind.HomingMissile
+            ? Profile.CollisionRadius
+            : Math.Sqrt(Profile.CollisionRadius * Profile.CollisionRadius + 36);
+
+        return distance <= collisionDistance;
     }
 
     internal void Expire() => IsExpired = true;
+
+    private void SetVelocity(FrontlinePoint targetPosition)
+    {
+        var deltaX = targetPosition.X - Position.X;
+        var deltaY = targetPosition.Y - Position.Y;
+        var distance = Math.Hypot(deltaX, deltaY);
+        if (distance <= 0)
+        {
+            _velocityX = 0;
+            _velocityY = 0;
+            return;
+        }
+
+        _velocityX = deltaX / distance * Profile.Speed;
+        _velocityY = deltaY / distance * Profile.Speed;
+    }
 
     private double VerticalVelocity { get; set; }
     private double _velocityX;
