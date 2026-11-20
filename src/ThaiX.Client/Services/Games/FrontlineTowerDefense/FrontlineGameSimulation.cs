@@ -641,6 +641,7 @@ public sealed class FrontlineGameSimulation
 
         if (tower.Definition.Id == "tower1" && target.CoreTemperature <= 60)
         {
+            tower.Loading = 0;
             target = FindTarget(tower);
             tower.TargetId = target?.Id;
             return;
