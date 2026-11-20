@@ -467,3 +467,29 @@
         animation: none;
     }
 }
+
+
+.frontline-board__tower-scope {
+    fill: #0f172a;
+    stroke: #cbd5e1;
+    stroke-width: 0.8;
+}
+
+.frontline-board__tower-magazine {
+    fill: #334155;
+    stroke: #e2e8f0;
+    stroke-width: 0.8;
+}
+
+.frontline-board__tower--rifle .frontline-board__tower-scope {
+    stroke: #7dd3fc;
+}
+
+.frontline-board__tower--sniper .frontline-board__tower-scope {
+    stroke: #facc15;
+    stroke-width: 1.2;
+}
+
+.frontline-board__tower--machinegun .frontline-board__tower-magazine {
+    fill: #475569;
+}
