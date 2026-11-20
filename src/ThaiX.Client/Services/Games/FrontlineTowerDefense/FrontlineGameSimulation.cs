@@ -394,16 +394,25 @@ public sealed class FrontlineGameSimulation
         new(cell.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5,
             cell.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5);
 
-    public bool SpawnEnemy(FrontlineEnemyDefinition definition)
+    public bool SpawnEnemy(FrontlineEnemyDefinition definition) =>
+        SpawnEnemy(definition, Path);
+
+    public bool SpawnEnemy(FrontlineEnemyDefinition definition, FrontlinePath path)
     {
         ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(path);
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
-            || definition.Health <= 0
-            || definition.Speed <= 0
-            || definition.Reward < 0)
+            || path.Points.Count < 2
+            || !double.IsFinite(definition.Health) || definition.Health <= 0
+            || !double.IsFinite(definition.Speed) || definition.Speed <= 0
+            || definition.Reward < 0
+            || !double.IsFinite(definition.HeatResistance) || definition.HeatResistance < 0
+            || !double.IsFinite(definition.RadiationResistance) || definition.RadiationResistance < 0
+            || !double.IsFinite(definition.PoisonResistance) || definition.PoisonResistance < 0
+            || !double.IsFinite(definition.ColdResistance) || definition.ColdResistance < 0)
             return false;
 
-        _enemies.Add(new FrontlineEnemy(_nextEnemyId++, definition, Path));
+        _enemies.Add(new FrontlineEnemy(_nextEnemyId++, definition, path));
         Status = FrontlineGameStatus.Running;
         return true;
     }
