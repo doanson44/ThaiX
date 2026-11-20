@@ -373,7 +373,10 @@ public sealed class FrontlineGameSimulation
             FrontlineTargetMode.Far => candidates.OrderBy(enemy => enemy.Distance).FirstOrDefault(),
             FrontlineTargetMode.Strong => candidates.OrderByDescending(enemy => enemy.Health).FirstOrDefault(),
             FrontlineTargetMode.Weak => candidates.OrderBy(enemy => enemy.Health).FirstOrDefault(),
-            FrontlineTargetMode.Heat => candidates.OrderByDescending(enemy => enemy.CoreTemperature).FirstOrDefault(),
+            FrontlineTargetMode.Heat => candidates
+                .Where(enemy => enemy.CoreTemperature > 120)
+                .OrderByDescending(enemy => enemy.CoreTemperature)
+                .FirstOrDefault() ?? candidates.FirstOrDefault(),
             FrontlineTargetMode.Cold => candidates
                 .Where(enemy => !enemy.Definition.IsMetal)
                 .OrderBy(enemy => enemy.CoreTemperature)
