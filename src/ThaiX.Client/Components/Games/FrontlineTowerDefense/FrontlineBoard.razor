@@ -87,8 +87,44 @@
                 @onclick="() => TowerSelected.InvokeAsync(tower.Id)">
             <svg class="frontline-board__tower-art" viewBox="0 0 32 32" aria-hidden="true">
                 <circle cx="16" cy="16" r="13" class="frontline-board__tower-base" />
+                <path d="M7 21h18v4H7z" class="frontline-board__tower-track" />
                 <path d="M9 17h14l-2-5H11z" class="frontline-board__tower-body" />
-                <path d="M14 12V6h4v6" class="frontline-board__tower-barrel" />
+                @if (tower.Definition.Id == "tower1")
+                {
+                    <path d="M12 13 10 5l4 2 2-3 2 3 4-2-2 8" class="frontline-board__tower-barrel" />
+                    <path d="m16 3 2 3h-4z" class="frontline-board__tower-core" />
+                }
+                else if (tower.Definition.Id == "tower4")
+                {
+                    <path d="m18 4-8 11h5l-2 9 9-13h-5z" class="frontline-board__tower-energy" />
+                }
+                else if (tower.Definition.Id == "tower5")
+                {
+                    <path d="M12 13V5h3v8M17 13V5h3v8" class="frontline-board__tower-barrel" />
+                }
+                else if (tower.Definition.Id == "tower6" || tower.Definition.Id == "tower11")
+                {
+                    <path d="M12 13V5h8v8" class="frontline-board__tower-barrel" />
+                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
+                }
+                else if (tower.Definition.Id == "tower7")
+                {
+                    <path d="m11 14 2-9h6l2 9z" class="frontline-board__tower-barrel" />
+                }
+                else if (tower.Definition.Id == "tower8")
+                {
+                    <path d="M12 13V5h8v8M20 8l5-2" class="frontline-board__tower-barrel" />
+                    <circle cx="25" cy="6" r="2" class="frontline-board__tower-energy" />
+                }
+                else if (tower.Definition.Id == "tower9")
+                {
+                    <path d="M12 14V6h8v8" class="frontline-board__tower-barrel" />
+                    <path d="m16 3 3 4h-6z" class="frontline-board__tower-energy" />
+                }
+                else
+                {
+                    <path d="M13 13V4h6v9" class="frontline-board__tower-barrel" />
+                }
                 <circle cx="16" cy="17" r="3" class="frontline-board__tower-core" />
             </svg>
         </button>
@@ -104,8 +140,19 @@
                 disabled="@(!EnemySelected.HasDelegate || !EnemySelectionEnabled)"
                 @onclick="() => EnemySelected.InvokeAsync(enemy.Id)">
             <svg class="frontline-board__enemy-art" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 2 21 8v9l-9 5-9-5V8z" class="frontline-board__enemy-shape" />
-                <path d="m8 10 4-3 4 3v5l-4 2-4-2z" class="frontline-board__enemy-detail" />
+                @if (enemy.Definition.IsMetal)
+                {
+                    <path d="M2 14 5 8h14l3 6v5H2z" class="frontline-board__enemy-shape" />
+                    <path d="M6 8V5h12v3M9 12h6v4H9z" class="frontline-board__enemy-detail" />
+                    <circle cx="6" cy="19" r="2" class="frontline-board__enemy-wheel" />
+                    <circle cx="18" cy="19" r="2" class="frontline-board__enemy-wheel" />
+                }
+                else
+                {
+                    <circle cx="12" cy="6" r="4" class="frontline-board__enemy-shape" />
+                    <path d="M7 11h10l3 10H4z" class="frontline-board__enemy-detail" />
+                    <path d="M9 13v5m6-5v5" class="frontline-board__enemy-limb" />
+                }
             </svg>
             <span class="frontline-board__health">
                 <span style="@GetHealthStyle(enemy)"></span>
@@ -163,11 +210,14 @@
         var archetype = tower.Definition.Id switch
         {
             "tower1" => "missile",
+            "tower2" => "rifle",
+            "tower3" => "sniper",
             "tower4" => "electro",
             "tower5" => "shotgun",
             "tower6" => "beam",
             "tower7" or "tower8" => "bio",
             "tower9" => "flame",
+            "tower10" => "machinegun",
             "tower11" => "plasma",
             _ => "ballistic"
         };
