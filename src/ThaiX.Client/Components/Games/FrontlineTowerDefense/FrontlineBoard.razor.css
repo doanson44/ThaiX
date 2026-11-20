@@ -81,6 +81,11 @@
     box-shadow: 0 1px 5px rgb(0 0 0 / 55%);
 }
 
+.frontline-board__tower--support {
+    border-radius: 50%;
+    background: #0f766e;
+}
+
 .frontline-board__tower--selected {
     border-color: #facc15;
     box-shadow: 0 0 0 2px rgb(250 204 21 / 35%);
