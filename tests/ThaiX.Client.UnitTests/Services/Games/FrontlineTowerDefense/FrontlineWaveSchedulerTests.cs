@@ -1,0 +1,53 @@
+using ThaiX.Client.Services.Games.FrontlineTowerDefense;
+
+namespace ThaiX.Client.UnitTests.Services.Games.FrontlineTowerDefense;
+
+public sealed class FrontlineWaveSchedulerTests
+{
+    [Fact]
+    public void CampaignLevelOne_ContainsTwentyFourAuthoredGroups()
+    {
+        FrontlineWaveSchedule.CampaignLevelOne.Groups.Should().HaveCount(24);
+    }
+
+    [Fact]
+    public void Advance_BeforeInitialCountdownExpires_DoesNotStartWave()
+    {
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+
+        var spawned = scheduler.Advance(999, enemiesRemain: false);
+
+        spawned.Should().BeEmpty();
+        scheduler.CurrentGroup.Should().Be(0);
+    }
+
+    [Fact]
+    public void Advance_AfterInitialCountdown_StartsFirstGroupWithoutImmediateSpawn()
+    {
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+
+        var spawned = scheduler.Advance(1000, enemiesRemain: false);
+
+        spawned.Should().BeEmpty();
+        scheduler.CurrentGroup.Should().Be(1);
+    }
+
+    [Fact]
+    public void Advance_WhenSpawnIntervalIsReached_SpawnsOneEnemy()
+    {
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+        scheduler.Advance(1000, enemiesRemain: false);
+
+        var spawned = scheduler.Advance(15, enemiesRemain: false);
+
+        spawned.Should().ContainSingle().Which.Should().Be("enemy3");
+    }
+
+    [Fact]
+    public void HealthForWave_AppliesTenPercentPerWaveScaling()
+    {
+        var enemy = FrontlineEnemyCatalog.VerifiedInfantry.Single(item => item.Id == "enemy1");
+
+        enemy.HealthForWave(3).Should().Be(65);
+    }
+}
