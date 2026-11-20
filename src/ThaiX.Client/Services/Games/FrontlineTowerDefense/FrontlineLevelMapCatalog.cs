@@ -12,10 +12,12 @@ public sealed record FrontlineLevelMapDefinition(
 {
     public const int GridWidth = 25;
     public const int GridHeight = 25;
+    public const int BuildableWidth = 21;
+    public const int BuildableHeight = 15;
 
     public bool IsBuildable(FrontlineGridPoint cell) =>
-        cell.X >= 0 && cell.X < GridWidth
-        && cell.Y >= 0 && cell.Y < GridHeight
+        cell.X >= 0 && cell.X < BuildableWidth
+        && cell.Y >= 0 && cell.Y < BuildableHeight
         && !WalkableCells.Contains(cell)
         && !BlockedCells.Contains(cell);
 
