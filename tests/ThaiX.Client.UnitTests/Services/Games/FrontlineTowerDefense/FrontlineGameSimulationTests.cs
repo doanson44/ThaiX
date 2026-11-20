@@ -71,6 +71,36 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenNapalmSupportStrikeFires_AppliesAreaDamageAndExpiresAfterSixShots()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        simulation.TryBuildTower(support.CreateDefinition(), new FrontlinePoint(50, 0));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 1000, 0.1, 10));
+        var enemy = simulation.Enemies.Single();
+
+        for (var index = 0; index < 6; index++)
+            simulation.Advance(34);
+
+        enemy.Health.Should().BeLessThan(1000);
+        simulation.Towers.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void TrySellTower_WhenSupportStrikeSelected_DoesNotRefundOrRemoveIt()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var support = FrontlineTowerCatalog.Find("suptower3")!;
+        simulation.TryBuildTower(support.CreateDefinition(), new FrontlinePoint(50, 0));
+        var tower = simulation.Towers.Single();
+
+        var sold = simulation.TrySellTower(tower.Id);
+
+        sold.Should().BeFalse();
+        simulation.Towers.Should().ContainSingle();
+    }
+
+    [Fact]
     public void ApplyDamage_WithBurnProfile_AppliesTemperatureAndDamageOverTime()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
