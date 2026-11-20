@@ -5,7 +5,11 @@
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlinePlayerProgressStore ProgressStore
 
-@if (Session is not null)
+@if (SniperSession is not null)
+{
+    <FrontlineSniperMissionView Session="@SniperSession" ExitRequested="@ExitRequested" />
+}
+else if (Session is not null)
 {
     <FrontlineGameView Session="@Session" ExitRequested="@ExitRequested" />
 }
@@ -35,6 +39,7 @@ else
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _gameLoop;
     private FrontlineGameSession? Session;
+    private FrontlineSniperMissionSession? SniperSession;
     private string _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
 
     protected override async Task OnInitializedAsync()
@@ -43,7 +48,10 @@ else
 
         try
         {
-            Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
+            if (Level.IsBonus)
+                SniperSession = new FrontlineSniperMissionSession(Level, WaveSet, progress, new Random());
+            else
+                Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
         }
         catch (FrontlineLevelLockedException)
         {
@@ -59,7 +67,7 @@ else
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && Session is not null)
+        if (firstRender && (Session is not null || SniperSession is not null))
             _gameLoop = RunGameLoopAsync(_lifetime.Token);
 
         return Task.CompletedTask;
@@ -79,16 +87,20 @@ else
                 var elapsedMilliseconds = (current - previous).TotalMilliseconds;
                 previous = current;
 
-                var previousState = Session?.State;
+                var previousState = Session?.State ?? SniperSession?.State;
                 Session?.Advance(elapsedMilliseconds);
+                SniperSession?.Advance(elapsedMilliseconds);
+                var currentState = Session?.State ?? SniperSession?.State;
 
                 if (previousState != FrontlineGameSessionState.Victory
-                    && Session?.State == FrontlineGameSessionState.Victory)
-                    await ProgressStore.SaveAsync(Session.Progress, cancellationToken);
+                    && currentState == FrontlineGameSessionState.Victory)
+                    await ProgressStore.SaveAsync(
+                        Session?.Progress ?? SniperSession!.Progress,
+                        cancellationToken);
 
                 await InvokeAsync(StateHasChanged);
 
-                if (Session?.State is FrontlineGameSessionState.Victory
+                if (currentState is FrontlineGameSessionState.Victory
                     or FrontlineGameSessionState.Defeat
                     or FrontlineGameSessionState.RouteUnavailable)
                     break;
