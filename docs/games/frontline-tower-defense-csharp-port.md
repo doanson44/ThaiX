@@ -144,7 +144,7 @@ The current `FrontlineGridPathfinder` requires the destination to be a walkable 
 
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
 - [x] Replace the active route with a Blazor mission/War-Mart shell, C# game host, and HTML/CSS board renderer.
-- [x] Add new Razor/SVG/CSS artwork for tower archetypes, infantry/metal enemies, projectiles, support strikes, impact areas, and weapon traces; include reduced-motion handling.
+- [x] Add new Razor/SVG/CSS artwork for all 11 tower archetypes, all 13 enemy archetypes, projectiles, support strikes, impact areas, and weapon traces; include reduced-motion handling.
 - [ ] Port or replace original game artwork only after distribution rights are verified; complete remaining animation and interaction parity.
 - [ ] Verify gameplay parity and remove the legacy runtime only after acceptance.
 - [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
