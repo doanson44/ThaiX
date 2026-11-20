@@ -16,7 +16,7 @@ public sealed class FrontlineWaveSchedulerTests
         FrontlineWaveCatalog.All.Should().HaveCount(18);
         FrontlineWaveCatalog.Campaign.Should().HaveCount(14);
         FrontlineWaveCatalog.Bonus.Should().HaveCount(4);
-        FrontlineWaveCatalog.All.Sum(level => level.Groups.Count).Should().Be(878);
+        FrontlineWaveCatalog.All.Sum(level => level.Groups.Count).Should().Be(963);
     }
 
     [Fact]
