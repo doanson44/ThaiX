@@ -119,6 +119,86 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenMissileLauncherFires_TracksTargetAndAppliesSplashDamage()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 800);
+        var missile = FrontlineTowerCatalog.Find("tower1")!;
+        simulation.TryBuildTower(
+            missile.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(25, 25));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 500, 0.01, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 500, 0.01, 10));
+        var enemies = simulation.Enemies.ToArray();
+
+        simulation.Advance(100);
+        simulation.Advance(100);
+
+        simulation.Projectiles.Should().ContainSingle();
+        enemies.Should().OnlyContain(enemy => enemy.Health == 500);
+
+        simulation.Advance(1);
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemies.Should().OnlyContain(enemy => enemy.Health == 420);
+    }
+
+    [Fact]
+    public void Advance_WhenBioCannonFires_UsesTrackingPoisonProjectile()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 300);
+        var bioCannon = FrontlineTowerCatalog.Find("tower8")!;
+        simulation.TryBuildTower(bioCannon.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        simulation.Projectiles.Should().ContainSingle();
+        enemy.Health.Should().Be(100);
+
+        simulation.Advance(1);
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(88);
+        enemy.PoisonDuration.Should().Be(60);
+    }
+
+    [Fact]
+    public void Advance_WhenBioMortarShellImpacts_AppliesHalfDamageInArea()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 950);
+        var mortar = FrontlineTowerCatalog.Find("tower7")!;
+        simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        simulation.Projectiles.Should().ContainSingle();
+        enemy.Health.Should().Be(500);
+
+        simulation.Advance(50);
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(480);
+        enemy.PoisonDuration.Should().Be(30);
+    }
+
+    [Fact]
     public void TryMoveTower_WhenSupportStrikeSelected_IsRejected()
     {
         var simulation = new FrontlineGameSimulation(Path, 10);
