@@ -2208,6 +2208,29 @@
   <data name="Games.FrontlineTowerDefense.GridCell" xml:space="preserve"><value>Grid cell {0}, {1}</value></data>
   <data name="Games.FrontlineTowerDefense.SelectTower" xml:space="preserve"><value>Select tower {0}</value></data>
   <data name="Games.FrontlineTowerDefense.Enemy" xml:space="preserve"><value>Enemy {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.Funds" xml:space="preserve"><value>Funds</value></data>
+  <data name="Games.FrontlineTowerDefense.LevelHealth" xml:space="preserve"><value>Base health</value></data>
+  <data name="Games.FrontlineTowerDefense.StartWave" xml:space="preserve"><value>Start next wave</value></data>
+  <data name="Games.FrontlineTowerDefense.BuildTower" xml:space="preserve"><value>Build towers</value></data>
+  <data name="Games.FrontlineTowerDefense.UpgradeDamage" xml:space="preserve"><value>Upgrade damage</value></data>
+  <data name="Games.FrontlineTowerDefense.UpgradeRange" xml:space="preserve"><value>Upgrade range</value></data>
+  <data name="Games.FrontlineTowerDefense.UpgradeRateOfFire" xml:space="preserve"><value>Upgrade fire rate</value></data>
+  <data name="Games.FrontlineTowerDefense.SellTower" xml:space="preserve"><value>Sell tower</value></data>
+  <data name="Games.FrontlineTowerDefense.Speed" xml:space="preserve"><value>Speed</value></data>
+  <data name="Games.FrontlineTowerDefense.Victory" xml:space="preserve"><value>Mission complete</value></data>
+  <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Base destroyed</value></data>
+  <data name="Games.FrontlineTowerDefense.RouteUnavailable" xml:space="preserve"><value>No valid enemy route is available for this map.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.Electro" xml:space="preserve"><value>Electro Tower</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.Shotgun" xml:space="preserve"><value>Shotgun Tower</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.ParticleBeam" xml:space="preserve"><value>Particle Beam Cannon</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.BioMortar" xml:space="preserve"><value>Bio Mortar</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.BioCannon" xml:space="preserve"><value>Bio Cannon</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.FlameThrower" xml:space="preserve"><value>Flame Thrower</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.MountedMachineGun" xml:space="preserve"><value>Mounted Machine Gun</value></data>
+  <data name="Games.FrontlineTowerDefense.Tower.PlasmaCannon" xml:space="preserve"><value>Plasma Cannon</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
