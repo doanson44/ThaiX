@@ -22,6 +22,23 @@ public sealed class FrontlineLevelRouteFactoryTests
     }
 
     [Fact]
+    public void TryCreateRandomRoute_BonusLevelFour_AlwaysSelectsAReachableEndpointPair()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-04")!;
+
+        for (var seed = 0; seed < 100; seed++)
+        {
+            var created = _factory.TryCreateRandomRoute(level, new Random(seed), out var route);
+
+            created.Should().BeTrue();
+            route.Should().NotBeNull();
+            level.StartPoints.Should().Contain(route!.Start);
+            level.EndPoints.Should().Contain(route.End);
+            route.Path.Points.Should().HaveCountGreaterThan(1);
+        }
+    }
+
+    [Fact]
     public void TryCreateRandomRoute_LevelWithoutPath_ReturnsFalse()
     {
         var level = FrontlineLevelMapCatalog.Find("level-08")!;
