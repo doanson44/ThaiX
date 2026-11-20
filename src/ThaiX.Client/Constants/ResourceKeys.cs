@@ -183,6 +183,9 @@ public static class ResourceKeys
         public const string FrontlineStartingFundsBonus = "Games.FrontlineTowerDefense.StartingFundsBonus";
         public const string FrontlineNapalmStrike = "Games.FrontlineTowerDefense.NapalmStrike";
         public const string FrontlineBioChemicalStrike = "Games.FrontlineTowerDefense.BioChemicalStrike";
+        public const string FrontlineSupportTowers = "Games.FrontlineTowerDefense.SupportTowers";
+        public const string FrontlineSupportStrike = "Games.FrontlineTowerDefense.SupportStrike";
+        public const string FrontlineSupportShotsRemaining = "Games.FrontlineTowerDefense.SupportShotsRemaining";
         public const string FrontlineSniperMission1 = "Games.FrontlineTowerDefense.SniperMission1";
         public const string FrontlineSniperMission2 = "Games.FrontlineTowerDefense.SniperMission2";
         public const string FrontlineSniperMission3 = "Games.FrontlineTowerDefense.SniperMission3";
