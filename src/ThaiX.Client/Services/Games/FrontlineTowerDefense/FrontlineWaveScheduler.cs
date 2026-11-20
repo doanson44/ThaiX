@@ -10,10 +10,15 @@ public sealed record FrontlineWaveSchedule(IReadOnlyList<FrontlineWaveGroup> Gro
 
 public sealed class FrontlineWaveScheduler
 {
+    private sealed class ActiveSpawner(FrontlineWaveGroup group)
+    {
+        public FrontlineWaveGroup Group { get; } = group;
+        public int Remaining { get; set; } = group.Count;
+        public double ElapsedUnits { get; set; }
+    }
+
     private readonly Queue<FrontlineWaveGroup> _pendingGroups;
-    private FrontlineWaveGroup? _activeGroup;
-    private int _remainingInGroup;
-    private double _spawnElapsedUnits;
+    private readonly List<ActiveSpawner> _activeSpawners = [];
     private double _nextGroupCountdownUnits = 1000;
 
     public FrontlineWaveScheduler(FrontlineWaveSchedule schedule)
@@ -31,6 +36,7 @@ public sealed class FrontlineWaveScheduler
 
     public int TotalGroups { get; }
     public int CurrentGroup { get; private set; }
+    public int ActiveSpawnerCount => _activeSpawners.Count;
     public bool AllGroupsDispatched { get; private set; }
     public bool IsComplete { get; private set; }
 
@@ -44,18 +50,22 @@ public sealed class FrontlineWaveScheduler
 
         var spawned = new List<string>();
 
-        if (_activeGroup is not null)
+        for (var index = _activeSpawners.Count - 1; index >= 0; index--)
         {
-            _spawnElapsedUnits += elapsedUnits;
-            if (_remainingInGroup > 0 && _spawnElapsedUnits >= _activeGroup.SpawnIntervalUnits)
+            var spawner = _activeSpawners[index];
+            if (spawner.Remaining <= 0)
             {
-                _spawnElapsedUnits = 0;
-                _remainingInGroup--;
-                spawned.Add(_activeGroup.EnemyType);
+                _activeSpawners.RemoveAt(index);
+                continue;
             }
 
-            if (_remainingInGroup == 0)
-                _activeGroup = null;
+            spawner.ElapsedUnits += elapsedUnits;
+            if (spawner.ElapsedUnits < spawner.Group.SpawnIntervalUnits)
+                continue;
+
+            spawner.ElapsedUnits = 0;
+            spawner.Remaining--;
+            spawned.Add(spawner.Group.EnemyType);
         }
 
         if (!AllGroupsDispatched)
@@ -66,9 +76,7 @@ public sealed class FrontlineWaveScheduler
                 if (_pendingGroups.TryDequeue(out var nextGroup))
                 {
                     CurrentGroup++;
-                    _activeGroup = nextGroup;
-                    _remainingInGroup = nextGroup.Count;
-                    _spawnElapsedUnits = 0;
+                    _activeSpawners.Add(new ActiveSpawner(nextGroup));
                     _nextGroupCountdownUnits = nextGroup.DelayAfterUnits * 2;
                 }
                 else
@@ -77,10 +85,9 @@ public sealed class FrontlineWaveScheduler
                 }
             }
         }
-        else if (_activeGroup is null && !enemiesRemain)
-        {
+
+        if (AllGroupsDispatched && _activeSpawners.Count == 0 && !enemiesRemain)
             IsComplete = true;
-        }
 
         return spawned;
     }
