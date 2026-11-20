@@ -356,3 +356,61 @@
     stroke-width: 3;
     filter: drop-shadow(0 0 4px #a78bfa);
 }
+
+
+.frontline-board__tower-track {
+    fill: #1e293b;
+    stroke: #94a3b8;
+    stroke-width: 1;
+}
+
+.frontline-board__tower-energy {
+    fill: #67e8f9;
+    stroke: #ecfeff;
+    stroke-width: 0.8;
+}
+
+.frontline-board__tower--rifle .frontline-board__tower-barrel,
+.frontline-board__tower--sniper .frontline-board__tower-barrel,
+.frontline-board__tower--machinegun .frontline-board__tower-barrel {
+    fill: #cbd5e1;
+}
+
+.frontline-board__tower--sniper .frontline-board__tower-barrel {
+    stroke-width: 1.6;
+}
+
+.frontline-board__tower--electro .frontline-board__tower-energy {
+    fill: #22d3ee;
+    stroke: #cffafe;
+    stroke-width: 0.7;
+}
+
+.frontline-board__tower--beam .frontline-board__tower-energy,
+.frontline-board__tower--plasma .frontline-board__tower-energy {
+    fill: #c4b5fd;
+    stroke: #ede9fe;
+}
+
+.frontline-board__tower--bio .frontline-board__tower-energy {
+    fill: #a3e635;
+    stroke: #ecfccb;
+}
+
+.frontline-board__tower--flame .frontline-board__tower-energy {
+    fill: #fb923c;
+    stroke: #ffedd5;
+}
+
+.frontline-board__enemy-wheel {
+    fill: #0f172a;
+    stroke: #cbd5e1;
+    stroke-width: 0.8;
+}
+
+.frontline-board__enemy-limb {
+    fill: none;
+    stroke: #7f1d1d;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+}
