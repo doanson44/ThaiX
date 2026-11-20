@@ -89,6 +89,7 @@
                 <circle cx="16" cy="16" r="13" class="frontline-board__tower-base" />
                 <path d="M7 21h18v4H7z" class="frontline-board__tower-track" />
                 <path d="M9 17h14l-2-5H11z" class="frontline-board__tower-body" />
+                <g transform="@GetTurretTransform(tower)">
                 @if (tower.Definition.Id == "tower1")
                 {
                     <path d="M12 13 10 5l4 2 2-3 2 3 4-2-2 8" class="frontline-board__tower-barrel" />
@@ -125,6 +126,7 @@
                 {
                     <path d="M13 13V4h6v9" class="frontline-board__tower-barrel" />
                 }
+                </g>
                 <circle cx="16" cy="17" r="3" class="frontline-board__tower-core" />
             </svg>
         </button>
@@ -228,6 +230,20 @@
         return SelectedTowerId == tower.Id
             ? $"{classes} frontline-board__tower--selected"
             : classes;
+    }
+
+    private string GetTurretTransform(FrontlineTower tower)
+    {
+        var target = tower.TargetId is long targetId
+            ? Simulation.Enemies.FirstOrDefault(enemy => enemy.Id == targetId)
+            : null;
+        if (target is null)
+            return "rotate(0 16 16)";
+
+        var angle = Math.Atan2(
+            target.Position.Y - tower.Position.Y,
+            target.Position.X - tower.Position.X) * 180 / Math.PI + 90;
+        return FormattableString.Invariant($"rotate({angle:0.##} 16 16)");
     }
 
     private static string GetEnemyClass(FrontlineEnemy enemy) =>
