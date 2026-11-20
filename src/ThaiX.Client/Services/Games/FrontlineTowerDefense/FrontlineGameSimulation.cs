@@ -96,6 +96,13 @@ public sealed record FrontlineTowerDefinition(
     double RateOfFire,
     FrontlineTargetMode TargetMode = FrontlineTargetMode.Near);
 
+public enum FrontlineTowerUpgradeType
+{
+    Damage,
+    Range,
+    RateOfFire
+}
+
 public sealed class FrontlineEnemy
 {
     internal FrontlineEnemy(long id, FrontlineEnemyDefinition definition, FrontlinePath path)
@@ -207,16 +214,23 @@ public sealed class FrontlineEnemy
 
 public sealed class FrontlineTower
 {
-    internal FrontlineTower(long id, FrontlineTowerDefinition definition, FrontlinePoint position)
+    internal FrontlineTower(
+        long id,
+        FrontlineTowerDefinition definition,
+        FrontlineGridPoint cell,
+        FrontlinePoint position)
     {
         Id = id;
         Definition = definition;
+        Cell = cell;
         Position = position;
     }
 
     public long Id { get; }
     public FrontlineTowerDefinition Definition { get; }
-    public FrontlinePoint Position { get; }
+    public FrontlineGridPoint Cell { get; internal set; }
+    public FrontlinePoint Position { get; internal set; }
+    public double SaleValue => Definition.Cost * 0.5;
     private double _damageLevel;
     private double _rangeLevel;
     private double _rateOfFireLevel;
@@ -252,7 +266,11 @@ public sealed class FrontlineGameSimulation
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
 
-    public FrontlineGameSimulation(FrontlinePath path, int startingFunds, double levelHealth = 1000)
+    public FrontlineGameSimulation(
+        FrontlinePath path,
+        int startingFunds,
+        double levelHealth = 1000,
+        FrontlineLevelMapDefinition? levelMap = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (path.Points.Count < 2)
@@ -263,11 +281,13 @@ public sealed class FrontlineGameSimulation
             throw new ArgumentOutOfRangeException(nameof(levelHealth));
 
         Path = path;
+        LevelMap = levelMap;
         Funds = startingFunds;
         LevelHealth = levelHealth;
     }
 
     public FrontlinePath Path { get; }
+    public FrontlineLevelMapDefinition? LevelMap { get; }
     public FrontlineGameStatus Status { get; private set; } = FrontlineGameStatus.Planning;
     public int Funds { get; private set; }
     public double LevelHealth { get; private set; }
@@ -281,17 +301,90 @@ public sealed class FrontlineGameSimulation
         ArgumentNullException.ThrowIfNull(definition);
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
             || definition.Cost < 0
-            || definition.Range <= 0
-            || definition.Damage <= 0
-            || definition.RateOfFire <= 0
-            || Funds < definition.Cost
-            || _towers.Any(tower => Math.Hypot(tower.Position.X - position.X, tower.Position.Y - position.Y) < 1))
+            || !double.IsFinite(definition.Range) || definition.Range <= 0
+            || !double.IsFinite(definition.Damage) || definition.Damage <= 0
+            || !double.IsFinite(definition.RateOfFire) || definition.RateOfFire <= 0
+            || Funds < definition.Cost)
+            return false;
+
+        var cell = ToGridCell(position);
+        if (LevelMap is not null && !LevelMap.IsBuildable(cell))
+            return false;
+
+        if (_towers.Any(tower => tower.Cell == cell))
             return false;
 
         Funds -= definition.Cost;
-        _towers.Add(new FrontlineTower(_nextTowerId++, definition, position));
+        _towers.Add(new FrontlineTower(_nextTowerId++, definition, cell, ToCellCenter(cell)));
         return true;
     }
+
+    public bool TryMoveTower(long towerId, FrontlinePoint position)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat || Funds < 10)
+            return false;
+
+        var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
+        if (tower is null)
+            return false;
+
+        var cell = ToGridCell(position);
+        if (cell == tower.Cell || _towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
+            || (LevelMap is not null && !LevelMap.IsBuildable(cell)))
+            return false;
+
+        Funds -= 10;
+        tower.Cell = cell;
+        tower.Position = ToCellCenter(cell);
+        tower.TargetId = null;
+        return true;
+    }
+
+    public bool TrySellTower(long towerId)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+            return false;
+
+        var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
+        if (tower is null)
+            return false;
+
+        Funds += (int)Math.Floor(tower.SaleValue);
+        _towers.Remove(tower);
+        return true;
+    }
+
+    public bool TryUpgradeTower(long towerId, FrontlineTowerUpgradeType upgradeType)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+            return false;
+
+        var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
+        if (tower is null)
+            return false;
+
+        var funds = Funds;
+        var upgraded = upgradeType switch
+        {
+            FrontlineTowerUpgradeType.Damage => tower.UpgradeDamage(ref funds),
+            FrontlineTowerUpgradeType.Range => tower.UpgradeRange(ref funds),
+            FrontlineTowerUpgradeType.RateOfFire => tower.UpgradeRateOfFire(ref funds),
+            _ => false
+        };
+
+        if (upgraded)
+            Funds = funds;
+
+        return upgraded;
+    }
+
+    private static FrontlineGridPoint ToGridCell(FrontlinePoint position) =>
+        new((int)Math.Floor(position.X / FrontlinePath.DefaultGridCellSize),
+            (int)Math.Floor(position.Y / FrontlinePath.DefaultGridCellSize));
+
+    private static FrontlinePoint ToCellCenter(FrontlineGridPoint cell) =>
+        new(cell.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5,
+            cell.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5);
 
     public bool SpawnEnemy(FrontlineEnemyDefinition definition)
     {
