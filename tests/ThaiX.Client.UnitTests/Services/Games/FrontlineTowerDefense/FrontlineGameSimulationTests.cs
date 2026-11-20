@@ -115,7 +115,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsWithoutKillScore()
+    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsAndKillScore()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 0.1, 1, 10));
@@ -126,7 +126,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Enemies.Should().BeEmpty();
         simulation.Funds.Should().Be(10);
-        simulation.Score.Should().Be(0);
+        simulation.Score.Should().Be(20);
     }
 
     [Fact]
