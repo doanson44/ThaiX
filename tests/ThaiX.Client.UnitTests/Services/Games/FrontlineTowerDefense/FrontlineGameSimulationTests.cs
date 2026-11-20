@@ -165,6 +165,34 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenMissileTargetIsNotHeated_DelaysLaunchUntilHeatThreshold()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 800);
+        var missile = FrontlineTowerCatalog.Find("tower1")!;
+        simulation.TryBuildTower(missile.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        simulation.Projectiles.Should().BeEmpty();
+        tower.Loading.Should().Be(0);
+
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 50)).Should().BeTrue();
+        simulation.Advance(1);
+
+        simulation.Projectiles.Should().ContainSingle();
+    }
+
+    [Fact]
     public void Advance_WhenMissileLauncherFires_TracksTargetAndAppliesSplashDamage()
     {
         var simulation = new FrontlineGameSimulation(Path, 800);
