@@ -97,7 +97,9 @@ public sealed record FrontlineTowerDefinition(
     FrontlineTargetMode TargetMode = FrontlineTargetMode.Near,
     bool IsSupport = false,
     FrontlineDamageProfile? SupportDamage = null,
-    int ShotLimit = 0);
+    int ShotLimit = 0,
+    FrontlineDamageProfile? DamageProfile = null,
+    FrontlineDamageProfile? MetalDamageProfile = null);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -572,9 +574,20 @@ public sealed class FrontlineGameSimulation
         if (tower.Loading < 100)
             return;
 
-        var damage = tower.Damage;
-        target.ApplyDamage(new FrontlineDamageProfile(DirectDamage: damage));
-        tower.DamageDealt += damage;
+        var baseProfile = target.Definition.IsMetal
+            ? tower.Definition.MetalDamageProfile
+            : tower.Definition.DamageProfile;
+        var profile = baseProfile ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
+        var damageScale = tower.Definition.Damage <= 0
+            ? 1
+            : tower.Damage / tower.Definition.Damage;
+        var damageProfile = profile with
+        {
+            DirectDamage = profile.DirectDamage * damageScale
+        };
+
+        target.ApplyDamage(damageProfile);
+        tower.DamageDealt += damageProfile.DirectDamage;
         if (target.Health <= 0)
             tower.Kills++;
 
