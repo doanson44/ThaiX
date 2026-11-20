@@ -140,6 +140,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().BeEmpty();
         enemies.Should().OnlyContain(enemy => enemy.Health == 420);
+        enemies[0].CoreTemperature.Should().Be(250);
     }
 
     [Fact]
