@@ -30,6 +30,11 @@
                     : L[ResourceKeys.Games.Pause])
             </button>
             <button type="button"
+                    class="btn btn-outline-secondary"
+                    @onclick="() => ExitRequested.InvokeAsync()">
+                @L[ResourceKeys.Games.FrontlineBackToMissions]
+            </button>
+            <button type="button"
                     class="btn btn-primary"
                     disabled="@(!Session.CanStartNextWave)"
                     @onclick="StartNextWave">
@@ -138,6 +143,9 @@
 @code {
     [Parameter, EditorRequired]
     public FrontlineGameSession Session { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback ExitRequested { get; set; }
 
     private FrontlineTowerArchetype? _selectedBuildTower;
     private long? _selectedTowerId;
