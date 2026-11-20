@@ -1,0 +1,80 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject IStringLocalizer<SharedResource> L
+@inject FrontlinePlayerProgressStore ProgressStore
+
+@if (_progress is null)
+{
+    <div class="frontline-shell-loading" role="status" aria-live="polite">
+        @L[ResourceKeys.Games.Loading]
+    </div>
+}
+else if (_selectedLevel is not null)
+{
+    <FrontlineGameHost Level="_selectedLevel"
+                       WaveSet="GetWaveSet(_selectedLevel)"
+                       Progress="_progress"
+                       ExitRequested="ReturnToMissions" />
+}
+else
+{
+    <div class="frontline-game-shell">
+        <nav class="frontline-shell-tabs" aria-label="@L[ResourceKeys.Games.FrontlineMission]">
+            <button type="button"
+                    class="@GetTabClass(showWarMart: false)"
+                    aria-pressed="@(!_showWarMart)"
+                    @onclick="ShowMissions">
+                @L[ResourceKeys.Games.FrontlineCampaign]
+            </button>
+            <button type="button"
+                    class="@GetTabClass(showWarMart: true)"
+                    aria-pressed="@_showWarMart"
+                    @onclick="ShowWarMart">
+                @L[ResourceKeys.Games.FrontlineWarMart]
+            </button>
+        </nav>
+
+        @if (_showWarMart)
+        {
+            <FrontlineWarMartView Progress="_progress" ProgressChanged="OnProgressChanged" />
+        }
+        else
+        {
+            <FrontlineMissionSelectView Progress="_progress" MissionSelected="StartMission" />
+        }
+    </div>
+}
+
+@code {
+    private FrontlinePlayerProgress? _progress;
+    private FrontlineLevelMapDefinition? _selectedLevel;
+    private bool _showWarMart;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _progress = await ProgressStore.LoadAsync();
+    }
+
+    private static FrontlineWaveSet GetWaveSet(FrontlineLevelMapDefinition level) =>
+        FrontlineWaveCatalog.Find(level.Id)
+        ?? throw new InvalidOperationException($"No wave schedule is registered for level '{level.Id}'.");
+
+    private string GetTabClass(bool showWarMart) =>
+        _showWarMart == showWarMart
+            ? "frontline-shell-tab frontline-shell-tab--active"
+            : "frontline-shell-tab";
+
+    private void ShowMissions() => _showWarMart = false;
+
+    private void ShowWarMart() => _showWarMart = true;
+
+    private void StartMission(string levelId)
+    {
+        _selectedLevel = FrontlineLevelMapCatalog.Find(levelId);
+        _showWarMart = false;
+    }
+
+    private void ReturnToMissions() => _selectedLevel = null;
+
+    private Task OnProgressChanged() => InvokeAsync(StateHasChanged);
+}
