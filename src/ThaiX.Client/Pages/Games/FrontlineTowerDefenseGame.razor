@@ -1,18 +1,10 @@
 @page "/games/frontline-tower-defense"
-@using System.Diagnostics
-@using System.Text.Json
 @using ThaiX.Client.Components.Games.FrontlineTowerDefense
-@using ThaiX.Client.Services.Games
-@using ThaiX.Client.Services.Games.FrontlineTowerDefense
 @using ThaiX.Client.Layout
 @attribute [Authorize]
 @inherits ThaiXPageBase
-@implements IAsyncDisposable
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Navigation
-@inject GameScoreStore ScoreStore
-@inject IJSRuntime JS
-@inject ILogger<FrontlineTowerDefenseGame> Logger
 
 <PageTitle>@L[ResourceKeys.Games.NameFrontlineTowerDefense] - ThaiX</PageTitle>
 
@@ -33,216 +25,22 @@
         <p class="text-muted mb-0">@L[ResourceKeys.Games.DescriptionFrontlineTowerDefense]</p>
     </div>
 
-    @if (_isLoading)
-    {
-        <RadzenCard Class="frontline-defense-card">
-            <div class="d-flex justify-content-center p-4" role="status" aria-live="polite">
-                <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" ShowValue="false" Class="w-100" />
-            </div>
-        </RadzenCard>
-    }
-    else if (_loadFailed || _session is null)
-    {
-        <RadzenAlert AlertStyle="AlertStyle.Warning" ShowIcon="true">
-            @L[ResourceKeys.Games.LoadFailed]
-        </RadzenAlert>
-    }
-    else
-    {
-        <RadzenCard Class="frontline-defense-card">
-            <div class="frontline-defense-instructions mb-3">
-                <strong>@L[ResourceKeys.Games.Instructions]:</strong>
-                <span>@L[ResourceKeys.Games.InstructionsFrontlineTowerDefense]</span>
-            </div>
-            <FrontlineGameView Session="_session" />
-        </RadzenCard>
-    }
+    <RadzenCard Class="frontline-defense-card">
+        <div class="frontline-defense-instructions mb-3">
+            <strong>@L[ResourceKeys.Games.Instructions]:</strong>
+            <span>@L[ResourceKeys.Games.InstructionsFrontlineTowerDefense]</span>
+        </div>
+        <FrontlineGameShell />
+    </RadzenCard>
 </RadzenStack>
 
 @code {
-    private const string GameId = "frontline-tower-defense";
-    private const string LegacySaveKey = "fd2:so:FD-2-32-317";
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
-
-    private FrontlineGameSession? _session;
-    private FrontlinePlayerProgress? _progress;
-    private CancellationTokenSource? _gameLoopCancellation;
-    private Task? _gameLoopTask;
-    private bool _isLoading = true;
-    private bool _loadFailed;
-    private bool _progressSaved;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _progress = await LoadProgressAsync();
-            var level = FrontlineLevelMapCatalog.All.FirstOrDefault(candidate =>
-                !candidate.IsBonus && _progress.IsLevelUnlocked(candidate.ProgressIndex));
-            if (level is null)
-                throw new InvalidOperationException("No unlocked Frontline campaign level is available.");
-
-            var waveSet = FrontlineWaveCatalog.All.FirstOrDefault(candidate =>
-                string.Equals(candidate.Id, level.Id, StringComparison.Ordinal));
-            if (waveSet is null)
-                throw new InvalidOperationException($"No wave schedule exists for level '{level.Id}'.");
-
-            _session = new FrontlineGameSession(level, waveSet, _progress, Random.Shared);
-        }
-        catch (Exception exception)
-        {
-            Logger.LogError(exception, "Unable to initialize Frontline Tower Defense");
-            _loadFailed = true;
-        }
-        finally
-        {
-            _isLoading = false;
-        }
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
-        if (!firstRender)
-            return;
-
-        await Viewport.InitializeAsync();
-        if (_session is not null)
-        {
-            _gameLoopCancellation = new CancellationTokenSource();
-            _gameLoopTask = RunGameLoopAsync(_gameLoopCancellation.Token);
-        }
+        if (firstRender)
+            await Viewport.InitializeAsync();
     }
-
-    private async Task<FrontlinePlayerProgress> LoadProgressAsync()
-    {
-        var savedProgress = await ScoreStore.GetProgressAsync(GameId);
-        if (!string.IsNullOrWhiteSpace(savedProgress))
-        {
-            var save = JsonSerializer.Deserialize<FrontlineLegacySaveData>(savedProgress, JsonOptions)
-                ?? throw new JsonException("The Frontline progress document is empty.");
-            return FrontlinePlayerProgress.Load(save);
-        }
-
-        var legacyJson = await JS.InvokeAsync<string?>("localStorage.getItem", LegacySaveKey);
-        if (TryReadLegacySave(legacyJson, out var legacySave))
-        {
-            var migratedProgress = FrontlinePlayerProgress.Load(legacySave);
-            await PersistProgressAsync(migratedProgress);
-            return migratedProgress;
-        }
-
-        return FrontlinePlayerProgress.CreateNew();
-    }
-
-    private static bool TryReadLegacySave(string? json, out FrontlineLegacySaveData save)
-    {
-        save = default!;
-        if (string.IsNullOrWhiteSpace(json))
-            return false;
-
-        try
-        {
-            using var document = JsonDocument.Parse(json);
-            var root = document.RootElement;
-            if (root.TryGetProperty("data", out var data))
-                root = data;
-
-            if (!root.TryGetProperty("bPlayed", out var played)
-                || played.GetInt32() != 1
-                || !root.TryGetProperty("credits", out var credits)
-                || !root.TryGetProperty("stFunds", out var startingFunds))
-                return false;
-
-            var towers = Enumerable.Range(0, FrontlinePlayerProgress.TowerSlotCount)
-                .Select(index => root.GetProperty($"Tower{index}").GetInt32())
-                .ToArray();
-            var levels = Enumerable.Range(0, FrontlinePlayerProgress.LevelSlotCount)
-                .Select(index => root.GetProperty($"Level{index}").GetInt32())
-                .ToArray();
-
-            save = new FrontlineLegacySaveData(
-                true,
-                credits.GetInt32(),
-                startingFunds.GetInt32(),
-                towers,
-                levels);
-            return true;
-        }
-        catch (Exception exception) when (exception is JsonException or InvalidOperationException or KeyNotFoundException or FormatException)
-        {
-            return false;
-        }
-    }
-
-    private async Task RunGameLoopAsync(CancellationToken cancellationToken)
-    {
-        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000d / 24));
-        var previousTimestamp = Stopwatch.GetTimestamp();
-
-        try
-        {
-            while (await timer.WaitForNextTickAsync(cancellationToken))
-            {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-                var elapsedMilliseconds = Stopwatch.GetElapsedTime(previousTimestamp, currentTimestamp).TotalMilliseconds;
-                previousTimestamp = currentTimestamp;
-
-                if (_session is null)
-                    break;
-
-                _session.Advance(elapsedMilliseconds);
-                if (_session.State == FrontlineGameSessionState.Victory && !_progressSaved)
-                {
-                    await PersistProgressAsync(_progress!);
-                    _progressSaved = true;
-                }
-
-                await InvokeAsync(StateHasChanged);
-                if (_session.State is FrontlineGameSessionState.Victory
-                    or FrontlineGameSessionState.Defeat
-                    or FrontlineGameSessionState.RouteUnavailable)
-                    break;
-            }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-        }
-        catch (JSDisconnectedException)
-        {
-        }
-        catch (Exception exception)
-        {
-            Logger.LogError(exception, "Frontline Tower Defense game loop failed");
-        }
-    }
-
-    private Task PersistProgressAsync(FrontlinePlayerProgress progress) =>
-        ScoreStore.SetProgressAsync(
-            GameId,
-            JsonSerializer.Serialize(progress.ToLegacySaveData(), JsonOptions));
 
     private void BackToGames() => Navigation.NavigateTo("/games");
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_gameLoopCancellation is not null)
-        {
-            await _gameLoopCancellation.CancelAsync();
-            if (_gameLoopTask is not null)
-            {
-                try
-                {
-                    await _gameLoopTask;
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
-
-            _gameLoopCancellation.Dispose();
-        }
-
-        Dispose();
-    }
 }
