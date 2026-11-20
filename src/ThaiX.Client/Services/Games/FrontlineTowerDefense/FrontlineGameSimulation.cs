@@ -547,6 +547,18 @@ public sealed class FrontlineGameSimulation
         }
     }
 
+    public bool TrySpendFunds(int amount)
+    {
+        if (amount < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        if (Funds < amount)
+            return false;
+
+        Funds -= amount;
+        return true;
+    }
+
     public bool ApplyDamage(long enemyId, FrontlineDamageProfile damage)
     {
         ArgumentNullException.ThrowIfNull(damage);
