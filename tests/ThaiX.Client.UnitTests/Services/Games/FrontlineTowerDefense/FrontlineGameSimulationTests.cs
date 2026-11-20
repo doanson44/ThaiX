@@ -119,6 +119,52 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenElectroTowerIsUpgraded_AppliesReducedUpgradeToInfantry()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 500);
+        var electro = FrontlineTowerCatalog.Find("tower4")!;
+        simulation.TryBuildTower(electro.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.TryUpgradeTower(tower.Id, FrontlineTowerUpgradeType.Damage).Should().BeTrue();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        enemy.Health.Should().Be(444);
+    }
+
+    [Fact]
+    public void Advance_WhenElectroTowerIsUpgraded_AppliesFullUpgradeToMetal()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 500);
+        var electro = FrontlineTowerCatalog.Find("tower4")!;
+        simulation.TryBuildTower(electro.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.TryUpgradeTower(tower.Id, FrontlineTowerUpgradeType.Damage).Should().BeTrue();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 20, IsMetal: true));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        enemy.Health.Should().Be(440);
+    }
+
+    [Fact]
     public void Advance_WhenMissileLauncherFires_TracksTargetAndAppliesSplashDamage()
     {
         var simulation = new FrontlineGameSimulation(Path, 800);
