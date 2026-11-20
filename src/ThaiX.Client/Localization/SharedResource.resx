@@ -2232,7 +2232,7 @@
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Support Strike</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Shots remaining: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.CreditsEarned" xml:space="preserve"><value>Credits earned: {0}</value></data>
-  <data name="Games.FrontlineTowerDefense.SniperHint" xml:space="preserve"><value>Click an enemy to fire. Each shot costs one fund.</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperHint" xml:space="preserve"><value>Click the battlefield to fire. Clicking an enemy aims directly; misses still cost one fund.</value></data>
   <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Shots fired: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Hits: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Sniper Mission 1</value></data>
