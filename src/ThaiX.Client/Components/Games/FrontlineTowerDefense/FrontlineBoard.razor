@@ -40,6 +40,31 @@
          viewBox="0 0 672 480"
          preserveAspectRatio="none"
          aria-hidden="true">
+        @foreach (var effect in Simulation.AreaEffects)
+        {
+            <circle @key="effect.GetHashCode()"
+                    class="frontline-board__area-effect frontline-board__area-effect--@GetAreaEffectStyle(effect)"
+                    cx="@FormatCoordinate(effect.Position.X)"
+                    cy="@FormatCoordinate(effect.Position.Y)"
+                    r="@FormatCoordinate(effect.Radius)" />
+        }
+        @foreach (var trace in Simulation.CombatTraces)
+        {
+            <line @key="trace.GetHashCode()"
+                  class="frontline-board__trace frontline-board__trace--@GetTraceStyle(trace)"
+                  x1="@FormatCoordinate(trace.Start.X)"
+                  y1="@FormatCoordinate(trace.Start.Y)"
+                  x2="@FormatCoordinate(trace.End.X)"
+                  y2="@FormatCoordinate(trace.End.Y)" />
+        }
+        @foreach (var supportProjectile in Simulation.SupportProjectiles)
+        {
+            <circle @key="supportProjectile.GetHashCode()"
+                    class="frontline-board__projectile frontline-board__projectile--support"
+                    cx="@FormatCoordinate(supportProjectile.Impact.X)"
+                    cy="@FormatCoordinate(supportProjectile.Impact.Y - supportProjectile.Height)"
+                    r="4" />
+        }
         @foreach (var projectile in Simulation.Projectiles)
         {
             <circle @key="projectile.Id"
@@ -165,6 +190,18 @@
             FrontlineProjectileKind.TrackingPoison => "poison",
             FrontlineProjectileKind.TrackingFlame => "flame",
             _ => "default"
+        };
+
+    private static string GetAreaEffectStyle(FrontlineGameSimulation.FrontlineAreaEffect effect) =>
+        effect.Damage.Burn > 0 ? "fire" : "poison";
+
+    private static string GetTraceStyle(FrontlineCombatTrace trace) =>
+        trace.Kind switch
+        {
+            FrontlineCombatTraceKind.Lightning => "lightning",
+            FrontlineCombatTraceKind.Shotgun => "shotgun",
+            FrontlineCombatTraceKind.EnergyBeam => "beam",
+            _ => "bullet"
         };
 
     private static double GetProjectileRadius(FrontlineProjectile projectile) =>
