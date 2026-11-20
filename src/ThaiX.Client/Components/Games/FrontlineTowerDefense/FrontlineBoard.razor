@@ -40,7 +40,7 @@
     {
         <button @key="tower.Id"
                 type="button"
-                class="@GetTowerClass(tower.Id)"
+                class="@GetTowerClass(tower)"
                 style="@GetPositionStyle(tower.Position)"
                 aria-label="@L[ResourceKeys.Games.FrontlineSelectTower, tower.Definition.Id]"
                 aria-pressed="@(SelectedTowerId == tower.Id)"
@@ -104,10 +104,16 @@
             : "frontline-board__cell frontline-board__cell--buildable";
     }
 
-    private string GetTowerClass(long towerId) =>
-        SelectedTowerId == towerId
-            ? "frontline-board__tower frontline-board__tower--selected"
+    private string GetTowerClass(FrontlineTower tower)
+    {
+        var classes = tower.Definition.IsSupport
+            ? "frontline-board__tower frontline-board__tower--support"
             : "frontline-board__tower";
+
+        return SelectedTowerId == tower.Id
+            ? $"{classes} frontline-board__tower--selected"
+            : classes;
+    }
 
     private static string GetPositionStyle(FrontlinePoint position) =>
         FormattableString.Invariant(
