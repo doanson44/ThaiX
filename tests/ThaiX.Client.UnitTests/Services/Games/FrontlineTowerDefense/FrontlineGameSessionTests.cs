@@ -179,6 +179,34 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void Advance_WhenAllWavesAreCleared_AwardsLegacyMissionScoreAndCredits()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-01")!;
+        var waveSet = new FrontlineWaveSet(
+            level.Id,
+            level.LevelNumber,
+            level.IsBonus,
+            level.GameFrame,
+            [new FrontlineWaveGroup("enemy1", 1, 1, 0)]);
+        var progress = FrontlinePlayerProgress.CreateNew();
+        var session = new FrontlineGameSession(level, waveSet, progress, new Random(42));
+
+        session.TryStartNextWave().Should().BeTrue();
+        session.Advance(100);
+        var enemy = session.Simulation.Enemies.Single();
+        session.Simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(DirectDamage: enemy.Health))
+            .Should().BeTrue();
+
+        session.Advance(100);
+
+        session.State.Should().Be(FrontlineGameSessionState.Victory);
+        session.TotalScore.Should().Be(7570);
+        session.CreditsEarned.Should().Be(1892);
+        progress.Credits.Should().Be(2892);
+        progress.LevelScores[level.ProgressIndex].Should().Be(7570);
+    }
+
+    [Fact]
     public void Constructor_WhenCampaignLevelIsLocked_Throws()
     {
         var level = FrontlineLevelMapCatalog.Find("level-02")!;
