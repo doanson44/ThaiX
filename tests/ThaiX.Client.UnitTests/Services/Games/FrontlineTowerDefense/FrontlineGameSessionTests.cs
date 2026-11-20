@@ -98,6 +98,8 @@ public sealed class FrontlineGameSessionTests
             new Random(42));
         session.Simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.1, 10));
         var enemy = session.Simulation.Enemies.Single();
+        session.Advance(500);
+        session.Advance(500);
 
         var fired = session.FireAtEnemy(enemy.Id);
 
@@ -123,6 +125,8 @@ public sealed class FrontlineGameSessionTests
         session.Simulation.SpawnEnemy(
             new FrontlineEnemyDefinition("vehicle", 500, 0.1, 20, IsMetal: true));
         var enemy = session.Simulation.Enemies.Single();
+        session.Advance(500);
+        session.Advance(500);
 
         session.FireAtEnemy(enemy.Id);
 
@@ -141,6 +145,8 @@ public sealed class FrontlineGameSessionTests
             FrontlineWaveCatalog.Find(level.Id)!,
             progress,
             new Random(42));
+        session.Advance(500);
+        session.Advance(500);
 
         var fired = session.FireAt(new FrontlinePoint(500, 400));
 
@@ -162,6 +168,8 @@ public sealed class FrontlineGameSessionTests
             progress,
             new Random(42));
         session.Simulation.TrySpendFunds(session.Simulation.Funds).Should().BeTrue();
+        session.Advance(500);
+        session.Advance(500);
 
         var fired = session.FireAt(new FrontlinePoint(100, 100));
 
