@@ -68,6 +68,7 @@ public static class ResourceKeys
         public const string ViewAllHistory = "Games.ViewAllHistory";
         public const string ShowRecentHistory = "Games.ShowRecentHistory";
         public const string Loading = "Games.Loading";
+        public const string LoadFailed = "Games.LoadFailed";
         public const string BackToGames = "Games.BackToGames";
         public const string Player = "Games.Player";
         public const string Date = "Games.Date";
@@ -155,6 +156,9 @@ public static class ResourceKeys
         public const string NameTowerDefense = "Games.TowerDefense.Name";
         public const string DescriptionTowerDefense = "Games.TowerDefense.Description";
         public const string InstructionsTowerDefense = "Games.TowerDefense.Instructions";
+        public const string NameFrontlineTowerDefense = "Games.FrontlineTowerDefense.Name";
+        public const string DescriptionFrontlineTowerDefense = "Games.FrontlineTowerDefense.Description";
+        public const string InstructionsFrontlineTowerDefense = "Games.FrontlineTowerDefense.Instructions";
         public const string Wave = "Games.Wave";
         public const string Lives = "Games.Lives";
         public const string Gold = "Games.Gold";

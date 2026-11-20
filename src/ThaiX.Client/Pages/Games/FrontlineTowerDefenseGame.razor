@@ -1,0 +1,125 @@
+@page "/games/frontline-tower-defense"
+@using ThaiX.Client.Layout
+@attribute [Authorize]
+@inherits ThaiXPageBase
+@implements IAsyncDisposable
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject ILogger<FrontlineTowerDefenseGame> Logger
+
+<PageTitle>@L[ResourceKeys.Games.NameFrontlineTowerDefense] - ThaiX</PageTitle>
+
+<RadzenStack Gap="1rem" Class="frontline-defense-page">
+    <div>
+        <ThaiXButton Text="@L[ResourceKeys.Games.BackToGames]"
+                     Icon="arrow_back"
+                     ButtonStyle="ButtonStyle.Light"
+                     Click="BackToGames" />
+    </div>
+
+    <div>
+        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : Viewport.IsTablet ? TextStyle.H4 : TextStyle.H3)"
+                    TagName="TagName.H1"
+                    Class="mb-1">
+            @L[ResourceKeys.Games.NameFrontlineTowerDefense]
+        </RadzenText>
+        <p class="text-muted mb-0">@L[ResourceKeys.Games.DescriptionFrontlineTowerDefense]</p>
+    </div>
+
+    <RadzenCard Class="frontline-defense-card">
+        <div class="frontline-defense-instructions mb-3">
+            <strong>@L[ResourceKeys.Games.Instructions]:</strong>
+            <span>@L[ResourceKeys.Games.InstructionsFrontlineTowerDefense]</span>
+        </div>
+
+        <div @ref="_viewport"
+             class="game-canvas frontline-defense-viewport"
+             data-game-keys
+             role="application"
+             aria-label="@L[ResourceKeys.Games.NameFrontlineTowerDefense]">
+            <canvas @ref="_canvas" class="frontline-defense-canvas"></canvas>
+            <div @ref="_status"
+                 class="frontline-defense-status"
+                 data-loading-label="@L[ResourceKeys.Games.Loading]"
+                 role="status"
+                 aria-live="polite">
+                @if (_loadFailed)
+                {
+                    @L[ResourceKeys.Games.LoadFailed]
+                }
+                else
+                {
+                    @L[ResourceKeys.Games.Loading]
+                }
+            </div>
+        </div>
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    private const string GameModulePath = "/games/frontline-tower-defense/assets/frontline-tower-defense.js";
+    private const string GameAssetBase = "/games/frontline-tower-defense/assets/";
+
+    private ElementReference _viewport;
+    private ElementReference _canvas;
+    private ElementReference _status;
+    private IJSObjectReference? _gameModule;
+    private IJSObjectReference? _player;
+    private bool _loadFailed;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (!firstRender)
+            return;
+
+        await Viewport.InitializeAsync();
+        await StartGameAsync();
+    }
+
+    private async Task StartGameAsync()
+    {
+        try
+        {
+            _gameModule = await JS.InvokeAsync<IJSObjectReference>("import", GameModulePath);
+            _player = await _gameModule.InvokeAsync<IJSObjectReference>(
+                "startFrontlineTowerDefense",
+                new
+                {
+                    canvas = _canvas,
+                    viewport = _viewport,
+                    status = _status,
+                    assetBase = GameAssetBase
+                });
+        }
+        catch (JSException exception)
+        {
+            Logger.LogError(exception, "Unable to load Frontline Tower Defense");
+            _loadFailed = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void BackToGames() => Navigation.NavigateTo("/games");
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_player is not null)
+            {
+                await _player.InvokeVoidAsync("dispose");
+                await _player.DisposeAsync();
+            }
+
+            if (_gameModule is not null)
+                await _gameModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+
+        Dispose();
+    }
+}

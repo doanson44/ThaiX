@@ -1,3 +1,4 @@
+using ThaiX.Client.Pages.Games;
 using ThaiX.Client.Services.Games;
 
 namespace ThaiX.Client.UnitTests.Services.Games;
@@ -12,7 +13,8 @@ public sealed class GameCatalogTests
         {
             "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
             "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-            "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
+            "typing-speed", "tic-tac-toe", "connect-four", "tower-defense",
+            "frontline-tower-defense"
         };
 
         // Act
@@ -52,5 +54,24 @@ public sealed class GameCatalogTests
 
         // Assert
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public void FrontlineTowerDefense_ShouldRequireAuthentication()
+    {
+        var result = GameCatalog.Find("frontline-tower-defense");
+
+        result.Should().NotBeNull();
+        result!.RequiresAuthentication.Should().BeTrue();
+    }
+
+    [Fact]
+    public void OriginalTowerDefense_ShouldRemainPublic()
+    {
+        var result = GameCatalog.Find("tower-defense");
+
+        result.Should().NotBeNull();
+        result!.RequiresAuthentication.Should().BeFalse();
+        result.Component.Should().Be(typeof(TowerDefenseGame));
     }
 }
