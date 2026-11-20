@@ -46,7 +46,19 @@ public sealed record FrontlineEnemyDefinition(
     double Health,
     double Speed,
     int Reward,
-    int LifeDamage);
+    int LifeDamage,
+    bool IsMetal = false,
+    double HeatResistance = 1,
+    double RadiationResistance = 1,
+    double PoisonResistance = 1,
+    double ColdResistance = 1);
+
+public sealed record FrontlineDamageProfile(
+    double DirectDamage = 0,
+    double Burn = 0,
+    double Radiation = 0,
+    double Poison = 0,
+    double Freeze = 0);
 
 public sealed record FrontlineTowerDefinition(
     string Id,
@@ -70,7 +82,88 @@ public sealed class FrontlineEnemy
     public FrontlinePath Path { get; }
     public double Health { get; internal set; }
     public double Distance { get; internal set; }
+    public double CoreTemperature { get; private set; } = 35;
+    public double BurnDuration { get; private set; }
+    public double RadiationDuration { get; private set; }
+    public double PoisonDuration { get; private set; }
+    public double FreezeDuration { get; private set; }
+    public bool IsFrozen { get; private set; }
     public FrontlinePoint Position => Path.PointAt(Distance);
+
+    internal void ApplyDamage(FrontlineDamageProfile damage)
+    {
+        Health -= damage.DirectDamage;
+        RadiationDuration += damage.Radiation * Definition.RadiationResistance;
+        CoreTemperature += damage.Burn * Definition.HeatResistance;
+        PoisonDuration += damage.Poison * Definition.PoisonResistance;
+        CoreTemperature -= damage.Freeze * Definition.ColdResistance;
+
+        if (CoreTemperature > 200)
+            BurnDuration = CoreTemperature;
+
+        if (CoreTemperature < -200)
+        {
+            FreezeDuration = Math.Abs(CoreTemperature * 0.2);
+            IsFrozen = true;
+        }
+    }
+
+    internal void AdvanceEffects()
+    {
+        CoreTemperature = CoreTemperature > 35
+            ? Math.Max(35, CoreTemperature - 0.02)
+            : Math.Min(35, CoreTemperature + 0.02);
+
+        if (BurnDuration > 0)
+        {
+            BurnDuration--;
+            FreezeDuration = 0;
+            Health -= 0.5;
+        }
+
+        if (FreezeDuration > 0)
+            FreezeDuration--;
+
+        if (RadiationDuration > 0)
+        {
+            RadiationDuration--;
+            Health -= 0.3;
+        }
+
+        if (PoisonDuration > 0)
+        {
+            if (Definition.IsMetal)
+                PoisonDuration = 0;
+            else
+            {
+                PoisonDuration--;
+                Health -= 0.5;
+            }
+        }
+
+        if (IsFrozen && FreezeDuration <= 0)
+            IsFrozen = false;
+    }
+
+    internal double MovementMultiplier
+    {
+        get
+        {
+            if (FreezeDuration > 0)
+                return 0;
+
+            if (PoisonDuration > 0)
+                return 0.6;
+
+            if (RadiationDuration > 0)
+                return Definition.IsMetal ? 0.4 : 0.6;
+
+            if (BurnDuration > 0 && !Definition.IsMetal)
+                return 1.2;
+
+            return 1;
+        }
+    }
     public double Progress => Path.Length <= 0 ? 1 : Math.Clamp(Distance / Path.Length, 0, 1);
 }
 
@@ -180,13 +273,34 @@ public sealed class FrontlineGameSimulation
         for (var index = _enemies.Count - 1; index >= 0; index--)
         {
             var enemy = _enemies[index];
-            enemy.Distance += enemy.Definition.Speed;
+            enemy.AdvanceEffects();
+            enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier;
             if (enemy.Distance < enemy.Path.Length)
                 continue;
 
             Lives = Math.Max(0, Lives - enemy.Definition.LifeDamage);
             _enemies.RemoveAt(index);
         }
+    }
+
+    public bool ApplyDamage(long enemyId, FrontlineDamageProfile damage)
+    {
+        ArgumentNullException.ThrowIfNull(damage);
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
+            || damage.DirectDamage < 0
+            || damage.Burn < 0
+            || damage.Radiation < 0
+            || damage.Poison < 0
+            || damage.Freeze < 0)
+            return false;
+
+        var enemy = _enemies.FirstOrDefault(candidate => candidate.Id == enemyId);
+        if (enemy is null)
+            return false;
+
+        enemy.ApplyDamage(damage);
+        ResolveDeaths();
+        return true;
     }
 
     private void Fire(FrontlineTower tower)
@@ -207,7 +321,7 @@ public sealed class FrontlineGameSimulation
         if (target is null)
             return;
 
-        target.Health -= tower.Definition.Damage;
+        target.ApplyDamage(new FrontlineDamageProfile(DirectDamage: tower.Definition.Damage));
         tower.DamageDealt += tower.Definition.Damage;
         tower.CooldownRemaining = tower.Definition.CooldownTicks;
     }
