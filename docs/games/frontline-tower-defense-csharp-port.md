@@ -62,11 +62,15 @@ The save schema is partially verified: bPlayed, credits, stFunds, Tower0..Tower1
 Level0..Level39. FrontlinePlayerProgress now models the legacy 20 tower slots, 40 level slots,
 first-time defaults (1,000 credits, 500 starting funds, tower indexes 2, 3, 4 and 13 unlocked,
 and level index 0 unlocked), best-score persistence, War-Mart purchases, and conversion to and
-from the legacy save record. FrontlineGameSession now connects map routes, wave schedules, enemy scaling, the 24 Hz elapsed-time
+from the legacy save record. Legacy `currentLevel` is one-based for score storage (`Level1` for
+campaign level 1); unlock checks use the preceding slot (`Level0` unlocks campaign level 1).
+Bonus mission IDs 16, 18, 20 and 22 use unlock slots 15, 17, 19 and 21, and score slots 16, 18,
+20 and 22. FrontlineGameSession now connects map routes, wave schedules, enemy scaling, the 24 Hz elapsed-time
 scale, pause/speed controls, level health, and progression score updates. FrontlinePlayerProgressStore now reads and writes the original localStorage key
 fd2:so:FD-2-32-317 and preserves unknown JSON fields while updating bPlayed, credits, stFunds,
 Tower0..Tower19, and Level0..Level39. The Blazor host loads this profile and saves it on victory.
-Automatic next-level unlock rules remain pending.
+Campaign level availability is derived from the previous level's best-score slot; bonus mission
+availability is derived from the War-Mart unlock slots.
 Do not substitute the separate ThaiX Tower Defense definitions.
 
 ## Porting rules
@@ -77,7 +81,7 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 4. Keep UI state and rendering in Razor/C#; use SVG/HTML elements and CSS, not Canvas.
 5. Keep asset identifiers and source asset files stable while the renderer is being replaced.
 6. Preserve the existing route and authentication requirement.
-7. Keep persistence isolated under a Frontline-specific key and version the new schema.
+7. Preserve the original Frontline storage key and field schema until an explicit migration plan is approved; do not collide with the independent Tower Defense save.
 8. Do not delete the old runtime or assets until feature parity and save migration are verified.
 9. Never import TowerDefenseMatch, TowerDefenseData, or their gameplay contracts.
 
@@ -95,14 +99,14 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Add a session orchestrator connecting authored routes, concurrent wave spawners, enemy scaling, simulation, pause, and speed controls.
 - [x] Port buildable-cell validation, grid snapping, tower relocation fee, sale refund, and base upgrades.
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
-- [ ] Integrate per-level grid maps, random authored endpoints, and path recomputation into the simulation loop.
+- [x] Integrate per-level grid maps, random authored endpoints, and per-enemy route generation for route-validated maps.
 - [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
 - [ ] Port tower-specific projectiles, area effects, support abilities, and exact firing parameters.
-- [ ] Extract complete source tower/enemy/mission/wave definitions and balance formulas.
-- [ ] Port tower-specific projectiles, support strike finite-shot behavior, and special damage/status effects.
-- [ ] Complete campaign/bonus mission completion, next-level unlock rules, and War-Mart/bonus mission UI.
+- [ ] Extract remaining per-tower projectile behavior, special mission rules, and exact balance formulas.
+- [ ] Complete campaign/bonus mission result rewards, sniper mission gameplay, and War-Mart UI.
+
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
 - [ ] Replace the JavaScript wrapper with a fully Blazor-rendered UI.
 - [ ] Port all visuals and interaction states to accessible responsive Razor/SVG.
