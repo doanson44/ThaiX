@@ -493,3 +493,69 @@
 .frontline-board__tower--machinegun .frontline-board__tower-magazine {
     fill: #475569;
 }
+
+
+.frontline-board__enemy-eye {
+    fill: #fef08a;
+    stroke: #0f172a;
+    stroke-width: 0.5;
+}
+
+.frontline-board__enemy--enemy1 .frontline-board__enemy-shape {
+    fill: #b91c1c;
+}
+
+.frontline-board__enemy--enemy2 .frontline-board__enemy-shape {
+    fill: #9a3412;
+}
+
+.frontline-board__enemy--enemy3 .frontline-board__enemy-shape {
+    fill: #475569;
+}
+
+.frontline-board__enemy--enemy4 .frontline-board__enemy-shape {
+    fill: #6b21a8;
+}
+
+.frontline-board__enemy--enemy5 .frontline-board__enemy-shape,
+.frontline-board__enemy--bot_1 .frontline-board__enemy-shape {
+    fill: #64748b;
+}
+
+.frontline-board__enemy--bot_1 .frontline-board__enemy-detail {
+    fill: #334155;
+    stroke: #67e8f9;
+}
+
+.frontline-board__enemy--jeep1 .frontline-board__enemy-shape,
+.frontline-board__enemy--jeep2 .frontline-board__enemy-shape {
+    fill: #4d7c0f;
+}
+
+.frontline-board__enemy--jeep3 .frontline-board__enemy-shape,
+.frontline-board__enemy--jeep4 .frontline-board__enemy-shape {
+    fill: #a16207;
+}
+
+.frontline-board__enemy--tank1 .frontline-board__enemy-shape {
+    fill: #365314;
+}
+
+.frontline-board__enemy--tank2 .frontline-board__enemy-shape {
+    fill: #57534e;
+}
+
+.frontline-board__enemy--tank3 .frontline-board__enemy-shape {
+    fill: #713f12;
+}
+
+.frontline-board__enemy--jeep1 .frontline-board__enemy-detail,
+.frontline-board__enemy--jeep2 .frontline-board__enemy-detail,
+.frontline-board__enemy--jeep3 .frontline-board__enemy-detail,
+.frontline-board__enemy--jeep4 .frontline-board__enemy-detail,
+.frontline-board__enemy--tank1 .frontline-board__enemy-detail,
+.frontline-board__enemy--tank2 .frontline-board__enemy-detail,
+.frontline-board__enemy--tank3 .frontline-board__enemy-detail {
+    fill: #cbd5e1;
+    stroke: #1e293b;
+}
