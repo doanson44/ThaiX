@@ -414,3 +414,56 @@
     stroke-width: 1.2;
     stroke-linecap: round;
 }
+
+
+.frontline-board__projectile {
+    animation: frontline-projectile-pulse 0.16s ease-in-out infinite alternate;
+}
+
+.frontline-board__trace {
+    animation: frontline-trace-fade 0.18s ease-out forwards;
+}
+
+.frontline-board__area-effect {
+    animation: frontline-area-pulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes frontline-projectile-pulse {
+    from {
+        opacity: 0.75;
+        filter: drop-shadow(0 0 1px currentColor);
+    }
+
+    to {
+        opacity: 1;
+        filter: drop-shadow(0 0 5px currentColor);
+    }
+}
+
+@keyframes frontline-trace-fade {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0.1;
+    }
+}
+
+@keyframes frontline-area-pulse {
+    from {
+        opacity: 0.12;
+    }
+
+    to {
+        opacity: 0.3;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .frontline-board__projectile,
+    .frontline-board__trace,
+    .frontline-board__area-effect {
+        animation: none;
+    }
+}
