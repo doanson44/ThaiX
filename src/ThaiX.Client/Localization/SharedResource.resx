@@ -2221,6 +2221,17 @@
   <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Base destroyed</value></data>
   <data name="Games.FrontlineTowerDefense.RouteUnavailable" xml:space="preserve"><value>No valid enemy route is available for this map.</value></data>
   <data name="Games.FrontlineTowerDefense.LevelLocked" xml:space="preserve"><value>This mission is locked. Complete the previous mission or unlock it in War-Mart.</value></data>
+  <data name="Games.FrontlineTowerDefense.WarMart" xml:space="preserve"><value>War-Mart</value></data>
+  <data name="Games.FrontlineTowerDefense.Buy" xml:space="preserve"><value>Buy</value></data>
+  <data name="Games.FrontlineTowerDefense.Credits" xml:space="preserve"><value>Credits</value></data>
+  <data name="Games.FrontlineTowerDefense.Owned" xml:space="preserve"><value>Owned</value></data>
+  <data name="Games.FrontlineTowerDefense.StartingFundsBonus" xml:space="preserve"><value>Starting funds bonus</value></data>
+  <data name="Games.FrontlineTowerDefense.NapalmStrike" xml:space="preserve"><value>Napalm Support Strike</value></data>
+  <data name="Games.FrontlineTowerDefense.BioChemicalStrike" xml:space="preserve"><value>Bio-Chemical Support Strike</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Sniper Mission 1</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Sniper Mission 2</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Sniper Mission 3</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperMission4" xml:space="preserve"><value>Sniper Mission 4</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
