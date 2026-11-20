@@ -39,7 +39,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void Advance_WhenEnemyEntersTowerRange_ResolvesEnemyAndAwardsReward()
     {
-        var simulation = new FrontlineGameSimulation(Path, 500, 20);
+        var simulation = new FrontlineGameSimulation(Path, 500);
         simulation.TryBuildTower(
             new FrontlineTowerDefinition("rifle", 100, 60, 25, 1),
             new FrontlinePoint(50, 10));
@@ -49,7 +49,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Enemies.Should().BeEmpty();
         simulation.Funds.Should().Be(415);
-        simulation.Score.Should().Be(15);
+        simulation.Score.Should().Be(30);
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0, 20);
+        var simulation = new FrontlineGameSimulation(Path, 0);
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("tank", 100, 1, 5, IsMetal: true));
         var enemy = simulation.Enemies.Single();
 
@@ -93,9 +93,9 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenLivesReachZero_SetsDefeat()
+    public void Advance_WhenLevelHealthReachesZero_SetsDefeat()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0, 1000);
+        var simulation = new FrontlineGameSimulation(Path, 0, 100);
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 100, 100, 5));
 
         simulation.Advance();
