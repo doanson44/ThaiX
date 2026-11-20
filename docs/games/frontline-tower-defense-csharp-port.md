@@ -63,8 +63,10 @@ Level0..Level39. FrontlinePlayerProgress now models the legacy 20 tower slots, 4
 first-time defaults (1,000 credits, 500 starting funds, tower indexes 2, 3, 4 and 13 unlocked,
 and level index 0 unlocked), best-score persistence, War-Mart purchases, and conversion to and
 from the legacy save record. FrontlineGameSession now connects map routes, wave schedules, enemy scaling, the 24 Hz elapsed-time
-scale, pause/speed controls, level health, and progression score updates. Browser persistence
-and automatic next-level unlock rules remain pending.
+scale, pause/speed controls, level health, and progression score updates. FrontlinePlayerProgressStore now reads and writes the original localStorage key
+fd2:so:FD-2-32-317 and preserves unknown JSON fields while updating bPlayed, credits, stFunds,
+Tower0..Tower19, and Level0..Level39. The Blazor host loads this profile and saves it on victory.
+Automatic next-level unlock rules remain pending.
 Do not substitute the separate ThaiX Tower Defense definitions.
 
 ## Porting rules
@@ -101,7 +103,7 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [ ] Extract complete source tower/enemy/mission/wave definitions and balance formulas.
 - [ ] Port tower-specific projectiles, support strike finite-shot behavior, and special damage/status effects.
 - [ ] Complete campaign/bonus mission completion, next-level unlock rules, and War-Mart/bonus mission UI.
-- [ ] Implement versioned local save/load and migration from the original schema.
+- [x] Implement legacy-compatible browser save/load for the verified player progression schema.
 - [ ] Replace the JavaScript wrapper with a fully Blazor-rendered UI.
 - [ ] Port all visuals and interaction states to accessible responsive Razor/SVG.
 - [ ] Verify gameplay parity and remove the legacy runtime only after acceptance.
