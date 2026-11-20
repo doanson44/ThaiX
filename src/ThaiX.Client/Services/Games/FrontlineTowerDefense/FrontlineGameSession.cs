@@ -31,6 +31,9 @@ public sealed class FrontlineGameSession
         if (!string.Equals(level.Id, waveSet.Id, StringComparison.Ordinal))
             throw new ArgumentException("The map and wave schedule must describe the same level.");
 
+        if (!progress.IsLevelUnlocked(level.UnlockIndex))
+            throw new InvalidOperationException($"Level '{level.Id}' is locked.");
+
         Level = level;
         WaveSet = waveSet;
         _progress = progress;
