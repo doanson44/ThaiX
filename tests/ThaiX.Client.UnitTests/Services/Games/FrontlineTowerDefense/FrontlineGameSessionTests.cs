@@ -109,6 +109,11 @@ public sealed class FrontlineGameSessionTests
         session.Simulation.Funds.Should().Be(499);
         enemy.Health.Should().Be(200);
         enemy.CoreTemperature.Should().Be(37);
+        session.CanFire.Should().BeFalse();
+
+        session.Advance(500);
+
+        session.CanFire.Should().BeTrue();
     }
 
     [Fact]
