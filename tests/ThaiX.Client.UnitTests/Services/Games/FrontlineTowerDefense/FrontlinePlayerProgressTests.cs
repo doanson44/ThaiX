@@ -56,9 +56,23 @@ public sealed class FrontlinePlayerProgressTests
     {
         var progress = FrontlinePlayerProgress.CreateNew();
 
-        progress.SaveLevelScore(0, 250).Should().BeTrue();
-        progress.SaveLevelScore(0, 200).Should().BeFalse();
-        progress.LevelScores[0].Should().Be(250);
+        progress.SaveLevelScore(1, 250).Should().BeTrue();
+        progress.SaveLevelScore(1, 200).Should().BeFalse();
+        progress.LevelScores[1].Should().Be(250);
+        progress.IsLevelUnlocked(1).Should().BeTrue();
+    }
+
+    [Fact]
+    public void TryPurchase_BonusMissionUnlock_UsesPreviousProgressSlot()
+    {
+        var progress = FrontlinePlayerProgress.CreateNew();
+        var item = FrontlineWarMartCatalog.All.Single(value => value.Id == "sniper-mission-1");
+
+        var purchased = progress.TryPurchase(item);
+
+        purchased.Should().BeTrue();
+        progress.IsLevelUnlocked(15).Should().BeTrue();
+        progress.IsLevelUnlocked(16).Should().BeFalse();
     }
 
     [Fact]
@@ -71,13 +85,13 @@ public sealed class FrontlinePlayerProgressTests
             new int[FrontlinePlayerProgress.TowerSlotCount],
             new int[FrontlinePlayerProgress.LevelSlotCount]));
         original.TryPurchase(FrontlineWarMartCatalog.All.Single(item => item.Id == "missile-launcher")).Should().BeTrue();
-        original.SaveLevelScore(0, 350);
+        original.SaveLevelScore(1, 350);
 
         var restored = FrontlinePlayerProgress.Load(original.ToLegacySaveData());
 
         restored.Credits.Should().Be(original.Credits);
         restored.StartingFunds.Should().Be(original.StartingFunds);
         restored.IsTowerUnlocked(1).Should().BeTrue();
-        restored.LevelScores[0].Should().Be(350);
+        restored.LevelScores[1].Should().Be(350);
     }
 }
