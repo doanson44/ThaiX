@@ -379,6 +379,16 @@ public sealed class FrontlineGameSimulation
             || !double.IsFinite(definition.Range) || definition.Range <= 0
             || !double.IsFinite(definition.Damage) || definition.Damage <= 0
             || !double.IsFinite(definition.RateOfFire) || definition.RateOfFire <= 0
+            || !double.IsFinite(definition.DamageUpgradeScale) || definition.DamageUpgradeScale < 0
+            || (definition.ProjectileProfile is { } projectileProfile
+                && (!double.IsFinite(projectileProfile.Speed) || projectileProfile.Speed <= 0
+                    || !double.IsFinite(projectileProfile.CollisionRadius) || projectileProfile.CollisionRadius <= 0
+                    || !double.IsFinite(projectileProfile.SplashRadius) || projectileProfile.SplashRadius < 0
+                    || !double.IsFinite(projectileProfile.SplashDamageScale) || projectileProfile.SplashDamageScale < 0
+                    || !double.IsFinite(projectileProfile.StartOffset) || projectileProfile.StartOffset < 0
+                    || !double.IsFinite(projectileProfile.VerticalOffset)
+                    || !double.IsFinite(projectileProfile.Gravity) || projectileProfile.Gravity <= 0
+                    || !double.IsFinite(projectileProfile.VerticalVelocityScale) || projectileProfile.VerticalVelocityScale < 0))
             || (definition.IsSupport && definition.ShotLimit <= 0)
             || Funds < definition.Cost)
             return false;
