@@ -1,0 +1,80 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject IStringLocalizer<SharedResource> L
+@inject FrontlinePlayerProgressStore ProgressStore
+
+<section class="frontline-warmart">
+    <header class="frontline-warmart__header">
+        <h2>@L[ResourceKeys.Games.FrontlineWarMart]</h2>
+        <div class="frontline-warmart__credits">
+            <span>@L[ResourceKeys.Games.FrontlineCredits]</span>
+            <strong>@Progress.Credits</strong>
+        </div>
+    </header>
+
+    <div class="frontline-warmart__items">
+        @foreach (var item in FrontlineWarMartCatalog.All)
+        {
+            var owned = IsOwned(item);
+            <article @key="item.Id" class="frontline-warmart__item">
+                <div class="frontline-warmart__item-info">
+                    <h3>@L[GetItemNameKey(item.Id)]</h3>
+                    <strong>@item.Cost</strong>
+                </div>
+                <button type="button"
+                        class="btn btn-outline-primary"
+                        disabled="@(!CanPurchase(item))"
+                        @onclick="() => Purchase(item)">
+                    @(owned ? L[ResourceKeys.Games.FrontlineOwned] : L[ResourceKeys.Games.FrontlineBuy])
+                </button>
+            </article>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter, EditorRequired]
+    public FrontlinePlayerProgress Progress { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback ProgressChanged { get; set; }
+
+    private bool CanPurchase(FrontlineWarMartItem item) =>
+        Progress.Credits >= item.Cost && !IsOwned(item);
+
+    private bool IsOwned(FrontlineWarMartItem item) => item.Type switch
+    {
+        FrontlineWarMartItemType.Tower => Progress.IsTowerUnlocked(item.ItemId),
+        FrontlineWarMartItemType.Level => Progress.IsLevelUnlocked(item.ItemId - 1),
+        _ => false
+    };
+
+    private static string GetItemNameKey(string itemId) => itemId switch
+    {
+        "flame-thrower" => ResourceKeys.Games.FrontlineTowerFlameThrower,
+        "napalm-support-strike" => ResourceKeys.Games.FrontlineNapalmStrike,
+        "starting-funds" => ResourceKeys.Games.FrontlineStartingFundsBonus,
+        "sniper-mission-1" => ResourceKeys.Games.FrontlineSniperMission1,
+        "sniper-mission-2" => ResourceKeys.Games.FrontlineSniperMission2,
+        "sniper-mission-3" => ResourceKeys.Games.FrontlineSniperMission3,
+        "sniper-mission-4" => ResourceKeys.Games.FrontlineSniperMission4,
+        "bio-cannon" => ResourceKeys.Games.FrontlineTowerBioCannon,
+        "bio-mortar" => ResourceKeys.Games.FrontlineTowerBioMortar,
+        "particle-beam-cannon" => ResourceKeys.Games.FrontlineTowerParticleBeam,
+        "mounted-machine-gun" => ResourceKeys.Games.FrontlineTowerMountedMachineGun,
+        "plasma-cannon" => ResourceKeys.Games.FrontlineTowerPlasmaCannon,
+        "missile-launcher" => ResourceKeys.Games.FrontlineTowerMissileLauncher,
+        "shotgun-tower" => ResourceKeys.Games.FrontlineTowerShotgun,
+        "bio-chemical-support-strike" => ResourceKeys.Games.FrontlineBioChemicalStrike,
+        _ => ResourceKeys.Games.FrontlineWarMart
+    };
+
+    private async Task Purchase(FrontlineWarMartItem item)
+    {
+        if (!Progress.TryPurchase(item))
+            return;
+
+        await ProgressStore.SaveAsync(Progress);
+        await ProgressChanged.InvokeAsync();
+    }
+}
