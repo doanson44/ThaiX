@@ -603,11 +603,6 @@ public sealed class FrontlineGameSimulation
     private void Fire(FrontlineTower tower, double elapsedUnits)
     {
         tower.Loading += tower.RateOfFire * elapsedUnits;
-        if (tower.Definition.IsSupport)
-        {
-            FireSupportStrike(tower);
-            return;
-        }
 
         var target = tower.TargetId is long targetId
             ? _enemies.FirstOrDefault(enemy => enemy.Id == targetId)
@@ -630,6 +625,12 @@ public sealed class FrontlineGameSimulation
 
         if (tower.Loading < 100)
             return;
+
+        if (tower.Definition.IsSupport)
+        {
+            FireSupportStrike(tower);
+            return;
+        }
 
         if (tower.Definition.Id == "tower1" && target.CoreTemperature <= 60)
         {
