@@ -82,6 +82,11 @@
                     @L[ResourceKeys.Games.FrontlineRouteUnavailable]
                     break;
             }
+            @if (Session.State == FrontlineGameSessionState.Victory)
+            {
+                <p>@L[ResourceKeys.Games.Score]: @Session.TotalScore</p>
+                <p>@L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]</p>
+            }
         </div>
     }
 
