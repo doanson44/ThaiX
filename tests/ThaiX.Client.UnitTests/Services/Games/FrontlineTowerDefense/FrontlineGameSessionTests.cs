@@ -24,6 +24,17 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void TryStartNextWave_WhenManualCooldownIsReady_StartsFirstWave()
+    {
+        var session = CreateSession();
+
+        session.CanStartNextWave.Should().BeTrue();
+        session.TryStartNextWave().Should().BeTrue();
+        session.CurrentWave.Should().Be(1);
+        session.CanStartNextWave.Should().BeFalse();
+    }
+
+    [Fact]
     public void Advance_WithZeroElapsedTime_DoesNotAdvanceSimulation()
     {
         var session = CreateSession();
