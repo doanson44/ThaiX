@@ -16,7 +16,8 @@ public sealed record FrontlineTowerArchetype(
     FrontlineDamageProfile? MetalDamageProfile = null,
     FrontlineProjectileProfile? ProjectileProfile = null,
     double DamageUpgradeScale = 1,
-    double StatusUpgradeScale = 0)
+    double StatusUpgradeScale = 0,
+    double MetalDamageUpgradeScale = 1)
 {
     public FrontlineTowerDefinition CreateDefinition() =>
         new(
@@ -39,7 +40,8 @@ public sealed record FrontlineTowerArchetype(
             MetalDamageProfile,
             ProjectileProfile,
             DamageUpgradeScale,
-            StatusUpgradeScale);
+            StatusUpgradeScale,
+            MetalDamageUpgradeScale);
 }
 
 public static class FrontlineTowerCatalog
@@ -59,7 +61,8 @@ public static class FrontlineTowerCatalog
         new("tower4", "Electro Tower", 4, 250, 50, 3, 60, FrontlineTargetMode.Near,
             DamageProfile: new FrontlineDamageProfile(50),
             MetalDamageProfile: new FrontlineDamageProfile(50),
-            DamageUpgradeScale: 0.6),
+            DamageUpgradeScale: 0.6,
+            MetalDamageUpgradeScale: 1),
         new("tower5", "Shotgun Tower", 5, 150, 35, 2, 70, FrontlineTargetMode.Strong, 2000,
             DamageProfile: new FrontlineDamageProfile(35, Burn: 10),
             MetalDamageProfile: new FrontlineDamageProfile(17.5, Burn: 20)),
