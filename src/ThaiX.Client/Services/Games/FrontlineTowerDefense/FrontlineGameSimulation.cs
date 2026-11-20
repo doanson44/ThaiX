@@ -99,7 +99,9 @@ public sealed record FrontlineTowerDefinition(
     FrontlineDamageProfile? SupportDamage = null,
     int ShotLimit = 0,
     FrontlineDamageProfile? DamageProfile = null,
-    FrontlineDamageProfile? MetalDamageProfile = null);
+    FrontlineDamageProfile? MetalDamageProfile = null,
+    FrontlineProjectileProfile? ProjectileProfile = null,
+    double DamageUpgradeScale = 1);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -320,10 +322,12 @@ public sealed class FrontlineGameSimulation
     private readonly List<FrontlineEnemy> _enemies = [];
     private readonly List<FrontlineTower> _towers = [];
     private readonly List<FrontlineSupportProjectile> _supportProjectiles = [];
+    private readonly List<FrontlineProjectile> _projectiles = [];
     private readonly List<FrontlineAreaEffect> _areaEffects = [];
     private readonly Random _random;
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
+    private long _nextProjectileId = 1;
 
     public FrontlineGameSimulation(
         FrontlinePath path,
@@ -356,6 +360,8 @@ public sealed class FrontlineGameSimulation
     public int Score { get; private set; }
     public IReadOnlyList<FrontlineEnemy> Enemies => _enemies;
     public IReadOnlyList<FrontlineTower> Towers => _towers;
+    public IReadOnlyList<FrontlineProjectile> Projectiles => _projectiles;
+    public int ActiveProjectileCount => _projectiles.Count;
     public int ActiveSupportProjectileCount => _supportProjectiles.Count;
     public int ActiveAreaEffectCount => _areaEffects.Count;
 
@@ -486,23 +492,41 @@ public sealed class FrontlineGameSimulation
         if (elapsedUnits < 0 || double.IsNaN(elapsedUnits) || double.IsInfinity(elapsedUnits))
             throw new ArgumentOutOfRangeException(nameof(elapsedUnits));
 
-        if (Status != FrontlineGameStatus.Running)
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+            return;
+
+        if (Status == FrontlineGameStatus.Planning
+            && _enemies.Count == 0
+            && _projectiles.Count == 0
+            && _supportProjectiles.Count == 0
+            && _areaEffects.Count == 0)
             return;
 
         Tick++;
-        MoveEnemies(elapsedUnits);
-        ResolveDeaths();
+        if (Status == FrontlineGameStatus.Running)
+            MoveEnemies(elapsedUnits);
+
+        AdvanceProjectiles(elapsedUnits);
+        AdvanceSupportProjectiles(elapsedUnits);
+        AdvanceAreaEffects(elapsedUnits);
+
         if (LevelHealth <= 0)
         {
             Status = FrontlineGameStatus.Defeat;
             return;
         }
 
-        foreach (var tower in _towers.ToArray())
-            Fire(tower, elapsedUnits);
+        if (Status == FrontlineGameStatus.Running)
+        {
+            foreach (var tower in _towers.ToArray())
+                Fire(tower, elapsedUnits);
+        }
 
         ResolveDeaths();
-        if (_enemies.Count == 0 && Status == FrontlineGameStatus.Running)
+        if (_enemies.Count == 0
+            && _projectiles.Count == 0
+            && _supportProjectiles.Count == 0
+            && Status == FrontlineGameStatus.Running)
             Status = FrontlineGameStatus.Planning;
     }
 
@@ -578,20 +602,97 @@ public sealed class FrontlineGameSimulation
             ? tower.Definition.MetalDamageProfile
             : tower.Definition.DamageProfile;
         var profile = baseProfile ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
-        var damageScale = tower.Definition.Damage <= 0
-            ? 1
-            : tower.Damage / tower.Definition.Damage;
+        var upgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.DamageUpgradeScale;
         var damageProfile = profile with
         {
-            DirectDamage = profile.DirectDamage * damageScale
+            DirectDamage = profile.DirectDamage * upgradeScale
         };
 
-        target.ApplyDamage(damageProfile);
-        tower.DamageDealt += damageProfile.DirectDamage;
-        if (target.Health <= 0)
-            tower.Kills++;
+        if (tower.Definition.ProjectileProfile is { } projectileProfile)
+        {
+            var deltaX = target.Position.X - tower.Position.X;
+            var deltaY = target.Position.Y - tower.Position.Y;
+            var distance = Math.Hypot(deltaX, deltaY);
+            var directionX = distance <= 0 ? 0 : deltaX / distance;
+            var directionY = distance <= 0 ? 0 : deltaY / distance;
+            var position = new FrontlinePoint(
+                tower.Position.X + directionX * projectileProfile.StartOffset,
+                tower.Position.Y + directionY * projectileProfile.StartOffset + projectileProfile.VerticalOffset);
+
+            _projectiles.Add(new FrontlineProjectile(
+                _nextProjectileId++,
+                tower,
+                target,
+                position,
+                damageProfile,
+                projectileProfile));
+        }
+        else
+        {
+            target.ApplyDamage(damageProfile);
+            tower.DamageDealt += damageProfile.DirectDamage;
+            if (target.Health <= 0)
+                tower.Kills++;
+        }
 
         tower.Loading = 0;
+        if (tower.Definition.Id == "tower4")
+            tower.TargetId = null;
+
+        ResolveDeaths();
+    }
+
+    private void AdvanceProjectiles(double elapsedUnits)
+    {
+        for (var index = _projectiles.Count - 1; index >= 0; index--)
+        {
+            var projectile = _projectiles[index];
+            var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId);
+            if (target is null || target.Health <= 0)
+            {
+                projectile.Expire();
+                _projectiles.RemoveAt(index);
+                continue;
+            }
+
+            if (!projectile.Advance(target, elapsedUnits))
+            {
+                if (projectile.IsExpired)
+                    _projectiles.RemoveAt(index);
+                continue;
+            }
+
+            if (projectile.Profile.SplashRadius > 0)
+            {
+                foreach (var enemy in _enemies.ToArray())
+                {
+                    if (Math.Hypot(
+                        enemy.Position.X - projectile.Position.X,
+                        enemy.Position.Y - projectile.Position.Y) > projectile.Profile.SplashRadius)
+                        continue;
+
+                    var splashDamage = projectile.Damage with
+                    {
+                        DirectDamage = projectile.Damage.DirectDamage * projectile.Profile.SplashDamageScale
+                    };
+                    enemy.ApplyDamage(splashDamage);
+                    projectile.Owner.DamageDealt += splashDamage.DirectDamage;
+                    if (enemy.Health <= 0)
+                        projectile.Owner.Kills++;
+                }
+            }
+            else
+            {
+                target.ApplyDamage(projectile.Damage);
+                projectile.Owner.DamageDealt += projectile.Damage.DirectDamage;
+                if (target.Health <= 0)
+                    projectile.Owner.Kills++;
+            }
+
+            projectile.Expire();
+            _projectiles.RemoveAt(index);
+        }
+
         ResolveDeaths();
     }
 
