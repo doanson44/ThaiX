@@ -165,6 +165,35 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenSupportTowerHasNoTarget_DoesNotLaunchStrike()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        simulation.TryBuildTower(support.CreateDefinition() with
+        {
+            RateOfFire = 100,
+            ShotLimit = 1
+        }, new FrontlinePoint(50, 50));
+
+        simulation.Advance(1);
+
+        simulation.SupportProjectiles.Should().BeEmpty();
+        simulation.Towers.Should().ContainSingle();
+
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
+        simulation.Advance(1);
+        simulation.Advance(1);
+
+        simulation.SupportProjectiles.Should().ContainSingle();
+        simulation.Towers.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Advance_WhenNoEnemiesArePresent_ContinuesTowerReloading()
     {
         var path = new FrontlinePath(
