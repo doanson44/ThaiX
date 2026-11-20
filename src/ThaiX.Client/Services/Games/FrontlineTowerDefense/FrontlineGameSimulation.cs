@@ -266,8 +266,59 @@ public sealed class FrontlineTower
 
 public sealed class FrontlineGameSimulation
 {
+    private sealed class FrontlineSupportProjectile(
+        FrontlinePoint impact,
+        double damage,
+        FrontlineDamageProfile statusDamage,
+        bool createsFireCloud,
+        bool createsPoisonCloud)
+    {
+        public FrontlinePoint Impact { get; } = impact;
+        public double Damage { get; } = damage;
+        public FrontlineDamageProfile StatusDamage { get; } = statusDamage;
+        public bool CreatesFireCloud { get; } = createsFireCloud;
+        public bool CreatesPoisonCloud { get; } = createsPoisonCloud;
+        public double Height { get; private set; } = 450;
+        public double VerticalVelocity { get; private set; } = -0.5;
+
+        public bool Advance(double elapsedUnits)
+        {
+            Height += VerticalVelocity * elapsedUnits;
+            VerticalVelocity -= 0.09 * elapsedUnits;
+            return Height < 0;
+        }
+    }
+
+    private sealed class FrontlineAreaEffect(
+        FrontlinePoint position,
+        double radius,
+        FrontlineDamageProfile damage,
+        double life,
+        double interval)
+    {
+        public FrontlinePoint Position { get; } = position;
+        public double Radius { get; } = radius;
+        public FrontlineDamageProfile Damage { get; } = damage;
+        public double LifeRemaining { get; private set; } = life;
+        public double Interval { get; } = interval;
+        private double _elapsed;
+
+        public bool Advance(double elapsedUnits)
+        {
+            LifeRemaining -= elapsedUnits;
+            _elapsed += elapsedUnits;
+            var shouldPulse = _elapsed >= Interval;
+            if (shouldPulse)
+                _elapsed = 0;
+
+            return shouldPulse;
+        }
+    }
+
     private readonly List<FrontlineEnemy> _enemies = [];
     private readonly List<FrontlineTower> _towers = [];
+    private readonly List<FrontlineSupportProjectile> _supportProjectiles = [];
+    private readonly List<FrontlineAreaEffect> _areaEffects = [];
     private readonly Random _random;
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
@@ -303,6 +354,8 @@ public sealed class FrontlineGameSimulation
     public int Score { get; private set; }
     public IReadOnlyList<FrontlineEnemy> Enemies => _enemies;
     public IReadOnlyList<FrontlineTower> Towers => _towers;
+    public int ActiveSupportProjectileCount => _supportProjectiles.Count;
+    public int ActiveAreaEffectCount => _areaEffects.Count;
 
     public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position)
     {
@@ -538,26 +591,90 @@ public sealed class FrontlineGameSimulation
         var impact = new FrontlinePoint(
             tower.Position.X + _random.NextDouble() * spread * 2 - spread,
             tower.Position.Y + _random.NextDouble() * spread * 2 - spread);
-        var damage = tower.Definition.SupportDamage
-            ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
+        var statusDamage = tower.Definition.SupportDamage ?? new FrontlineDamageProfile();
 
-        foreach (var enemy in _enemies)
-        {
-            if (Math.Hypot(enemy.Position.X - impact.X, enemy.Position.Y - impact.Y) > 110)
-                continue;
-
-            enemy.ApplyDamage(damage);
-            tower.DamageDealt += damage.DirectDamage;
-            if (enemy.Health <= 0)
-                tower.Kills++;
-        }
+        _supportProjectiles.Add(new FrontlineSupportProjectile(
+            impact,
+            tower.Damage * 0.5,
+            statusDamage,
+            tower.Definition.Id == "suptower1",
+            tower.Definition.Id == "suptower2"));
 
         tower.Loading = 0;
         tower.ShotsFired++;
-        ResolveDeaths();
-
         if (tower.ShotsFired >= tower.Definition.ShotLimit)
             _towers.Remove(tower);
+    }
+
+    private void AdvanceSupportProjectiles(double elapsedUnits)
+    {
+        for (var index = _supportProjectiles.Count - 1; index >= 0; index--)
+        {
+            var projectile = _supportProjectiles[index];
+            if (!projectile.Advance(elapsedUnits))
+                continue;
+
+            var explosionDamage = new FrontlineDamageProfile(
+                projectile.Damage,
+                projectile.StatusDamage.Burn,
+                projectile.StatusDamage.Radiation,
+                projectile.StatusDamage.Poison,
+                projectile.StatusDamage.Freeze);
+
+            foreach (var enemy in _enemies.ToArray())
+            {
+                if (Math.Hypot(
+                    enemy.Position.X - projectile.Impact.X,
+                    enemy.Position.Y - projectile.Impact.Y) <= 80)
+                    enemy.ApplyDamage(explosionDamage);
+            }
+
+            if (projectile.CreatesFireCloud)
+            {
+                _areaEffects.Add(new FrontlineAreaEffect(
+                    projectile.Impact,
+                    40,
+                    new FrontlineDamageProfile(Burn: 100),
+                    500,
+                    10));
+            }
+            else if (projectile.CreatesPoisonCloud)
+            {
+                _areaEffects.Add(new FrontlineAreaEffect(
+                    projectile.Impact,
+                    40,
+                    new FrontlineDamageProfile(Poison: 20),
+                    1000,
+                    20));
+            }
+
+            _supportProjectiles.RemoveAt(index);
+        }
+
+        ResolveDeaths();
+    }
+
+    private void AdvanceAreaEffects(double elapsedUnits)
+    {
+        for (var index = _areaEffects.Count - 1; index >= 0; index--)
+        {
+            var effect = _areaEffects[index];
+            if (effect.Advance(elapsedUnits))
+            {
+                foreach (var enemy in _enemies.ToArray())
+                {
+                    if (Math.Hypot(
+                        enemy.Position.X - effect.Position.X,
+                        enemy.Position.Y - effect.Position.Y) <= effect.Radius)
+                        enemy.ApplyDamage(effect.Damage);
+                }
+            }
+
+            if (effect.LifeRemaining <= 0)
+                _areaEffects.RemoveAt(index);
+        }
+
+        ResolveDeaths();
     }
     private FrontlineEnemy? FindTarget(FrontlineTower tower)
     {
