@@ -38,7 +38,7 @@ or status channels (burn, radiation, poison and freeze), enemy resistance multip
 enemy behavior, temperature thresholds, and freeze/unfreeze state. Enemy pathing uses a grid
 pathfinder and random start/end points selected from each level's authored endpoints. Tower
 selection supports near, far, strong, weak, heat and cold targeting modes. The runtime registers
-13 tower classes (11 standard and 3 support slots, with one overlap in shop indexing) and 13
+14 tower classes (11 standard and 3 support) and 13
 enemy classes including infantry, vehicles and a bot.
 
 Exact balancing values, all tower and enemy definitions, mission layouts, complete wave schedules,
