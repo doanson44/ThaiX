@@ -20,6 +20,27 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void TryStartNextGroup_WhenCooldownIsReady_StartsWaveImmediately()
+    {
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
+
+        scheduler.CanManuallyStart.Should().BeTrue();
+        scheduler.TryStartNextGroup().Should().BeTrue();
+        scheduler.CurrentGroup.Should().Be(1);
+        scheduler.CanManuallyStart.Should().BeFalse();
+
+        for (var tick = 0; tick < 199; tick++)
+            scheduler.Advance(0, enemiesRemain: false);
+
+        scheduler.CanManuallyStart.Should().BeFalse();
+        scheduler.Advance(0, enemiesRemain: false);
+        scheduler.CanManuallyStart.Should().BeTrue();
+        scheduler.TryStartNextGroup().Should().BeTrue();
+        scheduler.CurrentGroup.Should().Be(2);
+        scheduler.ActiveSpawnerCount.Should().Be(2);
+    }
+
+    [Fact]
     public void Advance_BeforeInitialCountdownExpires_DoesNotStartWave()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
