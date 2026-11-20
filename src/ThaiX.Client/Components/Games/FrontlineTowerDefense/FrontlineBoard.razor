@@ -1,0 +1,123 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+
+<div class="frontline-board"
+     role="grid"
+     aria-label="Frontline Tower Defense game board">
+    @foreach (var cell in VisibleCells)
+    {
+        var isPath = Level.WalkableCells.Contains(cell);
+        var isBlocked = Level.BlockedCells.Contains(cell);
+        var isStart = Level.StartPoints.Contains(cell);
+        var isEnd = Level.EndPoints.Contains(cell);
+
+        <button @key="cell"
+                type="button"
+                role="gridcell"
+                class="@GetCellClass(isPath, isBlocked)"
+                aria-label="@($"Grid cell {cell.X + 1}, {cell.Y + 1}")"
+                disabled="@(!IsPlacementEnabled || !CellSelected.HasDelegate)"
+                @onclick="() => CellSelected.InvokeAsync(ToCellCenter(cell))">
+            @if (isStart)
+            {
+                <span class="frontline-board__start" aria-hidden="true"></span>
+            }
+            @if (isEnd)
+            {
+                <span class="frontline-board__end" aria-hidden="true"></span>
+            }
+        </button>
+    }
+
+    @foreach (var tower in Simulation.Towers)
+    {
+        <button @key="tower.Id"
+                type="button"
+                class="@GetTowerClass(tower.Id)"
+                style="@GetPositionStyle(tower.Position)"
+                title="@tower.Definition.Id"
+                aria-label="@($"Select tower {tower.Definition.Id}")"
+                aria-pressed="@(SelectedTowerId == tower.Id)"
+                disabled="@(!TowerSelected.HasDelegate)"
+                @onclick="() => TowerSelected.InvokeAsync(tower.Id)">
+            <span class="frontline-board__tower-core" aria-hidden="true"></span>
+        </button>
+    }
+
+    @foreach (var enemy in Simulation.Enemies)
+    {
+        <div @key="enemy.Id"
+             class="frontline-board__enemy"
+             style="@GetPositionStyle(enemy.Position)"
+             role="img"
+             aria-label="@($"Enemy {enemy.Definition.Id}")"
+             title="@enemy.Definition.Id">
+            <span class="frontline-board__enemy-core" aria-hidden="true"></span>
+            <span class="frontline-board__health">
+                <span style="@GetHealthStyle(enemy)"></span>
+            </span>
+        </div>
+    }
+</div>
+
+@code {
+    private const double BoardWidth = FrontlineLevelMapDefinition.BuildableWidth * FrontlinePath.DefaultGridCellSize;
+    private const double BoardHeight = FrontlineLevelMapDefinition.BuildableHeight * FrontlinePath.DefaultGridCellSize;
+
+    private static readonly IReadOnlyList<FrontlineGridPoint> VisibleCells =
+        Enumerable.Range(0, FrontlineLevelMapDefinition.BuildableHeight)
+            .SelectMany(y => Enumerable.Range(0, FrontlineLevelMapDefinition.BuildableWidth)
+                .Select(x => new FrontlineGridPoint(x, y)))
+            .ToArray();
+
+    [Parameter, EditorRequired]
+    public FrontlineLevelMapDefinition Level { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public FrontlineGameSimulation Simulation { get; set; } = default!;
+
+    [Parameter]
+    public bool IsPlacementEnabled { get; set; }
+
+    [Parameter]
+    public long? SelectedTowerId { get; set; }
+
+    [Parameter]
+    public EventCallback<FrontlinePoint> CellSelected { get; set; }
+
+    [Parameter]
+    public EventCallback<long> TowerSelected { get; set; }
+
+    private static string GetCellClass(bool isPath, bool isBlocked)
+    {
+        if (isPath)
+            return "frontline-board__cell frontline-board__cell--path";
+
+        return isBlocked
+            ? "frontline-board__cell frontline-board__cell--blocked"
+            : "frontline-board__cell frontline-board__cell--buildable";
+    }
+
+    private string GetTowerClass(long towerId) =>
+        SelectedTowerId == towerId
+            ? "frontline-board__tower frontline-board__tower--selected"
+            : "frontline-board__tower";
+
+    private static string GetPositionStyle(FrontlinePoint position) =>
+        FormattableString.Invariant(
+            $"left:{position.X / BoardWidth * 100:0.####}%;top:{position.Y / BoardHeight * 100:0.####}%;");
+
+    private static string GetHealthStyle(FrontlineEnemy enemy)
+    {
+        var health = enemy.Definition.Health <= 0
+            ? 0
+            : Math.Clamp(enemy.Health / enemy.Definition.Health, 0, 1) * 100;
+
+        return FormattableString.Invariant($"width:{health:0.##}%;");
+    }
+
+    private static FrontlinePoint ToCellCenter(FrontlineGridPoint cell) =>
+        new(
+            cell.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5,
+            cell.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5);
+}
