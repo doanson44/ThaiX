@@ -97,7 +97,20 @@ public sealed class FrontlineGameSessionTests
             FrontlinePlayerProgress.CreateNew(),
             new Random(42));
 
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<FrontlineLevelLockedException>();
+    }
+
+    [Fact]
+    public void Constructor_WhenMapHasNoValidAuthoredRoute_ThrowsRouteUnavailable()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-08")!;
+        var waveSet = FrontlineWaveCatalog.Find("level-08")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+
+        var act = () => new FrontlineGameSession(level, waveSet, progress, new Random(42));
+
+        act.Should().Throw<FrontlineRouteUnavailableException>();
     }
 
     [Fact]
