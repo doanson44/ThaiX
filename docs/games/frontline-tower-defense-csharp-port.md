@@ -102,6 +102,7 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Integrate per-level grid maps, random authored endpoints, and per-enemy route generation for route-validated maps.
 - [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
+- [x] Encode standard tower direct/status damage profiles and metal-specific rifle, sniper, and machine-gun damage.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
 - [x] Port limited-use support strike placement, randomized impact zones, area damage payloads, shot limits, and automatic expiration.
 - [x] Add localized campaign/bonus mission selection with unlock state and best-score display.
