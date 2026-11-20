@@ -159,6 +159,10 @@ public static class ResourceKeys
         public const string NameFrontlineTowerDefense = "Games.FrontlineTowerDefense.Name";
         public const string DescriptionFrontlineTowerDefense = "Games.FrontlineTowerDefense.Description";
         public const string InstructionsFrontlineTowerDefense = "Games.FrontlineTowerDefense.Instructions";
+        public const string FrontlineBoard = "Games.FrontlineTowerDefense.Board";
+        public const string FrontlineGridCell = "Games.FrontlineTowerDefense.GridCell";
+        public const string FrontlineSelectTower = "Games.FrontlineTowerDefense.SelectTower";
+        public const string FrontlineEnemy = "Games.FrontlineTowerDefense.Enemy";
         public const string Wave = "Games.Wave";
         public const string Lives = "Games.Lives";
         public const string Gold = "Games.Gold";
