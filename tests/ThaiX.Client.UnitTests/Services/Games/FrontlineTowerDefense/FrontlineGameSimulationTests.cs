@@ -63,6 +63,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 20, 1, 15));
 
         simulation.Advance();
+        simulation.Advance();
 
         simulation.Enemies.Should().BeEmpty();
         simulation.Funds.Should().Be(415);
