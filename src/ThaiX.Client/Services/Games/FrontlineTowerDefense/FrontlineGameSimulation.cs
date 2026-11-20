@@ -94,7 +94,10 @@ public sealed record FrontlineTowerDefinition(
     double Range,
     double Damage,
     double RateOfFire,
-    FrontlineTargetMode TargetMode = FrontlineTargetMode.Near);
+    FrontlineTargetMode TargetMode = FrontlineTargetMode.Near,
+    bool IsSupport = false,
+    FrontlineDamageProfile? SupportDamage = null,
+    int ShotLimit = 0);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -238,6 +241,7 @@ public sealed class FrontlineTower
     public double Loading { get; internal set; }
     public long? TargetId { get; internal set; }
     public int Kills { get; internal set; }
+    public int ShotsFired { get; internal set; }
     public double DamageDealt { get; internal set; }
     public double Range => Definition.Range * (1 + _rangeLevel);
     public double Damage => Definition.Damage * (1 + _damageLevel);
@@ -266,6 +270,7 @@ public sealed class FrontlineGameSimulation
 {
     private readonly List<FrontlineEnemy> _enemies = [];
     private readonly List<FrontlineTower> _towers = [];
+    private readonly Random _random;
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
 
@@ -273,7 +278,8 @@ public sealed class FrontlineGameSimulation
         FrontlinePath path,
         int startingFunds,
         double levelHealth = 1000,
-        FrontlineLevelMapDefinition? levelMap = null)
+        FrontlineLevelMapDefinition? levelMap = null,
+        Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (path.Points.Count < 2)
@@ -287,6 +293,7 @@ public sealed class FrontlineGameSimulation
         LevelMap = levelMap;
         Funds = startingFunds;
         LevelHealth = levelHealth;
+        _random = random ?? new Random(0);
     }
 
     public FrontlinePath Path { get; }
@@ -309,6 +316,7 @@ public sealed class FrontlineGameSimulation
             || !double.IsFinite(definition.Range) || definition.Range <= 0
             || !double.IsFinite(definition.Damage) || definition.Damage <= 0
             || !double.IsFinite(definition.RateOfFire) || definition.RateOfFire <= 0
+            || (definition.IsSupport && definition.ShotLimit <= 0)
             || Funds < definition.Cost)
             return false;
 
@@ -353,7 +361,7 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
-        if (tower is null)
+        if (tower is null || tower.Definition.IsSupport)
             return false;
 
         Funds += (int)Math.Floor(tower.SaleValue);
@@ -367,7 +375,7 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
-        if (tower is null)
+        if (tower is null || tower.Definition.IsSupport)
             return false;
 
         var funds = Funds;
@@ -486,6 +494,12 @@ public sealed class FrontlineGameSimulation
     private void Fire(FrontlineTower tower, double elapsedUnits)
     {
         tower.Loading += tower.RateOfFire * elapsedUnits;
+        if (tower.Definition.IsSupport)
+        {
+            FireSupportStrike(tower);
+            return;
+        }
+
         var target = tower.TargetId is long targetId
             ? _enemies.FirstOrDefault(enemy => enemy.Id == targetId)
             : null;
@@ -518,6 +532,36 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
+    private void FireSupportStrike(FrontlineTower tower)
+    {
+        if (tower.Loading < 100)
+            return;
+
+        var spread = tower.Definition.Id == "suptower1" ? 60 : 40;
+        var impact = new FrontlinePoint(
+            tower.Position.X + _random.NextDouble() * spread * 2 - spread,
+            tower.Position.Y + _random.NextDouble() * spread * 2 - spread);
+        var damage = tower.Definition.SupportDamage
+            ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
+
+        foreach (var enemy in _enemies)
+        {
+            if (Math.Hypot(enemy.Position.X - impact.X, enemy.Position.Y - impact.Y) > 110)
+                continue;
+
+            enemy.ApplyDamage(damage);
+            tower.DamageDealt += damage.DirectDamage;
+            if (enemy.Health <= 0)
+                tower.Kills++;
+        }
+
+        tower.Loading = 0;
+        tower.ShotsFired++;
+        ResolveDeaths();
+
+        if (tower.ShotsFired >= tower.Definition.ShotLimit)
+            _towers.Remove(tower);
+    }
     private FrontlineEnemy? FindTarget(FrontlineTower tower)
     {
         var candidates = _enemies
