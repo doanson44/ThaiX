@@ -675,14 +675,43 @@ public sealed class FrontlineGameSimulation
             {
                 "tower4" => FrontlineCombatTraceKind.Lightning,
                 "tower5" => FrontlineCombatTraceKind.Shotgun,
-                "tower6" or "tower11" => FrontlineCombatTraceKind.EnergyBeam,
+                "tower6" => FrontlineCombatTraceKind.EnergyBeam,
                 _ => FrontlineCombatTraceKind.Bullet
             };
-            _combatTraces.Add(new FrontlineCombatTrace(
-                tower.Position,
-                target.Position,
-                traceKind,
-                traceKind == FrontlineCombatTraceKind.Lightning ? 12 : 2));
+
+            if (traceKind == FrontlineCombatTraceKind.Shotgun)
+            {
+                for (var pellet = 0; pellet < 3; pellet++)
+                {
+                    var spreadX = _random.NextDouble() * 16 - 8;
+                    var spreadY = _random.NextDouble() * 16 - 8;
+                    _combatTraces.Add(new FrontlineCombatTrace(
+                        new FrontlinePoint(tower.Position.X, tower.Position.Y - 12),
+                        new FrontlinePoint(
+                            target.Position.X + spreadX,
+                            target.Position.Y - 6 + spreadY),
+                        traceKind,
+                        3));
+                }
+            }
+            else
+            {
+                var traceStart = traceKind == FrontlineCombatTraceKind.Lightning
+                    ? new FrontlinePoint(tower.Position.X, tower.Position.Y - 24)
+                    : tower.Position;
+                var traceEnd = traceKind == FrontlineCombatTraceKind.Lightning
+                    ? new FrontlinePoint(target.Position.X, target.Position.Y - 8)
+                    : target.Position;
+                var traceLife = traceKind == FrontlineCombatTraceKind.Lightning
+                    ? tower.Damage
+                    : 2;
+
+                _combatTraces.Add(new FrontlineCombatTrace(
+                    traceStart,
+                    traceEnd,
+                    traceKind,
+                    traceLife));
+            }
         }
 
         tower.Loading = 0;
