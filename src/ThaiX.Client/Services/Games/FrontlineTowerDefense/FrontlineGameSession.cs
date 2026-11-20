@@ -1,5 +1,11 @@
 namespace ThaiX.Client.Services.Games.FrontlineTowerDefense;
 
+public sealed class FrontlineLevelLockedException(string levelId)
+    : InvalidOperationException($"Level '{levelId}' is locked.");
+
+public sealed class FrontlineRouteUnavailableException(string levelId)
+    : InvalidOperationException($"No valid route is available for level '{levelId}'.");
+
 public enum FrontlineGameSessionState
 {
     Playing,
@@ -32,7 +38,7 @@ public sealed class FrontlineGameSession
             throw new ArgumentException("The map and wave schedule must describe the same level.");
 
         if (!progress.IsLevelUnlocked(level.UnlockIndex))
-            throw new InvalidOperationException($"Level '{level.Id}' is locked.");
+            throw new FrontlineLevelLockedException(level.Id);
 
         Level = level;
         WaveSet = waveSet;
@@ -44,7 +50,7 @@ public sealed class FrontlineGameSession
             || _reservedInitialRoute is null)
         {
             State = FrontlineGameSessionState.RouteUnavailable;
-            throw new InvalidOperationException($"No valid route is available for level '{level.Id}'.");
+            throw new FrontlineRouteUnavailableException(level.Id);
         }
 
         Simulation = new FrontlineGameSimulation(
