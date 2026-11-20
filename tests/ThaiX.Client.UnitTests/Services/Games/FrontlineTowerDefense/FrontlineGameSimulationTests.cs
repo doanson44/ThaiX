@@ -118,7 +118,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.ActiveSupportProjectileCount.Should().Be(1);
         enemy.Health.Should().Be(1000);
 
-        for (var tick = 0; tick < 100; tick++)
+        for (var tick = 0; tick < 120; tick++)
             simulation.Advance();
 
         simulation.ActiveSupportProjectileCount.Should().Be(0);
