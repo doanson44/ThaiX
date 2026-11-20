@@ -10,7 +10,8 @@ public sealed class GamesHubCoverageTests
     [
         "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
         "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
+        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense",
+        "frontline-tower-defense"
     ];
 
     [Fact]

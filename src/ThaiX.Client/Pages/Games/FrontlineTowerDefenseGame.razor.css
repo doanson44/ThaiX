@@ -1,0 +1,57 @@
+.frontline-defense-page {
+    max-width: 76rem;
+    margin-inline: auto;
+}
+
+.frontline-defense-card {
+    min-width: 0;
+}
+
+.frontline-defense-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--rz-text-color);
+}
+
+.frontline-defense-viewport {
+    position: relative;
+    display: grid;
+    width: min(100%, max(24rem, calc(133.333333dvh - 21.333333rem)));
+    aspect-ratio: 4 / 3;
+    margin-inline: auto;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #000;
+    touch-action: none;
+    user-select: none;
+}
+
+.frontline-defense-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.frontline-defense-status {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: #000;
+    color: #f8fafc;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.frontline-defense-status[hidden] {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .frontline-defense-viewport {
+        border-radius: 0.5rem;
+    }
+}

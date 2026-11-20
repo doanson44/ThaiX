@@ -2107,6 +2107,7 @@
   <data name="Games.ScoreSaved" xml:space="preserve"><value>Score saved locally and synced.</value></data>
   <data name="Games.ScoreSyncFailed" xml:space="preserve"><value>Your score is saved locally, but leaderboard sync failed.</value></data>
   <data name="Games.Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="Games.LoadFailed" xml:space="preserve"><value>The game could not be loaded. Refresh the page and try again.</value></data>
   <data name="Games.BackToGames" xml:space="preserve"><value>Back to games</value></data>
   <data name="Games.Rank" xml:space="preserve"><value>Rank</value></data>
   <data name="Games.Player" xml:space="preserve"><value>Player</value></data>
@@ -2200,6 +2201,9 @@
   <data name="Games.TowerDefense.Name" xml:space="preserve"><value>Tower Defense</value></data>
   <data name="Games.TowerDefense.Description" xml:space="preserve"><value>Defend your base across 14 campaign missions and 3 bonus challenges. Earn War-Mart credits to buy 11 tower types, upgrade damage, range and fire rate, and call in airstrikes.</value></data>
   <data name="Games.TowerDefense.Instructions" xml:space="preserve"><value>Pick a mission, difficulty and mode, then deploy. Choose a tower (keys 1-9, 0 or B for Flak) and a free tile to build it. Select a built tower to upgrade damage (D), range (R) or fire rate (F), change its target (T), move it (M) or sell it (X). Press N to start the next wave, A then Enter or a tile for an airstrike, and G to change speed. Arrow keys move the cursor and Enter builds or selects. Win missions to earn credits, buy advanced towers, increase starting funds and unlock bonus challenges in the War-Mart. Each enemy that reaches the end costs lives; helicopters fly straight over the map and only some towers can hit them.</value></data>
+  <data name="Games.FrontlineTowerDefense.Name" xml:space="preserve"><value>Frontline Tower Defense</value></data>
+  <data name="Games.FrontlineTowerDefense.Description" xml:space="preserve"><value>Defend the frontline through the complete campaign, build and upgrade towers, and purchase permanent improvements in War-Mart.</value></data>
+  <data name="Games.FrontlineTowerDefense.Instructions" xml:space="preserve"><value>Wait for the game to load, choose a mission and difficulty, then use the in-game controls to deploy towers, start waves, upgrade defenses, sell units and call airstrikes. Game progress is stored on this device.</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
