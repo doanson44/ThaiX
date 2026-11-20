@@ -11,10 +11,10 @@
 }
 else if (_selectedLevel is not null)
 {
-    <FrontlineGameHost Level="_selectedLevel"
-                       WaveSet="GetWaveSet(_selectedLevel)"
-                       Progress="_progress"
-                       ExitRequested="ReturnToMissions" />
+    <FrontlineGameHost Level="@_selectedLevel!"
+                       WaveSet="@GetWaveSet(_selectedLevel!)"
+                       Progress="@_progress!"
+                       ExitRequested="@ReturnToMissions" />
 }
 else
 {
@@ -36,11 +36,11 @@ else
 
         @if (_showWarMart)
         {
-            <FrontlineWarMartView Progress="_progress" ProgressChanged="OnProgressChanged" />
+            <FrontlineWarMartView Progress="@_progress" ProgressChanged="@OnProgressChanged" />
         }
         else
         {
-            <FrontlineMissionSelectView Progress="_progress" MissionSelected="StartMission" />
+            <FrontlineMissionSelectView Progress="@_progress" MissionSelected="@StartMission" />
         }
     </div>
 }
