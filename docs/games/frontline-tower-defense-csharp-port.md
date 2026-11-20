@@ -43,6 +43,8 @@ randomly from each level's authored endpoints. Tower selection supports near, fa
 weak, heat and cold targeting modes. The runtime registers 11 standard tower types, 3 support
 types, and 13 enemy types including infantry, vehicles and a bot.
 
+The inspected Electro Tower implementation damages one selected target and creates a single lightning-beam effect; no multi-target chain-damage loop was found in its Fire method. The C# port therefore models a single-target lightning trace rather than inventing chain damage.
+
 Verified enemy definitions now cover all 13 runtime types. The five infantry types use base
 health 50; the bot uses 1,000; vehicle base health ranges from 120 to 550. Metal enemy types
 start at core temperature 200 (rather than 35), use 500/0 heat/freeze thresholds, and award
@@ -72,6 +74,33 @@ Tower0..Tower19, and Level0..Level39. The Blazor host loads this profile and sav
 Campaign level availability is derived from the previous level's best-score slot; bonus mission
 availability is derived from the War-Mart unlock slots.
 Do not substitute the separate ThaiX Tower Defense definitions.
+
+## Static route connectivity audit
+
+The current `FrontlineGridPathfinder` requires the destination to be a walkable cell and applies the diagonal corner rule used by the C# implementation. A static audit of the extracted `WalkableCells`, `StartPoints`, and `EndPoints` found:
+
+| Map | Reachable endpoint pairs | Total pairs |
+|---|---:|---:|
+| level-01 | 1 | 1 |
+| level-02 | 0 | 1 |
+| level-03 | 0 | 2 |
+| level-04 | 0 | 4 |
+| level-05 | 0 | 9 |
+| level-06 | 0 | 2 |
+| level-07 | 0 | 4 |
+| level-08 | 0 | 4 |
+| level-09 | 0 | 2 |
+| level-10 | 0 | 6 |
+| level-11 | 0 | 1 |
+| level-12 | 0 | 4 |
+| level-13 | 0 | 56 |
+| level-14 | 0 | 6 |
+| bonus-01 | 32 | 32 |
+| bonus-02 | 0 | 36 |
+| bonus-03 | 0 | 88 |
+| bonus-04 | 32 | 88 |
+
+`FrontlineLevelRouteFactory` now filters to reachable authored endpoint pairs before choosing a random route, preventing bonus-04 from selecting one of its unreachable pairs. This does not repair the extracted map data: only level-01, bonus-01, and some bonus-04 endpoint pairs currently produce routes. Campaign levels 2-14 and bonus missions 2-3 remain blocked until the source timeline coordinates or omitted PathTile data are verified. The Sniper Elite host uses bonus-map route data, so bonus missions 2 and 3 currently show the route-unavailable state rather than silently using a fabricated path.
 
 ## Porting rules
 
