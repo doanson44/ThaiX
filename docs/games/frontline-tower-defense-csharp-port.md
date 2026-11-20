@@ -103,11 +103,13 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
-- [ ] Port tower-specific projectiles, area effects, support abilities, and exact firing parameters.
-- [ ] Extract remaining per-tower projectile behavior, special mission rules, and exact balance formulas.
-- [ ] Complete campaign/bonus mission result rewards, sniper mission gameplay, and War-Mart UI.
+- [x] Port limited-use support strike placement, randomized impact zones, area damage payloads, shot limits, and automatic expiration.
+- [x] Add localized campaign/bonus mission selection with unlock state and best-score display.
+- [x] Add localized War-Mart purchase UI and save progression back to the original Frontline browser key.
+- [ ] Port standard tower-specific projectile travel, chain lightning, splash behavior, and exact firing parameters.
+- [ ] Complete mission result rewards and dedicated sniper mission gameplay.
 
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
-- [ ] Replace the JavaScript wrapper with a fully Blazor-rendered UI.
-- [ ] Port all visuals and interaction states to accessible responsive Razor/SVG.
+- [x] Replace the active route with a Blazor mission/War-Mart shell, C# game host, and HTML/CSS board renderer.
+- [ ] Port original tower/enemy art, projectile animations, and remaining interaction states to responsive Razor/SVG.
 - [ ] Verify gameplay parity and remove the legacy runtime only after acceptance.
