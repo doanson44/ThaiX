@@ -317,6 +317,7 @@ public sealed class FrontlineGameSimulation
 
         Tick++;
         MoveEnemies(elapsedUnits);
+        ResolveDeaths();
         if (LevelHealth <= 0)
         {
             Status = FrontlineGameStatus.Defeat;
