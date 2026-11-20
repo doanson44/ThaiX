@@ -237,8 +237,7 @@ public sealed class FrontlineGameSimulation
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
             || definition.Health <= 0
             || definition.Speed <= 0
-            || definition.Reward < 0
-
+            || definition.Reward < 0)
             return false;
 
         _enemies.Add(new FrontlineEnemy(_nextEnemyId++, definition, Path));
