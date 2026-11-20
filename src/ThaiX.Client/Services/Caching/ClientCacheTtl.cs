@@ -3,6 +3,7 @@ namespace ThaiX.Client.Services.Caching;
 public static class ClientCacheTtl
 {
     public static readonly TimeSpan Ticker = TimeSpan.FromSeconds(30);
+    public static readonly TimeSpan ExchangeTicker24Hr = TimeSpan.FromHours(24);
     public static readonly TimeSpan Depth = TimeSpan.FromSeconds(30);
     public static readonly TimeSpan Funding = TimeSpan.FromMinutes(1);
     public static readonly TimeSpan VnDirect = TimeSpan.FromMinutes(2);

@@ -293,7 +293,7 @@ public sealed class ExternalDataService : IExternalDataService
         return GetEnvelopeCachedAsync<ExchangeTicker24HrResponseDto>(
             CacheGroups.ExternalExchangeBinance,
             path,
-            ClientCacheTtl.Ticker,
+            ClientCacheTtl.ExchangeTicker24Hr,
             cancellationToken);
     }
 
@@ -325,7 +325,7 @@ public sealed class ExternalDataService : IExternalDataService
         GetEnvelopeCachedAsync<BinanceFuturesTicker24HrResponseDto>(
             CacheGroups.ExternalExchangeBinance,
             "binance/futures-ticker-24hr",
-            ClientCacheTtl.Ticker,
+            ClientCacheTtl.ExchangeTicker24Hr,
             cancellationToken);
 
     public Task<ApiResponse<BybitLinearTickersResponseDto>> GetBybitLinearContractTickersAsync(
@@ -333,7 +333,7 @@ public sealed class ExternalDataService : IExternalDataService
         GetEnvelopeCachedAsync<BybitLinearTickersResponseDto>(
             CacheGroups.ExternalExchangeBybit,
             "bybit/linear-tickers",
-            ClientCacheTtl.Ticker,
+            ClientCacheTtl.ExchangeTicker24Hr,
             cancellationToken);
 
     public Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBybitLinearTickersAsync(
@@ -341,7 +341,7 @@ public sealed class ExternalDataService : IExternalDataService
         GetEnvelopeCachedAsync<ExchangeTicker24HrResponseDto>(
             CacheGroups.ExternalExchangeBybit,
             "bybit/linear-tickers",
-            ClientCacheTtl.Ticker,
+            ClientCacheTtl.ExchangeTicker24Hr,
             cancellationToken);
 
     public Task<ApiResponse<ExchangeTicker24HrResponseDto>> GetBybitSpotTickersAsync(
