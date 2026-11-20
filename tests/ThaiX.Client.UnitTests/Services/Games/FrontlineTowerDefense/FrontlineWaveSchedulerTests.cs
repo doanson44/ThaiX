@@ -31,6 +31,24 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void Advance_WhenGroupDelayIsShorterThanSpawnDuration_KeepsBothSpawnersActive()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("enemy1", 3, 100, 10),
+            new FrontlineWaveGroup("enemy2", 2, 100, 10)
+        ]));
+
+        scheduler.Advance(1000, enemiesRemain: false);
+        scheduler.Advance(20, enemiesRemain: false);
+
+        scheduler.ActiveSpawnerCount.Should().Be(2);
+        var spawned = scheduler.Advance(100, enemiesRemain: false);
+
+        spawned.Should().BeEquivalentTo("enemy1", "enemy2");
+    }
+
+    [Fact]
     public void Advance_AfterInitialCountdown_StartsFirstGroupWithoutImmediateSpawn()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
