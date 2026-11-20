@@ -31,6 +31,10 @@ The legacy JavaScript runtime and its original asset directory remain in the rep
 | New Razor/SVG/CSS artwork | Authored in the C# port; does not reference original bitmap files | Keep separate from legacy asset licensing review |
 | C# gameplay implementation | New port code | Review under repository contribution/license policy |
 
+## Build safeguard
+
+The client project now marks `wwwroot/games/frontline-tower-defense/assets/**/*` with `CopyToPublishDirectory="Never"`. This keeps the legacy bundle in source for behavioral comparison while preventing it from being copied into a publish artifact by the standard MSBuild publish flow. The setting still requires verification with an actual `dotnet publish` output inspection on the project's .NET 11 toolchain. It does not remove the original files from the Git repository or establish rights for repository distribution.
+
 ## Required evidence before release
 
 1. Identify the original game copyright owner and the owner or licensor of the bitmap and audio assets.
