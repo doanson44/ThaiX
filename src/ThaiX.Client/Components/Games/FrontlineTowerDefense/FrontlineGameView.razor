@@ -113,7 +113,7 @@
                                     disabled="@(Session.State != FrontlineGameSessionState.Playing)"
                                     @onclick="() => SelectBuildTower(tower)">
                                 <span>@L[GetTowerNameKey(tower.Id)]</span>
-                                <strong>@L[ResourceKeys.Games.Free]</strong>
+                                <strong>@tower.BuildCost</strong>
                             </button>
                         }
                     </div>
