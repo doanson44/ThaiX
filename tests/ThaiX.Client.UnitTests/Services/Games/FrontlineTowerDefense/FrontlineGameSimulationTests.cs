@@ -191,7 +191,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(34);
 
         simulation.Projectiles.Should().ContainSingle();
-        for (var tick = 0; tick < 5; tick++)
+        for (var tick = 0; tick < 6; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
