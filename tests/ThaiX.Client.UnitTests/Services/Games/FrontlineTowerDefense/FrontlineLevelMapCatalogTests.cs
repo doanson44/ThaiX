@@ -18,7 +18,9 @@ public sealed class FrontlineLevelMapCatalogTests
         var level = FrontlineLevelMapCatalog.Find("level-01");
 
         level.Should().NotBeNull();
-        level!.StartPoints.Should().ContainSingle()
+        level!.ProgressIndex.Should().Be(1);
+        level.UnlockIndex.Should().Be(0);
+        level.StartPoints.Should().ContainSingle()
             .Which.Should().Be(new FrontlineGridPoint(1, -1));
         level.EndPoints.Should().ContainSingle()
             .Which.Should().Be(new FrontlineGridPoint(16, 0));
@@ -50,7 +52,8 @@ public sealed class FrontlineLevelMapCatalogTests
         level.Should().NotBeNull();
         level!.StartPoints.Should().HaveCount(8);
         level.EndPoints.Should().HaveCount(4);
-        level.ProgressIndex.Should().Be(15);
+        level.ProgressIndex.Should().Be(16);
+        level.UnlockIndex.Should().Be(15);
         level.WalkableCells.Should().HaveCount(208);
         level.BlockedCells.Should().HaveCount(21);
     }
