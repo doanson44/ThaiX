@@ -643,7 +643,7 @@ public sealed class FrontlineGameSimulation
         }
 
         var baseProfile = target.Definition.IsMetal
-            ? tower.Definition.MetalDamageProfile
+            ? tower.Definition.MetalDamageProfile ?? tower.Definition.DamageProfile
             : tower.Definition.DamageProfile;
         var profile = baseProfile ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
         var upgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.DamageUpgradeScale;
