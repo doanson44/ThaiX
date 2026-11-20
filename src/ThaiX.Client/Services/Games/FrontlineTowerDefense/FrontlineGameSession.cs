@@ -83,7 +83,7 @@ public sealed class FrontlineGameSession
 
     public bool SetSpeedMultiplier(double multiplier)
     {
-        if (!double.IsFinite(multiplier) || multiplier <= 0 || multiplier > 8)
+        if (multiplier is not 1 and not 2)
             return false;
 
         SpeedMultiplier = multiplier;
