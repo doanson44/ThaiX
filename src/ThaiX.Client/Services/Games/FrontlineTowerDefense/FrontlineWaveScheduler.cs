@@ -23,6 +23,7 @@ public sealed class FrontlineWaveScheduler
     private readonly Queue<FrontlineWaveGroup> _pendingGroups;
     private readonly List<ActiveSpawner> _activeSpawners = [];
     private double _nextGroupCountdownUnits = 1000;
+    private int _manualStartCooldownTicks = 200;
 
     public FrontlineWaveScheduler(FrontlineWaveSchedule schedule)
     {
@@ -40,8 +41,19 @@ public sealed class FrontlineWaveScheduler
     public int TotalGroups { get; }
     public int CurrentGroup { get; private set; }
     public int ActiveSpawnerCount => _activeSpawners.Count;
+    public bool CanManuallyStart => _manualStartCooldownTicks >= 200 && _pendingGroups.Count > 0;
     public bool AllGroupsDispatched { get; private set; }
     public bool IsComplete { get; private set; }
+
+    public bool TryStartNextGroup()
+    {
+        if (!CanManuallyStart || !_pendingGroups.TryDequeue(out var nextGroup))
+            return false;
+
+        StartGroup(nextGroup);
+        _manualStartCooldownTicks = 0;
+        return true;
+    }
 
     public IReadOnlyList<FrontlineSpawnRequest> Advance(double elapsedUnits, bool enemiesRemain)
     {
@@ -51,6 +63,7 @@ public sealed class FrontlineWaveScheduler
         if (IsComplete)
             return [];
 
+        _manualStartCooldownTicks++;
         var spawned = new List<FrontlineSpawnRequest>();
 
         for (var index = 0; index < _activeSpawners.Count;)
@@ -79,15 +92,9 @@ public sealed class FrontlineWaveScheduler
             if (_nextGroupCountdownUnits <= 0)
             {
                 if (_pendingGroups.TryDequeue(out var nextGroup))
-                {
-                    CurrentGroup++;
-                    _activeSpawners.Add(new ActiveSpawner(nextGroup, CurrentGroup));
-                    _nextGroupCountdownUnits = nextGroup.DelayAfterUnits * 2;
-                }
+                    StartGroup(nextGroup);
                 else
-                {
                     AllGroupsDispatched = true;
-                }
             }
         }
 
@@ -95,5 +102,12 @@ public sealed class FrontlineWaveScheduler
             IsComplete = true;
 
         return spawned;
+    }
+
+    private void StartGroup(FrontlineWaveGroup group)
+    {
+        CurrentGroup++;
+        _activeSpawners.Add(new ActiveSpawner(group, CurrentGroup));
+        _nextGroupCountdownUnits = group.DelayAfterUnits * 2;
     }
 }
