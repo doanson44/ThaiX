@@ -176,6 +176,17 @@ public static class ResourceKeys
         public const string FrontlineDefeat = "Games.FrontlineTowerDefense.Defeat";
         public const string FrontlineRouteUnavailable = "Games.FrontlineTowerDefense.RouteUnavailable";
         public const string FrontlineLevelLocked = "Games.FrontlineTowerDefense.LevelLocked";
+        public const string FrontlineWarMart = "Games.FrontlineTowerDefense.WarMart";
+        public const string FrontlineBuy = "Games.FrontlineTowerDefense.Buy";
+        public const string FrontlineCredits = "Games.FrontlineTowerDefense.Credits";
+        public const string FrontlineOwned = "Games.FrontlineTowerDefense.Owned";
+        public const string FrontlineStartingFundsBonus = "Games.FrontlineTowerDefense.StartingFundsBonus";
+        public const string FrontlineNapalmStrike = "Games.FrontlineTowerDefense.NapalmStrike";
+        public const string FrontlineBioChemicalStrike = "Games.FrontlineTowerDefense.BioChemicalStrike";
+        public const string FrontlineSniperMission1 = "Games.FrontlineTowerDefense.SniperMission1";
+        public const string FrontlineSniperMission2 = "Games.FrontlineTowerDefense.SniperMission2";
+        public const string FrontlineSniperMission3 = "Games.FrontlineTowerDefense.SniperMission3";
+        public const string FrontlineSniperMission4 = "Games.FrontlineTowerDefense.SniperMission4";
         public const string FrontlineTowerMissileLauncher = "Games.FrontlineTowerDefense.Tower.MissileLauncher";
         public const string FrontlineTowerRifle = "Games.FrontlineTowerDefense.Tower.Rifle";
         public const string FrontlineTowerSniper = "Games.FrontlineTowerDefense.Tower.Sniper";
