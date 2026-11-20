@@ -59,12 +59,23 @@ public sealed record FrontlineDamageProfile(
     double Poison = 0,
     double Freeze = 0);
 
+public enum FrontlineTargetMode
+{
+    Near,
+    Far,
+    Strong,
+    Weak,
+    Heat,
+    Cold
+}
+
 public sealed record FrontlineTowerDefinition(
     string Id,
     int Cost,
     double Range,
     double Damage,
-    int CooldownTicks);
+    double RateOfFire,
+    FrontlineTargetMode TargetMode = FrontlineTargetMode.Near);
 
 public sealed class FrontlineEnemy
 {
@@ -87,11 +98,13 @@ public sealed class FrontlineEnemy
     public double PoisonDuration { get; private set; }
     public double FreezeDuration { get; private set; }
     public bool IsFrozen { get; private set; }
+    public bool AwardScoreOnDeath { get; private set; }
     public FrontlinePoint Position => Path.PointAt(Distance);
 
     internal void ApplyDamage(FrontlineDamageProfile damage)
     {
         Health -= damage.DirectDamage;
+        AwardScoreOnDeath = damage.DirectDamage > 0 && Health <= 0;
         RadiationDuration += damage.Radiation * Definition.RadiationResistance;
         CoreTemperature += damage.Burn * Definition.HeatResistance;
         PoisonDuration += damage.Poison * Definition.PoisonResistance;
@@ -178,9 +191,28 @@ public sealed class FrontlineTower
     public long Id { get; }
     public FrontlineTowerDefinition Definition { get; }
     public FrontlinePoint Position { get; }
-    public int CooldownRemaining { get; internal set; }
+    public double Loading { get; internal set; }
+    public double DamageLevel { get; private set; }
+    public double RangeLevel { get; private set; }
+    public double RateOfFireLevel { get; private set; }
     public int Kills { get; internal set; }
     public double DamageDealt { get; internal set; }
+    public double Range => Definition.Range * (1 + RangeLevel);
+    public double Damage => Definition.Damage * (1 + DamageLevel);
+    public double RateOfFire => Definition.RateOfFire * (1 + RateOfFireLevel);
+
+    public bool UpgradeDamage(int funds) => Upgrade(ref DamageLevel, funds);
+    public bool UpgradeRange(int funds) => Upgrade(ref RangeLevel, funds);
+    public bool UpgradeRateOfFire(int funds) => Upgrade(ref RateOfFireLevel, funds);
+
+    private bool Upgrade(ref double level, int funds)
+    {
+        if (funds < Math.Floor(Definition.Cost * 0.25))
+            return false;
+
+        level += 0.2;
+        return true;
+    }
 }
 
 public sealed class FrontlineGameSimulation
@@ -221,7 +253,7 @@ public sealed class FrontlineGameSimulation
             || definition.Cost < 0
             || definition.Range <= 0
             || definition.Damage <= 0
-            || definition.CooldownTicks <= 0
+            || definition.RateOfFire <= 0
             || Funds < definition.Cost
             || _towers.Any(tower => Math.Hypot(tower.Position.X - position.X, tower.Position.Y - position.Y) < 1))
             return false;
@@ -245,13 +277,16 @@ public sealed class FrontlineGameSimulation
         return true;
     }
 
-    public void Advance()
+    public void Advance(double elapsedUnits = 1)
     {
+        if (elapsedUnits < 0 || double.IsNaN(elapsedUnits) || double.IsInfinity(elapsedUnits))
+            throw new ArgumentOutOfRangeException(nameof(elapsedUnits));
+
         if (Status != FrontlineGameStatus.Running)
             return;
 
         Tick++;
-        MoveEnemies();
+        MoveEnemies(elapsedUnits);
         if (LevelHealth <= 0)
         {
             Status = FrontlineGameStatus.Defeat;
@@ -259,14 +294,14 @@ public sealed class FrontlineGameSimulation
         }
 
         foreach (var tower in _towers)
-            Fire(tower);
+            Fire(tower, elapsedUnits);
 
         ResolveDeaths();
         if (_enemies.Count == 0 && Status == FrontlineGameStatus.Running)
             Status = FrontlineGameStatus.Planning;
     }
 
-    private void MoveEnemies()
+    private void MoveEnemies(double elapsedUnits)
     {
         for (var index = _enemies.Count - 1; index >= 0; index--)
         {
@@ -275,7 +310,7 @@ public sealed class FrontlineGameSimulation
             if (enemy.Health <= 0)
                 continue;
 
-            enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier;
+            enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier * elapsedUnits;
             if (enemy.Distance < enemy.Path.Length)
                 continue;
 
@@ -304,27 +339,44 @@ public sealed class FrontlineGameSimulation
         return true;
     }
 
-    private void Fire(FrontlineTower tower)
+    private void Fire(FrontlineTower tower, double elapsedUnits)
     {
-        if (tower.CooldownRemaining > 0)
-        {
-            tower.CooldownRemaining--;
+        tower.Loading += tower.RateOfFire * elapsedUnits;
+        var target = FindTarget(tower);
+        if (target is null || tower.Loading < 100)
             return;
-        }
 
-        var target = _enemies
+        var damage = tower.Damage;
+        target.ApplyDamage(new FrontlineDamageProfile(DirectDamage: damage));
+        tower.DamageDealt += damage;
+        if (target.Health <= 0)
+            tower.Kills++;
+
+        tower.Loading = 0;
+        ResolveDeaths();
+    }
+
+    private FrontlineEnemy? FindTarget(FrontlineTower tower)
+    {
+        var candidates = _enemies
             .Where(enemy => enemy.Health > 0
                 && Math.Hypot(enemy.Position.X - tower.Position.X, enemy.Position.Y - tower.Position.Y)
-                    <= tower.Definition.Range)
-            .OrderByDescending(enemy => enemy.Progress)
-            .FirstOrDefault();
+                    <= tower.Range)
+            .ToList();
 
-        if (target is null)
-            return;
-
-        target.ApplyDamage(new FrontlineDamageProfile(DirectDamage: tower.Definition.Damage));
-        tower.DamageDealt += tower.Definition.Damage;
-        tower.CooldownRemaining = tower.Definition.CooldownTicks;
+        return tower.Definition.TargetMode switch
+        {
+            FrontlineTargetMode.Near => candidates.OrderByDescending(enemy => enemy.Distance).FirstOrDefault(),
+            FrontlineTargetMode.Far => candidates.OrderBy(enemy => enemy.Distance).FirstOrDefault(),
+            FrontlineTargetMode.Strong => candidates.OrderByDescending(enemy => enemy.Health).FirstOrDefault(),
+            FrontlineTargetMode.Weak => candidates.OrderBy(enemy => enemy.Health).FirstOrDefault(),
+            FrontlineTargetMode.Heat => candidates.OrderByDescending(enemy => enemy.CoreTemperature).FirstOrDefault(),
+            FrontlineTargetMode.Cold => candidates
+                .Where(enemy => !enemy.Definition.IsMetal)
+                .OrderBy(enemy => enemy.CoreTemperature)
+                .FirstOrDefault(),
+            _ => null
+        };
     }
 
     private void ResolveDeaths()
@@ -336,7 +388,8 @@ public sealed class FrontlineGameSimulation
                 continue;
 
             Funds += enemy.Definition.Reward;
-            Score += enemy.Definition.Reward * 2;
+            if (enemy.AwardScoreOnDeath)
+                Score += enemy.Definition.Reward * 2;
             _enemies.RemoveAt(index);
         }
     }
