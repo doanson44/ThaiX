@@ -86,6 +86,91 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void FireAtEnemy_WhenInfantryIsHit_SpendsOneFundAndAppliesSniperDamage()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+        session.Simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.1, 10));
+        var enemy = session.Simulation.Enemies.Single();
+
+        var fired = session.FireAtEnemy(enemy.Id);
+
+        fired.Should().BeTrue();
+        session.ShotsFired.Should().Be(1);
+        session.Hits.Should().Be(1);
+        session.Simulation.Funds.Should().Be(499);
+        enemy.Health.Should().Be(200);
+        enemy.CoreTemperature.Should().Be(37);
+    }
+
+    [Fact]
+    public void FireAtEnemy_WhenMetalTargetIsHit_AppliesReducedSniperDamage()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+        session.Simulation.SpawnEnemy(
+            new FrontlineEnemyDefinition("vehicle", 500, 0.1, 20, IsMetal: true));
+        var enemy = session.Simulation.Enemies.Single();
+
+        session.FireAtEnemy(enemy.Id);
+
+        enemy.Health.Should().Be(350);
+        enemy.CoreTemperature.Should().Be(205);
+    }
+
+    [Fact]
+    public void FireAt_WhenNoEnemyIsAtAimPoint_SpendsOneFundAndRecordsMiss()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+
+        var fired = session.FireAt(new FrontlinePoint(500, 400));
+
+        fired.Should().BeTrue();
+        session.ShotsFired.Should().Be(1);
+        session.Hits.Should().Be(0);
+        session.Simulation.Funds.Should().Be(499);
+    }
+
+    [Fact]
+    public void FireAt_WhenNoFundsRemain_DoesNotFire()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+        session.Simulation.TrySpendFunds(session.Simulation.Funds).Should().BeTrue();
+
+        var fired = session.FireAt(new FrontlinePoint(100, 100));
+
+        fired.Should().BeFalse();
+        session.ShotsFired.Should().Be(0);
+        session.Simulation.Funds.Should().Be(0);
+    }
+
+    [Fact]
     public void Constructor_WhenCampaignLevelIsLocked_Throws()
     {
         var level = FrontlineLevelMapCatalog.Find("level-02")!;
