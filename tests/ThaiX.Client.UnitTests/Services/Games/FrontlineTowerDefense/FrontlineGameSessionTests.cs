@@ -85,6 +85,21 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void Constructor_WhenCampaignLevelIsLocked_Throws()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-02")!;
+        var waveSet = FrontlineWaveCatalog.Find("level-02")!;
+
+        var act = () => new FrontlineGameSession(
+            level,
+            waveSet,
+            FrontlinePlayerProgress.CreateNew(),
+            new Random(42));
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void Constructor_WhenMapAndWaveSetDoNotMatch_Throws()
     {
         var level = FrontlineLevelMapCatalog.Find("level-01")!;
