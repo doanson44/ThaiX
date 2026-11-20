@@ -42,7 +42,6 @@
                 type="button"
                 class="@GetTowerClass(tower.Id)"
                 style="@GetPositionStyle(tower.Position)"
-                title="@tower.Definition.Id"
                 aria-label="@L[ResourceKeys.Games.FrontlineSelectTower, tower.Definition.Id]"
                 aria-pressed="@(SelectedTowerId == tower.Id)"
                 disabled="@(!TowerSelected.HasDelegate)"
@@ -58,7 +57,7 @@
              style="@GetPositionStyle(enemy.Position)"
              role="img"
              aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
-             title="@enemy.Definition.Id">
+             >
             <span class="frontline-board__enemy-core" aria-hidden="true"></span>
             <span class="frontline-board__health">
                 <span style="@GetHealthStyle(enemy)"></span>
