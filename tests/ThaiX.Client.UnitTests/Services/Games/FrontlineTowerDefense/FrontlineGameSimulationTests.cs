@@ -13,7 +13,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void TryBuildTower_WithSufficientFunds_DeductsCostAndAddsTower()
     {
-        var simulation = new FrontlineGameSimulation(Path, 500, 20);
+        var simulation = new FrontlineGameSimulation(Path, 500);
         var definition = new FrontlineTowerDefinition("rifle", 100, 50, 10, 5);
 
         var result = simulation.TryBuildTower(definition, new FrontlinePoint(25, 25));
@@ -26,7 +26,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void TryBuildTower_WithInsufficientFunds_LeavesStateUnchanged()
     {
-        var simulation = new FrontlineGameSimulation(Path, 50, 20);
+        var simulation = new FrontlineGameSimulation(Path, 50);
         var definition = new FrontlineTowerDefinition("rifle", 100, 50, 10, 5);
 
         var result = simulation.TryBuildTower(definition, new FrontlinePoint(25, 25));
@@ -43,7 +43,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.TryBuildTower(
             new FrontlineTowerDefinition("rifle", 100, 60, 25, 1),
             new FrontlinePoint(50, 10));
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 20, 1, 15, 1));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 20, 1, 15));
 
         simulation.Advance();
 
@@ -55,8 +55,8 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void ApplyDamage_WithBurnProfile_AppliesTemperatureAndDamageOverTime()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0, 20);
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 5, 1));
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 5));
         var enemy = simulation.Enemies.Single();
 
         simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 170));
@@ -70,7 +70,7 @@ public sealed class FrontlineGameSimulationTests
     public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, 20);
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("tank", 100, 1, 5, 1, IsMetal: true));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("tank", 100, 1, 5, IsMetal: true));
         var enemy = simulation.Enemies.Single();
 
         simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Poison: 100));
@@ -83,20 +83,20 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void Advance_WhenEnemyReachesEndOfPath_AppliesLifeDamage()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0, 3);
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 100, 100, 5, 2));
+        var simulation = new FrontlineGameSimulation(Path, 0, 1000);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 100, 100, 5));
 
         simulation.Advance();
 
-        simulation.Lives.Should().Be(1);
+        simulation.LevelHealth.Should().Be(900);
         simulation.Status.Should().Be(FrontlineGameStatus.Planning);
     }
 
     [Fact]
     public void Advance_WhenLivesReachZero_SetsDefeat()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0, 1);
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 100, 100, 5, 1));
+        var simulation = new FrontlineGameSimulation(Path, 0, 1000);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 100, 100, 5));
 
         simulation.Advance();
 
