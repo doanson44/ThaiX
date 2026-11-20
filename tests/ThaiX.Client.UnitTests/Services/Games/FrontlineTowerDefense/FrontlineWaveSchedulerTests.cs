@@ -46,7 +46,7 @@ public sealed class FrontlineWaveSchedulerTests
     [Fact]
     public void HealthForWave_AppliesTenPercentPerWaveScaling()
     {
-        var enemy = FrontlineEnemyCatalog.VerifiedInfantry.Single(item => item.Id == "enemy1");
+        var enemy = FrontlineEnemyCatalog.Verified.Single(item => item.Id == "enemy1");
 
         enemy.HealthForWave(3).Should().Be(65);
     }
