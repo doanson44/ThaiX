@@ -6,36 +6,7 @@ public sealed record FrontlineWaveGroup(
     double SpawnIntervalUnits,
     double DelayAfterUnits);
 
-public sealed record FrontlineWaveSchedule(IReadOnlyList<FrontlineWaveGroup> Groups)
-{
-    public static FrontlineWaveSchedule CampaignLevelOne { get; } = new(
-    [
-        new("enemy3", 4, 15, 300),
-        new("enemy3", 4, 15, 300),
-        new("enemy3", 5, 15, 300),
-        new("enemy4", 15, 15, 800),
-        new("enemy4", 8, 15, 500),
-        new("enemy4", 8, 15, 500),
-        new("enemy2", 7, 15, 1000),
-        new("enemy2", 7, 15, 1000),
-        new("enemy1", 8, 15, 1000),
-        new("enemy1", 8, 15, 1000),
-        new("enemy5", 6, 15, 1000),
-        new("enemy5", 6, 15, 1000),
-        new("enemy1", 10, 15, 1000),
-        new("enemy1", 10, 15, 1000),
-        new("Jeep4", 3, 45, 1000),
-        new("enemy5", 6, 15, 1000),
-        new("enemy5", 6, 15, 1000),
-        new("enemy1", 10, 15, 1000),
-        new("enemy1", 10, 15, 1000),
-        new("Jeep3", 5, 45, 1000),
-        new("Jeep4", 5, 45, 1000),
-        new("enemy1", 12, 15, 500),
-        new("enemy5", 12, 15, 500),
-        new("Jeep1", 5, 45, 50)
-    ]);
-}
+public sealed record FrontlineWaveSchedule(IReadOnlyList<FrontlineWaveGroup> Groups);
 
 public sealed class FrontlineWaveScheduler
 {
