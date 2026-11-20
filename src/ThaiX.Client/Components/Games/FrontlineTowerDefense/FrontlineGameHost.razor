@@ -12,7 +12,7 @@
 else
 {
     <div class="frontline-game-result" role="alert">
-        @L[ResourceKeys.Games.FrontlineRouteUnavailable]
+        @L[_sessionErrorKey]
     </div>
 }
 
@@ -29,6 +29,7 @@ else
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _gameLoop;
     private FrontlineGameSession? Session;
+    private string _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,8 +39,14 @@ else
         {
             Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
         }
-        catch (InvalidOperationException)
+        catch (FrontlineLevelLockedException)
         {
+            _sessionErrorKey = ResourceKeys.Games.FrontlineLevelLocked;
+            Session = null;
+        }
+        catch (FrontlineRouteUnavailableException)
+        {
+            _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
             Session = null;
         }
     }
