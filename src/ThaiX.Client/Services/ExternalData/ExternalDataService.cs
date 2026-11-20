@@ -293,7 +293,7 @@ public sealed class ExternalDataService : IExternalDataService
         return GetEnvelopeCachedAsync<ExchangeTicker24HrResponseDto>(
             CacheGroups.ExternalExchangeBinance,
             path,
-            ClientCacheTtl.Ticker,
+            ClientCacheTtl.ExchangeTicker24Hr,
             cancellationToken);
     }
 
