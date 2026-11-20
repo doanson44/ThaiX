@@ -200,6 +200,35 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenPlasmaCannonShellImpacts_AppliesRadiationSplashDamage()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 1000);
+        var plasma = FrontlineTowerCatalog.Find("tower11")!;
+        simulation.TryBuildTower(plasma.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        simulation.Projectiles.Should().ContainSingle();
+        enemy.Health.Should().Be(500);
+
+        for (var tick = 0; tick < 45; tick++)
+            simulation.Advance();
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(480);
+        enemy.RadiationDuration.Should().Be(20);
+    }
+
+    [Fact]
     public void TryMoveTower_WhenSupportStrikeSelected_IsRejected()
     {
         var simulation = new FrontlineGameSimulation(Path, 10);
