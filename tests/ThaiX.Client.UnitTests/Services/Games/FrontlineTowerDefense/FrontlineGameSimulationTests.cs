@@ -164,7 +164,8 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().ContainSingle();
         enemy.Health.Should().Be(100);
 
-        simulation.Advance(1);
+        for (var tick = 0; tick < 3; tick++)
+            simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
         enemy.Health.Should().Be(88);
