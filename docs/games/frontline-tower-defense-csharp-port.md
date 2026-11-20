@@ -107,10 +107,16 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Port limited-use support strike placement, randomized impact zones, area damage payloads, shot limits, and automatic expiration.
 - [x] Add localized campaign/bonus mission selection with unlock state and best-score display.
 - [x] Add localized War-Mart purchase UI and save progression back to the original Frontline browser key.
-- [ ] Port standard tower-specific projectile travel, chain lightning, splash behavior, and exact firing parameters.
-- [ ] Complete mission result rewards and dedicated sniper mission gameplay.
+- [x] Add standard tower projectile simulation for homing missiles, ballistic shells, tracking bio shots, and tracking flame shots; add splash impacts and transient hitscan/weapon traces.
+- [x] Port mission completion score and credit rewards using the original health/funds/score formula.
+- [x] Add a separate Sniper Elite session and view with manual target selection, shot cost, firing cadence, metal damage, and hit/miss tracking.
+- [ ] Verify Sniper Elite parity and route availability for all four bonus missions; bonus maps 2 and 3 currently have no route in the extracted C# grid data.
+- [ ] Verify all projectile collision radii, random launch drift, firing timing, and status payloads against recorded runtime scenarios.
 
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
 - [x] Replace the active route with a Blazor mission/War-Mart shell, C# game host, and HTML/CSS board renderer.
-- [ ] Port original tower/enemy art, projectile animations, and remaining interaction states to responsive Razor/SVG.
+- [x] Add new Razor/SVG/CSS artwork for tower archetypes, infantry/metal enemies, projectiles, support strikes, impact areas, and weapon traces; include reduced-motion handling.
+- [ ] Port or replace original game artwork only after distribution rights are verified; complete remaining animation and interaction parity.
 - [ ] Verify gameplay parity and remove the legacy runtime only after acceptance.
+- [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
+- [ ] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.
