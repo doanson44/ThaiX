@@ -46,7 +46,6 @@ public sealed record FrontlineEnemyDefinition(
     double Health,
     double Speed,
     int Reward,
-    int LifeDamage,
     bool IsMetal = false,
     double HeatResistance = 1,
     double RadiationResistance = 1,
@@ -191,25 +190,25 @@ public sealed class FrontlineGameSimulation
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
 
-    public FrontlineGameSimulation(FrontlinePath path, int startingFunds, int lives)
+    public FrontlineGameSimulation(FrontlinePath path, int startingFunds, double levelHealth = 1000)
     {
         ArgumentNullException.ThrowIfNull(path);
         if (path.Points.Count < 2)
             throw new ArgumentException("A game path requires at least two points.", nameof(path));
         if (startingFunds < 0)
             throw new ArgumentOutOfRangeException(nameof(startingFunds));
-        if (lives <= 0)
-            throw new ArgumentOutOfRangeException(nameof(lives));
+        if (levelHealth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(levelHealth));
 
         Path = path;
         Funds = startingFunds;
-        Lives = lives;
+        LevelHealth = levelHealth;
     }
 
     public FrontlinePath Path { get; }
     public FrontlineGameStatus Status { get; private set; } = FrontlineGameStatus.Planning;
     public int Funds { get; private set; }
-    public int Lives { get; private set; }
+    public double LevelHealth { get; private set; }
     public int Tick { get; private set; }
     public int Score { get; private set; }
     public IReadOnlyList<FrontlineEnemy> Enemies => _enemies;
@@ -239,7 +238,7 @@ public sealed class FrontlineGameSimulation
             || definition.Health <= 0
             || definition.Speed <= 0
             || definition.Reward < 0
-            || definition.LifeDamage <= 0)
+
             return false;
 
         _enemies.Add(new FrontlineEnemy(_nextEnemyId++, definition, Path));
@@ -254,7 +253,7 @@ public sealed class FrontlineGameSimulation
 
         Tick++;
         MoveEnemies();
-        if (Lives <= 0)
+        if (LevelHealth <= 0)
         {
             Status = FrontlineGameStatus.Defeat;
             return;
@@ -281,7 +280,7 @@ public sealed class FrontlineGameSimulation
             if (enemy.Distance < enemy.Path.Length)
                 continue;
 
-            Lives = Math.Max(0, Lives - enemy.Definition.LifeDamage);
+            LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
             _enemies.RemoveAt(index);
         }
     }
@@ -338,7 +337,7 @@ public sealed class FrontlineGameSimulation
                 continue;
 
             Funds += enemy.Definition.Reward;
-            Score += enemy.Definition.Reward;
+            Score += enemy.Definition.Reward * 2;
             _enemies.RemoveAt(index);
         }
     }
