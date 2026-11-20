@@ -77,7 +77,9 @@ public sealed class FrontlineProjectile
                 var horizontalX = predictedPosition.X - Position.X;
                 var horizontalY = predictedPosition.Y - Position.Y;
                 var horizontalDistance = Math.Hypot(horizontalX, horizontalY);
-                if (horizontalDistance <= Profile.CollisionRadius + 6)
+                var impactDistance = Math.Sqrt(
+                    Profile.CollisionRadius * Profile.CollisionRadius + 36);
+                if (horizontalDistance <= impactDistance)
                     return true;
 
                 if (horizontalDistance > 0)
