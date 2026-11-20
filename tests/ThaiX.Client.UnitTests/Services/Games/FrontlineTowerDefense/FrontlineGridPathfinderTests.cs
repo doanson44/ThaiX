@@ -63,6 +63,22 @@ public sealed class FrontlineGridPathfinderTests
     }
 
     [Fact]
+    public void FromGridPath_MapsCellsToWorldSpaceCenters()
+    {
+        var gridPath = new[]
+        {
+            new FrontlineGridPoint(0, 0),
+            new FrontlineGridPoint(1, 1)
+        };
+
+        var path = FrontlinePath.FromGridPath(gridPath);
+
+        path.Points.Should().Equal(
+            new FrontlinePoint(16, 16),
+            new FrontlinePoint(48, 48));
+    }
+
+    [Fact]
     public void FindPath_WhenStartIsBlocked_ReturnsNull()
     {
         var map = new FrontlineGridMap(new bool[,] { { false, true } });
