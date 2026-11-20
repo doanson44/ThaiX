@@ -274,6 +274,9 @@ public sealed class FrontlineGameSimulation
         {
             var enemy = _enemies[index];
             enemy.AdvanceEffects();
+            if (enemy.Health <= 0)
+                continue;
+
             enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier;
             if (enemy.Distance < enemy.Path.Length)
                 continue;
