@@ -53,6 +53,34 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void ApplyDamage_WithBurnProfile_AppliesTemperatureAndDamageOverTime()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0, 20);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 5, 1));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 170));
+        simulation.Advance();
+
+        enemy.Health.Should().Be(99.5);
+        enemy.BurnDuration.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0, 20);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("tank", 100, 1, 5, 1, IsMetal: true));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Poison: 100));
+        simulation.Advance();
+
+        enemy.PoisonDuration.Should().Be(0);
+        enemy.Health.Should().Be(100);
+    }
+
+    [Fact]
     public void Advance_WhenEnemyReachesEndOfPath_AppliesLifeDamage()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, 3);
