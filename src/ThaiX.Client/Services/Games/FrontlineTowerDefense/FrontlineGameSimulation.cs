@@ -503,6 +503,7 @@ public sealed class FrontlineGameSimulation
             && _enemies.Count == 0
             && _projectiles.Count == 0
             && _supportProjectiles.Count == 0
+            && _combatTraces.Count == 0
             && _areaEffects.Count == 0)
             return;
 
