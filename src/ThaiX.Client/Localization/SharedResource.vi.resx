@@ -2230,6 +2230,8 @@
   <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Hỗ trợ không kích</value></data>
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Đòn không kích</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Số lượt còn lại: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Số phát bắn: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Số lần trúng: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 1</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 2</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 3</value></data>
