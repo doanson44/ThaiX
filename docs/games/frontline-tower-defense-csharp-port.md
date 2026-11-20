@@ -37,18 +37,20 @@ save/load behavior. Special content includes four sniper bonus missions, named s
 Napalm Support Strike, Bio Cannon, Bio Mortar, Particle Beam Cannon, Mounted Machine Gun,
 Plasma Cannon, Missile Launcher and Shotgun Tower. The simulation has four enemy damage-over-time
 or status channels (burn, radiation, poison and freeze), enemy resistance multipliers, metal
-enemy behavior, temperature thresholds, and freeze/unfreeze state. Enemy pathing uses a grid
-pathfinder and random start/end points selected from each level's authored endpoints. Tower
-selection supports near, far, strong, weak, heat and cold targeting modes. The runtime registers
-14 tower classes (11 standard and 3 support) and 13
-enemy classes including infantry, vehicles and a bot.
+enemy behavior, temperature thresholds, and freeze/unfreeze state. Enemy pathing uses breadth-first traversal with eight-way movement; diagonal movement is
+allowed only when both adjacent orthogonal cells are walkable. Start and end cells are selected
+randomly from each level's authored endpoints. Tower selection supports near, far, strong,
+weak, heat and cold targeting modes. The runtime registers 11 standard tower types, 3 support
+types, and 13 enemy types including infantry, vehicles and a bot.
 
 Verified enemy definitions now cover all 13 runtime types. The five infantry types use base
 health 50; the bot uses 1,000; vehicle base health ranges from 120 to 550. Their base speed and
 resistance modifiers are recorded in FrontlineEnemyCatalog. Every spawned enemy's health is
-scaled by 10 percent per dispatched wave group. The complete tower definitions, all mission
-layouts, remaining wave schedules, upgrade formulas, and save schema still require extraction
-from the runtime and asset metadata. The first campaign level's 24 authored wave groups have
+scaled by 10 percent per dispatched wave group. The complete tower-specific definitions and fire behaviors, all mission layouts, remaining wave
+schedules, and full save schema still require extraction from the runtime and asset metadata.
+The base tower class increments its firing meter by rate-of-fire multiplied by the simulation
+scale, fires at 100, and applies upgrades in 20-percent increments at half of its sale value
+(which is half of the purchase cost). The first campaign level's 24 authored wave groups have
 been transcribed into FrontlineWaveSchedule.
 The save schema is partially verified: bPlayed, credits, stFunds, Tower0..Tower19 and
 Level0..Level39. A first-time profile starts with 1,000 credits, unlocks tower indexes 2, 3, 4
@@ -73,11 +75,14 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Create an independent C# simulation boundary and tick entry point.
 - [x] Add focused unit tests for placement, combat rewards, leaks, defeat, status effects, and wave timing.
 - [x] Port the grid pathfinder's eight-way traversal and diagonal corner rule.
+- [x] Convert grid paths into world-space cell-center movement paths.
 - [x] Transcribe the first campaign level's 24 authored wave groups.
 - [x] Extract all 13 enemy types' base health, speed, metal flag, and observed resistance modifiers.
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
-- [ ] Integrate grid pathfinding and elapsed-time movement into the simulation loop.
-- [ ] Complete damage/kill attribution and tower-specific combat behaviors.
+- [ ] Integrate per-level grid maps, random authored endpoints, and path recomputation into the simulation loop.
+- [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
+- [x] Separate direct-kill score awards from damage-over-time kill awards.
+- [ ] Port tower-specific projectiles, area effects, support abilities, and exact firing parameters.
 - [ ] Extract complete source tower/enemy/mission/wave definitions and balance formulas.
 - [ ] Port every tower and enemy behavior, including special damage/status effects.
 - [ ] Port campaign, War-Mart, bonus missions, and progression.
