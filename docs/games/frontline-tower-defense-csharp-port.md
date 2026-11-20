@@ -56,10 +56,12 @@ limits are also recorded; their special projectile and finite-shot behavior stil
 porting. The base tower class increments its firing meter by rate-of-fire multiplied by the
 simulation scale, fires at 100, and applies upgrades in 20-percent increments at half of its
 sale value (which is half of the purchase cost). All 14 campaign and 4 bonus map definitions have been extracted from the Game timeline,
-including every PathTile, BlockSquare, StartTile, and EndTile coordinate. The first campaign
-level's 24 authored wave groups were initially transcribed, then expanded to all 14 campaign
-and 4 bonus wave schedules (963 total groups) in FrontlineWaveCatalog. Level 1 and bonus 1
-have route-validation tests; other maps still need endpoint/path consistency verification.
+including every PathTile, BlockSquare, StartTile, and EndTile coordinate. The extracted
+WalkableCells and BlockedCells were rechecked against the active root-timeline placements in
+assets/library.json after applying each frame's depth removals and placements; all 18 map sets
+match exactly. The first campaign level's 24 authored wave groups were initially transcribed,
+then expanded to all 14 campaign and 4 bonus wave schedules (963 total groups) in
+FrontlineWaveCatalog. The route audit below validates every authored start/end pair.
 The save schema is partially verified: bPlayed, credits, stFunds, Tower0..Tower19 and
 Level0..Level39. FrontlinePlayerProgress now models the legacy 20 tower slots, 40 level slots,
 first-time defaults (1,000 credits, 500 starting funds, tower indexes 2, 3, 4 and 13 unlocked,
@@ -77,7 +79,7 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 
 ## Static route connectivity audit
 
-The current `FrontlineGridPathfinder` requires the destination to be a walkable cell and applies the diagonal corner rule used by the C# implementation. A static audit of the extracted `WalkableCells`, `StartPoints`, and `EndPoints` found:
+The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the active `levelArray`, explores eight directions, and permits a diagonal only when both adjacent orthogonal cells have value 1. `PathTile` sets a cell to 1 and `BlockSquare` sets it to 2. The C# pathfinder uses the same walkability and diagonal-corner rules. The timeline audit applied each root frame's remove/place operations before comparing the active tile sets with the C# catalog; all 18 `WalkableCells` and `BlockedCells` sets match exactly. A static audit of every authored `StartTile`/`EndTile` pair found:
 
 | Map | Reachable endpoint pairs | Total pairs |
 |---|---:|---:|
@@ -100,7 +102,7 @@ The current `FrontlineGridPathfinder` requires the destination to be a walkable 
 | bonus-03 | 0 | 88 |
 | bonus-04 | 32 | 88 |
 
-`FrontlineLevelRouteFactory` now filters to reachable authored endpoint pairs before choosing a random route, preventing bonus-04 from selecting one of its unreachable pairs. This does not repair the extracted map data: only level-01, bonus-01, and some bonus-04 endpoint pairs currently produce routes. Campaign levels 2-14 and bonus missions 2-3 remain blocked until the source timeline coordinates or omitted PathTile data are verified. The Sniper Elite host uses bonus-map route data, so bonus missions 2 and 3 currently show the route-unavailable state rather than silently using a fabricated path.
+`FrontlineLevelRouteFactory` filters to reachable authored endpoint pairs before choosing a random route, preventing bonus-04 from selecting one of its unreachable pairs. The complete source timeline data has now been verified, so these failures are not caused by omitted C# PathTile coordinates: the original authored maps themselves contain no connected start/end pair for campaign levels 2-14 and bonus missions 2-3. The C# host therefore keeps those missions unavailable rather than inventing route cells. This is a source-content blocker; it requires corrected map data from the game owner or an explicitly approved map redesign. Bonus mission 4 has 32 reachable pairs out of 88; bonus mission 1 has all 32 pairs reachable. The Sniper Elite host can currently run only bonus missions 1 and 4.
 
 ## Porting rules
 
@@ -129,7 +131,8 @@ The current `FrontlineGridPathfinder` requires the destination to be a walkable 
 - [x] Port buildable-cell validation, grid snapping, tower relocation fee, sale refund, and base upgrades.
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
 - [x] Integrate per-level grid maps, random authored endpoints, and per-enemy route generation for route-validated maps.
-- [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
+- [x] Validate route connectivity for every authored endpoint pair against the active source timeline placements.
+- [ ] Resolve the disconnected authored routes in campaign levels 2-14 and bonus missions 2-3; do not fabricate path cells without approval.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Encode standard tower direct/status damage profiles and metal-specific rifle, sniper, and machine-gun damage.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
@@ -139,7 +142,7 @@ The current `FrontlineGridPathfinder` requires the destination to be a walkable 
 - [x] Add standard tower projectile simulation for homing missiles, ballistic shells, tracking bio shots, and tracking flame shots; add splash impacts and transient hitscan/weapon traces.
 - [x] Port mission completion score and credit rewards using the original health/funds/score formula.
 - [x] Add a separate Sniper Elite session and view with manual target selection, shot cost, firing cadence, metal damage, and hit/miss tracking.
-- [ ] Verify Sniper Elite parity and route availability for all four bonus missions; bonus maps 2 and 3 currently have no route in the extracted C# grid data.
+- [ ] Verify Sniper Elite parity and route availability for all four bonus missions; only bonus missions 1 and 4 have reachable routes in the verified source map data.
 - [ ] Verify all projectile collision radii, random launch drift, firing timing, and status payloads against recorded runtime scenarios.
 
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
