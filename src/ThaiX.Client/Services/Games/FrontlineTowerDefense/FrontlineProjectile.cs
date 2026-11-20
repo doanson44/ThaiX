@@ -38,9 +38,11 @@ public sealed class FrontlineProjectile
 
         if (profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
+            var predictedPosition = target.Path.PointAt(
+                target.Distance + target.Definition.Speed * target.MovementMultiplier * 40);
             var distance = Math.Hypot(
-                target.Position.X - position.X,
-                target.Position.Y - position.Y);
+                predictedPosition.X - position.X,
+                predictedPosition.Y - position.Y);
             VerticalVelocity = distance * profile.Speed * profile.VerticalVelocityScale;
         }
     }
@@ -70,8 +72,10 @@ public sealed class FrontlineProjectile
 
             if (VerticalVelocity >= -0.05)
             {
-                var horizontalX = target.Position.X - Position.X;
-                var horizontalY = target.Position.Y - Position.Y;
+                var predictedPosition = target.Path.PointAt(
+                    target.Distance + target.Definition.Speed * target.MovementMultiplier * 40);
+                var horizontalX = predictedPosition.X - Position.X;
+                var horizontalY = predictedPosition.Y - Position.Y;
                 var horizontalDistance = Math.Hypot(horizontalX, horizontalY);
                 if (horizontalDistance <= Profile.CollisionRadius + 6)
                     return true;
@@ -91,7 +95,8 @@ public sealed class FrontlineProjectile
         var deltaX = target.Position.X - Position.X;
         var deltaY = target.Position.Y - Position.Y;
         var distance = Math.Hypot(deltaX, deltaY);
-        var impactDistance = Profile.CollisionRadius + 6;
+        var impactDistance = Math.Sqrt(
+            Profile.CollisionRadius * Profile.CollisionRadius + 36);
 
         if (distance <= impactDistance)
             return true;
