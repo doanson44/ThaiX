@@ -101,7 +101,8 @@ public sealed record FrontlineTowerDefinition(
     FrontlineDamageProfile? DamageProfile = null,
     FrontlineDamageProfile? MetalDamageProfile = null,
     FrontlineProjectileProfile? ProjectileProfile = null,
-    double DamageUpgradeScale = 1);
+    double DamageUpgradeScale = 1,
+    double StatusUpgradeScale = 0);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -380,6 +381,7 @@ public sealed class FrontlineGameSimulation
             || !double.IsFinite(definition.Damage) || definition.Damage <= 0
             || !double.IsFinite(definition.RateOfFire) || definition.RateOfFire <= 0
             || !double.IsFinite(definition.DamageUpgradeScale) || definition.DamageUpgradeScale < 0
+            || !double.IsFinite(definition.StatusUpgradeScale) || definition.StatusUpgradeScale < 0
             || (definition.ProjectileProfile is { } projectileProfile
                 && (!double.IsFinite(projectileProfile.Speed) || projectileProfile.Speed <= 0
                     || !double.IsFinite(projectileProfile.CollisionRadius) || projectileProfile.CollisionRadius <= 0
@@ -647,9 +649,14 @@ public sealed class FrontlineGameSimulation
             : tower.Definition.DamageProfile;
         var profile = baseProfile ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
         var upgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.DamageUpgradeScale;
+        var statusUpgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.StatusUpgradeScale;
         var damageProfile = profile with
         {
-            DirectDamage = profile.DirectDamage * upgradeScale
+            DirectDamage = profile.DirectDamage * upgradeScale,
+            Burn = profile.Burn * statusUpgradeScale,
+            Radiation = profile.Radiation * statusUpgradeScale,
+            Poison = profile.Poison * statusUpgradeScale,
+            Freeze = profile.Freeze * statusUpgradeScale
         };
 
         if (tower.Definition.ProjectileProfile is { } projectileProfile)
