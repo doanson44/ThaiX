@@ -64,6 +64,25 @@ public sealed class FrontlineProjectile
 
         if (Profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
+            Position = new FrontlinePoint(
+                Position.X + _velocityX * elapsedUnits,
+                Position.Y + _velocityY * elapsedUnits);
+
+            if (VerticalVelocity >= -0.05)
+            {
+                var horizontalX = target.Position.X - Position.X;
+                var horizontalY = target.Position.Y - Position.Y;
+                var horizontalDistance = Math.Hypot(horizontalX, horizontalY);
+                if (horizontalDistance <= Profile.CollisionRadius + 6)
+                    return true;
+
+                if (horizontalDistance > 0)
+                {
+                    _velocityX = horizontalX / horizontalDistance * Profile.Speed;
+                    _velocityY = horizontalY / horizontalDistance * Profile.Speed;
+                }
+            }
+
             Height += VerticalVelocity * elapsedUnits;
             VerticalVelocity -= Profile.Gravity * elapsedUnits;
             return Height < 0;
@@ -92,4 +111,6 @@ public sealed class FrontlineProjectile
     internal void Expire() => IsExpired = true;
 
     private double VerticalVelocity { get; set; }
+    private double _velocityX;
+    private double _velocityY;
 }
