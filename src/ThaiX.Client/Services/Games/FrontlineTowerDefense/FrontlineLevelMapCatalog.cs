@@ -12,6 +12,7 @@ public sealed record FrontlineLevelMapDefinition(
 {
     public const int GridWidth = 25;
     public const int GridHeight = 25;
+    public int ProgressIndex => IsBonus ? 15 + (LevelNumber - 1) * 2 : LevelNumber - 1;
     public const int BuildableWidth = 21;
     public const int BuildableHeight = 15;
 
