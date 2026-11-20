@@ -663,13 +663,24 @@ public sealed class FrontlineGameSimulation
                 tower.Position.X + directionX * projectileProfile.StartOffset,
                 tower.Position.Y + directionY * projectileProfile.StartOffset + projectileProfile.VerticalOffset);
 
+            var initialVelocityX = projectileProfile.Kind is FrontlineProjectileKind.TrackingPoison
+                or FrontlineProjectileKind.TrackingFlame
+                ? -0.2 + _random.NextDouble() * 0.4
+                : 0;
+            var initialVelocityY = projectileProfile.Kind is FrontlineProjectileKind.TrackingPoison
+                or FrontlineProjectileKind.TrackingFlame
+                ? -0.5 - _random.NextDouble() * 0.5
+                : 0;
+
             _projectiles.Add(new FrontlineProjectile(
                 _nextProjectileId++,
                 tower,
                 target,
                 position,
                 damageProfile,
-                projectileProfile));
+                projectileProfile,
+                initialVelocityX,
+                initialVelocityY));
         }
         else
         {
