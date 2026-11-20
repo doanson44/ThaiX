@@ -191,25 +191,28 @@ public sealed class FrontlineTower
     public long Id { get; }
     public FrontlineTowerDefinition Definition { get; }
     public FrontlinePoint Position { get; }
+    private double _damageLevel;
+    private double _rangeLevel;
+    private double _rateOfFireLevel;
+
     public double Loading { get; internal set; }
-    public double DamageLevel { get; private set; }
-    public double RangeLevel { get; private set; }
-    public double RateOfFireLevel { get; private set; }
     public int Kills { get; internal set; }
     public double DamageDealt { get; internal set; }
-    public double Range => Definition.Range * (1 + RangeLevel);
-    public double Damage => Definition.Damage * (1 + DamageLevel);
-    public double RateOfFire => Definition.RateOfFire * (1 + RateOfFireLevel);
+    public double Range => Definition.Range * (1 + _rangeLevel);
+    public double Damage => Definition.Damage * (1 + _damageLevel);
+    public double RateOfFire => Definition.RateOfFire * (1 + _rateOfFireLevel);
 
-    public bool UpgradeDamage(int funds) => Upgrade(ref DamageLevel, funds);
-    public bool UpgradeRange(int funds) => Upgrade(ref RangeLevel, funds);
-    public bool UpgradeRateOfFire(int funds) => Upgrade(ref RateOfFireLevel, funds);
+    public bool UpgradeDamage(ref int funds) => Upgrade(ref _damageLevel, ref funds);
+    public bool UpgradeRange(ref int funds) => Upgrade(ref _rangeLevel, ref funds);
+    public bool UpgradeRateOfFire(ref int funds) => Upgrade(ref _rateOfFireLevel, ref funds);
 
-    private bool Upgrade(ref double level, int funds)
+    private bool Upgrade(ref double level, ref int funds)
     {
-        if (funds < Math.Floor(Definition.Cost * 0.25))
+        var cost = (int)Math.Floor(Definition.Cost * 0.25);
+        if (funds < cost)
             return false;
 
+        funds -= cost;
         level += 0.2;
         return true;
     }
