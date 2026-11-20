@@ -24,7 +24,7 @@ public sealed class FrontlineGridPathfinderTests
     }
 
     [Fact]
-    public void FindPath_WhenDiagonalWouldCutBlockedCorner_UsesOrthogonalRoute()
+    public void FindPath_WhenBothOrthogonalCellsAreBlocked_RejectsDiagonal()
     {
         var map = new FrontlineGridMap(new bool[,]
         {
