@@ -19,13 +19,12 @@ public sealed record FrontlineEnemyArchetype(
         return BaseHealth * (1 + waveNumber * 0.1);
     }
 
-    public FrontlineEnemyDefinition CreateDefinition(int waveNumber, int lifeDamage = 1) =>
+    public FrontlineEnemyDefinition CreateDefinition(int waveNumber) =>
         new(
             Id,
             HealthForWave(waveNumber),
             BaseSpeed,
             BaseReward,
-            lifeDamage,
             IsMetal,
             HeatResistance,
             RadiationResistance,
