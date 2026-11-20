@@ -32,9 +32,10 @@ public sealed class FrontlineLevelRouteFactoryTests
 
             created.Should().BeTrue();
             route.Should().NotBeNull();
-            level.StartPoints.Should().Contain(route!.Start);
-            level.EndPoints.Should().Contain(route.End);
-            route.Path.Points.Should().HaveCountGreaterThan(1);
+            var selectedRoute = route!;
+            level.StartPoints.Should().Contain(selectedRoute.Start);
+            level.EndPoints.Should().Contain(selectedRoute.End);
+            selectedRoute.Path.Points.Should().HaveCountGreaterThan(1);
         }
     }
 
