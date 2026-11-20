@@ -157,7 +157,7 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
-    public void FireAt_WhenNoFundsRemain_DoesNotFire()
+    public void FireAt_WhenFundsReachZero_AllowsOneFinalShot()
     {
         var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
         var progress = FrontlinePlayerProgress.CreateNew();
@@ -173,9 +173,13 @@ public sealed class FrontlineGameSessionTests
 
         var fired = session.FireAt(new FrontlinePoint(100, 100));
 
-        fired.Should().BeFalse();
-        session.ShotsFired.Should().Be(0);
-        session.Simulation.Funds.Should().Be(0);
+        fired.Should().BeTrue();
+        session.ShotsFired.Should().Be(1);
+        session.Simulation.Funds.Should().Be(-1);
+
+        session.Advance(500);
+        session.FireAt(new FrontlinePoint(100, 100)).Should().BeFalse();
+        session.ShotsFired.Should().Be(1);
     }
 
     [Fact]
