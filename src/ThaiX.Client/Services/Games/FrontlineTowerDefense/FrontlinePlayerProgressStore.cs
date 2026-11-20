@@ -122,15 +122,15 @@ public sealed class FrontlinePlayerProgressStore(
     private static JsonObject ParseObject(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
-            return [];
+            return new JsonObject();
 
         try
         {
-            return JsonNode.Parse(json) as JsonObject ?? [];
+            return JsonNode.Parse(json) as JsonObject ?? new JsonObject();
         }
         catch (JsonException)
         {
-            return [];
+            return new JsonObject();
         }
     }
 
