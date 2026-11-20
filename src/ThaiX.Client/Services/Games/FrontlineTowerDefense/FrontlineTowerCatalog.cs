@@ -15,7 +15,8 @@ public sealed record FrontlineTowerArchetype(
     FrontlineDamageProfile? DamageProfile = null,
     FrontlineDamageProfile? MetalDamageProfile = null,
     FrontlineProjectileProfile? ProjectileProfile = null,
-    double DamageUpgradeScale = 1)
+    double DamageUpgradeScale = 1,
+    double StatusUpgradeScale = 0)
 {
     public FrontlineTowerDefinition CreateDefinition() =>
         new(
@@ -37,7 +38,8 @@ public sealed record FrontlineTowerArchetype(
             DamageProfile,
             MetalDamageProfile,
             ProjectileProfile,
-            DamageUpgradeScale);
+            DamageUpgradeScale,
+            StatusUpgradeScale);
 }
 
 public static class FrontlineTowerCatalog
@@ -71,11 +73,13 @@ public static class FrontlineTowerCatalog
         new("tower8", "Bio Cannon", 8, 300, 12, 3, 85, FrontlineTargetMode.Cold, 6000,
             DamageProfile: new FrontlineDamageProfile(12, Poison: 60),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingPoison, 3, 9, StartOffset: 20, VerticalOffset: -8)),
+                FrontlineProjectileKind.TrackingPoison, 3, 9, StartOffset: 20, VerticalOffset: -8),
+            StatusUpgradeScale: 1),
         new("tower9", "Flame Thrower", 9, 250, 2, 12, 55, FrontlineTargetMode.Near, 5000,
             DamageProfile: new FrontlineDamageProfile(2, Burn: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8)),
+                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8),
+            StatusUpgradeScale: 1),
         new("tower10", "Mounted Machine Gun", 10, 500, 25, 7, 90, FrontlineTargetMode.Near, 4000,
             DamageProfile: new FrontlineDamageProfile(25, Burn: 2),
             MetalDamageProfile: new FrontlineDamageProfile(12.5, Burn: 5)),
