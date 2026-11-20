@@ -126,7 +126,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.TryBuildTower(
             missile.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(25, 25));
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 500, 0.01, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 500, 0.01, 10, IsMetal: true));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 500, 0.01, 10));
         var enemies = simulation.Enemies.ToArray();
 
