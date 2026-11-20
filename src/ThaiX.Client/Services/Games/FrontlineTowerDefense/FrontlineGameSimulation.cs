@@ -340,7 +340,7 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
-        if (tower is null)
+        if (tower is null || tower.Definition.IsSupport)
             return false;
 
         var cell = ToGridCell(position);
@@ -445,7 +445,7 @@ public sealed class FrontlineGameSimulation
             return;
         }
 
-        foreach (var tower in _towers)
+        foreach (var tower in _towers.ToArray())
             Fire(tower, elapsedUnits);
 
         ResolveDeaths();
