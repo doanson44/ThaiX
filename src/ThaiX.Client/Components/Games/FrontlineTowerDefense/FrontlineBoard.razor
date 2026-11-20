@@ -90,10 +90,25 @@
                 <path d="M7 21h18v4H7z" class="frontline-board__tower-track" />
                 <path d="M9 17h14l-2-5H11z" class="frontline-board__tower-body" />
                 <g transform="@GetTurretTransform(tower)">
-                @if (tower.Definition.Id == "tower1")
+                @if (tower.Definition.IsSupport)
+                {
+                    <path d="M8 15h16v4H8zM12 15V8h8v7" class="frontline-board__tower-barrel" />
+                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
+                }
+                else if (tower.Definition.Id == "tower1")
                 {
                     <path d="M12 13 10 5l4 2 2-3 2 3 4-2-2 8" class="frontline-board__tower-barrel" />
                     <path d="m16 3 2 3h-4z" class="frontline-board__tower-core" />
+                }
+                else if (tower.Definition.Id == "tower2")
+                {
+                    <path d="M15 13V4h2v9" class="frontline-board__tower-barrel" />
+                    <path d="M13 8h6" class="frontline-board__tower-scope" />
+                }
+                else if (tower.Definition.Id == "tower3")
+                {
+                    <path d="M15 13V2h2v11" class="frontline-board__tower-barrel" />
+                    <path d="M13 6h6v2h-6z" class="frontline-board__tower-scope" />
                 }
                 else if (tower.Definition.Id == "tower4")
                 {
@@ -103,7 +118,7 @@
                 {
                     <path d="M12 13V5h3v8M17 13V5h3v8" class="frontline-board__tower-barrel" />
                 }
-                else if (tower.Definition.Id == "tower6" || tower.Definition.Id == "tower11")
+                else if (tower.Definition.Id == "tower6")
                 {
                     <path d="M12 13V5h8v8" class="frontline-board__tower-barrel" />
                     <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
@@ -122,9 +137,15 @@
                     <path d="M12 14V6h8v8" class="frontline-board__tower-barrel" />
                     <path d="m16 3 3 4h-6z" class="frontline-board__tower-energy" />
                 }
+                else if (tower.Definition.Id == "tower10")
+                {
+                    <path d="M11 13V5h10v8" class="frontline-board__tower-barrel" />
+                    <path d="M13 13v5h6v-5" class="frontline-board__tower-magazine" />
+                }
                 else
                 {
-                    <path d="M13 13V4h6v9" class="frontline-board__tower-barrel" />
+                    <path d="M11 13V4h10v9" class="frontline-board__tower-barrel" />
+                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
                 }
                 </g>
                 <circle cx="16" cy="17" r="3" class="frontline-board__tower-core" />
