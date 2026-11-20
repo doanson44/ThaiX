@@ -87,6 +87,21 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void TryMoveTower_WhenSupportStrikeSelected_IsRejected()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 10);
+        var support = FrontlineTowerCatalog.Find("suptower3")!;
+        simulation.TryBuildTower(support.CreateDefinition(), new FrontlinePoint(50, 0));
+        var tower = simulation.Towers.Single();
+
+        var moved = simulation.TryMoveTower(tower.Id, new FrontlinePoint(100, 0));
+
+        moved.Should().BeFalse();
+        simulation.Funds.Should().Be(10);
+        tower.Cell.Should().Be(new FrontlineGridPoint(1, 0));
+    }
+
+    [Fact]
     public void TrySellTower_WhenSupportStrikeSelected_DoesNotRefundOrRemoveIt()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
