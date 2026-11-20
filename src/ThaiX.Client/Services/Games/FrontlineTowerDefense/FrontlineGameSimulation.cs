@@ -222,6 +222,7 @@ public sealed class FrontlineTower
     private double _rateOfFireLevel;
 
     public double Loading { get; internal set; }
+    public long? TargetId { get; internal set; }
     public int Kills { get; internal set; }
     public double DamageDealt { get; internal set; }
     public double Range => Definition.Range * (1 + _rangeLevel);
@@ -371,8 +372,26 @@ public sealed class FrontlineGameSimulation
     private void Fire(FrontlineTower tower, double elapsedUnits)
     {
         tower.Loading += tower.RateOfFire * elapsedUnits;
-        var target = FindTarget(tower);
-        if (target is null || tower.Loading < 100)
+        var target = tower.TargetId is long targetId
+            ? _enemies.FirstOrDefault(enemy => enemy.Id == targetId)
+            : null;
+
+        if (target is null || target.Health <= 0)
+        {
+            target = FindTarget(tower);
+            tower.TargetId = target?.Id;
+            return;
+        }
+
+        if (Math.Hypot(target.Position.X - tower.Position.X, target.Position.Y - tower.Position.Y) > tower.Range)
+        {
+            target = FindTarget(tower);
+            tower.TargetId = target?.Id;
+            tower.Loading = 90;
+            return;
+        }
+
+        if (tower.Loading < 100)
             return;
 
         var damage = tower.Damage;
