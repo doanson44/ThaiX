@@ -72,6 +72,8 @@ public sealed class FrontlineGameSession
     public int CurrentWave => _waveScheduler.CurrentGroup;
     public int TotalWaves => _waveScheduler.TotalGroups;
     public bool AllWavesDispatched => _waveScheduler.AllGroupsDispatched;
+    public int TotalScore { get; private set; }
+    public int CreditsEarned { get; private set; }
 
     public void Pause()
     {
@@ -154,7 +156,14 @@ public sealed class FrontlineGameSession
 
         if (_waveScheduler.IsComplete && Simulation.Enemies.Count == 0)
         {
-            _progress.SaveLevelScore(Level.ProgressIndex, Simulation.Score);
+            var calculatedScore = Math.Floor(
+                Simulation.Score
+                + Math.Floor(Simulation.LevelHealth * 5)
+                + Math.Floor(Simulation.Funds * 5));
+            TotalScore = (int)Math.Clamp(calculatedScore, 0, int.MaxValue);
+            CreditsEarned = (int)Math.Floor(TotalScore * 0.25);
+            _progress.SaveLevelScore(Level.ProgressIndex, TotalScore);
+            _progress.AwardCredits(CreditsEarned);
             State = FrontlineGameSessionState.Victory;
         }
     }
