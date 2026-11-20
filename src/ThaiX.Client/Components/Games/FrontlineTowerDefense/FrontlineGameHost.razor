@@ -7,12 +7,15 @@
 
 @if (Session is not null)
 {
-    <FrontlineGameView Session="Session" />
+    <FrontlineGameView Session="Session" ExitRequested="ExitRequested" />
 }
 else
 {
     <div class="frontline-game-result" role="alert">
-        @L[_sessionErrorKey]
+        <p>@L[_sessionErrorKey]</p>
+        <button type="button" class="btn btn-outline-secondary" @onclick="() => ExitRequested.InvokeAsync()">
+            @L[ResourceKeys.Games.FrontlineBackToMissions]
+        </button>
     </div>
 }
 
@@ -25,6 +28,9 @@ else
 
     [Parameter]
     public FrontlinePlayerProgress? Progress { get; set; }
+
+    [Parameter]
+    public EventCallback ExitRequested { get; set; }
 
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _gameLoop;
