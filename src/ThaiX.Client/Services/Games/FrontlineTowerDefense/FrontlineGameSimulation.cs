@@ -396,12 +396,24 @@ public sealed class FrontlineGameSimulation
                 .Where(enemy => enemy.CoreTemperature > 120)
                 .OrderByDescending(enemy => enemy.CoreTemperature)
                 .FirstOrDefault() ?? candidates.FirstOrDefault(),
-            FrontlineTargetMode.Cold => candidates
-                .Where(enemy => !enemy.Definition.IsMetal)
-                .OrderBy(enemy => enemy.CoreTemperature)
-                .FirstOrDefault(),
+            FrontlineTargetMode.Cold => FindColdTarget(candidates),
             _ => null
         };
+    }
+
+    private static FrontlineEnemy? FindColdTarget(IReadOnlyList<FrontlineEnemy> candidates)
+    {
+        if (candidates.Count == 0)
+            return null;
+
+        var selected = candidates[0];
+        foreach (var candidate in candidates.Skip(1))
+        {
+            if (candidate.CoreTemperature < selected.CoreTemperature && !candidate.Definition.IsMetal)
+                selected = candidate;
+        }
+
+        return selected;
     }
 
     private void ResolveDeaths()
