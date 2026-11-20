@@ -24,9 +24,9 @@ public sealed record FrontlineTowerArchetype(
             IsSupport,
             Id switch
             {
-                "suptower1" => new FrontlineDamageProfile(100, Burn: 100),
-                "suptower2" => new FrontlineDamageProfile(50, Poison: 80),
-                "suptower3" => new FrontlineDamageProfile(50, Burn: 20),
+                "suptower1" => new FrontlineDamageProfile(Burn: 100),
+                "suptower2" => new FrontlineDamageProfile(Poison: 80),
+                "suptower3" => new FrontlineDamageProfile(Burn: 20),
                 _ => null
             },
             ShotLimit);
