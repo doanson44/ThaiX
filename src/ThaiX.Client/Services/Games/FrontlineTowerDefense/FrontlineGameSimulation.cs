@@ -779,9 +779,10 @@ public sealed class FrontlineGameSimulation
             {
                 foreach (var enemy in _enemies.ToArray())
                 {
-                    if (Math.Hypot(
-                        enemy.Position.X - projectile.Position.X,
-                        enemy.Position.Y - projectile.Position.Y) > projectile.Profile.SplashRadius)
+                    if (enemy.Health <= 0
+                        || Math.Hypot(
+                            enemy.Position.X - projectile.Position.X,
+                            enemy.Position.Y - projectile.Position.Y) > projectile.Profile.SplashRadius)
                         continue;
 
                     var splashDamage = projectile.Damage with
