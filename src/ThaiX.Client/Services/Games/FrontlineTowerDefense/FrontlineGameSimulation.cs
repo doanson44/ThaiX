@@ -10,6 +10,25 @@ public enum FrontlineGameStatus
 
 public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
 {
+    public const double DefaultGridCellSize = 32;
+
+    public static FrontlinePath FromGridPath(
+        IReadOnlyList<FrontlineGridPoint> gridPath,
+        double cellSize = DefaultGridCellSize)
+    {
+        ArgumentNullException.ThrowIfNull(gridPath);
+        if (gridPath.Count < 2)
+            throw new ArgumentException("A movement path requires at least two grid cells.", nameof(gridPath));
+        if (cellSize <= 0 || double.IsNaN(cellSize) || double.IsInfinity(cellSize))
+            throw new ArgumentOutOfRangeException(nameof(cellSize));
+
+        return new FrontlinePath(gridPath
+            .Select(point => new FrontlinePoint(
+                point.X * cellSize + cellSize * 0.5,
+                point.Y * cellSize + cellSize * 0.5))
+            .ToArray());
+    }
+
     public double Length => Points.Zip(Points.Skip(1),
         (from, to) => Math.Hypot(to.X - from.X, to.Y - from.Y)).Sum();
 
