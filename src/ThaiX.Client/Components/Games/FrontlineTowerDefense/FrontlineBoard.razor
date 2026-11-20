@@ -101,7 +101,7 @@
                 class="@GetEnemyClass(enemy)"
                 style="@GetPositionStyle(enemy.Position)"
                 aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
-                disabled="@(!EnemySelected.HasDelegate)"
+                disabled="@(!EnemySelected.HasDelegate || !EnemySelectionEnabled)"
                 @onclick="() => EnemySelected.InvokeAsync(enemy.Id)">
             <svg class="frontline-board__enemy-art" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2 21 8v9l-9 5-9-5V8z" class="frontline-board__enemy-shape" />
@@ -144,6 +144,9 @@
 
     [Parameter]
     public EventCallback<long> EnemySelected { get; set; }
+
+    [Parameter]
+    public bool EnemySelectionEnabled { get; set; } = true;
 
     private static string GetCellClass(bool isPath, bool isBlocked)
     {
