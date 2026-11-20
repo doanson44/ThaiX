@@ -427,8 +427,10 @@
 
     private IEnumerable<MexcContractTickerDto> FilteredTickers => _allTickers.Where(ticker =>
         (!_futureOnly || IsFutureOnlySymbol(ticker.Symbol))
-        && (!_requireBybit || _bybitSymbols?.Contains(NormalizeExchangeSymbol(ticker.Symbol)) == true)
-        && (!_requireBinance || _binanceSymbols?.Contains(NormalizeExchangeSymbol(ticker.Symbol)) == true));
+        && (!_requireBybit || _bybitSymbols is not { Count: > 0 }
+            || _bybitSymbols.Contains(NormalizeExchangeSymbol(ticker.Symbol)))
+        && (!_requireBinance || _binanceSymbols is not { Count: > 0 }
+            || _binanceSymbols.Contains(NormalizeExchangeSymbol(ticker.Symbol))));
 
     private static string NormalizeExchangeSymbol(string? symbol) =>
         (symbol ?? string.Empty).Trim().Replace("_", string.Empty).ToUpperInvariant();
