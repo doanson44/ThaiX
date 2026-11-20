@@ -26,6 +26,8 @@ public sealed class FrontlineSniperMissionSession
     public FrontlineGameSessionState State => _gameSession.State;
     public int CurrentWave => _gameSession.CurrentWave;
     public int TotalWaves => _gameSession.TotalWaves;
+    public int TotalScore => _gameSession.TotalScore;
+    public int CreditsEarned => _gameSession.CreditsEarned;
     public bool CanStartNextWave => _gameSession.CanStartNextWave;
     public int ShotsFired { get; private set; }
     public int Hits { get; private set; }
