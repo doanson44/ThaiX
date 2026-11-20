@@ -50,4 +50,7 @@ public static class FrontlineEnemyCatalog
         new("Tank2", 400, 0.7, 20, true, HeatResistance: 0.6),
         new("Tank3", 550, 0.6, 20, true, HeatResistance: 0.6)
     ];
+
+    public static FrontlineEnemyArchetype? Find(string id) =>
+        Verified.FirstOrDefault(enemy => string.Equals(enemy.Id, id, StringComparison.Ordinal));
 }
