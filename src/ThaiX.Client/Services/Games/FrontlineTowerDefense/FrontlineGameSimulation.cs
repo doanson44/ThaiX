@@ -102,7 +102,8 @@ public sealed record FrontlineTowerDefinition(
     FrontlineDamageProfile? MetalDamageProfile = null,
     FrontlineProjectileProfile? ProjectileProfile = null,
     double DamageUpgradeScale = 1,
-    double StatusUpgradeScale = 0);
+    double StatusUpgradeScale = 0,
+    double MetalDamageUpgradeScale = 1);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -382,6 +383,7 @@ public sealed class FrontlineGameSimulation
             || !double.IsFinite(definition.RateOfFire) || definition.RateOfFire <= 0
             || !double.IsFinite(definition.DamageUpgradeScale) || definition.DamageUpgradeScale < 0
             || !double.IsFinite(definition.StatusUpgradeScale) || definition.StatusUpgradeScale < 0
+            || !double.IsFinite(definition.MetalDamageUpgradeScale) || definition.MetalDamageUpgradeScale < 0
             || (definition.ProjectileProfile is { } projectileProfile
                 && (!double.IsFinite(projectileProfile.Speed) || projectileProfile.Speed <= 0
                     || !double.IsFinite(projectileProfile.CollisionRadius) || projectileProfile.CollisionRadius <= 0
@@ -648,7 +650,10 @@ public sealed class FrontlineGameSimulation
             ? tower.Definition.MetalDamageProfile ?? tower.Definition.DamageProfile
             : tower.Definition.DamageProfile;
         var profile = baseProfile ?? new FrontlineDamageProfile(DirectDamage: tower.Damage);
-        var upgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.DamageUpgradeScale;
+        var damageUpgradeScale = target.Definition.IsMetal
+            ? tower.Definition.MetalDamageUpgradeScale
+            : tower.Definition.DamageUpgradeScale;
+        var upgradeScale = 1 + tower.DamageUpgradeLevel * damageUpgradeScale;
         var statusUpgradeScale = 1 + tower.DamageUpgradeLevel * tower.Definition.StatusUpgradeScale;
         var damageProfile = profile with
         {
