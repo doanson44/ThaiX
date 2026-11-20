@@ -14,6 +14,13 @@ The legacy JavaScript runtime and its original asset directory remain in the rep
 - The bundled JavaScript contains the legacy save namespace `FD-2-32-317`, but the inspected file does not identify a copyright owner or provide a redistribution grant.
 - The Apache license grants rights from contributors for work they are authorized to license. The repository license alone does not establish that the repository contributors own or can sublicense the original game code, bitmap art, or sound files.
 
+## External provenance and hosting-policy check
+
+- The [Max Games Frontline Defense 2 page](https://www.maxgames.com/play/frontline-defense-2.html) identifies the original title and provides a Download SWF link.
+- The [Max Games free-games page](https://www.maxgames.com/free-games.html) says its game packages include the game file, images, and game information, and invites website hosting with a backlink to Max Games.
+- The [Armor Games listing](https://armorgames.com/play/10261/frontline-defense-2) also attributes Frontline Defense 2 to maxgames.
+- The hosting page is useful evidence for a limited, linked hosting arrangement for Max Games game packages. It does not expressly address decompilation, a C# reimplementation, derivative works, separate extraction/reuse of artwork or audio, sublicensing, or commercial redistribution of a modified bundle. Those rights remain unverified for this port.
+
 ## Scope affected
 
 | Material | Current state | Release decision |
