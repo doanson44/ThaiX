@@ -69,18 +69,16 @@ public sealed class FrontlineProjectile
             Position = new FrontlinePoint(
                 Position.X + _velocityX * elapsedUnits,
                 Position.Y + _velocityY * elapsedUnits);
+            Height += VerticalVelocity * elapsedUnits;
+            VerticalVelocity -= Profile.Gravity * elapsedUnits;
 
             if (VerticalVelocity >= -0.05)
             {
                 var predictedPosition = target.Path.PointAt(
-                    target.Distance + target.Definition.Speed * target.MovementMultiplier * 40);
+                    target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
                 var horizontalX = predictedPosition.X - Position.X;
                 var horizontalY = predictedPosition.Y - Position.Y;
                 var horizontalDistance = Math.Hypot(horizontalX, horizontalY);
-                var impactDistance = Math.Sqrt(
-                    Profile.CollisionRadius * Profile.CollisionRadius + 36);
-                if (horizontalDistance <= impactDistance)
-                    return true;
 
                 if (horizontalDistance > 0)
                 {
@@ -89,8 +87,6 @@ public sealed class FrontlineProjectile
                 }
             }
 
-            Height += VerticalVelocity * elapsedUnits;
-            VerticalVelocity -= Profile.Gravity * elapsedUnits;
             return Height < 0;
         }
 
