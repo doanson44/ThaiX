@@ -36,6 +36,20 @@
               aria-hidden="true"></span>
     }
 
+    <svg class="frontline-board__projectiles"
+         viewBox="0 0 672 480"
+         preserveAspectRatio="none"
+         aria-hidden="true">
+        @foreach (var projectile in Simulation.Projectiles)
+        {
+            <circle @key="projectile.Id"
+                    class="frontline-board__projectile frontline-board__projectile--@GetProjectileStyle(projectile)"
+                    cx="@FormatCoordinate(projectile.Position.X)"
+                    cy="@FormatCoordinate(projectile.Position.Y - projectile.Height)"
+                    r="@FormatCoordinate(GetProjectileRadius(projectile))" />
+        }
+    </svg>
+
     @foreach (var tower in Simulation.Towers)
     {
         <button @key="tower.Id"
@@ -46,19 +60,26 @@
                 aria-pressed="@(SelectedTowerId == tower.Id)"
                 disabled="@(!TowerSelected.HasDelegate)"
                 @onclick="() => TowerSelected.InvokeAsync(tower.Id)">
-            <span class="frontline-board__tower-core" aria-hidden="true"></span>
+            <svg class="frontline-board__tower-art" viewBox="0 0 32 32" aria-hidden="true">
+                <circle cx="16" cy="16" r="13" class="frontline-board__tower-base" />
+                <path d="M9 17h14l-2-5H11z" class="frontline-board__tower-body" />
+                <path d="M14 12V6h4v6" class="frontline-board__tower-barrel" />
+                <circle cx="16" cy="17" r="3" class="frontline-board__tower-core" />
+            </svg>
         </button>
     }
 
     @foreach (var enemy in Simulation.Enemies)
     {
         <div @key="enemy.Id"
-             class="frontline-board__enemy"
+             class="@GetEnemyClass(enemy)"
              style="@GetPositionStyle(enemy.Position)"
              role="img"
-             aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
-             >
-            <span class="frontline-board__enemy-core" aria-hidden="true"></span>
+             aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]">
+            <svg class="frontline-board__enemy-art" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2 21 8v9l-9 5-9-5V8z" class="frontline-board__enemy-shape" />
+                <path d="m8 10 4-3 4 3v5l-4 2-4-2z" class="frontline-board__enemy-detail" />
+            </svg>
             <span class="frontline-board__health">
                 <span style="@GetHealthStyle(enemy)"></span>
             </span>
@@ -106,14 +127,46 @@
 
     private string GetTowerClass(FrontlineTower tower)
     {
+        var archetype = tower.Definition.Id switch
+        {
+            "tower1" => "missile",
+            "tower4" => "electro",
+            "tower5" => "shotgun",
+            "tower6" => "beam",
+            "tower7" or "tower8" => "bio",
+            "tower9" => "flame",
+            "tower11" => "plasma",
+            _ => "ballistic"
+        };
         var classes = tower.Definition.IsSupport
             ? "frontline-board__tower frontline-board__tower--support"
-            : "frontline-board__tower";
+            : $"frontline-board__tower frontline-board__tower--{archetype}";
 
         return SelectedTowerId == tower.Id
             ? $"{classes} frontline-board__tower--selected"
             : classes;
     }
+
+    private static string GetEnemyClass(FrontlineEnemy enemy) =>
+        enemy.Definition.IsMetal
+            ? "frontline-board__enemy frontline-board__enemy--metal"
+            : "frontline-board__enemy";
+
+    private static string GetProjectileStyle(FrontlineProjectile projectile) =>
+        projectile.Profile.Kind switch
+        {
+            FrontlineProjectileKind.HomingMissile => "missile",
+            FrontlineProjectileKind.BallisticShell => "shell",
+            FrontlineProjectileKind.TrackingPoison => "poison",
+            FrontlineProjectileKind.TrackingFlame => "flame",
+            _ => "default"
+        };
+
+    private static double GetProjectileRadius(FrontlineProjectile projectile) =>
+        Math.Clamp(projectile.Profile.CollisionRadius, 2, 7);
+
+    private static string FormatCoordinate(double value) =>
+        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 
     private static string GetPositionStyle(FrontlinePoint position) =>
         FormattableString.Invariant(
