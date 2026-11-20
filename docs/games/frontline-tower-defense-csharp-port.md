@@ -44,9 +44,11 @@ weak, heat and cold targeting modes. The runtime registers 11 standard tower typ
 types, and 13 enemy types including infantry, vehicles and a bot.
 
 Verified enemy definitions now cover all 13 runtime types. The five infantry types use base
-health 50; the bot uses 1,000; vehicle base health ranges from 120 to 550. Their base speed and
-resistance modifiers are recorded in FrontlineEnemyCatalog. Every spawned enemy's health is
-scaled by 10 percent per dispatched wave group. The 11 standard tower base stats, targeting modes, build costs, unlock indexes, and War-Mart
+health 50; the bot uses 1,000; vehicle base health ranges from 120 to 550. Metal enemy types
+start at core temperature 200 (rather than 35), use 500/0 heat/freeze thresholds, and award
+20 credits on kill rather than the infantry default of 10. Their base speed and resistance
+modifiers are recorded in FrontlineEnemyCatalog. Every spawned enemy's health is scaled by
+10 percent per dispatched wave group. The 11 standard tower base stats, targeting modes, build costs, unlock indexes, and War-Mart
 unlock prices are recorded in FrontlineTowerCatalog. Three support tower stat sets and shot
 limits are also recorded; their special projectile and finite-shot behavior still requires
 porting. The base tower class increments its firing meter by rate-of-fire multiplied by the
