@@ -61,6 +61,22 @@ public sealed class FrontlineTowerPlacementTests
     }
 
     [Fact]
+    public void TryUpgradeTower_AfterFiveUpgrades_RejectsFurtherUpgrade()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 500);
+        simulation.TryBuildTower(
+            new FrontlineTowerDefinition("rifle", 50, 60, 10, 5),
+            new FrontlinePoint(80, 80));
+        var tower = simulation.Towers.Single();
+
+        for (var index = 0; index < 5; index++)
+            simulation.TryUpgradeTower(tower.Id, FrontlineTowerUpgradeType.Damage).Should().BeTrue();
+
+        simulation.TryUpgradeTower(tower.Id, FrontlineTowerUpgradeType.Damage).Should().BeFalse();
+        tower.DamageUpgradeLevel.Should().Be(1);
+    }
+
+    [Fact]
     public void TrySellTower_ReturnsHalfBuildCostAndRemovesTower()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
