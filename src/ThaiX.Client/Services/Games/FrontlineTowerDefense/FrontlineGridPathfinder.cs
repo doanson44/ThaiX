@@ -48,14 +48,12 @@ public sealed class FrontlineGridPathfinder
         FrontlineGridPoint end)
     {
         ArgumentNullException.ThrowIfNull(map);
-        if (!map.IsWalkable(start) || !map.IsWalkable(end))
+        if (!map.IsWalkable(end))
             return null;
 
-        var visited = new bool[map.Width, map.Height];
-        var parents = new FrontlineGridPoint?[map.Width, map.Height];
+        var visited = new HashSet<FrontlineGridPoint> { start };
+        var parents = new Dictionary<FrontlineGridPoint, FrontlineGridPoint>();
         var queue = new Queue<FrontlineGridPoint>();
-
-        visited[start.X, start.Y] = true;
         queue.Enqueue(start);
 
         while (queue.TryDequeue(out var current))
@@ -78,11 +76,10 @@ public sealed class FrontlineGridPathfinder
 
             void TryVisit(FrontlineGridPoint next)
             {
-                if (!map.IsWalkable(next) || visited[next.X, next.Y])
+                if (!map.IsWalkable(next) || !visited.Add(next))
                     return;
 
-                visited[next.X, next.Y] = true;
-                parents[next.X, next.Y] = current;
+                parents[next] = current;
                 queue.Enqueue(next);
             }
         }
@@ -91,7 +88,7 @@ public sealed class FrontlineGridPathfinder
     }
 
     private static IReadOnlyList<FrontlineGridPoint> ReconstructPath(
-        FrontlineGridPoint?[,] parents,
+        IReadOnlyDictionary<FrontlineGridPoint, FrontlineGridPoint> parents,
         FrontlineGridPoint start,
         FrontlineGridPoint end)
     {
@@ -101,8 +98,9 @@ public sealed class FrontlineGridPathfinder
         while (current != start)
         {
             path.Add(current);
-            current = parents[current.X, current.Y]
-                ?? throw new InvalidOperationException("The path parent chain is incomplete.");
+            current = parents.TryGetValue(current, out var parent)
+                ? parent
+                : throw new InvalidOperationException("The path parent chain is incomplete.");
         }
 
         path.Add(start);
