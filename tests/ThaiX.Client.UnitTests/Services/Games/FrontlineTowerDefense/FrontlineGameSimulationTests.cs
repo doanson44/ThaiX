@@ -102,6 +102,31 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenNapalmShellImpacts_CreatesPersistentBurnAreaEffect()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        simulation.TryBuildTower(
+            support.CreateDefinition() with { ShotLimit = 1 },
+            new FrontlinePoint(50, 0));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 1000, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        for (var tick = 0; tick < 34; tick++)
+            simulation.Advance();
+
+        simulation.ActiveSupportProjectileCount.Should().Be(1);
+        enemy.Health.Should().Be(1000);
+
+        for (var tick = 0; tick < 100; tick++)
+            simulation.Advance();
+
+        simulation.ActiveSupportProjectileCount.Should().Be(0);
+        simulation.ActiveAreaEffectCount.Should().Be(1);
+        enemy.Health.Should().BeLessThan(950);
+    }
+
+    [Fact]
     public void TrySellTower_WhenSupportStrikeSelected_DoesNotRefundOrRemoveIt()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
