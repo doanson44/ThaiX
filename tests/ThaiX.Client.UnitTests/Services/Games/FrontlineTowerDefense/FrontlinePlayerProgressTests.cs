@@ -23,13 +23,18 @@ public sealed class FrontlinePlayerProgressTests
     [Fact]
     public void TryPurchase_TowerUnlock_DeductsCreditsAndUnlocksSlot()
     {
-        var progress = FrontlinePlayerProgress.CreateNew();
+        var progress = FrontlinePlayerProgress.Load(new FrontlineLegacySaveData(
+            true,
+            10000,
+            500,
+            new int[FrontlinePlayerProgress.TowerSlotCount],
+            new int[FrontlinePlayerProgress.LevelSlotCount]));
         var item = FrontlineWarMartCatalog.All.Single(value => value.Id == "missile-launcher");
 
         var purchased = progress.TryPurchase(item);
 
         purchased.Should().BeTrue();
-        progress.Credits.Should().Be(1000);
+        progress.Credits.Should().Be(2000);
         progress.IsTowerUnlocked(1).Should().BeTrue();
     }
 
