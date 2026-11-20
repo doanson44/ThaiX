@@ -173,6 +173,33 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenFlameThrowerFires_TracksTargetAndAppliesBurn()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 250);
+        var flame = FrontlineTowerCatalog.Find("tower9")!;
+        simulation.TryBuildTower(flame.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+
+        simulation.Projectiles.Should().ContainSingle();
+        for (var tick = 0; tick < 5; tick++)
+            simulation.Advance();
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(98);
+        enemy.CoreTemperature.Should().Be(65);
+    }
+
+    [Fact]
     public void Advance_WhenBioMortarShellImpacts_AppliesHalfDamageInArea()
     {
         var path = new FrontlinePath(
