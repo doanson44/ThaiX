@@ -175,6 +175,7 @@ public static class ResourceKeys
         public const string FrontlineVictory = "Games.FrontlineTowerDefense.Victory";
         public const string FrontlineDefeat = "Games.FrontlineTowerDefense.Defeat";
         public const string FrontlineRouteUnavailable = "Games.FrontlineTowerDefense.RouteUnavailable";
+        public const string FrontlineLevelLocked = "Games.FrontlineTowerDefense.LevelLocked";
         public const string FrontlineTowerMissileLauncher = "Games.FrontlineTowerDefense.Tower.MissileLauncher";
         public const string FrontlineTowerRifle = "Games.FrontlineTowerDefense.Tower.Rifle";
         public const string FrontlineTowerSniper = "Games.FrontlineTowerDefense.Tower.Sniper";
