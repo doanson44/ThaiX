@@ -7,13 +7,22 @@ public sealed class FrontlineWaveSchedulerTests
     [Fact]
     public void CampaignLevelOne_ContainsTwentyFourAuthoredGroups()
     {
-        FrontlineWaveSchedule.CampaignLevelOne.Groups.Should().HaveCount(24);
+        FrontlineWaveCatalog.Find("level-01")!.ToSchedule().Groups.Should().HaveCount(24);
+    }
+
+    [Fact]
+    public void All_ContainsFourteenCampaignAndFourBonusWaveSchedules()
+    {
+        FrontlineWaveCatalog.All.Should().HaveCount(18);
+        FrontlineWaveCatalog.Campaign.Should().HaveCount(14);
+        FrontlineWaveCatalog.Bonus.Should().HaveCount(4);
+        FrontlineWaveCatalog.All.Sum(level => level.Groups.Count).Should().Be(878);
     }
 
     [Fact]
     public void Advance_BeforeInitialCountdownExpires_DoesNotStartWave()
     {
-        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
         var spawned = scheduler.Advance(999, enemiesRemain: false);
 
@@ -24,7 +33,7 @@ public sealed class FrontlineWaveSchedulerTests
     [Fact]
     public void Advance_AfterInitialCountdown_StartsFirstGroupWithoutImmediateSpawn()
     {
-        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
         var spawned = scheduler.Advance(1000, enemiesRemain: false);
 
@@ -35,7 +44,7 @@ public sealed class FrontlineWaveSchedulerTests
     [Fact]
     public void Advance_WhenSpawnIntervalIsReached_SpawnsOneEnemy()
     {
-        var scheduler = new FrontlineWaveScheduler(FrontlineWaveSchedule.CampaignLevelOne);
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
         scheduler.Advance(1000, enemiesRemain: false);
 
         var spawned = scheduler.Advance(15, enemiesRemain: false);
