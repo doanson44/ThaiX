@@ -62,7 +62,8 @@ public sealed class FrontlineProjectile
 
     internal bool Advance(FrontlineEnemy target, double elapsedUnits)
     {
-        if (target.Health <= 0)
+        if (target.Health <= 0
+            || (Profile.Kind == FrontlineProjectileKind.HomingMissile && target.Position.X <= 0))
         {
             IsExpired = true;
             return false;
