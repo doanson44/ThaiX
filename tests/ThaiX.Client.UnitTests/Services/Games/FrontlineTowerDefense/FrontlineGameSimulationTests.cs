@@ -14,7 +14,7 @@ public sealed class FrontlineGameSimulationTests
     public void TryBuildTower_WithSufficientFunds_DeductsCostAndAddsTower()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
-        var definition = new FrontlineTowerDefinition("rifle", 100, 50, 10, 5);
+        var definition = new FrontlineTowerDefinition("rifle", 100, 50, 10, 100);
 
         var result = simulation.TryBuildTower(definition, new FrontlinePoint(25, 25));
 
@@ -41,7 +41,7 @@ public sealed class FrontlineGameSimulationTests
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
         simulation.TryBuildTower(
-            new FrontlineTowerDefinition("rifle", 100, 60, 25, 1),
+            new FrontlineTowerDefinition("rifle", 100, 60, 25, 100),
             new FrontlinePoint(50, 10));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 20, 1, 15));
 
