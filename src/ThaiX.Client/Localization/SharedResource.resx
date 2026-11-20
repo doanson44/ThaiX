@@ -2220,6 +2220,7 @@
   <data name="Games.FrontlineTowerDefense.Victory" xml:space="preserve"><value>Mission complete</value></data>
   <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Base destroyed</value></data>
   <data name="Games.FrontlineTowerDefense.RouteUnavailable" xml:space="preserve"><value>No valid enemy route is available for this map.</value></data>
+  <data name="Games.FrontlineTowerDefense.LevelLocked" xml:space="preserve"><value>This mission is locked. Complete the previous mission or unlock it in War-Mart.</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
