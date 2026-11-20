@@ -53,8 +53,11 @@ unlock prices are recorded in FrontlineTowerCatalog. Three support tower stat se
 limits are also recorded; their special projectile and finite-shot behavior still requires
 porting. The base tower class increments its firing meter by rate-of-fire multiplied by the
 simulation scale, fires at 100, and applies upgrades in 20-percent increments at half of its
-sale value (which is half of the purchase cost). The first campaign level's 24 authored wave groups have
-been transcribed into FrontlineWaveSchedule.
+sale value (which is half of the purchase cost). All 14 campaign and 4 bonus map definitions have been extracted from the Game timeline,
+including every PathTile, BlockSquare, StartTile, and EndTile coordinate. The first campaign
+level's 24 authored wave groups were initially transcribed, then expanded to all 14 campaign
+and 4 bonus wave schedules (963 total groups) in FrontlineWaveCatalog. Level 1 and bonus 1
+have route-validation tests; other maps still need endpoint/path consistency verification.
 The save schema is partially verified: bPlayed, credits, stFunds, Tower0..Tower19 and
 Level0..Level39. FrontlinePlayerProgress now models the legacy 20 tower slots, 40 level slots,
 first-time defaults (1,000 credits, 500 starting funds, tower indexes 2, 3, 4 and 13 unlocked,
@@ -80,12 +83,14 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Add focused unit tests for placement, combat rewards, leaks, defeat, status effects, and wave timing.
 - [x] Port the grid pathfinder's eight-way traversal and diagonal corner rule.
 - [x] Convert grid paths into world-space cell-center movement paths.
-- [x] Transcribe the first campaign level's 24 authored wave groups.
+- [x] Extract all 14 campaign and 4 bonus map grids and their multiple start/end endpoints.
+- [x] Transcribe all 14 campaign and 4 bonus wave schedules (963 authored groups).
 - [x] Extract all 13 enemy types' base health, speed, metal flag, and observed resistance modifiers.
 - [x] Extract all 11 standard tower stats, 3 support tower stats, targeting modes, build prices, unlock indexes, and War-Mart prices.
 - [x] Port legacy player progression defaults, best-level score handling, and War-Mart purchase rules.
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
 - [ ] Integrate per-level grid maps, random authored endpoints, and path recomputation into the simulation loop.
+- [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
 - [ ] Port tower-specific projectiles, area effects, support abilities, and exact firing parameters.
