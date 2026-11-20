@@ -2232,6 +2232,12 @@
   <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Sniper Mission 2</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Sniper Mission 3</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission4" xml:space="preserve"><value>Sniper Mission 4</value></data>
+  <data name="Games.FrontlineTowerDefense.Campaign" xml:space="preserve"><value>Campaign</value></data>
+  <data name="Games.FrontlineTowerDefense.BonusMissions" xml:space="preserve"><value>Bonus missions</value></data>
+  <data name="Games.FrontlineTowerDefense.Mission" xml:space="preserve"><value>Mission</value></data>
+  <data name="Games.FrontlineTowerDefense.PlayMission" xml:space="preserve"><value>Play mission</value></data>
+  <data name="Games.FrontlineTowerDefense.BestScore" xml:space="preserve"><value>Best score</value></data>
+  <data name="Games.FrontlineTowerDefense.BackToMissions" xml:space="preserve"><value>Back to missions</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
