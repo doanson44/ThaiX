@@ -300,6 +300,8 @@ public sealed class FrontlineGameSimulation
     {
         ArgumentNullException.ThrowIfNull(definition);
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
+            || string.IsNullOrWhiteSpace(definition.Id)
+            || !IsValidPosition(position)
             || definition.Cost < 0
             || !double.IsFinite(definition.Range) || definition.Range <= 0
             || !double.IsFinite(definition.Damage) || definition.Damage <= 0
@@ -321,7 +323,9 @@ public sealed class FrontlineGameSimulation
 
     public bool TryMoveTower(long towerId, FrontlinePoint position)
     {
-        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat || Funds < 10)
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
+            || !IsValidPosition(position)
+            || Funds < 10)
             return false;
 
         var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
@@ -377,6 +381,10 @@ public sealed class FrontlineGameSimulation
 
         return upgraded;
     }
+
+    private static bool IsValidPosition(FrontlinePoint position) =>
+        double.IsFinite(position.X) && double.IsFinite(position.Y)
+        && position.X >= 0 && position.Y >= 0;
 
     private static FrontlineGridPoint ToGridCell(FrontlinePoint position) =>
         new((int)Math.Floor(Math.Min(position.X, 640) / FrontlinePath.DefaultGridCellSize),
