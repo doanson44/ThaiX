@@ -134,13 +134,11 @@ public sealed class FrontlineEnemy
     public double PoisonDuration { get; private set; }
     public double FreezeDuration { get; private set; }
     public bool IsFrozen { get; private set; }
-    public bool AwardScoreOnDeath { get; private set; }
     public FrontlinePoint Position => Path.PointAt(Distance);
 
     internal void ApplyDamage(FrontlineDamageProfile damage)
     {
         Health -= damage.DirectDamage;
-        AwardScoreOnDeath = damage.DirectDamage > 0 && Health <= 0;
         RadiationDuration += damage.Radiation * Definition.RadiationResistance;
         CoreTemperature += damage.Burn * Definition.HeatResistance;
         PoisonDuration += damage.Poison * Definition.PoisonResistance;
@@ -458,16 +456,15 @@ public sealed class FrontlineGameSimulation
         for (var index = _enemies.Count - 1; index >= 0; index--)
         {
             var enemy = _enemies[index];
-            enemy.AdvanceEffects();
-            if (enemy.Health <= 0)
-                continue;
-
             enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier * elapsedUnits;
-            if (enemy.Distance < enemy.Path.Length)
+            if (enemy.Distance >= enemy.Path.Length)
+            {
+                LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
+                _enemies.RemoveAt(index);
                 continue;
+            }
 
-            LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
-            _enemies.RemoveAt(index);
+            enemy.AdvanceEffects();
         }
     }
 
@@ -609,8 +606,7 @@ public sealed class FrontlineGameSimulation
                 continue;
 
             Funds += enemy.Definition.Reward;
-            if (enemy.AwardScoreOnDeath)
-                Score += enemy.Definition.Reward * 2;
+            Score += enemy.Definition.Reward * 2;
             _enemies.RemoveAt(index);
         }
     }
