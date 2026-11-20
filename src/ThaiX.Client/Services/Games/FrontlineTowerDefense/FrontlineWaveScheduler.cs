@@ -50,7 +50,7 @@ public sealed class FrontlineWaveScheduler
 
         var spawned = new List<string>();
 
-        for (var index = _activeSpawners.Count - 1; index >= 0; index--)
+        for (var index = 0; index < _activeSpawners.Count;)
         {
             var spawner = _activeSpawners[index];
             if (spawner.Remaining <= 0)
@@ -60,12 +60,14 @@ public sealed class FrontlineWaveScheduler
             }
 
             spawner.ElapsedUnits += elapsedUnits;
-            if (spawner.ElapsedUnits < spawner.Group.SpawnIntervalUnits)
-                continue;
+            if (spawner.ElapsedUnits >= spawner.Group.SpawnIntervalUnits)
+            {
+                spawner.ElapsedUnits = 0;
+                spawner.Remaining--;
+                spawned.Add(spawner.Group.EnemyType);
+            }
 
-            spawner.ElapsedUnits = 0;
-            spawner.Remaining--;
-            spawned.Add(spawner.Group.EnemyType);
+            index++;
         }
 
         if (!AllGroupsDispatched)
