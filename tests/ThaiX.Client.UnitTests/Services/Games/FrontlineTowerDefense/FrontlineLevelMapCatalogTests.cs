@@ -50,6 +50,7 @@ public sealed class FrontlineLevelMapCatalogTests
         level.Should().NotBeNull();
         level!.StartPoints.Should().HaveCount(8);
         level.EndPoints.Should().HaveCount(4);
+        level.ProgressIndex.Should().Be(15);
         level.WalkableCells.Should().HaveCount(208);
         level.BlockedCells.Should().HaveCount(21);
     }
