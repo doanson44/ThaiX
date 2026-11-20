@@ -575,6 +575,15 @@ public sealed class FrontlineGameSimulation
         return true;
     }
 
+    public bool TrySpendSniperShot()
+    {
+        if (Funds < 0)
+            return false;
+
+        Funds--;
+        return true;
+    }
+
     public bool ApplyDamage(long enemyId, FrontlineDamageProfile damage)
     {
         ArgumentNullException.ThrowIfNull(damage);
