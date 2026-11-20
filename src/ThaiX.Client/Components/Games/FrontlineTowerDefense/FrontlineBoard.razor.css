@@ -144,3 +144,138 @@
         border-width: 1px;
     }
 }
+
+
+.frontline-board__projectiles {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.frontline-board__projectile {
+    stroke: #f8fafc;
+    stroke-width: 1;
+    filter: drop-shadow(0 0 3px currentColor);
+}
+
+.frontline-board__projectile--missile {
+    fill: #f97316;
+    color: #fb923c;
+}
+
+.frontline-board__projectile--shell {
+    fill: #facc15;
+    color: #fde047;
+}
+
+.frontline-board__projectile--poison {
+    fill: #a3e635;
+    color: #bef264;
+}
+
+.frontline-board__projectile--flame {
+    fill: #ef4444;
+    color: #f87171;
+}
+
+.frontline-board__tower {
+    z-index: 3;
+    overflow: visible;
+}
+
+.frontline-board__tower-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.frontline-board__tower-base {
+    fill: #334155;
+    stroke: #cbd5e1;
+    stroke-width: 1.5;
+}
+
+.frontline-board__tower-body {
+    fill: #64748b;
+    stroke: #e2e8f0;
+    stroke-width: 1;
+}
+
+.frontline-board__tower-barrel {
+    fill: #94a3b8;
+    stroke: #f8fafc;
+    stroke-width: 1;
+}
+
+.frontline-board__tower-core {
+    fill: #bfdbfe;
+}
+
+.frontline-board__tower--missile .frontline-board__tower-base {
+    fill: #7c2d12;
+}
+
+.frontline-board__tower--missile .frontline-board__tower-core,
+.frontline-board__tower--flame .frontline-board__tower-core {
+    fill: #fb923c;
+}
+
+.frontline-board__tower--electro .frontline-board__tower-core {
+    fill: #67e8f9;
+}
+
+.frontline-board__tower--shotgun .frontline-board__tower-core {
+    fill: #fcd34d;
+}
+
+.frontline-board__tower--beam .frontline-board__tower-core,
+.frontline-board__tower--plasma .frontline-board__tower-core {
+    fill: #c4b5fd;
+}
+
+.frontline-board__tower--bio .frontline-board__tower-core {
+    fill: #a3e635;
+}
+
+.frontline-board__tower--support .frontline-board__tower-base {
+    fill: #0f766e;
+}
+
+.frontline-board__enemy {
+    z-index: 4;
+}
+
+.frontline-board__enemy-art {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: visible;
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 60%));
+}
+
+.frontline-board__enemy-shape {
+    fill: #b91c1c;
+    stroke: #fecaca;
+    stroke-width: 1;
+}
+
+.frontline-board__enemy-detail {
+    fill: #fca5a5;
+    stroke: #7f1d1d;
+    stroke-width: 0.8;
+}
+
+.frontline-board__enemy--metal .frontline-board__enemy-shape {
+    fill: #475569;
+    stroke: #e2e8f0;
+}
+
+.frontline-board__enemy--metal .frontline-board__enemy-detail {
+    fill: #94a3b8;
+    stroke: #1e293b;
+}
