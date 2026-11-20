@@ -14,7 +14,22 @@ public sealed record FrontlineTowerArchetype(
     int ShotLimit = 0)
 {
     public FrontlineTowerDefinition CreateDefinition() =>
-        new(Id, BuildCost, Range, Damage, RateOfFire, TargetMode);
+        new(
+            Id,
+            BuildCost,
+            Range,
+            Damage,
+            RateOfFire,
+            TargetMode,
+            IsSupport,
+            Id switch
+            {
+                "suptower1" => new FrontlineDamageProfile(100, Burn: 100),
+                "suptower2" => new FrontlineDamageProfile(50, Poison: 80),
+                "suptower3" => new FrontlineDamageProfile(50, Burn: 20),
+                _ => null
+            },
+            ShotLimit);
 }
 
 public static class FrontlineTowerCatalog
