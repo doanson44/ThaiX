@@ -64,7 +64,7 @@ public sealed class FrontlineGameSessionTests
     public void Advance_UsesLegacyElapsedTimeScaleAndEightUnitCap()
     {
         var session = CreateSession();
-        session.SetSpeedMultiplier(8);
+        session.SetSpeedMultiplier(2);
         session.Simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 10));
         var enemy = session.Simulation.Enemies.Single();
 
@@ -79,6 +79,7 @@ public sealed class FrontlineGameSessionTests
         var session = CreateSession();
 
         session.SetSpeedMultiplier(9).Should().BeFalse();
+        session.SetSpeedMultiplier(4).Should().BeFalse();
         session.SetSpeedMultiplier(0).Should().BeFalse();
         session.SetSpeedMultiplier(2).Should().BeTrue();
         session.SpeedMultiplier.Should().Be(2);
