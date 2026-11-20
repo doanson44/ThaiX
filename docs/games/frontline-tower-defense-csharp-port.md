@@ -62,7 +62,9 @@ The save schema is partially verified: bPlayed, credits, stFunds, Tower0..Tower1
 Level0..Level39. FrontlinePlayerProgress now models the legacy 20 tower slots, 40 level slots,
 first-time defaults (1,000 credits, 500 starting funds, tower indexes 2, 3, 4 and 13 unlocked,
 and level index 0 unlocked), best-score persistence, War-Mart purchases, and conversion to and
-from the legacy save record. Browser persistence and migration wiring remain pending.
+from the legacy save record. FrontlineGameSession now connects map routes, wave schedules, enemy scaling, the 24 Hz elapsed-time
+scale, pause/speed controls, level health, and progression score updates. Browser persistence
+and automatic next-level unlock rules remain pending.
 Do not substitute the separate ThaiX Tower Defense definitions.
 
 ## Porting rules
@@ -88,6 +90,8 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [x] Extract all 13 enemy types' base health, speed, metal flag, and observed resistance modifiers.
 - [x] Extract all 11 standard tower stats, 3 support tower stats, targeting modes, build prices, unlock indexes, and War-Mart prices.
 - [x] Port legacy player progression defaults, best-level score handling, and War-Mart purchase rules.
+- [x] Add a session orchestrator connecting authored routes, concurrent wave spawners, enemy scaling, simulation, pause, and speed controls.
+- [x] Port buildable-cell validation, grid snapping, tower relocation fee, sale refund, and base upgrades.
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
 - [ ] Integrate per-level grid maps, random authored endpoints, and path recomputation into the simulation loop.
 - [ ] Validate route connectivity for every authored endpoint pair; some extracted levels currently produce no path in the independent pathfinder and need source timeline/coordinate verification.
@@ -96,7 +100,7 @@ Do not substitute the separate ThaiX Tower Defense definitions.
 - [ ] Port tower-specific projectiles, area effects, support abilities, and exact firing parameters.
 - [ ] Extract complete source tower/enemy/mission/wave definitions and balance formulas.
 - [ ] Port tower-specific projectiles, support strike finite-shot behavior, and special damage/status effects.
-- [ ] Port campaign, War-Mart, bonus missions, and progression.
+- [ ] Complete campaign/bonus mission completion, next-level unlock rules, and War-Mart/bonus mission UI.
 - [ ] Implement versioned local save/load and migration from the original schema.
 - [ ] Replace the JavaScript wrapper with a fully Blazor-rendered UI.
 - [ ] Port all visuals and interaction states to accessible responsive Razor/SVG.
