@@ -1,0 +1,291 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject IStringLocalizer<SharedResource> L
+
+<div class="frontline-game-view">
+    <div class="frontline-game-hud">
+        <div class="frontline-game-stat">
+            <span>@L[ResourceKeys.Games.FrontlineFunds]</span>
+            <strong>@Session.Simulation.Funds</strong>
+        </div>
+        <div class="frontline-game-stat">
+            <span>@L[ResourceKeys.Games.FrontlineLevelHealth]</span>
+            <strong>@Session.Simulation.LevelHealth.ToString("0")</strong>
+        </div>
+        <div class="frontline-game-stat">
+            <span>@L[ResourceKeys.Games.Wave]</span>
+            <strong>@Session.CurrentWave / @Session.TotalWaves</strong>
+        </div>
+        <div class="frontline-game-stat">
+            <span>@L[ResourceKeys.Games.Score]</span>
+            <strong>@Session.Simulation.Score</strong>
+        </div>
+        <div class="frontline-game-actions">
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    disabled="@(!CanTogglePause)"
+                    @onclick="TogglePause">
+                @(Session.State == FrontlineGameSessionState.Paused
+                    ? L[ResourceKeys.Games.Resume]
+                    : L[ResourceKeys.Games.Pause])
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    @onclick="() => ExitRequested.InvokeAsync()">
+                @L[ResourceKeys.Games.FrontlineBackToMissions]
+            </button>
+            <button type="button"
+                    class="btn btn-primary"
+                    disabled="@(!Session.CanStartNextWave)"
+                    @onclick="StartNextWave">
+                @L[ResourceKeys.Games.FrontlineStartWave]
+            </button>
+            <label class="frontline-speed-label" for="frontline-speed">
+                @L[ResourceKeys.Games.FrontlineSpeed]
+            </label>
+            <select id="frontline-speed"
+                    class="form-select frontline-speed-select"
+                    value="@_speedValue"
+                    disabled="@(!CanTogglePause)"
+                    @onchange="ChangeSpeed">
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+            </select>
+        </div>
+    </div>
+
+    @if (Session.State is FrontlineGameSessionState.Victory
+        or FrontlineGameSessionState.Defeat
+        or FrontlineGameSessionState.RouteUnavailable)
+    {
+        <div class="frontline-game-result" role="status" aria-live="polite">
+            @switch (Session.State)
+            {
+                case FrontlineGameSessionState.Victory:
+                    @L[ResourceKeys.Games.FrontlineVictory]
+                    break;
+                case FrontlineGameSessionState.Defeat:
+                    @L[ResourceKeys.Games.FrontlineDefeat]
+                    break;
+                case FrontlineGameSessionState.RouteUnavailable:
+                    @L[ResourceKeys.Games.FrontlineRouteUnavailable]
+                    break;
+            }
+        </div>
+    }
+
+    <div class="frontline-game-layout">
+        <FrontlineBoard Level="@Session.Level"
+                        Simulation="@Session.Simulation"
+                        IsPlacementEnabled="@(_selectedBuildTower is not null && Session.State == FrontlineGameSessionState.Playing)"
+                        SelectedTowerId="@_selectedTowerId"
+                        CellSelected="@OnCellSelected"
+                        TowerSelected="@OnTowerSelected" />
+
+        <aside class="frontline-game-panel">
+            <section class="frontline-game-panel-section">
+                <h2>@L[ResourceKeys.Games.FrontlineBuildTower]</h2>
+                <div class="frontline-tower-list">
+                    @foreach (var tower in AvailableTowers)
+                    {
+                        <button @key="tower.Id"
+                                type="button"
+                                class="@GetBuildButtonClass(tower.Id)"
+                                disabled="@(Session.State != FrontlineGameSessionState.Playing || Session.Simulation.Funds < tower.BuildCost)"
+                                @onclick="() => SelectBuildTower(tower)">
+                            <span>@L[GetTowerNameKey(tower.Id)]</span>
+                            <strong>@tower.BuildCost</strong>
+                        </button>
+                    }
+                </div>
+            </section>
+
+            @if (AvailableSupportTowers.Count > 0)
+            {
+                <section class="frontline-game-panel-section">
+                    <h2>@L[ResourceKeys.Games.FrontlineSupportTowers]</h2>
+                    <div class="frontline-tower-list">
+                        @foreach (var tower in AvailableSupportTowers)
+                        {
+                            <button @key="tower.Id"
+                                    type="button"
+                                    class="@GetBuildButtonClass(tower.Id)"
+                                    disabled="@(Session.State != FrontlineGameSessionState.Playing)"
+                                    @onclick="() => SelectBuildTower(tower)">
+                                <span>@L[GetTowerNameKey(tower.Id)]</span>
+                                <strong>@tower.BuildCost</strong>
+                            </button>
+                        }
+                    </div>
+                </section>
+            }
+
+            @if (SelectedTower is not null)
+            {
+                <section class="frontline-game-panel-section">
+                    <h2>@L[GetTowerNameKey(SelectedTower.Definition.Id)]</h2>
+                    @if (SelectedTower.Definition.IsSupport)
+                    {
+                        <p class="mb-0 text-muted">
+                            @L[ResourceKeys.Games.FrontlineSupportShotsRemaining, Math.Max(0, SelectedTower.Definition.ShotLimit - SelectedTower.ShotsFired)]
+                        </p>
+                    }
+                    else
+                    {
+                    <div class="frontline-tower-actions">
+                        <button type="button"
+                                class="btn btn-outline-primary"
+                                disabled="@(!CanUpgrade(SelectedTower.DamageUpgradeLevel))"
+                                @onclick="UpgradeDamage">
+                            @L[ResourceKeys.Games.FrontlineUpgradeDamage]
+                            <span>@UpgradeCost</span>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-primary"
+                                disabled="@(!CanUpgrade(SelectedTower.RangeUpgradeLevel))"
+                                @onclick="UpgradeRange">
+                            @L[ResourceKeys.Games.FrontlineUpgradeRange]
+                            <span>@UpgradeCost</span>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-primary"
+                                disabled="@(!CanUpgrade(SelectedTower.RateOfFireUpgradeLevel))"
+                                @onclick="UpgradeRateOfFire">
+                            @L[ResourceKeys.Games.FrontlineUpgradeRateOfFire]
+                            <span>@UpgradeCost</span>
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-danger"
+                                disabled="@(Session.State != FrontlineGameSessionState.Playing)"
+                                @onclick="SellTower">
+                            @L[ResourceKeys.Games.FrontlineSellTower]
+                            <span>@Math.Floor(SelectedTower.SaleValue)</span>
+                        </button>
+                    </div>
+                    }
+                </section>
+            }
+        </aside>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public FrontlineGameSession Session { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback ExitRequested { get; set; }
+
+    private FrontlineTowerArchetype? _selectedBuildTower;
+    private long? _selectedTowerId;
+    private string _speedValue = "1";
+
+    private bool CanTogglePause =>
+        Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused;
+
+    private IReadOnlyList<FrontlineTowerArchetype> AvailableTowers =>
+        FrontlineTowerCatalog.Standard
+            .Where(tower => Session.Progress.IsTowerUnlocked(tower.UnlockIndex))
+            .ToArray();
+
+    private IReadOnlyList<FrontlineTowerArchetype> AvailableSupportTowers =>
+        FrontlineTowerCatalog.Support
+            .Where(tower => Session.Progress.IsTowerUnlocked(tower.UnlockIndex))
+            .ToArray();
+
+    private FrontlineTower? SelectedTower =>
+        _selectedTowerId is long id
+            ? Session.Simulation.Towers.FirstOrDefault(tower => tower.Id == id)
+            : null;
+
+    private int UpgradeCost =>
+        SelectedTower is null ? 0 : (int)Math.Floor(SelectedTower.Definition.Cost * 0.25);
+
+    private string GetBuildButtonClass(string towerId) =>
+        _selectedBuildTower?.Id == towerId
+            ? "frontline-tower-option frontline-tower-option--selected"
+            : "frontline-tower-option";
+
+    private static string GetTowerNameKey(string towerId) => towerId switch
+    {
+        "tower1" => ResourceKeys.Games.FrontlineTowerMissileLauncher,
+        "tower2" => ResourceKeys.Games.FrontlineTowerRifle,
+        "tower3" => ResourceKeys.Games.FrontlineTowerSniper,
+        "tower4" => ResourceKeys.Games.FrontlineTowerElectro,
+        "tower5" => ResourceKeys.Games.FrontlineTowerShotgun,
+        "tower6" => ResourceKeys.Games.FrontlineTowerParticleBeam,
+        "tower7" => ResourceKeys.Games.FrontlineTowerBioMortar,
+        "tower8" => ResourceKeys.Games.FrontlineTowerBioCannon,
+        "tower9" => ResourceKeys.Games.FrontlineTowerFlameThrower,
+        "tower10" => ResourceKeys.Games.FrontlineTowerMountedMachineGun,
+        "tower11" => ResourceKeys.Games.FrontlineTowerPlasmaCannon,
+        "suptower1" => ResourceKeys.Games.FrontlineNapalmStrike,
+        "suptower2" => ResourceKeys.Games.FrontlineBioChemicalStrike,
+        "suptower3" => ResourceKeys.Games.FrontlineSupportStrike,
+        _ => ResourceKeys.Games.FrontlineTowerRifle
+    };
+
+    private bool CanUpgrade(double level) =>
+        Session.State == FrontlineGameSessionState.Playing
+        && SelectedTower is not null
+        && !SelectedTower.Definition.IsSupport
+        && level < 1
+        && Session.Simulation.Funds >= UpgradeCost;
+
+    private void SelectBuildTower(FrontlineTowerArchetype tower)
+    {
+        _selectedBuildTower = tower;
+        _selectedTowerId = null;
+    }
+
+    private Task OnCellSelected(FrontlinePoint position)
+    {
+        if (_selectedBuildTower is not null
+            && Session.Simulation.TryBuildTower(_selectedBuildTower.CreateDefinition(), position))
+        {
+            _selectedBuildTower = null;
+        }
+
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnTowerSelected(long towerId)
+    {
+        _selectedBuildTower = null;
+        _selectedTowerId = towerId;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private void TogglePause()
+    {
+        if (Session.State == FrontlineGameSessionState.Paused)
+            Session.Resume();
+        else
+            Session.Pause();
+    }
+
+    private void StartNextWave() => Session.TryStartNextWave();
+
+    private void ChangeSpeed(ChangeEventArgs args)
+    {
+        if (double.TryParse(args.Value?.ToString(), out var multiplier)
+            && Session.SetSpeedMultiplier(multiplier))
+            _speedValue = multiplier.ToString("0");
+    }
+
+    private void UpgradeDamage() => Upgrade(FrontlineTowerUpgradeType.Damage);
+    private void UpgradeRange() => Upgrade(FrontlineTowerUpgradeType.Range);
+    private void UpgradeRateOfFire() => Upgrade(FrontlineTowerUpgradeType.RateOfFire);
+
+    private void Upgrade(FrontlineTowerUpgradeType type)
+    {
+        if (SelectedTower is not null)
+            Session.Simulation.TryUpgradeTower(SelectedTower.Id, type);
+    }
+
+    private void SellTower()
+    {
+        if (SelectedTower is not null && Session.Simulation.TrySellTower(SelectedTower.Id))
+            _selectedTowerId = null;
+    }
+}

@@ -1,0 +1,33 @@
+.frontline-game-shell {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+}
+
+.frontline-shell-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--rz-base-300);
+}
+
+.frontline-shell-tab {
+    padding: 0.65rem 0.9rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--rz-text-secondary-color);
+    font-weight: 600;
+}
+
+.frontline-shell-tab--active {
+    border-bottom-color: var(--rz-primary);
+    color: var(--rz-text-color);
+}
+
+.frontline-shell-loading {
+    display: grid;
+    min-height: 8rem;
+    place-items: center;
+    color: var(--rz-text-secondary-color);
+}

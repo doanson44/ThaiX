@@ -1,0 +1,114 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using System.Diagnostics
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@implements IAsyncDisposable
+@inject IStringLocalizer<SharedResource> L
+@inject FrontlinePlayerProgressStore ProgressStore
+
+@if (Session is not null)
+{
+    <FrontlineGameView Session="@Session" ExitRequested="@ExitRequested" />
+}
+else
+{
+    <div class="frontline-game-result" role="alert">
+        <p>@L[_sessionErrorKey]</p>
+        <button type="button" class="btn btn-outline-secondary" @onclick="() => ExitRequested.InvokeAsync()">
+            @L[ResourceKeys.Games.FrontlineBackToMissions]
+        </button>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public FrontlineLevelMapDefinition Level { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public FrontlineWaveSet WaveSet { get; set; } = default!;
+
+    [Parameter]
+    public FrontlinePlayerProgress? Progress { get; set; }
+
+    [Parameter]
+    public EventCallback ExitRequested { get; set; }
+
+    private readonly CancellationTokenSource _lifetime = new();
+    private Task? _gameLoop;
+    private FrontlineGameSession? Session;
+    private string _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var progress = Progress ?? await ProgressStore.LoadAsync(_lifetime.Token);
+
+        try
+        {
+            Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
+        }
+        catch (FrontlineLevelLockedException)
+        {
+            _sessionErrorKey = ResourceKeys.Games.FrontlineLevelLocked;
+            Session = null;
+        }
+        catch (FrontlineRouteUnavailableException)
+        {
+            _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
+            Session = null;
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Session is not null)
+            _gameLoop = RunGameLoopAsync(_lifetime.Token);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task RunGameLoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000d / 24d));
+        var stopwatch = Stopwatch.StartNew();
+        var previous = stopwatch.Elapsed;
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                var current = stopwatch.Elapsed;
+                var elapsedMilliseconds = (current - previous).TotalMilliseconds;
+                previous = current;
+
+                var previousState = Session?.State;
+                Session?.Advance(elapsedMilliseconds);
+
+                if (previousState != FrontlineGameSessionState.Victory
+                    && Session?.State == FrontlineGameSessionState.Victory)
+                    await ProgressStore.SaveAsync(Session.Progress, cancellationToken);
+
+                await InvokeAsync(StateHasChanged);
+
+                if (Session?.State is FrontlineGameSessionState.Victory
+                    or FrontlineGameSessionState.Defeat
+                    or FrontlineGameSessionState.RouteUnavailable)
+                    break;
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _lifetime.CancelAsync();
+
+        if (_gameLoop is not null)
+            await _gameLoop;
+
+        _lifetime.Dispose();
+    }
+}

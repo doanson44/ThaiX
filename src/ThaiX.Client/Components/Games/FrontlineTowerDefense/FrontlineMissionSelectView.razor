@@ -1,0 +1,70 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject IStringLocalizer<SharedResource> L
+
+<div class="frontline-mission-select">
+    <section class="frontline-mission-section">
+        <h2>@L[ResourceKeys.Games.FrontlineCampaign]</h2>
+        <div class="frontline-mission-grid">
+            @foreach (var level in FrontlineLevelMapCatalog.Campaign)
+            {
+                <article @key="level.Id" class="frontline-mission-card">
+                    <div class="frontline-mission-card__heading">
+                        <h3>@L[ResourceKeys.Games.FrontlineMission] @level.LevelNumber</h3>
+                        <span class="frontline-mission-card__score">
+                            @L[ResourceKeys.Games.FrontlineBestScore]
+                            <strong>@Progress.LevelScores[level.ProgressIndex]</strong>
+                        </span>
+                    </div>
+                    <button type="button"
+                            class="btn btn-primary"
+                            disabled="@(!Progress.IsLevelUnlocked(level.UnlockIndex))"
+                            @onclick="() => MissionSelected.InvokeAsync(level.Id)">
+                        @L[ResourceKeys.Games.FrontlinePlayMission]
+                    </button>
+                </article>
+            }
+        </div>
+    </section>
+
+    <section class="frontline-mission-section">
+        <h2>@L[ResourceKeys.Games.FrontlineBonusMissions]</h2>
+        <div class="frontline-mission-grid">
+            @foreach (var level in FrontlineLevelMapCatalog.Bonus)
+            {
+                <article @key="level.Id" class="frontline-mission-card">
+                    <div class="frontline-mission-card__heading">
+                        <h3>@L[GetBonusMissionNameKey(level.LevelNumber)]</h3>
+                        <span class="frontline-mission-card__score">
+                            @L[ResourceKeys.Games.FrontlineBestScore]
+                            <strong>@Progress.LevelScores[level.ProgressIndex]</strong>
+                        </span>
+                    </div>
+                    <button type="button"
+                            class="btn btn-primary"
+                            disabled="@(!Progress.IsLevelUnlocked(level.UnlockIndex))"
+                            @onclick="() => MissionSelected.InvokeAsync(level.Id)">
+                        @L[ResourceKeys.Games.FrontlinePlayMission]
+                    </button>
+                </article>
+            }
+        </div>
+    </section>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public FrontlinePlayerProgress Progress { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<string> MissionSelected { get; set; }
+
+    private static string GetBonusMissionNameKey(int missionNumber) => missionNumber switch
+    {
+        1 => ResourceKeys.Games.FrontlineSniperMission1,
+        2 => ResourceKeys.Games.FrontlineSniperMission2,
+        3 => ResourceKeys.Games.FrontlineSniperMission3,
+        4 => ResourceKeys.Games.FrontlineSniperMission4,
+        _ => ResourceKeys.Games.FrontlineBonusMissions
+    };
+}
