@@ -329,7 +329,7 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var cell = ToGridCell(position);
-        if (cell == tower.Cell || _towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
+        if (_towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
             || (LevelMap is not null && !LevelMap.IsBuildable(cell)))
             return false;
 
@@ -379,7 +379,7 @@ public sealed class FrontlineGameSimulation
     }
 
     private static FrontlineGridPoint ToGridCell(FrontlinePoint position) =>
-        new((int)Math.Floor(position.X / FrontlinePath.DefaultGridCellSize),
+        new((int)Math.Floor(Math.Min(position.X, 640) / FrontlinePath.DefaultGridCellSize),
             (int)Math.Floor(position.Y / FrontlinePath.DefaultGridCellSize));
 
     private static FrontlinePoint ToCellCenter(FrontlineGridPoint cell) =>
