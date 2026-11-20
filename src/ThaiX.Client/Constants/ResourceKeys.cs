@@ -187,6 +187,12 @@ public static class ResourceKeys
         public const string FrontlineSniperMission2 = "Games.FrontlineTowerDefense.SniperMission2";
         public const string FrontlineSniperMission3 = "Games.FrontlineTowerDefense.SniperMission3";
         public const string FrontlineSniperMission4 = "Games.FrontlineTowerDefense.SniperMission4";
+        public const string FrontlineCampaign = "Games.FrontlineTowerDefense.Campaign";
+        public const string FrontlineBonusMissions = "Games.FrontlineTowerDefense.BonusMissions";
+        public const string FrontlineMission = "Games.FrontlineTowerDefense.Mission";
+        public const string FrontlinePlayMission = "Games.FrontlineTowerDefense.PlayMission";
+        public const string FrontlineBestScore = "Games.FrontlineTowerDefense.BestScore";
+        public const string FrontlineBackToMissions = "Games.FrontlineTowerDefense.BackToMissions";
         public const string FrontlineTowerMissileLauncher = "Games.FrontlineTowerDefense.Tower.MissileLauncher";
         public const string FrontlineTowerRifle = "Games.FrontlineTowerDefense.Tower.Rifle";
         public const string FrontlineTowerSniper = "Games.FrontlineTowerDefense.Tower.Sniper";
