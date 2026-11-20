@@ -71,6 +71,38 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenRifleTargetsInfantry_AppliesDirectAndBurnDamage()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var rifle = FrontlineTowerCatalog.Find("tower2")!;
+        simulation.TryBuildTower(rifle.CreateDefinition(), new FrontlinePoint(50, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.1, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(34);
+        simulation.Advance(34);
+
+        enemy.Health.Should().Be(90);
+        enemy.CoreTemperature.Should().Be(37);
+    }
+
+    [Fact]
+    public void Advance_WhenRifleTargetsMetalEnemy_UsesReducedDirectDamageAndMetalBurn()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var rifle = FrontlineTowerCatalog.Find("tower2")!;
+        simulation.TryBuildTower(rifle.CreateDefinition(), new FrontlinePoint(50, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("metal", 100, 0.1, 10, IsMetal: true));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(34);
+        simulation.Advance(34);
+
+        enemy.Health.Should().Be(95);
+        enemy.CoreTemperature.Should().Be(205);
+    }
+
+    [Fact]
     public void Advance_WhenNapalmSupportStrikeFires_AppliesAreaDamageAndExpiresAfterSixShots()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
