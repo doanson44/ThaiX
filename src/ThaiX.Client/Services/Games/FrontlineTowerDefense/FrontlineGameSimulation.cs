@@ -104,6 +104,10 @@ public sealed class FrontlineEnemy
         Definition = definition;
         Path = path;
         Health = definition.Health;
+        CoreTemperature = definition.IsMetal ? 200 : 35;
+        BaseTemperature = definition.IsMetal ? 200 : 35;
+        UpperTemperature = definition.IsMetal ? 500 : 200;
+        LowerTemperature = definition.IsMetal ? 0 : -200;
     }
 
     public long Id { get; }
@@ -111,7 +115,10 @@ public sealed class FrontlineEnemy
     public FrontlinePath Path { get; }
     public double Health { get; internal set; }
     public double Distance { get; internal set; }
-    public double CoreTemperature { get; private set; } = 35;
+    public double CoreTemperature { get; private set; }
+    public double BaseTemperature { get; }
+    public double UpperTemperature { get; }
+    public double LowerTemperature { get; }
     public double BurnDuration { get; private set; }
     public double RadiationDuration { get; private set; }
     public double PoisonDuration { get; private set; }
@@ -129,10 +136,10 @@ public sealed class FrontlineEnemy
         PoisonDuration += damage.Poison * Definition.PoisonResistance;
         CoreTemperature -= damage.Freeze * Definition.ColdResistance;
 
-        if (CoreTemperature > 200)
+        if (CoreTemperature > UpperTemperature)
             BurnDuration = CoreTemperature;
 
-        if (CoreTemperature < -200)
+        if (CoreTemperature < LowerTemperature)
         {
             FreezeDuration = Math.Abs(CoreTemperature * 0.2);
             IsFrozen = true;
@@ -141,9 +148,9 @@ public sealed class FrontlineEnemy
 
     internal void AdvanceEffects()
     {
-        CoreTemperature = CoreTemperature > 35
-            ? Math.Max(35, CoreTemperature - 0.02)
-            : Math.Min(35, CoreTemperature + 0.02);
+        CoreTemperature = CoreTemperature > BaseTemperature
+            ? Math.Max(BaseTemperature, CoreTemperature - 0.02)
+            : Math.Min(BaseTemperature, CoreTemperature + 0.02);
 
         if (BurnDuration > 0)
         {
