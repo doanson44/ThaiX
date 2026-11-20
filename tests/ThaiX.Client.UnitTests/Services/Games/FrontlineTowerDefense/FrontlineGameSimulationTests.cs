@@ -173,6 +173,32 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenBioCannonIsDamageUpgraded_ScalesPoisonWithDirectDamage()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 600);
+        var bioCannon = FrontlineTowerCatalog.Find("tower8")!;
+        simulation.TryBuildTower(bioCannon.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.TryUpgradeTower(tower.Id, FrontlineTowerUpgradeType.Damage).Should().BeTrue();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(34);
+        for (var tick = 0; tick < 3; tick++)
+            simulation.Advance();
+
+        enemy.Health.Should().BeApproximately(485.6, 0.001);
+        enemy.PoisonDuration.Should().BeApproximately(72, 0.001);
+    }
+
+    [Fact]
     public void Advance_WhenFlameThrowerFires_TracksTargetAndAppliesBurn()
     {
         var path = new FrontlinePath(
