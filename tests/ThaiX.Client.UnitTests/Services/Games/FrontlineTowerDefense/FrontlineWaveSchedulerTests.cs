@@ -44,6 +44,20 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void VerifiedMetalEnemy_UsesLegacyMetalRewardAndTemperature()
+    {
+        var enemy = FrontlineEnemyCatalog.Verified.Single(item => item.Id == "enemy5");
+        var definition = enemy.CreateDefinition(1);
+        var simulation = new FrontlineGameSimulation(
+            new FrontlinePath([new FrontlinePoint(0, 0), new FrontlinePoint(100, 0)]),
+            0);
+        simulation.SpawnEnemy(definition);
+
+        simulation.Enemies.Single().CoreTemperature.Should().Be(200);
+        definition.Reward.Should().Be(20);
+    }
+
+    [Fact]
     public void HealthForWave_AppliesTenPercentPerWaveScaling()
     {
         var enemy = FrontlineEnemyCatalog.Verified.Single(item => item.Id == "enemy1");
