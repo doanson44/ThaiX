@@ -8,11 +8,14 @@ public sealed record FrontlineWaveGroup(
 
 public sealed record FrontlineWaveSchedule(IReadOnlyList<FrontlineWaveGroup> Groups);
 
+public sealed record FrontlineSpawnRequest(string EnemyType, int WaveNumber);
+
 public sealed class FrontlineWaveScheduler
 {
-    private sealed class ActiveSpawner(FrontlineWaveGroup group)
+    private sealed class ActiveSpawner(FrontlineWaveGroup group, int waveNumber)
     {
         public FrontlineWaveGroup Group { get; } = group;
+        public int WaveNumber { get; } = waveNumber;
         public int Remaining { get; set; } = group.Count;
         public double ElapsedUnits { get; set; }
     }
@@ -40,7 +43,7 @@ public sealed class FrontlineWaveScheduler
     public bool AllGroupsDispatched { get; private set; }
     public bool IsComplete { get; private set; }
 
-    public IReadOnlyList<string> Advance(double elapsedUnits, bool enemiesRemain)
+    public IReadOnlyList<FrontlineSpawnRequest> Advance(double elapsedUnits, bool enemiesRemain)
     {
         if (elapsedUnits < 0 || double.IsNaN(elapsedUnits) || double.IsInfinity(elapsedUnits))
             throw new ArgumentOutOfRangeException(nameof(elapsedUnits));
@@ -48,7 +51,7 @@ public sealed class FrontlineWaveScheduler
         if (IsComplete)
             return [];
 
-        var spawned = new List<string>();
+        var spawned = new List<FrontlineSpawnRequest>();
 
         for (var index = 0; index < _activeSpawners.Count;)
         {
@@ -64,7 +67,7 @@ public sealed class FrontlineWaveScheduler
             {
                 spawner.ElapsedUnits = 0;
                 spawner.Remaining--;
-                spawned.Add(spawner.Group.EnemyType);
+                spawned.Add(new FrontlineSpawnRequest(spawner.Group.EnemyType, spawner.WaveNumber));
             }
 
             index++;
@@ -78,7 +81,7 @@ public sealed class FrontlineWaveScheduler
                 if (_pendingGroups.TryDequeue(out var nextGroup))
                 {
                     CurrentGroup++;
-                    _activeSpawners.Add(new ActiveSpawner(nextGroup));
+                    _activeSpawners.Add(new ActiveSpawner(nextGroup, CurrentGroup));
                     _nextGroupCountdownUnits = nextGroup.DelayAfterUnits * 2;
                 }
                 else
