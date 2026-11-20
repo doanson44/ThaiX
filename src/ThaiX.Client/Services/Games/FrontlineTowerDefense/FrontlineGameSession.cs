@@ -56,7 +56,8 @@ public sealed class FrontlineGameSession
         Simulation = new FrontlineGameSimulation(
             _reservedInitialRoute.Path,
             progress.StartingFunds,
-            levelMap: level);
+            levelMap: level,
+            random: random);
         _waveScheduler = new FrontlineWaveScheduler(waveSet.ToSchedule());
         State = FrontlineGameSessionState.Playing;
     }
