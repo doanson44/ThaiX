@@ -75,12 +75,12 @@
     }
 
     <div class="frontline-game-layout">
-        <FrontlineBoard Level="Session.Level"
-                        Simulation="Session.Simulation"
+        <FrontlineBoard Level="@Session.Level"
+                        Simulation="@Session.Simulation"
                         IsPlacementEnabled="@(_selectedBuildTower is not null && Session.State == FrontlineGameSessionState.Playing)"
-                        SelectedTowerId="_selectedTowerId"
-                        CellSelected="OnCellSelected"
-                        TowerSelected="OnTowerSelected" />
+                        SelectedTowerId="@_selectedTowerId"
+                        CellSelected="@OnCellSelected"
+                        TowerSelected="@OnTowerSelected" />
 
         <aside class="frontline-game-panel">
             <section class="frontline-game-panel-section">
