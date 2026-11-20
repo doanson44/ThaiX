@@ -635,6 +635,13 @@ public sealed class FrontlineGameSimulation
         if (tower.Loading < 100)
             return;
 
+        if (tower.Definition.Id == "tower1" && target.CoreTemperature <= 60)
+        {
+            target = FindTarget(tower);
+            tower.TargetId = target?.Id;
+            return;
+        }
+
         var baseProfile = target.Definition.IsMetal
             ? tower.Definition.MetalDamageProfile
             : tower.Definition.DamageProfile;
