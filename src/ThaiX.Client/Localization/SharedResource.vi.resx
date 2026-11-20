@@ -2231,6 +2231,12 @@
   <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 2</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 3</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission4" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 4</value></data>
+  <data name="Games.FrontlineTowerDefense.Campaign" xml:space="preserve"><value>Chiến dịch</value></data>
+  <data name="Games.FrontlineTowerDefense.BonusMissions" xml:space="preserve"><value>Nhiệm vụ thưởng</value></data>
+  <data name="Games.FrontlineTowerDefense.Mission" xml:space="preserve"><value>Nhiệm vụ</value></data>
+  <data name="Games.FrontlineTowerDefense.PlayMission" xml:space="preserve"><value>Chơi nhiệm vụ</value></data>
+  <data name="Games.FrontlineTowerDefense.BestScore" xml:space="preserve"><value>Điểm cao nhất</value></data>
+  <data name="Games.FrontlineTowerDefense.BackToMissions" xml:space="preserve"><value>Quay lại danh sách nhiệm vụ</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Bệ phóng tên lửa</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Tháp súng trường</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Tháp bắn tỉa</value></data>
