@@ -45,7 +45,9 @@ public sealed class FrontlineWaveSchedulerTests
         scheduler.ActiveSpawnerCount.Should().Be(2);
         var spawned = scheduler.Advance(100, enemiesRemain: false);
 
-        spawned.Should().BeEquivalentTo("enemy1", "enemy2");
+        spawned.Select(request => request.EnemyType).Should().BeEquivalentTo("enemy1", "enemy2");
+        spawned.Single(request => request.EnemyType == "enemy1").WaveNumber.Should().Be(1);
+        spawned.Single(request => request.EnemyType == "enemy2").WaveNumber.Should().Be(2);
     }
 
     [Fact]
@@ -67,7 +69,7 @@ public sealed class FrontlineWaveSchedulerTests
 
         var spawned = scheduler.Advance(15, enemiesRemain: false);
 
-        spawned.Should().ContainSingle().Which.Should().Be("enemy3");
+        spawned.Should().ContainSingle().Which.EnemyType.Should().Be("enemy3");
     }
 
     [Fact]
