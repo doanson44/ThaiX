@@ -93,6 +93,8 @@
     <p class="frontline-sniper-hint">@L[ResourceKeys.Games.FrontlineSniperHint]</p>
     <FrontlineBoard Level="@Session.Level"
                     Simulation="@Session.Simulation"
+                    IsPlacementEnabled="@Session.CanFire"
+                    CellSelected="ShootAt"
                     EnemySelectionEnabled="@Session.CanFire"
                     EnemySelected="ShootEnemy" />
 </div>
@@ -117,6 +119,12 @@
         4 => ResourceKeys.Games.FrontlineSniperMission4,
         _ => ResourceKeys.Games.FrontlineBonusMissions
     };
+
+    private Task ShootAt(FrontlinePoint aim)
+    {
+        Session.FireAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
 
     private Task ShootEnemy(long enemyId)
     {
