@@ -159,6 +159,9 @@ public sealed class FrontlineGameSessionTests
         session.ShotsFired.Should().Be(1);
         session.Hits.Should().Be(0);
         session.Simulation.Funds.Should().Be(499);
+        session.Simulation.CombatTraces.Should().ContainSingle()
+            .Which.Kind.Should().Be(FrontlineCombatTraceKind.Sniper);
+        session.Simulation.CombatTraces.Single().End.Should().Be(new FrontlinePoint(500, 400));
     }
 
     [Fact]
