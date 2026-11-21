@@ -222,6 +222,7 @@ public sealed class FrontlineGameSessionTests
         session.Simulation.Funds.Should().Be(-1);
 
         session.Advance(500);
+        session.CanFire.Should().BeFalse();
         session.FireAt(new FrontlinePoint(100, 100)).Should().BeFalse();
         session.ShotsFired.Should().Be(1);
     }
