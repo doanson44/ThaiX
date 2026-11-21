@@ -192,18 +192,12 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
-    public void ShooterPosition_BonusMissionThree_UsesAuthoredManualTowerPosition()
+    public void GetShooterPosition_BonusMissionThree_ReturnsAuthoredManualTowerPosition()
     {
         var level = FrontlineLevelMapCatalog.Find("bonus-03")!;
-        var progress = FrontlinePlayerProgress.CreateNew();
-        progress.UnlockLevel(level.UnlockIndex);
-        var session = new FrontlineSniperMissionSession(
-            level,
-            FrontlineWaveCatalog.Find(level.Id)!,
-            progress,
-            new Random(42));
 
-        session.ShooterPosition.Should().Be(new FrontlinePoint(302, 102));
+        FrontlineSniperMissionSession.GetShooterPosition(level)
+            .Should().Be(new FrontlinePoint(302, 102));
     }
 
     [Fact]
