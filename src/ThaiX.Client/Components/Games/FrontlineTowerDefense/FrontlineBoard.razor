@@ -36,6 +36,22 @@
               aria-hidden="true"></span>
     }
 
+    @if (ManualShooterPosition is FrontlinePoint shooterPosition)
+    {
+        <div class="frontline-board__manual-shooter"
+             style="@GetPositionStyle(shooterPosition)"
+             aria-hidden="true">
+            <svg viewBox="0 0 32 32">
+                <circle cx="16" cy="17" r="13" class="frontline-board__manual-shooter-base" />
+                <g transform="@GetManualTurretTransform(shooterPosition)">
+                    <path d="M14 16V2h4v14z" class="frontline-board__manual-shooter-barrel" />
+                    <path d="M11 13h10v7H11z" class="frontline-board__manual-shooter-body" />
+                </g>
+                <circle cx="16" cy="17" r="3" class="frontline-board__manual-shooter-core" />
+            </svg>
+        </div>
+    }
+
     <svg class="frontline-board__projectiles"
          viewBox="0 0 672 480"
          preserveAspectRatio="none"
@@ -256,6 +272,12 @@
     [Parameter]
     public bool EnemySelectionEnabled { get; set; } = true;
 
+    [Parameter]
+    public FrontlinePoint? ManualShooterPosition { get; set; }
+
+    [Parameter]
+    public FrontlinePoint? ManualShooterAim { get; set; }
+
     private static string GetCellClass(bool isPath, bool isBlocked)
     {
         if (isPath)
@@ -302,6 +324,17 @@
         var angle = Math.Atan2(
             target.Position.Y - tower.Position.Y,
             target.Position.X - tower.Position.X) * 180 / Math.PI + 90;
+        return FormattableString.Invariant($"rotate({angle:0.##} 16 16)");
+    }
+
+    private string GetManualTurretTransform(FrontlinePoint shooterPosition)
+    {
+        if (ManualShooterAim is not FrontlinePoint aim)
+            return "rotate(0 16 16)";
+
+        var angle = Math.Atan2(
+            aim.Y - shooterPosition.Y,
+            aim.X - shooterPosition.X) * 180 / Math.PI + 90;
         return FormattableString.Invariant($"rotate({angle:0.##} 16 16)");
     }
 
