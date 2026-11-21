@@ -34,10 +34,16 @@ public sealed class FrontlineSniperMissionSession
     public int ShotsFired { get; private set; }
     public int Hits { get; private set; }
     public bool CanFire => _canFire;
-    public FrontlinePoint ShooterPosition => Level.LevelNumber == 3
-        ? new FrontlinePoint(302, 102)
-        : new FrontlinePoint(560, 240);
+    public FrontlinePoint ShooterPosition => GetShooterPosition(Level);
     public FrontlinePoint? LastAim { get; private set; }
+
+    public static FrontlinePoint GetShooterPosition(FrontlineLevelMapDefinition level)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        return level.LevelNumber == 3
+            ? new FrontlinePoint(302, 102)
+            : new FrontlinePoint(560, 240);
+    }
 
     public void Pause() => _gameSession.Pause();
 
