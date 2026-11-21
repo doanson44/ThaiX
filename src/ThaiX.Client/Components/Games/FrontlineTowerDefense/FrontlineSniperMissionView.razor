@@ -97,7 +97,9 @@
                     AllowNonBuildableSelection="true"
                     CellSelected="ShootAt"
                     EnemySelectionEnabled="@Session.CanFire"
-                    EnemySelected="ShootEnemy" />
+                    EnemySelected="ShootEnemy"
+                    ManualShooterPosition="@Session.ShooterPosition"
+                    ManualShooterAim="@Session.LastAim" />
 </div>
 
 @code {
