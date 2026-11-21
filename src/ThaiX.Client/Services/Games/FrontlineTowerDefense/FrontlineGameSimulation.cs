@@ -371,6 +371,23 @@ public sealed class FrontlineGameSimulation
     public int ActiveSupportProjectileCount => _supportProjectiles.Count;
     public int ActiveAreaEffectCount => _areaEffects.Count;
 
+    internal void AddCombatTrace(
+        FrontlinePoint start,
+        FrontlinePoint end,
+        FrontlineCombatTraceKind kind,
+        double life)
+    {
+        if (!double.IsFinite(start.X)
+            || !double.IsFinite(start.Y)
+            || !double.IsFinite(end.X)
+            || !double.IsFinite(end.Y)
+            || !double.IsFinite(life)
+            || life <= 0)
+            return;
+
+        _combatTraces.Add(new FrontlineCombatTrace(start, end, kind, life));
+    }
+
     public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position)
     {
         ArgumentNullException.ThrowIfNull(definition);
