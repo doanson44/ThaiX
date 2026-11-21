@@ -65,7 +65,7 @@ public sealed class FrontlineSniperMissionSession
                 elapsedMilliseconds * 0.08 * _gameSession.SpeedMultiplier,
                 8);
             _loading += 8 * elapsedUnits;
-            if (_loading >= 100)
+            if (_loading >= 100 && Simulation.Funds >= 0)
                 _canFire = true;
         }
 
