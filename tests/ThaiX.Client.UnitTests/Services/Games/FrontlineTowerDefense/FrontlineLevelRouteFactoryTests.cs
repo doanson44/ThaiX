@@ -40,6 +40,28 @@ public sealed class FrontlineLevelRouteFactoryTests
     }
 
     [Fact]
+    public void TryCreateRandomRoute_AllMaps_OnlySourceConnectedMapsReturnRoutes()
+    {
+        var reachableMapIds = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "level-01",
+            "bonus-01",
+            "bonus-04"
+        };
+
+        foreach (var level in FrontlineLevelMapCatalog.All)
+        {
+            var created = _factory.TryCreateRandomRoute(level, new Random(42), out var route);
+
+            created.Should().Be(reachableMapIds.Contains(level.Id));
+            if (created)
+                route.Should().NotBeNull();
+            else
+                route.Should().BeNull();
+        }
+    }
+
+    [Fact]
     public void TryCreateRandomRoute_LevelWithoutPath_ReturnsFalse()
     {
         var level = FrontlineLevelMapCatalog.Find("level-08")!;
