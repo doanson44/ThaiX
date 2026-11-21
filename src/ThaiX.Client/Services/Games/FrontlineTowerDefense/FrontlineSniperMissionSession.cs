@@ -2,7 +2,9 @@ namespace ThaiX.Client.Services.Games.FrontlineTowerDefense;
 
 public sealed class FrontlineSniperMissionSession
 {
-    private const double HitRadius = 8.5;
+    private const double EnemyHitRadiusSquared = 8 * 8 * 2;
+    private const int AimSampleCount = 10;
+    private const double AimSampleSpacing = 5;
     private readonly FrontlineGameSession _gameSession;
     private double _loading;
     private bool _canFire;
@@ -32,6 +34,10 @@ public sealed class FrontlineSniperMissionSession
     public int ShotsFired { get; private set; }
     public int Hits { get; private set; }
     public bool CanFire => _canFire;
+    public FrontlinePoint ShooterPosition => Level.LevelNumber == 3
+        ? new FrontlinePoint(302, 102)
+        : new FrontlinePoint(560, 240);
+    public FrontlinePoint? LastAim { get; private set; }
 
     public void Pause() => _gameSession.Pause();
 
@@ -71,14 +77,36 @@ public sealed class FrontlineSniperMissionSession
 
         ShotsFired++;
         _canFire = false;
-        var target = Simulation.Enemies
-            .Where(enemy => Math.Hypot(
-                enemy.Position.X - aim.X,
-                enemy.Position.Y - aim.Y) <= HitRadius)
-            .OrderBy(enemy => Math.Hypot(
-                enemy.Position.X - aim.X,
-                enemy.Position.Y - aim.Y))
-            .FirstOrDefault();
+        LastAim = aim;
+
+        var deltaX = aim.X - ShooterPosition.X;
+        var deltaY = aim.Y - ShooterPosition.Y;
+        var distance = Math.Hypot(deltaX, deltaY);
+        FrontlineEnemy? target = null;
+
+        if (distance > 0)
+        {
+            var stepX = deltaX / distance * AimSampleSpacing;
+            var stepY = deltaY / distance * AimSampleSpacing;
+            var sampleX = aim.X;
+            var sampleY = aim.Y;
+
+            for (var sample = 0; sample < AimSampleCount; sample++)
+            {
+                target = Simulation.Enemies.FirstOrDefault(enemy =>
+                {
+                    var offsetX = enemy.Position.X - sampleX;
+                    var offsetY = enemy.Position.Y - sampleY;
+                    return offsetX * offsetX + offsetY * offsetY <= EnemyHitRadiusSquared;
+                });
+
+                if (target is not null)
+                    break;
+
+                sampleX -= stepX;
+                sampleY -= stepY;
+            }
+        }
 
         if (target is null)
             return true;
