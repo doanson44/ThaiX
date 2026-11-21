@@ -162,6 +162,51 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void FireAt_WhenEnemyIsWithinSourceAimSamplingWindow_HitsEnemy()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(521, 240),
+            new FrontlinePoint(721, 240)
+        ]);
+        session.Simulation.SpawnEnemy(
+            new FrontlineEnemyDefinition("infantry", 500, 0.1, 10),
+            path);
+        var enemy = session.Simulation.Enemies.Single();
+        session.Advance(500);
+        session.Advance(500);
+
+        var fired = session.FireAt(new FrontlinePoint(510, 240));
+
+        fired.Should().BeTrue();
+        session.Hits.Should().Be(1);
+        enemy.Health.Should().Be(200);
+    }
+
+    [Fact]
+    public void ShooterPosition_BonusMissionThree_UsesAuthoredManualTowerPosition()
+    {
+        var level = FrontlineLevelMapCatalog.Find("bonus-03")!;
+        var progress = FrontlinePlayerProgress.CreateNew();
+        progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineSniperMissionSession(
+            level,
+            FrontlineWaveCatalog.Find(level.Id)!,
+            progress,
+            new Random(42));
+
+        session.ShooterPosition.Should().Be(new FrontlinePoint(302, 102));
+    }
+
+    [Fact]
     public void FireAt_WhenFundsReachZero_AllowsOneFinalShot()
     {
         var level = FrontlineLevelMapCatalog.Find("bonus-01")!;
