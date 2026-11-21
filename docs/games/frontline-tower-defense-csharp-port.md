@@ -41,7 +41,11 @@ enemy behavior, temperature thresholds, and freeze/unfreeze state. Enemy pathing
 allowed only when both adjacent orthogonal cells are walkable. Start and end cells are selected
 randomly from each level's authored endpoints. Tower selection supports near, far, strong,
 weak, heat and cold targeting modes. The runtime registers 11 standard tower types, 3 support
-types, and 13 enemy types including infantry, vehicles and a bot.
+types, and 13 enemy types including infantry, vehicles and a bot. The manual Sniper Tower uses
+an authored per-mission origin, charges at RoF 8 until its meter reaches 100, and samples ten
+points along the last 45 pixels of the cursor-to-shooter ray at 5-pixel intervals. Its source
+hit test uses an 8-pixel enemy radius on both axes (squared threshold 128), with 300 damage and
+Burn 2 for infantry, or half damage and Burn 5 for metal targets.
 
 The inspected Electro Tower implementation damages one selected target and creates a single lightning-beam effect; no multi-target chain-damage loop was found in its Fire method. The C# port therefore models a single-target lightning trace rather than inventing chain damage.
 
@@ -141,7 +145,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Add localized War-Mart purchase UI and save progression back to the original Frontline browser key.
 - [x] Add standard tower projectile simulation for homing missiles, ballistic shells, tracking bio shots, and tracking flame shots; add splash impacts and transient hitscan/weapon traces.
 - [x] Port mission completion score and credit rewards using the original health/funds/score formula.
-- [x] Add a separate Sniper Elite session and view with manual target selection, shot cost, firing cadence, metal damage, and hit/miss tracking.
+- [x] Add a separate Sniper Elite session and view with source-style 10-point ray sampling, per-mission shooter origin, manual turret artwork, shot cost, firing cadence, metal damage, and hit/miss tracking.
 - [ ] Verify Sniper Elite parity and route availability for all four bonus missions; only bonus missions 1 and 4 have reachable routes in the verified source map data.
 - [ ] Verify all projectile collision radii, random launch drift, firing timing, and status payloads against recorded runtime scenarios.
 
