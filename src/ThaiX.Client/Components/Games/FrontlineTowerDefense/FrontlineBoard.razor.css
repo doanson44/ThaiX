@@ -559,3 +559,47 @@
     fill: #cbd5e1;
     stroke: #1e293b;
 }
+
+
+.frontline-board__manual-shooter {
+    position: absolute;
+    z-index: 5;
+    display: grid;
+    width: clamp(1.15rem, 3.2vw, 1.9rem);
+    aspect-ratio: 1;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    filter: drop-shadow(0 1px 4px rgb(0 0 0 / 70%));
+}
+
+.frontline-board__manual-shooter svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.frontline-board__manual-shooter-base {
+    fill: #334155;
+    stroke: #e2e8f0;
+    stroke-width: 1.5;
+}
+
+.frontline-board__manual-shooter-barrel {
+    fill: #facc15;
+    stroke: #fef3c7;
+    stroke-width: 0.8;
+}
+
+.frontline-board__manual-shooter-body {
+    fill: #64748b;
+    stroke: #f8fafc;
+    stroke-width: 1;
+}
+
+.frontline-board__manual-shooter-core {
+    fill: #fef08a;
+    stroke: #713f12;
+    stroke-width: 0.8;
+}
