@@ -362,6 +362,7 @@
     private static string GetTraceStyle(FrontlineCombatTrace trace) =>
         trace.Kind switch
         {
+            FrontlineCombatTraceKind.Sniper => "sniper",
             FrontlineCombatTraceKind.Lightning => "lightning",
             FrontlineCombatTraceKind.Shotgun => "shotgun",
             FrontlineCombatTraceKind.EnergyBeam => "beam",
