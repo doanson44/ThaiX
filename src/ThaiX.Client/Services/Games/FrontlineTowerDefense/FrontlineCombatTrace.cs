@@ -3,6 +3,7 @@ namespace ThaiX.Client.Services.Games.FrontlineTowerDefense;
 public enum FrontlineCombatTraceKind
 {
     Bullet,
+    Sniper,
     Shotgun,
     Lightning,
     EnergyBeam
