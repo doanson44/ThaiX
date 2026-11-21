@@ -96,9 +96,12 @@ public sealed class FrontlineProjectile
         var distance = Math.Hypot(
             target.Position.X - Position.X,
             target.Position.Y - Position.Y);
+        const double targetCollisionRadius = 8;
         var collisionDistance = Profile.Kind == FrontlineProjectileKind.HomingMissile
             ? Profile.CollisionRadius
-            : Math.Sqrt(Profile.CollisionRadius * Profile.CollisionRadius + 36);
+            : Math.Sqrt(
+                Profile.CollisionRadius * Profile.CollisionRadius
+                + targetCollisionRadius * targetCollisionRadius);
 
         return distance <= collisionDistance;
     }
