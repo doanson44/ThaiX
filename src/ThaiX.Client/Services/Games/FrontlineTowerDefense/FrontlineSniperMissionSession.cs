@@ -92,10 +92,13 @@ public sealed class FrontlineSniperMissionSession
 
         if (distance > 0)
         {
-            var stepX = deltaX / distance * AimSampleSpacing;
-            var stepY = deltaY / distance * AimSampleSpacing;
+            var directionX = deltaX / distance;
+            var directionY = deltaY / distance;
+            var stepX = directionX * AimSampleSpacing;
+            var stepY = directionY * AimSampleSpacing;
             var sampleX = aim.X;
             var sampleY = aim.Y;
+            var traceEnd = aim;
 
             for (var sample = 0; sample < AimSampleCount; sample++)
             {
@@ -107,11 +110,25 @@ public sealed class FrontlineSniperMissionSession
                 });
 
                 if (target is not null)
+                {
+                    traceEnd = new FrontlinePoint(sampleX - stepX, sampleY - stepY);
                     break;
+                }
 
                 sampleX -= stepX;
                 sampleY -= stepY;
             }
+
+            var muzzleVelocityX = directionX * 20;
+            var muzzleVelocityY = directionY * 20;
+            var traceStart = new FrontlinePoint(
+                ShooterPosition.X + muzzleVelocityX - muzzleVelocityY * 0.1,
+                ShooterPosition.Y + muzzleVelocityY - 25 + muzzleVelocityX * 0.1);
+            Simulation.AddCombatTrace(
+                traceStart,
+                traceEnd,
+                FrontlineCombatTraceKind.Sniper,
+                2);
         }
 
         if (target is null)
