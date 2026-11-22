@@ -779,9 +779,14 @@ public sealed class FrontlineGameSimulation
             var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId);
             if (target is null || target.Health <= 0)
             {
-                projectile.Expire();
-                _projectiles.RemoveAt(index);
-                continue;
+                if (projectile.Profile.Kind != FrontlineProjectileKind.BallisticShell)
+                {
+                    projectile.Expire();
+                    _projectiles.RemoveAt(index);
+                    continue;
+                }
+
+                target = projectile.Target;
             }
 
             if (!projectile.Advance(target, elapsedUnits))
