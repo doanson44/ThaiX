@@ -298,6 +298,22 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Theory]
+    [InlineData("tower7", 9, 500)]
+    [InlineData("tower8", 9, 500)]
+    [InlineData("tower9", 10, 50)]
+    [InlineData("tower11", 9, 500)]
+    public void Find_WhenProjectileProfileIsCreated_MatchesLegacyRadiusAndLifetime(
+        string towerId,
+        double collisionRadius,
+        double lifetime)
+    {
+        var profile = FrontlineTowerCatalog.Find(towerId)!.ProjectileProfile!;
+
+        profile.CollisionRadius.Should().Be(collisionRadius);
+        profile.Lifetime.Should().Be(lifetime);
+    }
+
+    [Theory]
     [InlineData("tower7")]
     [InlineData("tower8")]
     [InlineData("tower9")]
