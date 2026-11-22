@@ -82,7 +82,6 @@ public sealed class FrontlineSniperMissionSession
             return false;
 
         ShotsFired++;
-        _loading = 0;
         _canFire = false;
         LastAim = aim;
 
