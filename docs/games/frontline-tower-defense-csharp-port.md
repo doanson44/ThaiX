@@ -143,6 +143,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Encode standard tower direct/status damage profiles and metal-specific rifle, sniper, and machine-gun damage.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
 - [x] Port limited-use support strike placement, randomized impact zones, area damage payloads, shot limits, and automatic expiration.
+- [x] Match the legacy support-tower tick path: strikes reload and launch independently of enemy targeting or wave-running state.
 - [x] Add localized campaign/bonus mission selection with unlock state and best-score display.
 - [x] Add localized War-Mart purchase UI and save progression back to the original Frontline browser key.
 - [x] Add standard tower projectile simulation for homing missiles, ballistic shells, tracking bio shots, and tracking flame shots; add splash impacts and transient hitscan/weapon traces.
