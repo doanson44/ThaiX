@@ -83,6 +83,25 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void Advance_WhenAllGroupsAreDispatchedAndNoEnemiesRemain_CompletesWithActiveSpawner()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("enemy1", 3, 100, 0)
+        ]));
+
+        scheduler.Advance(500, enemiesRemain: false);
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+        scheduler.AllGroupsDispatched.Should().BeFalse();
+
+        scheduler.Advance(1000, enemiesRemain: false);
+
+        scheduler.AllGroupsDispatched.Should().BeTrue();
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+        scheduler.IsComplete.Should().BeTrue();
+    }
+
+    [Fact]
     public void Advance_WhenSpawnIntervalIsReached_SpawnsOneEnemy()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
