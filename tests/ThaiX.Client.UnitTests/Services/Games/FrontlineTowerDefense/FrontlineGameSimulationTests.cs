@@ -235,6 +235,56 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenTrackedTargetLeavesRangeBeforeReload_CompletesCurrentReload()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(500, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        var towerDefinition = new FrontlineTowerDefinition(
+            "range-check",
+            0,
+            100,
+            10,
+            1);
+        simulation.TryBuildTower(towerDefinition, new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 500, 20, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance();
+        simulation.Towers.Single().TargetId.Should().Be(enemy.Id);
+
+        simulation.Advance(10);
+
+        simulation.Towers.Single().TargetId.Should().Be(enemy.Id);
+        simulation.Towers.Single().Loading.Should().Be(11);
+    }
+
+    [Theory]
+    [InlineData("tower4", true)]
+    [InlineData("tower6", false)]
+    public void Advance_AfterDirectFire_MatchesLegacyTargetRetention(string towerId, bool retainsTarget)
+    {
+        var simulation = new FrontlineGameSimulation(Path, 1000);
+        var towerDefinition = FrontlineTowerCatalog.Find(towerId)!;
+        simulation.TryBuildTower(
+            towerDefinition.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(25, 25));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 500, 0.0001, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(1);
+
+        if (retainsTarget)
+            simulation.Towers.Single().TargetId.Should().Be(enemy.Id);
+        else
+            simulation.Towers.Single().TargetId.Should().BeNull();
+    }
+
+    [Fact]
     public void Advance_WhenNoEnemiesArePresent_ContinuesTowerReloading()
     {
         var path = new FrontlinePath(
