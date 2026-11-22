@@ -280,6 +280,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.TryBuildTower(
             missile.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(25, 25));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 500, 0.01, 10, IsMetal: true));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 500, 0.01, 10));
         var enemies = simulation.Enemies.ToArray();
@@ -289,6 +290,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().ContainSingle();
         enemies.Should().OnlyContain(enemy => enemy.Health == 500);
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
 
         simulation.Advance(1);
 
