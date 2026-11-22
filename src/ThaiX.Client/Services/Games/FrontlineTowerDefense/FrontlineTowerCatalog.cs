@@ -72,13 +72,13 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Poison: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 9, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500),
             DamageUpgradeScale: 0,
             MetalDamageUpgradeScale: 0),
         new("tower8", "Bio Cannon", 8, 300, 12, 3, 85, FrontlineTargetMode.Cold, 6000,
             DamageProfile: new FrontlineDamageProfile(12, Poison: 60),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingPoison, 3, 9, StartOffset: 20, VerticalOffset: -8),
+                FrontlineProjectileKind.TrackingPoison, 3, 9, StartOffset: 20, VerticalOffset: -8, Lifetime: 500),
             DamageUpgradeScale: 0,
             StatusUpgradeScale: 0,
             MetalDamageUpgradeScale: 0),
