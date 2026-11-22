@@ -187,6 +187,37 @@ public sealed class FrontlineGameSimulationTests
         simulation.Status.Should().Be(FrontlineGameStatus.Planning);
     }
 
+    [Theory]
+    [InlineData(FrontlineTargetMode.Near)]
+    [InlineData(FrontlineTargetMode.Far)]
+    public void Advance_WhenNearOrFarTargetingIsUsed_PreservesLegacyEnemyInsertionOrder(
+        FrontlineTargetMode targetMode)
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 80),
+            new FrontlinePoint(400, 80)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 500, 1, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 500, 10, 10));
+        simulation.Advance();
+
+        var firstEnemy = simulation.Enemies[0];
+        var tower = new FrontlineTowerDefinition(
+            "target-order",
+            0,
+            500,
+            10,
+            1,
+            targetMode);
+        simulation.TryBuildTower(tower, new FrontlinePoint(50, 50));
+
+        simulation.Advance();
+
+        simulation.Towers.Single().TargetId.Should().Be(firstEnemy.Id);
+    }
+
     [Fact]
     public void Advance_WhenNoEnemiesArePresent_ContinuesTowerReloading()
     {
