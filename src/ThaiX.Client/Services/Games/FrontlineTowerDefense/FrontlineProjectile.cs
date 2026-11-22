@@ -127,8 +127,10 @@ public sealed class FrontlineProjectile
         SetVelocity(target.Position);
 
         const double targetCollisionRadius = 8;
-        var collisionRadiusSquared = Profile.CollisionRadius * Profile.CollisionRadius
-            + targetCollisionRadius * targetCollisionRadius;
+        var collisionRadiusSquared = Profile.Kind == FrontlineProjectileKind.HomingMissile
+            ? Profile.CollisionRadius * Profile.CollisionRadius
+            : Profile.CollisionRadius * Profile.CollisionRadius
+                + targetCollisionRadius * targetCollisionRadius;
         var offsetX = target.Position.X - Position.X;
         var offsetY = target.Position.Y - Position.Y;
 
