@@ -117,21 +117,8 @@ public sealed class FrontlineProjectile
 
     internal void Expire() => IsExpired = true;
 
-    private static FrontlinePoint PredictPosition(FrontlineEnemy target, double lookAhead)
-    {
-        var position = target.Position;
-        var nextPosition = target.Path.PointAt(target.Distance + 1);
-        var directionX = nextPosition.X - position.X;
-        var directionY = nextPosition.Y - position.Y;
-        var directionLength = new FrontlinePoint(directionX, directionY).Length;
-
-        if (directionLength <= 0)
-            return position;
-
-        return new FrontlinePoint(
-            position.X + directionX / directionLength * lookAhead,
-            position.Y + directionY / directionLength * lookAhead);
-    }
+    private static FrontlinePoint PredictPosition(FrontlineEnemy target, double lookAhead) =>
+        target.PredictPosition(lookAhead);
 
     private void SetVelocity(FrontlinePoint targetPosition)
     {
