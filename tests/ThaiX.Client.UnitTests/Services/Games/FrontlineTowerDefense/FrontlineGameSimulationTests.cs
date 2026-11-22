@@ -504,6 +504,39 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenHomingMissileCrossesTargetBetweenTicks_RegistersCollision()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(90, 50),
+            new FrontlinePoint(300, 50)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        var missile = new FrontlineTowerDefinition(
+            "missile-test",
+            0,
+            100,
+            80,
+            1,
+            ProjectileProfile: new FrontlineProjectileProfile(
+                FrontlineProjectileKind.HomingMissile,
+                Speed: 4,
+                CollisionRadius: 6),
+            DamageProfile: new FrontlineDamageProfile(DirectDamage: 80));
+        simulation.TryBuildTower(missile, new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("target", 500, 0.0001, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(100);
+        simulation.Advance(0);
+        simulation.Advance(8);
+        simulation.Advance(8);
+
+        enemy.Health.Should().Be(420);
+        simulation.Projectiles.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Advance_WhenEnemyReachesEndOfPath_AppliesLifeDamage()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, 1000);
