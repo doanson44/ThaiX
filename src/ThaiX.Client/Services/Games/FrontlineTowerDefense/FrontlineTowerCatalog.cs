@@ -85,7 +85,7 @@ public static class FrontlineTowerCatalog
         new("tower9", "Flame Thrower", 9, 250, 2, 12, 55, FrontlineTargetMode.Near, 5000,
             DamageProfile: new FrontlineDamageProfile(2, Burn: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8),
+                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8, Lifetime: 50),
             DamageUpgradeScale: 0,
             StatusUpgradeScale: 0,
             MetalDamageUpgradeScale: 0),
