@@ -147,6 +147,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Add localized War-Mart purchase UI and save progression back to the original Frontline browser key.
 - [x] Add standard tower projectile simulation for homing missiles, ballistic shells, tracking bio shots, and tracking flame shots; add splash impacts and transient hitscan/weapon traces.
 - [x] Preserve tower reload progress while the simulation is in Planning, and verify ballistic splash radius boundaries for Bio Mortar and Plasma Cannon with multi-target tests.
+- [x] Prevent towers from firing on zero-elapsed simulation advances, including the paused-session tick path.
 - [x] Keep ballistic shells tracking the predicted target during ascent, even when a large elapsed-time step crosses the apex threshold; advance the arc in bounded substeps and stop at the interpolated impact point.
 - [x] Port mission completion score and credit rewards using the original health/funds/score formula.
 - [x] Add a separate Sniper Elite session and view with source-style 10-point ray sampling, per-mission shooter origin, manual turret artwork, transient sniper tracer, shot cost, firing cadence, metal damage, and hit/miss tracking.
