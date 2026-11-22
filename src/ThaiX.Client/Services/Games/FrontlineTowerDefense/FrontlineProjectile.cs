@@ -44,10 +44,10 @@ public sealed class FrontlineProjectile
 
         if (profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
+            Height = 450;
             var predictedPosition = PredictPosition(target, 40);
             var distance = predictedPosition.DistanceTo(position);
             VerticalVelocity = distance * profile.Speed * profile.VerticalVelocityScale;
-            SetVelocity(PredictPosition(target, 25));
         }
     }
 
