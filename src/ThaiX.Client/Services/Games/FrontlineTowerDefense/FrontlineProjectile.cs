@@ -94,12 +94,11 @@ public sealed class FrontlineProjectile
                 Height = nextHeight;
                 VerticalVelocity -= Profile.Gravity * step;
 
-                if (!_hasBallisticVelocity && VerticalVelocity < -0.05)
+                if (VerticalVelocity >= -0.05)
                 {
                     var predictedPosition = target.Path.PointAt(
                         target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
                     SetVelocity(predictedPosition);
-                    _hasBallisticVelocity = true;
                 }
 
                 remainingUnits -= step;
@@ -159,7 +158,6 @@ public sealed class FrontlineProjectile
     }
 
     private double VerticalVelocity { get; set; }
-    private bool _hasBallisticVelocity;
     private double _velocityX;
     private double _velocityY;
 }
