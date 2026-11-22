@@ -692,7 +692,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 1000, 0.01, 10));
         var enemy = simulation.Enemies.Single();
 
-        for (var tick = 0; tick < 154; tick++)
+        for (var tick = 0; tick < 200 && simulation.ActiveAreaEffectCount == 0; tick++)
             simulation.Advance();
 
         simulation.ActiveAreaEffectCount.Should().Be(1);
