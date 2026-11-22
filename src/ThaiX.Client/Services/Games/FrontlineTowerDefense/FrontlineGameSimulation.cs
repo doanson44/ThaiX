@@ -319,15 +319,15 @@ public sealed class FrontlineGameSimulation
         public double Interval { get; } = interval;
         private double _elapsed;
 
-        public bool Advance(double elapsedUnits)
+        public int Advance(double elapsedUnits)
         {
+            var activeElapsed = Math.Min(elapsedUnits, Math.Max(0, LifeRemaining));
             LifeRemaining -= elapsedUnits;
-            _elapsed += elapsedUnits;
-            var shouldPulse = _elapsed >= Interval;
-            if (shouldPulse)
-                _elapsed = 0;
+            _elapsed += activeElapsed;
 
-            return shouldPulse;
+            var pulseCount = (int)Math.Floor(_elapsed / Interval);
+            _elapsed -= pulseCount * Interval;
+            return pulseCount;
         }
     }
 
@@ -916,7 +916,8 @@ public sealed class FrontlineGameSimulation
         for (var index = _areaEffects.Count - 1; index >= 0; index--)
         {
             var effect = _areaEffects[index];
-            if (effect.Advance(elapsedUnits))
+            var pulseCount = effect.Advance(elapsedUnits);
+            for (var pulse = 0; pulse < pulseCount; pulse++)
             {
                 foreach (var enemy in _enemies.ToArray())
                 {
