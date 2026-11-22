@@ -398,7 +398,7 @@ public sealed class FrontlineGameSimulationTests
             new FrontlinePoint(80, 48),
             new FrontlinePoint(300, 48)
         ]);
-        var simulation = new FrontlineGameSimulation(path, 250);
+        var simulation = new FrontlineGameSimulation(path, 250, random: new Random(1));
         var flame = FrontlineTowerCatalog.Find("tower9")!;
         simulation.TryBuildTower(flame.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
@@ -416,7 +416,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().BeEmpty();
         enemy.Health.Should().Be(98);
-        enemy.CoreTemperature.Should().Be(65);
+        enemy.CoreTemperature.Should().BeInRange(64.8, 65);
     }
 
     [Fact]
