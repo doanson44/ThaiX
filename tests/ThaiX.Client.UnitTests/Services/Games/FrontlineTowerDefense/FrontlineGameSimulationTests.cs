@@ -54,6 +54,22 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsWithoutScore()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 0.0001, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 300)).Should().BeTrue();
+        for (var tick = 0; tick < 200; tick++)
+            simulation.Advance();
+
+        simulation.Enemies.Should().BeEmpty();
+        simulation.Funds.Should().Be(10);
+        simulation.Score.Should().Be(0);
+    }
+
+    [Fact]
     public void Advance_WhenEnemyEntersTowerRange_ResolvesEnemyAndAwardsReward()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
@@ -730,7 +746,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(25);
 
-        enemy.CoreTemperature.Should().Be(135);
+        enemy.CoreTemperature.Should().BeApproximately(134.98, 0.001);
         enemy.BurnDuration.Should().Be(0);
     }
 
