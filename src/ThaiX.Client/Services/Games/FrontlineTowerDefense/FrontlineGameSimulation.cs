@@ -545,10 +545,13 @@ public sealed class FrontlineGameSimulation
             return;
         }
 
+        foreach (var tower in _towers)
+            tower.Loading += tower.RateOfFire * elapsedUnits;
+
         if (Status == FrontlineGameStatus.Running)
         {
             foreach (var tower in _towers.ToArray())
-                Fire(tower, elapsedUnits);
+                Fire(tower);
         }
 
         ResolveDeaths();
@@ -617,9 +620,8 @@ public sealed class FrontlineGameSimulation
         return true;
     }
 
-    private void Fire(FrontlineTower tower, double elapsedUnits)
+    private void Fire(FrontlineTower tower)
     {
-        tower.Loading += tower.RateOfFire * elapsedUnits;
 
         var target = tower.TargetId is long targetId
             ? _enemies.FirstOrDefault(enemy => enemy.Id == targetId)
