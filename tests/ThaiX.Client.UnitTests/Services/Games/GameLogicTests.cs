@@ -107,15 +107,13 @@ public sealed class GameLogicTests
     }
 
     [Fact]
-    public void Catalog_ShouldMapEveryGameToItsOwnBoardComponent()
+    public void Catalog_ShouldMapEveryGameToItsOwnBoardComponentOrStandalonePage()
     {
-        // Arrange
-
-        // Act
         var components = GameCatalog.All.Select(game => game.Component).ToArray();
+        var gameBoards = components.Where(component => component != typeof(FrontlineTowerDefenseGame));
 
-        // Assert
         components.Should().OnlyHaveUniqueItems();
-        components.Should().OnlyContain(component => component.IsSubclassOf(typeof(GameBase)));
+        components.Should().Contain(typeof(FrontlineTowerDefenseGame));
+        gameBoards.Should().OnlyContain(component => component.IsSubclassOf(typeof(GameBase)));
     }
 }
