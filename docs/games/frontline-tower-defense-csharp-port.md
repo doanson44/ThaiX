@@ -153,6 +153,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Match the legacy ballistic lead distances: 40 world units when calculating launch height and 25 world units while steering during ascent.
 - [x] Preserve legacy upgrade behavior for Bio Mortar, Bio Cannon, Flame Thrower, and Plasma Cannon, whose firing methods do not apply the base damage upgrade level.
 - [x] Preserve an in-flight ballistic shell after its selected enemy dies so the shell still reaches its area-impact point.
+- [x] Apply the legacy 50-unit lifetime to Flame Thrower tracking shots so they expire instead of pursuing indefinitely.
 - [x] Port mission completion score and credit rewards using the original health/funds/score formula.
 - [x] Add a separate Sniper Elite session and view with source-style 10-point ray sampling, per-mission shooter origin, manual turret artwork, transient sniper tracer, shot cost, firing cadence, metal damage, and hit/miss tracking.
 - [ ] Verify Sniper Elite parity and route availability for all four bonus missions; only bonus missions 1 and 4 have reachable routes in the verified source map data.
