@@ -63,8 +63,12 @@ public sealed class FrontlineProjectile
 
     internal bool Advance(FrontlineEnemy target, double elapsedUnits)
     {
-        if ((target.Health <= 0 && Profile.Kind != FrontlineProjectileKind.BallisticShell)
-            || (Profile.Kind == FrontlineProjectileKind.HomingMissile && target.Position.X <= 0))
+        Position = new FrontlinePoint(
+            Position.X + _velocityX * elapsedUnits,
+            Position.Y + _velocityY * elapsedUnits);
+
+        if (Profile.Kind == FrontlineProjectileKind.HomingMissile
+            && (target.Health <= 0 || target.Position.X <= 0))
         {
             IsExpired = true;
             return false;
@@ -72,51 +76,24 @@ public sealed class FrontlineProjectile
 
         if (Profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
-            var remainingUnits = elapsedUnits;
-            while (remainingUnits > 0)
+            Height += VerticalVelocity * elapsedUnits;
+            VerticalVelocity -= Profile.Gravity * elapsedUnits;
+            if (Height < 0)
+                return true;
+
+            _elapsedUnits += elapsedUnits;
+            if (Profile.Lifetime is double ballisticLifetime && _elapsedUnits > ballisticLifetime)
             {
-                var step = Math.Min(remainingUnits, 1);
-                var nextHeight = Height + VerticalVelocity * step;
-                if (nextHeight < 0)
-                {
-                    var impactUnits = VerticalVelocity >= 0
-                        ? step
-                        : Math.Clamp(Height / -VerticalVelocity, 0, step);
-                    Position = new FrontlinePoint(
-                        Position.X + _velocityX * impactUnits,
-                        Position.Y + _velocityY * impactUnits);
-                    Height = 0;
-                    return true;
-                }
-
-                Position = new FrontlinePoint(
-                    Position.X + _velocityX * step,
-                    Position.Y + _velocityY * step);
-                Height = nextHeight;
-                VerticalVelocity -= Profile.Gravity * step;
-
-                if (target.Health > 0 && VerticalVelocity >= -0.05)
-                {
-                    var predictedPosition = PredictPosition(target, 25);
-                    SetVelocity(predictedPosition);
-                }
-
-                _elapsedUnits += step;
-                if (Profile.Lifetime is double ballisticLifetime && _elapsedUnits > ballisticLifetime)
-                {
-                    IsExpired = true;
-                    return false;
-                }
-
-                remainingUnits -= step;
+                IsExpired = true;
+                return false;
             }
+
+            if (target.Health > 0 && VerticalVelocity >= -0.05)
+                SetVelocity(PredictPosition(target, 25));
 
             return false;
         }
 
-        Position = new FrontlinePoint(
-            Position.X + _velocityX * elapsedUnits,
-            Position.Y + _velocityY * elapsedUnits);
         _elapsedUnits += elapsedUnits;
         if (Profile.Lifetime is double trackingLifetime && _elapsedUnits > trackingLifetime)
         {
@@ -124,7 +101,8 @@ public sealed class FrontlineProjectile
             return false;
         }
 
-        SetVelocity(target.Position);
+        if (target.Health > 0)
+            SetVelocity(target.Position);
 
         const double targetCollisionRadius = 8;
         var collisionRadiusSquared = Profile.Kind == FrontlineProjectileKind.HomingMissile
