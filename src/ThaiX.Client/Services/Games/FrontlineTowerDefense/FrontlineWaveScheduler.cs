@@ -98,7 +98,7 @@ public sealed class FrontlineWaveScheduler
             }
         }
 
-        if (AllGroupsDispatched && _activeSpawners.Count == 0 && !enemiesRemain)
+        if (AllGroupsDispatched && !enemiesRemain)
             IsComplete = true;
 
         return spawned;
