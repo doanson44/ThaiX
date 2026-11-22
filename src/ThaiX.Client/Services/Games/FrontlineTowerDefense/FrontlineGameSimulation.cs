@@ -767,8 +767,11 @@ public sealed class FrontlineGameSimulation
 
         if (tower.Definition.ProjectileProfile is { } projectileProfile)
         {
-            var deltaX = target.Position.X - tower.Position.X;
-            var deltaY = target.Position.Y - tower.Position.Y;
+            var projectileAimPosition = tower.Definition.Id == "tower1"
+                ? target.PredictPosition(4)
+                : target.Position;
+            var deltaX = projectileAimPosition.X - tower.Position.X;
+            var deltaY = projectileAimPosition.Y - tower.Position.Y;
             var distance = new FrontlinePoint(deltaX, deltaY).Length;
             var directionX = distance <= 0 ? 0 : deltaX / distance;
             var directionY = distance <= 0 ? 0 : deltaY / distance;
@@ -812,41 +815,66 @@ public sealed class FrontlineGameSimulation
                 _ => FrontlineCombatTraceKind.Bullet
             };
 
-            if (traceKind == FrontlineCombatTraceKind.Shotgun)
+            if (traceKind == FrontlineCombatTraceKind.Lightning)
             {
-                for (var pellet = 0; pellet < 3; pellet++)
-                {
-                    var spreadX = _random.NextDouble() * 16 - 8;
-                    var spreadY = _random.NextDouble() * 16 - 8;
-                    _combatTraces.Add(new FrontlineCombatTrace(
-                        new FrontlinePoint(tower.Position.X, tower.Position.Y - 12),
-                        new FrontlinePoint(
-                            target.Position.X + spreadX,
-                            target.Position.Y - 6 + spreadY),
-                        traceKind,
-                        5));
-                }
+                _combatTraces.Add(new FrontlineCombatTrace(
+                    new FrontlinePoint(tower.Position.X, tower.Position.Y - 24),
+                    new FrontlinePoint(target.Position.X, target.Position.Y - 8),
+                    traceKind,
+                    tower.Damage));
             }
             else
             {
-                var traceStart = traceKind == FrontlineCombatTraceKind.Lightning
-                    ? new FrontlinePoint(tower.Position.X, tower.Position.Y - 24)
-                    : tower.Position;
-                var traceEnd = traceKind == FrontlineCombatTraceKind.Lightning
-                    ? new FrontlinePoint(target.Position.X, target.Position.Y - 8)
-                    : target.Position;
-                var traceLife = traceKind switch
+                var aimPosition = target.PredictPosition(4);
+                var aimX = aimPosition.X - tower.Position.X;
+                var aimY = aimPosition.Y - tower.Position.Y;
+                var aimLength = new FrontlinePoint(aimX, aimY).Length;
+                var offsetX = aimLength <= 0 ? 0 : aimX / aimLength * 20;
+                var offsetY = aimLength <= 0 ? 0 : aimY / aimLength * 20;
+
+                var traceStart = tower.Definition.Id switch
                 {
-                    FrontlineCombatTraceKind.Lightning => tower.Damage,
-                    FrontlineCombatTraceKind.Shotgun => 5,
-                    _ => 6
+                    "tower2" => new FrontlinePoint(
+                        tower.Position.X + offsetX - offsetY * 0.1,
+                        tower.Position.Y + offsetY - 10 + offsetX * 0.1),
+                    "tower3" => new FrontlinePoint(
+                        tower.Position.X + offsetX - offsetY * 0.1,
+                        tower.Position.Y + offsetY - 25 + offsetX * 0.1),
+                    "tower5" => new FrontlinePoint(
+                        tower.Position.X + offsetX - offsetY * 0.1,
+                        tower.Position.Y + offsetY - 12 + offsetX * 0.1),
+                    "tower6" => new FrontlinePoint(
+                        tower.Position.X + offsetX - offsetY * 0.1,
+                        tower.Position.Y + offsetY - 10 + offsetX * 0.1),
+                    "tower10" => new FrontlinePoint(
+                        tower.Position.X + offsetX,
+                        tower.Position.Y + offsetY - 8),
+                    _ => tower.Position
                 };
 
-                _combatTraces.Add(new FrontlineCombatTrace(
-                    traceStart,
-                    traceEnd,
-                    traceKind,
-                    traceLife));
+                if (traceKind == FrontlineCombatTraceKind.Shotgun)
+                {
+                    for (var pellet = 0; pellet < 3; pellet++)
+                    {
+                        var spreadX = _random.NextDouble() * 16 - 8;
+                        var spreadY = _random.NextDouble() * 16 - 8;
+                        _combatTraces.Add(new FrontlineCombatTrace(
+                            traceStart,
+                            new FrontlinePoint(
+                                target.Position.X + spreadX,
+                                target.Position.Y - 6 + spreadY),
+                            traceKind,
+                            5));
+                    }
+                }
+                else
+                {
+                    _combatTraces.Add(new FrontlineCombatTrace(
+                        traceStart,
+                        new FrontlinePoint(target.Position.X, target.Position.Y - 6),
+                        traceKind,
+                        6));
+                }
             }
         }
 
