@@ -17,7 +17,8 @@ public sealed record FrontlineProjectileProfile(
     double StartOffset = 20,
     double VerticalOffset = 0,
     double Gravity = 0.09,
-    double VerticalVelocityScale = 0.018);
+    double VerticalVelocityScale = 0.018,
+    double? Lifetime = null);
 
 public sealed class FrontlineProjectile
 {
@@ -102,6 +103,13 @@ public sealed class FrontlineProjectile
                     SetVelocity(predictedPosition);
                 }
 
+                _elapsedUnits += step;
+                if (Profile.Lifetime is double lifetime && _elapsedUnits > lifetime)
+                {
+                    IsExpired = true;
+                    return false;
+                }
+
                 remainingUnits -= step;
             }
 
@@ -112,6 +120,12 @@ public sealed class FrontlineProjectile
         Position = new FrontlinePoint(
             Position.X + _velocityX * elapsedUnits,
             Position.Y + _velocityY * elapsedUnits);
+        _elapsedUnits += elapsedUnits;
+        if (Profile.Lifetime is double lifetime && _elapsedUnits > lifetime)
+        {
+            IsExpired = true;
+            return false;
+        }
 
         SetVelocity(target.Position);
 
@@ -175,6 +189,7 @@ public sealed class FrontlineProjectile
     }
 
     private double VerticalVelocity { get; set; }
+    private double _elapsedUnits;
     private double _velocityX;
     private double _velocityY;
 }
