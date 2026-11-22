@@ -71,20 +71,41 @@ public sealed class FrontlineProjectile
 
         if (Profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
-            Position = new FrontlinePoint(
-                Position.X + _velocityX * elapsedUnits,
-                Position.Y + _velocityY * elapsedUnits);
-            Height += VerticalVelocity * elapsedUnits;
-            VerticalVelocity -= Profile.Gravity * elapsedUnits;
-
-            if (VerticalVelocity >= -0.05)
+            var remainingUnits = elapsedUnits;
+            while (remainingUnits > 0)
             {
-                var predictedPosition = target.Path.PointAt(
-                    target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
-                SetVelocity(predictedPosition);
+                var step = Math.Min(remainingUnits, 1);
+                var nextHeight = Height + VerticalVelocity * step;
+                if (nextHeight < 0)
+                {
+                    var impactUnits = VerticalVelocity >= 0
+                        ? step
+                        : Math.Clamp(Height / -VerticalVelocity, 0, step);
+                    Position = new FrontlinePoint(
+                        Position.X + _velocityX * impactUnits,
+                        Position.Y + _velocityY * impactUnits);
+                    Height = 0;
+                    return true;
+                }
+
+                Position = new FrontlinePoint(
+                    Position.X + _velocityX * step,
+                    Position.Y + _velocityY * step);
+                Height = nextHeight;
+                VerticalVelocity -= Profile.Gravity * step;
+
+                if (!_hasBallisticVelocity && VerticalVelocity < -0.05)
+                {
+                    var predictedPosition = target.Path.PointAt(
+                        target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
+                    SetVelocity(predictedPosition);
+                    _hasBallisticVelocity = true;
+                }
+
+                remainingUnits -= step;
             }
 
-            return Height < 0;
+            return false;
         }
 
         var previousPosition = Position;
@@ -138,6 +159,7 @@ public sealed class FrontlineProjectile
     }
 
     private double VerticalVelocity { get; set; }
+    private bool _hasBallisticVelocity;
     private double _velocityX;
     private double _velocityY;
 }
