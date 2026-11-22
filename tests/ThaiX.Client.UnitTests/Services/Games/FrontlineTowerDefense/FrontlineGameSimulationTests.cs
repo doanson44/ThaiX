@@ -433,6 +433,45 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenBallisticTargetDiesBeforeImpact_StillAppliesSplashDamage()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var nearbyPath = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 100),
+            new FrontlinePoint(300, 100)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 950);
+        var mortar = FrontlineTowerCatalog.Find("tower7")!;
+        simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("target", 500, 0.01, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("nearby", 500, 0.01, 10), nearbyPath);
+        var target = simulation.Enemies[0];
+        var nearbyEnemy = simulation.Enemies[1];
+
+        simulation.Advance(1);
+        simulation.Advance(0.001);
+
+        simulation.Projectiles.Should().ContainSingle();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
+        simulation.ApplyDamage(target.Id, new FrontlineDamageProfile(DirectDamage: 500))
+            .Should().BeTrue();
+
+        for (var tick = 0; tick < 70 && simulation.Projectiles.Count > 0; tick++)
+            simulation.Advance();
+
+        simulation.Projectiles.Should().BeEmpty();
+        nearbyEnemy.Health.Should().Be(480);
+        nearbyEnemy.PoisonDuration.Should().Be(30);
+    }
+
+    [Fact]
     public void Advance_WhenBioMortarShellImpacts_AppliesHalfDamageInArea()
     {
         var path = new FrontlinePath(
