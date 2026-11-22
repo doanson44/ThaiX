@@ -30,7 +30,7 @@ public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
     }
 
     public double Length => Points.Zip(Points.Skip(1),
-        (from, to) => Math.Hypot(to.X - from.X, to.Y - from.Y)).Sum();
+        (from, to) => from.DistanceTo(to)).Sum();
 
     public FrontlinePoint PointAt(double distance)
     {
@@ -42,7 +42,7 @@ public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
         {
             var from = Points[index - 1];
             var to = Points[index];
-            var segmentLength = Math.Hypot(to.X - from.X, to.Y - from.Y);
+            var segmentLength = from.DistanceTo(to);
             if (remaining <= segmentLength)
             {
                 var progress = segmentLength <= 0 ? 0 : remaining / segmentLength;
@@ -58,7 +58,17 @@ public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
     }
 }
 
-public readonly record struct FrontlinePoint(double X, double Y);
+public readonly record struct FrontlinePoint(double X, double Y)
+{
+    public double Length => Math.Sqrt(X * X + Y * Y);
+
+    public double DistanceTo(FrontlinePoint other)
+    {
+        var deltaX = X - other.X;
+        var deltaY = Y - other.Y;
+        return Math.Sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+}
 
 public sealed record FrontlineEnemyDefinition(
     string Id,
@@ -640,7 +650,7 @@ public sealed class FrontlineGameSimulation
             return;
         }
 
-        if (Math.Hypot(target.Position.X - tower.Position.X, target.Position.Y - tower.Position.Y) > tower.Range)
+        if (target.Position.DistanceTo(tower.Position) > tower.Range)
         {
             target = FindTarget(tower);
             tower.TargetId = target?.Id;
@@ -681,7 +691,7 @@ public sealed class FrontlineGameSimulation
         {
             var deltaX = target.Position.X - tower.Position.X;
             var deltaY = target.Position.Y - tower.Position.Y;
-            var distance = Math.Hypot(deltaX, deltaY);
+            var distance = new FrontlinePoint(deltaX, deltaY).Length;
             var directionX = distance <= 0 ? 0 : deltaX / distance;
             var directionY = distance <= 0 ? 0 : deltaY / distance;
             var position = new FrontlinePoint(
@@ -803,9 +813,7 @@ public sealed class FrontlineGameSimulation
                 foreach (var enemy in _enemies.ToArray())
                 {
                     if (enemy.Health <= 0
-                        || Math.Hypot(
-                            enemy.Position.X - projectile.Position.X,
-                            enemy.Position.Y - projectile.Position.Y) > projectile.Profile.SplashRadius)
+                        || enemy.Position.DistanceTo(projectile.Position) > projectile.Profile.SplashRadius)
                         continue;
 
                     var splashDamage = projectile.Damage with
@@ -874,9 +882,7 @@ public sealed class FrontlineGameSimulation
 
             foreach (var enemy in _enemies.ToArray())
             {
-                if (Math.Hypot(
-                    enemy.Position.X - projectile.Impact.X,
-                    enemy.Position.Y - projectile.Impact.Y) <= 80)
+                if (enemy.Position.DistanceTo(projectile.Impact) <= 80)
                     enemy.ApplyDamage(explosionDamage);
             }
 
@@ -914,9 +920,7 @@ public sealed class FrontlineGameSimulation
             {
                 foreach (var enemy in _enemies.ToArray())
                 {
-                    if (Math.Hypot(
-                        enemy.Position.X - effect.Position.X,
-                        enemy.Position.Y - effect.Position.Y) <= effect.Radius)
+                    if (enemy.Position.DistanceTo(effect.Position) <= effect.Radius)
                         enemy.ApplyDamage(effect.Damage);
                 }
             }
@@ -931,7 +935,7 @@ public sealed class FrontlineGameSimulation
     {
         var candidates = _enemies
             .Where(enemy => enemy.Health > 0
-                && Math.Hypot(enemy.Position.X - tower.Position.X, enemy.Position.Y - tower.Position.Y)
+                && enemy.Position.DistanceTo(tower.Position)
                     <= tower.Range)
             .ToList();
 
