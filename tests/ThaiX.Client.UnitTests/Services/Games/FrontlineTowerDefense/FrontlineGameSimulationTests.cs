@@ -381,6 +381,33 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenBallisticShellPassesItsApex_BeginsMovingTowardTarget()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 950);
+        var mortar = FrontlineTowerCatalog.Find("tower7")!;
+        simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
+
+        simulation.Advance(1);
+        simulation.Advance(0);
+
+        var projectile = simulation.Projectiles.Single();
+        var launchPosition = projectile.Position;
+
+        for (var tick = 0; tick < 25; tick++)
+            simulation.Advance();
+
+        projectile.Position.X.Should().BeGreaterThan(launchPosition.X);
+        projectile.Height.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public void Advance_WhenBioMortarShellImpacts_AppliesHalfDamageInArea()
     {
         var path = new FrontlinePath(
