@@ -137,6 +137,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Extract the 24 Hz timer, elapsed-time scale, level health leak rule, and direct-kill score rule.
 - [x] Integrate per-level grid maps, random authored endpoints, and per-enemy route generation for route-validated maps.
 - [x] Validate route connectivity for every authored endpoint pair against the active source timeline placements.
+- [x] Disable mission-selection actions and show the localized unavailable-route status for maps with no connected authored route.
 - [ ] Resolve the disconnected authored routes in campaign levels 2-14 and bonus missions 2-3; do not fabricate path cells without approval.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Encode standard tower direct/status damage profiles and metal-specific rifle, sniper, and machine-gun damage.
