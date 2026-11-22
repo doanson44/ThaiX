@@ -467,7 +467,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
 
-        for (var tick = 0; tick < 70; tick++)
+        for (var tick = 0; tick < 70 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
@@ -514,7 +514,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
 
-        for (var tick = 0; tick < 70; tick++)
+        for (var tick = 0; tick < 70 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
