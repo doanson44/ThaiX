@@ -682,6 +682,28 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenAreaEffectTickSpansMultipleIntervals_AppliesEveryPulse()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        simulation.TryBuildTower(
+            support.CreateDefinition() with { ShotLimit = 1 },
+            new FrontlinePoint(50, 0));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 1000, 0.01, 10));
+        var enemy = simulation.Enemies.Single();
+
+        for (var tick = 0; tick < 154; tick++)
+            simulation.Advance();
+
+        simulation.ActiveAreaEffectCount.Should().Be(1);
+
+        simulation.Advance(25);
+
+        enemy.CoreTemperature.Should().Be(235);
+        enemy.BurnDuration.Should().Be(235);
+    }
+
+    [Fact]
     public void TrySellTower_WhenSupportStrikeSelected_DoesNotRefundOrRemoveIt()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
