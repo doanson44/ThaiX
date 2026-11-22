@@ -104,7 +104,7 @@ public sealed class FrontlineProjectile
                 }
 
                 _elapsedUnits += step;
-                if (Profile.Lifetime is double lifetime && _elapsedUnits > lifetime)
+                if (Profile.Lifetime is double ballisticLifetime && _elapsedUnits > ballisticLifetime)
                 {
                     IsExpired = true;
                     return false;
@@ -121,7 +121,7 @@ public sealed class FrontlineProjectile
             Position.X + _velocityX * elapsedUnits,
             Position.Y + _velocityY * elapsedUnits);
         _elapsedUnits += elapsedUnits;
-        if (Profile.Lifetime is double lifetime && _elapsedUnits > lifetime)
+        if (Profile.Lifetime is double trackingLifetime && _elapsedUnits > trackingLifetime)
         {
             IsExpired = true;
             return false;
