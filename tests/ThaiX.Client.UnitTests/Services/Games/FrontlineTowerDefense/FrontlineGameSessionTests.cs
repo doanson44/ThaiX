@@ -61,6 +61,41 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void Advance_WhenPausedAndTowerIsLoaded_StillFiresLikeLegacyRuntime()
+    {
+        var level = new FrontlineLevelMapDefinition(
+            "pause-test",
+            1,
+            false,
+            10,
+            [new FrontlineGridPoint(1, -1)],
+            [new FrontlineGridPoint(1, 0)],
+            [new FrontlineGridPoint(1, 0)],
+            []);
+        var waveSet = new FrontlineWaveSet("pause-test", 1, false, 10, []);
+        var session = new FrontlineGameSession(
+            level,
+            waveSet,
+            FrontlinePlayerProgress.CreateNew(),
+            new Random(42));
+        var tower = new FrontlineTowerDefinition("pause-test", 0, 1000, 10, 100);
+        session.Simulation.TryBuildTower(tower, new FrontlinePoint(80, 80)).Should().BeTrue();
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(100, 80),
+            new FrontlinePoint(300, 80)
+        ]);
+        session.Simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 0.0001, 10), path);
+        var enemy = session.Simulation.Enemies.Single();
+
+        session.Advance(500);
+        session.Pause();
+        session.Advance(41.6667);
+
+        enemy.Health.Should().Be(90);
+    }
+
+    [Fact]
     public void Advance_UsesLegacyElapsedTimeScaleAndEightUnitCap()
     {
         var session = CreateSession();
