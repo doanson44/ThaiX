@@ -96,7 +96,7 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Radiation: 20),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 9, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500),
             DamageUpgradeScale: 0,
             MetalDamageUpgradeScale: 0),
         new("suptower1", "Napalm Support Strike", 15, 0, 100, 3, 80, FrontlineTargetMode.Near, 6000, true, 6),
