@@ -464,6 +464,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(1);
         simulation.Advance(0.001);
         var projectile = simulation.Projectiles.Single();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
 
         simulation.Advance(1);
 
@@ -486,6 +487,7 @@ public sealed class FrontlineGameSimulationTests
             RateOfFire = 100,
             ProjectileProfile = projectileProfile
         }, new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
 
         simulation.Advance(1);
@@ -493,6 +495,7 @@ public sealed class FrontlineGameSimulationTests
 
         var projectile = simulation.Projectiles.Single();
         var launchPosition = projectile.Position;
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
 
         simulation.Advance(8);
 
@@ -551,6 +554,7 @@ public sealed class FrontlineGameSimulationTests
         var mortar = FrontlineTowerCatalog.Find("tower7")!;
         simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
         var enemy = simulation.Enemies.Single();
         var nearbyPath = new FrontlinePath(
