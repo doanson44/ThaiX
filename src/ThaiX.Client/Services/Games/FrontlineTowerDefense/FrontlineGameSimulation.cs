@@ -11,6 +11,7 @@ public enum FrontlineGameStatus
 public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
 {
     public const double DefaultGridCellSize = 32;
+    public bool UsesGridMovement { get; init; }
 
     public static FrontlinePath FromGridPath(
         IReadOnlyList<FrontlineGridPoint> gridPath,
@@ -26,7 +27,10 @@ public sealed record FrontlinePath(IReadOnlyList<FrontlinePoint> Points)
             .Select(point => new FrontlinePoint(
                 point.X * cellSize + cellSize * 0.5,
                 point.Y * cellSize + cellSize * 0.5))
-            .ToArray());
+            .ToArray())
+        {
+            UsesGridMovement = true
+        };
     }
 
     public double Length => Points.Zip(Points.Skip(1),
@@ -153,13 +157,22 @@ public sealed class FrontlineEnemy
     public double FreezeDuration { get; private set; }
     public bool IsFrozen { get; private set; }
     public FrontlinePoint Position { get; private set; }
-    internal bool HasReachedEnd => _targetIndex >= Path.Points.Count;
+    internal bool HasReachedEnd => Path.UsesGridMovement
+        ? _targetIndex >= Path.Points.Count
+        : Distance >= Path.Length;
 
     internal void Move(double elapsedUnits)
     {
+        var movement = Definition.Speed * MovementMultiplier * elapsedUnits;
+        if (!Path.UsesGridMovement)
+        {
+            Distance += movement;
+            Position = Path.PointAt(Distance);
+            return;
+        }
+
         var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
         var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
-        var movement = Definition.Speed * MovementMultiplier * elapsedUnits;
         Position = new FrontlinePoint(
             Position.X + _velocityX * movement,
             Position.Y + _velocityY * movement);
