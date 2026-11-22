@@ -45,7 +45,7 @@ public sealed class FrontlineWaveSchedulerTests
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
-        var spawned = scheduler.Advance(999, enemiesRemain: false);
+        var spawned = scheduler.Advance(499, enemiesRemain: false);
 
         spawned.Should().BeEmpty();
         scheduler.CurrentGroup.Should().Be(0);
@@ -76,7 +76,7 @@ public sealed class FrontlineWaveSchedulerTests
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
-        var spawned = scheduler.Advance(1000, enemiesRemain: false);
+        var spawned = scheduler.Advance(500, enemiesRemain: false);
 
         spawned.Should().BeEmpty();
         scheduler.CurrentGroup.Should().Be(1);
@@ -86,7 +86,7 @@ public sealed class FrontlineWaveSchedulerTests
     public void Advance_WhenSpawnIntervalIsReached_SpawnsOneEnemy()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
-        scheduler.Advance(1000, enemiesRemain: false);
+        scheduler.Advance(500, enemiesRemain: false);
 
         var spawned = scheduler.Advance(15, enemiesRemain: false);
 
