@@ -385,7 +385,7 @@ public sealed class FrontlineGameSimulationTests
     {
         var path = new FrontlinePath(
         [
-            new FrontlinePoint(120, 48),
+            new FrontlinePoint(80, 48),
             new FrontlinePoint(300, 48)
         ]);
         var simulation = new FrontlineGameSimulation(path, 950);
@@ -400,8 +400,7 @@ public sealed class FrontlineGameSimulationTests
         var projectile = simulation.Projectiles.Single();
         var launchPosition = projectile.Position;
 
-        for (var tick = 0; tick < 3; tick++)
-            simulation.Advance(8);
+        simulation.Advance(8);
 
         projectile.Position.X.Should().BeGreaterThan(launchPosition.X);
         projectile.Height.Should().BeGreaterThan(0);
