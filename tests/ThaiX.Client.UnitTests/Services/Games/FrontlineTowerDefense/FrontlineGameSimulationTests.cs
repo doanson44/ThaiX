@@ -89,7 +89,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void Advance_WhenRifleTargetsMetalEnemy_UsesReducedDirectDamageAndMetalBurn()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0);
+        var simulation = new FrontlineGameSimulation(Path, 500);
         var rifle = FrontlineTowerCatalog.Find("tower2")!;
         simulation.TryBuildTower(rifle.CreateDefinition(), new FrontlinePoint(50, 10));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("metal", 100, 0.1, 10, IsMetal: true));
