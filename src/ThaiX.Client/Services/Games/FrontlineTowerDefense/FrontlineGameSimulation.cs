@@ -593,6 +593,12 @@ public sealed class FrontlineGameSimulation
 
     public void Advance(double elapsedUnits = 1)
     {
+        AdvanceBeforeWaveScheduler(elapsedUnits);
+        AdvanceAfterWaveScheduler(elapsedUnits);
+    }
+
+    internal void AdvanceBeforeWaveScheduler(double elapsedUnits)
+    {
         if (elapsedUnits < 0 || double.IsNaN(elapsedUnits) || double.IsInfinity(elapsedUnits))
             throw new ArgumentOutOfRangeException(nameof(elapsedUnits));
 
@@ -603,10 +609,30 @@ public sealed class FrontlineGameSimulation
         if (Status == FrontlineGameStatus.Running)
             MoveEnemies(elapsedUnits);
 
+        foreach (var tower in _towers)
+            tower.Loading += tower.RateOfFire * elapsedUnits;
+
+        foreach (var tower in _towers.ToArray())
+        {
+            if (tower.Definition.IsSupport)
+                FireSupportStrike(tower);
+            else if (Status == FrontlineGameStatus.Running)
+                Fire(tower);
+        }
+
+        ResolveDeaths();
+    }
+
+    internal void AdvanceAfterWaveScheduler(double elapsedUnits)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+            return;
+
+        var existingAreaEffects = _areaEffects.ToArray();
         AdvanceCombatTraces(elapsedUnits);
         AdvanceProjectiles(elapsedUnits);
         AdvanceSupportProjectiles(elapsedUnits);
-        AdvanceAreaEffects(elapsedUnits);
+        AdvanceAreaEffects(elapsedUnits, existingAreaEffects);
 
         if (LevelHealth <= 0)
         {
@@ -614,21 +640,6 @@ public sealed class FrontlineGameSimulation
             return;
         }
 
-        foreach (var tower in _towers)
-            tower.Loading += tower.RateOfFire * elapsedUnits;
-
-        if (elapsedUnits > 0)
-        {
-            foreach (var tower in _towers.ToArray())
-            {
-                if (tower.Definition.IsSupport)
-                    FireSupportStrike(tower);
-                else if (Status == FrontlineGameStatus.Running)
-                    Fire(tower);
-            }
-        }
-
-        ResolveDeaths();
         if (_enemies.Count == 0
             && _projectiles.Count == 0
             && _supportProjectiles.Count == 0
@@ -812,7 +823,7 @@ public sealed class FrontlineGameSimulation
                             target.Position.X + spreadX,
                             target.Position.Y - 6 + spreadY),
                         traceKind,
-                        3));
+                        5));
                 }
             }
             else
@@ -977,11 +988,15 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
-    private void AdvanceAreaEffects(double elapsedUnits)
+    private void AdvanceAreaEffects(
+        double elapsedUnits,
+        IReadOnlyList<FrontlineAreaEffect> existingAreaEffects)
     {
-        for (var index = _areaEffects.Count - 1; index >= 0; index--)
+        for (var index = existingAreaEffects.Count - 1; index >= 0; index--)
         {
-            var effect = _areaEffects[index];
+            var effect = existingAreaEffects[index];
+            if (!_areaEffects.Contains(effect))
+                continue;
             if (effect.Advance(elapsedUnits))
             {
                 foreach (var enemy in _enemies.ToArray())
