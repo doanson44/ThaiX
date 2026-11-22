@@ -825,6 +825,52 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenGridPathTurns_MatchesLegacyCellEntryMovement()
+    {
+        var path = FrontlinePath.FromGridPath(
+        [
+            new FrontlineGridPoint(1, 1),
+            new FrontlineGridPoint(2, 1),
+            new FrontlineGridPoint(2, 2)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 8, 10));
+
+        simulation.Advance();
+        simulation.Advance();
+        simulation.Advance();
+        simulation.Advance();
+
+        var enemy = simulation.Enemies.Single();
+        enemy.Position.X.Should().BeApproximately(72 + 8 / Math.Sqrt(1088) * 8, 0.001);
+        enemy.Position.Y.Should().BeApproximately(48 + 32 / Math.Sqrt(1088) * 8, 0.001);
+    }
+
+    [Fact]
+    public void Advance_WhenGridPathReachesExit_LeaksOnFollowingTick()
+    {
+        var path = FrontlinePath.FromGridPath(
+        [
+            new FrontlineGridPoint(1, 1),
+            new FrontlineGridPoint(2, 1)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0, 1000);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 8, 10));
+
+        simulation.Advance();
+        simulation.Advance();
+        simulation.Advance();
+
+        simulation.LevelHealth.Should().Be(1000);
+        simulation.Enemies.Should().ContainSingle();
+
+        simulation.Advance();
+
+        simulation.LevelHealth.Should().Be(900);
+        simulation.Enemies.Should().BeEmpty();
+    }
+
+    [Fact]
     public void Advance_WhenEnemyReachesEndOfPath_AppliesLifeDamage()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, 1000);
