@@ -942,8 +942,8 @@ public sealed class FrontlineGameSimulation
 
         return tower.Definition.TargetMode switch
         {
-            FrontlineTargetMode.Near => candidates.OrderByDescending(enemy => enemy.Distance).FirstOrDefault(),
-            FrontlineTargetMode.Far => candidates.OrderBy(enemy => enemy.Distance).FirstOrDefault(),
+            FrontlineTargetMode.Near => candidates.FirstOrDefault(),
+            FrontlineTargetMode.Far => candidates.FirstOrDefault(),
             FrontlineTargetMode.Strong => candidates.OrderByDescending(enemy => enemy.Health).FirstOrDefault(),
             FrontlineTargetMode.Weak => candidates.OrderBy(enemy => enemy.Health).FirstOrDefault(),
             FrontlineTargetMode.Heat => candidates
