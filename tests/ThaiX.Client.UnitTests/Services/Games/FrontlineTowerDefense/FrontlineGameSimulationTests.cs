@@ -165,7 +165,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenSupportTowerHasNoTarget_DoesNotLaunchStrike()
+    public void Advance_WhenSupportTowerHasNoTarget_LaunchesStrike()
     {
         var path = new FrontlinePath(
         [
@@ -182,15 +182,9 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(1);
 
-        simulation.SupportProjectiles.Should().BeEmpty();
-        simulation.Towers.Should().ContainSingle();
-
-        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
-        simulation.Advance(1);
-        simulation.Advance(1);
-
         simulation.SupportProjectiles.Should().ContainSingle();
         simulation.Towers.Should().BeEmpty();
+        simulation.Status.Should().Be(FrontlineGameStatus.Planning);
     }
 
     [Fact]
