@@ -297,6 +297,20 @@ public sealed class FrontlineGameSimulationTests
         enemies[0].CoreTemperature.Should().Be(250);
     }
 
+    [Theory]
+    [InlineData("tower7")]
+    [InlineData("tower8")]
+    [InlineData("tower9")]
+    [InlineData("tower11")]
+    public void Find_WhenProjectileTowerHasNoLegacyDamageUpgrade_LeavesUpgradeScalesAtZero(string towerId)
+    {
+        var tower = FrontlineTowerCatalog.Find(towerId)!;
+
+        tower.DamageUpgradeScale.Should().Be(0);
+        tower.MetalDamageUpgradeScale.Should().Be(0);
+        tower.StatusUpgradeScale.Should().Be(0);
+    }
+
     [Fact]
     public void Advance_WhenBioCannonFires_UsesTrackingPoisonProjectile()
     {
@@ -327,7 +341,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenBioCannonIsDamageUpgraded_ScalesPoisonWithDirectDamage()
+    public void Advance_WhenBioCannonIsDamageUpgraded_KeepsDamageAndPoisonUnchanged()
     {
         var path = new FrontlinePath(
         [
@@ -348,8 +362,8 @@ public sealed class FrontlineGameSimulationTests
         for (var tick = 0; tick < 3; tick++)
             simulation.Advance();
 
-        enemy.Health.Should().BeApproximately(485.6, 0.001);
-        enemy.PoisonDuration.Should().BeApproximately(72, 0.001);
+        enemy.Health.Should().BeApproximately(488, 0.001);
+        enemy.PoisonDuration.Should().BeApproximately(60, 0.001);
     }
 
     [Fact]
