@@ -649,6 +649,13 @@ public sealed class FrontlineGameSimulation
             }
 
             enemy.Move(elapsedUnits);
+            if (!enemy.Path.UsesGridMovement && enemy.HasReachedEnd)
+            {
+                LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
+                _enemies.RemoveAt(index);
+                continue;
+            }
+
             enemy.AdvanceEffects();
         }
     }
