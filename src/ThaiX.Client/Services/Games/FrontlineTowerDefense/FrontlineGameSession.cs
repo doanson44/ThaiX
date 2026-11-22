@@ -109,25 +109,13 @@ public sealed class FrontlineGameSession
         if (!double.IsFinite(elapsedMilliseconds) || elapsedMilliseconds < 0)
             throw new ArgumentOutOfRangeException(nameof(elapsedMilliseconds));
 
-        if (State == FrontlineGameSessionState.Paused)
-        {
-            Simulation.Advance(0);
-            _waveScheduler.Advance(0, Simulation.Enemies.Count > 0);
-            return;
-        }
-
-        if (elapsedMilliseconds == 0)
+        var elapsedUnits = State == FrontlineGameSessionState.Paused
+            ? 0
+            : Math.Min(elapsedMilliseconds * 0.08 * SpeedMultiplier, 8);
+        if (State != FrontlineGameSessionState.Paused && elapsedMilliseconds == 0)
             return;
 
-        var elapsedUnits = Math.Min(elapsedMilliseconds * 0.08 * SpeedMultiplier, 8);
-        Simulation.Advance(elapsedUnits);
-
-        if (Simulation.Status == FrontlineGameStatus.Defeat)
-        {
-            State = FrontlineGameSessionState.Defeat;
-            return;
-        }
-
+        Simulation.AdvanceBeforeWaveScheduler(elapsedUnits);
         var spawnRequests = _waveScheduler.Advance(elapsedUnits, Simulation.Enemies.Count > 0);
         foreach (var request in spawnRequests)
         {
@@ -152,6 +140,14 @@ public sealed class FrontlineGameSession
             }
 
             Simulation.SpawnEnemy(archetype.CreateDefinition(request.WaveNumber), enemyPath);
+        }
+
+        Simulation.AdvanceAfterWaveScheduler(elapsedUnits);
+
+        if (Simulation.Status == FrontlineGameStatus.Defeat)
+        {
+            State = FrontlineGameSessionState.Defeat;
+            return;
         }
 
         if (_waveScheduler.IsComplete && Simulation.Enemies.Count == 0)
