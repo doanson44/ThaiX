@@ -22,7 +22,7 @@ public sealed class FrontlineWaveScheduler
 
     private readonly Queue<FrontlineWaveGroup> _pendingGroups;
     private readonly List<ActiveSpawner> _activeSpawners = [];
-    private double _nextGroupCountdownUnits = 1000;
+    private double _nextGroupCountdownUnits = 500;
     private int _manualStartCooldownTicks = 200;
 
     public FrontlineWaveScheduler(FrontlineWaveSchedule schedule)
