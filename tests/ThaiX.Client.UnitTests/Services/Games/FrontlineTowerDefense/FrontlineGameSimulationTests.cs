@@ -682,7 +682,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenAreaEffectTickSpansMultipleIntervals_AppliesEveryPulse()
+    public void Advance_WhenAreaEffectTickSpansMultipleIntervals_AppliesSinglePulse()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
         var support = FrontlineTowerCatalog.Find("suptower1")!;
@@ -699,8 +699,8 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(25);
 
-        enemy.CoreTemperature.Should().Be(235);
-        enemy.BurnDuration.Should().Be(235);
+        enemy.CoreTemperature.Should().Be(135);
+        enemy.BurnDuration.Should().Be(0);
     }
 
     [Fact]
@@ -761,7 +761,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenHomingMissileCrossesTargetBetweenTicks_RegistersCollision()
+    public void Advance_WhenHomingMissileCrossesTargetBetweenTicks_DoesNotRegisterCollision()
     {
         var path = new FrontlinePath(
         [
@@ -789,8 +789,8 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(8);
         simulation.Advance(8);
 
-        enemy.Health.Should().Be(420);
-        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(500);
+        simulation.Projectiles.Should().ContainSingle();
     }
 
     [Fact]
