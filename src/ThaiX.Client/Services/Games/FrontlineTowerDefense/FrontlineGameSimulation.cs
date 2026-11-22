@@ -409,7 +409,9 @@ public sealed class FrontlineGameSimulation
                     || !double.IsFinite(projectileProfile.StartOffset) || projectileProfile.StartOffset < 0
                     || !double.IsFinite(projectileProfile.VerticalOffset)
                     || !double.IsFinite(projectileProfile.Gravity) || projectileProfile.Gravity <= 0
-                    || !double.IsFinite(projectileProfile.VerticalVelocityScale) || projectileProfile.VerticalVelocityScale < 0))
+                    || !double.IsFinite(projectileProfile.VerticalVelocityScale) || projectileProfile.VerticalVelocityScale < 0
+                    || (projectileProfile.Lifetime is double lifetime
+                        && (!double.IsFinite(lifetime) || lifetime <= 0)))
             || (definition.IsSupport && definition.ShotLimit <= 0)
             || Funds < definition.Cost)
             return false;
