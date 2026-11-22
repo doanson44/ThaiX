@@ -631,7 +631,7 @@ public sealed class FrontlineGameSimulation
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
-        AdvanceCombatTraces(elapsedUnits);
+        AdvanceCombatTraces();
         AdvanceProjectiles(elapsedUnits, homingMissilesOnly: false);
         AdvanceSupportProjectiles(elapsedUnits);
 
@@ -885,11 +885,11 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
-    private void AdvanceCombatTraces(double elapsedUnits)
+    private void AdvanceCombatTraces()
     {
         for (var index = _combatTraces.Count - 1; index >= 0; index--)
         {
-            if (!_combatTraces[index].Advance(elapsedUnits))
+            if (!_combatTraces[index].Advance())
                 _combatTraces.RemoveAt(index);
         }
     }
