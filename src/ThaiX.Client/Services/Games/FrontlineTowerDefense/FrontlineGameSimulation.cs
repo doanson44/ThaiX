@@ -548,7 +548,7 @@ public sealed class FrontlineGameSimulation
         foreach (var tower in _towers)
             tower.Loading += tower.RateOfFire * elapsedUnits;
 
-        if (Status == FrontlineGameStatus.Running)
+        if (Status == FrontlineGameStatus.Running && elapsedUnits > 0)
         {
             foreach (var tower in _towers.ToArray())
                 Fire(tower);
