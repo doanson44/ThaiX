@@ -362,12 +362,26 @@ public sealed class FrontlineGameSimulationTests
             new FrontlinePoint(50, 50));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
         var enemy = simulation.Enemies.Single();
+        var nearbyPath = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 100),
+            new FrontlinePoint(300, 100)
+        ]);
+        var distantPath = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 200),
+            new FrontlinePoint(300, 200)
+        ]);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("nearby", 500, 0.01, 10), nearbyPath);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("distant", 500, 0.01, 10), distantPath);
+        var nearbyEnemy = simulation.Enemies[1];
+        var distantEnemy = simulation.Enemies[2];
 
         simulation.Advance(1);
         simulation.Advance(34);
 
         simulation.Projectiles.Should().ContainSingle();
-        enemy.Health.Should().Be(500);
+        simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
 
         for (var tick = 0; tick < 45; tick++)
             simulation.Advance();
@@ -375,6 +389,10 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().BeEmpty();
         enemy.Health.Should().Be(480);
         enemy.PoisonDuration.Should().Be(30);
+        nearbyEnemy.Health.Should().Be(480);
+        nearbyEnemy.PoisonDuration.Should().Be(30);
+        distantEnemy.Health.Should().Be(500);
+        distantEnemy.PoisonDuration.Should().Be(0);
     }
 
     [Fact]
