@@ -262,31 +262,24 @@ public sealed class FrontlineEnemy
 
         if (IsFrozen && FreezeDuration <= 0)
             IsFrozen = false;
+
+        _movementMultiplier = FreezeDuration > 0
+            ? 0
+            : PoisonDuration > 0
+                ? 0.6
+                : RadiationDuration > 0
+                    ? Definition.IsMetal ? 0.4 : 0.6
+                    : BurnDuration > 0 && !Definition.IsMetal
+                        ? 1.2
+                        : 1;
     }
 
     private int _targetIndex = 1;
     private double _velocityX;
     private double _velocityY;
+    private double _movementMultiplier = 1;
 
-    internal double MovementMultiplier
-    {
-        get
-        {
-            if (FreezeDuration > 0)
-                return 0;
-
-            if (PoisonDuration > 0)
-                return 0.6;
-
-            if (RadiationDuration > 0)
-                return Definition.IsMetal ? 0.4 : 0.6;
-
-            if (BurnDuration > 0 && !Definition.IsMetal)
-                return 1.2;
-
-            return 1;
-        }
-    }
+    internal double MovementMultiplier => _movementMultiplier;
     public double Progress => Path.Length <= 0 ? 1 : Math.Clamp(Distance / Path.Length, 0, 1);
 }
 
