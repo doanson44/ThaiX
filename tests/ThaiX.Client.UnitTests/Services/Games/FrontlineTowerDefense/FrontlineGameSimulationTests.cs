@@ -359,9 +359,10 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(1);
         simulation.Advance(34);
-        for (var tick = 0; tick < 3; tick++)
+        for (var tick = 0; tick < 10 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
 
+        simulation.Projectiles.Should().BeEmpty();
         enemy.Health.Should().BeApproximately(488, 0.001);
         enemy.PoisonDuration.Should().BeApproximately(60, 0.001);
     }
