@@ -20,9 +20,9 @@ public sealed class FrontlineCombatTrace(
     public FrontlineCombatTraceKind Kind { get; } = kind;
     public double LifeRemaining { get; private set; } = life;
 
-    internal bool Advance(double elapsedUnits)
+    internal bool Advance()
     {
-        LifeRemaining -= elapsedUnits;
+        LifeRemaining -= Kind == FrontlineCombatTraceKind.Lightning ? 3 : 1;
         return LifeRemaining > 0;
     }
 }
