@@ -72,17 +72,23 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Poison: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 9, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8)),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8),
+            DamageUpgradeScale: 0,
+            MetalDamageUpgradeScale: 0),
         new("tower8", "Bio Cannon", 8, 300, 12, 3, 85, FrontlineTargetMode.Cold, 6000,
             DamageProfile: new FrontlineDamageProfile(12, Poison: 60),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.TrackingPoison, 3, 9, StartOffset: 20, VerticalOffset: -8),
-            StatusUpgradeScale: 1),
+            DamageUpgradeScale: 0,
+            StatusUpgradeScale: 0,
+            MetalDamageUpgradeScale: 0),
         new("tower9", "Flame Thrower", 9, 250, 2, 12, 55, FrontlineTargetMode.Near, 5000,
             DamageProfile: new FrontlineDamageProfile(2, Burn: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8),
-            StatusUpgradeScale: 1),
+            DamageUpgradeScale: 0,
+            StatusUpgradeScale: 0,
+            MetalDamageUpgradeScale: 0),
         new("tower10", "Mounted Machine Gun", 10, 500, 25, 7, 90, FrontlineTargetMode.Near, 4000,
             DamageProfile: new FrontlineDamageProfile(25, Burn: 2),
             MetalDamageProfile: new FrontlineDamageProfile(12.5, Burn: 5)),
@@ -90,7 +96,9 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Radiation: 20),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 9, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8)),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8),
+            DamageUpgradeScale: 0,
+            MetalDamageUpgradeScale: 0),
         new("suptower1", "Napalm Support Strike", 15, 0, 100, 3, 80, FrontlineTargetMode.Near, 6000, true, 6),
         new("suptower2", "Bio-Chemical Support Strike", 14, 0, 50, 3, 60, FrontlineTargetMode.Near, 12000, true, 3),
         new("suptower3", "Support Strike", 13, 0, 50, 8, 60, FrontlineTargetMode.Near, IsSupport: true, ShotLimit: 8)
