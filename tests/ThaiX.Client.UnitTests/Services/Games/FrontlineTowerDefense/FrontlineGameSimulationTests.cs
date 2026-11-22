@@ -44,12 +44,12 @@ public sealed class FrontlineGameSimulationTests
             new FrontlineTowerDefinition("rifle", 100, 50, 10, 5),
             new FrontlinePoint(25, 25));
         var tower = simulation.Towers.Single();
-        var funds = 25;
+        var funds = 26;
 
         var upgraded = tower.UpgradeDamage(ref funds);
 
         upgraded.Should().BeTrue();
-        funds.Should().Be(0);
+        funds.Should().Be(1);
         tower.Damage.Should().Be(12);
     }
 
@@ -67,6 +67,22 @@ public sealed class FrontlineGameSimulationTests
         simulation.Enemies.Should().BeEmpty();
         simulation.Funds.Should().Be(10);
         simulation.Score.Should().Be(0);
+    }
+
+    [Fact]
+    public void UpgradeDamage_WhenFundsEqualLegacyUpgradeCost_IsRejected()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 500);
+        simulation.TryBuildTower(
+            new FrontlineTowerDefinition("rifle", 100, 50, 10, 5),
+            new FrontlinePoint(25, 25));
+        var tower = simulation.Towers.Single();
+        var funds = 25;
+
+        tower.UpgradeDamage(ref funds).Should().BeFalse();
+
+        funds.Should().Be(25);
+        tower.Damage.Should().Be(10);
     }
 
     [Fact]
