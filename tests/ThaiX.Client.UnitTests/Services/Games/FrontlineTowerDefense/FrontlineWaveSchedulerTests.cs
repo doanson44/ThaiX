@@ -87,14 +87,14 @@ public sealed class FrontlineWaveSchedulerTests
     {
         var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
         [
-            new FrontlineWaveGroup("enemy1", 3, 100, 0)
+            new FrontlineWaveGroup("enemy1", 3, 100, 10)
         ]));
 
         scheduler.Advance(500, enemiesRemain: false);
         scheduler.ActiveSpawnerCount.Should().Be(1);
         scheduler.AllGroupsDispatched.Should().BeFalse();
 
-        scheduler.Advance(1000, enemiesRemain: false);
+        scheduler.Advance(20, enemiesRemain: false);
 
         scheduler.AllGroupsDispatched.Should().BeTrue();
         scheduler.ActiveSpawnerCount.Should().Be(1);
