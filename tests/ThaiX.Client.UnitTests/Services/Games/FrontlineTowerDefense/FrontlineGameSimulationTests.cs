@@ -239,7 +239,12 @@ public sealed class FrontlineGameSimulationTests
         enemy.Health.Should().Be(100);
         tower.Loading.Should().Be(110);
 
-        simulation.Advance(0);
+        simulation.Advance(0.001);
+
+        enemy.Health.Should().Be(100);
+        tower.Loading.Should().Be(110);
+
+        simulation.Advance(0.001);
 
         enemy.Health.Should().Be(90);
         tower.Loading.Should().Be(0);
@@ -395,7 +400,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
 
         simulation.Advance(1);
-        simulation.Advance(0);
+        simulation.Advance(0.001);
 
         var projectile = simulation.Projectiles.Single();
         var launchPosition = projectile.Position;
@@ -622,7 +627,7 @@ public sealed class FrontlineGameSimulationTests
         var enemy = simulation.Enemies.Single();
 
         simulation.Advance(100);
-        simulation.Advance(0);
+        simulation.Advance(0.001);
         simulation.Advance(8);
         simulation.Advance(8);
 
