@@ -709,6 +709,9 @@ public sealed class FrontlineGameSimulation
             return;
         }
 
+        if (tower.Loading < 100)
+            return;
+
         if (target.Position.DistanceTo(tower.Position) > tower.Range)
         {
             target = FindTarget(tower);
@@ -716,9 +719,6 @@ public sealed class FrontlineGameSimulation
             tower.Loading = 90;
             return;
         }
-
-        if (tower.Loading < 100)
-            return;
 
         if (tower.Definition.Id == "tower1" && target.CoreTemperature <= 60)
         {
@@ -829,7 +829,7 @@ public sealed class FrontlineGameSimulation
         }
 
         tower.Loading = 0;
-        if (tower.Definition.Id == "tower4")
+        if (tower.Definition.Id == "tower6")
             tower.TargetId = null;
 
         ResolveDeaths();
