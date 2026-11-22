@@ -73,7 +73,7 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void Advance_WhenRifleTargetsInfantry_AppliesDirectAndBurnDamage()
     {
-        var simulation = new FrontlineGameSimulation(Path, 0);
+        var simulation = new FrontlineGameSimulation(Path, 500);
         var rifle = FrontlineTowerCatalog.Find("tower2")!;
         simulation.TryBuildTower(rifle.CreateDefinition(), new FrontlinePoint(50, 10));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.1, 10));
@@ -411,7 +411,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.TrySellTower(tower.Id).Should().BeTrue();
-        for (var tick = 0; tick < 6; tick++)
+        for (var tick = 0; tick < 6 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
