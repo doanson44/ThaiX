@@ -88,7 +88,7 @@ public sealed class FrontlineSniperMissionSession
 
         var deltaX = aim.X - ShooterPosition.X;
         var deltaY = aim.Y - ShooterPosition.Y;
-        var distance = Math.Hypot(deltaX, deltaY);
+        var distance = new FrontlinePoint(deltaX, deltaY).Length;
         FrontlineEnemy? target = null;
 
         if (distance > 0)
