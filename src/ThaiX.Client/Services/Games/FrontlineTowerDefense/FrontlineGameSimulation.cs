@@ -201,8 +201,9 @@ public sealed class FrontlineEnemy
         _velocityY = distance <= 0 ? 0 : deltaY / distance;
     }
 
-    internal void ApplyDamage(FrontlineDamageProfile damage)
+    internal bool ApplyDamage(FrontlineDamageProfile damage)
     {
+        var previousHealth = Health;
         Health -= damage.DirectDamage;
         RadiationDuration += damage.Radiation * Definition.RadiationResistance;
         CoreTemperature += damage.Burn * Definition.HeatResistance;
@@ -217,6 +218,8 @@ public sealed class FrontlineEnemy
             FreezeDuration = Math.Abs(CoreTemperature * 0.2);
             IsFrozen = true;
         }
+
+        return damage.DirectDamage > 0 && previousHealth > 0 && Health <= 0;
     }
 
     internal void AdvanceEffects()
@@ -686,7 +689,9 @@ public sealed class FrontlineGameSimulation
         if (enemy is null)
             return false;
 
-        enemy.ApplyDamage(damage);
+        if (enemy.ApplyDamage(damage))
+            Score += enemy.Definition.Reward * 2;
+
         ResolveDeaths();
         return true;
     }
@@ -773,7 +778,9 @@ public sealed class FrontlineGameSimulation
         }
         else
         {
-            target.ApplyDamage(damageProfile);
+            if (target.ApplyDamage(damageProfile))
+                Score += target.Definition.Reward * 2;
+
             tower.DamageDealt += damageProfile.DirectDamage;
             if (target.Health <= 0)
                 tower.Kills++;
@@ -874,7 +881,9 @@ public sealed class FrontlineGameSimulation
                     {
                         DirectDamage = projectile.Damage.DirectDamage * projectile.Profile.SplashDamageScale
                     };
-                    enemy.ApplyDamage(splashDamage);
+                    if (enemy.ApplyDamage(splashDamage))
+                        Score += enemy.Definition.Reward * 2;
+
                     projectile.Owner.DamageDealt += splashDamage.DirectDamage;
                     if (enemy.Health <= 0)
                         projectile.Owner.Kills++;
@@ -882,7 +891,9 @@ public sealed class FrontlineGameSimulation
             }
             else
             {
-                target.ApplyDamage(projectile.Damage);
+                if (target.ApplyDamage(projectile.Damage))
+                    Score += target.Definition.Reward * 2;
+
                 projectile.Owner.DamageDealt += projectile.Damage.DirectDamage;
                 if (target.Health <= 0)
                     projectile.Owner.Kills++;
@@ -936,8 +947,9 @@ public sealed class FrontlineGameSimulation
 
             foreach (var enemy in _enemies.ToArray())
             {
-                if (enemy.Position.DistanceTo(projectile.Impact) <= 80)
-                    enemy.ApplyDamage(explosionDamage);
+                if (enemy.Position.DistanceTo(projectile.Impact) <= 80
+                    && enemy.ApplyDamage(explosionDamage))
+                    Score += enemy.Definition.Reward * 2;
             }
 
             if (projectile.CreatesFireCloud)
@@ -1032,7 +1044,6 @@ public sealed class FrontlineGameSimulation
                 continue;
 
             Funds += enemy.Definition.Reward;
-            Score += enemy.Definition.Reward * 2;
             _enemies.RemoveAt(index);
         }
     }
