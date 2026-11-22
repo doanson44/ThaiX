@@ -42,8 +42,7 @@ public sealed class FrontlineProjectile
 
         if (profile.Kind == FrontlineProjectileKind.BallisticShell)
         {
-            var predictedPosition = target.Path.PointAt(
-                target.Distance + target.Definition.Speed * target.MovementMultiplier * 40);
+            var predictedPosition = PredictPosition(target, 40);
             var distance = Math.Hypot(
                 predictedPosition.X - position.X,
                 predictedPosition.Y - position.Y);
@@ -96,8 +95,7 @@ public sealed class FrontlineProjectile
 
                 if (VerticalVelocity >= -0.05)
                 {
-                    var predictedPosition = target.Path.PointAt(
-                        target.Distance + target.Definition.Speed * target.MovementMultiplier * 25);
+                    var predictedPosition = PredictPosition(target, 25);
                     SetVelocity(predictedPosition);
                 }
 
@@ -140,6 +138,22 @@ public sealed class FrontlineProjectile
     }
 
     internal void Expire() => IsExpired = true;
+
+    private static FrontlinePoint PredictPosition(FrontlineEnemy target, double lookAhead)
+    {
+        var position = target.Position;
+        var nextPosition = target.Path.PointAt(target.Distance + 1);
+        var directionX = nextPosition.X - position.X;
+        var directionY = nextPosition.Y - position.Y;
+        var directionLength = Math.Hypot(directionX, directionY);
+
+        if (directionLength <= 0)
+            return position;
+
+        return new FrontlinePoint(
+            position.X + directionX / directionLength * lookAhead,
+            position.Y + directionY / directionLength * lookAhead);
+    }
 
     private void SetVelocity(FrontlinePoint targetPosition)
     {
