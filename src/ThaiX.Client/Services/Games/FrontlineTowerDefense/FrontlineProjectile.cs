@@ -34,6 +34,7 @@ public sealed class FrontlineProjectile
         Id = id;
         Owner = owner;
         TargetId = target.Id;
+        Target = target;
         Position = position;
         Damage = damage;
         Profile = profile;
@@ -47,11 +48,13 @@ public sealed class FrontlineProjectile
                 predictedPosition.X - position.X,
                 predictedPosition.Y - position.Y);
             VerticalVelocity = distance * profile.Speed * profile.VerticalVelocityScale;
+            SetVelocity(PredictPosition(target, 25));
         }
     }
 
     public long Id { get; }
     public long TargetId { get; }
+    internal FrontlineEnemy Target { get; }
     public FrontlinePoint Position { get; private set; }
     public double Height { get; private set; }
     public FrontlineDamageProfile Damage { get; }
@@ -61,7 +64,7 @@ public sealed class FrontlineProjectile
 
     internal bool Advance(FrontlineEnemy target, double elapsedUnits)
     {
-        if (target.Health <= 0
+        if ((target.Health <= 0 && Profile.Kind != FrontlineProjectileKind.BallisticShell)
             || (Profile.Kind == FrontlineProjectileKind.HomingMissile && target.Position.X <= 0))
         {
             IsExpired = true;
@@ -93,7 +96,7 @@ public sealed class FrontlineProjectile
                 Height = nextHeight;
                 VerticalVelocity -= Profile.Gravity * step;
 
-                if (VerticalVelocity >= -0.05)
+                if (target.Health > 0 && VerticalVelocity >= -0.05)
                 {
                     var predictedPosition = PredictPosition(target, 25);
                     SetVelocity(predictedPosition);
