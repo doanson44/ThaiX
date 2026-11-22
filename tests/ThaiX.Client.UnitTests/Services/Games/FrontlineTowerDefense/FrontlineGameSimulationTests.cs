@@ -412,8 +412,12 @@ public sealed class FrontlineGameSimulationTests
         ]);
         var simulation = new FrontlineGameSimulation(path, 950);
         var mortar = FrontlineTowerCatalog.Find("tower7")!;
-        simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
-            new FrontlinePoint(50, 50));
+        var projectileProfile = mortar.ProjectileProfile! with { VerticalVelocityScale = 0.005 };
+        simulation.TryBuildTower(mortar.CreateDefinition() with
+        {
+            RateOfFire = 100,
+            ProjectileProfile = projectileProfile
+        }, new FrontlinePoint(50, 50));
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
 
         simulation.Advance(1);
