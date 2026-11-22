@@ -214,6 +214,38 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenWaveStartsAfterTowerReloads_FiresAfterAcquiringTarget()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(50, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 200);
+        var rifle = FrontlineTowerCatalog.Find("tower2")!;
+        simulation.TryBuildTower(rifle.CreateDefinition() with { RateOfFire = 10 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+
+        simulation.Advance(10);
+
+        tower.Loading.Should().Be(100);
+        simulation.Status.Should().Be(FrontlineGameStatus.Planning);
+
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.0001, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        enemy.Health.Should().Be(100);
+        tower.Loading.Should().Be(110);
+
+        simulation.Advance(0);
+
+        enemy.Health.Should().Be(90);
+        tower.Loading.Should().Be(0);
+    }
+
+    [Fact]
     public void Advance_WhenMissileTargetIsNotHeated_DelaysLaunchUntilHeatThreshold()
     {
         var path = new FrontlinePath(
