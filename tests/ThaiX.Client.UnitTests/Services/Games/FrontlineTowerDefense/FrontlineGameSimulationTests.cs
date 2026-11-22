@@ -394,6 +394,34 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenFlameProjectileExceedsLegacyLifetime_ExpiresWithoutDamage()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 250);
+        var flame = FrontlineTowerCatalog.Find("tower9")!;
+        simulation.TryBuildTower(flame.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("fast", 500, 3, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.Advance(1);
+        simulation.Advance(0.001);
+
+        simulation.Projectiles.Should().ContainSingle();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
+
+        simulation.Advance(51);
+
+        simulation.Projectiles.Should().BeEmpty();
+        enemy.Health.Should().Be(500);
+    }
+
+    [Fact]
     public void Advance_WhenBallisticShellLaunches_UsesFortyPixelTargetLead()
     {
         var path = new FrontlinePath(
