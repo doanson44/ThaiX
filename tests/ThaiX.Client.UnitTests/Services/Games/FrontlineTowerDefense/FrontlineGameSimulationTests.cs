@@ -292,7 +292,8 @@ public sealed class FrontlineGameSimulationTests
         enemies.Should().OnlyContain(enemy => enemy.Health == 500);
         simulation.TrySellTower(tower.Id).Should().BeTrue();
 
-        simulation.Advance(1);
+        for (var tick = 0; tick < 10 && simulation.Projectiles.Count > 0; tick++)
+            simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
         enemies.Should().OnlyContain(enemy => enemy.Health == 420);
