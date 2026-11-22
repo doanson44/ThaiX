@@ -548,10 +548,15 @@ public sealed class FrontlineGameSimulation
         foreach (var tower in _towers)
             tower.Loading += tower.RateOfFire * elapsedUnits;
 
-        if (Status == FrontlineGameStatus.Running && elapsedUnits > 0)
+        if (elapsedUnits > 0)
         {
             foreach (var tower in _towers.ToArray())
-                Fire(tower);
+            {
+                if (tower.Definition.IsSupport)
+                    FireSupportStrike(tower);
+                else if (Status == FrontlineGameStatus.Running)
+                    Fire(tower);
+            }
         }
 
         ResolveDeaths();
@@ -644,12 +649,6 @@ public sealed class FrontlineGameSimulation
 
         if (tower.Loading < 100)
             return;
-
-        if (tower.Definition.IsSupport)
-        {
-            FireSupportStrike(tower);
-            return;
-        }
 
         if (tower.Definition.Id == "tower1" && target.CoreTemperature <= 60)
         {
