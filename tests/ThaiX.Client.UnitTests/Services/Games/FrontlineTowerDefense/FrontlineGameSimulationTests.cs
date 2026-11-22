@@ -400,8 +400,8 @@ public sealed class FrontlineGameSimulationTests
         var projectile = simulation.Projectiles.Single();
         var launchPosition = projectile.Position;
 
-        for (var tick = 0; tick < 25; tick++)
-            simulation.Advance();
+        for (var tick = 0; tick < 3; tick++)
+            simulation.Advance(8);
 
         projectile.Position.X.Should().BeGreaterThan(launchPosition.X);
         projectile.Height.Should().BeGreaterThan(0);
