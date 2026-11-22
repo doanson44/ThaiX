@@ -823,9 +823,12 @@ public sealed class FrontlineGameSimulation
                 var traceEnd = traceKind == FrontlineCombatTraceKind.Lightning
                     ? new FrontlinePoint(target.Position.X, target.Position.Y - 8)
                     : target.Position;
-                var traceLife = traceKind == FrontlineCombatTraceKind.Lightning
-                    ? tower.Damage
-                    : 2;
+                var traceLife = traceKind switch
+                {
+                    FrontlineCombatTraceKind.Lightning => tower.Damage,
+                    FrontlineCombatTraceKind.Shotgun => 5,
+                    _ => 6
+                };
 
                 _combatTraces.Add(new FrontlineCombatTrace(
                     traceStart,
