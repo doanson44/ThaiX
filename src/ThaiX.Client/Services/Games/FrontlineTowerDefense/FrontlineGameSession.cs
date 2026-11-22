@@ -158,8 +158,8 @@ public sealed class FrontlineGameSession
         {
             var calculatedScore = Math.Floor(
                 Simulation.Score
-                + Math.Floor(Simulation.LevelHealth * 5)
-                + Math.Floor(Simulation.Funds * 5));
+                + Math.Floor(Simulation.LevelHealth * 5d)
+                + Math.Floor(Simulation.Funds * 5d));
             TotalScore = (int)Math.Clamp(calculatedScore, 0, int.MaxValue);
             CreditsEarned = (int)Math.Floor(TotalScore * 0.25);
             _progress.SaveLevelScore(Level.ProgressIndex, TotalScore);
