@@ -54,6 +54,24 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenFreezeIsApplied_UpdatesMovementSpeedAfterCurrentMove()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 10));
+        var enemy = simulation.Enemies.Single();
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Freeze: 1000)).Should().BeTrue();
+
+        simulation.Advance();
+
+        enemy.Distance.Should().Be(1);
+        enemy.FreezeDuration.Should().BeGreaterThan(0);
+
+        simulation.Advance();
+
+        enemy.Distance.Should().Be(1);
+    }
+
+    [Fact]
     public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsWithoutScore()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
