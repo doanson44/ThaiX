@@ -239,7 +239,7 @@ public sealed class FrontlineGameSimulationTests
         enemy.Health.Should().Be(100);
         tower.Loading.Should().Be(110);
 
-        simulation.Advance(0.001);
+        simulation.Advance(0);
 
         enemy.Health.Should().Be(100);
         tower.Loading.Should().Be(110);
