@@ -8,6 +8,7 @@
         <div class="frontline-mission-grid">
             @foreach (var level in FrontlineLevelMapCatalog.Campaign)
             {
+                var hasRoute = HasRoute(level);
                 <article @key="level.Id" class="frontline-mission-card">
                     <div class="frontline-mission-card__heading">
                         <h3>@L[ResourceKeys.Games.FrontlineMission] @level.LevelNumber</h3>
@@ -18,10 +19,16 @@
                     </div>
                     <button type="button"
                             class="btn btn-primary"
-                            disabled="@(!Progress.IsLevelUnlocked(level.UnlockIndex))"
+                            disabled="@(!hasRoute || !Progress.IsLevelUnlocked(level.UnlockIndex))"
                             @onclick="() => MissionSelected.InvokeAsync(level.Id)">
                         @L[ResourceKeys.Games.FrontlinePlayMission]
                     </button>
+                    @if (!hasRoute)
+                    {
+                        <span class="frontline-mission-card__status" role="status">
+                            @L[ResourceKeys.Games.FrontlineRouteUnavailable]
+                        </span>
+                    }
                 </article>
             }
         </div>
@@ -32,6 +39,7 @@
         <div class="frontline-mission-grid">
             @foreach (var level in FrontlineLevelMapCatalog.Bonus)
             {
+                var hasRoute = HasRoute(level);
                 <article @key="level.Id" class="frontline-mission-card">
                     <div class="frontline-mission-card__heading">
                         <h3>@L[GetBonusMissionNameKey(level.LevelNumber)]</h3>
@@ -42,10 +50,16 @@
                     </div>
                     <button type="button"
                             class="btn btn-primary"
-                            disabled="@(!Progress.IsLevelUnlocked(level.UnlockIndex))"
+                            disabled="@(!hasRoute || !Progress.IsLevelUnlocked(level.UnlockIndex))"
                             @onclick="() => MissionSelected.InvokeAsync(level.Id)">
                         @L[ResourceKeys.Games.FrontlinePlayMission]
                     </button>
+                    @if (!hasRoute)
+                    {
+                        <span class="frontline-mission-card__status" role="status">
+                            @L[ResourceKeys.Games.FrontlineRouteUnavailable]
+                        </span>
+                    }
                 </article>
             }
         </div>
@@ -58,6 +72,12 @@
 
     [Parameter]
     public EventCallback<string> MissionSelected { get; set; }
+
+    private static readonly FrontlineLevelRouteFactory RouteFactory =
+        new(new FrontlineGridPathfinder());
+
+    private static bool HasRoute(FrontlineLevelMapDefinition level) =>
+        RouteFactory.TryCreateRandomRoute(level, Random.Shared, out _);
 
     private static string GetBonusMissionNameKey(int missionNumber) => missionNumber switch
     {
