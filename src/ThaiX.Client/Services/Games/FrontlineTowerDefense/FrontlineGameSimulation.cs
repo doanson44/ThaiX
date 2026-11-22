@@ -192,6 +192,11 @@ public sealed class FrontlineEnemy
         }
     }
 
+    internal FrontlinePoint PredictPosition(double lookAhead) =>
+        new(
+            Position.X + _velocityX * lookAhead,
+            Position.Y + _velocityY * lookAhead);
+
     private void SetVelocity(FrontlinePoint target)
     {
         var deltaX = target.X - Position.X;
