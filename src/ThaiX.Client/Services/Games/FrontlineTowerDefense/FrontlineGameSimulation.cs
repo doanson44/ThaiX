@@ -327,7 +327,7 @@ public sealed class FrontlineTower
     private bool Upgrade(ref double level, ref int funds)
     {
         var cost = (int)Math.Floor(Definition.Cost * 0.25);
-        if (level >= 1 || funds < cost)
+        if (level >= 1 || funds <= cost)
             return false;
 
         funds -= cost;
