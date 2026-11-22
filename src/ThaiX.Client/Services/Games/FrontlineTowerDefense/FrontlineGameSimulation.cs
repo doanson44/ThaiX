@@ -627,7 +627,6 @@ public sealed class FrontlineGameSimulation
 
     private void Fire(FrontlineTower tower)
     {
-
         var target = tower.TargetId is long targetId
             ? _enemies.FirstOrDefault(enemy => enemy.Id == targetId)
             : null;
