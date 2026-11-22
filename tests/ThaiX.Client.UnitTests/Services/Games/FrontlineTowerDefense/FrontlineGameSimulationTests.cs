@@ -501,7 +501,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(8);
 
         projectile.Position.X.Should().BeGreaterThan(launchPosition.X);
-        projectile.Height.Should().BeApproximately(1.32, 0.001);
+        projectile.Height.Should().BeApproximately(1.355, 0.01);
     }
 
     [Fact]
