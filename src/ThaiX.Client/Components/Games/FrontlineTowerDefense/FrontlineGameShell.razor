@@ -11,9 +11,9 @@
 }
 else if (_selectedLevel is not null)
 {
-    <FrontlineGameHost Level="@_selectedLevel!"
+    <FrontlineGameHost Level="@(_selectedLevel!)"
                        WaveSet="@GetWaveSet(_selectedLevel!)"
-                       Progress="@_progress!"
+                       Progress="@(_progress!)"
                        ExitRequested="@ReturnToMissions" />
 }
 else
