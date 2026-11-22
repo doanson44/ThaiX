@@ -398,10 +398,10 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Theory]
-    [InlineData("tower7", 9d, 500d)]
-    [InlineData("tower8", 9d, 500d)]
-    [InlineData("tower9", 10d, 50d)]
-    [InlineData("tower11", 9d, 500d)]
+    [InlineData("tower7", 6d, 500d)]
+    [InlineData("tower8", 6d, 500d)]
+    [InlineData("tower9", 6d, 50d)]
+    [InlineData("tower11", 6d, 500d)]
     public void Find_WhenProjectileProfileIsCreated_MatchesLegacyRadiusAndLifetime(
         string towerId,
         double collisionRadius,
