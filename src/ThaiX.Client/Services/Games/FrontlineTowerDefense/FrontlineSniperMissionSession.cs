@@ -128,7 +128,7 @@ public sealed class FrontlineSniperMissionSession
                 traceStart,
                 traceEnd,
                 FrontlineCombatTraceKind.Sniper,
-                2);
+                6);
         }
 
         if (target is null)
