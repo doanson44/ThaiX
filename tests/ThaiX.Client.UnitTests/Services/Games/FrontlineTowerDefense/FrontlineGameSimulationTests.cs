@@ -339,6 +339,7 @@ public sealed class FrontlineGameSimulationTests
         var bioCannon = FrontlineTowerCatalog.Find("tower8")!;
         simulation.TryBuildTower(bioCannon.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
         var enemy = simulation.Enemies.Single();
 
@@ -346,6 +347,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(34);
 
         simulation.Projectiles.Should().ContainSingle();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
         enemy.Health.Should().Be(100);
 
         for (var tick = 0; tick < 3; tick++)
@@ -375,6 +377,8 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(1);
         simulation.Advance(34);
+        simulation.Projectiles.Should().ContainSingle();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
         for (var tick = 0; tick < 10 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
 
@@ -395,6 +399,7 @@ public sealed class FrontlineGameSimulationTests
         var flame = FrontlineTowerCatalog.Find("tower9")!;
         simulation.TryBuildTower(flame.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 100, 0.01, 10));
         var enemy = simulation.Enemies.Single();
 
@@ -402,6 +407,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(34);
 
         simulation.Projectiles.Should().ContainSingle();
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
         for (var tick = 0; tick < 6; tick++)
             simulation.Advance();
 
@@ -450,6 +456,7 @@ public sealed class FrontlineGameSimulationTests
         var mortar = FrontlineTowerCatalog.Find("tower7")!;
         simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
 
         simulation.Advance(1);
@@ -564,6 +571,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
 
         for (var tick = 0; tick < 70 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
@@ -589,6 +597,7 @@ public sealed class FrontlineGameSimulationTests
         var plasma = FrontlineTowerCatalog.Find("tower11")!;
         simulation.TryBuildTower(plasma.CreateDefinition() with { RateOfFire = 100 },
             new FrontlinePoint(50, 50));
+        var tower = simulation.Towers.Single();
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("infantry", 500, 0.01, 10));
         var enemy = simulation.Enemies.Single();
         var nearbyPath = new FrontlinePath(
@@ -611,6 +620,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
+        simulation.TrySellTower(tower.Id).Should().BeTrue();
 
         for (var tick = 0; tick < 70 && simulation.Projectiles.Count > 0; tick++)
             simulation.Advance();
