@@ -380,6 +380,29 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenBallisticShellLaunches_UsesFortyPixelTargetLead()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(120, 48),
+            new FrontlinePoint(300, 48)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 950);
+        var mortar = FrontlineTowerCatalog.Find("tower7")!;
+        simulation.TryBuildTower(mortar.CreateDefinition() with { RateOfFire = 100 },
+            new FrontlinePoint(50, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("vehicle", 500, 0.01, 10));
+
+        simulation.Advance(1);
+        simulation.Advance(0.001);
+        var projectile = simulation.Projectiles.Single();
+
+        simulation.Advance(1);
+
+        projectile.Height.Should().BeApproximately(2.89, 0.02);
+    }
+
+    [Fact]
     public void Advance_WhenBallisticShellPassesItsApex_BeginsMovingTowardTarget()
     {
         var path = new FrontlinePath(
@@ -440,7 +463,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
 
-        for (var tick = 0; tick < 45; tick++)
+        for (var tick = 0; tick < 70; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
@@ -487,7 +510,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
 
-        for (var tick = 0; tick < 45; tick++)
+        for (var tick = 0; tick < 70; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
