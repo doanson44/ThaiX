@@ -87,23 +87,36 @@ public sealed class FrontlineProjectile
             return Height < 0;
         }
 
+        var previousPosition = Position;
         Position = new FrontlinePoint(
             Position.X + _velocityX * elapsedUnits,
             Position.Y + _velocityY * elapsedUnits);
 
         SetVelocity(target.Position);
 
-        var distance = Math.Hypot(
-            target.Position.X - Position.X,
-            target.Position.Y - Position.Y);
         const double targetCollisionRadius = 8;
-        var collisionDistance = Profile.Kind == FrontlineProjectileKind.HomingMissile
-            ? Profile.CollisionRadius
-            : Math.Sqrt(
-                Profile.CollisionRadius * Profile.CollisionRadius
-                + targetCollisionRadius * targetCollisionRadius);
+        var collisionRadiusSquared = Profile.Kind == FrontlineProjectileKind.HomingMissile
+            ? Profile.CollisionRadius * Profile.CollisionRadius
+            : Profile.CollisionRadius * Profile.CollisionRadius
+                + targetCollisionRadius * targetCollisionRadius;
 
-        return distance <= collisionDistance;
+        var segmentX = Position.X - previousPosition.X;
+        var segmentY = Position.Y - previousPosition.Y;
+        var segmentLengthSquared = segmentX * segmentX + segmentY * segmentY;
+        var projection = segmentLengthSquared <= 0
+            ? 0
+            : Math.Clamp(
+                ((target.Position.X - previousPosition.X) * segmentX
+                    + (target.Position.Y - previousPosition.Y) * segmentY)
+                    / segmentLengthSquared,
+                0,
+                1);
+        var closestX = previousPosition.X + projection * segmentX;
+        var closestY = previousPosition.Y + projection * segmentY;
+        var offsetX = target.Position.X - closestX;
+        var offsetY = target.Position.Y - closestY;
+
+        return offsetX * offsetX + offsetY * offsetY <= collisionRadiusSquared;
     }
 
     internal void Expire() => IsExpired = true;
