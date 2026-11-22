@@ -609,6 +609,11 @@ public sealed class FrontlineGameSimulation
         if (Status == FrontlineGameStatus.Running)
             MoveEnemies(elapsedUnits);
 
+        ResolveDeaths();
+        var existingAreaEffects = _areaEffects.ToArray();
+        AdvanceProjectiles(elapsedUnits, homingMissilesOnly: true);
+        AdvanceAreaEffects(elapsedUnits, existingAreaEffects);
+
         foreach (var tower in _towers)
             tower.Loading += tower.RateOfFire * elapsedUnits;
 
@@ -628,11 +633,9 @@ public sealed class FrontlineGameSimulation
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
-        var existingAreaEffects = _areaEffects.ToArray();
         AdvanceCombatTraces(elapsedUnits);
-        AdvanceProjectiles(elapsedUnits);
+        AdvanceProjectiles(elapsedUnits, homingMissilesOnly: false);
         AdvanceSupportProjectiles(elapsedUnits);
-        AdvanceAreaEffects(elapsedUnits, existingAreaEffects);
 
         if (LevelHealth <= 0)
         {
@@ -865,11 +868,14 @@ public sealed class FrontlineGameSimulation
         }
     }
 
-    private void AdvanceProjectiles(double elapsedUnits)
+    private void AdvanceProjectiles(double elapsedUnits, bool homingMissilesOnly)
     {
         for (var index = _projectiles.Count - 1; index >= 0; index--)
         {
             var projectile = _projectiles[index];
+            if ((projectile.Profile.Kind == FrontlineProjectileKind.HomingMissile) != homingMissilesOnly)
+                continue;
+
             var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
                 ?? projectile.Target;
 
