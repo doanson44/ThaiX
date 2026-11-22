@@ -129,8 +129,10 @@ public sealed class FrontlineEnemy
         Id = id;
         Definition = definition;
         Path = path;
+        Position = path.Points[0];
         Health = definition.Health;
         CoreTemperature = definition.IsMetal ? 200 : 35;
+        SetVelocity(path.Points[1]);
         BaseTemperature = definition.IsMetal ? 200 : 35;
         UpperTemperature = definition.IsMetal ? 500 : 200;
         LowerTemperature = definition.IsMetal ? 0 : -200;
@@ -140,7 +142,7 @@ public sealed class FrontlineEnemy
     public FrontlineEnemyDefinition Definition { get; }
     public FrontlinePath Path { get; }
     public double Health { get; internal set; }
-    public double Distance { get; internal set; }
+    public double Distance { get; private set; }
     public double CoreTemperature { get; private set; }
     public double BaseTemperature { get; }
     public double UpperTemperature { get; }
@@ -150,7 +152,41 @@ public sealed class FrontlineEnemy
     public double PoisonDuration { get; private set; }
     public double FreezeDuration { get; private set; }
     public bool IsFrozen { get; private set; }
-    public FrontlinePoint Position => Path.PointAt(Distance);
+    public FrontlinePoint Position { get; private set; }
+    internal bool HasReachedEnd => _targetIndex >= Path.Points.Count;
+
+    internal void Move(double elapsedUnits)
+    {
+        var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
+        var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
+        var movement = Definition.Speed * MovementMultiplier * elapsedUnits;
+        Position = new FrontlinePoint(
+            Position.X + _velocityX * movement,
+            Position.Y + _velocityY * movement);
+        Distance += movement;
+
+        var target = Path.Points[_targetIndex];
+        if (gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
+            && gridY == (int)Math.Floor(target.Y / FrontlinePath.DefaultGridCellSize)
+            && Position.X > gridX * FrontlinePath.DefaultGridCellSize + 4
+            && Position.X < gridX * FrontlinePath.DefaultGridCellSize + 28
+            && Position.Y > gridY * FrontlinePath.DefaultGridCellSize + 4
+            && Position.Y < gridY * FrontlinePath.DefaultGridCellSize + 28)
+        {
+            _targetIndex++;
+            if (!HasReachedEnd)
+                SetVelocity(Path.Points[_targetIndex]);
+        }
+    }
+
+    private void SetVelocity(FrontlinePoint target)
+    {
+        var deltaX = target.X - Position.X;
+        var deltaY = target.Y - Position.Y;
+        var distance = new FrontlinePoint(deltaX, deltaY).Length;
+        _velocityX = distance <= 0 ? 0 : deltaX / distance;
+        _velocityY = distance <= 0 ? 0 : deltaY / distance;
+    }
 
     internal void ApplyDamage(FrontlineDamageProfile damage)
     {
@@ -206,6 +242,10 @@ public sealed class FrontlineEnemy
         if (IsFrozen && FreezeDuration <= 0)
             IsFrozen = false;
     }
+
+    private int _targetIndex = 1;
+    private double _velocityX;
+    private double _velocityY;
 
     internal double MovementMultiplier
     {
@@ -585,14 +625,14 @@ public sealed class FrontlineGameSimulation
         for (var index = _enemies.Count - 1; index >= 0; index--)
         {
             var enemy = _enemies[index];
-            enemy.Distance += enemy.Definition.Speed * enemy.MovementMultiplier * elapsedUnits;
-            if (enemy.Distance >= enemy.Path.Length)
+            if (enemy.HasReachedEnd)
             {
                 LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
                 _enemies.RemoveAt(index);
                 continue;
             }
 
+            enemy.Move(elapsedUnits);
             enemy.AdvanceEffects();
         }
     }
