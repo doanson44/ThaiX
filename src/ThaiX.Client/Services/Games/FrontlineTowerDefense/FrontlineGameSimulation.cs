@@ -176,14 +176,16 @@ public sealed class FrontlineEnemy
             Position.Y + _velocityY * movement);
         Distance += movement;
 
+        var target = Path.Points[_targetIndex];
+        if (!double.IsFinite(Position.X)
+            || !double.IsFinite(Position.Y)
+            || !double.IsFinite(target.X)
+            || !double.IsFinite(target.Y))
+            return;
+
         var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
         var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
-        var target = Path.Points[_targetIndex];
-        if (double.IsFinite(Position.X)
-            && double.IsFinite(Position.Y)
-            && double.IsFinite(target.X)
-            && double.IsFinite(target.Y)
-            && gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
+        if (gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
             && gridY == (int)Math.Floor(target.Y / FrontlinePath.DefaultGridCellSize))
         {
             _targetIndex++;
