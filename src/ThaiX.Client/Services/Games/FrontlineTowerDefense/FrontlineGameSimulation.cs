@@ -400,6 +400,7 @@ public sealed class FrontlineGameSimulation
     private readonly List<FrontlineCombatTrace> _combatTraces = [];
     private readonly List<FrontlineAreaEffect> _areaEffects = [];
     private readonly List<object> _projectileActors = [];
+    private readonly List<object> _renderElements = [];
     private readonly Random _random;
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
@@ -458,7 +459,7 @@ public sealed class FrontlineGameSimulation
             || life <= 0)
             return;
 
-        _combatTraces.Add(new FrontlineCombatTrace(start, end, kind, life));
+        AddCombatTrace(new FrontlineCombatTrace(start, end, kind, life));
     }
 
     public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position, bool costAlreadyPaid = false)
@@ -681,9 +682,7 @@ public sealed class FrontlineGameSimulation
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
-        AdvanceCombatTraces();
-        AdvanceProjectiles(elapsedUnits);
-        AdvanceSupportProjectiles(elapsedUnits);
+        AdvanceRenderElements(elapsedUnits);
 
         if (LevelHealth <= 0)
         {
@@ -857,6 +856,8 @@ public sealed class FrontlineGameSimulation
             _projectiles.Add(projectile);
             if (projectileProfile.Kind == FrontlineProjectileKind.HomingMissile)
                 _projectileActors.Add(projectile);
+            else
+                _renderElements.Add(projectile);
         }
         else
         {
@@ -874,7 +875,7 @@ public sealed class FrontlineGameSimulation
 
             if (traceKind == FrontlineCombatTraceKind.Lightning)
             {
-                _combatTraces.Add(new FrontlineCombatTrace(
+                AddCombatTrace(new FrontlineCombatTrace(
                     new FrontlinePoint(tower.Position.X, tower.Position.Y - 24),
                     new FrontlinePoint(targetPosition.X, targetPosition.Y - 8),
                     traceKind,
@@ -915,7 +916,7 @@ public sealed class FrontlineGameSimulation
                     {
                         var spreadX = _random.NextDouble() * 16 - 8;
                         var spreadY = _random.NextDouble() * 16 - 8;
-                        _combatTraces.Add(new FrontlineCombatTrace(
+                        AddCombatTrace(new FrontlineCombatTrace(
                             traceStart,
                             new FrontlinePoint(
                                 targetPosition.X + spreadX,
@@ -926,7 +927,7 @@ public sealed class FrontlineGameSimulation
                 }
                 else
                 {
-                    _combatTraces.Add(new FrontlineCombatTrace(
+                    AddCombatTrace(new FrontlineCombatTrace(
                         traceStart,
                         new FrontlinePoint(targetPosition.X, targetPosition.Y - 6),
                         traceKind,
@@ -942,23 +943,30 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
-    private void AdvanceCombatTraces()
+    private void AddCombatTrace(FrontlineCombatTrace trace)
     {
-        var initialTraceCount = _combatTraces.Count;
-        for (var index = 0; index < initialTraceCount && index < _combatTraces.Count; index++)
-        {
-            if (!_combatTraces[index].Advance())
-                _combatTraces.RemoveAt(index);
-        }
+        _combatTraces.Add(trace);
+        _renderElements.Add(trace);
     }
 
-    private void AdvanceProjectileActors(double elapsedUnits)
+    private void AdvanceRenderElements(double elapsedUnits)
     {
-        var initialActorCount = _projectileActors.Count;
-        for (var index = 0; index < initialActorCount && index < _projectileActors.Count; index++)
+        var initialElementCount = _renderElements.Count;
+        for (var index = 0; index < initialElementCount && index < _renderElements.Count; index++)
         {
-            var actor = _projectileActors[index];
-            if (actor is FrontlineProjectile projectile)
+            var element = _renderElements[index];
+            if (element is FrontlineCombatTrace trace)
+            {
+                if (!trace.Advance())
+                {
+                    _combatTraces.Remove(trace);
+                    _renderElements.RemoveAt(index);
+                }
+
+                continue;
+            }
+
+            if (element is FrontlineProjectile projectile)
             {
                 var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
                     ?? projectile.Target;
@@ -968,7 +976,7 @@ public sealed class FrontlineGameSimulation
                     if (projectile.IsExpired)
                     {
                         _projectiles.Remove(projectile);
-                        _projectileActors.RemoveAt(index);
+                        _renderElements.RemoveAt(index);
                     }
 
                     continue;
@@ -993,142 +1001,49 @@ public sealed class FrontlineGameSimulation
 
                 projectile.Expire();
                 _projectiles.Remove(projectile);
-                _projectileActors.RemoveAt(index);
+                _renderElements.RemoveAt(index);
                 continue;
             }
 
-            if (actor is FrontlineAreaEffect effect)
+            if (element is FrontlineSupportProjectile supportProjectile)
             {
-                var pulse = effect.Advance(elapsedUnits);
-                if (effect.LifeRemaining <= 0)
+                if (!supportProjectile.Advance(elapsedUnits))
+                    continue;
+
+                var explosionDamage = new FrontlineDamageProfile(
+                    supportProjectile.Damage,
+                    supportProjectile.StatusDamage.Burn,
+                    supportProjectile.StatusDamage.Radiation,
+                    supportProjectile.StatusDamage.Poison,
+                    supportProjectile.StatusDamage.Freeze);
+                ApplyAreaDamage(supportProjectile.Impact, 80, explosionDamage);
+
+                if (supportProjectile.CreatesFireCloud)
                 {
-                    _areaEffects.Remove(effect);
-                    _projectileActors.RemoveAt(index);
+                    var effect = new FrontlineAreaEffect(
+                        supportProjectile.Impact,
+                        40,
+                        new FrontlineDamageProfile(Burn: 100),
+                        500,
+                        10);
+                    _areaEffects.Add(effect);
+                    _projectileActors.Add(effect);
+                }
+                else if (supportProjectile.CreatesPoisonCloud)
+                {
+                    var effect = new FrontlineAreaEffect(
+                        supportProjectile.Impact,
+                        40,
+                        new FrontlineDamageProfile(Poison: 20),
+                        1000,
+                        20);
+                    _areaEffects.Add(effect);
+                    _projectileActors.Add(effect);
                 }
 
-                if (pulse)
-                    ApplyAreaDamage(effect.Position, effect.Radius, effect.Damage);
+                _supportProjectiles.Remove(supportProjectile);
+                _renderElements.RemoveAt(index);
             }
-        }
-    }
-
-    private void AdvanceProjectiles(double elapsedUnits)
-    {
-        var existingProjectiles = _projectiles
-            .Where(projectile => projectile.Profile.Kind != FrontlineProjectileKind.HomingMissile)
-            .ToArray();
-
-        for (var index = 0; index < existingProjectiles.Length; index++)
-        {
-            var projectile = existingProjectiles[index];
-            if (!_projectiles.Contains(projectile))
-                continue;
-
-            var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
-                ?? projectile.Target;
-
-            if (!projectile.Advance(target, elapsedUnits))
-            {
-                if (projectile.IsExpired)
-                {
-                    _projectiles.Remove(projectile);
-                    index++;
-                }
-
-                continue;
-            }
-
-            if (projectile.Profile.SplashRadius > 0)
-            {
-                var splashDamage = projectile.Damage with
-                {
-                    DirectDamage = projectile.Damage.DirectDamage * projectile.Profile.SplashDamageScale
-                };
-                ApplyAreaDamage(
-                    projectile.Position,
-                    projectile.Profile.SplashRadius,
-                    splashDamage,
-                    projectile.Owner);
-            }
-            else
-            {
-                ApplyDamageToEnemy(target, projectile.Damage, projectile.Owner);
-            }
-
-            projectile.Expire();
-            _projectiles.Remove(projectile);
-            index++;
-        }
-
-        ResolveDeaths();
-    }
-
-    private void FireSupportStrike(FrontlineTower tower)
-    {
-        if (tower.Loading < 100)
-            return;
-
-        var spread = tower.Definition.Id == "suptower1" ? 60 : 40;
-        var impact = new FrontlinePoint(
-            tower.Position.X + _random.NextDouble() * spread * 2 - spread,
-            tower.Position.Y + _random.NextDouble() * spread * 2 - spread);
-        var statusDamage = tower.Definition.SupportDamage ?? new FrontlineDamageProfile();
-
-        _supportProjectiles.Add(new FrontlineSupportProjectile(
-            impact,
-            tower.Damage * 0.5,
-            statusDamage,
-            tower.Definition.Id == "suptower1",
-            tower.Definition.Id == "suptower2"));
-
-        tower.Loading = 0;
-        tower.ShotsFired++;
-        if (tower.ShotsFired >= tower.Definition.ShotLimit)
-            _towers.Remove(tower);
-    }
-
-    private void AdvanceSupportProjectiles(double elapsedUnits)
-    {
-        var initialProjectileCount = _supportProjectiles.Count;
-        for (var index = 0; index < initialProjectileCount && index < _supportProjectiles.Count; index++)
-        {
-            var projectile = _supportProjectiles[index];
-            if (!projectile.Advance(elapsedUnits))
-                continue;
-
-            var explosionDamage = new FrontlineDamageProfile(
-                projectile.Damage,
-                projectile.StatusDamage.Burn,
-                projectile.StatusDamage.Radiation,
-                projectile.StatusDamage.Poison,
-                projectile.StatusDamage.Freeze);
-
-            ApplyAreaDamage(projectile.Impact, 80, explosionDamage);
-
-            if (projectile.CreatesFireCloud)
-            {
-                var effect = new FrontlineAreaEffect(
-                    projectile.Impact,
-                    40,
-                    new FrontlineDamageProfile(Burn: 100),
-                    500,
-                    10);
-                _areaEffects.Add(effect);
-                _projectileActors.Add(effect);
-            }
-            else if (projectile.CreatesPoisonCloud)
-            {
-                var effect = new FrontlineAreaEffect(
-                    projectile.Impact,
-                    40,
-                    new FrontlineDamageProfile(Poison: 20),
-                    1000,
-                    20);
-                _areaEffects.Add(effect);
-                _projectileActors.Add(effect);
-            }
-
-            _supportProjectiles.RemoveAt(index);
         }
 
         ResolveDeaths();
