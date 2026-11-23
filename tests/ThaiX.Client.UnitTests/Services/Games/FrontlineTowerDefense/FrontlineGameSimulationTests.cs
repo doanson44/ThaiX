@@ -926,7 +926,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenCoreTemperatureIsNearBaseTemperature_OscillatesByLegacyStep()
+    public void Advance_WhenCoreTemperatureIsNearBaseTemperature_PreservesLegacyIndependentChecks()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 10));
@@ -934,7 +934,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 0.01));
 
         simulation.Advance();
-        enemy.CoreTemperature.Should().BeApproximately(34.99, 0.000001);
+        enemy.CoreTemperature.Should().BeApproximately(35.01, 0.000001);
 
         simulation.Advance();
         enemy.CoreTemperature.Should().BeApproximately(35.01, 0.000001);
