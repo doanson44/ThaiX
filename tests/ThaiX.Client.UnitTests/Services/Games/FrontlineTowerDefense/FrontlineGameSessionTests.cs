@@ -56,7 +56,7 @@ public sealed class FrontlineGameSessionTests
         session.Advance(0);
 
         enemy.Health.Should().BeApproximately(99.5, 0.001);
-        enemy.BurnDuration.Should().BeApproximately(234.98, 0.001);
+        enemy.BurnDuration.Should().Be(234);
         enemy.Distance.Should().Be(0);
     }
 
