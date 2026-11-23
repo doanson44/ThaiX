@@ -117,7 +117,8 @@ public sealed record FrontlineTowerDefinition(
     FrontlineProjectileProfile? ProjectileProfile = null,
     double DamageUpgradeScale = 1,
     double StatusUpgradeScale = 0,
-    double MetalDamageUpgradeScale = 1);
+    double MetalDamageUpgradeScale = 1,
+    double ExperienceLimit = 500);
 
 public enum FrontlineTowerUpgradeType
 {
@@ -301,6 +302,7 @@ public sealed class FrontlineTower
         Definition = definition;
         Cell = cell;
         Position = position;
+        ExperienceLimit = definition.ExperienceLimit;
     }
 
     public long Id { get; }
@@ -318,12 +320,26 @@ public sealed class FrontlineTower
     public int Kills { get; internal set; }
     public int ShotsFired { get; internal set; }
     public double DamageDealt { get; internal set; }
+    public double Experience { get; internal set; }
+    public double ExperienceLimit { get; internal set; }
     public double Range => Definition.Range * (1 + _rangeLevel);
     public double Damage => Definition.Damage * (1 + _damageLevel);
     public double RateOfFire => Definition.RateOfFire * (1 + _rateOfFireLevel);
     public double DamageUpgradeLevel => _damageLevel;
     public double RangeUpgradeLevel => _rangeLevel;
     public double RateOfFireUpgradeLevel => _rateOfFireLevel;
+
+    internal void AddExperience(double damage) =>
+        Experience += Math.Floor(damage);
+
+    internal void AdvanceExperience()
+    {
+        if (Experience < ExperienceLimit)
+            return;
+
+        Experience -= ExperienceLimit;
+        ExperienceLimit *= 1.2;
+    }
 
     public bool UpgradeDamage(ref int funds) => Upgrade(ref _damageLevel, ref funds);
     public bool UpgradeRange(ref int funds) => Upgrade(ref _rangeLevel, ref funds);
@@ -348,9 +364,11 @@ public sealed class FrontlineGameSimulation
         double damage,
         FrontlineDamageProfile statusDamage,
         bool createsFireCloud,
-        bool createsPoisonCloud)
+        bool createsPoisonCloud,
+        FrontlineTower owner)
     {
         public FrontlinePoint Impact { get; } = impact;
+        public FrontlineTower Owner { get; } = owner;
         public double Damage { get; } = damage;
         public FrontlineDamageProfile StatusDamage { get; } = statusDamage;
         public bool CreatesFireCloud { get; } = createsFireCloud;
@@ -672,6 +690,8 @@ public sealed class FrontlineGameSimulation
                 FireSupportStrike(tower);
             else if (Status == FrontlineGameStatus.Running)
                 Fire(tower);
+
+            tower.AdvanceExperience();
         }
 
         ResolveDeaths();
@@ -1025,7 +1045,8 @@ public sealed class FrontlineGameSimulation
             tower.Damage * 0.5,
             statusDamage,
             tower.Definition.Id == "suptower1",
-            tower.Definition.Id == "suptower2");
+            tower.Definition.Id == "suptower2",
+            tower);
         _supportProjectiles.Add(projectile);
         _renderElements.Add(projectile);
 
@@ -1102,7 +1123,7 @@ public sealed class FrontlineGameSimulation
                     supportProjectile.StatusDamage.Radiation,
                     supportProjectile.StatusDamage.Poison,
                     supportProjectile.StatusDamage.Freeze);
-                ApplyAreaDamage(supportProjectile.Impact, 80, explosionDamage);
+                ApplyAreaDamage(supportProjectile.Impact, 80, explosionDamage, supportProjectile.Owner);
 
                 if (supportProjectile.CreatesFireCloud)
                 {
@@ -1183,7 +1204,10 @@ public sealed class FrontlineGameSimulation
 
         var killed = enemy.ApplyDamage(damage);
         if (owner is not null)
+        {
             owner.DamageDealt += damage.DirectDamage;
+            owner.AddExperience(damage.DirectDamage);
+        }
 
         if (!killed)
             return false;
