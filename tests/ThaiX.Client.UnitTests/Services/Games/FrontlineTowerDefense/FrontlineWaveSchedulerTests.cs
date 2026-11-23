@@ -52,6 +52,28 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void Advance_WhenSpawnerRemovesItself_SkipsNextSpawnerForCurrentFrame()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("first", 1, 10, 0),
+            new FrontlineWaveGroup("second", 1, 10, 0)
+        ]));
+        scheduler.TryStartNextGroup();
+
+        scheduler.Advance(0, false);
+        scheduler.ActiveSpawnerCount.Should().Be(2);
+
+        var firstFrame = scheduler.Advance(10, false);
+        firstFrame.Should().ContainSingle(request => request.EnemyType == "first");
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+
+        var secondFrame = scheduler.Advance(10, false);
+        secondFrame.Should().ContainSingle(request => request.EnemyType == "second");
+        scheduler.ActiveSpawnerCount.Should().Be(0);
+    }
+
+    [Fact]
     public void Advance_WhenGroupDelayIsShorterThanSpawnDuration_KeepsBothSpawnersActive()
     {
         var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
