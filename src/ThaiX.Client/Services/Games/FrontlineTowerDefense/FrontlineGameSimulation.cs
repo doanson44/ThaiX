@@ -305,6 +305,7 @@ public sealed class FrontlineTower
     public FrontlineTowerDefinition Definition { get; }
     public FrontlineGridPoint Cell { get; internal set; }
     public FrontlinePoint Position { get; internal set; }
+    public bool IsHeld { get; internal set; }
     public double SaleValue => Definition.Cost * 0.5;
     private double _damageLevel;
     private double _rangeLevel;
@@ -521,6 +522,45 @@ public sealed class FrontlineGameSimulation
         return true;
     }
 
+    public bool TryBeginMoveTower(long towerId)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
+            || Funds < 10)
+            return false;
+
+        var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
+        if (tower is null || tower.Definition.IsSupport || tower.IsHeld)
+            return false;
+
+        Funds -= 10;
+        tower.Cell = new FrontlineGridPoint(-1, -1);
+        tower.IsHeld = true;
+        tower.TargetId = null;
+        return true;
+    }
+
+    public bool TryCompleteMoveTower(long towerId, FrontlinePoint position)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
+            || !IsValidPosition(position))
+            return false;
+
+        var tower = _towers.FirstOrDefault(candidate => candidate.Id == towerId);
+        if (tower is null || !tower.IsHeld)
+            return false;
+
+        var cell = ToGridCell(position);
+        if (_towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
+            || (LevelMap is not null && !LevelMap.IsBuildable(cell)))
+            return false;
+
+        tower.Cell = cell;
+        tower.Position = ToCellCenter(cell);
+        tower.IsHeld = false;
+        tower.TargetId = null;
+        return true;
+    }
+
     public bool TrySellTower(long towerId)
     {
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
@@ -621,6 +661,9 @@ public sealed class FrontlineGameSimulation
         for (var index = 0; index < initialTowerCount && index < _towers.Count; index++)
         {
             var tower = _towers[index];
+            if (tower.IsHeld)
+                continue;
+
             tower.Loading += tower.RateOfFire * elapsedUnits;
 
             if (tower.Definition.IsSupport)
