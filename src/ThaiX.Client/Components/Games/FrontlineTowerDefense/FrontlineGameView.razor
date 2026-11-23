@@ -82,7 +82,7 @@
     <div class="frontline-game-layout">
         <FrontlineBoard Level="@Session.Level"
                         Simulation="@Session.Simulation"
-                        IsPlacementEnabled="@(_selectedBuildTower is not null && Session.State == FrontlineGameSessionState.Playing)"
+                        IsPlacementEnabled="@((_selectedBuildTower is not null || _movingTowerId is not null) && Session.State == FrontlineGameSessionState.Playing)"
                         SelectedTowerId="@_selectedTowerId"
                         CellSelected="@OnCellSelected"
                         TowerSelected="@OnTowerSelected" />
@@ -160,6 +160,13 @@
                             <span>@UpgradeCost</span>
                         </button>
                         <button type="button"
+                                class="btn btn-outline-secondary"
+                                disabled="@(!CanMoveTower)"
+                                @onclick="BeginMoveTower">
+                            @L[ResourceKeys.Games.FrontlineMoveTower]
+                            <span>10</span>
+                        </button>
+                        <button type="button"
                                 class="btn btn-outline-danger"
                                 disabled="@(Session.State != FrontlineGameSessionState.Playing)"
                                 @onclick="SellTower">
@@ -183,6 +190,7 @@
 
     private FrontlineTowerArchetype? _selectedBuildTower;
     private long? _selectedTowerId;
+    private long? _movingTowerId;
     private string _speedValue = "1";
 
     private bool CanTogglePause =>
@@ -205,6 +213,13 @@
 
     private int UpgradeCost =>
         SelectedTower is null ? 0 : (int)Math.Floor(SelectedTower.Definition.Cost * 0.25);
+
+    private bool CanMoveTower =>
+        Session.State == FrontlineGameSessionState.Playing
+        && _movingTowerId is null
+        && SelectedTower is not null
+        && !SelectedTower.Definition.IsSupport
+        && Session.Simulation.Funds >= 10;
 
     private string GetBuildButtonClass(string towerId) =>
         _selectedBuildTower?.Id == towerId
@@ -239,7 +254,8 @@
 
     private void SelectBuildTower(FrontlineTowerArchetype tower)
     {
-        if (_selectedBuildTower is not null
+        if (_movingTowerId is not null
+            || _selectedBuildTower is not null
             || !Session.Simulation.TrySpendFunds(tower.BuildCost))
             return;
 
@@ -249,7 +265,12 @@
 
     private Task OnCellSelected(FrontlinePoint position)
     {
-        if (_selectedBuildTower is not null
+        if (_movingTowerId is long movingTowerId)
+        {
+            if (Session.Simulation.TryCompleteMoveTower(movingTowerId, position))
+                _movingTowerId = null;
+        }
+        else if (_selectedBuildTower is not null
             && Session.Simulation.TryBuildTower(
                 _selectedBuildTower.CreateDefinition(),
                 position,
@@ -263,6 +284,9 @@
 
     private Task OnTowerSelected(long towerId)
     {
+        if (_movingTowerId is not null)
+            return Task.CompletedTask;
+
         _selectedBuildTower = null;
         _selectedTowerId = towerId;
         return InvokeAsync(StateHasChanged);
@@ -295,9 +319,21 @@
             Session.Simulation.TryUpgradeTower(SelectedTower.Id, type);
     }
 
+    private void BeginMoveTower()
+    {
+        if (SelectedTower is not null && Session.Simulation.TryBeginMoveTower(SelectedTower.Id))
+        {
+            _movingTowerId = SelectedTower.Id;
+            _selectedBuildTower = null;
+        }
+    }
+
     private void SellTower()
     {
         if (SelectedTower is not null && Session.Simulation.TrySellTower(SelectedTower.Id))
+        {
             _selectedTowerId = null;
+            _movingTowerId = null;
+        }
     }
 }
