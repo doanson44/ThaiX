@@ -612,11 +612,12 @@ public sealed class FrontlineGameSimulation
         AdvanceProjectiles(elapsedUnits, homingMissilesOnly: true);
         AdvanceAreaEffects(elapsedUnits, existingAreaEffects);
 
-        foreach (var tower in _towers)
+        var initialTowerCount = _towers.Count;
+        for (var index = 0; index < initialTowerCount && index < _towers.Count; index++)
+        {
+            var tower = _towers[index];
             tower.Loading += tower.RateOfFire * elapsedUnits;
 
-        foreach (var tower in _towers.ToArray())
-        {
             if (tower.Definition.IsSupport)
                 FireSupportStrike(tower);
             else if (Status == FrontlineGameStatus.Running)
