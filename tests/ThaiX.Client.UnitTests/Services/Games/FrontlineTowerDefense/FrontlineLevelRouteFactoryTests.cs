@@ -22,53 +22,57 @@ public sealed class FrontlineLevelRouteFactoryTests
     }
 
     [Fact]
-    public void TryCreateRandomRoute_BonusLevelFour_AlwaysSelectsAReachableEndpointPair()
+    public void TryCreateRandomRoute_BonusLevelFour_SelectsStartAndEndIndependently()
     {
         var level = FrontlineLevelMapCatalog.Find("bonus-04")!;
 
         for (var seed = 0; seed < 100; seed++)
         {
+            var expectedRandom = new Random(seed);
+            var expectedStart = level.StartPoints[expectedRandom.Next(level.StartPoints.Count)];
+            var expectedEnd = level.EndPoints[expectedRandom.Next(level.EndPoints.Count)];
+
             var created = _factory.TryCreateRandomRoute(level, new Random(seed), out var route);
 
             created.Should().BeTrue();
             route.Should().NotBeNull();
-            var selectedRoute = route!;
-            level.StartPoints.Should().Contain(selectedRoute.Start);
-            level.EndPoints.Should().Contain(selectedRoute.End);
-            selectedRoute.Path.Points.Should().HaveCountGreaterThan(1);
+            route!.Start.Should().Be(expectedStart);
+            route.End.Should().Be(expectedEnd);
+            route.Path.Points.Should().HaveCountGreaterThan(1);
         }
     }
 
     [Fact]
-    public void TryCreateRandomRoute_AllMaps_OnlySourceConnectedMapsReturnRoutes()
+    public void TryCreateRandomRoute_AllMaps_SelectsAuthoredEndpointsEvenWhenPathIsUnreachable()
     {
-        var reachableMapIds = new HashSet<string>(StringComparer.Ordinal)
-        {
-            "level-01",
-            "bonus-01",
-            "bonus-04"
-        };
-
         foreach (var level in FrontlineLevelMapCatalog.All)
         {
             var created = _factory.TryCreateRandomRoute(level, new Random(42), out var route);
 
-            created.Should().Be(reachableMapIds.Contains(level.Id));
+            created.Should().Be(level.StartPoints.Count > 0 && level.EndPoints.Count > 0);
             if (created)
+            {
                 route.Should().NotBeNull();
+                route!.Path.Points.Should().HaveCountGreaterThan(1);
+            }
             else
+            {
                 route.Should().BeNull();
+            }
         }
     }
 
     [Fact]
-    public void TryCreateRandomRoute_LevelWithoutPath_ReturnsFalse()
+    public void TryCreateRandomRoute_LevelWithoutPath_PreservesInvalidLegacyMovement()
     {
         var level = FrontlineLevelMapCatalog.Find("level-08")!;
 
         var created = _factory.TryCreateRandomRoute(level, new Random(42), out var route);
 
-        created.Should().BeFalse();
-        route.Should().BeNull();
+        created.Should().BeTrue();
+        route.Should().NotBeNull();
+        route!.Path.UsesGridMovement.Should().BeTrue();
+        double.IsNaN(route.Path.Points[1].X).Should().BeTrue();
+        double.IsNaN(route.Path.Points[1].Y).Should().BeTrue();
     }
 }
