@@ -184,6 +184,33 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenTraceRemovesItself_SkipsNextRenderElement()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var support = FrontlineTowerCatalog.Find("suptower1")!.CreateDefinition() with
+        {
+            RateOfFire = 100,
+            ShotLimit = 6
+        };
+        simulation.TryBuildTower(support, new FrontlinePoint(50, 50)).Should().BeTrue();
+        simulation.AddCombatTrace(
+            new FrontlinePoint(0, 0),
+            new FrontlinePoint(10, 10),
+            FrontlineCombatTraceKind.Bullet,
+            1);
+
+        simulation.Advance();
+
+        simulation.CombatTraces.Should().BeEmpty();
+        simulation.SupportProjectiles.Should().ContainSingle();
+        simulation.SupportProjectiles.Single().Height.Should().Be(450);
+
+        simulation.Advance();
+
+        simulation.SupportProjectiles.First().Height.Should().BeApproximately(449.5, 0.001);
+    }
+
+    [Fact]
     public void Advance_WhenNapalmSupportStrikeFires_AppliesAreaDamageAndExpiresAfterSixShots()
     {
         var simulation = new FrontlineGameSimulation(Path, 0, random: new Random(1));
