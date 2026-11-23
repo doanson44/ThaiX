@@ -229,9 +229,11 @@ public sealed class FrontlineEnemy
 
     internal void AdvanceEffects()
     {
-        CoreTemperature = CoreTemperature > BaseTemperature
-            ? Math.Max(BaseTemperature, CoreTemperature - 0.02)
-            : Math.Min(BaseTemperature, CoreTemperature + 0.02);
+        if (CoreTemperature > BaseTemperature)
+            CoreTemperature -= 0.02;
+
+        if (CoreTemperature < BaseTemperature)
+            CoreTemperature += 0.02;
 
         if (BurnDuration > 0)
         {
