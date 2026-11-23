@@ -179,7 +179,11 @@ public sealed class FrontlineEnemy
         var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
         var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
         var target = Path.Points[_targetIndex];
-        if (gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
+        if (double.IsFinite(Position.X)
+            && double.IsFinite(Position.Y)
+            && double.IsFinite(target.X)
+            && double.IsFinite(target.Y)
+            && gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
             && gridY == (int)Math.Floor(target.Y / FrontlinePath.DefaultGridCellSize))
         {
             _targetIndex++;
