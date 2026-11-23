@@ -82,7 +82,7 @@
     <div class="frontline-game-layout">
         <FrontlineBoard Level="@Session.Level"
                         Simulation="@Session.Simulation"
-                        IsPlacementEnabled="@((_selectedBuildTower is not null || _movingTowerId is not null) && Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)"
+                        IsPlacementEnabled="@((_selectedBuildTower is not null || _movingTowerId is not null) && (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))"
                         SelectedTowerId="@_selectedTowerId"
                         CellSelected="@OnCellSelected"
                         TowerSelected="@OnTowerSelected" />
@@ -215,7 +215,7 @@
         SelectedTower is null ? 0 : (int)Math.Floor(SelectedTower.Definition.Cost * 0.25);
 
     private bool CanMoveTower =>
-        Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused
+        (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
         && _movingTowerId is null
         && SelectedTower is not null
         && !SelectedTower.Definition.IsSupport
