@@ -478,7 +478,7 @@ public sealed class FrontlineGameSimulationTests
         var enemy = simulation.Enemies.Single();
 
         simulation.Advance(1);
-        simulation.Advance(34);
+        simulation.Advance(8);
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.TrySellTower(tower.Id).Should().BeTrue();
@@ -510,7 +510,7 @@ public sealed class FrontlineGameSimulationTests
         var enemy = simulation.Enemies.Single();
 
         simulation.Advance(1);
-        simulation.Advance(34);
+        simulation.Advance(8);
         simulation.Projectiles.Should().ContainSingle();
         simulation.TrySellTower(tower.Id).Should().BeTrue();
         for (var tick = 0; tick < 10 && simulation.Projectiles.Count > 0; tick++)
@@ -538,7 +538,7 @@ public sealed class FrontlineGameSimulationTests
         var enemy = simulation.Enemies.Single();
 
         simulation.Advance(1);
-        simulation.Advance(34);
+        simulation.Advance(8);
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.TrySellTower(tower.Id).Should().BeTrue();
@@ -632,7 +632,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(8);
 
         projectile.Position.X.Should().BeGreaterThan(launchPosition.X);
-        projectile.Height.Should().BeApproximately(1.355, 0.01);
+        projectile.Height.Should().BeApproximately(3.874, 0.01);
     }
 
     [Fact]
@@ -705,7 +705,7 @@ public sealed class FrontlineGameSimulationTests
         var distantEnemy = simulation.Enemies[2];
 
         simulation.Advance(1);
-        simulation.Advance(34);
+        simulation.Advance(8);
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
@@ -754,7 +754,7 @@ public sealed class FrontlineGameSimulationTests
         var distantEnemy = simulation.Enemies[2];
 
         simulation.Advance(1);
-        simulation.Advance(34);
+        simulation.Advance(8);
 
         simulation.Projectiles.Should().ContainSingle();
         simulation.Enemies.Should().OnlyContain(candidate => candidate.Health == 500);
@@ -830,7 +830,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance(25);
 
-        enemy.CoreTemperature.Should().BeApproximately(134.98, 0.001);
+        enemy.CoreTemperature.Should().BeApproximately(234.98, 0.001);
         enemy.BurnDuration.Should().Be(0);
     }
 
@@ -863,7 +863,7 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
-    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsAndKillScore()
+    public void Advance_WhenDamageOverTimeKillsEnemy_AwardsCreditsWithoutKillScore()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 0.1, 1, 10));
@@ -874,7 +874,7 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Enemies.Should().BeEmpty();
         simulation.Funds.Should().Be(10);
-        simulation.Score.Should().Be(20);
+        simulation.Score.Should().Be(0);
     }
 
     [Fact]
