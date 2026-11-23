@@ -143,6 +143,9 @@ public sealed class FrontlineWaveSchedulerTests
 
         scheduler.AllGroupsDispatched.Should().BeTrue();
         scheduler.ActiveSpawnerCount.Should().Be(1);
+        scheduler.IsComplete.Should().BeFalse();
+
+        scheduler.Advance(1, enemiesRemain: false);
         scheduler.IsComplete.Should().BeTrue();
     }
 
