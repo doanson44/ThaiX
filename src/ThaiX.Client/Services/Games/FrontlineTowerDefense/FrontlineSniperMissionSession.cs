@@ -83,6 +83,7 @@ public sealed class FrontlineSniperMissionSession
 
         ShotsFired++;
         _canFire = false;
+        _loading = 0;
         LastAim = aim;
 
         var deltaX = aim.X - ShooterPosition.X;
