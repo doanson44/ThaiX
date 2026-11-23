@@ -926,6 +926,21 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenCoreTemperatureIsNearBaseTemperature_OscillatesByLegacyStep()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 10));
+        var enemy = simulation.Enemies.Single();
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 0.01));
+
+        simulation.Advance();
+        enemy.CoreTemperature.Should().BeApproximately(34.99, 0.000001);
+
+        simulation.Advance();
+        enemy.CoreTemperature.Should().BeApproximately(35.01, 0.000001);
+    }
+
+    [Fact]
     public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
