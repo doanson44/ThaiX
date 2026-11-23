@@ -309,16 +309,27 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
-    public void Constructor_WhenMapHasNoValidAuthoredRoute_ThrowsRouteUnavailable()
+    public void Advance_WhenMapHasNoPath_PreservesLegacyInvalidEnemyMovement()
     {
         var level = FrontlineLevelMapCatalog.Find("level-08")!;
         var waveSet = FrontlineWaveCatalog.Find("level-08")!;
         var progress = FrontlinePlayerProgress.CreateNew();
         progress.UnlockLevel(level.UnlockIndex);
+        var session = new FrontlineGameSession(level, waveSet, progress, new Random(42));
 
-        var act = () => new FrontlineGameSession(level, waveSet, progress, new Random(42));
+        session.State.Should().Be(FrontlineGameSessionState.Playing);
+        session.TryStartNextWave().Should().BeTrue();
 
-        act.Should().Throw<FrontlineRouteUnavailableException>();
+        session.Advance(1000);
+        session.Advance(1000);
+        session.Simulation.Enemies.Should().ContainSingle();
+
+        session.Advance(1000);
+
+        var enemy = session.Simulation.Enemies.Single();
+        double.IsNaN(enemy.Position.X).Should().BeTrue();
+        double.IsNaN(enemy.Position.Y).Should().BeTrue();
+        session.State.Should().Be(FrontlineGameSessionState.Playing);
     }
 
     [Fact]
