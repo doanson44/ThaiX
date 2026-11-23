@@ -832,6 +832,45 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void TryBeginMoveTower_ReservesRelocationCostAndFreesOriginalCell()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 150);
+        var definition = FrontlineTowerCatalog.Find("tower2")!.CreateDefinition();
+        simulation.TryBuildTower(definition, new FrontlinePoint(50, 50)).Should().BeTrue();
+        var movingTower = simulation.Towers.Single();
+
+        simulation.TryBeginMoveTower(movingTower.Id).Should().BeTrue();
+
+        movingTower.IsHeld.Should().BeTrue();
+        movingTower.Cell.Should().Be(new FrontlineGridPoint(-1, -1));
+        simulation.Funds.Should().Be(90);
+        simulation.TryBuildTower(definition, new FrontlinePoint(50, 50)).Should().BeTrue();
+
+        simulation.TryCompleteMoveTower(movingTower.Id, new FrontlinePoint(100, 100)).Should().BeTrue();
+
+        movingTower.IsHeld.Should().BeFalse();
+        movingTower.Position.Should().Be(new FrontlinePoint(112, 112));
+        simulation.Funds.Should().Be(40);
+        simulation.Towers.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void TryCompleteMoveTower_WhenDestinationIsBlocked_KeepsTowerHeldAndCostSpent()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-01")!;
+        var simulation = new FrontlineGameSimulation(Path, 100, levelMap: level);
+        var definition = FrontlineTowerCatalog.Find("tower2")!.CreateDefinition();
+        simulation.TryBuildTower(definition, new FrontlinePoint(400, 400)).Should().BeTrue();
+        var tower = simulation.Towers.Single();
+
+        simulation.TryBeginMoveTower(tower.Id).Should().BeTrue();
+        simulation.TryCompleteMoveTower(tower.Id, new FrontlinePoint(48, 16)).Should().BeFalse();
+
+        tower.IsHeld.Should().BeTrue();
+        simulation.Funds.Should().Be(40);
+    }
+
+    [Fact]
     public void TryMoveTower_WhenSupportStrikeSelected_IsRejected()
     {
         var simulation = new FrontlineGameSimulation(Path, 10);
