@@ -61,6 +61,16 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void TryStartNextWave_WhenPaused_StillStartsNextGroup()
+    {
+        var session = CreateSession();
+        session.Pause();
+
+        session.CanStartNextWave.Should().BeTrue();
+        session.TryStartNextWave().Should().BeTrue();
+    }
+
+    [Fact]
     public void Advance_WhenPausedAndTowerIsLoaded_StillFiresLikeLegacyRuntime()
     {
         var level = new FrontlineLevelMapDefinition(
