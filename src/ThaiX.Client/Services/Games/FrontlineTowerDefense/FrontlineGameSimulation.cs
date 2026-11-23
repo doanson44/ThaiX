@@ -942,7 +942,8 @@ public sealed class FrontlineGameSimulation
 
     private void AdvanceCombatTraces()
     {
-        for (var index = _combatTraces.Count - 1; index >= 0; index--)
+        var initialTraceCount = _combatTraces.Count;
+        for (var index = 0; index < initialTraceCount && index < _combatTraces.Count; index++)
         {
             if (!_combatTraces[index].Advance())
                 _combatTraces.RemoveAt(index);
@@ -1086,7 +1087,8 @@ public sealed class FrontlineGameSimulation
 
     private void AdvanceSupportProjectiles(double elapsedUnits)
     {
-        for (var index = _supportProjectiles.Count - 1; index >= 0; index--)
+        var initialProjectileCount = _supportProjectiles.Count;
+        for (var index = 0; index < initialProjectileCount && index < _supportProjectiles.Count; index++)
         {
             var projectile = _supportProjectiles[index];
             if (!projectile.Advance(elapsedUnits))
