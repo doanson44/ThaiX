@@ -63,6 +63,7 @@ public sealed class FrontlineWaveScheduler
         if (IsComplete)
             return [];
 
+        var wasAllGroupsDispatched = AllGroupsDispatched;
         _manualStartCooldownTicks++;
         var spawned = new List<FrontlineSpawnRequest>();
 
@@ -94,7 +95,7 @@ public sealed class FrontlineWaveScheduler
             }
         }
 
-        if (AllGroupsDispatched && !enemiesRemain && spawned.Count == 0)
+        if (wasAllGroupsDispatched && AllGroupsDispatched && !enemiesRemain && spawned.Count == 0)
             IsComplete = true;
 
         return spawned;
