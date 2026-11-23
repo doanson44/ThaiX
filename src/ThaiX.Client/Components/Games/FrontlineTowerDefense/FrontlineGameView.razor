@@ -96,7 +96,7 @@
                         <button @key="tower.Id"
                                 type="button"
                                 class="@GetBuildButtonClass(tower.Id)"
-                                disabled="@(Session.State != FrontlineGameSessionState.Playing || Session.Simulation.Funds < tower.BuildCost)"
+                                disabled="@((Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused) || Session.Simulation.Funds < tower.BuildCost)"
                                 @onclick="() => SelectBuildTower(tower)">
                             <span>@L[GetTowerNameKey(tower.Id)]</span>
                             <strong>@tower.BuildCost</strong>
@@ -115,7 +115,7 @@
                             <button @key="tower.Id"
                                     type="button"
                                     class="@GetBuildButtonClass(tower.Id)"
-                                    disabled="@(Session.State != FrontlineGameSessionState.Playing)"
+                                    disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
                                     @onclick="() => SelectBuildTower(tower)">
                                 <span>@L[GetTowerNameKey(tower.Id)]</span>
                                 <strong>@tower.BuildCost</strong>
@@ -168,7 +168,7 @@
                         </button>
                         <button type="button"
                                 class="btn btn-outline-danger"
-                                disabled="@(Session.State != FrontlineGameSessionState.Playing)"
+                                disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
                                 @onclick="SellTower">
                             @L[ResourceKeys.Games.FrontlineSellTower]
                             <span>@Math.Floor(SelectedTower.SaleValue)</span>
@@ -246,7 +246,7 @@
     };
 
     private bool CanUpgrade(double level) =>
-        Session.State == FrontlineGameSessionState.Playing
+        (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
         && SelectedTower is not null
         && !SelectedTower.Definition.IsSupport
         && level < 1
