@@ -173,6 +173,10 @@ public sealed class FrontlineGameSessionTests
 
         session.Advance(500);
 
+        session.CanFire.Should().BeFalse();
+
+        session.Advance(500);
+
         session.CanFire.Should().BeTrue();
     }
 
