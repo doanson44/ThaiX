@@ -58,7 +58,8 @@ public sealed class FrontlineGameSession
     public FrontlineWaveSet WaveSet { get; }
     public FrontlineGameSimulation Simulation { get; }
     public FrontlinePlayerProgress Progress => _progress;
-    public bool CanStartNextWave => State == FrontlineGameSessionState.Playing && _waveScheduler.CanManuallyStart;
+    public bool CanStartNextWave => State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused
+        && _waveScheduler.CanManuallyStart;
     public FrontlineGameSessionState State { get; private set; }
     public double SpeedMultiplier { get; private set; } = 1;
     public int CurrentWave => _waveScheduler.CurrentGroup;
@@ -80,7 +81,9 @@ public sealed class FrontlineGameSession
     }
 
     public bool TryStartNextWave() =>
-        State == FrontlineGameSessionState.Playing && _waveScheduler.TryStartNextGroup();
+        State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused
+        ? _waveScheduler.TryStartNextGroup()
+        : false;
 
     public bool SetSpeedMultiplier(double multiplier)
     {
