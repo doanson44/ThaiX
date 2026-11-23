@@ -11,6 +11,37 @@ public sealed class FrontlineGameSimulationTests
     ]);
 
     [Fact]
+    public void TryBuildTower_WhenCostWasReservedOnSelection_DoesNotChargeAgain()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 100);
+        var definition = FrontlineTowerCatalog.Find("tower2")!.CreateDefinition();
+
+        simulation.TrySpendFunds(definition.Cost).Should().BeTrue();
+        simulation.Funds.Should().Be(50);
+
+        simulation.TryBuildTower(definition, new FrontlinePoint(50, 50), costAlreadyPaid: true)
+            .Should().BeTrue();
+
+        simulation.Funds.Should().Be(50);
+        simulation.Towers.Single().SaleValue.Should().Be(25);
+    }
+
+    [Fact]
+    public void TryBuildTower_WhenReservedTowerIsDroppedOnBlockedCell_KeepsReservedCost()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-01")!;
+        var simulation = new FrontlineGameSimulation(Path, 100, levelMap: level);
+        var definition = FrontlineTowerCatalog.Find("tower2")!.CreateDefinition();
+
+        simulation.TrySpendFunds(definition.Cost).Should().BeTrue();
+        simulation.TryBuildTower(definition, new FrontlinePoint(48, 16), costAlreadyPaid: true)
+            .Should().BeFalse();
+
+        simulation.Funds.Should().Be(50);
+        simulation.Towers.Should().BeEmpty();
+    }
+
+    [Fact]
     public void TryBuildTower_WithSufficientFunds_DeductsCostAndAddsTower()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
