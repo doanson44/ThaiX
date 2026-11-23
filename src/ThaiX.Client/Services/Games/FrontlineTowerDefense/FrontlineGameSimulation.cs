@@ -949,6 +949,92 @@ public sealed class FrontlineGameSimulation
         _renderElements.Add(trace);
     }
 
+    private void AdvanceProjectileActors(double elapsedUnits)
+    {
+        var initialActorCount = _projectileActors.Count;
+        for (var index = 0; index < initialActorCount && index < _projectileActors.Count; index++)
+        {
+            var actor = _projectileActors[index];
+            if (actor is FrontlineProjectile projectile)
+            {
+                var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
+                    ?? projectile.Target;
+
+                if (!projectile.Advance(target, elapsedUnits))
+                {
+                    if (projectile.IsExpired)
+                    {
+                        _projectiles.Remove(projectile);
+                        _projectileActors.RemoveAt(index);
+                    }
+
+                    continue;
+                }
+
+                if (projectile.Profile.SplashRadius > 0)
+                {
+                    var splashDamage = projectile.Damage with
+                    {
+                        DirectDamage = projectile.Damage.DirectDamage * projectile.Profile.SplashDamageScale
+                    };
+                    ApplyAreaDamage(
+                        projectile.Position,
+                        projectile.Profile.SplashRadius,
+                        splashDamage,
+                        projectile.Owner);
+                }
+                else
+                {
+                    ApplyDamageToEnemy(target, projectile.Damage, projectile.Owner);
+                }
+
+                projectile.Expire();
+                _projectiles.Remove(projectile);
+                _projectileActors.RemoveAt(index);
+                continue;
+            }
+
+            if (actor is FrontlineAreaEffect effect)
+            {
+                var pulse = effect.Advance(elapsedUnits);
+                if (effect.LifeRemaining <= 0)
+                {
+                    _areaEffects.Remove(effect);
+                    _projectileActors.RemoveAt(index);
+                }
+
+                if (pulse)
+                    ApplyAreaDamage(effect.Position, effect.Radius, effect.Damage);
+            }
+        }
+    }
+
+    private void FireSupportStrike(FrontlineTower tower)
+    {
+        if (tower.Loading < 100)
+            return;
+
+        var spread = tower.Definition.Id == "suptower1" ? 60 : 40;
+        var impact = new FrontlinePoint(
+            tower.Position.X + _random.NextDouble() * spread * 2 - spread,
+            tower.Position.Y + _random.NextDouble() * spread * 2 - spread);
+        var statusDamage = tower.Definition.SupportDamage ?? new FrontlineDamageProfile();
+
+        var projectile = new FrontlineSupportProjectile(
+            impact,
+            tower.Damage * 0.5,
+            statusDamage,
+            tower.Definition.Id == "suptower1",
+            tower.Definition.Id == "suptower2");
+        _supportProjectiles.Add(projectile);
+        _renderElements.Add(projectile);
+
+        tower.Loading = 0;
+        tower.ShotsFired++;
+        if (tower.ShotsFired >= tower.Definition.ShotLimit)
+            _towers.Remove(tower);
+    }
+
     private void AdvanceRenderElements(double elapsedUnits)
     {
         var initialElementCount = _renderElements.Count;
