@@ -457,7 +457,7 @@ public sealed class FrontlineGameSimulation
         _combatTraces.Add(new FrontlineCombatTrace(start, end, kind, life));
     }
 
-    public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position)
+    public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position, bool costAlreadyPaid = false)
     {
         ArgumentNullException.ThrowIfNull(definition);
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat
@@ -482,7 +482,7 @@ public sealed class FrontlineGameSimulation
                     || (projectileProfile.Lifetime is double lifetime
                         && (!double.IsFinite(lifetime) || lifetime <= 0))))
             || (definition.IsSupport && definition.ShotLimit <= 0)
-            || Funds < definition.Cost)
+            || (!costAlreadyPaid && Funds < definition.Cost))
             return false;
 
         var cell = ToGridCell(position);
@@ -492,7 +492,8 @@ public sealed class FrontlineGameSimulation
         if (_towers.Any(tower => tower.Cell == cell))
             return false;
 
-        Funds -= definition.Cost;
+        if (!costAlreadyPaid)
+            Funds -= definition.Cost;
         _towers.Add(new FrontlineTower(_nextTowerId++, definition, cell, ToCellCenter(cell)));
         return true;
     }
