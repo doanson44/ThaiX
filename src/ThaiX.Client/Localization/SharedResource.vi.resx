@@ -2227,9 +2227,6 @@
   <data name="Games.FrontlineTowerDefense.StartingFundsBonus" xml:space="preserve"><value>Tăng tiền khởi đầu</value></data>
   <data name="Games.FrontlineTowerDefense.NapalmStrike" xml:space="preserve"><value>Không kích Napalm</value></data>
   <data name="Games.FrontlineTowerDefense.BioChemicalStrike" xml:space="preserve"><value>Không kích sinh hóa</value></data>
-  <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Hỗ trợ không kích</value></data>
-  <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Đòn không kích</value></data>
-  <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Số lượt còn lại: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.CreditsEarned" xml:space="preserve"><value>Tín dụng nhận được: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperHint" xml:space="preserve"><value>Nhấp vào chiến trường để bắn. Nhấp trực tiếp vào kẻ địch để ngắm chính xác; bắn trượt vẫn tốn một quỹ.</value></data>
   <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Số phát bắn: {0}</value></data>
