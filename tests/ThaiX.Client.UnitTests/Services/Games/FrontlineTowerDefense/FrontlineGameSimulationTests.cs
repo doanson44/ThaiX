@@ -237,6 +237,29 @@ public sealed class FrontlineGameSimulationTests
         simulation.Status.Should().Be(FrontlineGameStatus.Planning);
     }
 
+    [Fact]
+    public void Advance_WhenSupportTowerRemovesItself_SkipsNextTowerForCurrentFrame()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 50);
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        var standard = FrontlineTowerCatalog.Find("tower2")!;
+        simulation.TryBuildTower(support.CreateDefinition() with
+        {
+            RateOfFire = 100,
+            ShotLimit = 1
+        }, new FrontlinePoint(50, 50));
+        simulation.TryBuildTower(standard.CreateDefinition() with { RateOfFire = 10 },
+            new FrontlinePoint(100, 50));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("target", 100, 1, 10));
+
+        var standardTower = simulation.Towers.Single(tower => !tower.Definition.IsSupport);
+        simulation.Advance();
+
+        simulation.Towers.Should().ContainSingle(tower => tower.Id == standardTower.Id);
+        standardTower.Loading.Should().Be(0);
+        standardTower.TargetId.Should().BeNull();
+    }
+
     [Theory]
     [InlineData(FrontlineTargetMode.Near)]
     [InlineData(FrontlineTargetMode.Far)]
