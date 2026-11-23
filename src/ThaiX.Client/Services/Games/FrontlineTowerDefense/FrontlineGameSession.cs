@@ -107,9 +107,6 @@ public sealed class FrontlineGameSession
         var elapsedUnits = State == FrontlineGameSessionState.Paused
             ? 0
             : Math.Min(elapsedMilliseconds * 0.08 * SpeedMultiplier, 8);
-        if (State != FrontlineGameSessionState.Paused && elapsedMilliseconds == 0)
-            return;
-
         Simulation.AdvanceBeforeWaveScheduler(elapsedUnits);
         var spawnRequests = _waveScheduler.Advance(elapsedUnits, Simulation.Enemies.Count > 0);
         foreach (var request in spawnRequests)
