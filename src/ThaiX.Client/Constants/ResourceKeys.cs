@@ -171,6 +171,7 @@ public static class ResourceKeys
         public const string FrontlineUpgradeRange = "Games.FrontlineTowerDefense.UpgradeRange";
         public const string FrontlineUpgradeRateOfFire = "Games.FrontlineTowerDefense.UpgradeRateOfFire";
         public const string FrontlineSellTower = "Games.FrontlineTowerDefense.SellTower";
+        public const string FrontlineMoveTower = "Games.FrontlineTowerDefense.MoveTower";
         public const string FrontlineSpeed = "Games.FrontlineTowerDefense.Speed";
         public const string FrontlineVictory = "Games.FrontlineTowerDefense.Victory";
         public const string FrontlineDefeat = "Games.FrontlineTowerDefense.Defeat";
