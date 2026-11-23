@@ -878,6 +878,26 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenStatusDamageKillsEnemy_SkipsNextEnemyForCurrentFrame()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 0.1, 1, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 100, 1, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("third", 100, 1, 10));
+        var first = simulation.Enemies[0];
+        var second = simulation.Enemies[1];
+        var third = simulation.Enemies[2];
+
+        simulation.ApplyDamage(first.Id, new FrontlineDamageProfile(Burn: 1000));
+        simulation.Advance();
+
+        simulation.Enemies.Should().NotContain(first);
+        second.Distance.Should().Be(0);
+        third.Distance.Should().Be(1);
+        simulation.Funds.Should().Be(10);
+    }
+
+    [Fact]
     public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
