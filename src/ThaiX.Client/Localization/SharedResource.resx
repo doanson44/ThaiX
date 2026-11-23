@@ -2216,6 +2216,7 @@
   <data name="Games.FrontlineTowerDefense.UpgradeRange" xml:space="preserve"><value>Upgrade range</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRateOfFire" xml:space="preserve"><value>Upgrade fire rate</value></data>
   <data name="Games.FrontlineTowerDefense.SellTower" xml:space="preserve"><value>Sell tower</value></data>
+  <data name="Games.FrontlineTowerDefense.MoveTower" xml:space="preserve"><value>Move tower</value></data>
   <data name="Games.FrontlineTowerDefense.Speed" xml:space="preserve"><value>Speed</value></data>
   <data name="Games.FrontlineTowerDefense.Victory" xml:space="preserve"><value>Mission complete</value></data>
   <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Base destroyed</value></data>
