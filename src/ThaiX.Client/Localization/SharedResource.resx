@@ -2246,6 +2246,8 @@
   <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Support towers</value></data>
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Support strike</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Support shots remaining: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.ProgressSaveFailed" xml:space="preserve"><value>Progress could not be saved. Retry before leaving this mission to avoid losing your results.</value></data>
+  <data name="Games.FrontlineTowerDefense.RetrySave" xml:space="preserve"><value>Retry save</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Missile Launcher</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Rifle Tower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Sniper Tower</value></data>
