@@ -811,6 +811,8 @@ public sealed class FrontlineGameSimulation
         }
         else
         {
+            var targetPosition = target.Position;
+            var traceAimPosition = target.PredictPosition(4);
             ApplyDamageToEnemy(target, damageProfile, tower);
 
             var traceKind = tower.Definition.Id switch
@@ -825,13 +827,13 @@ public sealed class FrontlineGameSimulation
             {
                 _combatTraces.Add(new FrontlineCombatTrace(
                     new FrontlinePoint(tower.Position.X, tower.Position.Y - 24),
-                    new FrontlinePoint(target.Position.X, target.Position.Y - 8),
+                    new FrontlinePoint(targetPosition.X, targetPosition.Y - 8),
                     traceKind,
                     tower.Damage));
             }
             else
             {
-                var aimPosition = target.PredictPosition(4);
+                var aimPosition = traceAimPosition;
                 var aimX = aimPosition.X - tower.Position.X;
                 var aimY = aimPosition.Y - tower.Position.Y;
                 var aimLength = new FrontlinePoint(aimX, aimY).Length;
@@ -867,8 +869,8 @@ public sealed class FrontlineGameSimulation
                         _combatTraces.Add(new FrontlineCombatTrace(
                             traceStart,
                             new FrontlinePoint(
-                                target.Position.X + spreadX,
-                                target.Position.Y - 6 + spreadY),
+                                targetPosition.X + spreadX,
+                                targetPosition.Y - 6 + spreadY),
                             traceKind,
                             5));
                     }
@@ -877,7 +879,7 @@ public sealed class FrontlineGameSimulation
                 {
                     _combatTraces.Add(new FrontlineCombatTrace(
                         traceStart,
-                        new FrontlinePoint(target.Position.X, target.Position.Y - 6),
+                        new FrontlinePoint(targetPosition.X, targetPosition.Y - 6),
                         traceKind,
                         6));
                 }
