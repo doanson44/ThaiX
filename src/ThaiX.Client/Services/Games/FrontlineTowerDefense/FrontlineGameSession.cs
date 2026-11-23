@@ -21,7 +21,6 @@ public sealed class FrontlineGameSession
     private readonly Random _random;
     private readonly FrontlineWaveScheduler _waveScheduler;
     private readonly FrontlinePlayerProgress _progress;
-    private FrontlineLevelRoute? _reservedInitialRoute;
 
     public FrontlineGameSession(
         FrontlineLevelMapDefinition level,
@@ -46,15 +45,8 @@ public sealed class FrontlineGameSession
         _random = random;
         _routeFactory = new FrontlineLevelRouteFactory(new FrontlineGridPathfinder());
 
-        if (!_routeFactory.TryCreateRandomRoute(level, random, out _reservedInitialRoute)
-            || _reservedInitialRoute is null)
-        {
-            State = FrontlineGameSessionState.RouteUnavailable;
-            throw new FrontlineRouteUnavailableException(level.Id);
-        }
-
         Simulation = new FrontlineGameSimulation(
-            _reservedInitialRoute.Path,
+            _routeFactory.CreateDefaultPath(level),
             progress.StartingFunds,
             levelMap: level,
             random: random);
@@ -122,24 +114,14 @@ public sealed class FrontlineGameSession
             var archetype = FrontlineEnemyCatalog.Find(request.EnemyType)
                 ?? throw new InvalidOperationException($"Unknown Frontline enemy type '{request.EnemyType}'.");
 
-            FrontlinePath enemyPath;
-            if (_reservedInitialRoute is not null)
-            {
-                enemyPath = _reservedInitialRoute.Path;
-                _reservedInitialRoute = null;
-            }
-            else if (_routeFactory.TryCreateRandomRoute(Level, _random, out var route)
-                && route is not null)
-            {
-                enemyPath = route.Path;
-            }
-            else
+            if (!_routeFactory.TryCreateRandomRoute(Level, _random, out var route)
+                || route is null)
             {
                 State = FrontlineGameSessionState.RouteUnavailable;
                 return;
             }
 
-            Simulation.SpawnEnemy(archetype.CreateDefinition(request.WaveNumber), enemyPath);
+            Simulation.SpawnEnemy(archetype.CreateDefinition(request.WaveNumber), route.Path);
         }
 
         Simulation.AdvanceAfterWaveScheduler(elapsedUnits);
