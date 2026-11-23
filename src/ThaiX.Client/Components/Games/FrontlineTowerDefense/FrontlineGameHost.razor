@@ -5,6 +5,18 @@
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlinePlayerProgressStore ProgressStore
 
+@if (_progressSaveFailed)
+{
+    <div class="alert alert-warning" role="alert">
+        <p>@L[ResourceKeys.Games.FrontlineProgressSaveFailed]</p>
+        <button type="button" class="btn btn-outline-warning"
+                disabled="@_isRetryingProgressSave"
+                @onclick="RetryProgressSaveAsync">
+            @L[ResourceKeys.Games.FrontlineRetrySave]
+        </button>
+    </div>
+}
+
 @if (SniperSession is not null)
 {
     <FrontlineSniperMissionView Session="@SniperSession" ExitRequested="@ExitRequested" />
@@ -41,6 +53,9 @@ else
     private FrontlineGameSession? Session;
     private FrontlineSniperMissionSession? SniperSession;
     private string _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
+    private FrontlinePlayerProgress? _pendingProgressSave;
+    private bool _progressSaveFailed;
+    private bool _isRetryingProgressSave;
 
     protected override async Task OnInitializedAsync()
     {
@@ -94,9 +109,15 @@ else
 
                 if (previousState != FrontlineGameSessionState.Victory
                     && currentState == FrontlineGameSessionState.Victory)
-                    await ProgressStore.SaveAsync(
-                        Session?.Progress ?? SniperSession!.Progress,
+                {
+                    _pendingProgressSave = Session?.Progress ?? SniperSession!.Progress;
+                    _progressSaveFailed = !await ProgressStore.SaveAsync(
+                        _pendingProgressSave,
                         cancellationToken);
+
+                    if (!_progressSaveFailed)
+                        _pendingProgressSave = null;
+                }
 
                 await InvokeAsync(StateHasChanged);
 
@@ -111,6 +132,27 @@ else
         }
         catch (ObjectDisposedException)
         {
+        }
+    }
+
+    private async Task RetryProgressSaveAsync()
+    {
+        if (_pendingProgressSave is null || _isRetryingProgressSave)
+            return;
+
+        _isRetryingProgressSave = true;
+        try
+        {
+            _progressSaveFailed = !await ProgressStore.SaveAsync(
+                _pendingProgressSave,
+                _lifetime.Token);
+
+            if (!_progressSaveFailed)
+                _pendingProgressSave = null;
+        }
+        finally
+        {
+            _isRetryingProgressSave = false;
         }
     }
 
