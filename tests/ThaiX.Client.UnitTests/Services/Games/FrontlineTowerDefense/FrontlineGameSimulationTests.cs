@@ -240,7 +240,12 @@ public sealed class FrontlineGameSimulationTests
     [Fact]
     public void Advance_WhenSupportTowerRemovesItself_SkipsNextTowerForCurrentFrame()
     {
-        var simulation = new FrontlineGameSimulation(Path, 50);
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 80),
+            new FrontlinePoint(400, 80)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 50);
         var support = FrontlineTowerCatalog.Find("suptower1")!;
         var standard = FrontlineTowerCatalog.Find("tower2")!;
         simulation.TryBuildTower(support.CreateDefinition() with
