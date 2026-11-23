@@ -397,6 +397,7 @@ public sealed class FrontlineGameSimulation
     private readonly List<FrontlineProjectile> _projectiles = [];
     private readonly List<FrontlineCombatTrace> _combatTraces = [];
     private readonly List<FrontlineAreaEffect> _areaEffects = [];
+    private readonly List<object> _projectileActors = [];
     private readonly Random _random;
     private long _nextEnemyId = 1;
     private long _nextTowerId = 1;
@@ -437,7 +438,7 @@ public sealed class FrontlineGameSimulation
     public IReadOnlyList<FrontlineSupportProjectile> SupportProjectiles => _supportProjectiles;
     public IReadOnlyList<FrontlineCombatTrace> CombatTraces => _combatTraces;
     public IReadOnlyList<FrontlineAreaEffect> AreaEffects => _areaEffects;
-    public int ActiveProjectileCount => _projectiles.Count;
+    public int ActiveProjectileCount => _projectiles.Count + _areaEffects.Count;
     public int ActiveSupportProjectileCount => _supportProjectiles.Count;
     public int ActiveAreaEffectCount => _areaEffects.Count;
 
@@ -653,9 +654,7 @@ public sealed class FrontlineGameSimulation
             MoveEnemies(elapsedUnits);
 
         ResolveDeaths();
-        var existingAreaEffects = _areaEffects.ToArray();
-        AdvanceProjectiles(elapsedUnits, homingMissilesOnly: true);
-        AdvanceAreaEffects(elapsedUnits, existingAreaEffects);
+        AdvanceProjectileActors(elapsedUnits);
 
         var initialTowerCount = _towers.Count;
         for (var index = 0; index < initialTowerCount && index < _towers.Count; index++)
@@ -681,7 +680,7 @@ public sealed class FrontlineGameSimulation
             return;
 
         AdvanceCombatTraces();
-        AdvanceProjectiles(elapsedUnits, homingMissilesOnly: false);
+        AdvanceProjectiles(elapsedUnits);
         AdvanceSupportProjectiles(elapsedUnits);
 
         if (LevelHealth <= 0)
@@ -693,6 +692,7 @@ public sealed class FrontlineGameSimulation
         if (_enemies.Count == 0
             && _projectiles.Count == 0
             && _supportProjectiles.Count == 0
+            && _areaEffects.Count == 0
             && Status == FrontlineGameStatus.Running)
             Status = FrontlineGameStatus.Planning;
     }
@@ -843,7 +843,7 @@ public sealed class FrontlineGameSimulation
                 ? -0.5 - _random.NextDouble() * 0.5
                 : 0;
 
-            _projectiles.Add(new FrontlineProjectile(
+            var projectile = new FrontlineProjectile(
                 _nextProjectileId++,
                 tower,
                 target,
@@ -851,7 +851,10 @@ public sealed class FrontlineGameSimulation
                 damageProfile,
                 projectileProfile,
                 initialVelocityX,
-                initialVelocityY));
+                initialVelocityY);
+            _projectiles.Add(projectile);
+            if (projectileProfile.Kind == FrontlineProjectileKind.HomingMissile)
+                _projectileActors.Add(projectile);
         }
         else
         {
@@ -946,12 +949,76 @@ public sealed class FrontlineGameSimulation
         }
     }
 
-    private void AdvanceProjectiles(double elapsedUnits, bool homingMissilesOnly)
+    private void AdvanceProjectileActors(double elapsedUnits)
     {
-        for (var index = _projectiles.Count - 1; index >= 0; index--)
+        var initialActorCount = _projectileActors.Count;
+        for (var index = 0; index < initialActorCount && index < _projectileActors.Count; index++)
         {
-            var projectile = _projectiles[index];
-            if ((projectile.Profile.Kind == FrontlineProjectileKind.HomingMissile) != homingMissilesOnly)
+            var actor = _projectileActors[index];
+            if (actor is FrontlineProjectile projectile)
+            {
+                var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
+                    ?? projectile.Target;
+
+                if (!projectile.Advance(target, elapsedUnits))
+                {
+                    if (projectile.IsExpired)
+                    {
+                        _projectiles.Remove(projectile);
+                        _projectileActors.RemoveAt(index);
+                    }
+
+                    continue;
+                }
+
+                if (projectile.Profile.SplashRadius > 0)
+                {
+                    var splashDamage = projectile.Damage with
+                    {
+                        DirectDamage = projectile.Damage.DirectDamage * projectile.Profile.SplashDamageScale
+                    };
+                    ApplyAreaDamage(
+                        projectile.Position,
+                        projectile.Profile.SplashRadius,
+                        splashDamage,
+                        projectile.Owner);
+                }
+                else
+                {
+                    ApplyDamageToEnemy(target, projectile.Damage, projectile.Owner);
+                }
+
+                projectile.Expire();
+                _projectiles.Remove(projectile);
+                _projectileActors.RemoveAt(index);
+                continue;
+            }
+
+            if (actor is FrontlineAreaEffect effect)
+            {
+                var pulse = effect.Advance(elapsedUnits);
+                if (effect.LifeRemaining <= 0)
+                {
+                    _areaEffects.Remove(effect);
+                    _projectileActors.RemoveAt(index);
+                }
+
+                if (pulse)
+                    ApplyAreaDamage(effect.Position, effect.Radius, effect.Damage);
+            }
+        }
+    }
+
+    private void AdvanceProjectiles(double elapsedUnits)
+    {
+        var existingProjectiles = _projectiles
+            .Where(projectile => projectile.Profile.Kind != FrontlineProjectileKind.HomingMissile)
+            .ToArray();
+
+        for (var index = 0; index < existingProjectiles.Length; index++)
+        {
+            var projectile = existingProjectiles[index];
+            if (!_projectiles.Contains(projectile))
                 continue;
 
             var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
@@ -960,7 +1027,11 @@ public sealed class FrontlineGameSimulation
             if (!projectile.Advance(target, elapsedUnits))
             {
                 if (projectile.IsExpired)
-                    _projectiles.RemoveAt(index);
+                {
+                    _projectiles.Remove(projectile);
+                    index++;
+                }
+
                 continue;
             }
 
@@ -982,7 +1053,8 @@ public sealed class FrontlineGameSimulation
             }
 
             projectile.Expire();
-            _projectiles.RemoveAt(index);
+            _projectiles.Remove(projectile);
+            index++;
         }
 
         ResolveDeaths();
@@ -1031,21 +1103,25 @@ public sealed class FrontlineGameSimulation
 
             if (projectile.CreatesFireCloud)
             {
-                _areaEffects.Add(new FrontlineAreaEffect(
+                var effect = new FrontlineAreaEffect(
                     projectile.Impact,
                     40,
                     new FrontlineDamageProfile(Burn: 100),
                     500,
-                    10));
+                    10);
+                _areaEffects.Add(effect);
+                _projectileActors.Add(effect);
             }
             else if (projectile.CreatesPoisonCloud)
             {
-                _areaEffects.Add(new FrontlineAreaEffect(
+                var effect = new FrontlineAreaEffect(
                     projectile.Impact,
                     40,
                     new FrontlineDamageProfile(Poison: 20),
                     1000,
-                    20));
+                    20);
+                _areaEffects.Add(effect);
+                _projectileActors.Add(effect);
             }
 
             _supportProjectiles.RemoveAt(index);
@@ -1054,26 +1130,6 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
-    private void AdvanceAreaEffects(
-        double elapsedUnits,
-        IReadOnlyList<FrontlineAreaEffect> existingAreaEffects)
-    {
-        for (var index = existingAreaEffects.Count - 1; index >= 0; index--)
-        {
-            var effect = existingAreaEffects[index];
-            if (!_areaEffects.Contains(effect))
-                continue;
-            if (effect.Advance(elapsedUnits))
-            {
-                ApplyAreaDamage(effect.Position, effect.Radius, effect.Damage);
-            }
-
-            if (effect.LifeRemaining <= 0)
-                _areaEffects.RemoveAt(index);
-        }
-
-        ResolveDeaths();
-    }
     private FrontlineEnemy? FindTarget(FrontlineTower tower)
     {
         var candidates = _enemies
