@@ -1121,8 +1121,8 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance();
 
         var enemy = simulation.Enemies.Single();
-        enemy.Position.X.Should().Be(64);
-        enemy.Position.Y.Should().Be(56);
+        enemy.Position.X.Should().BeApproximately(64 + 16 / Math.Sqrt(1280) * 8, 0.001);
+        enemy.Position.Y.Should().BeApproximately(48 + 32 / Math.Sqrt(1280) * 8, 0.001);
     }
 
     [Fact]
