@@ -187,6 +187,8 @@ public static class ResourceKeys
         public const string FrontlineSupportTowers = "Games.FrontlineTowerDefense.SupportTowers";
         public const string FrontlineSupportStrike = "Games.FrontlineTowerDefense.SupportStrike";
         public const string FrontlineSupportShotsRemaining = "Games.FrontlineTowerDefense.SupportShotsRemaining";
+        public const string FrontlineProgressSaveFailed = "Games.FrontlineTowerDefense.ProgressSaveFailed";
+        public const string FrontlineRetrySave = "Games.FrontlineTowerDefense.RetrySave";
         public const string FrontlineSniperShots = "Games.FrontlineTowerDefense.SniperShots";
         public const string FrontlineSniperHits = "Games.FrontlineTowerDefense.SniperHits";
         public const string FrontlineSniperHint = "Games.FrontlineTowerDefense.SniperHint";
