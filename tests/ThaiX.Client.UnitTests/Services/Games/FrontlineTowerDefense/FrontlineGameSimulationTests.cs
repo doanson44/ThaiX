@@ -860,7 +860,7 @@ public sealed class FrontlineGameSimulationTests
         var level = FrontlineLevelMapCatalog.Find("level-01")!;
         var simulation = new FrontlineGameSimulation(Path, 100, levelMap: level);
         var definition = FrontlineTowerCatalog.Find("tower2")!.CreateDefinition();
-        simulation.TryBuildTower(definition, new FrontlinePoint(400, 400)).Should().BeTrue();
+        simulation.TryBuildTower(definition, new FrontlinePoint(16, 80)).Should().BeTrue();
         var tower = simulation.Towers.Single();
 
         simulation.TryBeginMoveTower(tower.Id).Should().BeTrue();
