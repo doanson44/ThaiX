@@ -49,6 +49,14 @@ public sealed class FrontlineLevelRouteFactory(FrontlineGridPathfinder pathfinde
         var startPosition = new FrontlinePoint(
             start.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5,
             start.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5);
+        if (gridPath is { Count: 1 })
+        {
+            return new FrontlinePath([startPosition, startPosition])
+            {
+                UsesGridMovement = true
+            };
+        }
+
         return new FrontlinePath(
         [
             startPosition,
