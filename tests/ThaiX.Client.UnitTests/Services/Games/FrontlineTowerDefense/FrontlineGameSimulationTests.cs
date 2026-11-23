@@ -941,6 +941,53 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void ApplyDamage_WhenEnemyDies_RemovesItAndMovesItOffscreenImmediately()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 10, 1, 10));
+        var enemy = simulation.Enemies.Single();
+
+        simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(DirectDamage: 10));
+
+        simulation.Enemies.Should().BeEmpty();
+        enemy.Position.Should().Be(new FrontlinePoint(-50, -50));
+        simulation.Funds.Should().Be(10);
+        simulation.Score.Should().Be(20);
+    }
+
+    [Fact]
+    public void Advance_WhenAreaDamageKillsAnEnemy_SkipsNextEnemyInLegacyLoop()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var support = FrontlineTowerCatalog.Find("suptower1")!;
+        simulation.TryBuildTower(support.CreateDefinition() with
+        {
+            RateOfFire = 100,
+            ShotLimit = 1
+        }, new FrontlinePoint(50, 50));
+        simulation.Advance();
+        var impact = simulation.SupportProjectiles.Single().Impact;
+        var path = new FrontlinePath(
+        [
+            impact,
+            new FrontlinePoint(impact.X + 1000, impact.Y)
+        ]);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("first", 40, 0.01, 10), path);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("second", 40, 0.01, 10), path);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("third", 40, 0.01, 10), path);
+
+        for (var tick = 0; tick < 120 && simulation.SupportProjectiles.Count > 0; tick++)
+            simulation.Advance();
+
+        simulation.SupportProjectiles.Should().BeEmpty();
+        simulation.Enemies.Should().ContainSingle();
+        simulation.Enemies.Single().Definition.Id.Should().Be("second");
+        simulation.Enemies.Single().Health.Should().Be(40);
+        simulation.Funds.Should().Be(20);
+        simulation.Score.Should().Be(40);
+    }
+
+    [Fact]
     public void ApplyDamage_WithPoisonAgainstMetalEnemy_DoesNotApplyPoison()
     {
         var simulation = new FrontlineGameSimulation(Path, 0);
