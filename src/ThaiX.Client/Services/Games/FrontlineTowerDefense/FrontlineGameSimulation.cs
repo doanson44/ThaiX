@@ -171,20 +171,16 @@ public sealed class FrontlineEnemy
             return;
         }
 
-        var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
-        var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
         Position = new FrontlinePoint(
             Position.X + _velocityX * movement,
             Position.Y + _velocityY * movement);
         Distance += movement;
 
+        var gridX = (int)Math.Floor(Position.X / FrontlinePath.DefaultGridCellSize);
+        var gridY = (int)Math.Floor(Position.Y / FrontlinePath.DefaultGridCellSize);
         var target = Path.Points[_targetIndex];
         if (gridX == (int)Math.Floor(target.X / FrontlinePath.DefaultGridCellSize)
-            && gridY == (int)Math.Floor(target.Y / FrontlinePath.DefaultGridCellSize)
-            && Position.X > gridX * FrontlinePath.DefaultGridCellSize + 4
-            && Position.X < gridX * FrontlinePath.DefaultGridCellSize + 28
-            && Position.Y > gridY * FrontlinePath.DefaultGridCellSize + 4
-            && Position.Y < gridY * FrontlinePath.DefaultGridCellSize + 28)
+            && gridY == (int)Math.Floor(target.Y / FrontlinePath.DefaultGridCellSize))
         {
             _targetIndex++;
             if (!HasReachedEnd)
@@ -712,7 +708,7 @@ public sealed class FrontlineGameSimulation
             }
 
             enemy.Move(elapsedUnits);
-            if (!enemy.Path.UsesGridMovement && enemy.HasReachedEnd)
+            if (enemy.HasReachedEnd)
             {
                 LevelHealth = Math.Max(0, LevelHealth - enemy.Health);
                 enemy.MarkRemoved();
