@@ -1119,15 +1119,14 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance();
         simulation.Advance();
         simulation.Advance();
-        simulation.Advance();
 
         var enemy = simulation.Enemies.Single();
-        enemy.Position.X.Should().BeApproximately(72 + 8 / Math.Sqrt(1088) * 8, 0.001);
-        enemy.Position.Y.Should().BeApproximately(48 + 32 / Math.Sqrt(1088) * 8, 0.001);
+        enemy.Position.X.Should().Be(64);
+        enemy.Position.Y.Should().Be(56);
     }
 
     [Fact]
-    public void Advance_WhenGridPathReachesExit_LeaksOnFollowingTick()
+    public void Advance_WhenGridPathReachesExit_LeaksOnCellEntry()
     {
         var path = FrontlinePath.FromGridPath(
         [
@@ -1138,12 +1137,6 @@ public sealed class FrontlineGameSimulationTests
         simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 8, 10));
 
         simulation.Advance();
-        simulation.Advance();
-        simulation.Advance();
-
-        simulation.LevelHealth.Should().Be(1000);
-        simulation.Enemies.Should().ContainSingle();
-
         simulation.Advance();
 
         simulation.LevelHealth.Should().Be(900);
