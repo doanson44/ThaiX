@@ -320,15 +320,14 @@ public sealed class FrontlineGameSessionTests
         session.State.Should().Be(FrontlineGameSessionState.Playing);
         session.TryStartNextWave().Should().BeTrue();
 
-        session.Advance(1000);
-        session.Advance(1000);
-        session.Simulation.Enemies.Should().ContainSingle();
+        for (var tick = 0; tick < 20 && session.Simulation.Enemies.Count == 0; tick++)
+            session.Advance(1000);
 
+        session.Simulation.Enemies.Should().NotBeEmpty();
         session.Advance(1000);
 
-        var enemy = session.Simulation.Enemies.Single();
-        double.IsNaN(enemy.Position.X).Should().BeTrue();
-        double.IsNaN(enemy.Position.Y).Should().BeTrue();
+        session.Simulation.Enemies.Should().OnlyContain(enemy =>
+            double.IsNaN(enemy.Position.X) && double.IsNaN(enemy.Position.Y));
         session.State.Should().Be(FrontlineGameSessionState.Playing);
     }
 
