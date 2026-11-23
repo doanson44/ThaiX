@@ -110,9 +110,10 @@ else
                 if (previousState != FrontlineGameSessionState.Victory
                     && currentState == FrontlineGameSessionState.Victory)
                 {
-                    _pendingProgressSave = Session?.Progress ?? SniperSession!.Progress;
+                    var progressToSave = Session?.Progress ?? SniperSession!.Progress;
+                    _pendingProgressSave = progressToSave;
                     _progressSaveFailed = !await ProgressStore.SaveAsync(
-                        _pendingProgressSave,
+                        progressToSave,
                         cancellationToken);
 
                     if (!_progressSaveFailed)
@@ -137,14 +138,15 @@ else
 
     private async Task RetryProgressSaveAsync()
     {
-        if (_pendingProgressSave is null || _isRetryingProgressSave)
+        var progressToSave = _pendingProgressSave;
+        if (progressToSave is null || _isRetryingProgressSave)
             return;
 
         _isRetryingProgressSave = true;
         try
         {
             _progressSaveFailed = !await ProgressStore.SaveAsync(
-                _pendingProgressSave,
+                progressToSave,
                 _lifetime.Token);
 
             if (!_progressSaveFailed)
