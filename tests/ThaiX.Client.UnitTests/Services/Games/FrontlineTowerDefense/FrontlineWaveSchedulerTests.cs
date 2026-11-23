@@ -64,11 +64,11 @@ public sealed class FrontlineWaveSchedulerTests
         scheduler.Advance(0, false);
         scheduler.ActiveSpawnerCount.Should().Be(2);
 
-        var firstFrame = scheduler.Advance(10, false);
+        var firstFrame = scheduler.Advance(10, true);
         firstFrame.Should().ContainSingle(request => request.EnemyType == "first");
         scheduler.ActiveSpawnerCount.Should().Be(1);
 
-        var secondFrame = scheduler.Advance(10, false);
+        var secondFrame = scheduler.Advance(10, true);
         secondFrame.Should().ContainSingle(request => request.EnemyType == "second");
         scheduler.ActiveSpawnerCount.Should().Be(0);
     }
