@@ -42,6 +42,29 @@ public sealed class FrontlineGameSimulationTests
     }
 
     [Fact]
+    public void Advance_WhenTowerDamageCrossesExperienceLimit_ConsumesOneLegacyThreshold()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var definition = new FrontlineTowerDefinition(
+            "experience-test",
+            0,
+            100,
+            10,
+            100,
+            ExperienceLimit: 5);
+        simulation.TryBuildTower(definition, new FrontlinePoint(50, 50)).Should().BeTrue();
+        simulation.SpawnEnemy(
+            new FrontlineEnemyDefinition("target", 100, 0, 10),
+            new FrontlinePath([new FrontlinePoint(80, 50), new FrontlinePoint(200, 50)]));
+
+        simulation.Advance();
+
+        var tower = simulation.Towers.Single();
+        tower.Experience.Should().Be(5);
+        tower.ExperienceLimit.Should().Be(6);
+    }
+
+    [Fact]
     public void TryBuildTower_WithSufficientFunds_DeductsCostAndAddsTower()
     {
         var simulation = new FrontlineGameSimulation(Path, 500);
