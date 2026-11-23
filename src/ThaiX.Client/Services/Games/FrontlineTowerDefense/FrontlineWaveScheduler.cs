@@ -66,15 +66,10 @@ public sealed class FrontlineWaveScheduler
         _manualStartCooldownTicks++;
         var spawned = new List<FrontlineSpawnRequest>();
 
-        for (var index = 0; index < _activeSpawners.Count;)
+        var initialSpawnerCount = _activeSpawners.Count;
+        for (var index = 0; index < initialSpawnerCount && index < _activeSpawners.Count; index++)
         {
             var spawner = _activeSpawners[index];
-            if (spawner.Remaining <= 0)
-            {
-                _activeSpawners.RemoveAt(index);
-                continue;
-            }
-
             spawner.ElapsedUnits += elapsedUnits;
             if (spawner.ElapsedUnits >= spawner.Group.SpawnIntervalUnits)
             {
@@ -83,7 +78,8 @@ public sealed class FrontlineWaveScheduler
                 spawned.Add(new FrontlineSpawnRequest(spawner.Group.EnemyType, spawner.WaveNumber));
             }
 
-            index++;
+            if (spawner.Remaining <= 0)
+                _activeSpawners.RemoveAt(index);
         }
 
         if (!AllGroupsDispatched)
