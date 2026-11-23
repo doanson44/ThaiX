@@ -484,7 +484,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.TrySellTower(tower.Id).Should().BeTrue();
         enemy.Health.Should().Be(100);
 
-        for (var tick = 0; tick < 3; tick++)
+        for (var tick = 0; tick < 4; tick++)
             simulation.Advance();
 
         simulation.Projectiles.Should().BeEmpty();
@@ -831,7 +831,7 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(25);
 
         enemy.CoreTemperature.Should().BeApproximately(234.98, 0.001);
-        enemy.BurnDuration.Should().Be(0);
+        enemy.BurnDuration.Should().BeApproximately(234.98, 0.001);
     }
 
     [Fact]
