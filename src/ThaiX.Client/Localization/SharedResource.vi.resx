@@ -2245,6 +2245,8 @@
   <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Tháp hỗ trợ</value></data>
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Đòn hỗ trợ</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Lượt hỗ trợ còn lại: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.ProgressSaveFailed" xml:space="preserve"><value>Không thể lưu tiến trình. Hãy thử lưu lại trước khi rời nhiệm vụ để tránh mất kết quả.</value></data>
+  <data name="Games.FrontlineTowerDefense.RetrySave" xml:space="preserve"><value>Thử lưu lại</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MissileLauncher" xml:space="preserve"><value>Bệ phóng tên lửa</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Rifle" xml:space="preserve"><value>Tháp súng trường</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.Sniper" xml:space="preserve"><value>Tháp bắn tỉa</value></data>
