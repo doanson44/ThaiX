@@ -650,7 +650,8 @@ public sealed class FrontlineGameSimulation
 
     private void MoveEnemies(double elapsedUnits)
     {
-        for (var index = _enemies.Count - 1; index >= 0; index--)
+        var initialEnemyCount = _enemies.Count;
+        for (var index = 0; index < initialEnemyCount && index < _enemies.Count; index++)
         {
             var enemy = _enemies[index];
             if (enemy.HasReachedEnd)
@@ -669,6 +670,11 @@ public sealed class FrontlineGameSimulation
             }
 
             enemy.AdvanceEffects();
+            if (enemy.Health <= 0)
+            {
+                Funds += enemy.Definition.Reward;
+                _enemies.RemoveAt(index);
+            }
         }
     }
 
