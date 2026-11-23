@@ -35,14 +35,29 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
-    public void Advance_WithZeroElapsedTime_DoesNotAdvanceSimulation()
+    public void Advance_WithZeroElapsedTime_StillProcessesLegacyFrame()
     {
         var session = CreateSession();
 
         session.Advance(0);
 
-        session.Simulation.Tick.Should().Be(0);
+        session.Simulation.Tick.Should().Be(1);
         session.CurrentWave.Should().Be(0);
+    }
+
+    [Fact]
+    public void Advance_WithZeroElapsedTime_StillAppliesStatusDamage()
+    {
+        var session = CreateSession();
+        session.Simulation.SpawnEnemy(new FrontlineEnemyDefinition("grunt", 100, 1, 10));
+        var enemy = session.Simulation.Enemies.Single();
+        session.Simulation.ApplyDamage(enemy.Id, new FrontlineDamageProfile(Burn: 200));
+
+        session.Advance(0);
+
+        enemy.Health.Should().BeApproximately(99.5, 0.001);
+        enemy.BurnDuration.Should().BeApproximately(234.98, 0.001);
+        enemy.Distance.Should().Be(0);
     }
 
     [Fact]
