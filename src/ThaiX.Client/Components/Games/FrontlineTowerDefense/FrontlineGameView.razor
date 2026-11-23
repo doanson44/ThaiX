@@ -239,6 +239,10 @@
 
     private void SelectBuildTower(FrontlineTowerArchetype tower)
     {
+        if (_selectedBuildTower is not null
+            || !Session.Simulation.TrySpendFunds(tower.BuildCost))
+            return;
+
         _selectedBuildTower = tower;
         _selectedTowerId = null;
     }
@@ -246,7 +250,10 @@
     private Task OnCellSelected(FrontlinePoint position)
     {
         if (_selectedBuildTower is not null
-            && Session.Simulation.TryBuildTower(_selectedBuildTower.CreateDefinition(), position))
+            && Session.Simulation.TryBuildTower(
+                _selectedBuildTower.CreateDefinition(),
+                position,
+                costAlreadyPaid: true))
         {
             _selectedBuildTower = null;
         }
