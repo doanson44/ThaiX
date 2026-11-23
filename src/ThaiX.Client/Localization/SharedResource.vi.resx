@@ -2215,6 +2215,7 @@
   <data name="Games.FrontlineTowerDefense.UpgradeRange" xml:space="preserve"><value>Nâng tầm bắn</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRateOfFire" xml:space="preserve"><value>Nâng tốc độ bắn</value></data>
   <data name="Games.FrontlineTowerDefense.SellTower" xml:space="preserve"><value>Bán tháp</value></data>
+  <data name="Games.FrontlineTowerDefense.MoveTower" xml:space="preserve"><value>Di chuyển tháp</value></data>
   <data name="Games.FrontlineTowerDefense.Speed" xml:space="preserve"><value>Tốc độ</value></data>
   <data name="Games.FrontlineTowerDefense.Victory" xml:space="preserve"><value>Hoàn thành nhiệm vụ</value></data>
   <data name="Games.FrontlineTowerDefense.Defeat" xml:space="preserve"><value>Căn cứ bị phá hủy</value></data>
