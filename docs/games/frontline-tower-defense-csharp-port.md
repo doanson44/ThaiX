@@ -179,15 +179,37 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Reproduce the legacy vehicle turn easing (30 percent of the desired heading per tick) and the Jeep1 idle floor frame.
 - [x] Replace the enemy health bar with the legacy `healthView` numeric text (white, 8px, right aligned).
 - [x] Aim and fire Sniper Elite shots from the exact pointer position through `wwwroot/js/frontlinePointer.js`, replacing cell-based targeting.
+- [x] Replace every Razor navigation screen with the original Flump timeline frames: menu, credits, mission select (per-level lock/unlock frames and score text), level failed page, victory rundown, and the War-Mart shop grid, driven by transparent hotspots on the legacy placements.
+- [x] Render the original embedded typography everywhere the Flash game showed text, including HTML-format fields, runtime tower prices, the wave countdown, the upgrade panel values, and the instruction dialogs.
 - [ ] Remove the legacy JavaScript runtime after acceptance. Its files are excluded from publish
   output (`CopyToPublishDirectory="Never"`) and are kept as the behavioral reference; the bitmap,
   sound and `library.json` assets remain required by the C# renderer.
 - [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
 - [x] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.
 
-### Remaining deliberate deviations
+### Presentation status
 
-- The Flash menu, result rundown, and War-Mart screens are Razor pages instead of scaled Flump
-  frames; the in-game HUD, pause page, and tutorial dialogs keep the original bitmaps and layout.
-- Legacy `edit` text fields are rendered as HTML text because the Flump export marks them as
-  non-renderable, so the score/wave/funds/lives readouts and tutorial copy are Razor markup.
+- The whole Frontline user interface renders from the original Flump library: menu (frame 0),
+  credits (frame 1), mission select with per-level art and lock frames (frame 2), level failed
+  (frame 3), War-Mart (`Mart` symbol with the 15 shop slots, `CRED`, `iName`/`iCost`), and the
+  victory rundown (frame 5). Interactive children are transparent HTML hotspots placed on the
+  legacy placements, so keyboard and screen-reader access still works.
+- The in-game HUD, health bar (`hbar` with the legacy `scaleX = levelHealth * 0.001`), tower
+  buttons with their runtime price text and build state alpha, upgrade panel, move/sell buttons
+  and the instruction dialogs all render from the original symbols.
+- Sniper Elite bonus missions use the same game view, HUD, pause page and result frames; only the
+  pointer-to-aim board behaviour and the disabled build panel differ, matching the original.
+- Razor text remains only for accessibility labels and screen-reader summaries.
+
+### Flump text support
+
+- `FrontlineFlumpFont` parses the embedded glyph fonts (outline paths in 1024 unit em space).
+- `FrontlineFlumpTextLayout` reproduces the legacy layout: word wrap against the field width,
+  left/right/center alignment, `leading`, `leftMargin`/`rightMargin`, first-line `indent`, the two
+  pixel inset, the `size * 0.3` advance for missing glyphs, and the HTML text parsing the original
+  applied to `html` fields.
+- `FrontlineFlumpScene` renders any symbol frame as SVG: bitmap draws, bitmap-filled shapes
+  (composed artwork such as the menu logo and the HUD panels), vector fills, static text runs and
+  editable fields fed by instance-path values, with optional child exclusion so the original
+  visibility toggles (frame controller fade, instruction close button, Mart purchase dialog) are
+  reproduced.

@@ -22,6 +22,8 @@ public sealed class FrontlineSniperMissionSession
         _gameSession = new FrontlineGameSession(level, waveSet, progress, random);
     }
 
+    public FrontlineGameSession GameSession => _gameSession;
+
     public FrontlineLevelMapDefinition Level => _gameSession.Level;
     public FrontlineGameSimulation Simulation => _gameSession.Simulation;
     public FrontlinePlayerProgress Progress => _gameSession.Progress;

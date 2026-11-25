@@ -1,8 +1,10 @@
 @namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using System.Globalization
 @using ThaiX.Client.Services.Games.FrontlineTowerDefense
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlinePlayerProgressStore ProgressStore
 @inject FrontlineAudioService Audio
+@inject FrontlineFlumpLibrary Flump
 @inject NavigationManager Navigation
 
 @if (_progress is null)
@@ -18,105 +20,386 @@ else if (_selectedLevel is not null)
                        WaveSet="@GetWaveSet(_selectedLevel)"
                        Progress="@_progress"
                        ExitRequested="@ReturnToMissionsAsync"
-                       RetryRequested="@RetryMissionAsync" />
-}
-else if (_showSplash)
-{
-    <section class="frontline-splash" aria-label="@L[ResourceKeys.Games.NameFrontlineTowerDefense]">
-        <div class="frontline-splash__target" aria-hidden="true"></div>
-        <div class="frontline-splash__title">
-            <span>FRONTLINE</span>
-            <strong>DEFENSE 2</strong>
-        </div>
-        <div class="frontline-splash__actions">
-            <button type="button"
-                    class="frontline-splash__button"
-                    @onclick="ShowMissionsAsync">
-                @L[ResourceKeys.Games.FrontlinePlay]
-            </button>
-            <button type="button"
-                    class="frontline-splash__button"
-                    @onclick="ShowWarMartAsync">
-                @L[ResourceKeys.Games.FrontlineCredits]
-            </button>
-            <button type="button"
-                    class="frontline-splash__button frontline-splash__button--mute"
-                    aria-pressed="@Audio.IsMuted"
-                    @onclick="ToggleMuteAsync">
-                @(Audio.IsMuted ? L[ResourceKeys.Games.FrontlineUnmute] : L[ResourceKeys.Games.FrontlineMute])
-            </button>
-        </div>
-    </section>
+                       RetryRequested="@RetryMissionAsync"
+                       WarMartRequested="@ShowWarMartAsync"
+                       MainMenuRequested="@ReturnToMainMenuAsync" />
 }
 else
 {
-    <div class="frontline-game-shell">
-        <nav class="frontline-shell-tabs" aria-label="@L[ResourceKeys.Games.FrontlineMission]">
-            <button type="button"
-                    class="@GetTabClass(showWarMart: false)"
-                    aria-pressed="@(!_showWarMart)"
-                    @onclick="ShowMissionsAsync">
-                @L[ResourceKeys.Games.FrontlineCampaign]
-            </button>
-            <button type="button"
-                    class="@GetTabClass(showWarMart: true)"
-                    aria-pressed="@_showWarMart"
-                    @onclick="ShowWarMartAsync">
-                @L[ResourceKeys.Games.FrontlineWarMart]
-            </button>
-        </nav>
+    <div class="frontline-stage frontline-stage--menu">
+        @switch (_screen)
+        {
+            case FrontlineShellScreen.Splash:
+                <FrontlineFlumpScene SymbolName="Game" Frame="0" ExcludeNames="@ScreenExclusions" />
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(250, 416, 160, 48)"
+                        @onclick="ShowLevelsAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlinePlay]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(550, 416, 160, 48)"
+                        @onclick="ShowCreditsAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineCreditsPage]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(21, 461, 40, 40)"
+                        @onclick="ToggleMuteAsync"
+                        aria-label="@(Audio.IsMuted ? L[ResourceKeys.Games.FrontlineUnmute] : L[ResourceKeys.Games.FrontlineMute])"></button>
+                break;
 
-        @if (_showWarMart)
-        {
-            <FrontlineWarMartView Progress="@_progress" ProgressChanged="@OnProgressChanged" />
-        }
-        else
-        {
-            <FrontlineMissionSelectView Progress="@_progress" MissionSelected="@StartMissionAsync" />
+            case FrontlineShellScreen.Credits:
+                <FrontlineFlumpScene SymbolName="Game" Frame="1" ExcludeNames="@ScreenExclusions" />
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(208, 432, 160, 48)"
+                        @onclick="ShowSplashAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(592, 432, 160, 48)"
+                        @onclick="ShowLevelsAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineCampaign]"></button>
+                break;
+
+            case FrontlineShellScreen.Levels:
+                <FrontlineFlumpScene SymbolName="Game" Frame="2" ExcludeNames="@LevelScreenExclusions" />
+                @foreach (var slot in _levelSlots)
+                {
+                    <FrontlineFlumpScene SymbolName="@slot.SymbolName"
+                                         Frame="@(slot.Unlocked ? 0 : 2)"
+                                         Transform="@slot.Matrix"
+                                         Values="@GetLevelValues(slot)" />
+                    <button type="button"
+                            class="frontline-hotspot"
+                            style="@GetHotspotStyle(slot.Matrix.Tx + 20, slot.Matrix.Ty, 180, 57)"
+                            disabled="@(!slot.Unlocked)"
+                            @onclick="() => StartMissionAsync(slot.LevelId)"
+                            aria-label="@slot.AriaLabel"></button>
+                }
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(150, 452, 160, 48)"
+                        @onclick="ShowCreditsAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineCreditsPage]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(400, 452, 160, 48)"
+                        @onclick="ShowSplashAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(650, 452, 160, 48)"
+                        @onclick="ShowWarMartAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineWarMart]"></button>
+                break;
+
+            case FrontlineShellScreen.WarMart:
+                <FrontlineFlumpScene SymbolName="Mart" Values="@GetWarMartValues()" ExcludeNames="@WarMartExclusions" />
+                @foreach (var slot in _shopSlots)
+                {
+                    <button type="button"
+                            class="frontline-hotspot"
+                            style="@GetHotspotStyle(slot.BuyX, slot.BuyY, 65, 24)"
+                            disabled="@(!slot.CanBuy)"
+                            @onclick="() => PurchaseAsync(slot)"
+                            aria-label="@slot.Name"></button>
+                }
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(_martMenuX, _martMenuY, 160, 48)"
+                        @onclick="ShowSplashAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="@GetHotspotStyle(_martLevelsX, _martLevelsY, 160, 48)"
+                        @onclick="ShowLevelsAsync"
+                        aria-label="@L[ResourceKeys.Games.FrontlineCampaign]"></button>
+                break;
         }
     </div>
 }
 
 @code {
+    private enum FrontlineShellScreen
+    {
+        Splash,
+        Credits,
+        Levels,
+        WarMart
+    }
+
+    private sealed record LevelSlot(
+        string SymbolName,
+        string LevelId,
+        int ProgressIndex,
+        int LevelNumber,
+        bool Bonus,
+        bool Unlocked,
+        FrontlineFlumpMatrix Matrix,
+        string AriaLabel);
+
+    /// <summary>The legacy FrameController child is a full screen fade overlay that starts hidden.</summary>
+    private static readonly IReadOnlySet<string> ScreenExclusions =
+        new HashSet<string>(StringComparer.Ordinal) { "FrameController" };
+
+    /// <summary>The purchase confirmation overlay is only shown while an item is selected.</summary>
+    private static readonly IReadOnlySet<string> WarMartExclusions =
+        new HashSet<string>(StringComparer.Ordinal) { "mPurchaseButton", "mCancelButton", "DTool" };
+
+    private IReadOnlySet<string> LevelScreenExclusions =>
+        _levelButtonNames.Count == 0
+            ? ScreenExclusions
+            : ScreenExclusions.Concat(_levelButtonNames).ToHashSet(StringComparer.Ordinal);
+
+    private sealed record ShopSlot(
+        string Name,
+        FrontlineWarMartItem Item,
+        int SlotNumber,
+        double BuyX,
+        double BuyY,
+        bool CanBuy);
+
     private FrontlinePlayerProgress? _progress;
     private FrontlineLevelMapDefinition? _selectedLevel;
-    private bool _showSplash = true;
-    private bool _showWarMart;
+    private FrontlineShellScreen _screen = FrontlineShellScreen.Splash;
+    private IReadOnlyList<LevelSlot> _levelSlots = [];
+    private IReadOnlyList<ShopSlot> _shopSlots = [];
+    private IReadOnlySet<string> _levelButtonNames = new HashSet<string>(StringComparer.Ordinal);
+    private double _martMenuX = 400;
+    private double _martMenuY = 452;
+    private double _martLevelsX = 600;
+    private double _martLevelsY = 452;
     private bool _audioReady;
     private int _attempt;
 
     protected override async Task OnInitializedAsync()
     {
+        await Flump.EnsureLoadedAsync(Navigation.BaseUri);
         _progress = await ProgressStore.LoadAsync();
+        BuildLevelSlots();
+        BuildShopSlots();
     }
 
     private static FrontlineWaveSet GetWaveSet(FrontlineLevelMapDefinition level) =>
         FrontlineWaveCatalog.Find(level.Id)
         ?? throw new InvalidOperationException("No wave schedule is registered for level '{level.Id}'.");
 
-    private string GetTabClass(bool showWarMart) =>
-        _showWarMart == showWarMart
-            ? "frontline-shell-tab frontline-shell-tab--active"
-            : "frontline-shell-tab";
-
-    private async Task ShowMissionsAsync()
+    private void BuildLevelSlots()
     {
-        _showSplash = false;
-        _showWarMart = false;
+        if (Flump.GetSymbolId("Game") is not int gameId || _progress is null)
+            return;
+
+        var placements = Flump.GetPlacements(gameId, 2)
+            .Where(placement => GetPlacementName(placement) is string name
+                && name.StartsWith("LevelButton_", StringComparison.Ordinal))
+            .ToArray();
+
+        _levelButtonNames = placements
+            .Select(placement => GetPlacementName(placement)!)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var slots = new List<LevelSlot>();
+        foreach (var placement in placements)
+        {
+            var symbolName = GetPlacementName(placement)!;
+            var suffix = symbolName["LevelButton_".Length..];
+            if (!int.TryParse(suffix, NumberStyles.Integer, CultureInfo.InvariantCulture, out var progressIndex))
+                continue;
+
+            var level = FrontlineLevelMapCatalog.Campaign
+                .Concat(FrontlineLevelMapCatalog.Bonus)
+                .FirstOrDefault(candidate => candidate.ProgressIndex == progressIndex);
+            if (level is null)
+                continue;
+
+            slots.Add(new LevelSlot(
+                symbolName,
+                level.Id,
+                progressIndex,
+                level.LevelNumber,
+                level.IsBonus,
+                _progress.IsLevelUnlocked(level.UnlockIndex),
+                placement.Matrix,
+                level.IsBonus
+                    ? L[GetBonusMissionNameKey(level.LevelNumber)]
+                    : $"{L[ResourceKeys.Games.FrontlineMission]} {level.LevelNumber}"));
+        }
+
+        _levelSlots = slots;
+    }
+
+    private string? GetPlacementName(FrontlineFlumpPlacement placement) =>
+        placement.Name ?? Flump.GetSymbolName(placement.CharId);
+
+    private void BuildShopSlots()
+    {
+        if (_progress is null)
+            return;
+
+        foreach (var placement in Flump.GetPlacements(Flump.GetSymbolId("Mart")!.Value, 0))
+        {
+            var name = GetPlacementName(placement);
+            if (string.Equals(name, "mmButton", StringComparison.Ordinal))
+            {
+                _martMenuX = placement.Matrix.Tx - 80;
+                _martMenuY = placement.Matrix.Ty - 24;
+            }
+            else if (string.Equals(name, "levelMenuButton", StringComparison.Ordinal))
+            {
+                _martLevelsX = placement.Matrix.Tx - 80;
+                _martLevelsY = placement.Matrix.Ty - 24;
+            }
+        }
+
+        var items = FrontlineWarMartCatalog.All.ToArray();
+        if (items.Length == 0)
+        {
+            _shopSlots = [];
+            return;
+        }
+
+        var slots = new List<ShopSlot>();
+        foreach (var placement in Flump.GetPlacements(Flump.GetSymbolId("Mart")!.Value, 0))
+        {
+            var name = GetPlacementName(placement);
+            if (name is null || !name.StartsWith("ShopItem", StringComparison.Ordinal))
+                continue;
+
+            if (!int.TryParse(name["ShopItem".Length..], NumberStyles.Integer, CultureInfo.InvariantCulture, out var slotNumber))
+                continue;
+
+            if (slotNumber < 1 || slotNumber > items.Length)
+                continue;
+
+            var item = items[slotNumber - 1];
+            slots.Add(new ShopSlot(
+                GetItemLabel(item),
+                item,
+                slotNumber,
+                placement.Matrix.Tx + 166,
+                placement.Matrix.Ty + 17,
+                _progress.Credits >= item.Cost && !IsOwned(item)));
+        }
+
+        _shopSlots = slots.OrderBy(slot => slot.SlotNumber).ToArray();
+    }
+
+    private static string GetBonusMissionNameKey(int levelNumber) => levelNumber switch
+    {
+        1 => ResourceKeys.Games.FrontlineSniperMission1,
+        2 => ResourceKeys.Games.FrontlineSniperMission2,
+        3 => ResourceKeys.Games.FrontlineSniperMission3,
+        _ => ResourceKeys.Games.FrontlineSniperMission4
+    };
+
+    private string GetItemLabel(FrontlineWarMartItem item) => item.Id switch
+    {
+        "flame-thrower" => L[ResourceKeys.Games.FrontlineTowerFlameThrower],
+        "napalm-support-strike" => L[ResourceKeys.Games.FrontlineNapalmStrike],
+        "starting-funds" => L[ResourceKeys.Games.FrontlineStartingFundsBonus],
+        "sniper-mission-1" => L[ResourceKeys.Games.FrontlineSniperMission1],
+        "sniper-mission-2" => L[ResourceKeys.Games.FrontlineSniperMission2],
+        "sniper-mission-3" => L[ResourceKeys.Games.FrontlineSniperMission3],
+        "sniper-mission-4" => L[ResourceKeys.Games.FrontlineSniperMission4],
+        _ => item.Name
+    };
+
+    private static string GetItemNameKey(string itemId) => itemId switch
+    {
+        "flame-thrower" => ResourceKeys.Games.FrontlineTowerFlameThrower,
+        "napalm-support-strike" => ResourceKeys.Games.FrontlineNapalmStrike,
+        "starting-funds" => ResourceKeys.Games.FrontlineStartingFundsBonus,
+        "sniper-mission-1" => ResourceKeys.Games.FrontlineSniperMission1,
+        "sniper-mission-2" => ResourceKeys.Games.FrontlineSniperMission2,
+        "sniper-mission-3" => ResourceKeys.Games.FrontlineSniperMission3,
+        "sniper-mission-4" => ResourceKeys.Games.FrontlineSniperMission4,
+        _ => ResourceKeys.Games.FrontlineWarMart
+    };
+
+    private IReadOnlyDictionary<string, string> GetLevelValues(LevelSlot slot) =>
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["lvlText"] = slot.Bonus
+                ? L[GetBonusMissionNameKey(slot.LevelNumber)]
+                : slot.ProgressIndex.ToString(CultureInfo.InvariantCulture),
+            ["scoreText"] = (_progress?.LevelScores[slot.ProgressIndex - 1] ?? 0)
+                .ToString(CultureInfo.InvariantCulture)
+        };
+
+    private IReadOnlyDictionary<string, string> GetWarMartValues()
+    {
+        var values = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["CRED"] = (_progress?.Credits ?? 0).ToString(CultureInfo.InvariantCulture)
+        };
+
+        for (var index = 0; index < _shopSlots.Count; index++)
+        {
+            var slot = _shopSlots[index];
+            var path = string.Create(CultureInfo.InvariantCulture, $"ShopItem{slot.SlotNumber}");
+            values[path + "/iName"] = slot.Name;
+            values[path + "/iCost"] = slot.Item.Cost.ToString(CultureInfo.InvariantCulture);
+            values[path + "/BuyButton/price"] = slot.Item.Cost.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return values;
+    }
+
+    private bool IsOwned(FrontlineWarMartItem item) => item.Type switch
+    {
+        FrontlineWarMartItemType.Tower => _progress?.IsTowerUnlocked(item.ItemId) ?? false,
+        FrontlineWarMartItemType.Level => _progress?.IsLevelUnlocked(item.ItemId - 1) ?? false,
+        _ => false
+    };
+
+    private async Task PurchaseAsync(ShopSlot slot)
+    {
+        if (_progress is null || !slot.CanBuy || !_progress.TryPurchase(slot.Item))
+            return;
+
+        await ProgressStore.SaveAsync(_progress);
+        BuildLevelSlots();
+        BuildShopSlots();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static string GetHotspotStyle(double x, double y, double width, double height) =>
+        string.Create(
+            CultureInfo.InvariantCulture,
+            $"left:{x / 800d * 100:0.###}%;top:{y / 480d * 100:0.###}%;width:{width / 800d * 100:0.###}%;height:{height / 480d * 100:0.###}%");
+
+    private async Task ShowSplashAsync()
+    {
+        _screen = FrontlineShellScreen.Splash;
+        await StartMenuMusicAsync();
+    }
+
+    private async Task ShowCreditsAsync()
+    {
+        _screen = FrontlineShellScreen.Credits;
+        await StartMenuMusicAsync();
+    }
+
+    private async Task ShowLevelsAsync()
+    {
+        _screen = FrontlineShellScreen.Levels;
         await StartMenuMusicAsync();
     }
 
     private async Task ShowWarMartAsync()
     {
-        _showSplash = false;
-        _showWarMart = true;
+        _screen = FrontlineShellScreen.WarMart;
+        _selectedLevel = null;
+        BuildLevelSlots();
+        BuildShopSlots();
+        await Audio.StopLevelNoiseAsync();
         await StartMenuMusicAsync();
     }
 
     private async Task StartMissionAsync(string levelId)
     {
         _selectedLevel = FrontlineLevelMapCatalog.Find(levelId);
-        _showWarMart = false;
         await EnsureAudioAsync();
         await Audio.StopMenuMusicAsync();
         await Audio.StartLevelNoiseAsync();
@@ -125,6 +408,15 @@ else
     private async Task ReturnToMissionsAsync()
     {
         _selectedLevel = null;
+        _screen = FrontlineShellScreen.Levels;
+        await Audio.StopLevelNoiseAsync();
+        await Audio.StartMenuMusicAsync();
+    }
+
+    private async Task ReturnToMainMenuAsync()
+    {
+        _selectedLevel = null;
+        _screen = FrontlineShellScreen.Splash;
         await Audio.StopLevelNoiseAsync();
         await Audio.StartMenuMusicAsync();
     }
@@ -151,7 +443,4 @@ else
         await Audio.InitializeAsync(Navigation.BaseUri);
         _audioReady = true;
     }
-
-    private Task OnProgressChanged() => InvokeAsync(StateHasChanged);
 }
-

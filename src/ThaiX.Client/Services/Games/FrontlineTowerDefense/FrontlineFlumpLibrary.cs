@@ -65,11 +65,12 @@ public sealed record FrontlineFlumpPlacement(
 /// Loads the legacy <c>library.json</c>, resolves symbol names to character ids,
 /// and flattens sprite timelines into bitmap/fill draw commands in local space.
 /// </summary>
-public sealed class FrontlineFlumpLibrary
+public sealed partial class FrontlineFlumpLibrary
 {
     private readonly SemaphoreSlim _loadGate = new(1, 1);
     private JsonDocument? _document;
     private Dictionary<string, int> _symbolIds = new(StringComparer.Ordinal);
+    private readonly Dictionary<int, string> _symbolNames = new();
     private readonly Dictionary<int, string> _levelSymbols = new();
     private readonly Dictionary<int, string> _bonusSymbols = new();
     private readonly Dictionary<long, IReadOnlyList<FrontlineFlumpDraw>> _drawCache = new();
@@ -84,6 +85,8 @@ public sealed class FrontlineFlumpLibrary
     {
         _document = document;
         _symbolIds = symbolIds;
+        foreach (var (name, id) in symbolIds)
+            _symbolNames[id] = name;
         IndexLevelSymbols();
     }
 
@@ -112,8 +115,13 @@ public sealed class FrontlineFlumpLibrary
             var parsed = Parse(json);
             _document = parsed._document;
             _symbolIds = parsed._symbolIds;
+            _symbolNames.Clear();
+            foreach (var (name, id) in _symbolIds)
+                _symbolNames[id] = name;
             _drawCache.Clear();
             _placementCache.Clear();
+            _textCache.Clear();
+            _fontCache.Clear();
             IndexLevelSymbols();
         }
         finally
@@ -170,8 +178,25 @@ public sealed class FrontlineFlumpLibrary
             return cached;
 
         var draws = new List<FrontlineFlumpDraw>();
-        Flatten(charId, frame, FrontlineFlumpMatrix.Identity, draws, 0);
+        Flatten(charId, frame, FrontlineFlumpMatrix.Identity, draws, 0, null);
         _drawCache[key] = draws;
+        return draws;
+    }
+
+    /// <summary>
+    /// Returns the draw list while skipping subtrees whose instance name is excluded, so callers
+    /// can reproduce states where the original toggled a child's visibility.
+    /// </summary>
+    public IReadOnlyList<FrontlineFlumpDraw> GetDrawsExcluding(
+        int charId,
+        int frame,
+        IReadOnlySet<string> excludedNames)
+    {
+        if (excludedNames.Count == 0)
+            return GetDraws(charId, frame);
+
+        var draws = new List<FrontlineFlumpDraw>();
+        Flatten(charId, frame, FrontlineFlumpMatrix.Identity, draws, 0, excludedNames);
         return draws;
     }
 
@@ -246,7 +271,8 @@ public sealed class FrontlineFlumpLibrary
         int frame,
         in FrontlineFlumpMatrix parent,
         List<FrontlineFlumpDraw> draws,
-        int depth)
+        int depth,
+        IReadOnlySet<string>? excludedNames)
     {
         if (depth > 12)
             return;
@@ -287,10 +313,31 @@ public sealed class FrontlineFlumpLibrary
 
             case "sprite":
                 foreach (var placement in BuildDisplayList(charId, frame).Values)
-                    Flatten(placement.Id, 0, FrontlineFlumpMatrix.Multiply(parent, placement.Matrix), draws, depth + 1);
+                {
+                    if (excludedNames is not null && IsExcluded(placement, excludedNames))
+                        continue;
+
+                    Flatten(
+                        placement.Id,
+                        0,
+                        FrontlineFlumpMatrix.Multiply(parent, placement.Matrix),
+                        draws,
+                        depth + 1,
+                        excludedNames);
+                }
+
                 return;
         }
     }
+
+    /// <summary>
+    /// Placements only carry an instance name when the artist named the instance, so the symbol
+    /// name is used as a fallback: callers exclude children by the name they can see in the
+    /// library, which is usually the symbol name.
+    /// </summary>
+    private bool IsExcluded(DisplayEntry placement, IReadOnlySet<string> excludedNames) =>
+        (placement.Name is not null && excludedNames.Contains(placement.Name))
+        || (_symbolNames.TryGetValue(placement.Id, out var symbolName) && excludedNames.Contains(symbolName));
 
     private void FlattenShape(
         int charId,
@@ -325,6 +372,58 @@ public sealed class FrontlineFlumpLibrary
         }
 
         var (minX, minY, maxX, maxY) = ReadBounds(character);
+
+        // Flump shapes can be filled with bitmaps: each fill carries its own transform and the
+        // referenced texture. Draw those as sprites so composed artwork (menu logos, HUD panels)
+        // renders instead of a flat colour.
+        var emittedBitmap = false;
+        if (character.TryGetProperty("f", out var fills) && fills.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var fill in fills.EnumerateArray())
+            {
+                if (fill.ValueKind != JsonValueKind.Object
+                    || !fill.TryGetProperty("s", out var style)
+                    || style.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                var styleType = style.TryGetProperty("t", out var typeProp) ? typeProp.GetString() : null;
+                if (styleType != "b" && styleType != "bmp")
+                    continue;
+
+                if (!style.TryGetProperty("id", out var idProp)
+                    || idProp.ValueKind != JsonValueKind.Number
+                    || !idProp.TryGetInt32(out var textureId))
+                    continue;
+
+                var bitmap = GetChar(textureId);
+                if (bitmap.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                var fillMatrix = ReadMatrix(style, "m") ?? FrontlineFlumpMatrix.Identity;
+                var width = GetDouble(bitmap, "w");
+                var height = GetDouble(bitmap, "h");
+                draws.Add(new FrontlineFlumpDraw(
+                    FrontlineFlumpDrawKind.Bitmap,
+                    textureId,
+                    width,
+                    height,
+                    0,
+                    0,
+                    width,
+                    height,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    FrontlineFlumpMatrix.Multiply(matrix, fillMatrix)));
+                emittedBitmap = true;
+            }
+        }
+
+        if (emittedBitmap)
+            return;
+
         var (red, green, blue, alpha) = ReadFillColor(character);
         var cornerRadius = ReadCornerRadius(character, minX, maxX);
 

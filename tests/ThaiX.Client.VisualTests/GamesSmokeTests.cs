@@ -77,10 +77,10 @@ public sealed class GamesSmokeTests
             var canvas = page.Locator(".game-canvas");
             if (gameId == "frontline-tower-defense")
             {
-                await page.Locator(".frontline-splash").WaitForAsync(Visible());
-                await page.GetByRole(AriaRole.Button, new() { Name = "PLAY" }).ClickAsync();
-                await page.GetByRole(AriaRole.Heading, new() { Name = "Campaign" }).WaitForAsync(Visible());
-                await page.GetByRole(AriaRole.Button, new() { Name = "Play mission" }).First.ClickAsync();
+                await page.Locator(".frontline-stage--menu").WaitForAsync(Visible());
+                await page.GetByRole(AriaRole.Button, new() { Name = "PLAY", Exact = true }).ClickAsync();
+                await page.Locator(".frontline-hotspot[aria-label='Mission 1']").WaitForAsync(Visible());
+                await page.Locator(".frontline-hotspot[aria-label='Mission 1']").ClickAsync();
                 await page.Locator(".frontline-board").WaitForAsync(Visible());
                 canvas = page.Locator(".frontline-board");
             }

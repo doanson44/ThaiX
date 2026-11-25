@@ -45,6 +45,9 @@ public sealed class FrontlineWaveScheduler
     public bool AllGroupsDispatched { get; private set; }
     public bool IsComplete { get; private set; }
 
+    /// <summary>Remaining units before the next authored group spawns, as the legacy wave control exposed.</summary>
+    public double NextGroupCountdownUnits => _nextGroupCountdownUnits;
+
     public bool TryStartNextGroup()
     {
         if (!CanManuallyStart || !_pendingGroups.TryDequeue(out var nextGroup))

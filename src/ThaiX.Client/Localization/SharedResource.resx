@@ -2266,6 +2266,8 @@
   <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Retry</value></data>
   <data name="Games.FrontlineTowerDefense.FastForward" xml:space="preserve"><value>Fast forward</value></data>
   <data name="Games.FrontlineTowerDefense.NormalSpeed" xml:space="preserve"><value>Normal speed</value></data>
+  <data name="Games.FrontlineTowerDefense.CreditsPage" xml:space="preserve"><value>Credits</value></data>
+  <data name="Games.FrontlineTowerDefense.MainMenu" xml:space="preserve"><value>Main menu</value></data>
   <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Mute sound</value></data>
   <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Unmute sound</value></data>
   <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>

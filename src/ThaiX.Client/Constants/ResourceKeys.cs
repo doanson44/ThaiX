@@ -181,6 +181,8 @@ public static class ResourceKeys
         public const string FrontlineWarMart = "Games.FrontlineTowerDefense.WarMart";
         public const string FrontlineBuy = "Games.FrontlineTowerDefense.Buy";
         public const string FrontlineCredits = "Games.FrontlineTowerDefense.Credits";
+        public const string FrontlineCreditsPage = "Games.FrontlineTowerDefense.CreditsPage";
+        public const string FrontlineMainMenu = "Games.FrontlineTowerDefense.MainMenu";
         public const string FrontlineOwned = "Games.FrontlineTowerDefense.Owned";
         public const string FrontlineStartingFundsBonus = "Games.FrontlineTowerDefense.StartingFundsBonus";
         public const string FrontlineNapalmStrike = "Games.FrontlineTowerDefense.NapalmStrike";
