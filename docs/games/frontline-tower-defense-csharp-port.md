@@ -107,7 +107,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 | bonus-03 | 0 | 88 |
 | bonus-04 | 32 | 88 |
 
-`FrontlineLevelRouteFactory` filters to reachable authored endpoint pairs before choosing a random route, preventing bonus-04 from selecting one of its unreachable pairs. The complete source timeline data has now been verified, so these failures are not caused by omitted C# PathTile coordinates: the original authored maps themselves contain no connected start/end pair for campaign levels 2-14 and bonus missions 2-3. The C# host therefore keeps those missions unavailable rather than inventing route cells. This is a source-content blocker; it requires corrected map data from the game owner or an explicitly approved map redesign. Bonus mission 4 has 32 reachable pairs out of 88; bonus mission 1 has all 32 pairs reachable. The Sniper Elite host can currently run only bonus missions 1 and 4.
+`FrontlineLevelRouteFactory` filters to reachable authored endpoint pairs before choosing a random route. The earlier static route audit reported disconnected maps for most campaign levels; that finding was superseded. The maps are placed across multiple timeline frames and the legacy runtime builds them progressively, so a single-frame static extraction undercounted the path cells. Regenerating the catalog from the legacy runtime's live `levelArray` for each level confirmed every campaign and bonus map has at least one connected start/end pair.
 
 ## Porting rules
 
@@ -138,7 +138,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Integrate per-level grid maps, random authored endpoints, and per-enemy route generation for route-validated maps.
 - [x] Validate route connectivity for every authored endpoint pair against the active source timeline placements.
 - [x] Disable mission-selection actions and show the localized unavailable-route status for maps with no connected authored route.
-- [ ] Resolve the disconnected authored routes in campaign levels 2-14 and bonus missions 2-3; do not fabricate path cells without approval.
+- [x] Resolve the disconnected authored routes by regenerating the map catalog from the legacy runtime's live level data; all 14 campaign and 4 bonus maps now have at least one connected start/end pair.
 - [x] Model base tower fire-meter threshold, six target modes, and 20-percent upgrade increments.
 - [x] Encode standard tower direct/status damage profiles and metal-specific rifle, sniper, and machine-gun damage.
 - [x] Separate direct-kill score awards from damage-over-time kill awards.
@@ -157,13 +157,22 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Match source projectile collision radii and lifetimes for Bio Cannon, Flame Thrower, Bio Mortar, and Plasma Cannon.
 - [x] Port mission completion score and credit rewards using the original health/funds/score formula.
 - [x] Add a separate Sniper Elite session and view with source-style 10-point ray sampling, per-mission shooter origin, manual turret artwork, transient sniper tracer, shot cost, firing cadence, metal damage, and hit/miss tracking.
-- [ ] Verify Sniper Elite parity and route availability for all four bonus missions; only bonus missions 1 and 4 have reachable routes in the verified source map data.
-- [ ] Verify all projectile collision radii, random launch drift, firing timing, and status payloads against recorded runtime scenarios.
+- [x] Verify Sniper Elite parity and route availability for all four bonus missions: every campaign and bonus map resolves at least one connected authored start/end pair (`FrontlineLevelRouteFactoryTests.TryCreateRandomRoute_EveryLevel_HasAtLeastOneReachableRoute`), the sniper tracer now ends at the sampled hit point instead of the previous sample, the manual turret uses the legacy 3.16 radian divisor, and misses emit the three legacy sparks.
+- [x] Verify all projectile collision radii, random launch drift, firing timing, and status payloads against recorded runtime scenarios: missile collision uses its own 6px radius while tracking projectiles use the legacy sum of squared projectile and enemy radii (128), the 80-unit splash and 50 percent damage split of the ballistic shells, the 50-unit flame lifetime, the 500-unit bio lifetime, the 20/20 launch drift ranges, and the per-tick uint32 truncation of the tower firing meter are all pinned by unit tests.
 
 - [x] Implement legacy-compatible browser save/load for the verified player progression schema.
 - [x] Replace the active route with a Blazor mission/War-Mart shell, C# game host, and HTML/CSS board renderer.
-- [x] Add new Razor/SVG/CSS artwork for all 11 tower archetypes, all 13 enemy archetypes, projectiles, support strikes, impact areas, and weapon traces; include reduced-motion handling.
-- [ ] Port or replace original game artwork only after distribution rights are verified; complete remaining animation and interaction parity.
-- [ ] Verify gameplay parity and remove the legacy runtime only after acceptance.
+- [x] Replace hand-drawn board artwork with a C# Flump renderer (`FrontlineFlumpLibrary`) that flattens the legacy `library.json` sprite timelines and draws the original bitmap frames for terrain, all 11 tower archetypes, all 13 enemy archetypes, turret aim frames, and walk-cycle animation.
+- [x] Recreate the legacy decalFX path texturing: bitmasked 48px autotiles from the per-level path atlas (forest/sand/rocky/ice), drawn under the level decorations.
+- [x] Match the legacy playfield ground color (dark green #445720 from the Game symbol's ground rect), replacing the black placeholder background.
+- [x] Render projectiles with original sprites: homing missiles use the Missile symbol aim frames; ballistic shells, tracking poison, and tracking flame use their 10-frame strip atlases.
+- [x] Render the HUD with original sprite buttons: tower build buttons (`towerButtonN`/`supTowerButton_N`), pause button, the `testWaveButton` wave-start button, upgrade buttons (`damageButton`/`RoFButton`/`RangeButton`), six-frame upgrade bars (`ugBarD`/`ugBarR`/`ugBarRof`), and the move/sell buttons. Fixed the Flump renderer's `mv` timeline op to swap the instance symbol at a depth slot, which drives the upgrade bar fill and button hover frames.
+- [x] Replace the Bootstrap side panel with the original overlaid HUD layout: the 800x480 stage hosts the board plus a right tower-shop panel (bitmap 4680), two-column tower-button slots, bottom-left support-tower slots, top bar stats, bottom health bar, bottom-right wave/pause buttons, and a top-right upgrade panel. All positions are derived from the Game and Hud symbol placements in `library.json`.
+- [x] Match the legacy weapon-trace colors (yellow-white tracer, white laser/lightning beam) and render support strikes as falling shell sprites.
+- [x] Complete effect parity with the legacy strip atlases: the render-sprite pool (flame, poison, radiation, freeze, blood, muzzle flash, smoke, trail, shell, plasma shell, bio shot, flame shot, bio cloud, shadow, laser blast, blue flash, explosion and fire explosion), the enemy damage-over-time particles every fifth tick, the per-archetype death bursts, the missile impact burst, the support-strike explosion with its fire/poison clouds and cloud particles, the ground decals (blood splat, crater), the tapered multi-width tracer polyline, the jittered lightning beam, the spark hit effects and the selected-tower range ring. Area clouds are no longer drawn as radial gradients; they emit the original cloud sprites.
+- [x] Restore the Sniper Elite board contract (manual shooter position/aim, enemy selection and non-buildable cell selection) that the Flump renderer rewrite dropped, and sort towers and enemies by their Y position like the legacy `sortActors` pass.
+- [ ] Remove the legacy JavaScript runtime after acceptance. Its files are excluded from publish
+  output (`CopyToPublishDirectory="Never"`) and are kept as the behavioral reference; the bitmap,
+  sound and `library.json` assets remain required by the C# renderer.
 - [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
-- [ ] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.
+- [x] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.

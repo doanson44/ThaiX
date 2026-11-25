@@ -87,19 +87,23 @@
                 <p>@L[ResourceKeys.Games.Score]: @Session.TotalScore</p>
                 <p>@L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]</p>
             }
+            else
+            {
+                <button type="button" class="btn btn-primary" @onclick="() => RetryRequested.InvokeAsync()">
+                    @L[ResourceKeys.Games.FrontlineRetry]
+                </button>
+            }
         </div>
     }
 
     <p class="frontline-sniper-hint">@L[ResourceKeys.Games.FrontlineSniperHint]</p>
     <FrontlineBoard Level="@Session.Level"
                     Simulation="@Session.Simulation"
-                    IsPlacementEnabled="@Session.CanFire"
-                    AllowNonBuildableSelection="true"
-                    CellSelected="ShootAt"
-                    EnemySelectionEnabled="@Session.CanFire"
-                    EnemySelected="ShootEnemy"
                     ManualShooterPosition="@Session.ShooterPosition"
-                    ManualShooterAim="@Session.LastAim" />
+                    ManualShooterAim="@(Session.PointerAim ?? Session.LastAim)"
+                    EnablePointerTracking="true"
+                    PointerMoved="OnPointerMoved"
+                    PointerClicked="OnPointerClicked" />
 </div>
 
 @code {
@@ -108,6 +112,9 @@
 
     [Parameter]
     public EventCallback ExitRequested { get; set; }
+
+    [Parameter]
+    public EventCallback RetryRequested { get; set; }
 
     private string _speedValue = "1";
 
@@ -129,9 +136,16 @@
         return InvokeAsync(StateHasChanged);
     }
 
-    private Task ShootEnemy(long enemyId)
+    private Task OnPointerMoved(FrontlinePoint aim)
     {
-        Session.FireAtEnemy(enemyId);
+        Session.AimAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnPointerClicked(FrontlinePoint aim)
+    {
+        Session.AimAt(aim);
+        Session.FireAt(aim);
         return InvokeAsync(StateHasChanged);
     }
 

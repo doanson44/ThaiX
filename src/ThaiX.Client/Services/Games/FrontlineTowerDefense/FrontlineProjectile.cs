@@ -18,7 +18,10 @@ public sealed record FrontlineProjectileProfile(
     double VerticalOffset = 0,
     double Gravity = 0.09,
     double VerticalVelocityScale = 0.018,
-    double? Lifetime = null);
+    double? Lifetime = null,
+    FrontlineSpriteStrip? Sprite = null,
+    double FrameRate = 0.2,
+    bool DragsTrail = false);
 
 public sealed class FrontlineProjectile
 {
@@ -55,6 +58,12 @@ public sealed class FrontlineProjectile
     internal FrontlineEnemy Target { get; }
     public FrontlinePoint Position { get; private set; }
     public double Height { get; private set; }
+    /// <summary>Zero-based frame of the projectile sprite strip.</summary>
+    public int Frame { get; private set; }
+    internal bool EmitsTrail => Profile.DragsTrail || Profile.Kind == FrontlineProjectileKind.HomingMissile;
+    internal int TrailTick { get; set; }
+    internal double VelocityX => _velocityX;
+    internal double VelocityY => _velocityY;
     public FrontlineDamageProfile Damage { get; }
     public FrontlineProjectileProfile Profile { get; }
     internal FrontlineTower Owner { get; }
@@ -65,6 +74,17 @@ public sealed class FrontlineProjectile
         Position = new FrontlinePoint(
             Position.X + _velocityX * elapsedUnits,
             Position.Y + _velocityY * elapsedUnits);
+
+        if (Profile.Sprite is { } sprite)
+        {
+            _frameTime += Profile.FrameRate * elapsedUnits;
+            Frame = (int)Math.Floor(_frameTime);
+            if (Frame >= sprite.FrameCount)
+            {
+                _frameTime = 0;
+                Frame = 0;
+            }
+        }
 
         if (Profile.Kind == FrontlineProjectileKind.HomingMissile
             && (target.Health <= 0 || target.Position.X <= 0))
@@ -137,6 +157,7 @@ public sealed class FrontlineProjectile
 
     private double VerticalVelocity { get; set; }
     private double _elapsedUnits;
+    private double _frameTime;
     private double _velocityX;
     private double _velocityY;
 }

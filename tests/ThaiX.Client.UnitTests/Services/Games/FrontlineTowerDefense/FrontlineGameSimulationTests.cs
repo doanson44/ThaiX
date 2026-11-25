@@ -50,14 +50,15 @@ public sealed class FrontlineGameSimulationTests
             0,
             100,
             10,
-            100,
+            10,
             ExperienceLimit: 5);
         simulation.TryBuildTower(definition, new FrontlinePoint(50, 50)).Should().BeTrue();
         simulation.SpawnEnemy(
-            new FrontlineEnemyDefinition("target", 100, 0, 10),
+            new FrontlineEnemyDefinition("target", 100, 0.1, 10),
             new FrontlinePath([new FrontlinePoint(80, 50), new FrontlinePoint(200, 50)]));
 
-        simulation.Advance();
+        for (var tick = 0; tick < 10; tick++)
+            simulation.Advance();
 
         var tower = simulation.Towers.Single();
         tower.Experience.Should().Be(5);
@@ -322,7 +323,7 @@ public sealed class FrontlineGameSimulationTests
     [Theory]
     [InlineData(FrontlineTargetMode.Near)]
     [InlineData(FrontlineTargetMode.Far)]
-    public void Advance_WhenNearOrFarTargetingIsUsed_PreservesLegacyEnemyInsertionOrder(
+    public void Advance_WhenNearOrFarTargetingIsUsed_SelectsFirstEnemyInRange(
         FrontlineTargetMode targetMode)
     {
         var path = new FrontlinePath(
@@ -347,7 +348,67 @@ public sealed class FrontlineGameSimulationTests
 
         simulation.Advance();
 
+        // The legacy enemy exposes a `traveled` counter that never advances, so both near
+        // and far keep the first in-range enemy instead of comparing travel distance.
         simulation.Towers.Single().TargetId.Should().Be(firstEnemy.Id);
+    }
+
+    [Fact]
+    public void Advance_WithHeatTargeting_IgnoresTargetsBelowHeatThreshold()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 80),
+            new FrontlinePoint(400, 80)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("normal", 500, 1, 10));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("hot", 500, 1, 10));
+        var hotEnemy = simulation.Enemies[1];
+        simulation.ApplyDamage(hotEnemy.Id, new FrontlineDamageProfile(Burn: 300));
+
+        var tower = new FrontlineTowerDefinition(
+            "heat-target",
+            0,
+            500,
+            10,
+            1,
+            FrontlineTargetMode.Heat);
+        simulation.TryBuildTower(tower, new FrontlinePoint(50, 50));
+
+        simulation.Advance();
+
+        simulation.Towers.Single().TargetId.Should().Be(hotEnemy.Id);
+    }
+
+    [Fact]
+    public void Advance_WithColdTargeting_IgnoresMetalTargets()
+    {
+        var path = new FrontlinePath(
+        [
+            new FrontlinePoint(80, 80),
+            new FrontlinePoint(400, 80)
+        ]);
+        var simulation = new FrontlineGameSimulation(path, 0);
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("metal", 500, 1, 10, IsMetal: true));
+        simulation.SpawnEnemy(new FrontlineEnemyDefinition("cold", 500, 1, 10));
+        var metalEnemy = simulation.Enemies[0];
+        var coldEnemy = simulation.Enemies[1];
+        simulation.ApplyDamage(coldEnemy.Id, new FrontlineDamageProfile(Freeze: 300));
+
+        var tower = new FrontlineTowerDefinition(
+            "cold-target",
+            0,
+            500,
+            10,
+            1,
+            FrontlineTargetMode.Cold);
+        simulation.TryBuildTower(tower, new FrontlinePoint(50, 50));
+
+        simulation.Advance();
+
+        simulation.Towers.Single().TargetId.Should().Be(coldEnemy.Id);
+        simulation.Towers.Single().TargetId.Should().NotBe(metalEnemy.Id);
     }
 
     [Fact]
@@ -454,7 +515,9 @@ public sealed class FrontlineGameSimulationTests
         simulation.Advance(0.001);
 
         enemy.Health.Should().Be(90);
-        tower.Loading.Should().BeApproximately(0.01, 0.0001);
+        // The legacy tower stores its firing meter through a uint32 coercion, so the
+        // fractional reload progress of a sub-tick advance is truncated away.
+        tower.Loading.Should().Be(0);
     }
 
     [Fact]

@@ -13,11 +13,14 @@ public sealed class FrontlineCombatTrace(
     FrontlinePoint start,
     FrontlinePoint end,
     FrontlineCombatTraceKind kind,
-    double life)
+    double life,
+    double weight = 1)
 {
     public FrontlinePoint Start { get; } = start;
     public FrontlinePoint End { get; } = end;
     public FrontlineCombatTraceKind Kind { get; } = kind;
+    /// <summary>Legacy tracer line thickness multiplier.</summary>
+    public double Weight { get; } = weight;
     public double LifeRemaining { get; private set; } = life;
 
     internal bool Advance()

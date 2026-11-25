@@ -75,15 +75,19 @@ public sealed class GamesSmokeTests
 
             await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800, networkIdleTimeoutMs: 0);
             var canvas = page.Locator(".game-canvas");
-            await canvas.WaitForAsync(Visible());
-            await page.GetByText("How to play").First.WaitForAsync(Visible());
             if (gameId == "frontline-tower-defense")
             {
-                await page.Locator(".frontline-defense-status").WaitForAsync(new()
-                {
-                    State = WaitForSelectorState.Hidden,
-                    Timeout = 60000
-                });
+                await page.Locator(".frontline-splash").WaitForAsync(Visible());
+                await page.GetByRole(AriaRole.Button, new() { Name = "PLAY" }).ClickAsync();
+                await page.GetByRole(AriaRole.Heading, new() { Name = "Campaign" }).WaitForAsync(Visible());
+                await page.GetByRole(AriaRole.Button, new() { Name = "Play mission" }).First.ClickAsync();
+                await page.Locator(".frontline-board").WaitForAsync(Visible());
+                canvas = page.Locator(".frontline-board");
+            }
+            else
+            {
+                await canvas.WaitForAsync(Visible());
+                await page.GetByText("How to play").First.WaitForAsync(Visible());
             }
 
             var desktopBox = await canvas.BoundingBoxAsync();

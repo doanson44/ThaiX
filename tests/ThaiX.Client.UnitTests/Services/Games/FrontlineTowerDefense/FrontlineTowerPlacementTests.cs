@@ -107,4 +107,49 @@ public sealed class FrontlineTowerPlacementTests
         simulation.Funds.Should().Be(438);
         tower.Damage.Should().Be(12);
     }
+
+    [Fact]
+    public void TryBuildTower_WhenSupportStrikeIsDroppedOnAPathCell_IsAllowed()
+    {
+        var level = FrontlineLevelMapCatalog.Find("level-01")!;
+        var simulation = new FrontlineGameSimulation(Path, 0, levelMap: level);
+        var support = FrontlineTowerCatalog.Find("suptower1")!.CreateDefinition();
+        var pathCell = level.WalkableCells[0];
+        var position = new FrontlinePoint(
+            pathCell.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5,
+            pathCell.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5);
+
+        simulation.TryBuildTower(support, position).Should().BeTrue();
+
+        simulation.Towers.Should().ContainSingle()
+            .Which.Position.Should().Be(position);
+    }
+
+    [Fact]
+    public void TryBuildTower_WhenTwoSupportStrikesShareACell_BothArePlaced()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 0);
+        var support = FrontlineTowerCatalog.Find("suptower1")!.CreateDefinition();
+        var position = new FrontlinePoint(80, 80);
+
+        simulation.TryBuildTower(support, position).Should().BeTrue();
+        simulation.TryBuildTower(support, position).Should().BeTrue();
+
+        simulation.Towers.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void TryBuildTower_WhenStandardTowerSharesACellWithSupportStrike_IsAllowed()
+    {
+        var simulation = new FrontlineGameSimulation(Path, 500);
+        var support = FrontlineTowerCatalog.Find("suptower1")!.CreateDefinition();
+        var position = new FrontlinePoint(80, 80);
+        simulation.TryBuildTower(support, position).Should().BeTrue();
+
+        simulation.TryBuildTower(
+            new FrontlineTowerDefinition("rifle", 50, 60, 10, 5),
+            position).Should().BeTrue();
+
+        simulation.Towers.Should().HaveCount(2);
+    }
 }

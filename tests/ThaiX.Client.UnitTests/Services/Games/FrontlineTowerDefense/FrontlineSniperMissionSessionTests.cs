@@ -69,4 +69,39 @@ public sealed class FrontlineSniperMissionSessionTests
 
         session.CanFire.Should().BeTrue();
     }
+
+    [Fact]
+    public void FireAt_WhenEnemyIsHitAtTheAimSample_EndsTracerAtTheSamplePoint()
+    {
+        var session = CreateSession();
+        session.Simulation.SpawnEnemy(
+            new FrontlineEnemyDefinition("infantry", 500, 0.0001, 10),
+            new FrontlinePath([new FrontlinePoint(400, 240), new FrontlinePoint(401, 240)]));
+        session.Advance(500);
+        session.Advance(500);
+        var aim = new FrontlinePoint(402, 240);
+
+        session.FireAt(aim).Should().BeTrue();
+
+        session.Hits.Should().Be(1);
+        session.Simulation.CombatTraces.Should().ContainSingle()
+            .Which.End.Should().Be(aim);
+        session.Simulation.Particles.Should().Contain(particle =>
+            particle.Strip == FrontlineSpriteStrip.MuzzleFlash);
+    }
+
+    [Fact]
+    public void FireAt_WhenNoEnemyIsSampled_EmitsThreeSparksAtTheAimPoint()
+    {
+        var session = CreateSession();
+        session.Advance(500);
+        session.Advance(500);
+
+        session.FireAt(new FrontlinePoint(400, 240)).Should().BeTrue();
+
+        session.Hits.Should().Be(0);
+        session.Simulation.Sparks.Should().HaveCount(3);
+        session.Simulation.Sparks.Should().OnlyContain(spark =>
+            spark.X == 400 && spark.Y == 240);
+    }
 }

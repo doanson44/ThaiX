@@ -37,6 +37,15 @@ public sealed class FrontlineSniperMissionSession
     public FrontlinePoint ShooterPosition => GetShooterPosition(Level);
     public FrontlinePoint? LastAim { get; private set; }
 
+    /// <summary>Last pointer position reported by the board, used for the turret frame.</summary>
+    public FrontlinePoint? PointerAim { get; private set; }
+
+    public void AimAt(FrontlinePoint aim)
+    {
+        if (double.IsFinite(aim.X) && double.IsFinite(aim.Y))
+            PointerAim = aim;
+    }
+
     public static FrontlinePoint GetShooterPosition(FrontlineLevelMapDefinition level)
     {
         ArgumentNullException.ThrowIfNull(level);
@@ -64,7 +73,7 @@ public sealed class FrontlineSniperMissionSession
             var elapsedUnits = Math.Min(
                 elapsedMilliseconds * 0.08 * _gameSession.SpeedMultiplier,
                 8);
-            _loading += 8 * elapsedUnits;
+            _loading = Math.Floor(_loading + 8 * elapsedUnits);
             if (_loading >= 100 && Simulation.Funds >= 0)
                 _canFire = true;
         }
@@ -85,6 +94,7 @@ public sealed class FrontlineSniperMissionSession
         _canFire = false;
         _loading = 0;
         LastAim = aim;
+        Simulation.AddSound(FrontlineSound.Sniper);
 
         var deltaX = aim.X - ShooterPosition.X;
         var deltaY = aim.Y - ShooterPosition.Y;
@@ -112,7 +122,7 @@ public sealed class FrontlineSniperMissionSession
 
                 if (target is not null)
                 {
-                    traceEnd = new FrontlinePoint(sampleX - stepX, sampleY - stepY);
+                    traceEnd = new FrontlinePoint(sampleX, sampleY);
                     break;
                 }
 
@@ -125,15 +135,46 @@ public sealed class FrontlineSniperMissionSession
             var traceStart = new FrontlinePoint(
                 ShooterPosition.X + muzzleVelocityX - muzzleVelocityY * 0.1,
                 ShooterPosition.Y + muzzleVelocityY - 25 + muzzleVelocityX * 0.1);
+            Simulation.AddParticle(
+                FrontlineSpriteStrip.MuzzleFlash,
+                traceStart,
+                0,
+                0,
+                1,
+                8,
+                glow: true);
             Simulation.AddCombatTrace(
                 traceStart,
                 traceEnd,
                 FrontlineCombatTraceKind.Sniper,
-                6);
+                6,
+                2);
         }
 
         if (target is null)
+        {
+            var missPoint = new FrontlinePoint(aim.X, aim.Y);
+            Simulation.AddSpark(missPoint, 20);
+            Simulation.AddSpark(missPoint, 20);
+            Simulation.AddSpark(missPoint, 20);
             return true;
+        }
+
+        var impactPoint = new FrontlinePoint(target.Position.X, target.Position.Y - 6);
+        if (target.Definition.IsMetal)
+        {
+            Simulation.AddSpark(impactPoint, 20);
+        }
+        else
+        {
+            Simulation.AddParticle(
+                FrontlineSpriteStrip.Blood,
+                target.Position,
+                0.5,
+                0.5,
+                0.5,
+                8);
+        }
 
         var damage = target.Definition.IsMetal
             ? new FrontlineDamageProfile(DirectDamage: 150, Burn: 5)

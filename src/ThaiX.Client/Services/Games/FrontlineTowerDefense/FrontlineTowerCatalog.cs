@@ -80,14 +80,16 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Poison: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 6, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500,
+                Sprite: FrontlineSpriteStrip.Shell, DragsTrail: true),
             DamageUpgradeScale: 0,
             MetalDamageUpgradeScale: 0,
             ExperienceLimit: 2500),
         new("tower8", "Bio Cannon", 8, 300, 12, 3, 85, FrontlineTargetMode.Cold, 6000,
             DamageProfile: new FrontlineDamageProfile(12, Poison: 60),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingPoison, 3, 6, StartOffset: 20, VerticalOffset: -8, Lifetime: 500),
+                FrontlineProjectileKind.TrackingPoison, 3, 6, StartOffset: 20, VerticalOffset: -8, Lifetime: 500,
+                Sprite: FrontlineSpriteStrip.BioShot),
             DamageUpgradeScale: 0,
             StatusUpgradeScale: 0,
             MetalDamageUpgradeScale: 0,
@@ -95,7 +97,8 @@ public static class FrontlineTowerCatalog
         new("tower9", "Flame Thrower", 9, 250, 2, 12, 55, FrontlineTargetMode.Near, 5000,
             DamageProfile: new FrontlineDamageProfile(2, Burn: 30),
             ProjectileProfile: new FrontlineProjectileProfile(
-                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8, Lifetime: 50),
+                FrontlineProjectileKind.TrackingFlame, 1.5, 6, StartOffset: 20, VerticalOffset: -8, Lifetime: 50,
+                Sprite: FrontlineSpriteStrip.FlameShot),
             DamageUpgradeScale: 0,
             StatusUpgradeScale: 0,
             MetalDamageUpgradeScale: 0,
@@ -108,7 +111,8 @@ public static class FrontlineTowerCatalog
             DamageProfile: new FrontlineDamageProfile(40, Radiation: 20),
             ProjectileProfile: new FrontlineProjectileProfile(
                 FrontlineProjectileKind.BallisticShell, 1.6, 6, SplashRadius: 80,
-                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500),
+                SplashDamageScale: 0.5, StartOffset: 12, VerticalOffset: -8, Lifetime: 500,
+                Sprite: FrontlineSpriteStrip.PlasmaShell),
             DamageUpgradeScale: 0,
             MetalDamageUpgradeScale: 0,
             ExperienceLimit: 2500),

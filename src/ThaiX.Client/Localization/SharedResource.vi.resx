@@ -2214,6 +2214,7 @@
   <data name="Games.FrontlineTowerDefense.UpgradeDamage" xml:space="preserve"><value>Nâng sát thương</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRange" xml:space="preserve"><value>Nâng tầm bắn</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRateOfFire" xml:space="preserve"><value>Nâng tốc độ bắn</value></data>
+  <data name="Games.FrontlineTowerDefense.UpgradeCost" xml:space="preserve"><value>Chi phí nâng cấp</value></data>
   <data name="Games.FrontlineTowerDefense.SellTower" xml:space="preserve"><value>Bán tháp</value></data>
   <data name="Games.FrontlineTowerDefense.MoveTower" xml:space="preserve"><value>Di chuyển tháp</value></data>
   <data name="Games.FrontlineTowerDefense.Speed" xml:space="preserve"><value>Tốc độ</value></data>
@@ -2242,6 +2243,7 @@
   <data name="Games.FrontlineTowerDefense.PlayMission" xml:space="preserve"><value>Chơi nhiệm vụ</value></data>
   <data name="Games.FrontlineTowerDefense.BestScore" xml:space="preserve"><value>Điểm cao nhất</value></data>
   <data name="Games.FrontlineTowerDefense.BackToMissions" xml:space="preserve"><value>Quay lại danh sách nhiệm vụ</value></data>
+  <data name="Games.FrontlineTowerDefense.Play" xml:space="preserve"><value>CHƠI</value></data>
   <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Tháp hỗ trợ</value></data>
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Đòn hỗ trợ</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Lượt hỗ trợ còn lại: {0}</value></data>
@@ -2258,6 +2260,24 @@
   <data name="Games.FrontlineTowerDefense.Tower.FlameThrower" xml:space="preserve"><value>Súng phun lửa</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MountedMachineGun" xml:space="preserve"><value>Súng máy gắn cố định</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.PlasmaCannon" xml:space="preserve"><value>Pháo plasma</value></data>
+  <data name="Games.FrontlineTowerDefense.Continue" xml:space="preserve"><value>Tiếp tục</value></data>
+  <data name="Games.FrontlineTowerDefense.Quit" xml:space="preserve"><value>Thoát</value></data>
+  <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Thử lại</value></data>
+  <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Tắt âm thanh</value></data>
+  <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Bật âm thanh</value></data>
+  <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial1.Text1" xml:space="preserve"><value>Chào mừng trở lại, Tướng quân. Trước khi tiếp tục, chúng ta nên ôn lại vài điều cơ bản. Phía bên phải là bảng chỉ huy, dùng để mua, bán, nâng cấp và quản lý các tháp phòng thủ.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial1.Text2" xml:space="preserve"><value>Để bắt đầu, hãy mua một tháp có sẵn trong bảng chỉ huy. Rất nhiều loại tháp khác có thể mua ở cửa hàng quân dụng.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial2.Text1" xml:space="preserve"><value>Bạn đã mua tháp, giờ hãy đặt nó ở đâu đó trên chiến trường. Thấy vòng tròn quanh tháp mới chứ? Đó là tầm nhìn của tháp.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial2.Text2" xml:space="preserve"><value>Hãy đặt tháp ở nơi quan sát tốt con đường quân địch sẽ đi. Địch xuất phát ở khu vực có cờ xanh và thoát ra ở lối có cờ đỏ.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial3.Text1" xml:space="preserve"><value>Tuyệt vời! Nếu còn tiền, bạn có thể mua thêm tháp hoặc nâng cấp tháp hiện có.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial3.Text2" xml:space="preserve"><value>Để nâng cấp, hãy chọn một tháp trên chiến trường và bấm nút cộng cạnh chỉ số muốn nâng. Khi sẵn sàng, bấm OK bên dưới và thử phòng thủ của bạn!</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial4.Text1" xml:space="preserve"><value>Làm tốt lắm, Tướng quân! Đó chỉ là lính cơ bản, nhưng một số có kháng với vài loại sát thương, ví dụ lính áo đen mặc giáp kevlar chỉ chịu nửa sát thương từ đạn.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial4.Text2" xml:space="preserve"><value>Đừng để quá nhiều địch chạm lối thoát: máu còn lại của chúng sẽ trừ vào máu căn cứ. Về 0 là thua. Bấm OK để tiếp tục.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial5.Text1" xml:space="preserve"><value>Có lúc bạn sẽ thấy phòng tuyến không đủ sức và cần trợ giúp. May mắn thay, bạn có thể gọi một đợt oanh kích hỗ trợ ở bất kỳ vị trí nào trên chiến trường.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial5.Text2" xml:space="preserve"><value>Tuy nhiên đợt oanh kích cần được nạp và chỉ dùng được khi nút hỗ trợ chuyển màu xanh. Bấm OK để tiếp tục và thử ngay.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial6.Text1" xml:space="preserve"><value>Bạn đã sống sót qua đợt đó, chắc đã quen việc... Từ đây tôi sẽ trao cho bạn nhiều quyền điều khiển hơn.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial6.Text2" xml:space="preserve"><value>Bạn có thể dùng các nút dưới bảng chỉ huy để gọi đợt, tua nhanh và tạm dừng... Vậy là đủ những điều cơ bản, chúc may mắn, Tướng quân!</value></data>
   <data name="Games.Wave" xml:space="preserve"><value>Đợt</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Mạng</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Vàng</value></data>

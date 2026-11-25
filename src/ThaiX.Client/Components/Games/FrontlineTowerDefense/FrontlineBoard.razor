@@ -1,249 +1,326 @@
 @namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
 @using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@implements IAsyncDisposable
 @inject IStringLocalizer<SharedResource> L
+@inject FrontlineFlumpLibrary Flump
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <div class="frontline-board"
+     @ref="_boardElement"
      role="grid"
      aria-label="@L[ResourceKeys.Games.FrontlineBoard]">
-    @foreach (var cell in VisibleCells)
-    {
-        var isPath = Level.WalkableCells.Contains(cell);
-        var isBlocked = Level.BlockedCells.Contains(cell);
+    <div class="frontline-board__path-layer" aria-hidden="true">
+        @foreach (var tile in _pathTiles)
+        {
+            <div class="frontline-board__path-tile"
+                 style="@GetPathTileStyle(tile, _pathAtlasId)"></div>
+        }
+    </div>
 
-        <button @key="cell"
-                type="button"
-                role="gridcell"
-                class="@GetCellClass(isPath, isBlocked)"
-                aria-label="@L[ResourceKeys.Games.FrontlineGridCell, cell.X + 1, cell.Y + 1]"
-                disabled="@(!IsPlacementEnabled || !CellSelected.HasDelegate)"
-                @onclick="() => CellSelected.InvokeAsync(ToCellCenter(cell))">
-        </button>
-    }
+    <svg class="frontline-board__svg"
+         viewBox="0 0 800 480"
+         preserveAspectRatio="xMidYMid meet">
+        @foreach (var draw in _terrainDraws)
+        {
+            if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+            {
+                <image href="@GetImagePath(draw.BitmapId)"
+                       x="0"
+                       y="0"
+                       width="@Format(draw.Width)"
+                       height="@Format(draw.Height)"
+                       transform="@GetMatrix(draw.Matrix)"
+                       preserveAspectRatio="none" />
+            }
+            else if (draw.Alpha > 0)
+            {
+                <rect x="@Format(draw.MinX)"
+                      y="@Format(draw.MinY)"
+                      width="@Format(draw.MaxX - draw.MinX)"
+                      height="@Format(draw.MaxY - draw.MinY)"
+                      rx="@Format(draw.CornerRadius)"
+                      fill="@GetFill(draw)"
+                      transform="@GetMatrix(draw.Matrix)" />
+            }
+        }
 
-    @foreach (var start in Level.StartPoints)
-    {
-        <span @key="start"
-              class="frontline-board__endpoint frontline-board__endpoint--start"
-              style="@GetEndpointStyle(start)"
-              aria-hidden="true"></span>
-    }
-
-    @foreach (var end in Level.EndPoints)
-    {
-        <span @key="end"
-              class="frontline-board__endpoint frontline-board__endpoint--end"
-              style="@GetEndpointStyle(end)"
-              aria-hidden="true"></span>
-    }
-
-    @if (ManualShooterPosition is FrontlinePoint shooterPosition)
-    {
-        <div class="frontline-board__manual-shooter"
-             style="@GetPositionStyle(shooterPosition)"
-             aria-hidden="true">
-            <svg viewBox="0 0 32 32">
-                <circle cx="16" cy="17" r="13" class="frontline-board__manual-shooter-base" />
-                <g transform="@GetManualTurretTransform(shooterPosition)">
-                    <path d="M14 16V2h4v14z" class="frontline-board__manual-shooter-barrel" />
-                    <path d="M11 13h10v7H11z" class="frontline-board__manual-shooter-body" />
-                </g>
-                <circle cx="16" cy="17" r="3" class="frontline-board__manual-shooter-core" />
+        @foreach (var decal in Simulation.Decals)
+        {
+            <svg class="frontline-board__decal"
+                 x="@Format(decal.Position.X - decal.Strip.Size * 0.5)"
+                 y="@Format(decal.Position.Y - decal.Strip.Size * 0.5)"
+                 width="@Format(decal.Strip.Size)"
+                 height="@Format(decal.Strip.Size)"
+                 viewBox="@GetFrameViewBox(decal.Strip, decal.Frame)"
+                 preserveAspectRatio="none"
+                 aria-hidden="true">
+                <image href="@GetImagePath(GetStripCharId(decal.Strip))"
+                       x="0"
+                       y="0"
+                       width="@Format(decal.Strip.Size * decal.Strip.FrameCount)"
+                       height="@Format(decal.Strip.Size)"
+                       preserveAspectRatio="none" />
             </svg>
-        </div>
-    }
+        }
 
-    <svg class="frontline-board__projectiles"
-         viewBox="0 0 672 480"
-         preserveAspectRatio="none"
-         aria-hidden="true">
-        @foreach (var effect in Simulation.AreaEffects)
+        @foreach (var cell in VisibleCells)
         {
-            <circle @key="effect.GetHashCode()"
-                    class="frontline-board__area-effect frontline-board__area-effect--@GetAreaEffectStyle(effect)"
-                    cx="@FormatCoordinate(effect.Position.X)"
-                    cy="@FormatCoordinate(effect.Position.Y)"
-                    r="@FormatCoordinate(effect.Radius)" />
+            var isPath = _walkable.Contains(cell);
+            var isBlocked = _blocked.Contains(cell);
+            var cellCenter = ToCellCenter(cell);
+
+            <rect class="@GetCellClass(isPath, isBlocked)"
+                  x="@Format(cell.X * FrontlinePath.DefaultGridCellSize)"
+                  y="@Format(cell.Y * FrontlinePath.DefaultGridCellSize)"
+                  width="@Format(FrontlinePath.DefaultGridCellSize)"
+                  height="@Format(FrontlinePath.DefaultGridCellSize)"
+                  role="gridcell"
+                  aria-label="@L[ResourceKeys.Games.FrontlineGridCell, cell.X + 1, cell.Y + 1]"
+                  @onclick="() => HandleCellClick(isPath, isBlocked, cellCenter)" />
         }
-        @foreach (var trace in Simulation.CombatTraces)
+
+        @if (SelectedTower is not null)
         {
-            <line @key="trace.GetHashCode()"
-                  class="frontline-board__trace frontline-board__trace--@GetTraceStyle(trace)"
-                  x1="@FormatCoordinate(trace.Start.X)"
-                  y1="@FormatCoordinate(trace.Start.Y)"
-                  x2="@FormatCoordinate(trace.End.X)"
-                  y2="@FormatCoordinate(trace.End.Y)" />
+            <circle class="@GetRangeRingClass()"
+                    cx="@Format(SelectedTower.Position.X)"
+                    cy="@Format(SelectedTower.Position.Y)"
+                    r="@Format(SelectedTower.Range)"
+                    aria-hidden="true" />
         }
+
+        @foreach (var actor in GetSortedActors())
+        {
+            var tower = actor.Tower;
+            var enemy = actor.Enemy;
+            if (tower is not null)
+            {
+                var towerId = tower.Id;
+                <g class="@GetTowerClass(tower)"
+                   transform="@GetTranslate(tower.Position)"
+                   role="button"
+                   aria-label="@L[ResourceKeys.Games.FrontlineSelectTower, tower.Definition.Id]"
+                   aria-pressed="@(SelectedTowerId == towerId)"
+                   @onclick="() => TowerSelected.InvokeAsync(towerId)">
+                    @foreach (var draw in GetTowerDraws(tower))
+                    {
+                        @if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                        {
+                            <image href="@GetImagePath(draw.BitmapId)"
+                                   x="0"
+                                   y="0"
+                                   width="@Format(draw.Width)"
+                                   height="@Format(draw.Height)"
+                                   transform="@GetMatrix(draw.Matrix)" />
+                        }
+                    }
+                </g>
+            }
+            else if (enemy is not null)
+            {
+                var enemyId = enemy.Id;
+                <g class="@GetEnemyClass(enemy)"
+                   transform="@GetTranslate(enemy.Position)"
+                   role="button"
+                   aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
+                   @onclick="() => HandleEnemySelected(enemyId)">
+                    @foreach (var draw in GetEnemyDraws(enemy))
+                    {
+                        @if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                        {
+                            <image href="@GetImagePath(draw.BitmapId)"
+                                   x="0"
+                                   y="0"
+                                   width="@Format(draw.Width)"
+                                   height="@Format(draw.Height)"
+                                   transform="@GetMatrix(draw.Matrix)" />
+                        }
+                    }
+                    <g aria-hidden="true">
+                        <text class="frontline-board__health-text"
+                              x="14"
+                              y="-23"
+                              text-anchor="end">@Math.Max(0, Math.Floor(enemy.Health))</text>
+                    </g>
+                </g>
+            }
+        }
+
+        @if (ManualShooterPosition is FrontlinePoint shooterPosition)
+        {
+            <g class="frontline-board__manual-shooter"
+               transform="@GetTranslate(shooterPosition)"
+               aria-hidden="true">
+                @foreach (var draw in GetManualShooterDraws())
+                {
+                    @if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                    {
+                        <image href="@GetImagePath(draw.BitmapId)"
+                               x="0"
+                               y="0"
+                               width="@Format(draw.Width)"
+                               height="@Format(draw.Height)"
+                               transform="@GetMatrix(draw.Matrix)" />
+                    }
+                }
+            </g>
+        }
+
         @foreach (var supportProjectile in Simulation.SupportProjectiles)
         {
-            <circle @key="supportProjectile.GetHashCode()"
-                    class="frontline-board__projectile frontline-board__projectile--support"
-                    cx="@FormatCoordinate(supportProjectile.Impact.X)"
-                    cy="@FormatCoordinate(supportProjectile.Impact.Y - supportProjectile.Height)"
-                    r="4" />
+            <svg class="frontline-board__projectile-actor"
+                 x="@Format(supportProjectile.Impact.X - 16)"
+                 y="@Format(supportProjectile.Impact.Y - 16)"
+                 width="32"
+                 height="32"
+                 viewBox="@GetFrameViewBox(FrontlineSpriteStrip.Shadow, supportProjectile.Frame)"
+                 preserveAspectRatio="none"
+                 aria-hidden="true">
+                <image href="@GetImagePath(GetStripCharId(FrontlineSpriteStrip.Shadow))"
+                       x="0"
+                       y="0"
+                       width="@Format(FrontlineSpriteStrip.Shadow.Size * FrontlineSpriteStrip.Shadow.FrameCount)"
+                       height="@Format(FrontlineSpriteStrip.Shadow.Size)"
+                       preserveAspectRatio="none" />
+            </svg>
+            <svg class="frontline-board__projectile-actor"
+                 x="@Format(supportProjectile.Impact.X - 16)"
+                 y="@Format(supportProjectile.Impact.Y - supportProjectile.Height - 16)"
+                 width="32"
+                 height="32"
+                 viewBox="@GetFrameViewBox(FrontlineSpriteStrip.Shell, supportProjectile.Frame)"
+                 preserveAspectRatio="none"
+                 aria-hidden="true">
+                <image href="@GetImagePath(GetStripCharId(FrontlineSpriteStrip.Shell))"
+                       x="0"
+                       y="0"
+                       width="@Format(FrontlineSpriteStrip.Shell.Size * FrontlineSpriteStrip.Shell.FrameCount)"
+                       height="@Format(FrontlineSpriteStrip.Shell.Size)"
+                       preserveAspectRatio="none" />
+            </svg>
         }
+
         @foreach (var projectile in Simulation.Projectiles)
         {
-            <circle @key="projectile.Id"
-                    class="frontline-board__projectile frontline-board__projectile--@GetProjectileStyle(projectile)"
-                    cx="@FormatCoordinate(projectile.Position.X)"
-                    cy="@FormatCoordinate(projectile.Position.Y - projectile.Height)"
-                    r="@FormatCoordinate(GetProjectileRadius(projectile))" />
+            var projectileId = projectile.Id;
+            @if (projectile.Profile.Kind == FrontlineProjectileKind.HomingMissile)
+            {
+                <g @key="projectileId"
+                   class="frontline-board__projectile-actor"
+                   transform="@GetTranslate(new FrontlinePoint(projectile.Position.X, projectile.Position.Y - projectile.Height))"
+                   aria-hidden="true">
+                    @foreach (var draw in GetMissileDraws(projectile))
+                    {
+                        <image href="@GetImagePath(draw.BitmapId)"
+                               x="0"
+                               y="0"
+                               width="@Format(draw.Width)"
+                               height="@Format(draw.Height)"
+                               transform="@GetMatrix(draw.Matrix)" />
+                    }
+                </g>
+            }
+            else if (projectile.Profile.Sprite is { } strip)
+            {
+                <svg @key="projectileId"
+                     class="frontline-board__projectile-actor"
+                     x="@Format(projectile.Position.X - strip.Size * 0.5)"
+                     y="@Format(projectile.Position.Y - projectile.Height - strip.Size * 0.5)"
+                     width="@Format(strip.Size)"
+                     height="@Format(strip.Size)"
+                     viewBox="@GetFrameViewBox(strip, projectile.Frame)"
+                     preserveAspectRatio="none"
+                     aria-hidden="true">
+                    <image href="@GetImagePath(GetStripCharId(strip))"
+                           x="0"
+                           y="0"
+                           width="@Format(strip.Size * strip.FrameCount)"
+                           height="@Format(strip.Size)"
+                           preserveAspectRatio="none" />
+                </svg>
+            }
+        }
+
+        @foreach (var particle in Simulation.Particles)
+        {
+            var strip = particle.Strip;
+            var particleKey = particle.GetHashCode();
+            <g @key="particleKey"
+               class="@(particle.Glow ? "frontline-board__particle frontline-board__particle--glow" : "frontline-board__particle")">
+                <svg x="@Format(particle.X - strip.Size * 0.5)"
+                     y="@Format(particle.Y - strip.Size * 0.5)"
+                     width="@Format(strip.Size)"
+                     height="@Format(strip.Size)"
+                     viewBox="@GetFrameViewBox(strip, particle.Frame)"
+                     preserveAspectRatio="none"
+                     aria-hidden="true">
+                    <image href="@GetImagePath(GetStripCharId(strip))"
+                           x="0"
+                           y="0"
+                           width="@Format(strip.Size * strip.FrameCount)"
+                           height="@Format(strip.Size)"
+                           preserveAspectRatio="none" />
+                </svg>
+            </g>
+        }
+
+        @foreach (var spark in Simulation.Sparks)
+        {
+            var sparkKey = spark.GetHashCode();
+            <line @key="sparkKey"
+                  class="frontline-board__spark"
+                  x1="@Format(spark.X)"
+                  y1="@Format(spark.Y)"
+                  x2="@Format(spark.X - spark.VelocityX)"
+                  y2="@Format(spark.Y - spark.VelocityY)"
+                  opacity="@Format(Math.Clamp(spark.Life / 10, 0, 1))" />
+        }
+
+        @foreach (var trace in Simulation.CombatTraces)
+        {
+            if (trace.Kind == FrontlineCombatTraceKind.Lightning)
+            {
+                var traceKey = trace.GetHashCode();
+                <polyline @key="traceKey"
+                          class="frontline-board__beam"
+                          points="@GetBeamPoints(trace)"
+                          opacity="@Format(Math.Clamp(trace.LifeRemaining / 100, 0.1, 1))" />
+            }
+            else
+            {
+                foreach (var segment in BuildTracerSegments(trace))
+                {
+                    <line class="@GetTraceClass(trace)"
+                          x1="@Format(segment.X1)"
+                          y1="@Format(segment.Y1)"
+                          x2="@Format(segment.X2)"
+                          y2="@Format(segment.Y2)"
+                          stroke="@segment.Color"
+                          stroke-width="@Format(segment.Width)"
+                          opacity="@Format(Math.Clamp(segment.Alpha, 0, 1))" />
+                }
+            }
         }
     </svg>
-
-    @foreach (var tower in Simulation.Towers)
-    {
-        <button @key="tower.Id"
-                type="button"
-                class="@GetTowerClass(tower)"
-                style="@GetPositionStyle(tower.Position)"
-                aria-label="@L[ResourceKeys.Games.FrontlineSelectTower, tower.Definition.Id]"
-                aria-pressed="@(SelectedTowerId == tower.Id)"
-                disabled="@(!TowerSelected.HasDelegate)"
-                @onclick="() => TowerSelected.InvokeAsync(tower.Id)">
-            <svg class="frontline-board__tower-art" viewBox="0 0 32 32" aria-hidden="true">
-                <circle cx="16" cy="16" r="13" class="frontline-board__tower-base" />
-                <path d="M7 21h18v4H7z" class="frontline-board__tower-track" />
-                <path d="M9 17h14l-2-5H11z" class="frontline-board__tower-body" />
-                <g transform="@GetTurretTransform(tower)">
-                @if (tower.Definition.IsSupport)
-                {
-                    <path d="M8 15h16v4H8zM12 15V8h8v7" class="frontline-board__tower-barrel" />
-                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
-                }
-                else if (tower.Definition.Id == "tower1")
-                {
-                    <path d="M12 13 10 5l4 2 2-3 2 3 4-2-2 8" class="frontline-board__tower-barrel" />
-                    <path d="m16 3 2 3h-4z" class="frontline-board__tower-core" />
-                }
-                else if (tower.Definition.Id == "tower2")
-                {
-                    <path d="M15 13V4h2v9" class="frontline-board__tower-barrel" />
-                    <path d="M13 8h6" class="frontline-board__tower-scope" />
-                }
-                else if (tower.Definition.Id == "tower3")
-                {
-                    <path d="M15 13V2h2v11" class="frontline-board__tower-barrel" />
-                    <path d="M13 6h6v2h-6z" class="frontline-board__tower-scope" />
-                }
-                else if (tower.Definition.Id == "tower4")
-                {
-                    <path d="m18 4-8 11h5l-2 9 9-13h-5z" class="frontline-board__tower-energy" />
-                }
-                else if (tower.Definition.Id == "tower5")
-                {
-                    <path d="M12 13V5h3v8M17 13V5h3v8" class="frontline-board__tower-barrel" />
-                }
-                else if (tower.Definition.Id == "tower6")
-                {
-                    <path d="M12 13V5h8v8" class="frontline-board__tower-barrel" />
-                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
-                }
-                else if (tower.Definition.Id == "tower7")
-                {
-                    <path d="m11 14 2-9h6l2 9z" class="frontline-board__tower-barrel" />
-                }
-                else if (tower.Definition.Id == "tower8")
-                {
-                    <path d="M12 13V5h8v8M20 8l5-2" class="frontline-board__tower-barrel" />
-                    <circle cx="25" cy="6" r="2" class="frontline-board__tower-energy" />
-                }
-                else if (tower.Definition.Id == "tower9")
-                {
-                    <path d="M12 14V6h8v8" class="frontline-board__tower-barrel" />
-                    <path d="m16 3 3 4h-6z" class="frontline-board__tower-energy" />
-                }
-                else if (tower.Definition.Id == "tower10")
-                {
-                    <path d="M11 13V5h10v8" class="frontline-board__tower-barrel" />
-                    <path d="M13 13v5h6v-5" class="frontline-board__tower-magazine" />
-                }
-                else
-                {
-                    <path d="M11 13V4h10v9" class="frontline-board__tower-barrel" />
-                    <circle cx="16" cy="7" r="3" class="frontline-board__tower-energy" />
-                }
-                </g>
-                <circle cx="16" cy="17" r="3" class="frontline-board__tower-core" />
-            </svg>
-        </button>
-    }
-
-    @foreach (var enemy in Simulation.Enemies)
-    {
-        <button @key="enemy.Id"
-                type="button"
-                class="@GetEnemyClass(enemy)"
-                style="@GetPositionStyle(enemy.Position)"
-                aria-label="@L[ResourceKeys.Games.FrontlineEnemy, enemy.Definition.Id]"
-                disabled="@(!EnemySelected.HasDelegate || !EnemySelectionEnabled)"
-                @onclick="() => EnemySelected.InvokeAsync(enemy.Id)">
-            <svg class="frontline-board__enemy-art" viewBox="0 0 24 24" aria-hidden="true">
-                @if (enemy.Definition.Id == "bot_1")
-                {
-                    <rect x="7" y="6" width="10" height="10" rx="2" class="frontline-board__enemy-shape" />
-                    <path d="M9 6V3h6v3M4 10h3m10 0h3M9 16v4m6-4v4" class="frontline-board__enemy-limb" />
-                    <circle cx="10" cy="10" r="1" class="frontline-board__enemy-eye" />
-                    <circle cx="14" cy="10" r="1" class="frontline-board__enemy-eye" />
-                }
-                else if (enemy.Definition.Id.StartsWith("Jeep", StringComparison.Ordinal))
-                {
-                    <path d="M2 13h20l-2 6H4z" class="frontline-board__enemy-shape" />
-                    <path d="M6 13 8 7h9l3 6M10 8v4m4-4v4" class="frontline-board__enemy-detail" />
-                    <circle cx="6" cy="19" r="2" class="frontline-board__enemy-wheel" />
-                    <circle cx="18" cy="19" r="2" class="frontline-board__enemy-wheel" />
-                }
-                else if (enemy.Definition.Id.StartsWith("Tank", StringComparison.Ordinal))
-                {
-                    <path d="M2 15h20v5H2z" class="frontline-board__enemy-shape" />
-                    <path d="M5 11h14v4H5zM10 11V7h7v4M17 8h6" class="frontline-board__enemy-detail" />
-                    <circle cx="6" cy="18" r="1.5" class="frontline-board__enemy-wheel" />
-                    <circle cx="11" cy="18" r="1.5" class="frontline-board__enemy-wheel" />
-                    <circle cx="16" cy="18" r="1.5" class="frontline-board__enemy-wheel" />
-                }
-                else if (enemy.Definition.Id == "enemy5")
-                {
-                    <path d="M12 2 19 6v7l-7 8-7-8V6z" class="frontline-board__enemy-shape" />
-                    <path d="M8 9h8v6l-4 3-4-3zM9 6h6" class="frontline-board__enemy-detail" />
-                }
-                else
-                {
-                    <circle cx="12" cy="6" r="4" class="frontline-board__enemy-shape" />
-                    <path d="M7 11h10l3 10H4z" class="frontline-board__enemy-detail" />
-                    @if (enemy.Definition.Id == "enemy2")
-                    {
-                        <path d="M7 5 9 2h6l2 3" class="frontline-board__enemy-limb" />
-                    }
-                    else if (enemy.Definition.Id == "enemy3")
-                    {
-                        <path d="M13 13 22 9M20 8l2 1-1 2" class="frontline-board__enemy-limb" />
-                    }
-                    else if (enemy.Definition.Id == "enemy4")
-                    {
-                        <path d="M8 7h8v5H8zM9 9h2m2 0h2" class="frontline-board__enemy-limb" />
-                    }
-                    else
-                    {
-                        <path d="M9 13v5m6-5v5" class="frontline-board__enemy-limb" />
-                    }
-                }
-            </svg>
-            <span class="frontline-board__health">
-                <span style="@GetHealthStyle(enemy)"></span>
-            </span>
-        </button>
-    }
 </div>
 
 @code {
-    private const double BoardWidth = FrontlineLevelMapDefinition.BuildableWidth * FrontlinePath.DefaultGridCellSize;
-    private const double BoardHeight = FrontlineLevelMapDefinition.BuildableHeight * FrontlinePath.DefaultGridCellSize;
-
-    private static readonly IReadOnlyList<FrontlineGridPoint> VisibleCells =
+    private static readonly FrontlineGridPoint[] VisibleCells =
         Enumerable.Range(0, FrontlineLevelMapDefinition.BuildableHeight)
             .SelectMany(y => Enumerable.Range(0, FrontlineLevelMapDefinition.BuildableWidth)
                 .Select(x => new FrontlineGridPoint(x, y)))
             .ToArray();
+
+    private IReadOnlyList<FrontlineFlumpDraw> _terrainDraws = [];
+    private IReadOnlyList<(int Mask, int CellX, int CellY)> _pathTiles = [];
+    private int _pathAtlasId;
+    private string? _loadedLevelId;
+    private HashSet<FrontlineGridPoint> _walkable = [];
+    private HashSet<FrontlineGridPoint> _blocked = [];
+    private ElementReference _boardElement;
+    private DotNetObjectReference<FrontlineBoard>? _pointerReference;
+    private IJSObjectReference? _pointerModule;
+    private bool _pointerAttached;
 
     [Parameter, EditorRequired]
     public FrontlineLevelMapDefinition Level { get; set; } = default!;
@@ -254,6 +331,7 @@
     [Parameter]
     public bool IsPlacementEnabled { get; set; }
 
+    /// <summary>When set, every cell (path, blocked or buildable) reports a selection.</summary>
     [Parameter]
     public bool AllowNonBuildableSelection { get; set; }
 
@@ -272,11 +350,265 @@
     [Parameter]
     public bool EnemySelectionEnabled { get; set; } = true;
 
+    /// <summary>Legacy Manualtower1 position for the Sniper Elite bonus missions.</summary>
     [Parameter]
     public FrontlinePoint? ManualShooterPosition { get; set; }
 
+    /// <summary>Last aim point of the manual turret, used for the turret frame.</summary>
     [Parameter]
     public FrontlinePoint? ManualShooterAim { get; set; }
+
+    /// <summary>Reports exact pointer stage coordinates while the enemy selection is disabled.</summary>
+    [Parameter]
+    public bool EnablePointerTracking { get; set; }
+
+    [Parameter]
+    public EventCallback<FrontlinePoint> PointerMoved { get; set; }
+
+    [Parameter]
+    public EventCallback<FrontlinePoint> PointerClicked { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Flump.EnsureLoadedAsync(Navigation.BaseUri);
+        LoadTerrain();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!EnablePointerTracking || _pointerAttached)
+            return;
+
+        _pointerModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/frontlinePointer.js");
+        _pointerReference ??= DotNetObjectReference.Create(this);
+        await _pointerModule.InvokeVoidAsync("attach", _boardElement, _pointerReference);
+        _pointerAttached = true;
+    }
+
+    [JSInvokable]
+    public Task OnFrontlinePointerMove(double x, double y) =>
+        PointerMoved.HasDelegate
+            ? PointerMoved.InvokeAsync(new FrontlinePoint(x, y))
+            : Task.CompletedTask;
+
+    [JSInvokable]
+    public Task OnFrontlinePointerClick(double x, double y) =>
+        PointerClicked.HasDelegate
+            ? PointerClicked.InvokeAsync(new FrontlinePoint(x, y))
+            : Task.CompletedTask;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_pointerAttached && _pointerModule is not null)
+        {
+            try
+            {
+                await _pointerModule.InvokeVoidAsync("detach", _boardElement);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        _pointerReference?.Dispose();
+    }
+
+    private FrontlineTower? SelectedTower =>
+        SelectedTowerId is long id
+            ? Simulation.Towers.FirstOrDefault(tower => tower.Id == id)
+            : null;
+
+    private void LoadTerrain()
+    {
+        if (_loadedLevelId == Level.Id)
+            return;
+
+        _loadedLevelId = Level.Id;
+        _walkable = Level.WalkableCells.ToHashSet();
+        _blocked = Level.BlockedCells.ToHashSet();
+        _terrainDraws = [];
+
+        var symbolName = Flump.GetLevelSymbol(Level.LevelNumber, Level.IsBonus);
+        var symbolId = Flump.GetSymbolId(symbolName);
+        if (symbolId is int terrainId)
+            _terrainDraws = Flump.GetDraws(terrainId, 0);
+
+        _pathAtlasId = Flump.GetSymbolId(GetPathAtlasName(Level.LevelNumber)) ?? 87;
+        _pathTiles = BuildPathTiles();
+    }
+
+    private IReadOnlyList<(FrontlineTower? Tower, FrontlineEnemy? Enemy)> GetSortedActors()
+    {
+        var actors = new List<(double Y, FrontlineTower? Tower, FrontlineEnemy? Enemy)>(
+            Simulation.Towers.Count + Simulation.Enemies.Count);
+        foreach (var tower in Simulation.Towers)
+            actors.Add((tower.Position.Y, tower, null));
+        foreach (var enemy in Simulation.Enemies)
+            actors.Add((enemy.Position.Y, null, enemy));
+
+        return actors
+            .OrderBy(actor => actor.Y)
+            .Select(actor => (actor.Tower, actor.Enemy))
+            .ToArray();
+    }
+
+    private IReadOnlyList<(int Mask, int CellX, int CellY)> BuildPathTiles()
+    {
+        var walkable = new bool[FrontlineLevelMapDefinition.GridWidth, FrontlineLevelMapDefinition.GridHeight];
+        foreach (var cell in Level.WalkableCells)
+        {
+            if (cell.X >= 0 && cell.X < FrontlineLevelMapDefinition.GridWidth
+                && cell.Y >= 0 && cell.Y < FrontlineLevelMapDefinition.GridHeight)
+                walkable[cell.X, cell.Y] = true;
+        }
+
+        var tiles = new List<(int Mask, int CellX, int CellY)>(Level.WalkableCells.Count);
+        foreach (var cell in Level.WalkableCells)
+        {
+            if (cell.X < 0 || cell.X >= FrontlineLevelMapDefinition.GridWidth
+                || cell.Y < 0 || cell.Y >= FrontlineLevelMapDefinition.GridHeight)
+                continue;
+
+            var mask = 0;
+            if (!IsWalkable(walkable, cell.X, cell.Y - 1)) mask += 1;
+            if (!IsWalkable(walkable, cell.X + 1, cell.Y)) mask += 2;
+            if (!IsWalkable(walkable, cell.X, cell.Y + 1)) mask += 4;
+            if (!IsWalkable(walkable, cell.X - 1, cell.Y)) mask += 8;
+
+            tiles.Add((mask, cell.X, cell.Y));
+        }
+
+        return tiles;
+    }
+
+    private static bool IsWalkable(bool[,] walkable, int x, int y) =>
+        x >= 0 && x < FrontlineLevelMapDefinition.GridWidth
+        && y >= 0 && y < FrontlineLevelMapDefinition.GridHeight
+        && walkable[x, y];
+
+    private static string GetPathAtlasName(int levelNumber) => levelNumber switch
+    {
+        1 => "pathGrids",
+        2 or 3 or 4 or 6 or 9 or 11 or 13 or 14 => "sandGrid",
+        5 => "iceGrid",
+        12 => "rockGrid",
+        7 or 8 or 10 => "pathGrids",
+        _ => "pathGrids"
+    };
+
+    private static string GetPathTileStyle((int Mask, int CellX, int CellY) tile, int atlasId)
+    {
+        var left = (tile.CellX * FrontlinePath.DefaultGridCellSize - 8) / 800.0 * 100;
+        var top = (tile.CellY * FrontlinePath.DefaultGridCellSize - 8) / 480.0 * 100;
+        var width = 48.0 / 800.0 * 100;
+        var height = 48.0 / 480.0 * 100;
+        var positionX = tile.Mask * 100.0 / 15.0;
+
+        return FormattableString.Invariant(
+            $"left:{left:0.####}%;top:{top:0.####}%;width:{width:0.####}%;height:{height:0.####}%;background-image:url('{GetImagePath(atlasId)}');background-position:{positionX:0.####}% 0%;");
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetTowerDraws(FrontlineTower tower)
+    {
+        var symbolName = tower.Definition.IsSupport
+            ? $"supportTower_{tower.Definition.Id[^1]}"
+            : tower.Definition.Id;
+        var symbolId = Flump.GetSymbolId(symbolName);
+        if (symbolId is not int rootId)
+            yield break;
+
+        var turretFrame = GetTurretFrame(tower);
+        foreach (var placement in Flump.GetPlacements(rootId, 0))
+        {
+            var childFrame = placement.Name == "turret" ? turretFrame : 0;
+            foreach (var draw in Flump.GetDraws(placement.CharId, childFrame))
+                yield return Compose(draw, placement.Matrix);
+        }
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetEnemyDraws(FrontlineEnemy enemy)
+    {
+        var symbolId = Flump.GetSymbolId(enemy.Definition.Id);
+        if (symbolId is not int rootId)
+            yield break;
+
+        var angleDegrees = enemy.DesiredAngleDegrees;
+        foreach (var placement in Flump.GetPlacements(rootId, 0))
+        {
+            var childFrame = placement.Name switch
+            {
+                "soldier" => GetSoldierFrame(angleDegrees),
+                "hull" => GetVehicleFrame(angleDegrees, enemy.Definition.Id == "Jeep1"),
+                _ => 0
+            };
+            foreach (var draw in Flump.GetDraws(placement.CharId, childFrame))
+                yield return Compose(draw, placement.Matrix);
+        }
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetManualShooterDraws()
+    {
+        var symbolId = Flump.GetSymbolId("Manualtower1");
+        if (symbolId is not int rootId)
+            yield break;
+
+        var turretFrame = GetManualShooterFrame();
+        foreach (var placement in Flump.GetPlacements(rootId, 0))
+        {
+            var childFrame = placement.Name == "turret" ? turretFrame : 0;
+            foreach (var draw in Flump.GetDraws(placement.CharId, childFrame))
+                yield return Compose(draw, placement.Matrix);
+        }
+    }
+
+    private int GetManualShooterFrame()
+    {
+        if (ManualShooterPosition is not FrontlinePoint origin
+            || ManualShooterAim is not FrontlinePoint aim)
+            return 0;
+
+        // The legacy manual tower divides the radian angle by 3.16 instead of PI.
+        var angle = Math.Atan2(aim.Y - origin.Y, aim.X - origin.X) * 180 / 3.16;
+        return Math.Clamp((int)Math.Round((angle + 180) / 5), 0, 71);
+    }
+
+    private static int GetSoldierFrame(double angleDegrees)
+    {
+        var frame = (int)Math.Round((180 + angleDegrees) / 45);
+        return Math.Clamp(frame, 0, 8);
+    }
+
+    private static int GetVehicleFrame(double angleDegrees, bool useFloor)
+    {
+        var angle = angleDegrees > 180
+            ? angleDegrees - 360
+            : angleDegrees < -180
+                ? angleDegrees + 360
+                : angleDegrees;
+        var frame = useFloor
+            ? (int)Math.Floor((angle + 180) * 0.2)
+            : (int)Math.Round((angle + 180) / 5);
+        return Math.Clamp(frame, 0, 71);
+    }
+
+    private int GetTurretFrame(FrontlineTower tower)
+    {
+        var target = tower.TargetId is long targetId
+            ? Simulation.Enemies.FirstOrDefault(enemy => enemy.Id == targetId)
+            : null;
+
+        var angle = target is null
+            ? 0
+            : Math.Atan2(
+                target.Position.Y - tower.Position.Y,
+                target.Position.X - tower.Position.X) * 180 / Math.PI;
+
+        var frame = (int)Math.Round((angle + 180) / 5);
+        return Math.Clamp(frame, 0, 71);
+    }
+
+    private static FrontlineFlumpDraw Compose(FrontlineFlumpDraw draw, FrontlineFlumpMatrix matrix) =>
+        draw with { Matrix = FrontlineFlumpMatrix.Multiply(matrix, draw.Matrix) };
 
     private static string GetCellClass(bool isPath, bool isBlocked)
     {
@@ -288,116 +620,158 @@
             : "frontline-board__cell frontline-board__cell--buildable";
     }
 
+    private Task HandleCellClick(bool isPath, bool isBlocked, FrontlinePoint center)
+    {
+        if (AllowNonBuildableSelection)
+            return CellSelected.InvokeAsync(center);
+
+        if (IsPlacementEnabled && !isPath && !isBlocked)
+            return CellSelected.InvokeAsync(center);
+
+        return Task.CompletedTask;
+    }
+
+    private Task HandleEnemySelected(long enemyId)
+    {
+        if (!EnemySelectionEnabled || !EnemySelected.HasDelegate)
+            return Task.CompletedTask;
+
+        return EnemySelected.InvokeAsync(enemyId);
+    }
+
     private string GetTowerClass(FrontlineTower tower)
     {
-        var archetype = tower.Definition.Id switch
-        {
-            "tower1" => "missile",
-            "tower2" => "rifle",
-            "tower3" => "sniper",
-            "tower4" => "electro",
-            "tower5" => "shotgun",
-            "tower6" => "beam",
-            "tower7" or "tower8" => "bio",
-            "tower9" => "flame",
-            "tower10" => "machinegun",
-            "tower11" => "plasma",
-            _ => "ballistic"
-        };
         var classes = tower.Definition.IsSupport
             ? "frontline-board__tower frontline-board__tower--support"
-            : $"frontline-board__tower frontline-board__tower--{archetype}";
+            : "frontline-board__tower";
 
         return SelectedTowerId == tower.Id
             ? $"{classes} frontline-board__tower--selected"
             : classes;
     }
 
-    private string GetTurretTransform(FrontlineTower tower)
+    private static string GetEnemyClass(FrontlineEnemy enemy) =>
+        $"frontline-board__enemy frontline-board__enemy--{enemy.Definition.Id.ToLowerInvariant()}";
+
+    private string GetRangeRingClass() =>
+        IsPlacementEnabled
+            ? "frontline-board__range frontline-board__range--blocked"
+            : "frontline-board__range";
+
+    private IEnumerable<FrontlineFlumpDraw> GetMissileDraws(FrontlineProjectile projectile)
     {
-        var target = tower.TargetId is long targetId
+        var symbolId = Flump.GetSymbolId("Missile");
+        if (symbolId is not int rootId)
+            yield break;
+
+        var target = projectile.TargetId is long targetId
             ? Simulation.Enemies.FirstOrDefault(enemy => enemy.Id == targetId)
             : null;
-        if (target is null)
-            return "rotate(0 16 16)";
+        var angle = target is null
+            ? 0
+            : Math.Atan2(
+                target.Position.Y - projectile.Position.Y,
+                target.Position.X - projectile.Position.X) * 180 / Math.PI;
+        var frame = Math.Clamp((int)Math.Round((angle + 180) / 5), 0, 71);
 
-        var angle = Math.Atan2(
-            target.Position.Y - tower.Position.Y,
-            target.Position.X - tower.Position.X) * 180 / Math.PI + 90;
-        return FormattableString.Invariant($"rotate({angle:0.##} 16 16)");
-    }
-
-    private string GetManualTurretTransform(FrontlinePoint shooterPosition)
-    {
-        if (ManualShooterAim is not FrontlinePoint aim)
-            return "rotate(0 16 16)";
-
-        var angle = Math.Atan2(
-            aim.Y - shooterPosition.Y,
-            aim.X - shooterPosition.X) * 180 / Math.PI + 90;
-        return FormattableString.Invariant($"rotate({angle:0.##} 16 16)");
-    }
-
-    private static string GetEnemyClass(FrontlineEnemy enemy)
-    {
-        var archetypeClass = $"frontline-board__enemy--{enemy.Definition.Id.ToLowerInvariant()}";
-        return enemy.Definition.IsMetal
-            ? $"frontline-board__enemy frontline-board__enemy--metal {archetypeClass}"
-            : $"frontline-board__enemy {archetypeClass}";
-    }
-
-    private static string GetProjectileStyle(FrontlineProjectile projectile) =>
-        projectile.Profile.Kind switch
+        foreach (var placement in Flump.GetPlacements(rootId, 0))
         {
-            FrontlineProjectileKind.HomingMissile => "missile",
-            FrontlineProjectileKind.BallisticShell => "shell",
-            FrontlineProjectileKind.TrackingPoison => "poison",
-            FrontlineProjectileKind.TrackingFlame => "flame",
-            _ => "default"
-        };
+            var childFrame = placement.Name == "msl" ? frame : 0;
+            foreach (var draw in Flump.GetDraws(placement.CharId, childFrame))
+                yield return Compose(draw, placement.Matrix);
+        }
+    }
 
-    private static string GetAreaEffectStyle(FrontlineGameSimulation.FrontlineAreaEffect effect) =>
-        effect.Damage.Burn > 0 ? "fire" : "poison";
+    private int GetStripCharId(FrontlineSpriteStrip strip) =>
+        Flump.GetSymbolId(strip.Symbol) ?? 0;
 
-    private static string GetTraceStyle(FrontlineCombatTrace trace) =>
+    private static string GetFrameViewBox(FrontlineSpriteStrip strip, int frame) =>
+        FormattableString.Invariant(
+            $"{Math.Clamp(frame, 0, strip.FrameCount - 1) * strip.Size} 0 {strip.Size} {strip.Size}");
+
+    private sealed record FrontlineTraceSegment(
+        double X1,
+        double Y1,
+        double X2,
+        double Y2,
+        double Width,
+        string Color,
+        double Alpha);
+
+    private static IReadOnlyList<FrontlineTraceSegment> BuildTracerSegments(FrontlineCombatTrace trace)
+    {
+        var startX = trace.Start.X;
+        var startY = trace.Start.Y;
+        var endX = trace.End.X;
+        var endY = trace.End.Y;
+        var midX = (startX + endX) * 0.5;
+        var midY = (startY + endY) * 0.5;
+        var quarterX = (startX + midX) * 0.5;
+        var quarterY = (startY + midY) * 0.5;
+        var threeQuarterX = (endX + midX) * 0.5;
+        var threeQuarterY = (endY + midY) * 0.5;
+        var life = trace.LifeRemaining;
+        var weight = trace.Weight;
+
+        return
+        [
+            new(startX, startY, quarterX, quarterY,
+                weight * Random.Shared.NextDouble(), "#FFCC77", life * 0.04),
+            new(quarterX, quarterY, midX, midY,
+                weight * Random.Shared.NextDouble(), "#FFCC77", life * 0.01),
+            new(midX, midY, threeQuarterX, threeQuarterY,
+                weight * Random.Shared.NextDouble(), "#FFFFF7", life * 0.03),
+            new(threeQuarterX, threeQuarterY, endX, endY,
+                weight * Random.Shared.NextDouble(), "#FFCC77", life * 0.05)
+        ];
+    }
+
+    private static string GetBeamPoints(FrontlineCombatTrace trace)
+    {
+        var x = trace.Start.X;
+        var y = trace.Start.Y;
+        var stepX = -(trace.Start.X - trace.End.X) / 10;
+        var stepY = -(trace.Start.Y - trace.End.Y) / 10;
+        var points = new List<string>(11) { FormattableString.Invariant($"{x:0.##},{y:0.##}") };
+
+        for (var index = 0; index < 9; index++)
+        {
+            var jitterX = -6 + Random.Shared.NextDouble() * 12;
+            var jitterY = -6 + Random.Shared.NextDouble() * 12;
+            jitterY -= Math.Sin(index * 0.5) * 5;
+            x += stepX + jitterX;
+            y += stepY + jitterY;
+            points.Add(FormattableString.Invariant($"{x:0.##},{y:0.##}"));
+        }
+
+        points.Add(FormattableString.Invariant($"{trace.End.X:0.##},{trace.End.Y:0.##}"));
+        return string.Join(' ', points);
+    }
+
+    private static string GetTraceClass(FrontlineCombatTrace trace) =>
         trace.Kind switch
         {
-            FrontlineCombatTraceKind.Sniper => "sniper",
-            FrontlineCombatTraceKind.Lightning => "lightning",
-            FrontlineCombatTraceKind.Shotgun => "shotgun",
-            FrontlineCombatTraceKind.EnergyBeam => "beam",
-            _ => "bullet"
+            FrontlineCombatTraceKind.Sniper => "frontline-board__trace frontline-board__trace--sniper",
+            FrontlineCombatTraceKind.Shotgun => "frontline-board__trace frontline-board__trace--shotgun",
+            FrontlineCombatTraceKind.EnergyBeam => "frontline-board__trace frontline-board__trace--beam",
+            _ => "frontline-board__trace"
         };
 
-    private static double GetProjectileRadius(FrontlineProjectile projectile) =>
-        Math.Clamp(projectile.Profile.CollisionRadius, 2, 7);
+    private static string GetImagePath(int bitmapId) =>
+        $"games/frontline-tower-defense/assets/img/{bitmapId}.png";
 
-    private static string FormatCoordinate(double value) =>
-        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    private static string GetFill(FrontlineFlumpDraw draw) =>
+        FormattableString.Invariant($"rgba({draw.Red},{draw.Green},{draw.Blue},{(draw.Alpha / 255.0):0.###})");
 
-    private static string GetPositionStyle(FrontlinePoint position) =>
+    private static string GetMatrix(FrontlineFlumpMatrix matrix) =>
         FormattableString.Invariant(
-            $"left:{position.X / BoardWidth * 100:0.####}%;top:{position.Y / BoardHeight * 100:0.####}%;");
+            $"matrix({matrix.A:0.######},{matrix.B:0.######},{matrix.C:0.######},{matrix.D:0.######},{matrix.Tx:0.######},{matrix.Ty:0.######})");
 
-    private static string GetEndpointStyle(FrontlineGridPoint cell)
-    {
-        var x = cell.X * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5;
-        var y = cell.Y * FrontlinePath.DefaultGridCellSize + FrontlinePath.DefaultGridCellSize * 0.5;
-        x = Math.Clamp(x, 0, BoardWidth);
-        y = Math.Clamp(y, 0, BoardHeight);
+    private static string GetTranslate(FrontlinePoint position) =>
+        FormattableString.Invariant($"translate({position.X:0.##},{position.Y:0.##})");
 
-        return FormattableString.Invariant(
-            $"left:{x / BoardWidth * 100:0.####}%;top:{y / BoardHeight * 100:0.####}%;");
-    }
-
-    private static string GetHealthStyle(FrontlineEnemy enemy)
-    {
-        var health = enemy.Definition.Health <= 0
-            ? 0
-            : Math.Clamp(enemy.Health / enemy.Definition.Health, 0, 1) * 100;
-
-        return FormattableString.Invariant($"width:{health:0.##}%;");
-    }
+    private static string Format(double value) =>
+        value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
 
     private static FrontlinePoint ToCellCenter(FrontlineGridPoint cell) =>
         new(

@@ -158,6 +158,8 @@ public sealed class FrontlineEnemy
     public double FreezeDuration { get; private set; }
     public bool IsFrozen { get; private set; }
     public FrontlinePoint Position { get; private set; }
+    /// <summary>Direction of movement in radians, used to pick the facing sprite frame.</summary>
+    public double MovementAngle { get; private set; }
     internal bool HasReachedEnd => Path.UsesGridMovement
         ? _targetIndex >= Path.Points.Count
         : Distance >= Path.Length;
@@ -207,6 +209,38 @@ public sealed class FrontlineEnemy
         var distance = new FrontlinePoint(deltaX, deltaY).Length;
         _velocityX = distance <= 0 ? 0 : deltaX / distance;
         _velocityY = distance <= 0 ? 0 : deltaY / distance;
+        MovementAngle = Math.Atan2(_velocityY, _velocityX);
+        SetDesiredAngle();
+    }
+
+    /// <summary>Smoothed vehicle hull angle in degrees, matching the legacy setAngle easing.</summary>
+    public double DesiredAngleDegrees { get; private set; }
+
+    private void SetDesiredAngle()
+    {
+        var degrees = MovementAngle * 180 / Math.PI;
+        if (degrees != DesiredAngleDegrees)
+        {
+            var delta = ClosestAngle(DesiredAngleDegrees, degrees) * 0.3;
+            if (Math.Abs(delta) < 0.1)
+                DesiredAngleDegrees = degrees;
+            else
+                DesiredAngleDegrees += delta;
+        }
+
+        if (DesiredAngleDegrees >= 180)
+            DesiredAngleDegrees -= 360;
+        else if (DesiredAngleDegrees <= -180)
+            DesiredAngleDegrees += 360;
+    }
+
+    private static double ClosestAngle(double target, double angle)
+    {
+        var delta = angle - target;
+        delta %= 360;
+        delta += 540;
+        delta %= 360;
+        return delta - 180;
     }
 
     internal void MarkRemoved() => Position = new FrontlinePoint(-50, -50);
@@ -232,7 +266,7 @@ public sealed class FrontlineEnemy
         return damage.DirectDamage > 0 && previousHealth > 0 && Health <= 0;
     }
 
-    internal void AdvanceEffects()
+    internal bool AdvanceEffects()
     {
         if (CoreTemperature > BaseTemperature)
             CoreTemperature -= 0.02;
@@ -279,7 +313,16 @@ public sealed class FrontlineEnemy
                     : BurnDuration > 0 && !Definition.IsMetal
                         ? 1.2
                         : 1;
+
+        FxTick++;
+        if (FxTick <= 4)
+            return false;
+
+        FxTick = 0;
+        return true;
     }
+
+    private int FxTick { get; set; }
 
     private int _targetIndex = 1;
     private double _velocityX;
@@ -287,6 +330,8 @@ public sealed class FrontlineEnemy
     private double _movementMultiplier = 1;
 
     internal double MovementMultiplier => _movementMultiplier;
+    internal double VelocityX => _velocityX;
+    internal double VelocityY => _velocityY;
     public double Progress => Path.Length <= 0 ? 1 : Math.Clamp(Distance / Path.Length, 0, 1);
 }
 
@@ -375,11 +420,21 @@ public sealed class FrontlineGameSimulation
         public bool CreatesPoisonCloud { get; } = createsPoisonCloud;
         public double Height { get; private set; } = 450;
         public double VerticalVelocity { get; private set; } = -0.5;
+        public int Frame { get; private set; }
+        private double _frameTime;
 
         public bool Advance(double elapsedUnits)
         {
             Height += VerticalVelocity * elapsedUnits;
             VerticalVelocity -= 0.09 * elapsedUnits;
+            _frameTime += 0.2 * elapsedUnits;
+            Frame = (int)Math.Floor(_frameTime);
+            if (Frame >= FrontlineSpriteStrip.Shell.FrameCount)
+            {
+                _frameTime = 0;
+                Frame = 0;
+            }
+
             return Height < 0;
         }
     }
@@ -417,6 +472,10 @@ public sealed class FrontlineGameSimulation
     private readonly List<FrontlineProjectile> _projectiles = [];
     private readonly List<FrontlineCombatTrace> _combatTraces = [];
     private readonly List<FrontlineAreaEffect> _areaEffects = [];
+    private readonly List<FrontlineParticle> _particles = [];
+    private readonly List<FrontlineDecal> _decals = [];
+    private readonly List<FrontlineSpark> _sparks = [];
+    private readonly List<FrontlineSound> _sounds = [];
     private readonly List<object> _projectileActors = [];
     private readonly List<object> _renderElements = [];
     private readonly Random _random;
@@ -459,6 +518,11 @@ public sealed class FrontlineGameSimulation
     public IReadOnlyList<FrontlineSupportProjectile> SupportProjectiles => _supportProjectiles;
     public IReadOnlyList<FrontlineCombatTrace> CombatTraces => _combatTraces;
     public IReadOnlyList<FrontlineAreaEffect> AreaEffects => _areaEffects;
+    public IReadOnlyList<FrontlineParticle> Particles => _particles;
+    public IReadOnlyList<FrontlineDecal> Decals => _decals;
+    public IReadOnlyList<FrontlineSpark> Sparks => _sparks;
+    /// <summary>Queued sound cues for the host audio service.</summary>
+    public IReadOnlyList<FrontlineSound> Sounds => _sounds;
     public int ActiveProjectileCount => _projectiles.Count + _areaEffects.Count;
     public int ActiveSupportProjectileCount => _supportProjectiles.Count;
     public int ActiveAreaEffectCount => _areaEffects.Count;
@@ -467,7 +531,8 @@ public sealed class FrontlineGameSimulation
         FrontlinePoint start,
         FrontlinePoint end,
         FrontlineCombatTraceKind kind,
-        double life)
+        double life,
+        double weight = 1)
     {
         if (!double.IsFinite(start.X)
             || !double.IsFinite(start.Y)
@@ -477,7 +542,74 @@ public sealed class FrontlineGameSimulation
             || life <= 0)
             return;
 
-        AddCombatTrace(new FrontlineCombatTrace(start, end, kind, life));
+        AddCombatTrace(new FrontlineCombatTrace(start, end, kind, life, weight));
+    }
+
+    /// <summary>
+    /// Adds a legacy effect particle. The effect stream deliberately does not consume the
+    /// simulation random source, so cosmetic jitter can never change gameplay outcomes.
+    /// </summary>
+    internal void AddParticle(
+        FrontlineSpriteStrip strip,
+        FrontlinePoint position,
+        double velocityX,
+        double velocityY,
+        double frameRate,
+        double lifeSpan,
+        bool glow = false)
+    {
+        if (!double.IsFinite(position.X) || !double.IsFinite(position.Y))
+            return;
+
+        _particles.Add(new FrontlineParticle(
+            strip,
+            position,
+            velocityX,
+            velocityY,
+            frameRate,
+            lifeSpan,
+            glow));
+    }
+
+    internal void AddSpark(FrontlinePoint position, int life)
+    {
+        if (!double.IsFinite(position.X) || !double.IsFinite(position.Y))
+            return;
+
+        _sparks.Add(new FrontlineSpark(
+            position,
+            life,
+            -4 + Random.Shared.NextDouble() * 8,
+            -4 + Random.Shared.NextDouble() * 4,
+            fade: true));
+    }
+
+    internal void AddDecal(FrontlineSpriteStrip strip, FrontlinePoint position)
+    {
+        if (!double.IsFinite(position.X) || !double.IsFinite(position.Y))
+            return;
+
+        var jittered = new FrontlinePoint(
+            position.X + (-4 + Random.Shared.NextDouble() * 8),
+            position.Y + (-4 + Random.Shared.NextDouble() * 8));
+        _decals.Add(new FrontlineDecal(jittered, strip, Random.Shared.Next(strip.FrameCount)));
+    }
+
+    internal void AddSound(FrontlineSound sound)
+    {
+        if (_sounds.Count < 64)
+            _sounds.Add(sound);
+    }
+
+    /// <summary>Returns the queued sound cues and clears the queue.</summary>
+    public IReadOnlyList<FrontlineSound> DrainSounds()
+    {
+        if (_sounds.Count == 0)
+            return [];
+
+        var drained = _sounds.ToArray();
+        _sounds.Clear();
+        return drained;
     }
 
     public bool TryBuildTower(FrontlineTowerDefinition definition, FrontlinePoint position, bool costAlreadyPaid = false)
@@ -509,11 +641,17 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var cell = ToGridCell(position);
-        if (LevelMap is not null && !LevelMap.IsBuildable(cell))
-            return false;
 
-        if (_towers.Any(tower => tower.Cell == cell))
-            return false;
+        // Support strikes are placed anywhere: the legacy X.dropTower skips the grid
+        // occupancy check and never writes a tower value into the level grid.
+        if (!definition.IsSupport)
+        {
+            if (LevelMap is not null && !LevelMap.IsBuildable(cell))
+                return false;
+
+            if (_towers.Any(tower => !tower.Definition.IsSupport && tower.Cell == cell))
+                return false;
+        }
 
         if (!costAlreadyPaid)
             Funds -= definition.Cost;
@@ -533,7 +671,9 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var cell = ToGridCell(position);
-        if (_towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
+        if (_towers.Any(candidate => candidate.Id != towerId
+                && !candidate.Definition.IsSupport
+                && candidate.Cell == cell)
             || (LevelMap is not null && !LevelMap.IsBuildable(cell)))
             return false;
 
@@ -572,7 +712,9 @@ public sealed class FrontlineGameSimulation
             return false;
 
         var cell = ToGridCell(position);
-        if (_towers.Any(candidate => candidate.Id != towerId && candidate.Cell == cell)
+        if (_towers.Any(candidate => candidate.Id != towerId
+                && !candidate.Definition.IsSupport
+                && candidate.Cell == cell)
             || (LevelMap is not null && !LevelMap.IsBuildable(cell)))
             return false;
 
@@ -684,7 +826,9 @@ public sealed class FrontlineGameSimulation
             if (tower.IsHeld)
                 continue;
 
-            tower.Loading += tower.RateOfFire * elapsedUnits;
+            // The legacy tower stores its firing meter through a uint32 coercion every tick,
+            // which truncates the fractional part before the 100 threshold check.
+            tower.Loading = Math.Floor(tower.Loading + tower.RateOfFire * elapsedUnits);
 
             if (tower.Definition.IsSupport)
                 FireSupportStrike(tower);
@@ -697,9 +841,18 @@ public sealed class FrontlineGameSimulation
         ResolveDeaths();
     }
 
-    internal void AdvanceAfterWaveScheduler(double elapsedUnits)
+    /// <summary>Ends the mission as a defeat, matching the legacy quit button that zeroed level health.</summary>
+    public void Forfeit()
     {
         if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+            return;
+
+        LevelHealth = 0;
+        Status = FrontlineGameStatus.Defeat;
+    }
+
+    internal void AdvanceAfterWaveScheduler(double elapsedUnits)
+    {        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
         AdvanceRenderElements(elapsedUnits);
@@ -741,14 +894,132 @@ public sealed class FrontlineGameSimulation
                 continue;
             }
 
-            enemy.AdvanceEffects();
+            var emitsStatusEffect = enemy.AdvanceEffects();
+            if (emitsStatusEffect)
+                AddStatusEffects(enemy);
+
             if (enemy.Health <= 0)
             {
+                AddDeathEffects(enemy);
                 Funds += enemy.Definition.Reward;
                 enemy.MarkRemoved();
                 _enemies.RemoveAt(index);
             }
         }
+    }
+
+    /// <summary>
+    /// Emits the legacy <c>Enemy.makeFX</c> status particles: one 16px sprite per active
+    /// damage-over-time channel, every fifth simulation tick.
+    /// </summary>
+    private void AddStatusEffects(FrontlineEnemy enemy)
+    {
+        var origin = new FrontlinePoint(enemy.Position.X, enemy.Position.Y - 8);
+        if (enemy.BurnDuration > 0)
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Flame,
+                origin,
+                -0.2 + Random.Shared.NextDouble() * 0.4,
+                -Random.Shared.NextDouble() * 0.2,
+                0.1,
+                8,
+                glow: true);
+        }
+
+        if (enemy.PoisonDuration > 0)
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Poison,
+                origin,
+                -0.2 + Random.Shared.NextDouble() * 0.4,
+                -Random.Shared.NextDouble() * 0.5,
+                0.2,
+                8);
+        }
+
+        if (enemy.RadiationDuration > 0)
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Radiation,
+                origin,
+                -0.2 + Random.Shared.NextDouble() * 0.4,
+                -Random.Shared.NextDouble() * 0.5,
+                0.2,
+                8,
+                glow: true);
+        }
+
+        if (enemy.FreezeDuration > 0)
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Freeze,
+                origin,
+                -0.2 + Random.Shared.NextDouble() * 0.4,
+                -Random.Shared.NextDouble() * 0.5,
+                0.1,
+                8,
+                glow: true);
+        }
+    }
+
+    /// <summary>Emits the legacy per-archetype <c>deathFX</c> particles and decals.</summary>
+    private void AddDeathEffects(FrontlineEnemy enemy)
+    {
+        if (!double.IsFinite(enemy.Position.X) || !double.IsFinite(enemy.Position.Y))
+            return;
+
+        var position = enemy.Position;
+        switch (enemy.Definition.Id)
+        {
+            case "bot_1":
+                AddBloodSplats(position, 2);
+                AddDecal(FrontlineSpriteStrip.Crater, position);
+                AddSound(FrontlineSound.Explode);
+                return;
+            case "enemy1":
+            case "enemy2":
+            case "enemy3":
+            case "enemy4":
+            case "enemy5":
+                AddBloodSplats(position, 4);
+                AddDecal(FrontlineSpriteStrip.BloodDecal, position);
+                AddSound(FrontlineSound.Splat);
+                return;
+            default:
+                AddVehicleDeath(position);
+                AddSound(FrontlineSound.Explode);
+                return;
+        }
+    }
+
+    private void AddBloodSplats(FrontlinePoint position, int count)
+    {
+        for (var index = 0; index < count; index++)
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Blood,
+                position,
+                -1 + Random.Shared.NextDouble() * 2,
+                -Random.Shared.NextDouble() * 2,
+                0.5,
+                8);
+        }
+    }
+
+    private void AddVehicleDeath(FrontlinePoint position)
+    {
+        AddParticle(FrontlineSpriteStrip.FlameShot, position,
+            -0.5 + Random.Shared.NextDouble(), -Random.Shared.NextDouble() * 2, 0.1, 10, glow: true);
+        AddParticle(FrontlineSpriteStrip.FlameShot, position,
+            -0.5 + Random.Shared.NextDouble(), -Random.Shared.NextDouble(), 0.2, 10, glow: true);
+        AddParticle(FrontlineSpriteStrip.Smoke, position,
+            -0.5 + Random.Shared.NextDouble(), -Random.Shared.NextDouble(), 0.1, 10);
+        AddParticle(FrontlineSpriteStrip.Smoke, position,
+            -0.5 + Random.Shared.NextDouble(), -Random.Shared.NextDouble() * 1.2, 0.1, 10);
+        AddParticle(FrontlineSpriteStrip.Smoke, position,
+            -0.5 + Random.Shared.NextDouble(), -Random.Shared.NextDouble(), 0.2, 10);
+        AddDecal(FrontlineSpriteStrip.Crater, position);
     }
 
     public bool TrySpendFunds(int amount)
@@ -761,6 +1032,14 @@ public sealed class FrontlineGameSimulation
 
         Funds -= amount;
         return true;
+    }
+
+    public void AddFunds(int amount)
+    {
+        if (amount < 0)
+            throw new ArgumentOutOfRangeException(nameof(amount));
+
+        Funds += amount;
     }
 
     public bool TrySpendSniperShot()
@@ -878,82 +1157,18 @@ public sealed class FrontlineGameSimulation
                 _projectileActors.Add(projectile);
             else
                 _renderElements.Add(projectile);
+
+            AddSound(projectileProfile.Kind switch
+            {
+                FrontlineProjectileKind.HomingMissile => FrontlineSound.Missile,
+                FrontlineProjectileKind.TrackingPoison => FrontlineSound.Bio,
+                FrontlineProjectileKind.TrackingFlame => FrontlineSound.Flame,
+                _ => FrontlineSound.Launcher
+            });
         }
         else
         {
-            var targetPosition = target.Position;
-            var traceAimPosition = target.PredictPosition(4);
-            ApplyDamageToEnemy(target, damageProfile, tower);
-
-            var traceKind = tower.Definition.Id switch
-            {
-                "tower4" => FrontlineCombatTraceKind.Lightning,
-                "tower5" => FrontlineCombatTraceKind.Shotgun,
-                "tower6" => FrontlineCombatTraceKind.EnergyBeam,
-                _ => FrontlineCombatTraceKind.Bullet
-            };
-
-            if (traceKind == FrontlineCombatTraceKind.Lightning)
-            {
-                AddCombatTrace(new FrontlineCombatTrace(
-                    new FrontlinePoint(tower.Position.X, tower.Position.Y - 24),
-                    new FrontlinePoint(targetPosition.X, targetPosition.Y - 8),
-                    traceKind,
-                    tower.Damage));
-            }
-            else
-            {
-                var aimPosition = traceAimPosition;
-                var aimX = aimPosition.X - tower.Position.X;
-                var aimY = aimPosition.Y - tower.Position.Y;
-                var aimLength = new FrontlinePoint(aimX, aimY).Length;
-                var offsetX = aimLength <= 0 ? 0 : aimX / aimLength * 20;
-                var offsetY = aimLength <= 0 ? 0 : aimY / aimLength * 20;
-
-                var traceStart = tower.Definition.Id switch
-                {
-                    "tower2" => new FrontlinePoint(
-                        tower.Position.X + offsetX - offsetY * 0.1,
-                        tower.Position.Y + offsetY - 10 + offsetX * 0.1),
-                    "tower3" => new FrontlinePoint(
-                        tower.Position.X + offsetX - offsetY * 0.1,
-                        tower.Position.Y + offsetY - 25 + offsetX * 0.1),
-                    "tower5" => new FrontlinePoint(
-                        tower.Position.X + offsetX - offsetY * 0.1,
-                        tower.Position.Y + offsetY - 12 + offsetX * 0.1),
-                    "tower6" => new FrontlinePoint(
-                        tower.Position.X + offsetX - offsetY * 0.1,
-                        tower.Position.Y + offsetY - 10 + offsetX * 0.1),
-                    "tower10" => new FrontlinePoint(
-                        tower.Position.X + offsetX,
-                        tower.Position.Y + offsetY - 8),
-                    _ => tower.Position
-                };
-
-                if (traceKind == FrontlineCombatTraceKind.Shotgun)
-                {
-                    for (var pellet = 0; pellet < 3; pellet++)
-                    {
-                        var spreadX = _random.NextDouble() * 16 - 8;
-                        var spreadY = _random.NextDouble() * 16 - 8;
-                        AddCombatTrace(new FrontlineCombatTrace(
-                            traceStart,
-                            new FrontlinePoint(
-                                targetPosition.X + spreadX,
-                                targetPosition.Y - 6 + spreadY),
-                            traceKind,
-                            5));
-                    }
-                }
-                else
-                {
-                    AddCombatTrace(new FrontlineCombatTrace(
-                        traceStart,
-                        new FrontlinePoint(targetPosition.X, targetPosition.Y - 6),
-                        traceKind,
-                        6));
-                }
-            }
+            FireHitscan(tower, target, damageProfile);
         }
 
         tower.Loading = 0;
@@ -961,6 +1176,160 @@ public sealed class FrontlineGameSimulation
             tower.TargetId = null;
 
         ResolveDeaths();
+    }
+
+    /// <summary>
+    /// Reproduces the legacy hitscan firing path, including the muzzle flash, tapered
+    /// tracer, laser blast chain and impact spark/blood particles of each tower.
+    /// </summary>
+    private void FireHitscan(
+        FrontlineTower tower,
+        FrontlineEnemy target,
+        FrontlineDamageProfile damage)
+    {
+        var towerId = tower.Definition.Id;
+        var targetPosition = target.Position;
+        var velocityX = target.VelocityX;
+        var velocityY = target.VelocityY;
+        var impactPosition = new FrontlinePoint(targetPosition.X, targetPosition.Y - 6);
+        AddSound(towerId switch
+        {
+            "tower2" => FrontlineSound.Rifle,
+            "tower3" => FrontlineSound.Sniper,
+            "tower4" => FrontlineSound.Electro,
+            "tower5" => FrontlineSound.Shotgun,
+            "tower6" => FrontlineSound.Laser,
+            "tower10" => FrontlineSound.MachineGun,
+            _ => FrontlineSound.Rifle
+        });
+
+        if (towerId == "tower4")
+        {
+            var towerMuzzle = new FrontlinePoint(tower.Position.X, tower.Position.Y - 24);
+            AddCombatTrace(new FrontlineCombatTrace(
+                towerMuzzle,
+                new FrontlinePoint(targetPosition.X, targetPosition.Y - 8),
+                FrontlineCombatTraceKind.Lightning,
+                tower.Damage));
+            AddParticle(
+                FrontlineSpriteStrip.BlueFlash,
+                new FrontlinePoint(targetPosition.X, targetPosition.Y - 8),
+                velocityX,
+                velocityY,
+                0.5,
+                8,
+                glow: true);
+            AddParticle(FrontlineSpriteStrip.BlueFlash, towerMuzzle, 0, 0, 0.5, 8, glow: true);
+            AddSpark(new FrontlinePoint(targetPosition.X, targetPosition.Y - 8), 20);
+            ApplyDamageToEnemy(target, damage, tower);
+            return;
+        }
+
+        var aimX = targetPosition.X + velocityX * 4 - tower.Position.X;
+        var aimY = targetPosition.Y + velocityY * 4 - tower.Position.Y;
+        var aimLength = new FrontlinePoint(aimX, aimY).Length;
+        var offsetX = aimLength <= 0 ? 0 : aimX / aimLength * 20;
+        var offsetY = aimLength <= 0 ? 0 : aimY / aimLength * 20;
+
+        var muzzle = towerId switch
+        {
+            "tower2" => new FrontlinePoint(
+                tower.Position.X + offsetX - offsetY * 0.1,
+                tower.Position.Y + offsetY - 10 + offsetX * 0.1),
+            "tower3" => new FrontlinePoint(
+                tower.Position.X + offsetX - offsetY * 0.1,
+                tower.Position.Y + offsetY - 25 + offsetX * 0.1),
+            "tower5" => new FrontlinePoint(
+                tower.Position.X + offsetX - offsetY * 0.1,
+                tower.Position.Y + offsetY - 12 + offsetX * 0.1),
+            "tower6" => new FrontlinePoint(
+                tower.Position.X + offsetX - offsetY * 0.1,
+                tower.Position.Y + offsetY - 10 + offsetX * 0.1),
+            _ => new FrontlinePoint(
+                tower.Position.X + offsetX,
+                tower.Position.Y + offsetY - 8)
+        };
+
+        AddParticle(FrontlineSpriteStrip.MuzzleFlash, muzzle, 0, 0, 1, 8, glow: true);
+
+        if (towerId == "tower6")
+        {
+            var stepX = aimLength <= 0 ? 0 : aimX / aimLength * 5;
+            var stepY = aimLength <= 0 ? 0 : aimY / aimLength * 5;
+            var blastX = tower.Position.X + offsetX;
+            var blastY = tower.Position.Y + offsetY - 10;
+            var blastCount = (int)Math.Round(aimLength / 5) - 4;
+            var blastRate = 2.0;
+            for (var index = 0; index < blastCount; index++)
+            {
+                if (blastRate > 0.3)
+                    blastRate -= 0.1;
+
+                AddParticle(
+                    FrontlineSpriteStrip.LaserBlast,
+                    new FrontlinePoint(blastX, blastY),
+                    0,
+                    0,
+                    blastRate,
+                    8,
+                    glow: true);
+                blastX += stepX;
+                blastY += stepY;
+            }
+
+            AddCombatTrace(new FrontlineCombatTrace(
+                muzzle,
+                impactPosition,
+                FrontlineCombatTraceKind.EnergyBeam,
+                6,
+                2));
+            AddSpark(impactPosition, 20);
+            AddSpark(impactPosition, 20);
+            AddSpark(impactPosition, 20);
+            ApplyDamageToEnemy(target, damage, tower);
+            return;
+        }
+
+        if (towerId == "tower5")
+        {
+            for (var pellet = 0; pellet < 3; pellet++)
+            {
+                var spreadX = Random.Shared.NextDouble() * 16 - 8;
+                var spreadY = Random.Shared.NextDouble() * 16 - 8;
+                AddCombatTrace(new FrontlineCombatTrace(
+                    muzzle,
+                    new FrontlinePoint(impactPosition.X + spreadX, impactPosition.Y + spreadY),
+                    FrontlineCombatTraceKind.Shotgun,
+                    5,
+                    3));
+            }
+        }
+        else
+        {
+            AddCombatTrace(new FrontlineCombatTrace(
+                muzzle,
+                impactPosition,
+                FrontlineCombatTraceKind.Bullet,
+                6,
+                2));
+        }
+
+        if (target.Definition.IsMetal)
+        {
+            AddSpark(impactPosition, 20);
+        }
+        else
+        {
+            AddParticle(
+                FrontlineSpriteStrip.Blood,
+                targetPosition,
+                offsetX * 0.05,
+                offsetY * 0.05,
+                0.5,
+                8);
+        }
+
+        ApplyDamageToEnemy(target, damage, tower);
     }
 
     private void AddCombatTrace(FrontlineCombatTrace trace)
@@ -980,10 +1349,29 @@ public sealed class FrontlineGameSimulation
                 var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
                     ?? projectile.Target;
 
+                if (projectile.Profile.Kind == FrontlineProjectileKind.HomingMissile)
+                {
+                    projectile.TrailTick++;
+                    if (projectile.TrailTick >= 4)
+                    {
+                        projectile.TrailTick = 0;
+                        AddParticle(
+                            FrontlineSpriteStrip.Trail,
+                            new FrontlinePoint(
+                                projectile.Position.X - projectile.VelocityX * 3,
+                                projectile.Position.Y - projectile.VelocityY * 3 - 6),
+                            0,
+                            0,
+                            0.5,
+                            10);
+                    }
+                }
+
                 if (!projectile.Advance(target, elapsedUnits))
                 {
                     if (projectile.IsExpired)
                     {
+                        AddMissileExplosion(projectile.Position);
                         _projectiles.Remove(projectile);
                         _projectileActors.RemoveAt(index);
                     }
@@ -1002,6 +1390,7 @@ public sealed class FrontlineGameSimulation
                         projectile.Profile.SplashRadius,
                         splashDamage,
                         projectile.Owner);
+                    AddMissileExplosion(projectile.Position);
                 }
                 else
                 {
@@ -1025,6 +1414,8 @@ public sealed class FrontlineGameSimulation
 
                 if (pulse)
                     ApplyAreaDamage(effect.Position, effect.Radius, effect.Damage);
+
+                AddCloudParticle(effect);
             }
         }
     }
@@ -1049,6 +1440,7 @@ public sealed class FrontlineGameSimulation
             tower);
         _supportProjectiles.Add(projectile);
         _renderElements.Add(projectile);
+        AddSound(FrontlineSound.Bio);
 
         tower.Loading = 0;
         tower.ShotsFired++;
@@ -1078,6 +1470,21 @@ public sealed class FrontlineGameSimulation
                 var target = _enemies.FirstOrDefault(enemy => enemy.Id == projectile.TargetId)
                     ?? projectile.Target;
 
+                if (projectile.EmitsTrail
+                    && projectile.Profile.Kind == FrontlineProjectileKind.BallisticShell
+                    && Random.Shared.NextDouble() > 0.5)
+                {
+                    AddParticle(
+                        FrontlineSpriteStrip.Trail,
+                        new FrontlinePoint(
+                            projectile.Position.X,
+                            projectile.Position.Y - projectile.Height),
+                        0,
+                        -0.1,
+                        0.2,
+                        10);
+                }
+
                 if (!projectile.Advance(target, elapsedUnits))
                 {
                     if (projectile.IsExpired)
@@ -1100,6 +1507,15 @@ public sealed class FrontlineGameSimulation
                         projectile.Profile.SplashRadius,
                         splashDamage,
                         projectile.Owner);
+                    AddParticle(
+                        FrontlineSpriteStrip.Explosion,
+                        projectile.Position,
+                        0,
+                        -0.1,
+                        0.5,
+                        16,
+                        glow: true);
+                    AddSound(FrontlineSound.Explode);
                 }
                 else
                 {
@@ -1114,6 +1530,19 @@ public sealed class FrontlineGameSimulation
 
             if (element is FrontlineSupportProjectile supportProjectile)
             {
+                if (Random.Shared.NextDouble() > 0.5)
+                {
+                    AddParticle(
+                        FrontlineSpriteStrip.Trail,
+                        new FrontlinePoint(
+                            supportProjectile.Impact.X,
+                            supportProjectile.Impact.Y - supportProjectile.Height),
+                        0,
+                        -0.1,
+                        0.2,
+                        10);
+                }
+
                 if (!supportProjectile.Advance(elapsedUnits))
                     continue;
 
@@ -1124,6 +1553,15 @@ public sealed class FrontlineGameSimulation
                     supportProjectile.StatusDamage.Poison,
                     supportProjectile.StatusDamage.Freeze);
                 ApplyAreaDamage(supportProjectile.Impact, 80, explosionDamage, supportProjectile.Owner);
+                AddParticle(
+                    FrontlineSpriteStrip.Explosion,
+                    supportProjectile.Impact,
+                    0,
+                    -0.1,
+                    0.5,
+                    16,
+                    glow: true);
+                AddSound(FrontlineSound.Explode);
 
                 if (supportProjectile.CreatesFireCloud)
                 {
@@ -1135,6 +1573,7 @@ public sealed class FrontlineGameSimulation
                         10);
                     _areaEffects.Add(effect);
                     _projectileActors.Add(effect);
+                    AddDecal(FrontlineSpriteStrip.Crater, supportProjectile.Impact);
                 }
                 else if (supportProjectile.CreatesPoisonCloud)
                 {
@@ -1146,6 +1585,7 @@ public sealed class FrontlineGameSimulation
                         20);
                     _areaEffects.Add(effect);
                     _projectileActors.Add(effect);
+                    AddDecal(FrontlineSpriteStrip.Crater, supportProjectile.Impact);
                 }
 
                 _supportProjectiles.Remove(supportProjectile);
@@ -1153,42 +1593,97 @@ public sealed class FrontlineGameSimulation
             }
         }
 
+        AdvanceParticles(elapsedUnits);
         ResolveDeaths();
+    }
+
+    private void AdvanceParticles(double elapsedUnits)
+    {
+        for (var index = _particles.Count - 1; index >= 0; index--)
+        {
+            if (!_particles[index].Advance(elapsedUnits))
+                _particles.RemoveAt(index);
+        }
+
+        for (var index = _sparks.Count - 1; index >= 0; index--)
+        {
+            if (!_sparks[index].Advance())
+                _sparks.RemoveAt(index);
+        }
+    }
+
+    private void AddMissileExplosion(FrontlinePoint position)
+    {
+        AddParticle(FrontlineSpriteStrip.FireExplosion, position, 0, 0, 0.5, 16, glow: true);
+        AddParticle(FrontlineSpriteStrip.Explosion, position, 0, -1, 0.5, 16, glow: true);
+        AddParticle(
+            FrontlineSpriteStrip.Smoke,
+            position,
+            -0.5 + Random.Shared.NextDouble(),
+            -Random.Shared.NextDouble(),
+            0.2,
+            10);
+        AddDecal(FrontlineSpriteStrip.Crater, position);
+        AddSound(FrontlineSound.Explode);
+    }
+
+    private void AddCloudParticle(FrontlineAreaEffect effect)
+    {
+        if (Random.Shared.NextDouble() <= 0.7)
+            return;
+
+        var isFire = effect.Damage.Burn > 0;
+        AddParticle(
+            isFire ? FrontlineSpriteStrip.FlameShot : FrontlineSpriteStrip.BioCloud,
+            effect.Position,
+            -0.2 + Random.Shared.NextDouble() * 0.4,
+            -(Random.Shared.NextDouble() * (isFire ? 0.5 : 0.3)),
+            0.1,
+            10,
+            glow: isFire);
     }
 
     private FrontlineEnemy? FindTarget(FrontlineTower tower)
     {
-        var candidates = _enemies
-            .Where(enemy => enemy.Health > 0
-                && enemy.Position.DistanceTo(tower.Position)
-                    <= tower.Range)
-            .ToList();
-
-        return tower.Definition.TargetMode switch
+        FrontlineEnemy? selected = null;
+        foreach (var enemy in _enemies)
         {
-            FrontlineTargetMode.Near => candidates.FirstOrDefault(),
-            FrontlineTargetMode.Far => candidates.FirstOrDefault(),
-            FrontlineTargetMode.Strong => candidates.OrderByDescending(enemy => enemy.Health).FirstOrDefault(),
-            FrontlineTargetMode.Weak => candidates.OrderBy(enemy => enemy.Health).FirstOrDefault(),
-            FrontlineTargetMode.Heat => candidates
-                .Where(enemy => enemy.CoreTemperature > 120)
-                .OrderByDescending(enemy => enemy.CoreTemperature)
-                .FirstOrDefault() ?? candidates.FirstOrDefault(),
-            FrontlineTargetMode.Cold => FindColdTarget(candidates),
-            _ => null
-        };
-    }
+            if (enemy.Health <= 0
+                || enemy.Position.DistanceTo(tower.Position) > tower.Range)
+                continue;
 
-    private static FrontlineEnemy? FindColdTarget(IReadOnlyList<FrontlineEnemy> candidates)
-    {
-        if (candidates.Count == 0)
-            return null;
+            if (selected is null)
+            {
+                selected = enemy;
+                continue;
+            }
 
-        var selected = candidates[0];
-        foreach (var candidate in candidates.Skip(1))
-        {
-            if (candidate.CoreTemperature < selected.CoreTemperature && !candidate.Definition.IsMetal)
-                selected = candidate;
+            switch (tower.Definition.TargetMode)
+            {
+                // The legacy enemy exposes a `traveled` counter that the runtime never
+                // advances, so near and far both resolve to the first in-range enemy.
+                case FrontlineTargetMode.Near:
+                case FrontlineTargetMode.Far:
+                    break;
+                case FrontlineTargetMode.Strong:
+                    if (enemy.Health > selected.Health)
+                        selected = enemy;
+                    break;
+                case FrontlineTargetMode.Weak:
+                    if (enemy.Health < selected.Health)
+                        selected = enemy;
+                    break;
+                case FrontlineTargetMode.Heat:
+                    if (enemy.CoreTemperature > selected.CoreTemperature
+                        && enemy.CoreTemperature > 120)
+                        selected = enemy;
+                    break;
+                case FrontlineTargetMode.Cold:
+                    if (enemy.CoreTemperature < selected.CoreTemperature
+                        && !enemy.Definition.IsMetal)
+                        selected = enemy;
+                    break;
+            }
         }
 
         return selected;
@@ -1212,6 +1707,7 @@ public sealed class FrontlineGameSimulation
         if (!killed)
             return false;
 
+        AddDeathEffects(enemy);
         Score += enemy.Definition.Reward * 2;
         Funds += enemy.Definition.Reward;
         if (owner is not null)

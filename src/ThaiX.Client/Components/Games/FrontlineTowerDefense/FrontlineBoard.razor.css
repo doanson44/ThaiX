@@ -1,612 +1,169 @@
 .frontline-board {
     position: relative;
-    display: grid;
-    grid-template-columns: repeat(21, minmax(0, 1fr));
-    grid-template-rows: repeat(15, minmax(0, 1fr));
     width: 100%;
-    aspect-ratio: 7 / 5;
+    max-width: 800px;
+    aspect-ratio: 800 / 480;
+    margin-inline: auto;
     overflow: hidden;
+    background: #445720;
     border: 1px solid var(--rz-base-500, #64748b);
-    border-radius: 0.5rem;
-    background: #111827;
-    isolation: isolate;
-    touch-action: manipulation;
+    border-radius: 0.375rem;
 }
 
-.frontline-board__cell {
-    position: relative;
-    min-width: 0;
-    min-height: 0;
-    padding: 0;
-    border: 1px solid rgb(255 255 255 / 5%);
-    border-radius: 0;
-    appearance: none;
-}
-
-.frontline-board__cell--buildable {
-    background: linear-gradient(135deg, #263747, #1d2b3a);
-}
-
-.frontline-board__cell--buildable:hover:not(:disabled) {
-    background: #35536a;
-    outline: 1px solid #93c5fd;
-    outline-offset: -1px;
-}
-
-.frontline-board__cell--path {
-    background: repeating-linear-gradient(135deg, #806447 0 0.25rem, #73583d 0.25rem 0.5rem);
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 9%);
-}
-
-.frontline-board__cell--blocked {
-    background: linear-gradient(145deg, #475569, #273444);
-    box-shadow: inset 0 0 0 2px rgb(15 23 42 / 45%);
-}
-
-.frontline-board__endpoint {
+.frontline-board__path-layer {
     position: absolute;
-    z-index: 1;
-    width: clamp(0.65rem, 2vw, 1.15rem);
-    aspect-ratio: 1;
-    transform: translate(-50%, -50%);
-    border: 2px solid #f8fafc;
-    border-radius: 50%;
+    inset: 0;
     pointer-events: none;
 }
 
-.frontline-board__endpoint--start {
-    background: #16a34a;
+.frontline-board__path-tile {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: 1600% 100%;
 }
 
-.frontline-board__endpoint--end {
-    background: #dc2626;
+.frontline-board__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.frontline-board__cell {
+    fill: transparent;
+    stroke: none;
+    pointer-events: none;
+}
+
+.frontline-board__cell--buildable {
+    pointer-events: auto;
+    cursor: crosshair;
+}
+
+.frontline-board__cell--buildable:hover {
+    fill: rgba(255, 255, 255, 0.08);
+}
+
+.frontline-board__cell--path,
+.frontline-board__cell--blocked {
+    cursor: default;
 }
 
 .frontline-board__tower,
 .frontline-board__enemy {
-    position: absolute;
-    z-index: 2;
-    transform: translate(-50%, -50%);
+    cursor: pointer;
+    pointer-events: bounding-box;
 }
 
 .frontline-board__tower {
-    display: grid;
-    width: clamp(0.85rem, 2.8vw, 1.65rem);
-    aspect-ratio: 1;
-    place-items: center;
-    padding: 0;
-    border: 2px solid #e2e8f0;
-    border-radius: 0.35rem;
-    background: #2563eb;
-    box-shadow: 0 1px 5px rgb(0 0 0 / 55%);
-}
-
-.frontline-board__tower--support {
-    border-radius: 50%;
-    background: #0f766e;
+    opacity: 0.95;
 }
 
 .frontline-board__tower--selected {
-    border-color: #facc15;
-    box-shadow: 0 0 0 2px rgb(250 204 21 / 35%);
-}
-
-.frontline-board__tower-core {
-    width: 38%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: #dbeafe;
+    opacity: 1;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85));
 }
 
 .frontline-board__enemy {
-    display: grid;
-    width: clamp(0.65rem, 2vw, 1.15rem);
-    justify-items: center;
-    gap: 1px;
+    cursor: pointer;
 }
 
-.frontline-board__enemy-core {
-    width: 72%;
-    aspect-ratio: 1;
-    border: 1px solid #fee2e2;
-    border-radius: 50%;
-    background: #dc2626;
-    box-shadow: 0 1px 4px rgb(0 0 0 / 60%);
+.frontline-board__health-text {
+    fill: #ffffff;
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    font-size: 8px;
+    pointer-events: none;
 }
 
-.frontline-board__health {
-    display: block;
-    width: 100%;
-    height: 3px;
-    overflow: hidden;
-    border-radius: 2px;
-    background: #450a0a;
-}
-
-.frontline-board__health > span {
-    display: block;
-    height: 100%;
-    background: #4ade80;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .frontline-board__cell--buildable {
-        transition: background-color 120ms ease;
-    }
-}
-
-@media (max-width: 575.98px) {
-    .frontline-board {
-        border-radius: 0.35rem;
-    }
-
-    .frontline-board__tower {
-        border-width: 1px;
-    }
-}
-
-
-.frontline-board__projectiles {
-    position: absolute;
-    z-index: 2;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
+.frontline-board__projectile-actor {
     pointer-events: none;
 }
 
 .frontline-board__projectile {
-    stroke: #f8fafc;
+    fill: #fbbf24;
+    stroke: #78350f;
     stroke-width: 1;
-    filter: drop-shadow(0 0 3px currentColor);
 }
 
 .frontline-board__projectile--missile {
-    fill: #f97316;
-    color: #fb923c;
+    fill: #f87171;
 }
 
 .frontline-board__projectile--shell {
-    fill: #facc15;
-    color: #fde047;
+    fill: #94a3b8;
 }
 
 .frontline-board__projectile--poison {
-    fill: #a3e635;
-    color: #bef264;
+    fill: #4ade80;
 }
 
 .frontline-board__projectile--flame {
-    fill: #ef4444;
-    color: #f87171;
-}
-
-.frontline-board__tower {
-    z-index: 3;
-    overflow: visible;
-}
-
-.frontline-board__tower-art {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-.frontline-board__tower-base {
-    fill: #334155;
-    stroke: #cbd5e1;
-    stroke-width: 1.5;
-}
-
-.frontline-board__tower-body {
-    fill: #64748b;
-    stroke: #e2e8f0;
-    stroke-width: 1;
-}
-
-.frontline-board__tower-barrel {
-    fill: #94a3b8;
-    stroke: #f8fafc;
-    stroke-width: 1;
-}
-
-.frontline-board__tower-core {
-    fill: #bfdbfe;
-}
-
-.frontline-board__tower--missile .frontline-board__tower-base {
-    fill: #7c2d12;
-}
-
-.frontline-board__tower--missile .frontline-board__tower-core,
-.frontline-board__tower--flame .frontline-board__tower-core {
     fill: #fb923c;
-}
-
-.frontline-board__tower--electro .frontline-board__tower-core {
-    fill: #67e8f9;
-}
-
-.frontline-board__tower--shotgun .frontline-board__tower-core {
-    fill: #fcd34d;
-}
-
-.frontline-board__tower--beam .frontline-board__tower-core,
-.frontline-board__tower--plasma .frontline-board__tower-core {
-    fill: #c4b5fd;
-}
-
-.frontline-board__tower--bio .frontline-board__tower-core {
-    fill: #a3e635;
-}
-
-.frontline-board__tower--support .frontline-board__tower-base {
-    fill: #0f766e;
-}
-
-.frontline-board__enemy {
-    z-index: 4;
-}
-
-.frontline-board__enemy-art {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    overflow: visible;
-    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 60%));
-}
-
-.frontline-board__enemy-shape {
-    fill: #b91c1c;
-    stroke: #fecaca;
-    stroke-width: 1;
-}
-
-.frontline-board__enemy-detail {
-    fill: #fca5a5;
-    stroke: #7f1d1d;
-    stroke-width: 0.8;
-}
-
-.frontline-board__enemy--metal .frontline-board__enemy-shape {
-    fill: #475569;
-    stroke: #e2e8f0;
-}
-
-.frontline-board__enemy--metal .frontline-board__enemy-detail {
-    fill: #94a3b8;
-    stroke: #1e293b;
-}
-
-
-.frontline-board__enemy {
-    display: grid;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: default;
-}
-
-.frontline-board__enemy:enabled {
-    cursor: crosshair;
-}
-
-.frontline-board__enemy:disabled {
-    opacity: 1;
-}
-
-.frontline-board__enemy:focus-visible {
-    outline: 2px solid #facc15;
-    outline-offset: 2px;
-}
-
-
-.frontline-board__area-effect {
-    opacity: 0.22;
-    stroke-width: 1.5;
-    stroke-dasharray: 4 3;
-    pointer-events: none;
-}
-
-.frontline-board__area-effect--fire {
-    fill: #f97316;
-    stroke: #fdba74;
-}
-
-.frontline-board__area-effect--poison {
-    fill: #84cc16;
-    stroke: #d9f99d;
 }
 
 .frontline-board__projectile--support {
-    fill: #f8fafc;
-    stroke: #facc15;
-    stroke-width: 1.5;
-}
-
-.frontline-board__trace {
-    fill: none;
-    stroke-linecap: round;
-    pointer-events: none;
-}
-
-.frontline-board__trace--bullet {
-    stroke: #f8fafc;
-    stroke-width: 1.5;
-    opacity: 0.9;
-}
-
-.frontline-board__trace--shotgun {
-    stroke: #fcd34d;
-    stroke-width: 2;
-    opacity: 0.8;
-}
-
-.frontline-board__trace--lightning {
-    stroke: #67e8f9;
-    stroke-width: 2.5;
-    filter: drop-shadow(0 0 4px #22d3ee);
-}
-
-.frontline-board__trace--beam {
-    stroke: #c4b5fd;
-    stroke-width: 3;
-    filter: drop-shadow(0 0 4px #a78bfa);
-}
-
-
-.frontline-board__tower-track {
-    fill: #1e293b;
-    stroke: #94a3b8;
-    stroke-width: 1;
-}
-
-.frontline-board__tower-energy {
-    fill: #67e8f9;
-    stroke: #ecfeff;
-    stroke-width: 0.8;
-}
-
-.frontline-board__tower--rifle .frontline-board__tower-barrel,
-.frontline-board__tower--sniper .frontline-board__tower-barrel,
-.frontline-board__tower--machinegun .frontline-board__tower-barrel {
-    fill: #cbd5e1;
-}
-
-.frontline-board__tower--sniper .frontline-board__tower-barrel {
-    stroke-width: 1.6;
-}
-
-.frontline-board__tower--electro .frontline-board__tower-energy {
-    fill: #22d3ee;
-    stroke: #cffafe;
-    stroke-width: 0.7;
-}
-
-.frontline-board__tower--beam .frontline-board__tower-energy,
-.frontline-board__tower--plasma .frontline-board__tower-energy {
-    fill: #c4b5fd;
-    stroke: #ede9fe;
-}
-
-.frontline-board__tower--bio .frontline-board__tower-energy {
-    fill: #a3e635;
-    stroke: #ecfccb;
-}
-
-.frontline-board__tower--flame .frontline-board__tower-energy {
-    fill: #fb923c;
-    stroke: #ffedd5;
-}
-
-.frontline-board__enemy-wheel {
-    fill: #0f172a;
-    stroke: #cbd5e1;
-    stroke-width: 0.8;
-}
-
-.frontline-board__enemy-limb {
-    fill: none;
-    stroke: #7f1d1d;
-    stroke-width: 1.2;
-    stroke-linecap: round;
-}
-
-
-.frontline-board__projectile {
-    animation: frontline-projectile-pulse 0.16s ease-in-out infinite alternate;
-}
-
-.frontline-board__trace {
-    animation: frontline-trace-fade 0.18s ease-out forwards;
+    fill: #e879f9;
 }
 
 .frontline-board__area-effect {
-    animation: frontline-area-pulse 1.2s ease-in-out infinite alternate;
-}
-
-@keyframes frontline-projectile-pulse {
-    from {
-        opacity: 0.75;
-        filter: drop-shadow(0 0 1px currentColor);
-    }
-
-    to {
-        opacity: 1;
-        filter: drop-shadow(0 0 5px currentColor);
-    }
-}
-
-@keyframes frontline-trace-fade {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0.1;
-    }
-}
-
-@keyframes frontline-area-pulse {
-    from {
-        opacity: 0.12;
-    }
-
-    to {
-        opacity: 0.3;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .frontline-board__projectile,
-    .frontline-board__trace,
-    .frontline-board__area-effect {
-        animation: none;
-    }
-}
-
-
-.frontline-board__tower-scope {
-    fill: #0f172a;
-    stroke: #cbd5e1;
-    stroke-width: 0.8;
-}
-
-.frontline-board__tower-magazine {
-    fill: #334155;
-    stroke: #e2e8f0;
-    stroke-width: 0.8;
-}
-
-.frontline-board__tower--rifle .frontline-board__tower-scope {
-    stroke: #7dd3fc;
-}
-
-.frontline-board__tower--sniper .frontline-board__tower-scope {
-    stroke: #facc15;
-    stroke-width: 1.2;
-}
-
-.frontline-board__tower--machinegun .frontline-board__tower-magazine {
-    fill: #475569;
-}
-
-
-.frontline-board__enemy-eye {
-    fill: #fef08a;
-    stroke: #0f172a;
-    stroke-width: 0.5;
-}
-
-.frontline-board__enemy--enemy1 .frontline-board__enemy-shape {
-    fill: #b91c1c;
-}
-
-.frontline-board__enemy--enemy2 .frontline-board__enemy-shape {
-    fill: #9a3412;
-}
-
-.frontline-board__enemy--enemy3 .frontline-board__enemy-shape {
-    fill: #475569;
-}
-
-.frontline-board__enemy--enemy4 .frontline-board__enemy-shape {
-    fill: #6b21a8;
-}
-
-.frontline-board__enemy--enemy5 .frontline-board__enemy-shape,
-.frontline-board__enemy--bot_1 .frontline-board__enemy-shape {
-    fill: #64748b;
-}
-
-.frontline-board__enemy--bot_1 .frontline-board__enemy-detail {
-    fill: #334155;
-    stroke: #67e8f9;
-}
-
-.frontline-board__enemy--jeep1 .frontline-board__enemy-shape,
-.frontline-board__enemy--jeep2 .frontline-board__enemy-shape {
-    fill: #4d7c0f;
-}
-
-.frontline-board__enemy--jeep3 .frontline-board__enemy-shape,
-.frontline-board__enemy--jeep4 .frontline-board__enemy-shape {
-    fill: #a16207;
-}
-
-.frontline-board__enemy--tank1 .frontline-board__enemy-shape {
-    fill: #365314;
-}
-
-.frontline-board__enemy--tank2 .frontline-board__enemy-shape {
-    fill: #57534e;
-}
-
-.frontline-board__enemy--tank3 .frontline-board__enemy-shape {
-    fill: #713f12;
-}
-
-.frontline-board__enemy--jeep1 .frontline-board__enemy-detail,
-.frontline-board__enemy--jeep2 .frontline-board__enemy-detail,
-.frontline-board__enemy--jeep3 .frontline-board__enemy-detail,
-.frontline-board__enemy--jeep4 .frontline-board__enemy-detail,
-.frontline-board__enemy--tank1 .frontline-board__enemy-detail,
-.frontline-board__enemy--tank2 .frontline-board__enemy-detail,
-.frontline-board__enemy--tank3 .frontline-board__enemy-detail {
-    fill: #cbd5e1;
-    stroke: #1e293b;
-}
-
-
-.frontline-board__manual-shooter {
-    position: absolute;
-    z-index: 5;
-    display: grid;
-    width: clamp(1.15rem, 3.2vw, 1.9rem);
-    aspect-ratio: 1;
-    place-items: center;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    filter: drop-shadow(0 1px 4px rgb(0 0 0 / 70%));
-}
-
-.frontline-board__manual-shooter svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-.frontline-board__manual-shooter-base {
-    fill: #334155;
-    stroke: #e2e8f0;
-    stroke-width: 1.5;
-}
-
-.frontline-board__manual-shooter-barrel {
-    fill: #facc15;
-    stroke: #fef3c7;
-    stroke-width: 0.8;
-}
-
-.frontline-board__manual-shooter-body {
-    fill: #64748b;
-    stroke: #f8fafc;
+    fill: rgba(255, 128, 32, 0.35);
+    stroke: rgba(255, 170, 60, 0.75);
     stroke-width: 1;
+    pointer-events: none;
 }
 
-.frontline-board__manual-shooter-core {
-    fill: #fef08a;
-    stroke: #713f12;
-    stroke-width: 0.8;
+.frontline-board__area-effect--poison {
+    fill: rgba(110, 200, 60, 0.3);
+    stroke: rgba(150, 230, 90, 0.65);
 }
 
+.frontline-board__trace {
+    pointer-events: none;
+    stroke-linecap: round;
+}
 
-.frontline-board__trace--sniper {
-    stroke: #fef08a;
-    stroke-width: 2.5;
-    filter: drop-shadow(0 0 4px #facc15);
+.frontline-board__spark {
+    stroke: #ffffcc;
+    stroke-width: 1;
+    stroke-linecap: round;
+    pointer-events: none;
+}
+
+.frontline-board__beam {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.9));
+    pointer-events: none;
+}
+
+.frontline-board__decal,
+.frontline-board__particle,
+.frontline-board__manual-shooter {
+    pointer-events: none;
+}
+
+.frontline-board__particle--glow {
+    mix-blend-mode: screen;
+}
+
+.frontline-board__range {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+    pointer-events: none;
+}
+
+.frontline-board__range--blocked {
+    stroke: rgba(255, 64, 64, 0.9);
+}
+
+.frontline-board__trace--sniper,
+.frontline-board__trace--shotgun,
+.frontline-board__trace--beam {
+    stroke-linecap: round;
 }

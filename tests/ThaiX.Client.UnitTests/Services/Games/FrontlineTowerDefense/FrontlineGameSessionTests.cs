@@ -323,6 +323,22 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void Forfeit_ZeroesLevelHealthAndEndsTheMissionAsDefeat()
+    {
+        var session = CreateSession();
+        session.Pause();
+
+        session.Simulation.Forfeit();
+
+        session.Simulation.LevelHealth.Should().Be(0);
+        session.Simulation.Status.Should().Be(FrontlineGameStatus.Defeat);
+
+        session.Advance(0);
+
+        session.State.Should().Be(FrontlineGameSessionState.Defeat);
+    }
+
+    [Fact]
     public void Constructor_WhenCampaignLevelIsLocked_Throws()
     {
         var level = FrontlineLevelMapCatalog.Find("level-02")!;
@@ -335,29 +351,6 @@ public sealed class FrontlineGameSessionTests
             new Random(42));
 
         act.Should().Throw<FrontlineLevelLockedException>();
-    }
-
-    [Fact]
-    public void Advance_WhenMapHasNoPath_PreservesLegacyInvalidEnemyMovement()
-    {
-        var level = FrontlineLevelMapCatalog.Find("level-08")!;
-        var waveSet = FrontlineWaveCatalog.Find("level-08")!;
-        var progress = FrontlinePlayerProgress.CreateNew();
-        progress.UnlockLevel(level.UnlockIndex);
-        var session = new FrontlineGameSession(level, waveSet, progress, new Random(42));
-
-        session.State.Should().Be(FrontlineGameSessionState.Playing);
-        session.TryStartNextWave().Should().BeTrue();
-
-        for (var tick = 0; tick < 20 && session.Simulation.Enemies.Count == 0; tick++)
-            session.Advance(1000);
-
-        session.Simulation.Enemies.Should().NotBeEmpty();
-        session.Advance(1000);
-
-        session.Simulation.Enemies.Should().OnlyContain(enemy =>
-            double.IsNaN(enemy.Position.X) && double.IsNaN(enemy.Position.Y));
-        session.State.Should().Be(FrontlineGameSessionState.Playing);
     }
 
     [Fact]

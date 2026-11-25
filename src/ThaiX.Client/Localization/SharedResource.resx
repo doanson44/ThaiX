@@ -557,10 +557,10 @@
   <data name="Mexc.SocketPriceMoveAlert.SettingsHint" xml:space="preserve"><value>Notify on this device when a symbol moves by at least the absolute percent within the time window. Client-side only.</value></data>
   <data name="Mexc.SocketPriceMoveAlert.TimeWindowMinutes" xml:space="preserve"><value>Time window (minutes)</value></data>
   <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercent" xml:space="preserve"><value>Absolute price change (%)</value></data>
-  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercentHint" xml:space="preserve"><value>Applies to both up and down moves (e.g. 10 = ±10%).</value></data>
-  <data name="Mexc.SocketPriceMoveAlert.ActiveSummary" xml:space="preserve"><value>{0} min / ±{1}%</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AbsoluteChangePercentHint" xml:space="preserve"><value>Applies to both up and down moves (e.g. 10 = Â±10%).</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.ActiveSummary" xml:space="preserve"><value>{0} min / Â±{1}%</value></data>
   <data name="Mexc.SocketPriceMoveAlert.AlertTitle" xml:space="preserve"><value>Price move alert</value></data>
-  <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} moved {1} in {4} min ({2} → {3})</value></data>
+  <data name="Mexc.SocketPriceMoveAlert.AlertDetail" xml:space="preserve"><value>{0} moved {1} in {4} min ({2} â†’ {3})</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Enabled" xml:space="preserve"><value>Price move alerts enabled</value></data>
   <data name="Mexc.SocketPriceMoveAlert.Disabled" xml:space="preserve"><value>Price move alerts disabled</value></data>
   <data name="Mexc.DemoTrading.Title" xml:space="preserve"><value>Futures Demo</value></data>
@@ -911,7 +911,7 @@
   <data name="Common.Confirm" xml:space="preserve"><value>Confirm</value></data>
   <data name="Common.View" xml:space="preserve"><value>View</value></data>
   <data name="Common.CreatedAt" xml:space="preserve"><value>Created At</value></data>
-  <data name="Common.DemoModeBanner" xml:space="preserve"><value>Demo mode — API offline; using dummy data. Sign in with any credentials (admin).</value></data>
+  <data name="Common.DemoModeBanner" xml:space="preserve"><value>Demo mode â€” API offline; using dummy data. Sign in with any credentials (admin).</value></data>
   <data name="MarketScanner.List.Title" xml:space="preserve"><value>Market Scanner Rules</value></data>
   <data name="MarketScanner.Title" xml:space="preserve"><value>Market Scanner</value></data>
   <data name="MarketScanner.Name" xml:space="preserve"><value>Name</value></data>
@@ -1079,7 +1079,7 @@
   <data name="JsonBins.Search.Placeholder" xml:space="preserve"><value>Search by code, name or tags</value></data>
   <data name="JsonBins.Code" xml:space="preserve"><value>Code</value></data>
   <data name="JsonBins.Code.OptionalHint" xml:space="preserve"><value>Leave Code empty to auto-generate (includes category).</value></data>
-  <data name="JsonBins.Code.AutoPlaceholder" xml:space="preserve"><value>Optional — auto if empty</value></data>
+  <data name="JsonBins.Code.AutoPlaceholder" xml:space="preserve"><value>Optional â€” auto if empty</value></data>
   <data name="JsonBins.Code.WillAutoGenerate" xml:space="preserve"><value>Code will be auto-generated from category</value></data>
   <data name="JsonBins.Code.KeepExisting" xml:space="preserve"><value>Empty code keeps the current value</value></data>
   <data name="JsonBins.Code.Exists" xml:space="preserve"><value>This code is already in use</value></data>
@@ -1506,7 +1506,7 @@
   <data name="Menu.Tools" xml:space="preserve"><value>Tools</value></data>
   <data name="Tools.Hub.Title" xml:space="preserve"><value>Tools</value></data>
   <data name="Tools.Hub.Description" xml:space="preserve"><value>Client-side developer utilities and trading/risk/crypto calculators. Drafts restore from this browser; some tools can Save/Share via JSON Bin when signed in.</value></data>
-  <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Search tools…</value></data>
+  <data name="Tools.Search.Placeholder" xml:space="preserve"><value>Search toolsâ€¦</value></data>
   <data name="Tools.Save" xml:space="preserve"><value>Save</value></data>
   <data name="Tools.Share" xml:space="preserve"><value>Share</value></data>
   <data name="Tools.ClearDraft" xml:space="preserve"><value>Clear draft</value></data>
@@ -1524,7 +1524,7 @@
   <data name="Tools.Share.Failed" xml:space="preserve"><value>Failed to create share link</value></data>
   <data name="Tools.Clear.Success" xml:space="preserve"><value>Draft cleared</value></data>
   <data name="Tools.SignInRequired" xml:space="preserve"><value>Sign in to save or share</value></data>
-  <data name="Tools.CloudBinNamePrefix" xml:space="preserve"><value>DevTools ·</value></data>
+  <data name="Tools.CloudBinNamePrefix" xml:space="preserve"><value>DevTools Â·</value></data>
   <data name="Tools.Privacy.LocalOnly" xml:space="preserve"><value>Drafts are saved in this browser only. Sign in to sync across devices.</value></data>
   <data name="Tools.Privacy.CloudSync" xml:space="preserve"><value>Drafts sync to your account and follow you when you sign in elsewhere.</value></data>
   <data name="Tools.Category.Data" xml:space="preserve"><value>Data</value></data>
@@ -1540,11 +1540,11 @@
   <data name="Tools.JsonCompare.Description" xml:space="preserve"><value>Compare two JSON documents</value></data>
   <data name="Tools.YamlValidator.Title" xml:space="preserve"><value>YAML Validator</value></data>
   <data name="Tools.YamlValidator.Description" xml:space="preserve"><value>Validate YAML syntax</value></data>
-  <data name="Tools.YamlJson.Title" xml:space="preserve"><value>YAML ⇄ JSON</value></data>
+  <data name="Tools.YamlJson.Title" xml:space="preserve"><value>YAML â‡„ JSON</value></data>
   <data name="Tools.YamlJson.Description" xml:space="preserve"><value>Convert between YAML and JSON</value></data>
   <data name="Tools.XmlFormatter.Title" xml:space="preserve"><value>XML Formatter</value></data>
   <data name="Tools.XmlFormatter.Description" xml:space="preserve"><value>Pretty-print XML</value></data>
-  <data name="Tools.CsvJson.Title" xml:space="preserve"><value>CSV ⇄ JSON</value></data>
+  <data name="Tools.CsvJson.Title" xml:space="preserve"><value>CSV â‡„ JSON</value></data>
   <data name="Tools.CsvJson.Description" xml:space="preserve"><value>Convert between CSV and JSON</value></data>
   <data name="Tools.JsonToCsharp.Title" xml:space="preserve"><value>JSON to C#</value></data>
   <data name="Tools.JsonToCsharp.Description" xml:space="preserve"><value>Generate C# classes from JSON</value></data>
@@ -1574,13 +1574,13 @@
   <data name="Tools.MarkdownPreview.CodeBlock" xml:space="preserve"><value>Code block</value></data>
   <data name="Tools.MarkdownPreview.Link" xml:space="preserve"><value>Link</value></data>
   <data name="Tools.MarkdownPreview.HorizontalRule" xml:space="preserve"><value>Horizontal rule</value></data>
-  <data name="Tools.MarkdownPreview.EditorPlaceholder" xml:space="preserve"><value>Write Markdown here…</value></data>
+  <data name="Tools.MarkdownPreview.EditorPlaceholder" xml:space="preserve"><value>Write Markdown hereâ€¦</value></data>
   <data name="Tools.MarkdownPreview.CopyAll" xml:space="preserve"><value>Copy all</value></data>
   <data name="Tools.MarkdownPreview.CopyHtml" xml:space="preserve"><value>Copy HTML</value></data>
   <data name="Tools.MarkdownPreview.CopyAllSuccess" xml:space="preserve"><value>Preview copied for Word / rich paste</value></data>
   <data name="Tools.MarkdownPreview.CopyHtmlSuccess" xml:space="preserve"><value>Preview copied as HTML</value></data>
   <data name="Tools.MarkdownPreview.CopyFailed" xml:space="preserve"><value>Could not copy preview</value></data>
-  <data name="Tools.HtmlMarkdown.Title" xml:space="preserve"><value>HTML ⇄ Markdown</value></data>
+  <data name="Tools.HtmlMarkdown.Title" xml:space="preserve"><value>HTML â‡„ Markdown</value></data>
   <data name="Tools.HtmlMarkdown.Description" xml:space="preserve"><value>Convert between HTML and Markdown</value></data>
   <data name="Tools.Base64.Title" xml:space="preserve"><value>Base64 Encode/Decode</value></data>
   <data name="Tools.Base64.Description" xml:space="preserve"><value>Encode or decode Base64</value></data>
@@ -1663,7 +1663,7 @@
   <data name="Calc.Results" xml:space="preserve"><value>Results</value></data>
   <data name="Calc.Formula" xml:space="preserve"><value>Formula</value></data>
   <data name="Calc.Interpretation" xml:space="preserve"><value>Interpretation</value></data>
-  <data name="Calc.RiskDisclaimer" xml:space="preserve"><value>Educational estimate only — not financial advice. Past patterns do not guarantee future results.</value></data>
+  <data name="Calc.RiskDisclaimer" xml:space="preserve"><value>Educational estimate only â€” not financial advice. Past patterns do not guarantee future results.</value></data>
   <data name="Calc.Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Calc.No" xml:space="preserve"><value>No</value></data>
   <data name="Calc.Side.Long" xml:space="preserve"><value>Long</value></data>
@@ -1758,7 +1758,7 @@
   <data name="Calc.Result.MarketCap" xml:space="preserve"><value>Market cap</value></data>
   <data name="Calc.Result.ImpliedPrice" xml:space="preserve"><value>Implied price</value></data>
   <data name="Calc.Interp.PositionSize" xml:space="preserve"><value>Risking {0}% suggests qty {1} (notional {2}).</value></data>
-  <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Reward is {0}× the risk distance.</value></data>
+  <data name="Calc.Interp.RiskReward" xml:space="preserve"><value>Reward is {0}Ã— the risk distance.</value></data>
   <data name="Calc.Interp.FuturesPnl" xml:space="preserve"><value>Net PnL {0}; ROE {1}%.</value></data>
   <data name="Calc.Interp.Liquidation" xml:space="preserve"><value>Estimated isolated liquidation near {0}.</value></data>
   <data name="Calc.Interp.AverageEntry" xml:space="preserve"><value>Weighted average entry {0} on total qty {1}.</value></data>
@@ -1766,17 +1766,17 @@
   <data name="Calc.Interp.BreakEven" xml:space="preserve"><value>Fees imply break-even around {0}.</value></data>
   <data name="Calc.Interp.TradingFee" xml:space="preserve"><value>Estimated fee {0}.</value></data>
   <data name="Calc.Interp.Funding" xml:space="preserve"><value>Net funding cashflow {0} (positive = received).</value></data>
-  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}×.</value></data>
+  <data name="Calc.Interp.Leverage" xml:space="preserve"><value>Effective leverage is {0}Ã—.</value></data>
   <data name="Calc.Interp.StopLoss" xml:space="preserve"><value>Stop loss near {0} for the chosen risk.</value></data>
   <data name="Calc.Interp.TakeProfit" xml:space="preserve"><value>Take profit {0}; expected profit {1}.</value></data>
-  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Simplified RoR ≈ {0}% (educational model).</value></data>
+  <data name="Calc.Interp.RiskOfRuin" xml:space="preserve"><value>Simplified RoR â‰ˆ {0}% (educational model).</value></data>
   <data name="Calc.Interp.MaxDrawdown" xml:space="preserve"><value>Maximum drawdown about {0}%.</value></data>
   <data name="Calc.Interp.LossRecovery" xml:space="preserve"><value>Need about {0}% gain to recover.</value></data>
-  <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade ≈ {0}.</value></data>
-  <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Full Kelly ≈ {0}% of bankroll.</value></data>
-  <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>After losses, equity ≈ {0} (drawdown {1}%).</value></data>
-  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Market cap ≈ {0}.</value></data>
-  <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Implied price ≈ {0}.</value></data>
+  <data name="Calc.Interp.Expectancy" xml:space="preserve"><value>Expectancy per trade â‰ˆ {0}.</value></data>
+  <data name="Calc.Interp.Kelly" xml:space="preserve"><value>Full Kelly â‰ˆ {0}% of bankroll.</value></data>
+  <data name="Calc.Interp.ConsecutiveLoss" xml:space="preserve"><value>After losses, equity â‰ˆ {0} (drawdown {1}%).</value></data>
+  <data name="Calc.Interp.MarketCap" xml:space="preserve"><value>Market cap â‰ˆ {0}.</value></data>
+  <data name="Calc.Interp.MarketCapCompare" xml:space="preserve"><value>Implied price â‰ˆ {0}.</value></data>
   <data name="Calc.Interp.AthDrawdown" xml:space="preserve"><value>Down {0}% from ATH; need {1}% to recover.</value></data>
   <data name="Menu.ExpenseTracker" xml:space="preserve"><value>Expense Tracker</value></data>
   <data name="ExpenseTracker.Title" xml:space="preserve"><value>Expense Tracker</value></data>
@@ -1994,7 +1994,7 @@
   <data name="GoldMarket.Volume" xml:space="preserve"><value>Daily volume (XAUT)</value></data>
   <data name="GoldMarket.LastUpdated" xml:space="preserve"><value>Candle date (UTC)</value></data>
   <data name="GoldMarket.LoadFailed" xml:space="preserve"><value>Unable to load gold market data.</value></data>
-  <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC · GOLD(XAUT)/USDT</value></data>
+  <data name="GoldMarket.Pair" xml:space="preserve"><value>MEXC Â· GOLD(XAUT)/USDT</value></data>
   <data name="GoldMarket.Currency" xml:space="preserve"><value>USDT</value></data>
   <data name="GoldMarket.QuoteVolume" xml:space="preserve"><value>Daily quote volume (USDT)</value></data>
   <data name="GoldMarket.PreviousClose" xml:space="preserve"><value>Previous close</value></data>
@@ -2018,7 +2018,7 @@
   <data name="GoldMarket.TakeProfit1" xml:space="preserve"><value>Take profit 1</value></data>
   <data name="GoldMarket.TakeProfit2" xml:space="preserve"><value>Take profit 2</value></data>
   <data name="BitcoinMarket.Title" xml:space="preserve"><value>Bitcoin (BTC/USDT)</value></data>
-  <data name="BitcoinMarket.Pair" xml:space="preserve"><value>MEXC · BTC/USDT</value></data>
+  <data name="BitcoinMarket.Pair" xml:space="preserve"><value>MEXC Â· BTC/USDT</value></data>
   <data name="BitcoinMarket.Currency" xml:space="preserve"><value>USDT</value></data>
   <data name="BitcoinMarket.LastPrice" xml:space="preserve"><value>Last price</value></data>
   <data name="BitcoinMarket.PreviousClose" xml:space="preserve"><value>Previous close</value></data>
@@ -2215,6 +2215,7 @@
   <data name="Games.FrontlineTowerDefense.UpgradeDamage" xml:space="preserve"><value>Upgrade damage</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRange" xml:space="preserve"><value>Upgrade range</value></data>
   <data name="Games.FrontlineTowerDefense.UpgradeRateOfFire" xml:space="preserve"><value>Upgrade fire rate</value></data>
+  <data name="Games.FrontlineTowerDefense.UpgradeCost" xml:space="preserve"><value>Upgrade cost</value></data>
   <data name="Games.FrontlineTowerDefense.SellTower" xml:space="preserve"><value>Sell tower</value></data>
   <data name="Games.FrontlineTowerDefense.MoveTower" xml:space="preserve"><value>Move tower</value></data>
   <data name="Games.FrontlineTowerDefense.Speed" xml:space="preserve"><value>Speed</value></data>
@@ -2243,6 +2244,7 @@
   <data name="Games.FrontlineTowerDefense.PlayMission" xml:space="preserve"><value>Play mission</value></data>
   <data name="Games.FrontlineTowerDefense.BestScore" xml:space="preserve"><value>Best score</value></data>
   <data name="Games.FrontlineTowerDefense.BackToMissions" xml:space="preserve"><value>Back to missions</value></data>
+  <data name="Games.FrontlineTowerDefense.Play" xml:space="preserve"><value>PLAY</value></data>
   <data name="Games.FrontlineTowerDefense.SupportTowers" xml:space="preserve"><value>Support towers</value></data>
   <data name="Games.FrontlineTowerDefense.SupportStrike" xml:space="preserve"><value>Support strike</value></data>
   <data name="Games.FrontlineTowerDefense.SupportShotsRemaining" xml:space="preserve"><value>Support shots remaining: {0}</value></data>
@@ -2259,7 +2261,24 @@
   <data name="Games.FrontlineTowerDefense.Tower.FlameThrower" xml:space="preserve"><value>Flame Thrower</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.MountedMachineGun" xml:space="preserve"><value>Mounted Machine Gun</value></data>
   <data name="Games.FrontlineTowerDefense.Tower.PlasmaCannon" xml:space="preserve"><value>Plasma Cannon</value></data>
-  <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
+  <data name="Games.FrontlineTowerDefense.Continue" xml:space="preserve"><value>Continue</value></data>
+  <data name="Games.FrontlineTowerDefense.Quit" xml:space="preserve"><value>Quit</value></data>
+  <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Mute sound</value></data>
+  <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Unmute sound</value></data>
+  <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial1.Text1" xml:space="preserve"><value>Welcome back General. Before we move on I guess we should cover some of the basic's. Over to your right you'll find your command panel, this can be used to buy, sell, upgrade, and manage your defense towers.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial1.Text2" xml:space="preserve"><value>To begin purchase one of the available towers from the command panel. A large selection of towers is available from the war-mart.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial2.Text1" xml:space="preserve"><value>Ok now you have purchased a tower you need to place it somewhere on the battle field. Notice the ring around your new tower? That indicates how far your tower can see.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial2.Text2" xml:space="preserve"><value>Place the tower where it will have a good view of the path that the enemy will follow. Enemies start in areas marked with a green flag and escape at exits marked with a red flag.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial3.Text1" xml:space="preserve"><value>Awesome! If you have funds left you can buy more towers or perhaps upgrade the one you have.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial3.Text2" xml:space="preserve"><value>To upgrade select a tower on the battle field and use the plus buttons next to the stat you wish to upgrade. When you are ready hit the ok button below and try out your defenses!</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial4.Text1" xml:space="preserve"><value>Well done General, that showed em! They were just basic soldiers, but some have resistance to certain damage types, for example black soldiers wear kevlar suits and only take half damage from bullets.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial4.Text2" xml:space="preserve"><value>Be careful not to let too many enemy reach the exits though, any health they have left is deducted from your own. Reach zero and it's game over. Click ok to continue.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial5.Text1" xml:space="preserve"><value>Sometimes you'll discover that your defenses are not up to the task and will need a helping hand. Thankfully you have the ability to call in a support strike at any location on the battlefield.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial5.Text2" xml:space="preserve"><value>This ability however needs to be charged and can only be used when the support strike button turns green. Click ok to continue and try using it now.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial6.Text1" xml:space="preserve"><value>Well you seemed to survive that one so I'll guess you got the hang of it... From here on in I'll give you more control of the game.</value></data>
+  <data name="Games.FrontlineTowerDefense.Tutorial6.Text2" xml:space="preserve"><value>You can now use the buttons at the bottom of the command panel to send waves, fast forward, and pause the game... Well that covers the basic's, Good Luck General!</value></data>  <data name="Games.Wave" xml:space="preserve"><value>Wave</value></data>
   <data name="Games.Lives" xml:space="preserve"><value>Lives</value></data>
   <data name="Games.Gold" xml:space="preserve"><value>Gold</value></data>
   <data name="Games.TowerSniper" xml:space="preserve"><value>Sniper</value></data>
