@@ -79,17 +79,17 @@ else
                 }
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(150, 452, 160, 48)"
+                        style="@GetHotspotStyle(70, 428, 160, 48)"
                         @onclick="ShowCreditsAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineCreditsPage]"></button>
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(400, 452, 160, 48)"
+                        style="@GetHotspotStyle(320, 428, 160, 48)"
                         @onclick="ShowSplashAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(650, 452, 160, 48)"
+                        style="@GetHotspotStyle(570, 428, 160, 48)"
                         @onclick="ShowWarMartAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineWarMart]"></button>
                 break;
@@ -277,8 +277,8 @@ else
                 GetItemLabel(item),
                 item,
                 slotNumber,
-                placement.Matrix.Tx + 166,
-                placement.Matrix.Ty + 17,
+                placement.Matrix.Tx + 181.5,
+                placement.Matrix.Ty + 26,
                 _progress.Credits >= item.Cost && !IsOwned(item)));
         }
 
