@@ -1,4 +1,5 @@
 @namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using System.Globalization
 @using ThaiX.Client.Services.Games.FrontlineTowerDefense
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlineFlumpLibrary Flump
@@ -10,103 +11,134 @@
         or FrontlineGameSessionState.Defeat
         or FrontlineGameSessionState.RouteUnavailable)
     {
-        <div class="frontline-game-result" role="status" aria-live="polite">
-            @switch (Session.State)
+        var won = Session.State == FrontlineGameSessionState.Victory;
+        <div class="frontline-stage">
+            <FrontlineFlumpScene SymbolName="Game"
+                                 Frame="@(won ? 5 : 3)"
+                                 Values="@GetResultValues()"
+                                 ExcludeNames="@ScreenExclusions" />
+
+            @if (won)
             {
-                case FrontlineGameSessionState.Victory:
-                    @L[ResourceKeys.Games.FrontlineVictory]
-                    break;
-                case FrontlineGameSessionState.Defeat:
-                    @L[ResourceKeys.Games.FrontlineDefeat]
-                    break;
-                case FrontlineGameSessionState.RouteUnavailable:
-                    @L[ResourceKeys.Games.FrontlineRouteUnavailable]
-                    break;
-            }
-            @if (Session.State == FrontlineGameSessionState.Victory)
-            {
-                <p>@L[ResourceKeys.Games.Score]: @Session.TotalScore</p>
-                <p>@L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]</p>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:16%;top:83.333%;width:20%;height:10%"
+                        @onclick="() => ExitRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineBackToMissions]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:64%;top:83.333%;width:20%;height:10%"
+                        @onclick="() => ExitRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineCampaign]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:40%;top:83.333%;width:20%;height:10%"
+                        @onclick="() => WarMartRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineWarMart]"></button>
             }
             else
             {
-                <button type="button" class="btn btn-primary" @onclick="() => RetryRequested.InvokeAsync()">
-                    @L[ResourceKeys.Games.FrontlineRetry]
-                </button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:16%;top:61.667%;width:20%;height:10%"
+                        @onclick="() => MainMenuRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:40%;top:61.667%;width:20%;height:10%"
+                        @onclick="() => RetryRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineRetry]"></button>
+                <button type="button"
+                        class="frontline-hotspot"
+                        style="left:64%;top:61.667%;width:20%;height:10%"
+                        @onclick="() => ExitRequested.InvokeAsync()"
+                        aria-label="@L[ResourceKeys.Games.FrontlineBackToMissions]"></button>
             }
+
+            <p class="frontline-visually-hidden" role="status" aria-live="polite">
+                @(won ? L[ResourceKeys.Games.FrontlineVictory] : L[ResourceKeys.Games.FrontlineDefeat])
+                @L[ResourceKeys.Games.Score]: @Session.TotalScore
+                @L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]
+            </p>
         </div>
     }
-
-    <div class="frontline-stage">
+    else
+    {
+        <div class="frontline-stage">
         <FrontlineBoard Level="@Session.Level"
                         Simulation="@Session.Simulation"
-                        IsPlacementEnabled="@((_selectedBuildTower is not null || _movingTowerId is not null) && (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))"
-                        AllowNonBuildableSelection="@(_selectedBuildTower?.IsSupport == true)"
+                        IsPlacementEnabled="@(Sniper is null && (_selectedBuildTower is not null || _movingTowerId is not null) && (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))"
+                        AllowNonBuildableSelection="@(Sniper is null && _selectedBuildTower?.IsSupport == true)"
                         SelectedTowerId="@_selectedTowerId"
                         CellSelected="@OnCellSelected"
-                        TowerSelected="@OnTowerSelected" />
+                        TowerSelected="@OnTowerSelected"
+                        ManualShooterPosition="@(Sniper?.ShooterPosition)"
+                        ManualShooterAim="@(Sniper is null ? null : Sniper.PointerAim ?? Sniper.LastAim)"
+                        EnablePointerTracking="@(Sniper is not null)"
+                        PointerMoved="@OnPointerMoved"
+                        PointerClicked="@OnPointerClicked" />
 
         <img class="frontline-hud__panel" src="@GetImagePath(4680)" alt="" aria-hidden="true" />
 
         <div class="frontline-hud" aria-label="@L[ResourceKeys.Games.FrontlineBoard]">
-            <div class="frontline-hud__stat" style="left:0.25%;top:0.83%">
-                <span>@L[ResourceKeys.Games.Score]</span>
-                <strong>@Session.Simulation.Score</strong>
-            </div>
-            <div class="frontline-hud__stat" style="left:30.25%;top:0.83%">
-                <span>@L[ResourceKeys.Games.Wave]</span>
-                <strong>@Session.CurrentWave / @Session.TotalWaves</strong>
-            </div>
-            <div class="frontline-hud__stat" style="left:61.625%;top:0.83%">
-                <span>@L[ResourceKeys.Games.FrontlineFunds]</span>
-                <strong>@Session.Simulation.Funds</strong>
-            </div>
+            <p class="frontline-visually-hidden">
+                @L[ResourceKeys.Games.Score]: @Session.Simulation.Score,
+                @L[ResourceKeys.Games.Wave]: @Session.CurrentWave / @Session.TotalWaves,
+                @L[ResourceKeys.Games.FrontlineFunds]: @Session.Simulation.Funds,
+                @L[ResourceKeys.Games.FrontlineLevelHealth]: @Session.Simulation.LevelHealth.ToString("0")
+            </p>
 
-            <div class="frontline-hud__lives" style="left:51.5%;top:94.5%">
-                <span>@L[ResourceKeys.Games.FrontlineLevelHealth]</span>
-                <strong>@Session.Simulation.LevelHealth.ToString("0")</strong>
-            </div>
-            <div class="frontline-hud__healthbar"
+            <FrontlineFlumpScene SymbolName="Hud"
+                                 Transform="_hudTransform"
+                                 IncludeBitmaps="false"
+                                 Values="@GetHudValues()" />
+
+            <FrontlineFlumpScene SymbolId="@_hbarSymbolId"
+                                 Transform="@_hbarTransform"
+                                 ScaleX="@HealthScale" />
+
+            <div class="frontline-visually-hidden"
                  role="progressbar"
                  aria-valuemin="0"
                  aria-valuemax="1000"
                  aria-valuenow="@((int)Session.Simulation.LevelHealth)"
                  aria-label="@L[ResourceKeys.Games.FrontlineLevelHealth]">
-                <span class="frontline-hud__healthbar-fill" style="width:@HealthPercent%"></span>
+                @Session.Simulation.LevelHealth.ToString("0")
             </div>
 
-            @foreach (var tower in AvailableTowers)
+            @foreach (var tower in FrontlineTowerCatalog.Standard)
             {
+                var unlocked = Session.Progress.IsTowerUnlocked(tower.UnlockIndex);
+                var affordable = Session.Simulation.Funds >= tower.BuildCost;
                 <button @key="tower.Id"
                         type="button"
-                        class="@GetBuildButtonClass(tower.Id) @(Session.Simulation.Funds < tower.BuildCost ? "frontline-hud__sprite--unaffordable" : null)"
-                        style="@GetTowerSlotStyle(tower.Id, 64, 32)"
-                        disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
+                        class="@GetBuildButtonClass(tower.Id)"
+                        style="@GetTowerSlotStyle(tower.Id, 64, 32);opacity:@GetBuildButtonOpacity(unlocked, affordable)"
+                        disabled="@(Sniper is not null || !unlocked || Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
                         @onclick="() => SelectBuildTower(tower)"
                         aria-label="@L[GetTowerNameKey(tower.Id)]"
                         title="@L[GetTowerNameKey(tower.Id)] @tower.BuildCost">
-                    @foreach (var draw in GetTowerButtonDraws(tower.Id))
-                    {
-                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
-                    }
-                    <span class="frontline-hud__cost">@tower.BuildCost</span>
+                    <FrontlineFlumpScene SymbolName="@GetTowerButtonSymbolName(tower.Id)"
+                                         FitToSymbol="true"
+                                         Values="@GetTowerCostValues(tower)" />
                 </button>
             }
 
-            @foreach (var tower in AvailableSupportTowers)
+            @foreach (var tower in FrontlineTowerCatalog.Support)
             {
+                var unlocked = Session.Progress.IsTowerUnlocked(tower.UnlockIndex);
+                var affordable = Session.Simulation.Funds >= tower.BuildCost;
                 <button @key="tower.Id"
                         type="button"
-                        class="frontline-hud__sprite @GetBuildButtonClass(tower.Id)"
-                        style="@GetSupportSlotStyle(tower.Id, 40, 40)"
-                        disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
+                        class="@GetBuildButtonClass(tower.Id)"
+                        style="@GetSupportSlotStyle(tower.Id, 40, 40);opacity:@GetBuildButtonOpacity(unlocked, affordable)"
+                        disabled="@(Sniper is not null || !unlocked || Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
                         @onclick="() => SelectBuildTower(tower)"
                         aria-label="@L[GetTowerNameKey(tower.Id)]"
                         title="@L[GetTowerNameKey(tower.Id)] @tower.BuildCost">
-                    @foreach (var draw in GetTowerButtonDraws(tower.Id))
-                    {
-                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 40, 40)" alt="" />
-                    }
+                    <FrontlineFlumpScene SymbolName="@GetTowerButtonSymbolName(tower.Id)"
+                                         FitToSymbol="true"
+                                         Values="@GetTowerCostValues(tower)" />
                 </button>
             }
 
@@ -121,8 +153,6 @@
                 else
                 {
                     <div class="frontline-hud__selected" aria-label="@L[GetTowerNameKey(SelectedTower.Definition.Id)]">
-                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:1.25%">@L[ResourceKeys.Games.FrontlineUpgradeDamage]</span>
-                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:1.25%">@SelectedTower.Damage.ToString("0.##")</strong>
                         <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:4.167%">
                             @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.Damage))
                             {
@@ -141,8 +171,6 @@
                             }
                         </button>
 
-                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:8.125%">@L[ResourceKeys.Games.FrontlineUpgradeRange]</span>
-                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:8.125%">@SelectedTower.Range.ToString("0.##")</strong>
                         <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:10.833%">
                             @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.Range))
                             {
@@ -161,8 +189,6 @@
                             }
                         </button>
 
-                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:14.583%">@L[ResourceKeys.Games.FrontlineUpgradeRateOfFire]</span>
-                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:14.583%">@SelectedTower.RateOfFire.ToString("0.##")</strong>
                         <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:17.5%">
                             @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.RateOfFire))
                             {
@@ -181,8 +207,6 @@
                             }
                         </button>
 
-                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:22.5%">@L[ResourceKeys.Games.FrontlineUpgradeCost]</span>
-                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:22.5%">@UpgradeCost</strong>
 
                         <button type="button"
                                 class="frontline-hud__sprite"
@@ -190,12 +214,7 @@
                                 disabled="@(!CanMoveTower)"
                                 @onclick="BeginMoveTower"
                                 aria-label="@L[ResourceKeys.Games.FrontlineMoveTower]">
-                            @foreach (var draw in GetSpriteDraws("moveButton"))
-                            {
-                                <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
-                            }
-                            <span class="frontline-hud__sprite-label">@L[ResourceKeys.Games.FrontlineMoveTower]</span>
-                            <span class="frontline-hud__sprite-price">10</span>
+                            <FrontlineFlumpScene SymbolName="moveButton" FitToSymbol="true" />
                         </button>
                         <button type="button"
                                 class="frontline-hud__sprite"
@@ -203,12 +222,9 @@
                                 disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
                                 @onclick="SellTower"
                                 aria-label="@L[ResourceKeys.Games.FrontlineSellTower]">
-                            @foreach (var draw in GetSpriteDraws("sellButton"))
-                            {
-                                <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
-                            }
-                            <span class="frontline-hud__sprite-label">@L[ResourceKeys.Games.FrontlineSellTower]</span>
-                            <span class="frontline-hud__sprite-price">@Math.Floor(SelectedTower.SaleValue)</span>
+                            <FrontlineFlumpScene SymbolName="sellButton"
+                                                 FitToSymbol="true"
+                                                 Values="@GetSellValues()" />
                         </button>
                     </div>
                 }
@@ -291,20 +307,24 @@
 
         @if (_tutorialStep is int tutorialStep)
         {
-            <div class="frontline-tutorial" role="dialog">
-                <div class="frontline-tutorial__panel">
-                    <p>@L[GetTutorialTextKey(tutorialStep, 1)]</p>
-                    <p>@L[GetTutorialTextKey(tutorialStep, 2)]</p>
-                    @if (FrontlineTutorialTracker.CanClose(tutorialStep))
-                    {
-                        <button type="button" class="btn btn-primary" @onclick="CloseTutorial">
-                            @L[ResourceKeys.Games.FrontlineOk]
-                        </button>
-                    }
-                </div>
-            </div>
+            <FrontlineFlumpScene SymbolName="instruction"
+                                 Values="@GetTutorialValues(tutorialStep)"
+                                 ExcludeNames="@(FrontlineTutorialTracker.CanClose(tutorialStep) ? null : NoCloseButton)" />
+            @if (FrontlineTutorialTracker.CanClose(tutorialStep))
+            {
+                <button type="button"
+                        class="frontline-tutorial__ok"
+                        style="@GetSpriteSlotStyle(592, 161, 100, 32)"
+                        @onclick="CloseTutorial"
+                        aria-label="@L[ResourceKeys.Games.FrontlineOk]">
+                </button>
+            }
+            <p class="frontline-visually-hidden">
+                @L[GetTutorialTextKey(tutorialStep, 1)] @L[GetTutorialTextKey(tutorialStep, 2)]
+            </p>
         }
-    </div>
+        </div>
+    }
 
     <div class="frontline-toolbar">
         <button type="button"
@@ -325,21 +345,149 @@
     [Parameter]
     public EventCallback RetryRequested { get; set; }
 
+    [Parameter]
+    public EventCallback WarMartRequested { get; set; }
+
+    [Parameter]
+    public EventCallback MainMenuRequested { get; set; }
+
+    /// <summary>Sniper Elite bonus mission session, which disables building and fires on the pointer.</summary>
+    [Parameter]
+    public FrontlineSniperMissionSession? Sniper { get; set; }
+
     private FrontlineTowerArchetype? _selectedBuildTower;
     private long? _selectedTowerId;
     private long? _movingTowerId;
     private int? _tutorialStep;
     private bool _showPausePage;
+    private FrontlineFlumpMatrix _hudTransform = FrontlineFlumpMatrix.Identity;
+    private FrontlineFlumpMatrix _hbarTransform = FrontlineFlumpMatrix.Identity;
+    private int? _hbarSymbolId = null;
+    private IReadOnlyDictionary<string, string> _hudValues = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
     {
         Tutorial.Reset();
         await Flump.EnsureLoadedAsync(Navigation.BaseUri);
+        _hudTransform = FindHudTransform();
+        FindHudChild("hbar");
     }
+
+    private void FindHudChild(string instanceName)
+    {
+        if (Flump.GetSymbolId("Hud") is not int hudId)
+            return;
+
+        foreach (var placement in Flump.GetPlacements(hudId, 0))
+        {
+            if (!string.Equals(placement.Name, instanceName, StringComparison.Ordinal))
+                continue;
+
+            _hbarTransform = FrontlineFlumpMatrix.Multiply(_hudTransform, placement.Matrix);
+            _hbarSymbolId = placement.CharId;
+            return;
+        }
+    }
+
+    private FrontlineFlumpMatrix FindHudTransform()
+    {
+        if (Flump.GetSymbolId("Game") is not int gameId)
+            return FrontlineFlumpMatrix.Identity;
+
+        foreach (var placement in Flump.GetPlacements(gameId, 9))
+            if (string.Equals(placement.Name, "hud1", StringComparison.Ordinal))
+                return placement.Matrix;
+
+        return FrontlineFlumpMatrix.Identity;
+    }
+
+    private IReadOnlyDictionary<string, string> GetHudValues()
+    {
+        var tower = SelectedTower;
+        _hudValues = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scoreText"] = Number(Session.Simulation.Score),
+            ["fundText"] = Number(Session.Simulation.Funds),
+            ["livesText"] = Number(Math.Floor(Session.Simulation.LevelHealth)),
+            ["wavesText"] = string.Create(
+                CultureInfo.InvariantCulture,
+                $"Wave: {Session.CurrentWave}/{Session.TotalWaves}"),
+            ["countText"] = Number(Math.Floor(Session.NextWaveCountdown / 100d)),
+            ["rg"] = tower is null ? "00" : Number(Math.Round(tower.Range)),
+            ["dg"] = tower is null ? "00" : Number(Math.Round(tower.Damage)),
+            ["rf"] = tower is null ? "00" : Number(Math.Round(tower.RateOfFire)),
+            ["ucost"] = tower is null ? "00" : Number(Math.Floor(tower.SaleValue))
+        };
+
+        return _hudValues;
+    }
+
+    private static string Number(double value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    /// <summary>Values for the legacy victory rundown panel.</summary>
+    private IReadOnlyDictionary<string, string> GetSellValues() =>
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["price"] = Number(Math.Floor(SelectedTower?.SaleValue ?? 0))
+        };
+
+    private IReadOnlyDictionary<string, string> GetResultValues() =>
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["scoreText"] = Number(Session.Simulation.Score),
+            ["livesText"] = Number(Math.Floor(Session.Simulation.LevelHealth)),
+            ["fundsText"] = Number(Session.Simulation.Funds),
+            ["totalText"] = Number(Session.TotalScore),
+            ["creditsText"] = Number(Session.CreditsEarned)
+        };
+
+    /// <summary>The legacy FrameController child is a full screen fade overlay that starts hidden.</summary>
+    private static readonly IReadOnlySet<string> ScreenExclusions =
+        new HashSet<string>(StringComparer.Ordinal) { "FrameController" };
+
+    private static readonly IReadOnlySet<string> NoCloseButton = new HashSet<string>(StringComparer.Ordinal) { "clButton" };
+
+    /// <summary>The exact instruction copy the legacy instruction manager passed to each dialog.</summary>
+    private static readonly string[,] TutorialText =
+    {
+        {
+            "Welcome back General. Before we move on I guess we should cover some of the basic's. Over to your right you'll find your command panel, this can be used to buy,sell , upgrade, and manage your defense towers",
+            "To begin purchase one of the available towers from the command panel <note: A Large selection of towers are available from the war-mart>"
+        },
+        {
+            "Ok now you have purchased a tower you need to place it somewhere on the battle field. Notice the ring around your new tower? that indicates how far your tower can see.",
+            "Place the tower where it will have a good view of the path that the enemy will follow. Enemies start in areas marked with a green flag and escape at exits marked with a red flag"
+        },
+        {
+            "Awesome! If you have any funds left you can buy more towers or perhaps upgrade the one you have.",
+            "To upgrade select a tower on the battle field and use the plus buttons next to the stat you wish to upgrade. When your ready hit the ok button below and try out your defenses!"
+        },
+        {
+            "Well done General, that showed em! They were just basic soldiers, but some have resistance to certain damage types, for example black soldiers wear kevlar suits and only take half damage from bullets",
+            "Be careful not to let to many enemy reach the exits though, any health they have left is deducted from your own. Reach zero and it's game over. Click ok to continue.."
+        },
+        {
+            "Sometimes you'll discover that your defenses are not upto the task and will need a helping hand. Thankfully you have the abilty to call in a support strike at any location on the battlefield.",
+            "This abilty however needs to be charged and can only be used when the support strike button turns green. Click ok to continue and try using it now.."
+        },
+        {
+            "Well you seemed to survive that one so I'll guess you got the hang of it... From here on in I'll give you more control of the game.",
+            "You can now use the buttons at the bottom of the command panel to send waves, fast forward, and pause the game... Well that covers the basic's, Good Luck General!"
+        }
+    };
+
+    private static IReadOnlyDictionary<string, string> GetTutorialValues(int step) =>
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["ins"] = TutorialText[step, 0],
+            ["ins2"] = TutorialText[step, 1]
+        };
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (Session.State is not (FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))
+        if (Sniper is not null
+            || Session.State is not (FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))
         {
             if (_tutorialStep is not null || _showPausePage)
             {
@@ -400,18 +548,6 @@
         (_, 1) => ResourceKeys.Games.FrontlineTutorial6Text1,
         _ => ResourceKeys.Games.FrontlineTutorial6Text2
     };
-
-    private IEnumerable<FrontlineFlumpDraw> GetTowerButtonDraws(string towerId)
-    {
-        var symbolName = GetTowerButtonSymbolName(towerId);
-        var symbolId = Flump.GetSymbolId(symbolName);
-        if (symbolId is not int rootId)
-            yield break;
-
-        foreach (var draw in Flump.GetDraws(rootId, 0))
-            if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
-                yield return draw;
-    }
 
     private IEnumerable<FrontlineFlumpDraw> GetPauseButtonDraws()
     {
@@ -538,20 +674,10 @@
     private static string GetFillStyle(FrontlineFlumpDraw draw) =>
         "left:0%;top:0%;width:100%;height:100%;";
 
-    private double HealthPercent => Math.Clamp(Session.Simulation.LevelHealth / 10.0, 0, 100);
+    private double HealthScale => Math.Clamp(Session.Simulation.LevelHealth * 0.001, 0, 1);
 
     private bool CanTogglePause =>
         Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused;
-
-    private IReadOnlyList<FrontlineTowerArchetype> AvailableTowers =>
-        FrontlineTowerCatalog.Standard
-            .Where(tower => Session.Progress.IsTowerUnlocked(tower.UnlockIndex))
-            .ToArray();
-
-    private IReadOnlyList<FrontlineTowerArchetype> AvailableSupportTowers =>
-        FrontlineTowerCatalog.Support
-            .Where(tower => Session.Progress.IsTowerUnlocked(tower.UnlockIndex))
-            .ToArray();
 
     private FrontlineTower? SelectedTower =>
         _selectedTowerId is long id
@@ -567,6 +693,15 @@
         && SelectedTower is not null
         && !SelectedTower.Definition.IsSupport
         && Session.Simulation.Funds >= 10;
+
+    private static string GetBuildButtonOpacity(bool unlocked, bool affordable) =>
+        unlocked ? (affordable ? "1" : "0.2") : "0";
+
+    private static IReadOnlyDictionary<string, string> GetTowerCostValues(FrontlineTowerArchetype tower) =>
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["costT"] = string.Create(CultureInfo.InvariantCulture, $"$ {tower.BuildCost}")
+        };
 
     private string GetBuildButtonClass(string towerId) =>
         _selectedBuildTower?.Id == towerId
@@ -675,6 +810,22 @@
     }
 
     private void StartNextWave() => Session.TryStartNextWave();
+
+    private Task OnPointerMoved(FrontlinePoint aim)
+    {
+        Sniper?.AimAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnPointerClicked(FrontlinePoint aim)
+    {
+        if (Sniper is null)
+            return Task.CompletedTask;
+
+        Sniper.AimAt(aim);
+        Sniper.FireAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
 
     private void FastForward()
     {

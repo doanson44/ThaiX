@@ -1,0 +1,350 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using System.Globalization
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject FrontlineFlumpLibrary Flump
+
+<svg class="frontline-flump-scene @Class"
+     viewBox="@GetViewBox()"
+     aria-hidden="@(AriaHidden ? "true" : null)">
+    <defs>
+        @foreach (var glyph in _glyphPaths)
+        {
+            <path id="@glyph.Key" d="@glyph.Value"></path>
+        }
+        @foreach (var clip in _clips)
+        {
+            <clipPath id="@clip.Key">
+                <rect x="@Format(clip.Value.MinX)"
+                      y="@Format(clip.Value.MinY)"
+                      width="@Format(clip.Value.Width)"
+                      height="@Format(clip.Value.Height)"></rect>
+            </clipPath>
+        }
+    </defs>
+
+    @foreach (var draw in _draws)
+    {
+        <g transform="@FormatMatrix(draw.Matrix)">
+            @if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+            {
+                <image href="@GetImagePath(draw.BitmapId)"
+                       x="0"
+                       y="0"
+                       width="@Format(draw.Width)"
+                       height="@Format(draw.Height)"
+                       preserveAspectRatio="none"></image>
+            }
+            else
+            {
+                <rect x="@Format(draw.MinX)"
+                      y="@Format(draw.MinY)"
+                      width="@Format(draw.MaxX - draw.MinX)"
+                      height="@Format(draw.MaxY - draw.MinY)"
+                      rx="@Format(draw.CornerRadius)"
+                      fill="@FillColor(draw.Red, draw.Green, draw.Blue)"
+                      fill-opacity="@Format(draw.Alpha / 255d)"></rect>
+            }
+        </g>
+    }
+
+    @foreach (var group in _textGroups)
+    {
+        <g transform="@FormatMatrix(group.Matrix)">
+            @foreach (var run in group.Runs)
+            {
+                <g clip-path="@(run.ClipId is null ? null : $"url(#{run.ClipId})")"
+                   fill="@run.Fill"
+                   fill-opacity="@Format(run.Opacity)"
+                   fill-rule="evenodd">
+                    @foreach (var paint in run.Paints)
+                    {
+                        <use href="@($"#{GlyphId(run.FontId, paint.GlyphIndex)}")"
+                             transform="@FormatGlyph(paint)"></use>
+                    }
+                </g>
+            }
+        </g>
+    }
+</svg>
+
+@code {
+    [Parameter, EditorRequired]
+    public string SymbolName { get; set; } = string.Empty;
+
+    /// <summary>Direct character id, for symbols the library does not expose by name.</summary>
+    [Parameter]
+    public int? SymbolId { get; set; }
+
+    [Parameter]
+    public int Frame { get; set; }
+
+    /// <summary>Parent transform applied to every placement, for symbols nested inside a scene.</summary>
+    [Parameter]
+    public FrontlineFlumpMatrix Transform { get; set; } = FrontlineFlumpMatrix.Identity;
+
+    /// <summary>Values for editable text fields, keyed by the field's instance name.</summary>
+    [Parameter]
+    public IReadOnlyDictionary<string, string>? Values { get; set; }
+
+    /// <summary>Horizontal scale applied about the symbol origin, for the legacy scaled sprites.</summary>
+    [Parameter]
+    public double ScaleX { get; set; } = 1;
+
+    /// <summary>Vertical scale applied about the symbol origin.</summary>
+    [Parameter]
+    public double ScaleY { get; set; } = 1;
+
+    [Parameter]
+    public bool IncludeBitmaps { get; set; } = true;
+
+    /// <summary>Instance names to skip, for children the original toggled invisible.</summary>
+    [Parameter]
+    public IReadOnlySet<string>? ExcludeNames { get; set; }
+
+    /// <summary>
+    /// When set, the SVG viewBox is derived from the symbol's own bounds so the scene can be
+    /// dropped into a widget-sized container instead of the 800x480 game stage.
+    /// </summary>
+    [Parameter]
+    public bool FitToSymbol { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public bool AriaHidden { get; set; } = true;
+
+    private sealed record GlyphRun(string Fill, double Opacity, int FontId, string? ClipId, IReadOnlyList<FrontlineFlumpGlyphPaint> Paints);
+
+    private sealed record TextGroup(FrontlineFlumpMatrix Matrix, IReadOnlyList<GlyphRun> Runs);
+
+    private readonly string _instanceId = Guid.NewGuid().ToString("N")[..8];
+    private IReadOnlyList<FrontlineFlumpDraw> _draws = [];
+    private IReadOnlyList<KeyValuePair<string, string>> _glyphPaths = [];
+    private IReadOnlyList<KeyValuePair<string, FrontlineFlumpTextPlacement>> _clips = [];
+    private IReadOnlyList<TextGroup> _textGroups = [];
+    private string? _builtFor;
+
+    protected override void OnParametersSet()
+    {
+        var values = Values is null
+            ? string.Empty
+            : string.Join(';', Values.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value));
+        var signature = string.Create(
+            CultureInfo.InvariantCulture,
+            $"{Flump.IsLoaded}|{SymbolId}|{SymbolName}|{Frame}|{IncludeBitmaps}|{FitToSymbol}|{Transform.A},{Transform.B},{Transform.C},{Transform.D},{Transform.Tx},{Transform.Ty}|{ScaleX:0.#####}|{ScaleY:0.#####}|{values}|{string.Join(',', ExcludeNames?.OrderBy(name => name, StringComparer.Ordinal) ?? Enumerable.Empty<string>())}");
+
+        if (string.Equals(signature, _builtFor, StringComparison.Ordinal))
+            return;
+
+        _builtFor = signature;
+        Build();
+    }
+
+    private string _viewBox = "0 0 800 480";
+
+    private string GetViewBox() => _viewBox;
+
+    private void Build()
+    {
+        _draws = [];
+        _glyphPaths = [];
+        _clips = [];
+        _textGroups = [];
+        _viewBox = "0 0 800 480";
+
+        var symbolId = SymbolId ?? Flump.GetSymbolId(SymbolName);
+        if (symbolId is not int rootId)
+            return;
+
+        var root = ScaleX == 1 && ScaleY == 1
+            ? Transform
+            : FrontlineFlumpMatrix.Multiply(
+                Transform,
+                new FrontlineFlumpMatrix(ScaleX, 0, 0, ScaleY, 0, 0));
+
+        if (IncludeBitmaps)
+        {
+            _draws = (ExcludeNames is { Count: > 0 }
+                    ? Flump.GetDrawsExcluding(rootId, Frame, ExcludeNames)
+                    : Flump.GetDraws(rootId, Frame))
+                .Select(draw => draw with { Matrix = FrontlineFlumpMatrix.Multiply(root, draw.Matrix) })
+                .ToArray();
+        }
+
+        var placements = Flump.GetTextPlacements(rootId, Frame);
+        if (ExcludeNames is { Count: > 0 })
+            placements = placements
+                .Where(placement => placement.Name is null || !ExcludeNames.Contains(placement.Name))
+                .ToArray();
+
+        if (FitToSymbol)
+            _viewBox = ComputeViewBox(placements);
+
+        if (placements.Count == 0)
+            return;
+
+        var glyphs = new Dictionary<string, string>(StringComparer.Ordinal);
+        var clips = new List<KeyValuePair<string, FrontlineFlumpTextPlacement>>();
+        var groups = new List<TextGroup>();
+
+        for (var index = 0; index < placements.Count; index++)
+        {
+            var placement = placements[index];
+            var matrix = FrontlineFlumpMatrix.Multiply(root, placement.Matrix);
+            var runs = new List<GlyphRun>();
+            string? clipId = null;
+
+            if (placement.IsField)
+            {
+                clipId = $"{_instanceId}-clip-{index}";
+                clips.Add(new KeyValuePair<string, FrontlineFlumpTextPlacement>(clipId, placement));
+            }
+
+            var value = ResolveValue(placement);
+            if (placement.IsField)
+            {
+                var paints = FrontlineFlumpTextLayout.GetPaints(placement, Flump.GetFont, value);
+                if (paints.Count > 0)
+                {
+                    var styled = FrontlineFlumpTextLayout.ApplyHtmlStyle(placement);
+                    runs.Add(new GlyphRun(
+                        FillColor(styled.Red, styled.Green, styled.Blue),
+                        styled.Alpha / 255d,
+                        styled.FontId,
+                        clipId,
+                        paints));
+                }
+            }
+            else
+            {
+                foreach (var run in placement.Runs)
+                {
+                    if (run.Glyphs.Count == 0)
+                        continue;
+
+                    var paints = FrontlineFlumpTextLayout.GetPaints(placement with { Runs = [run] }, Flump.GetFont);
+                    runs.Add(new GlyphRun(
+                        FillColor(run.Red, run.Green, run.Blue),
+                        run.Alpha / 255d,
+                        run.FontId,
+                        null,
+                        paints));
+                }
+            }
+
+            foreach (var run in runs)
+            {
+                var font = Flump.GetFont(run.FontId);
+                if (font is null)
+                    continue;
+
+                foreach (var paint in run.Paints)
+                {
+                    var id = GlyphId(run.FontId, paint.GlyphIndex);
+                    if (glyphs.ContainsKey(id))
+                        continue;
+
+                    var path = font.GetGlyphPath(paint.GlyphIndex);
+                    if (!string.IsNullOrEmpty(path))
+                        glyphs[id] = path;
+                }
+            }
+
+            if (runs.Count > 0)
+                groups.Add(new TextGroup(matrix, runs));
+        }
+
+        _glyphPaths = glyphs.ToArray();
+        _clips = clips;
+        _textGroups = groups;
+    }
+
+    private string ComputeViewBox(IReadOnlyList<FrontlineFlumpTextPlacement> placements)
+    {
+        var minX = double.MaxValue;
+        var minY = double.MaxValue;
+        var maxX = double.MinValue;
+        var maxY = double.MinValue;
+
+        void Include(double x, double y)
+        {
+            minX = Math.Min(minX, x);
+            minY = Math.Min(minY, y);
+            maxX = Math.Max(maxX, x);
+            maxY = Math.Max(maxY, y);
+        }
+
+        foreach (var draw in _draws)
+        {
+            foreach (var (x, y) in Corners(draw.Matrix, draw.MinX, draw.MinY, draw.MaxX, draw.MaxY))
+                Include(x, y);
+        }
+
+        foreach (var placement in placements)
+        {
+            var matrix = FrontlineFlumpMatrix.Multiply(Transform, placement.Matrix);
+            foreach (var (x, y) in Corners(matrix, placement.MinX, placement.MinY, placement.MaxX, placement.MaxY))
+                Include(x, y);
+        }
+
+        if (minX > maxX || minY > maxY)
+            return "0 0 800 480";
+
+        var width = Math.Max(1, maxX - minX);
+        var height = Math.Max(1, maxY - minY);
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"{minX:0.###} {minY:0.###} {width:0.###} {height:0.###}");
+    }
+
+    private static IEnumerable<(double X, double Y)> Corners(
+        FrontlineFlumpMatrix matrix,
+        double minX,
+        double minY,
+        double maxX,
+        double maxY)
+    {
+        yield return Apply(matrix, minX, minY);
+        yield return Apply(matrix, maxX, minY);
+        yield return Apply(matrix, maxX, maxY);
+        yield return Apply(matrix, minX, maxY);
+    }
+
+    private static (double X, double Y) Apply(in FrontlineFlumpMatrix matrix, double x, double y) =>
+        (matrix.A * x + matrix.C * y + matrix.Tx, matrix.B * x + matrix.D * y + matrix.Ty);
+
+    private string? ResolveValue(FrontlineFlumpTextPlacement placement)
+    {
+        if (Values is null)
+            return null;
+
+        if (placement.Path is not null && Values.TryGetValue(placement.Path, out var byPath))
+            return byPath;
+
+        return placement.Name is not null && Values.TryGetValue(placement.Name, out var byName)
+            ? byName
+            : null;
+    }
+
+    private static string GetImagePath(int bitmapId) =>
+        $"games/frontline-tower-defense/assets/img/{bitmapId}.png";
+
+    private string GlyphId(int fontId, int glyphIndex) => $"{_instanceId}-f{fontId}-g{glyphIndex}";
+
+    private static string FillColor(byte red, byte green, byte blue) =>
+        $"rgb({red},{green},{blue})";
+
+    private static string FormatMatrix(in FrontlineFlumpMatrix matrix) =>
+        string.Create(
+            CultureInfo.InvariantCulture,
+            $"matrix({matrix.A:0.####},{matrix.B:0.####},{matrix.C:0.####},{matrix.D:0.####},{matrix.Tx:0.####},{matrix.Ty:0.####})");
+
+    private static string FormatGlyph(FrontlineFlumpGlyphPaint paint) =>
+        string.Create(
+            CultureInfo.InvariantCulture,
+            $"translate({paint.X:0.###},{paint.Baseline:0.###}) scale({paint.Scale:0.######})");
+
+    private static string Format(double value) =>
+        value.ToString("0.####", CultureInfo.InvariantCulture);
+}

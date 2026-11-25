@@ -21,15 +21,20 @@
 
 @if (SniperSession is not null)
 {
-    <FrontlineSniperMissionView Session="@SniperSession"
-                               ExitRequested="@ExitRequested"
-                               RetryRequested="@RetryRequested" />
+    <FrontlineGameView Session="@SniperSession.GameSession"
+                       Sniper="@SniperSession"
+                       ExitRequested="@ExitRequested"
+                       RetryRequested="@RetryRequested"
+                       WarMartRequested="@WarMartRequested"
+                       MainMenuRequested="@MainMenuRequested" />
 }
 else if (Session is not null)
 {
     <FrontlineGameView Session="@Session"
                        ExitRequested="@ExitRequested"
-                       RetryRequested="@RetryRequested" />
+                       RetryRequested="@RetryRequested"
+                       WarMartRequested="@WarMartRequested"
+                       MainMenuRequested="@MainMenuRequested" />
 }
 else
 {
@@ -56,6 +61,12 @@ else
 
     [Parameter]
     public EventCallback RetryRequested { get; set; }
+
+    [Parameter]
+    public EventCallback WarMartRequested { get; set; }
+
+    [Parameter]
+    public EventCallback MainMenuRequested { get; set; }
 
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _gameLoop;

@@ -65,6 +65,9 @@ public sealed class FrontlineGameSession
     public double SpeedMultiplier { get; private set; } = 1;
     public int CurrentWave => _waveScheduler.CurrentGroup;
     public int TotalWaves => _waveScheduler.TotalGroups;
+
+    /// <summary>Remaining units before the next authored wave spawns (legacy <c>nextSpawn</c>).</summary>
+    public double NextWaveCountdown => _waveScheduler.NextGroupCountdownUnits;
     public bool AllWavesDispatched => _waveScheduler.AllGroupsDispatched;
     public int TotalScore { get; private set; }
     public int CreditsEarned { get; private set; }

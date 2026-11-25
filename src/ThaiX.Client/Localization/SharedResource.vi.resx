@@ -2265,6 +2265,8 @@
   <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Thử lại</value></data>
   <data name="Games.FrontlineTowerDefense.FastForward" xml:space="preserve"><value>Tăng tốc</value></data>
   <data name="Games.FrontlineTowerDefense.NormalSpeed" xml:space="preserve"><value>Tốc độ thường</value></data>
+  <data name="Games.FrontlineTowerDefense.CreditsPage" xml:space="preserve"><value>Ghi công</value></data>
+  <data name="Games.FrontlineTowerDefense.MainMenu" xml:space="preserve"><value>Menu chính</value></data>
   <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Tắt âm thanh</value></data>
   <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Bật âm thanh</value></data>
   <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>
