@@ -4,10 +4,32 @@
 @implements IAsyncDisposable
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlinePlayerProgressStore ProgressStore
+@inject FrontlineAudioService Audio
+@inject NavigationManager Navigation
 
-@if (Session is not null)
+@if (_progressSaveFailed)
 {
-    <FrontlineGameView Session="@Session" ExitRequested="@ExitRequested" />
+    <div class="alert alert-warning" role="alert">
+        <p>@L[ResourceKeys.Games.FrontlineProgressSaveFailed]</p>
+        <button type="button" class="btn btn-outline-warning"
+                disabled="@_isRetryingProgressSave"
+                @onclick="RetryProgressSaveAsync">
+            @L[ResourceKeys.Games.FrontlineRetrySave]
+        </button>
+    </div>
+}
+
+@if (SniperSession is not null)
+{
+    <FrontlineSniperMissionView Session="@SniperSession"
+                               ExitRequested="@ExitRequested"
+                               RetryRequested="@RetryRequested" />
+}
+else if (Session is not null)
+{
+    <FrontlineGameView Session="@Session"
+                       ExitRequested="@ExitRequested"
+                       RetryRequested="@RetryRequested" />
 }
 else
 {
@@ -32,18 +54,29 @@ else
     [Parameter]
     public EventCallback ExitRequested { get; set; }
 
+    [Parameter]
+    public EventCallback RetryRequested { get; set; }
+
     private readonly CancellationTokenSource _lifetime = new();
     private Task? _gameLoop;
     private FrontlineGameSession? Session;
+    private FrontlineSniperMissionSession? SniperSession;
     private string _sessionErrorKey = ResourceKeys.Games.FrontlineRouteUnavailable;
+    private FrontlinePlayerProgress? _pendingProgressSave;
+    private bool _progressSaveFailed;
+    private bool _isRetryingProgressSave;
 
     protected override async Task OnInitializedAsync()
     {
+        await Audio.InitializeAsync(Navigation.BaseUri);
         var progress = Progress ?? await ProgressStore.LoadAsync(_lifetime.Token);
 
         try
         {
-            Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
+            if (Level.IsBonus)
+                SniperSession = new FrontlineSniperMissionSession(Level, WaveSet, progress, new Random());
+            else
+                Session = new FrontlineGameSession(Level, WaveSet, progress, new Random());
         }
         catch (FrontlineLevelLockedException)
         {
@@ -59,7 +92,7 @@ else
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && Session is not null)
+        if (firstRender && (Session is not null || SniperSession is not null))
             _gameLoop = RunGameLoopAsync(_lifetime.Token);
 
         return Task.CompletedTask;
@@ -79,16 +112,28 @@ else
                 var elapsedMilliseconds = (current - previous).TotalMilliseconds;
                 previous = current;
 
-                var previousState = Session?.State;
+                var previousState = Session?.State ?? SniperSession?.State;
                 Session?.Advance(elapsedMilliseconds);
+                SniperSession?.Advance(elapsedMilliseconds);
+                await PlayQueuedSoundsAsync();
+                var currentState = Session?.State ?? SniperSession?.State;
 
                 if (previousState != FrontlineGameSessionState.Victory
-                    && Session?.State == FrontlineGameSessionState.Victory)
-                    await ProgressStore.SaveAsync(Session.Progress, cancellationToken);
+                    && currentState == FrontlineGameSessionState.Victory)
+                {
+                    var progressToSave = Session?.Progress ?? SniperSession!.Progress;
+                    _pendingProgressSave = progressToSave;
+                    _progressSaveFailed = !await ProgressStore.SaveAsync(
+                        progressToSave,
+                        cancellationToken);
+
+                    if (!_progressSaveFailed)
+                        _pendingProgressSave = null;
+                }
 
                 await InvokeAsync(StateHasChanged);
 
-                if (Session?.State is FrontlineGameSessionState.Victory
+                if (currentState is FrontlineGameSessionState.Victory
                     or FrontlineGameSessionState.Defeat
                     or FrontlineGameSessionState.RouteUnavailable)
                     break;
@@ -99,6 +144,38 @@ else
         }
         catch (ObjectDisposedException)
         {
+        }
+    }
+
+    private async Task PlayQueuedSoundsAsync()
+    {
+        var sounds = Session?.Simulation.DrainSounds()
+            ?? SniperSession?.Simulation.DrainSounds()
+            ?? [];
+
+        foreach (var sound in sounds)
+            await Audio.PlayAsync(sound);
+    }
+
+    private async Task RetryProgressSaveAsync()
+    {
+        var progressToSave = _pendingProgressSave;
+        if (progressToSave is null || _isRetryingProgressSave)
+            return;
+
+        _isRetryingProgressSave = true;
+        try
+        {
+            _progressSaveFailed = !await ProgressStore.SaveAsync(
+                progressToSave,
+                _lifetime.Token);
+
+            if (!_progressSaveFailed)
+                _pendingProgressSave = null;
+        }
+        finally
+        {
+            _isRetryingProgressSave = false;
         }
     }
 

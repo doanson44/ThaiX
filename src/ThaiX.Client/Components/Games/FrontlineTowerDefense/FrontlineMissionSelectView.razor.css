@@ -57,3 +57,9 @@
     color: var(--rz-text-color);
     font-variant-numeric: tabular-nums;
 }
+
+
+.frontline-mission-card__status {
+    color: var(--rz-text-secondary-color);
+    font-size: 0.8rem;
+}

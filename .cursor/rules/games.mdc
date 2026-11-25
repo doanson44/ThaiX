@@ -32,6 +32,10 @@ Session memory from the port of the games to Blazor (PR #153). Read this before 
 - The guard exists because `@onkeydown:preventDefault` applies to every key and would swallow Tab.
 - Pointer position is not available without script, so boards use one clickable SVG element per
   cell, and Breakout / Pong use hold-to-move zones instead of following the pointer.
+- Frontline Tower Defense additionally uses two small script modules that the flash port needs:
+  `wwwroot/js/frontlineAudio.js` (pooled `HTMLAudio` playback that mirrors the legacy `Soundbox`)
+  and `wwwroot/js/frontlinePointer.js` (translates pointer position into the 800x480 stage used by
+  the Sniper Elite missions). Do not grow them beyond audio playback and pointer translation.
 
 ## Razor pitfalls hit during the port
 

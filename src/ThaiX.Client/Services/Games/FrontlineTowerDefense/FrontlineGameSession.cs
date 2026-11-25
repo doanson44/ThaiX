@@ -21,7 +21,6 @@ public sealed class FrontlineGameSession
     private readonly Random _random;
     private readonly FrontlineWaveScheduler _waveScheduler;
     private readonly FrontlinePlayerProgress _progress;
-    private FrontlineLevelRoute? _reservedInitialRoute;
 
     public FrontlineGameSession(
         FrontlineLevelMapDefinition level,
@@ -46,15 +45,8 @@ public sealed class FrontlineGameSession
         _random = random;
         _routeFactory = new FrontlineLevelRouteFactory(new FrontlineGridPathfinder());
 
-        if (!_routeFactory.TryCreateRandomRoute(level, random, out _reservedInitialRoute)
-            || _reservedInitialRoute is null)
-        {
-            State = FrontlineGameSessionState.RouteUnavailable;
-            throw new FrontlineRouteUnavailableException(level.Id);
-        }
-
         Simulation = new FrontlineGameSimulation(
-            _reservedInitialRoute.Path,
+            _routeFactory.CreateDefaultPath(level),
             progress.StartingFunds,
             levelMap: level,
             random: random);
@@ -66,12 +58,16 @@ public sealed class FrontlineGameSession
     public FrontlineWaveSet WaveSet { get; }
     public FrontlineGameSimulation Simulation { get; }
     public FrontlinePlayerProgress Progress => _progress;
-    public bool CanStartNextWave => State == FrontlineGameSessionState.Playing && _waveScheduler.CanManuallyStart;
+    public bool CanStartNextWave =>
+        (State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
+        && _waveScheduler.CanManuallyStart;
     public FrontlineGameSessionState State { get; private set; }
     public double SpeedMultiplier { get; private set; } = 1;
     public int CurrentWave => _waveScheduler.CurrentGroup;
     public int TotalWaves => _waveScheduler.TotalGroups;
     public bool AllWavesDispatched => _waveScheduler.AllGroupsDispatched;
+    public int TotalScore { get; private set; }
+    public int CreditsEarned { get; private set; }
 
     public void Pause()
     {
@@ -86,7 +82,8 @@ public sealed class FrontlineGameSession
     }
 
     public bool TryStartNextWave() =>
-        State == FrontlineGameSessionState.Playing && _waveScheduler.TryStartNextGroup();
+        (State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
+        && _waveScheduler.TryStartNextGroup();
 
     public bool SetSpeedMultiplier(double multiplier)
     {
@@ -107,18 +104,27 @@ public sealed class FrontlineGameSession
         if (!double.IsFinite(elapsedMilliseconds) || elapsedMilliseconds < 0)
             throw new ArgumentOutOfRangeException(nameof(elapsedMilliseconds));
 
-        if (State == FrontlineGameSessionState.Paused)
+        var elapsedUnits = State == FrontlineGameSessionState.Paused
+            ? 0
+            : Math.Min(elapsedMilliseconds * 0.08 * SpeedMultiplier, 8);
+        Simulation.AdvanceBeforeWaveScheduler(elapsedUnits);
+        var spawnRequests = _waveScheduler.Advance(elapsedUnits, Simulation.Enemies.Count > 0);
+        foreach (var request in spawnRequests)
         {
-            Simulation.Advance(0);
-            _waveScheduler.Advance(0, Simulation.Enemies.Count > 0);
-            return;
+            var archetype = FrontlineEnemyCatalog.Find(request.EnemyType)
+                ?? throw new InvalidOperationException($"Unknown Frontline enemy type '{request.EnemyType}'.");
+
+            if (!_routeFactory.TryCreateRandomRoute(Level, _random, out var route)
+                || route is null)
+            {
+                State = FrontlineGameSessionState.RouteUnavailable;
+                return;
+            }
+
+            Simulation.SpawnEnemy(archetype.CreateDefinition(request.WaveNumber), route.Path);
         }
 
-        if (elapsedMilliseconds == 0)
-            return;
-
-        var elapsedUnits = Math.Min(elapsedMilliseconds * 0.08 * SpeedMultiplier, 8);
-        Simulation.Advance(elapsedUnits);
+        Simulation.AdvanceAfterWaveScheduler(elapsedUnits);
 
         if (Simulation.Status == FrontlineGameStatus.Defeat)
         {
@@ -126,35 +132,16 @@ public sealed class FrontlineGameSession
             return;
         }
 
-        var spawnRequests = _waveScheduler.Advance(elapsedUnits, Simulation.Enemies.Count > 0);
-        foreach (var request in spawnRequests)
-        {
-            var archetype = FrontlineEnemyCatalog.Find(request.EnemyType)
-                ?? throw new InvalidOperationException($"Unknown Frontline enemy type '{request.EnemyType}'.");
-
-            FrontlinePath enemyPath;
-            if (_reservedInitialRoute is not null)
-            {
-                enemyPath = _reservedInitialRoute.Path;
-                _reservedInitialRoute = null;
-            }
-            else if (_routeFactory.TryCreateRandomRoute(Level, _random, out var route)
-                && route is not null)
-            {
-                enemyPath = route.Path;
-            }
-            else
-            {
-                State = FrontlineGameSessionState.RouteUnavailable;
-                return;
-            }
-
-            Simulation.SpawnEnemy(archetype.CreateDefinition(request.WaveNumber), enemyPath);
-        }
-
         if (_waveScheduler.IsComplete && Simulation.Enemies.Count == 0)
         {
-            _progress.SaveLevelScore(Level.ProgressIndex, Simulation.Score);
+            var calculatedScore = Math.Floor(
+                Simulation.Score
+                + Math.Floor(Simulation.LevelHealth * 5d)
+                + Math.Floor(Simulation.Funds * 5d));
+            TotalScore = (int)Math.Clamp(calculatedScore, 0, int.MaxValue);
+            CreditsEarned = (int)Math.Floor(TotalScore * 0.25);
+            _progress.SaveLevelScore(Level.ProgressIndex, TotalScore);
+            _progress.AwardCredits(CreditsEarned);
             State = FrontlineGameSessionState.Victory;
         }
     }

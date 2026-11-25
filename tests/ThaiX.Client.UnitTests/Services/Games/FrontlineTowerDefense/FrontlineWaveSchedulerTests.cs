@@ -45,10 +45,32 @@ public sealed class FrontlineWaveSchedulerTests
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
-        var spawned = scheduler.Advance(999, enemiesRemain: false);
+        var spawned = scheduler.Advance(499, enemiesRemain: false);
 
         spawned.Should().BeEmpty();
         scheduler.CurrentGroup.Should().Be(0);
+    }
+
+    [Fact]
+    public void Advance_WhenSpawnerRemovesItself_SkipsNextSpawnerForCurrentFrame()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("first", 1, 10, 0),
+            new FrontlineWaveGroup("second", 1, 10, 0)
+        ]));
+        scheduler.TryStartNextGroup();
+
+        scheduler.Advance(0, false);
+        scheduler.ActiveSpawnerCount.Should().Be(2);
+
+        var firstFrame = scheduler.Advance(10, true);
+        firstFrame.Should().ContainSingle(request => request.EnemyType == "first");
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+
+        var secondFrame = scheduler.Advance(10, true);
+        secondFrame.Should().ContainSingle(request => request.EnemyType == "second");
+        scheduler.ActiveSpawnerCount.Should().Be(0);
     }
 
     [Fact]
@@ -76,17 +98,62 @@ public sealed class FrontlineWaveSchedulerTests
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
 
-        var spawned = scheduler.Advance(1000, enemiesRemain: false);
+        var spawned = scheduler.Advance(500, enemiesRemain: false);
 
         spawned.Should().BeEmpty();
         scheduler.CurrentGroup.Should().Be(1);
     }
 
     [Fact]
+    public void Advance_WhenLastGroupSpawnsEnemy_DoesNotCompleteBeforeSpawnIsApplied()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("first", 1, 10, 0)
+        ]));
+        scheduler.TryStartNextGroup();
+        scheduler.Advance(0, false);
+
+        var spawnRequests = scheduler.Advance(10, false);
+
+        spawnRequests.Should().ContainSingle();
+        scheduler.AllGroupsDispatched.Should().BeTrue();
+        scheduler.IsComplete.Should().BeFalse();
+
+        scheduler.Advance(1, true);
+        scheduler.IsComplete.Should().BeFalse();
+
+        scheduler.Advance(1, false);
+        scheduler.IsComplete.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Advance_WhenAllGroupsAreDispatchedAndNoEnemiesRemain_CompletesWithActiveSpawner()
+    {
+        var scheduler = new FrontlineWaveScheduler(new FrontlineWaveSchedule(
+        [
+            new FrontlineWaveGroup("enemy1", 3, 100, 10)
+        ]));
+
+        scheduler.Advance(500, enemiesRemain: false);
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+        scheduler.AllGroupsDispatched.Should().BeFalse();
+
+        scheduler.Advance(20, enemiesRemain: false);
+
+        scheduler.AllGroupsDispatched.Should().BeTrue();
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+        scheduler.IsComplete.Should().BeFalse();
+
+        scheduler.Advance(1, enemiesRemain: false);
+        scheduler.IsComplete.Should().BeTrue();
+    }
+
+    [Fact]
     public void Advance_WhenSpawnIntervalIsReached_SpawnsOneEnemy()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
-        scheduler.Advance(1000, enemiesRemain: false);
+        scheduler.Advance(500, enemiesRemain: false);
 
         var spawned = scheduler.Advance(15, enemiesRemain: false);
 

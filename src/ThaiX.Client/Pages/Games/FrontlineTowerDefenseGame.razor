@@ -16,20 +16,7 @@
                      Click="BackToGames" />
     </div>
 
-    <div>
-        <RadzenText TextStyle="@(Viewport.IsMobile ? TextStyle.H5 : Viewport.IsTablet ? TextStyle.H4 : TextStyle.H3)"
-                    TagName="TagName.H1"
-                    Class="mb-1">
-            @L[ResourceKeys.Games.NameFrontlineTowerDefense]
-        </RadzenText>
-        <p class="text-muted mb-0">@L[ResourceKeys.Games.DescriptionFrontlineTowerDefense]</p>
-    </div>
-
     <RadzenCard Class="frontline-defense-card">
-        <div class="frontline-defense-instructions mb-3">
-            <strong>@L[ResourceKeys.Games.Instructions]:</strong>
-            <span>@L[ResourceKeys.Games.InstructionsFrontlineTowerDefense]</span>
-        </div>
         <FrontlineGameShell />
     </RadzenCard>
 </RadzenStack>

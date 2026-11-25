@@ -2,6 +2,8 @@
 @using ThaiX.Client.Services.Games.FrontlineTowerDefense
 @inject IStringLocalizer<SharedResource> L
 @inject FrontlinePlayerProgressStore ProgressStore
+@inject FrontlineAudioService Audio
+@inject NavigationManager Navigation
 
 @if (_progress is null)
 {
@@ -11,10 +13,40 @@
 }
 else if (_selectedLevel is not null)
 {
-    <FrontlineGameHost Level="@_selectedLevel!"
-                       WaveSet="@GetWaveSet(_selectedLevel!)"
-                       Progress="@_progress!"
-                       ExitRequested="@ReturnToMissions" />
+    <FrontlineGameHost @key="_attempt"
+                       Level="@_selectedLevel"
+                       WaveSet="@GetWaveSet(_selectedLevel)"
+                       Progress="@_progress"
+                       ExitRequested="@ReturnToMissionsAsync"
+                       RetryRequested="@RetryMissionAsync" />
+}
+else if (_showSplash)
+{
+    <section class="frontline-splash" aria-label="@L[ResourceKeys.Games.NameFrontlineTowerDefense]">
+        <div class="frontline-splash__target" aria-hidden="true"></div>
+        <div class="frontline-splash__title">
+            <span>FRONTLINE</span>
+            <strong>DEFENSE 2</strong>
+        </div>
+        <div class="frontline-splash__actions">
+            <button type="button"
+                    class="frontline-splash__button"
+                    @onclick="ShowMissionsAsync">
+                @L[ResourceKeys.Games.FrontlinePlay]
+            </button>
+            <button type="button"
+                    class="frontline-splash__button"
+                    @onclick="ShowWarMartAsync">
+                @L[ResourceKeys.Games.FrontlineCredits]
+            </button>
+            <button type="button"
+                    class="frontline-splash__button frontline-splash__button--mute"
+                    aria-pressed="@Audio.IsMuted"
+                    @onclick="ToggleMuteAsync">
+                @(Audio.IsMuted ? L[ResourceKeys.Games.FrontlineUnmute] : L[ResourceKeys.Games.FrontlineMute])
+            </button>
+        </div>
+    </section>
 }
 else
 {
@@ -23,13 +55,13 @@ else
             <button type="button"
                     class="@GetTabClass(showWarMart: false)"
                     aria-pressed="@(!_showWarMart)"
-                    @onclick="ShowMissions">
+                    @onclick="ShowMissionsAsync">
                 @L[ResourceKeys.Games.FrontlineCampaign]
             </button>
             <button type="button"
                     class="@GetTabClass(showWarMart: true)"
                     aria-pressed="@_showWarMart"
-                    @onclick="ShowWarMart">
+                    @onclick="ShowWarMartAsync">
                 @L[ResourceKeys.Games.FrontlineWarMart]
             </button>
         </nav>
@@ -40,7 +72,7 @@ else
         }
         else
         {
-            <FrontlineMissionSelectView Progress="@_progress" MissionSelected="@StartMission" />
+            <FrontlineMissionSelectView Progress="@_progress" MissionSelected="@StartMissionAsync" />
         }
     </div>
 }
@@ -48,7 +80,10 @@ else
 @code {
     private FrontlinePlayerProgress? _progress;
     private FrontlineLevelMapDefinition? _selectedLevel;
+    private bool _showSplash = true;
     private bool _showWarMart;
+    private bool _audioReady;
+    private int _attempt;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,24 +92,66 @@ else
 
     private static FrontlineWaveSet GetWaveSet(FrontlineLevelMapDefinition level) =>
         FrontlineWaveCatalog.Find(level.Id)
-        ?? throw new InvalidOperationException($"No wave schedule is registered for level '{level.Id}'.");
+        ?? throw new InvalidOperationException("No wave schedule is registered for level '{level.Id}'.");
 
     private string GetTabClass(bool showWarMart) =>
         _showWarMart == showWarMart
             ? "frontline-shell-tab frontline-shell-tab--active"
             : "frontline-shell-tab";
 
-    private void ShowMissions() => _showWarMart = false;
+    private async Task ShowMissionsAsync()
+    {
+        _showSplash = false;
+        _showWarMart = false;
+        await StartMenuMusicAsync();
+    }
 
-    private void ShowWarMart() => _showWarMart = true;
+    private async Task ShowWarMartAsync()
+    {
+        _showSplash = false;
+        _showWarMart = true;
+        await StartMenuMusicAsync();
+    }
 
-    private void StartMission(string levelId)
+    private async Task StartMissionAsync(string levelId)
     {
         _selectedLevel = FrontlineLevelMapCatalog.Find(levelId);
         _showWarMart = false;
+        await EnsureAudioAsync();
+        await Audio.StopMenuMusicAsync();
+        await Audio.StartLevelNoiseAsync();
     }
 
-    private void ReturnToMissions() => _selectedLevel = null;
+    private async Task ReturnToMissionsAsync()
+    {
+        _selectedLevel = null;
+        await Audio.StopLevelNoiseAsync();
+        await Audio.StartMenuMusicAsync();
+    }
+
+    private void RetryMissionAsync() => _attempt++;
+
+    private async Task ToggleMuteAsync()
+    {
+        await Audio.ToggleMuteAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task StartMenuMusicAsync()
+    {
+        await EnsureAudioAsync();
+        await Audio.StartMenuMusicAsync();
+    }
+
+    private async Task EnsureAudioAsync()
+    {
+        if (_audioReady)
+            return;
+
+        await Audio.InitializeAsync(Navigation.BaseUri);
+        _audioReady = true;
+    }
 
     private Task OnProgressChanged() => InvokeAsync(StateHasChanged);
 }
+

@@ -1,59 +1,11 @@
 @namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
 @using ThaiX.Client.Services.Games.FrontlineTowerDefense
 @inject IStringLocalizer<SharedResource> L
+@inject FrontlineFlumpLibrary Flump
+@inject NavigationManager Navigation
+@inject FrontlineTutorialTracker Tutorial
 
 <div class="frontline-game-view">
-    <div class="frontline-game-hud">
-        <div class="frontline-game-stat">
-            <span>@L[ResourceKeys.Games.FrontlineFunds]</span>
-            <strong>@Session.Simulation.Funds</strong>
-        </div>
-        <div class="frontline-game-stat">
-            <span>@L[ResourceKeys.Games.FrontlineLevelHealth]</span>
-            <strong>@Session.Simulation.LevelHealth.ToString("0")</strong>
-        </div>
-        <div class="frontline-game-stat">
-            <span>@L[ResourceKeys.Games.Wave]</span>
-            <strong>@Session.CurrentWave / @Session.TotalWaves</strong>
-        </div>
-        <div class="frontline-game-stat">
-            <span>@L[ResourceKeys.Games.Score]</span>
-            <strong>@Session.Simulation.Score</strong>
-        </div>
-        <div class="frontline-game-actions">
-            <button type="button"
-                    class="btn btn-outline-secondary"
-                    disabled="@(!CanTogglePause)"
-                    @onclick="TogglePause">
-                @(Session.State == FrontlineGameSessionState.Paused
-                    ? L[ResourceKeys.Games.Resume]
-                    : L[ResourceKeys.Games.Pause])
-            </button>
-            <button type="button"
-                    class="btn btn-outline-secondary"
-                    @onclick="() => ExitRequested.InvokeAsync()">
-                @L[ResourceKeys.Games.FrontlineBackToMissions]
-            </button>
-            <button type="button"
-                    class="btn btn-primary"
-                    disabled="@(!Session.CanStartNextWave)"
-                    @onclick="StartNextWave">
-                @L[ResourceKeys.Games.FrontlineStartWave]
-            </button>
-            <label class="frontline-speed-label" for="frontline-speed">
-                @L[ResourceKeys.Games.FrontlineSpeed]
-            </label>
-            <select id="frontline-speed"
-                    class="form-select frontline-speed-select"
-                    value="@_speedValue"
-                    disabled="@(!CanTogglePause)"
-                    @onchange="ChangeSpeed">
-                <option value="1">1x</option>
-                <option value="2">2x</option>
-            </select>
-        </div>
-    </div>
-
     @if (Session.State is FrontlineGameSessionState.Victory
         or FrontlineGameSessionState.Defeat
         or FrontlineGameSessionState.RouteUnavailable)
@@ -71,101 +23,295 @@
                     @L[ResourceKeys.Games.FrontlineRouteUnavailable]
                     break;
             }
+            @if (Session.State == FrontlineGameSessionState.Victory)
+            {
+                <p>@L[ResourceKeys.Games.Score]: @Session.TotalScore</p>
+                <p>@L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]</p>
+            }
+            else
+            {
+                <button type="button" class="btn btn-primary" @onclick="() => RetryRequested.InvokeAsync()">
+                    @L[ResourceKeys.Games.FrontlineRetry]
+                </button>
+            }
         </div>
     }
 
-    <div class="frontline-game-layout">
+    <div class="frontline-stage">
         <FrontlineBoard Level="@Session.Level"
                         Simulation="@Session.Simulation"
-                        IsPlacementEnabled="@(_selectedBuildTower is not null && Session.State == FrontlineGameSessionState.Playing)"
+                        IsPlacementEnabled="@((_selectedBuildTower is not null || _movingTowerId is not null) && (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))"
+                        AllowNonBuildableSelection="@(_selectedBuildTower?.IsSupport == true)"
                         SelectedTowerId="@_selectedTowerId"
                         CellSelected="@OnCellSelected"
                         TowerSelected="@OnTowerSelected" />
 
-        <aside class="frontline-game-panel">
-            <section class="frontline-game-panel-section">
-                <h2>@L[ResourceKeys.Games.FrontlineBuildTower]</h2>
-                <div class="frontline-tower-list">
-                    @foreach (var tower in AvailableTowers)
-                    {
-                        <button @key="tower.Id"
-                                type="button"
-                                class="@GetBuildButtonClass(tower.Id)"
-                                disabled="@(Session.State != FrontlineGameSessionState.Playing || Session.Simulation.Funds < tower.BuildCost)"
-                                @onclick="() => SelectBuildTower(tower)">
-                            <span>@L[GetTowerNameKey(tower.Id)]</span>
-                            <strong>@tower.BuildCost</strong>
-                        </button>
-                    }
-                </div>
-            </section>
+        <img class="frontline-hud__panel" src="@GetImagePath(4680)" alt="" aria-hidden="true" />
 
-            @if (AvailableSupportTowers.Count > 0)
+        <div class="frontline-hud" aria-label="@L[ResourceKeys.Games.FrontlineBoard]">
+            <div class="frontline-hud__stat" style="left:0.25%;top:0.83%">
+                <span>@L[ResourceKeys.Games.Score]</span>
+                <strong>@Session.Simulation.Score</strong>
+            </div>
+            <div class="frontline-hud__stat" style="left:30.25%;top:0.83%">
+                <span>@L[ResourceKeys.Games.Wave]</span>
+                <strong>@Session.CurrentWave / @Session.TotalWaves</strong>
+            </div>
+            <div class="frontline-hud__stat" style="left:61.625%;top:0.83%">
+                <span>@L[ResourceKeys.Games.FrontlineFunds]</span>
+                <strong>@Session.Simulation.Funds</strong>
+            </div>
+
+            <div class="frontline-hud__lives" style="left:51.5%;top:94.5%">
+                <span>@L[ResourceKeys.Games.FrontlineLevelHealth]</span>
+                <strong>@Session.Simulation.LevelHealth.ToString("0")</strong>
+            </div>
+            <div class="frontline-hud__healthbar"
+                 role="progressbar"
+                 aria-valuemin="0"
+                 aria-valuemax="1000"
+                 aria-valuenow="@((int)Session.Simulation.LevelHealth)"
+                 aria-label="@L[ResourceKeys.Games.FrontlineLevelHealth]">
+                <span class="frontline-hud__healthbar-fill" style="width:@HealthPercent%"></span>
+            </div>
+
+            @foreach (var tower in AvailableTowers)
             {
-                <section class="frontline-game-panel-section">
-                    <h2>@L[ResourceKeys.Games.FrontlineSupportTowers]</h2>
-                    <div class="frontline-tower-list">
-                        @foreach (var tower in AvailableSupportTowers)
-                        {
-                            <button @key="tower.Id"
-                                    type="button"
-                                    class="@GetBuildButtonClass(tower.Id)"
-                                    disabled="@(Session.State != FrontlineGameSessionState.Playing)"
-                                    @onclick="() => SelectBuildTower(tower)">
-                                <span>@L[GetTowerNameKey(tower.Id)]</span>
-                                <strong>@tower.BuildCost</strong>
-                            </button>
-                        }
-                    </div>
-                </section>
+                <button @key="tower.Id"
+                        type="button"
+                        class="@GetBuildButtonClass(tower.Id) @(Session.Simulation.Funds < tower.BuildCost ? "frontline-hud__sprite--unaffordable" : null)"
+                        style="@GetTowerSlotStyle(tower.Id, 64, 32)"
+                        disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
+                        @onclick="() => SelectBuildTower(tower)"
+                        aria-label="@L[GetTowerNameKey(tower.Id)]"
+                        title="@L[GetTowerNameKey(tower.Id)] @tower.BuildCost">
+                    @foreach (var draw in GetTowerButtonDraws(tower.Id))
+                    {
+                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
+                    }
+                    <span class="frontline-hud__cost">@tower.BuildCost</span>
+                </button>
+            }
+
+            @foreach (var tower in AvailableSupportTowers)
+            {
+                <button @key="tower.Id"
+                        type="button"
+                        class="frontline-hud__sprite @GetBuildButtonClass(tower.Id)"
+                        style="@GetSupportSlotStyle(tower.Id, 40, 40)"
+                        disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
+                        @onclick="() => SelectBuildTower(tower)"
+                        aria-label="@L[GetTowerNameKey(tower.Id)]"
+                        title="@L[GetTowerNameKey(tower.Id)] @tower.BuildCost">
+                    @foreach (var draw in GetTowerButtonDraws(tower.Id))
+                    {
+                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 40, 40)" alt="" />
+                    }
+                </button>
             }
 
             @if (SelectedTower is not null)
             {
-                <section class="frontline-game-panel-section">
-                    <h2>@L[GetTowerNameKey(SelectedTower.Definition.Id)]</h2>
-                    @if (SelectedTower.Definition.IsSupport)
-                    {
-                        <p class="mb-0 text-muted">
-                            @L[ResourceKeys.Games.FrontlineSupportShotsRemaining, Math.Max(0, SelectedTower.Definition.ShotLimit - SelectedTower.ShotsFired)]
-                        </p>
-                    }
-                    else
-                    {
-                    <div class="frontline-tower-actions">
+                @if (SelectedTower.Definition.IsSupport)
+                {
+                    <p class="frontline-hud__support-hint">
+                        @L[ResourceKeys.Games.FrontlineSupportShotsRemaining, Math.Max(0, SelectedTower.Definition.ShotLimit - SelectedTower.ShotsFired)]
+                    </p>
+                }
+                else
+                {
+                    <div class="frontline-hud__selected" aria-label="@L[GetTowerNameKey(SelectedTower.Definition.Id)]">
+                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:1.25%">@L[ResourceKeys.Games.FrontlineUpgradeDamage]</span>
+                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:1.25%">@SelectedTower.Damage.ToString("0.##")</strong>
+                        <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:4.167%">
+                            @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.Damage))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
+                        </span>
                         <button type="button"
-                                class="btn btn-outline-primary"
+                                class="frontline-hud__sprite"
+                                style="@GetAnchorSlotStyle(775, 20, 20, 22)"
                                 disabled="@(!CanUpgrade(SelectedTower.DamageUpgradeLevel))"
-                                @onclick="UpgradeDamage">
-                            @L[ResourceKeys.Games.FrontlineUpgradeDamage]
-                            <span>@UpgradeCost</span>
+                                @onclick="UpgradeDamage"
+                                aria-label="@L[ResourceKeys.Games.FrontlineUpgradeDamage]">
+                            @foreach (var draw in GetSpriteDraws("damageButton"))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
                         </button>
+
+                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:8.125%">@L[ResourceKeys.Games.FrontlineUpgradeRange]</span>
+                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:8.125%">@SelectedTower.Range.ToString("0.##")</strong>
+                        <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:10.833%">
+                            @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.Range))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
+                        </span>
                         <button type="button"
-                                class="btn btn-outline-primary"
+                                class="frontline-hud__sprite"
+                                style="@GetAnchorSlotStyle(775, 52, 20, 22)"
                                 disabled="@(!CanUpgrade(SelectedTower.RangeUpgradeLevel))"
-                                @onclick="UpgradeRange">
-                            @L[ResourceKeys.Games.FrontlineUpgradeRange]
-                            <span>@UpgradeCost</span>
+                                @onclick="UpgradeRange"
+                                aria-label="@L[ResourceKeys.Games.FrontlineUpgradeRange]">
+                            @foreach (var draw in GetSpriteDraws("RangeButton"))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
                         </button>
+
+                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:14.583%">@L[ResourceKeys.Games.FrontlineUpgradeRateOfFire]</span>
+                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:14.583%">@SelectedTower.RateOfFire.ToString("0.##")</strong>
+                        <span class="frontline-hud__upgrade-bar" style="left:84.125%;top:17.5%">
+                            @foreach (var draw in GetUpgradeBarDraws(FrontlineTowerUpgradeType.RateOfFire))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
+                        </span>
                         <button type="button"
-                                class="btn btn-outline-primary"
+                                class="frontline-hud__sprite"
+                                style="@GetAnchorSlotStyle(775, 84, 20, 22)"
                                 disabled="@(!CanUpgrade(SelectedTower.RateOfFireUpgradeLevel))"
-                                @onclick="UpgradeRateOfFire">
-                            @L[ResourceKeys.Games.FrontlineUpgradeRateOfFire]
-                            <span>@UpgradeCost</span>
+                                @onclick="UpgradeRateOfFire"
+                                aria-label="@L[ResourceKeys.Games.FrontlineUpgradeRateOfFire]">
+                            @foreach (var draw in GetSpriteDraws("RoFButton"))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetFillStyle(draw)" alt="" />
+                            }
+                        </button>
+
+                        <span class="frontline-hud__upgrade-label" style="left:84.625%;top:22.5%">@L[ResourceKeys.Games.FrontlineUpgradeCost]</span>
+                        <strong class="frontline-hud__upgrade-value" style="left:92.75%;top:22.5%">@UpgradeCost</strong>
+
+                        <button type="button"
+                                class="frontline-hud__sprite"
+                                style="@GetSpriteSlotStyle(704, 151, 64, 32)"
+                                disabled="@(!CanMoveTower)"
+                                @onclick="BeginMoveTower"
+                                aria-label="@L[ResourceKeys.Games.FrontlineMoveTower]">
+                            @foreach (var draw in GetSpriteDraws("moveButton"))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
+                            }
+                            <span class="frontline-hud__sprite-label">@L[ResourceKeys.Games.FrontlineMoveTower]</span>
+                            <span class="frontline-hud__sprite-price">10</span>
                         </button>
                         <button type="button"
-                                class="btn btn-outline-danger"
-                                disabled="@(Session.State != FrontlineGameSessionState.Playing)"
-                                @onclick="SellTower">
-                            @L[ResourceKeys.Games.FrontlineSellTower]
-                            <span>@Math.Floor(SelectedTower.SaleValue)</span>
+                                class="frontline-hud__sprite"
+                                style="@GetSpriteSlotStyle(768, 151, 64, 32)"
+                                disabled="@(Session.State is not FrontlineGameSessionState.Playing and not FrontlineGameSessionState.Paused)"
+                                @onclick="SellTower"
+                                aria-label="@L[ResourceKeys.Games.FrontlineSellTower]">
+                            @foreach (var draw in GetSpriteDraws("sellButton"))
+                            {
+                                <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 64, 32)" alt="" />
+                            }
+                            <span class="frontline-hud__sprite-label">@L[ResourceKeys.Games.FrontlineSellTower]</span>
+                            <span class="frontline-hud__sprite-price">@Math.Floor(SelectedTower.SaleValue)</span>
                         </button>
                     </div>
-                    }
-                </section>
+                }
             }
-        </aside>
+
+            <button type="button"
+                    class="frontline-hud__sprite"
+                    style="@GetSpriteSlotStyle(736, 413, 120, 40)"
+                    disabled="@(!Session.CanStartNextWave)"
+                    @onclick="StartNextWave"
+                    aria-label="@L[ResourceKeys.Games.FrontlineStartWave]">
+                @foreach (var draw in GetSpriteDraws("testWaveButton"))
+                {
+                    <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 120, 40)" alt="" />
+                }
+            </button>
+
+            <button type="button"
+                    class="frontline-hud__sprite"
+                    style="@GetSpriteSlotStyle(695, 449, 40, 40)"
+                    disabled="@(!CanTogglePause)"
+                    @onclick="FastForward"
+                    aria-label="@L[ResourceKeys.Games.FrontlineFastForward]">
+                @foreach (var draw in GetSpriteDraws("ffButton", Session.SpeedMultiplier > 1 ? 0 : 1))
+                {
+                    <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 40, 40)" alt="" />
+                }
+            </button>
+
+            <button type="button"
+                    class="frontline-hud__sprite"
+                    style="@GetSpriteSlotStyle(735, 449, 40, 40)"
+                    disabled="@(!CanTogglePause)"
+                    @onclick="NormalSpeed"
+                    aria-label="@L[ResourceKeys.Games.FrontlineNormalSpeed]">
+                @foreach (var draw in GetSpriteDraws("unPauseButton", Session.SpeedMultiplier == 1 ? 0 : 1))
+                {
+                    <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 40, 40)" alt="" />
+                }
+            </button>
+
+            <button type="button"
+                    class="frontline-hud__sprite"
+                    style="@GetSpriteSlotStyle(776, 449, 40, 40)"
+                    disabled="@(!CanTogglePause)"
+                    @onclick="PauseGame"
+                    aria-label="@L[ResourceKeys.Games.Pause]">
+                @foreach (var draw in GetPauseButtonDraws())
+                {
+                    <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 40, 40)" alt="" />
+                }
+            </button>
+        </div>
+
+        @if (_showPausePage)
+        {
+            <div class="frontline-pause" role="dialog" aria-label="@L[ResourceKeys.Games.Pause]">
+                <button type="button"
+                        class="frontline-pause__button"
+                        style="@GetSpriteSlotStyle(272, 208, 160, 48)"
+                        @onclick="QuitMission"
+                        aria-label="@L[ResourceKeys.Games.FrontlineQuit]">
+                    @foreach (var draw in GetSpriteDraws("quitButton"))
+                    {
+                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 160, 48)" alt="" />
+                    }
+                </button>
+                <button type="button"
+                        class="frontline-pause__button"
+                        style="@GetSpriteSlotStyle(528, 208, 160, 48)"
+                        @onclick="ResumeGame"
+                        aria-label="@L[ResourceKeys.Games.FrontlineContinue]">
+                    @foreach (var draw in GetSpriteDraws("continueButton"))
+                    {
+                        <img src="@GetImagePath(draw.BitmapId)" style="@GetSpritePartStyle(draw, 160, 48)" alt="" />
+                    }
+                </button>
+            </div>
+        }
+
+        @if (_tutorialStep is int tutorialStep)
+        {
+            <div class="frontline-tutorial" role="dialog">
+                <div class="frontline-tutorial__panel">
+                    <p>@L[GetTutorialTextKey(tutorialStep, 1)]</p>
+                    <p>@L[GetTutorialTextKey(tutorialStep, 2)]</p>
+                    @if (FrontlineTutorialTracker.CanClose(tutorialStep))
+                    {
+                        <button type="button" class="btn btn-primary" @onclick="CloseTutorial">
+                            @L[ResourceKeys.Games.FrontlineOk]
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="frontline-toolbar">
+        <button type="button"
+                class="btn btn-outline-secondary"
+                @onclick="() => ExitRequested.InvokeAsync()">
+            @L[ResourceKeys.Games.FrontlineBackToMissions]
+        </button>
     </div>
 </div>
 
@@ -176,9 +322,223 @@
     [Parameter]
     public EventCallback ExitRequested { get; set; }
 
+    [Parameter]
+    public EventCallback RetryRequested { get; set; }
+
     private FrontlineTowerArchetype? _selectedBuildTower;
     private long? _selectedTowerId;
-    private string _speedValue = "1";
+    private long? _movingTowerId;
+    private int? _tutorialStep;
+    private bool _showPausePage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Tutorial.Reset();
+        await Flump.EnsureLoadedAsync(Navigation.BaseUri);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (Session.State is not (FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))
+        {
+            if (_tutorialStep is not null || _showPausePage)
+            {
+                _tutorialStep = null;
+                _showPausePage = false;
+                StateHasChanged();
+            }
+
+            return;
+        }
+
+        // The legacy counter reads the tower list, which already holds the tower being placed,
+        // so a pending purchase counts as a tower.
+        var towerCount = Session.Simulation.Towers.Count(tower => !tower.Definition.IsSupport)
+            + (_selectedBuildTower is null ? 0 : 1);
+        var step = Tutorial.Evaluate(
+            SelectedTower,
+            towerCount,
+            Session.Simulation.Enemies.Count,
+            Session.Simulation.Score);
+
+        if (step == _tutorialStep)
+            return;
+
+        _tutorialStep = step;
+        if (step is not null)
+            Session.Pause();
+
+        StateHasChanged();
+    }
+
+    private void CloseTutorial()
+    {
+        Tutorial.Close();
+        _tutorialStep = null;
+        if (Session.State == FrontlineGameSessionState.Paused)
+            Session.Resume();
+    }
+
+    private void QuitMission()
+    {
+        _showPausePage = false;
+        Session.Simulation.Forfeit();
+    }
+
+    private static string GetTutorialTextKey(int step, int line) => (step, line) switch
+    {
+        (0, 1) => ResourceKeys.Games.FrontlineTutorial1Text1,
+        (0, _) => ResourceKeys.Games.FrontlineTutorial1Text2,
+        (1, 1) => ResourceKeys.Games.FrontlineTutorial2Text1,
+        (1, _) => ResourceKeys.Games.FrontlineTutorial2Text2,
+        (2, 1) => ResourceKeys.Games.FrontlineTutorial3Text1,
+        (2, _) => ResourceKeys.Games.FrontlineTutorial3Text2,
+        (3, 1) => ResourceKeys.Games.FrontlineTutorial4Text1,
+        (3, _) => ResourceKeys.Games.FrontlineTutorial4Text2,
+        (4, 1) => ResourceKeys.Games.FrontlineTutorial5Text1,
+        (4, _) => ResourceKeys.Games.FrontlineTutorial5Text2,
+        (_, 1) => ResourceKeys.Games.FrontlineTutorial6Text1,
+        _ => ResourceKeys.Games.FrontlineTutorial6Text2
+    };
+
+    private IEnumerable<FrontlineFlumpDraw> GetTowerButtonDraws(string towerId)
+    {
+        var symbolName = GetTowerButtonSymbolName(towerId);
+        var symbolId = Flump.GetSymbolId(symbolName);
+        if (symbolId is not int rootId)
+            yield break;
+
+        foreach (var draw in Flump.GetDraws(rootId, 0))
+            if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                yield return draw;
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetPauseButtonDraws()
+    {
+        var symbolId = Flump.GetSymbolId("PauseButton");
+        if (symbolId is not int rootId)
+            yield break;
+
+        var frame = Session.State == FrontlineGameSessionState.Paused ? 1 : 0;
+        foreach (var draw in Flump.GetDraws(rootId, frame))
+            if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                yield return draw;
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetSpriteDraws(string symbolName, int frame = 0)
+    {
+        var symbolId = Flump.GetSymbolId(symbolName);
+        if (symbolId is not int rootId)
+            yield break;
+
+        foreach (var draw in Flump.GetDraws(rootId, frame))
+            if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                yield return draw;
+    }
+
+    private IEnumerable<FrontlineFlumpDraw> GetUpgradeBarDraws(FrontlineTowerUpgradeType type)
+    {
+        var symbolName = type switch
+        {
+            FrontlineTowerUpgradeType.Damage => "ugBarD",
+            FrontlineTowerUpgradeType.Range => "ugBarR",
+            FrontlineTowerUpgradeType.RateOfFire => "ugBarRof",
+            _ => "ugBarD"
+        };
+
+        var level = SelectedTower is null
+            ? 0
+            : type switch
+            {
+                FrontlineTowerUpgradeType.Damage => SelectedTower.DamageUpgradeLevel,
+                FrontlineTowerUpgradeType.Range => SelectedTower.RangeUpgradeLevel,
+                FrontlineTowerUpgradeType.RateOfFire => SelectedTower.RateOfFireUpgradeLevel,
+                _ => 0
+            };
+
+        foreach (var draw in GetSpriteDraws(symbolName, (int)Math.Round(level * 5)))
+            yield return draw;
+    }
+
+    private static string GetTowerButtonSymbolName(string towerId) => towerId switch
+    {
+        "tower1" => "towerButton1",
+        "tower2" => "towerButton2",
+        "tower3" => "towerButton3",
+        "tower4" => "towerButton4",
+        "tower5" => "towerButton5",
+        "tower6" => "towerButton6",
+        "tower7" => "towerButton7",
+        "tower8" => "towerButton8",
+        "tower9" => "towerButton9",
+        "tower10" => "towerButton10",
+        "tower11" => "towerButton11",
+        "suptower1" => "supTowerButton_1",
+        "suptower2" => "supTowerButton_2",
+        "suptower3" => "supTowerButton_3",
+        _ => "towerButton2"
+    };
+
+    private static string GetImagePath(int bitmapId) =>
+        $"games/frontline-tower-defense/assets/img/{bitmapId}.png";
+
+    private static (double X, double Y) GetTowerSlot(string towerId) => towerId switch
+    {
+        "tower1" => (704, 318),
+        "tower2" => (704, 190),
+        "tower3" => (704, 222),
+        "tower4" => (704, 254),
+        "tower5" => (768, 190),
+        "tower6" => (768, 254),
+        "tower7" => (768, 318),
+        "tower8" => (768, 286),
+        "tower9" => (704, 286),
+        "tower10" => (768, 222),
+        "tower11" => (704, 350),
+        _ => (704, 190)
+    };
+
+    private static (double X, double Y) GetSupportSlot(string towerId) => towerId switch
+    {
+        "suptower1" => (126, 461),
+        "suptower2" => (91, 461),
+        "suptower3" => (56, 461),
+        _ => (91, 461)
+    };
+
+    private static string GetTowerSlotStyle(string towerId, double width, double height)
+    {
+        var (x, y) = GetTowerSlot(towerId);
+        return GetSpriteSlotStyle(x, y, width, height);
+    }
+
+    private static string GetSupportSlotStyle(string towerId, double width, double height)
+    {
+        var (x, y) = GetSupportSlot(towerId);
+        return GetSpriteSlotStyle(x, y, width, height);
+    }
+
+    // Positions an element whose sprite origin is centered at (centerX, centerY)
+    // in the 800x480 stage, expressed as percentages so it scales with the board.
+    private static string GetSpriteSlotStyle(double centerX, double centerY, double width, double height) =>
+        FormattableString.Invariant(
+            $"left:{(centerX - width / 2) / 8:0.###}%;top:{(centerY - height / 2) / 4.8:0.###}%;width:{width / 8:0.###}%;height:{height / 4.8:0.###}%;");
+
+    // Positions a single flattened sprite part inside a centered button box.
+    private static string GetSpritePartStyle(FrontlineFlumpDraw draw, double width, double height) =>
+        FormattableString.Invariant(
+            $"left:{(draw.Matrix.Tx + width / 2) / width * 100:0.###}%;top:{(draw.Matrix.Ty + height / 2) / height * 100:0.###}%;width:{draw.Width / width * 100:0.###}%;height:{draw.Height / height * 100:0.###}%;");
+
+    // Positions a top-left-anchored element (bar, upgrade icon) in stage space.
+    private static string GetAnchorSlotStyle(double x, double y, double width, double height) =>
+        FormattableString.Invariant(
+            $"left:{x / 8:0.###}%;top:{y / 4.8:0.###}%;width:{width / 8:0.###}%;height:{height / 4.8:0.###}%;");
+
+    // Fills a top-left-anchored slot with a single bitmap draw.
+    private static string GetFillStyle(FrontlineFlumpDraw draw) =>
+        "left:0%;top:0%;width:100%;height:100%;";
+
+    private double HealthPercent => Math.Clamp(Session.Simulation.LevelHealth / 10.0, 0, 100);
 
     private bool CanTogglePause =>
         Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused;
@@ -201,10 +561,17 @@
     private int UpgradeCost =>
         SelectedTower is null ? 0 : (int)Math.Floor(SelectedTower.Definition.Cost * 0.25);
 
+    private bool CanMoveTower =>
+        (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
+        && _movingTowerId is null
+        && SelectedTower is not null
+        && !SelectedTower.Definition.IsSupport
+        && Session.Simulation.Funds >= 10;
+
     private string GetBuildButtonClass(string towerId) =>
         _selectedBuildTower?.Id == towerId
-            ? "frontline-tower-option frontline-tower-option--selected"
-            : "frontline-tower-option";
+            ? "frontline-hud__sprite frontline-hud__sprite--selected"
+            : "frontline-hud__sprite";
 
     private static string GetTowerNameKey(string towerId) => towerId switch
     {
@@ -226,23 +593,56 @@
     };
 
     private bool CanUpgrade(double level) =>
-        Session.State == FrontlineGameSessionState.Playing
+        (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused)
         && SelectedTower is not null
         && !SelectedTower.Definition.IsSupport
         && level < 1
-        && Session.Simulation.Funds >= UpgradeCost;
+        && Session.Simulation.Funds > UpgradeCost;
 
     private void SelectBuildTower(FrontlineTowerArchetype tower)
     {
+        if (_movingTowerId is not null)
+            return;
+
+        // Clicking the already-selected tower cancels the selection and refunds it.
+        if (_selectedBuildTower is not null && _selectedBuildTower.Id == tower.Id)
+        {
+            Session.Simulation.AddFunds(_selectedBuildTower.BuildCost);
+            _selectedBuildTower = null;
+            return;
+        }
+
+        var previous = _selectedBuildTower;
+        if (!Session.Simulation.TrySpendFunds(tower.BuildCost))
+            return;
+
+        // Switching to another tower refunds the previous selection after the new
+        // selection is confirmed affordable, so a failed switch leaves funds intact.
+        if (previous is not null)
+            Session.Simulation.AddFunds(previous.BuildCost);
+
         _selectedBuildTower = tower;
         _selectedTowerId = null;
     }
 
     private Task OnCellSelected(FrontlinePoint position)
     {
-        if (_selectedBuildTower is not null
-            && Session.Simulation.TryBuildTower(_selectedBuildTower.CreateDefinition(), position))
+        if (_movingTowerId is long movingTowerId)
         {
+            if (Session.Simulation.TryCompleteMoveTower(movingTowerId, position))
+                _movingTowerId = null;
+        }
+        else if (_selectedBuildTower is not null
+            && Session.Simulation.TryBuildTower(
+                _selectedBuildTower.CreateDefinition(),
+                position,
+                costAlreadyPaid: true))
+        {
+            // The legacy buildTower selects the freshly dropped tower so the upgrade panel
+            // opens immediately (support strikes are not selectable).
+            _selectedTowerId = _selectedBuildTower.IsSupport
+                ? null
+                : Session.Simulation.Towers.LastOrDefault()?.Id;
             _selectedBuildTower = null;
         }
 
@@ -251,26 +651,41 @@
 
     private Task OnTowerSelected(long towerId)
     {
+        if (_movingTowerId is not null)
+            return Task.CompletedTask;
+
         _selectedBuildTower = null;
         _selectedTowerId = towerId;
         return InvokeAsync(StateHasChanged);
     }
 
-    private void TogglePause()
+    private void PauseGame()
     {
+        _showPausePage = true;
+        if (Session.State == FrontlineGameSessionState.Playing)
+            Session.Pause();
+    }
+
+    private void ResumeGame()
+    {
+        _showPausePage = false;
+        Session.SetSpeedMultiplier(1);
         if (Session.State == FrontlineGameSessionState.Paused)
             Session.Resume();
-        else
-            Session.Pause();
     }
 
     private void StartNextWave() => Session.TryStartNextWave();
 
-    private void ChangeSpeed(ChangeEventArgs args)
+    private void FastForward()
     {
-        if (double.TryParse(args.Value?.ToString(), out var multiplier)
-            && Session.SetSpeedMultiplier(multiplier))
-            _speedValue = multiplier.ToString("0");
+        Session.Resume();
+        Session.SetSpeedMultiplier(2);
+    }
+
+    private void NormalSpeed()
+    {
+        Session.Resume();
+        Session.SetSpeedMultiplier(1);
     }
 
     private void UpgradeDamage() => Upgrade(FrontlineTowerUpgradeType.Damage);
@@ -283,9 +698,21 @@
             Session.Simulation.TryUpgradeTower(SelectedTower.Id, type);
     }
 
+    private void BeginMoveTower()
+    {
+        if (SelectedTower is not null && Session.Simulation.TryBeginMoveTower(SelectedTower.Id))
+        {
+            _movingTowerId = SelectedTower.Id;
+            _selectedBuildTower = null;
+        }
+    }
+
     private void SellTower()
     {
         if (SelectedTower is not null && Session.Simulation.TrySellTower(SelectedTower.Id))
+        {
             _selectedTowerId = null;
+            _movingTowerId = null;
+        }
     }
 }

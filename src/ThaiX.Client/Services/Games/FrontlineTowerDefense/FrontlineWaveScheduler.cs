@@ -22,7 +22,7 @@ public sealed class FrontlineWaveScheduler
 
     private readonly Queue<FrontlineWaveGroup> _pendingGroups;
     private readonly List<ActiveSpawner> _activeSpawners = [];
-    private double _nextGroupCountdownUnits = 1000;
+    private double _nextGroupCountdownUnits = 500;
     private int _manualStartCooldownTicks = 200;
 
     public FrontlineWaveScheduler(FrontlineWaveSchedule schedule)
@@ -63,18 +63,14 @@ public sealed class FrontlineWaveScheduler
         if (IsComplete)
             return [];
 
+        var wasAllGroupsDispatched = AllGroupsDispatched;
         _manualStartCooldownTicks++;
         var spawned = new List<FrontlineSpawnRequest>();
 
-        for (var index = 0; index < _activeSpawners.Count;)
+        var initialSpawnerCount = _activeSpawners.Count;
+        for (var index = 0; index < initialSpawnerCount && index < _activeSpawners.Count; index++)
         {
             var spawner = _activeSpawners[index];
-            if (spawner.Remaining <= 0)
-            {
-                _activeSpawners.RemoveAt(index);
-                continue;
-            }
-
             spawner.ElapsedUnits += elapsedUnits;
             if (spawner.ElapsedUnits >= spawner.Group.SpawnIntervalUnits)
             {
@@ -83,7 +79,8 @@ public sealed class FrontlineWaveScheduler
                 spawned.Add(new FrontlineSpawnRequest(spawner.Group.EnemyType, spawner.WaveNumber));
             }
 
-            index++;
+            if (spawner.Remaining <= 0)
+                _activeSpawners.RemoveAt(index);
         }
 
         if (!AllGroupsDispatched)
@@ -98,7 +95,7 @@ public sealed class FrontlineWaveScheduler
             }
         }
 
-        if (AllGroupsDispatched && _activeSpawners.Count == 0 && !enemiesRemain)
+        if (wasAllGroupsDispatched && AllGroupsDispatched && !enemiesRemain && spawned.Count == 0)
             IsComplete = true;
 
         return spawned;

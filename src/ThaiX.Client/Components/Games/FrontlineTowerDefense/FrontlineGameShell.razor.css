@@ -31,3 +31,94 @@
     place-items: center;
     color: var(--rz-text-secondary-color);
 }
+
+.frontline-splash {
+    position: relative;
+    display: grid;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 5 / 3;
+    place-items: center;
+    overflow: hidden;
+    margin-inline: auto;
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    background:
+        linear-gradient(90deg, rgb(15 23 42 / 35%) 1px, transparent 1px),
+        linear-gradient(rgb(15 23 42 / 35%) 1px, transparent 1px),
+        linear-gradient(145deg, #3f4d2f 0 35%, #1f2937 35% 55%, #4b3d2b 55%);
+    background-size: 32px 32px, 32px 32px, auto;
+    box-shadow: inset 0 0 80px rgb(0 0 0 / 55%);
+}
+
+.frontline-splash__target {
+    position: absolute;
+    width: 47%;
+    aspect-ratio: 1;
+    border: clamp(1.25rem, 5vw, 2.75rem) solid #2563eb;
+    border-radius: 50%;
+    background:
+        linear-gradient(90deg, transparent 48%, #f8fafc 48% 52%, transparent 52%),
+        linear-gradient(transparent 48%, #dc2626 48% 52%, transparent 52%);
+}
+
+.frontline-splash__title {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    gap: 0.15em;
+    place-items: center;
+    color: #e2e8f0;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: clamp(2rem, 8vw, 5rem);
+    letter-spacing: 0.02em;
+    line-height: 0.78;
+    text-align: center;
+    text-shadow:
+        3px 3px 0 #111827,
+        -2px -2px 0 #111827,
+        2px -2px 0 #111827,
+        -2px 2px 0 #111827;
+}
+
+.frontline-splash__title strong {
+    font-size: 0.58em;
+}
+
+.frontline-splash__actions {
+    position: absolute;
+    z-index: 2;
+    bottom: 7%;
+    display: flex;
+    gap: clamp(1.5rem, 8vw, 5rem);
+}
+
+.frontline-splash__button--mute {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.frontline-splash__button {
+    min-width: clamp(8rem, 18vw, 11rem);
+    min-height: 2.75rem;
+    border: 2px solid #94a3b8;
+    border-radius: 0.45rem;
+    background: #334155;
+    color: #f8fafc;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: clamp(0.85rem, 2vw, 1.15rem);
+    letter-spacing: 0.08em;
+    box-shadow: 0 4px 0 #0f172a;
+}
+
+.frontline-splash__button:hover,
+.frontline-splash__button:focus-visible {
+    border-color: #facc15;
+    background: #475569;
+}
+

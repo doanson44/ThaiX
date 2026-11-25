@@ -42,9 +42,9 @@ public sealed class FrontlineGridPathfinderTests
     {
         var map = new FrontlineGridMap(new bool[,]
         {
-            { true, false, true },
-            { true, false, true },
-            { true, false, true }
+            { true, true, true },
+            { false, false, false },
+            { true, true, true }
         });
 
         var path = _pathfinder.FindPath(map, new FrontlineGridPoint(0, 0), new FrontlineGridPoint(2, 0));
@@ -97,7 +97,7 @@ public sealed class FrontlineGridPathfinderTests
     [Fact]
     public void FindPath_WhenStartCellIsBlocked_CanLeaveStartCell()
     {
-        var map = new FrontlineGridMap(new bool[,] { { false, true } });
+        var map = new FrontlineGridMap(new bool[,] { { false }, { true } });
 
         var path = _pathfinder.FindPath(map, new FrontlineGridPoint(0, 0), new FrontlineGridPoint(1, 0));
 
