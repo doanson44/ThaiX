@@ -2231,8 +2231,8 @@
   <data name="Games.FrontlineTowerDefense.BioChemicalStrike" xml:space="preserve"><value>Không kích sinh hóa</value></data>
   <data name="Games.FrontlineTowerDefense.CreditsEarned" xml:space="preserve"><value>Tín dụng nhận được: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperHint" xml:space="preserve"><value>Nhấp vào chiến trường để bắn. Nhấp trực tiếp vào kẻ địch để ngắm chính xác; bắn trượt vẫn tốn một quỹ.</value></data>
-  <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Số phát bắn: {0}</value></data>
-  <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Số lần trúng: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Số phát bắn</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Số lần trúng</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 1</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 2</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Nhiệm vụ bắn tỉa 3</value></data>
@@ -2263,6 +2263,8 @@
   <data name="Games.FrontlineTowerDefense.Continue" xml:space="preserve"><value>Tiếp tục</value></data>
   <data name="Games.FrontlineTowerDefense.Quit" xml:space="preserve"><value>Thoát</value></data>
   <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Thử lại</value></data>
+  <data name="Games.FrontlineTowerDefense.FastForward" xml:space="preserve"><value>Tăng tốc</value></data>
+  <data name="Games.FrontlineTowerDefense.NormalSpeed" xml:space="preserve"><value>Tốc độ thường</value></data>
   <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Tắt âm thanh</value></data>
   <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Bật âm thanh</value></data>
   <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>

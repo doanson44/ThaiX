@@ -171,8 +171,23 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Match the legacy weapon-trace colors (yellow-white tracer, white laser/lightning beam) and render support strikes as falling shell sprites.
 - [x] Complete effect parity with the legacy strip atlases: the render-sprite pool (flame, poison, radiation, freeze, blood, muzzle flash, smoke, trail, shell, plasma shell, bio shot, flame shot, bio cloud, shadow, laser blast, blue flash, explosion and fire explosion), the enemy damage-over-time particles every fifth tick, the per-archetype death bursts, the missile impact burst, the support-strike explosion with its fire/poison clouds and cloud particles, the ground decals (blood splat, crater), the tapered multi-width tracer polyline, the jittered lightning beam, the spark hit effects and the selected-tower range ring. Area clouds are no longer drawn as radial gradients; they emit the original cloud sprites.
 - [x] Restore the Sniper Elite board contract (manual shooter position/aim, enemy selection and non-buildable cell selection) that the Flump renderer rewrite dropped, and sort towers and enemies by their Y position like the legacy `sortActors` pass.
+- [x] Port the legacy `Soundbox`: pooled `HTMLAudio` playback through `FrontlineAudioService` and `wwwroot/js/frontlineAudio.js` covers all 13 weapon/impact sounds, the menu music loop (`85`, volume 0.9), the level noise loop (`84`, volume 0.6), the 0.5 master volume, and the menu-screen mute toggle that drives the `muteButton` frames. The simulation queues cues with `DrainSounds()` because the original spawns a sound per fire, impact, and death.
+- [x] Port the six-step instruction manager (`FrontlineTutorialTracker`) placed on the legacy Game timeline: the welcome and placement dialogs have no close button and advance when the player buys and then places a tower, the remaining four dialogs show the `okButton`, after the last one the player must resume the game, and any later step replaces an open dialog exactly like the legacy `inList` chain. Each mission entry restarts the dialogs.
+- [x] Port the pause page: `PauseButton` pauses, the `PausePage` overlay draws the original `quitButton`/`continueButton` bitmaps, `continueButton` resumes and hides the page, and `quitButton` zeroes level health so the mission ends as a defeat (which exposes the legacy `retryButton` behavior as a retry action that restarts the same level).
+- [x] Allow support strikes on any cell: the legacy `dropTower` path ignores grid occupancy, so strikes can be placed on paths and on top of other towers, and they never mark the cell as occupied.
+- [x] Match the legacy enemy selection folds exactly: `near`/`far` always pick the first enemy in range because the original `traveled` counter never advances, `heat` only upgrades its target above 120 degrees, and `cold` only considers metal targets when one is seen first.
+- [x] Reproduce the legacy vehicle turn easing (30 percent of the desired heading per tick) and the Jeep1 idle floor frame.
+- [x] Replace the enemy health bar with the legacy `healthView` numeric text (white, 8px, right aligned).
+- [x] Aim and fire Sniper Elite shots from the exact pointer position through `wwwroot/js/frontlinePointer.js`, replacing cell-based targeting.
 - [ ] Remove the legacy JavaScript runtime after acceptance. Its files are excluded from publish
   output (`CopyToPublishDirectory="Never"`) and are kept as the behavioral reference; the bitmap,
   sound and `library.json` assets remain required by the C# renderer.
 - [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
 - [x] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.
+
+### Remaining deliberate deviations
+
+- The Flash menu, result rundown, and War-Mart screens are Razor pages instead of scaled Flump
+  frames; the in-game HUD, pause page, and tutorial dialogs keep the original bitmaps and layout.
+- Legacy `edit` text fields are rendered as HTML text because the Flump export marks them as
+  non-renderable, so the score/wave/funds/lives readouts and tutorial copy are Razor markup.

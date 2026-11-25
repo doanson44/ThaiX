@@ -2232,8 +2232,8 @@
   <data name="Games.FrontlineTowerDefense.BioChemicalStrike" xml:space="preserve"><value>Bio-Chemical Support Strike</value></data>
   <data name="Games.FrontlineTowerDefense.CreditsEarned" xml:space="preserve"><value>Credits earned: {0}</value></data>
   <data name="Games.FrontlineTowerDefense.SniperHint" xml:space="preserve"><value>Click the battlefield to fire. Clicking an enemy aims directly; misses still cost one fund.</value></data>
-  <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Shots fired: {0}</value></data>
-  <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Hits: {0}</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperShots" xml:space="preserve"><value>Shots fired</value></data>
+  <data name="Games.FrontlineTowerDefense.SniperHits" xml:space="preserve"><value>Hits</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission1" xml:space="preserve"><value>Sniper Mission 1</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission2" xml:space="preserve"><value>Sniper Mission 2</value></data>
   <data name="Games.FrontlineTowerDefense.SniperMission3" xml:space="preserve"><value>Sniper Mission 3</value></data>
@@ -2264,6 +2264,8 @@
   <data name="Games.FrontlineTowerDefense.Continue" xml:space="preserve"><value>Continue</value></data>
   <data name="Games.FrontlineTowerDefense.Quit" xml:space="preserve"><value>Quit</value></data>
   <data name="Games.FrontlineTowerDefense.Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Games.FrontlineTowerDefense.FastForward" xml:space="preserve"><value>Fast forward</value></data>
+  <data name="Games.FrontlineTowerDefense.NormalSpeed" xml:space="preserve"><value>Normal speed</value></data>
   <data name="Games.FrontlineTowerDefense.Mute" xml:space="preserve"><value>Mute sound</value></data>
   <data name="Games.FrontlineTowerDefense.Unmute" xml:space="preserve"><value>Unmute sound</value></data>
   <data name="Games.FrontlineTowerDefense.Ok" xml:space="preserve"><value>OK</value></data>

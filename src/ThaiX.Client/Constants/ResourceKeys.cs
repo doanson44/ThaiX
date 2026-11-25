@@ -208,6 +208,8 @@ public static class ResourceKeys
         public const string FrontlineContinue = "Games.FrontlineTowerDefense.Continue";
         public const string FrontlineQuit = "Games.FrontlineTowerDefense.Quit";
         public const string FrontlineRetry = "Games.FrontlineTowerDefense.Retry";
+        public const string FrontlineFastForward = "Games.FrontlineTowerDefense.FastForward";
+        public const string FrontlineNormalSpeed = "Games.FrontlineTowerDefense.NormalSpeed";
         public const string FrontlineMute = "Games.FrontlineTowerDefense.Mute";
         public const string FrontlineUnmute = "Games.FrontlineTowerDefense.Unmute";
         public const string FrontlineOk = "Games.FrontlineTowerDefense.Ok";
