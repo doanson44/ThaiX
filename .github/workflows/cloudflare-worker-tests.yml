@@ -20,7 +20,6 @@ permissions:
 jobs:
   test:
     name: Test Cloudflare Worker
-    if: github.event_name != 'pull_request' || github.head_ref != 'feat/frontline-tower-defense-combat-port'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

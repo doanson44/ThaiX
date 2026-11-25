@@ -7,7 +7,6 @@ on:
       - master
       - develop
       - 'release/*'
-      - feat/frontline-tower-defense-combat-port
     paths-ignore:
       - '**/*.md'
       - '.github/**'
@@ -34,7 +33,6 @@ env:
 jobs:
   build-and-test:
     name: Build & Test
-    if: github.event_name != 'pull_request' || github.head_ref != 'feat/frontline-tower-defense-combat-port'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
