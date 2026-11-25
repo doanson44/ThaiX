@@ -25,7 +25,7 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 | Layer | Technology |
 |---|---|
 | Backend | .NET 11, C# 15, ASP.NET Core Minimal API |
-| Build toolchain | .NET SDK 11.0.100 (`global.json`) |
+| Build toolchain | .NET SDK 11.0.100 (global.json) |
 | Frontend | Blazor WebAssembly, Radzen Blazor, Bootstrap 5.3 (dark mode) |
 | Data | EF Core 11, MySQL / MariaDB |
 | CQRS | MediatR 12 |
@@ -33,7 +33,7 @@ ThaiX aggregates market data (crypto, stocks, bank rates), tracks portfolios and
 | Background jobs | Hangfire (Outbox processing, scheduled checks) |
 | Logging | Serilog (structured logging) |
 | Auth | ASP.NET Core Identity + JWT |
-| Packages | Centralized via `Directory.Packages.props` |
+| Packages | Centralized via Directory.Packages.props |
 
 ## Architecture
 
@@ -51,33 +51,38 @@ ThaiX.Client         -> Blazor WebAssembly, consumes the Presentation API
 - **Application**: commands, queries, handlers, validators, DTOs (manual LINQ projection, no AutoMapper).
 - **Infrastructure**: EF Core configurations/migrations, external API providers, Hangfire jobs, caching, identity.
 - **Presentation**: thin Minimal API endpoints, permission-enforced, Swagger-documented.
-- **Client**: Blazor WebAssembly admin UI (Radzen + Bootstrap), organized by menu group (Account, Administration, CRM, Market Data, Market Research, Master Data, Notification, Portfolio, Security).
+- **Client**: Blazor WebAssembly admin UI (Radzen + Bootstrap), organized by menu group.
 
 ## Project Structure
 
 ```
 src/
-  ThaiX.Domain/          Aggregates, value objects, domain events
-  ThaiX.Application/     CQRS commands/queries/handlers/validators
-  ThaiX.Infrastructure/  EF Core, Hangfire, external API providers, identity
-  ThaiX.Presentation/    Minimal API host
-  ThaiX.Client/          Blazor WebAssembly front end
+  ThaiX.Domain/
+  ThaiX.Application/
+  ThaiX.Infrastructure/
+  ThaiX.Presentation/
+  ThaiX.Client/
 tests/
   ThaiX.Application.UnitTests/
-  ThaiX.Presentation.IntegrationTests/
+  ThaiX.Client.UnitTests/
   ThaiX.Client.VisualTests/
-docs/                    Project/product documentation
-deploy/, cloudflare/      Deployment and edge configuration
+  ThaiX.Presentation.IntegrationTests/
+docs/
+thaix-docs/
 ```
+
+## AI Feature Map
+
+For AI agents and engineering tools, start with the [ThaiX AI Feature Map](docs/ai-feature-map/README.md). It indexes business features, layer-to-layer source paths, endpoint registrations, external providers, background jobs and implementation rules. The map is a navigation aid; source code, tests, AGENTS.md, .agents/rules/ and .agents/skills/ remain authoritative.
 
 ## Getting Started
 
 ### Prerequisites
 
-- .NET 11 SDK 11.0.100 (see [global.json](global.json)); all projects target `net11.0`
-- Oracle `MySql.EntityFrameworkCore` 11.0.0-preview is prerelease; validate the MariaDB integration suite before production rollout
-- SQL Server or MariaDB (see [docker-compose.yml](docker-compose.yml) for a local MariaDB container)
-- Node-free: the Blazor client uses LibMan for client-side libraries (`dotnet tool restore` + `dotnet libman restore`)
+- .NET 11 SDK 11.0.100 (see global.json); all projects target net11.0
+- Oracle MySql.EntityFrameworkCore 11.0.0-preview is prerelease; validate the MariaDB integration suite before production rollout
+- SQL Server or MariaDB (see docker-compose.yml for a local MariaDB container)
+- Node-free: the Blazor client uses LibMan for client-side libraries (dotnet tool restore + dotnet libman restore)
 
 ### Run with Docker Compose
 
@@ -85,7 +90,7 @@ deploy/, cloudflare/      Deployment and edge configuration
 docker compose up -d
 ```
 
-This starts the ThaiX API (`http://localhost:5005`) and a MariaDB database.
+This starts the ThaiX API (http://localhost:5005) and a MariaDB database.
 
 ### Run locally
 
@@ -106,33 +111,25 @@ dotnet test ThaiX.slnx --no-restore
 
 ## CI/CD
 
-GitHub Actions workflow ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on push/PR to `main`, `master`, `develop`, and `release/*`:
+GitHub Actions workflow (.github/workflows/ci.yml) runs on push/PR to main, master, develop and release/*:
 
 1. Restore, build, run unit + integration tests, enforce a minimum code coverage threshold.
-2. Publish a self-contained `win-x86` package of `ThaiX.Presentation` as a build artifact.
+2. Publish a self-contained win-x86 package of ThaiX.Presentation as a build artifact.
 
-An equivalent Azure DevOps pipeline is available at [azure-pipelines.yml](azure-pipelines.yml).
+An equivalent Azure DevOps pipeline is available at azure-pipelines.yml.
 
 ## Contributing
 
-See [AGENTS.md](AGENTS.md) for repository conventions (architecture rules, coding style, encoding policy, migrations, and commit policy) used by both humans and AI coding agents.
+See AGENTS.md for repository conventions (architecture rules, coding style, encoding policy, migrations and commit policy) used by humans and AI coding agents.
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE).
+Licensed under the Apache License 2.0.
 
 ## Agent and crawler discovery
 
-The Presentation host exposes `/robots.txt`, `/sitemap.xml`, `/api.md`,
-`/auth.md`, and `/.well-known/api-catalog`. The homepage also supports
-`Accept: text/markdown` and publishes RFC 8288 `Link` headers.
+The Presentation host exposes /robots.txt, /sitemap.xml, /api.md, /auth.md and /.well-known/api-catalog. The homepage also supports Accept: text/markdown and publishes RFC 8288 Link headers.
 
-Set `PublicOrigin` to the site's HTTPS origin (for example, `https://app.example.com`)
-in production. If omitted, the existing `ClientBaseUrl` setting is used. The sitemap
-is unavailable until a valid canonical origin is configured; request Host headers are
-not used to construct canonical URLs.
+Set PublicOrigin to the site's HTTPS origin in production. If omitted, the existing ClientBaseUrl setting is used. The sitemap is unavailable until a valid canonical origin is configured; request Host headers are not used to construct canonical URLs.
 
-OAuth/OIDC discovery, protected-resource metadata, MCP, WebMCP, agent registration,
-and DNS-AID/DNSSEC are not advertised because the current application and deployment
-do not provide those capabilities. DNS-AID and DNSSEC require corresponding DNS records
-and DNSSEC signing at the authoritative DNS provider.
+OAuth/OIDC discovery, protected-resource metadata, MCP, WebMCP, agent registration and DNS-AID/DNSSEC are not advertised because the current application and deployment do not provide those capabilities.
