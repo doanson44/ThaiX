@@ -1,0 +1,172 @@
+@namespace ThaiX.Client.Components.Games.FrontlineTowerDefense
+@using ThaiX.Client.Services.Games.FrontlineTowerDefense
+@inject IStringLocalizer<SharedResource> L
+
+<div class="frontline-sniper-view">
+    <header class="frontline-sniper-header">
+        <h2>@L[MissionTitleKey]</h2>
+        <div class="frontline-game-hud">
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.FrontlineFunds]</span>
+                <strong>@Session.Simulation.Funds</strong>
+            </div>
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.FrontlineLevelHealth]</span>
+                <strong>@Session.Simulation.LevelHealth.ToString("0")</strong>
+            </div>
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.Wave]</span>
+                <strong>@Session.CurrentWave / @Session.TotalWaves</strong>
+            </div>
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.Score]</span>
+                <strong>@Session.Simulation.Score</strong>
+            </div>
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.FrontlineSniperShots]</span>
+                <strong>@Session.ShotsFired</strong>
+            </div>
+            <div class="frontline-game-stat">
+                <span>@L[ResourceKeys.Games.FrontlineSniperHits]</span>
+                <strong>@Session.Hits</strong>
+            </div>
+        </div>
+        <div class="frontline-game-actions">
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    disabled="@(!CanTogglePause)"
+                    @onclick="TogglePause">
+                @(Session.State == FrontlineGameSessionState.Paused
+                    ? L[ResourceKeys.Games.Resume]
+                    : L[ResourceKeys.Games.Pause])
+            </button>
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    @onclick="() => ExitRequested.InvokeAsync()">
+                @L[ResourceKeys.Games.FrontlineBackToMissions]
+            </button>
+            <button type="button"
+                    class="btn btn-primary"
+                    disabled="@(!Session.CanStartNextWave)"
+                    @onclick="StartNextWave">
+                @L[ResourceKeys.Games.FrontlineStartWave]
+            </button>
+            <label class="frontline-speed-label" for="frontline-sniper-speed">
+                @L[ResourceKeys.Games.FrontlineSpeed]
+            </label>
+            <select id="frontline-sniper-speed"
+                    class="form-select frontline-speed-select"
+                    value="@_speedValue"
+                    disabled="@(!CanTogglePause)"
+                    @onchange="ChangeSpeed">
+                <option value="1">1x</option>
+                <option value="2">2x</option>
+            </select>
+        </div>
+    </header>
+
+    @if (Session.State is FrontlineGameSessionState.Victory
+        or FrontlineGameSessionState.Defeat
+        or FrontlineGameSessionState.RouteUnavailable)
+    {
+        <div class="frontline-game-result" role="status" aria-live="polite">
+            @switch (Session.State)
+            {
+                case FrontlineGameSessionState.Victory:
+                    @L[ResourceKeys.Games.FrontlineVictory]
+                    break;
+                case FrontlineGameSessionState.Defeat:
+                    @L[ResourceKeys.Games.FrontlineDefeat]
+                    break;
+                case FrontlineGameSessionState.RouteUnavailable:
+                    @L[ResourceKeys.Games.FrontlineRouteUnavailable]
+                    break;
+            }
+            @if (Session.State == FrontlineGameSessionState.Victory)
+            {
+                <p>@L[ResourceKeys.Games.Score]: @Session.TotalScore</p>
+                <p>@L[ResourceKeys.Games.FrontlineCreditsEarned, Session.CreditsEarned]</p>
+            }
+            else
+            {
+                <button type="button" class="btn btn-primary" @onclick="() => RetryRequested.InvokeAsync()">
+                    @L[ResourceKeys.Games.FrontlineRetry]
+                </button>
+            }
+        </div>
+    }
+
+    <p class="frontline-sniper-hint">@L[ResourceKeys.Games.FrontlineSniperHint]</p>
+    <FrontlineBoard Level="@Session.Level"
+                    Simulation="@Session.Simulation"
+                    ManualShooterPosition="@Session.ShooterPosition"
+                    ManualShooterAim="@(Session.PointerAim ?? Session.LastAim)"
+                    EnablePointerTracking="true"
+                    PointerMoved="OnPointerMoved"
+                    PointerClicked="OnPointerClicked" />
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public FrontlineSniperMissionSession Session { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback ExitRequested { get; set; }
+
+    [Parameter]
+    public EventCallback RetryRequested { get; set; }
+
+    private string _speedValue = "1";
+
+    private bool CanTogglePause =>
+        Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused;
+
+    private string MissionTitleKey => Session.Level.LevelNumber switch
+    {
+        1 => ResourceKeys.Games.FrontlineSniperMission1,
+        2 => ResourceKeys.Games.FrontlineSniperMission2,
+        3 => ResourceKeys.Games.FrontlineSniperMission3,
+        4 => ResourceKeys.Games.FrontlineSniperMission4,
+        _ => ResourceKeys.Games.FrontlineBonusMissions
+    };
+
+    private Task ShootAt(FrontlinePoint aim)
+    {
+        Session.FireAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnPointerMoved(FrontlinePoint aim)
+    {
+        Session.AimAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private Task OnPointerClicked(FrontlinePoint aim)
+    {
+        Session.AimAt(aim);
+        Session.FireAt(aim);
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private void TogglePause()
+    {
+        if (Session.State == FrontlineGameSessionState.Paused)
+            Session.Resume();
+        else
+            Session.Pause();
+    }
+
+    private void StartNextWave() => Session.TryStartNextWave();
+
+    private void ChangeSpeed(ChangeEventArgs args)
+    {
+        if (double.TryParse(
+                args.Value?.ToString(),
+                System.Globalization.NumberStyles.Number,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var multiplier)
+            && Session.SetSpeedMultiplier(multiplier))
+            _speedValue = multiplier.ToString("0", System.Globalization.CultureInfo.InvariantCulture);
+    }
+}

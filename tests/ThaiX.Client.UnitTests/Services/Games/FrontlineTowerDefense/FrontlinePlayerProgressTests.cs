@@ -65,7 +65,12 @@ public sealed class FrontlinePlayerProgressTests
     [Fact]
     public void TryPurchase_BonusMissionUnlock_UsesPreviousProgressSlot()
     {
-        var progress = FrontlinePlayerProgress.CreateNew();
+        var progress = FrontlinePlayerProgress.Load(new FrontlineLegacySaveData(
+            true,
+            10000,
+            500,
+            new int[FrontlinePlayerProgress.TowerSlotCount],
+            new int[FrontlinePlayerProgress.LevelSlotCount]));
         var item = FrontlineWarMartCatalog.All.Single(value => value.Id == "sniper-mission-1");
 
         var purchased = progress.TryPurchase(item);

@@ -106,6 +106,15 @@ public sealed class FrontlinePlayerProgress
         return true;
     }
 
+    public bool AwardCredits(int amount)
+    {
+        if (amount < 0 || amount > int.MaxValue - Credits)
+            return false;
+
+        Credits += amount;
+        return true;
+    }
+
     public bool SaveLevelScore(int levelIndex, int score)
     {
         if (levelIndex < 0 || levelIndex >= LevelSlotCount || score < 0)
