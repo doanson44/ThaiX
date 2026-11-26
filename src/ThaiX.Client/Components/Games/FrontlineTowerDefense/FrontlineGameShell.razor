@@ -103,7 +103,7 @@ else
                                      Values="@GetWarMartValues()"
                                      ExcludeNames="@WarMartExclusions"
                                      TextColorOverrides="@WarMartTextColors"
-                                     TextScale="1.2" />
+                                     TextScaleOverrides="@WarMartTextScales" />
                 @foreach (var slot in _shopSlots)
                 {
                     <button type="button"
@@ -158,6 +158,13 @@ else
     // The legacy credits caption uses near-black glyphs on a dark panel.
     private static readonly IReadOnlyDictionary<string, string> WarMartTextColors =
         new Dictionary<string, string>(StringComparer.Ordinal) { ["4565"] = "#F4F1E8" };
+
+    private static readonly IReadOnlyDictionary<string, double> WarMartTextScales =
+        new Dictionary<string, double>(StringComparer.Ordinal)
+        {
+            ["4565"] = 1.4,
+            ["CRED"] = 1.4
+        };
 
     private IReadOnlySet<string> LevelScreenExclusions =>
         ScreenExclusions
