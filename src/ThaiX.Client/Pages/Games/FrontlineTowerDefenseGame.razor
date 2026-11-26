@@ -1,8 +1,6 @@
 @page "/games/frontline-tower-defense"
 @using ThaiX.Client.Components.Games.FrontlineTowerDefense
-@using ThaiX.Client.Layout
 @attribute [Authorize]
-@inherits ThaiXPageBase
 @inject IStringLocalizer<SharedResource> L
 @inject NavigationManager Navigation
 
@@ -22,12 +20,5 @@
 </RadzenStack>
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-        if (firstRender)
-            await Viewport.InitializeAsync();
-    }
-
     private void BackToGames() => Navigation.NavigateTo("/games");
 }
