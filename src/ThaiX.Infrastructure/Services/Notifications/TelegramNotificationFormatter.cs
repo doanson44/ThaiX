@@ -10,28 +10,30 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
 {
     public NotificationChannel Channel => NotificationChannel.Telegram;
 
-    public string Format(NotificationCard card)
+    public string Format(NotificationCard card) => Format(card, null);
+
+    public string Format(NotificationCard card, NotificationKind? kind)
     {
+        ArgumentNullException.ThrowIfNull(card);
+
         var builder = new StringBuilder();
+        var category = kind.HasValue ? NotificationBrand.KindLabel(kind.Value) : card.Category;
 
-        // Header: severity icon + TITLE, category as subtitle
-        builder.Append($"{NotificationBrand.SeverityIcon(card.Severity)} <b>{EscapeHtml(card.Title)}</b>\n");
-        builder.Append($"<i>{EscapeHtml(card.Category)}</i>\n\n");
+        builder.Append($"<b>{NotificationBrand.BrandName}</b> | <i>{NotificationBrand.BrandDescriptor}</i>\n");
+        builder.Append($"<b>{EscapeHtml(category)}</b> | <b>{NotificationBrand.SeverityLabel(card.Severity)}</b>\n");
+        builder.Append($"<b>{EscapeHtml(card.Title)}</b>\n\n");
 
-        // Metrics — values in monospace to align with the app's numeric convention
         if (card.Metrics.Count > 0)
         {
-            var maxLabelLen = card.Metrics.Max(m => m.Label.Length);
             foreach (var metric in card.Metrics)
             {
                 builder.Append(
-                    $"{EscapeHtml(metric.Label.PadRight(maxLabelLen))}  <code>{EscapeHtml(FormatMetricValue(metric.Value))}</code>\n");
+                    $"<b>{EscapeHtml(metric.Label.Trim())}</b>: <code>{EscapeHtml(FormatMetricValue(metric.Value))}</code>\n");
             }
 
             builder.Append('\n');
         }
 
-        // Sections
         foreach (var section in card.Sections)
         {
             if (!string.IsNullOrWhiteSpace(section.Title))
@@ -39,23 +41,27 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
                 builder.Append($"<b>{EscapeHtml(section.Title.Trim())}</b>\n");
             }
 
-            builder.Append($"{EscapeHtml(section.Text.Trim())}\n\n");
+            if (!string.IsNullOrWhiteSpace(section.Text))
+            {
+                builder.Append($"{EscapeHtml(section.Text.Trim())}\n");
+            }
+
+            builder.Append('\n');
         }
 
-        // Actions — real hyperlinks instead of raw "Label: Url" text
-        foreach (var action in card.Actions)
+        var safeActions = card.Actions.Where(action => IsSafeLink(action.Url)).ToArray();
+        foreach (var action in safeActions)
         {
-            builder.Append($"🔗 <a href=\"{EscapeHtml(action.Url.Trim())}\">{EscapeHtml(action.Label.Trim())}</a>\n");
+            builder.Append(
+                $"<a href=\"{EscapeHtml(action.Url.Trim())}\">{EscapeHtml(action.Label.Trim())}</a>\n");
         }
 
-        builder.Append("\n<i>— ThaiX</i>");
-
+        builder.Append($"\n<i>{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}</i>");
         return builder.ToString().Trim();
     }
 
     private static string FormatMetricValue(string value)
     {
-        // Percentage: e.g. "-0.0022%" → "-0.00%"
         if (value.EndsWith('%'))
         {
             var numeric = value.AsSpan()[..^1];
@@ -65,7 +71,6 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
             }
         }
 
-        // Numeric: apply thousands separator, trim insignificant decimals
         if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var num))
         {
             return num.ToString("#,##0.######", CultureInfo.InvariantCulture);
@@ -74,12 +79,19 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
         return value;
     }
 
+    private static bool IsSafeLink(string value)
+    {
+        return Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+               (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+    }
+
     private static string EscapeHtml(string text)
     {
         return text
             .Replace("&", "&amp;")
             .Replace("<", "&lt;")
             .Replace(">", "&gt;")
-            .Replace("\"", "&quot;");
+            .Replace("\"", "&quot;")
+            .Replace("'", "&#39;");
     }
 }
