@@ -77,11 +77,23 @@ public sealed partial class FrontlineFlumpLibrary
         switch (kind)
         {
             case "edit":
-                placements.Add(ReadFieldPlacement(instanceName, path, character, parent));
+                placements.Add(ReadFieldPlacement(
+                    instanceName,
+                    path,
+                    character,
+                    FrontlineFlumpMatrix.Multiply(
+                        parent,
+                        ReadMatrix(character, "m") ?? FrontlineFlumpMatrix.Identity)));
                 return;
 
             case "text":
-                placements.Add(ReadStaticPlacement(instanceName, path, character, parent));
+                placements.Add(ReadStaticPlacement(
+                    instanceName,
+                    path,
+                    character,
+                    FrontlineFlumpMatrix.Multiply(
+                        parent,
+                        ReadMatrix(character, "m") ?? FrontlineFlumpMatrix.Identity)));
                 return;
 
             case "sprite":
