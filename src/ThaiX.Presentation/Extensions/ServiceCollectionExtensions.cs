@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddLocalization(options => options.ResourcesPath = "Resources");
 
         var localizationSection = configuration.GetSection("Localization");
-        var defaultCulture = localizationSection.GetValue<string>("DefaultCulture") ?? "en-US";
+        var defaultCulture = localizationSection.GetValue<string>("DefaultCulture") ?? "vi-VN";
         var supportedCultureNames = localizationSection.GetSection("SupportedCultures").Get<string[]>()
             ?? ["en-US", "vi-VN"];
         var supportedCultures = supportedCultureNames
