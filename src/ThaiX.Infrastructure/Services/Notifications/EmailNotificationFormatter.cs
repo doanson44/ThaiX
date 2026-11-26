@@ -1,4 +1,5 @@
 using System.Text;
+using ThaiX.Application.Common.Emails;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
