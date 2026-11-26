@@ -99,7 +99,10 @@ else
                 break;
 
             case FrontlineShellScreen.WarMart:
-                <FrontlineFlumpScene SymbolName="Mart" Values="@GetWarMartValues()" ExcludeNames="@WarMartExclusions" />
+                <FrontlineFlumpScene SymbolName="Mart"
+                                     Values="@GetWarMartValues()"
+                                     ExcludeNames="@WarMartExclusions"
+                                     TextColorOverrides="@WarMartTextColors" />
                 @foreach (var slot in _shopSlots)
                 {
                     <button type="button"
@@ -150,6 +153,10 @@ else
     /// <summary>The purchase confirmation overlay is only shown while an item is selected.</summary>
     private static readonly IReadOnlySet<string> WarMartExclusions =
         new HashSet<string>(StringComparer.Ordinal) { "mPurchaseButton", "mCancelButton", "DTool" };
+
+    // The legacy credits caption uses near-black glyphs on a dark panel.
+    private static readonly IReadOnlyDictionary<string, string> WarMartTextColors =
+        new Dictionary<string, string>(StringComparer.Ordinal) { ["4565"] = "#F4F1E8" };
 
     private IReadOnlySet<string> LevelScreenExclusions =>
         ScreenExclusions
