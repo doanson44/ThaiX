@@ -11,9 +11,10 @@ or JavaScript game loop is part of the target architecture.
 
 ## Source inventory
 
-The current branch contains a dedicated Razor wrapper at
-src/ThaiX.Client/Pages/Games/FrontlineTowerDefenseGame.razor and a separate browser runtime
-under wwwroot/games/frontline-tower-defense/assets/.
+The branch contains a dedicated Razor wrapper at
+src/ThaiX.Client/Pages/Games/FrontlineTowerDefenseGame.razor and the legacy Flump art/audio data
+under wwwroot/games/frontline-tower-defense/assets/. The three legacy JavaScript runtime bundles
+were removed from this branch; only the audio and pointer browser bridge modules remain.
 
 The runtime manifest declares an 800 by 480 logical stage and 42 frames per second. The game
 simulation itself uses a 24 Hz timer and scales movement by elapsed time and a speed multiplier,
@@ -118,7 +119,7 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 5. Keep asset identifiers and source asset files stable while the renderer is being replaced.
 6. Preserve the existing route and authentication requirement.
 7. Preserve the original Frontline storage key and field schema until an explicit migration plan is approved; do not collide with the independent Tower Defense save.
-8. Do not delete the old runtime or assets until feature parity and save migration are verified.
+8. Keep the original runtime available in the parent branch and Git history for behavioral comparison; do not execute or publish it. Keep the Flump library and media assets stable because the C# renderer still consumes them.
 9. Never import TowerDefenseMatch, TowerDefenseData, or their gameplay contracts.
 
 ## Implementation status
@@ -181,9 +182,10 @@ The original `PathFinder.findPath` in `frontline-tower-defense-game.js` uses the
 - [x] Aim and fire Sniper Elite shots from the exact pointer position through `wwwroot/js/frontlinePointer.js`, replacing cell-based targeting.
 - [x] Replace every Razor navigation screen with the original Flump timeline frames: menu, credits, mission select (per-level lock/unlock frames and score text), level failed page, victory rundown, and the War-Mart shop grid, driven by transparent hotspots on the legacy placements.
 - [x] Render the original embedded typography everywhere the Flash game showed text, including HTML-format fields, runtime tower prices, the wave countdown, the upgrade panel values, and the instruction dialogs.
-- [ ] Remove the legacy JavaScript runtime after acceptance. Its files are excluded from publish
-  output (`CopyToPublishDirectory="Never"`) and are kept as the behavioral reference; the bitmap,
-  sound and `library.json` assets remain required by the C# renderer.
+- [x] Remove the three legacy JavaScript runtime bundles from this branch. The original files remain
+  recoverable from the parent branch and Git history for behavioral comparison. Keep only
+  `wwwroot/js/frontlineAudio.js` and `wwwroot/js/frontlinePointer.js` as browser bridges; the
+  bitmap, sound and `library.json` assets remain required by the C# renderer.
 - [ ] Clear distribution rights for the original game bundle, bitmap artwork, and audio before release; see docs/games/frontline-tower-defense-release-clearance.md.
 - [x] Run the full solution build and unit test suite on a .NET 11 toolchain before merge.
 
