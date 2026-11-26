@@ -21,13 +21,15 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
         var builder = new StringBuilder();
         var category = GetCategory(card, kind);
+        var severity = NotificationTemplateResources.SeverityLabel(card.Severity);
+        var severityIcon = NotificationTemplateResources.SeverityIcon(card.Severity);
 
         builder.Append($"*{EscapeMrkdwn(card.Title)}*\n");
-        builder.Append($"_{EscapeMrkdwn(category)}_ | {NotificationBrand.SeverityLabel(card.Severity)}\n\n");
+        builder.Append($"_{EscapeMrkdwn(category)}_ | {severityIcon} {severity}\n\n");
 
         if (card.Metrics.Count > 0)
         {
-            builder.Append($"*{NotificationBrand.CardTypeLabel(card.Type)}*\\n");
+            builder.Append($"*{EscapeMrkdwn(NotificationTemplateResources.CardTypeLabel(card.Type))}*\n");
             foreach (var metric in card.Metrics)
             {
                 builder.Append($"*{EscapeMrkdwn(metric.Label)}*  `{EscapeCode(FormatMetricValue(metric.Value))}`\n");
@@ -51,7 +53,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             builder.Append($"<{action.Url.Trim()}|{EscapeMrkdwn(action.Label.Trim())}>\n");
         }
 
-        builder.Append($"\n_{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}_");
+        builder.Append($"\n_{NotificationTemplateResources.Get("BrandFooter")}_");
         return builder.ToString().Trim();
     }
 
@@ -62,6 +64,8 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
         ArgumentNullException.ThrowIfNull(card);
 
         var category = GetCategory(card, kind);
+        var severity = NotificationTemplateResources.SeverityLabel(card.Severity);
+        var severityIcon = NotificationTemplateResources.SeverityIcon(card.Severity);
         var blocks = new List<object>
         {
             new Dictionary<string, object?>
@@ -71,7 +75,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                 {
                     ["type"] = "plain_text",
                     ["text"] = Truncate(card.Title, 150),
-                    ["emoji"] = false
+                    ["emoji"] = true
                 }
             },
             new Dictionary<string, object?>
@@ -82,7 +86,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                     new Dictionary<string, object?>
                     {
                         ["type"] = "mrkdwn",
-                        ["text"] = $"*{EscapeMrkdwn(category)}*  |  {NotificationBrand.SeverityLabel(card.Severity)}"
+                        ["text"] = $"*{EscapeMrkdwn(category)}*  |  {severityIcon} {severity}"
                     }
                 }
             }
@@ -96,7 +100,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                 ["text"] = new Dictionary<string, object?>
                 {
                     ["type"] = "mrkdwn",
-                    ["text"] = $"*{NotificationBrand.CardTypeLabel(card.Type)}*"
+                    ["text"] = $"*{EscapeMrkdwn(NotificationTemplateResources.CardTypeLabel(card.Type))}*"
                 }
             });
             blocks.Add(new Dictionary<string, object?> { ["type"] = "divider" });
@@ -150,7 +154,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                         {
                             ["type"] = "plain_text",
                             ["text"] = Truncate(action.Label, 75),
-                            ["emoji"] = false
+                            ["emoji"] = true
                         },
                         ["url"] = action.Url.Trim(),
                         ["style"] = "primary"
@@ -167,7 +171,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                 new Dictionary<string, object?>
                 {
                     ["type"] = "mrkdwn",
-                    ["text"] = $"{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}"
+                    ["text"] = NotificationTemplateResources.Get("BrandFooter")
                 }
             }
         });
@@ -181,7 +185,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
     private static string GetCategory(NotificationCard card, NotificationKind? kind)
     {
-        return kind.HasValue ? NotificationBrand.KindLabel(kind.Value) : card.Category;
+        return kind.HasValue ? NotificationTemplateResources.KindLabel(kind.Value) : card.Category;
     }
 
     private static IEnumerable<IReadOnlyList<T>> Chunk<T>(IReadOnlyList<T> source, int size)
