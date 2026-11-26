@@ -61,13 +61,13 @@ was changed for this decision.
 
 ## Important stale documentation already in the repository
 
-The existing `.agents/rules/repository-facts.md` and `.agents/skills/db-query/SKILL.md` claim
-Hangfire uses `MySqlConnector` and may fall back to `DefaultConnection`. That claim conflicts with
-the current `src/ThaiX.Infrastructure/DependencyInjection.cs`, which configures Hangfire with
-`UseSqlServerStorage(hangfireConnectionString, ...)` and throws if `HangfireConnection` is missing
-when Hangfire is enabled. The refreshed guide in this folder records the implementation currently
-present in source. The original repository instruction files should be updated in a follow-up
-synchronization change so agents do not continue reading stale guidance.
+The original audit found stale Hangfire provider guidance in
+`.agents/rules/repository-facts.md` and `.agents/skills/db-query/SKILL.md`. This was partially
+synchronized before this follow-up: `repository-facts.md` now correctly records SQL Server
+Hangfire storage and the separate `HangfireConnection`. The DB-query skill still described
+MySqlConnector storage and an incorrect fallback to `DefaultConnection`; it has now been corrected
+on the AI Feature Map branch. The root README and AGENTS project inventory were also refreshed to
+reflect the current test projects, Client page areas, and the two distinct database providers.
 
 ## Other supplied documents
 
