@@ -21,7 +21,7 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
         var severityLabel = NotificationTemplateResources.SeverityLabel(card.Severity);
         var severityIcon = NotificationTemplateResources.SeverityIcon(card.Severity);
 
-        builder.Append($"<b>{EscapeHtml(NotificationTemplateResources.GetInvariant("BrandFooter"))}</b>\n");
+        builder.Append($"<b>{EscapeHtml(NotificationTemplateResources.Get("BrandFooter"))}</b>\n");
         builder.Append($"{severityIcon} <b>{EscapeHtml(category)}</b> | <b>{EscapeHtml(severityLabel)}</b>\n");
         builder.Append($"<b>{EscapeHtml(card.Title)}</b>\n\n");
 
