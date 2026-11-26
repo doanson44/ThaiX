@@ -65,8 +65,9 @@ The original audit found stale Hangfire provider guidance in
 `.agents/rules/repository-facts.md` and `.agents/skills/db-query/SKILL.md`. This was partially
 synchronized before this follow-up: `repository-facts.md` now correctly records SQL Server
 Hangfire storage and the separate `HangfireConnection`. The DB-query skill still described
-MySqlConnector storage and an incorrect fallback to `DefaultConnection`; it has now been corrected
-on the AI Feature Map branch. The root README and AGENTS project inventory were also refreshed to
+MySqlConnector storage and an incorrect fallback to `DefaultConnection`; the canonical `.agents`
+skill and its `.cursor` / `.github` mirrors have now been corrected and synchronized per
+`.github/AGENT_SYNC_POLICY.md`. The root README and AGENTS project inventory were also refreshed to
 reflect the current test projects, Client page areas, and the two distinct database providers.
 
 ## Other supplied documents
