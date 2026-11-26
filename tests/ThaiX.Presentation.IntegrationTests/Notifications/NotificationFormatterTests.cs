@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
@@ -31,8 +32,8 @@ public sealed class NotificationFormatterTests
 
         var result = formatter.Format(card, NotificationKind.PriceAlert);
 
-        Assert.Contains("<b>PRICE ALERT</b>", result);
-        Assert.Contains("<b>ALERT DETAILS</b>", result);
+        Assert.Contains("<b>🎯 PRICE ALERT</b>", result);
+        Assert.Contains("<b>🚨 ALERT DETAILS</b>", result);
         Assert.Contains("BTC &lt;USDT&gt;", result);
         Assert.Contains("<b>Last &amp; Price</b>: <code>68,420.5</code>", result);
         Assert.Contains("<code>+3.42%</code>", result);
@@ -69,14 +70,14 @@ public sealed class NotificationFormatterTests
         var fallback = formatter.Format(card, NotificationKind.SystemAlert);
 
         Assert.Contains(NotificationBrand.NegativeHex, json);
-        Assert.Contains("SYSTEM ALERT", json);
+        Assert.Contains("🚨 SYSTEM ALERT", json);
         Assert.Contains("12,500", json);
         Assert.Contains("Upstream &lt;service&gt; failed.", fallback);
-        Assert.Contains("INCIDENT DETAILS", json);
+        Assert.Contains("🛑 INCIDENT DETAILS", json);
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
-        Assert.Contains("CRITICAL", fallback);
-        Assert.Contains("INCIDENT DETAILS", fallback);
+        Assert.Contains("🚨 CRITICAL", fallback);
+        Assert.Contains("🛑 INCIDENT DETAILS", fallback);
         Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", fallback);
     }
 
@@ -103,10 +104,10 @@ public sealed class NotificationFormatterTests
             },
             "notification-1");
 
-        Assert.Contains("DATA OPERATIONS", result.Text);
+        Assert.Contains("🔄 DATA OPERATIONS", result.Text);
         Assert.Contains("Details", result.Text);
         Assert.NotNull(result.AttachmentsJson);
-        Assert.Contains("DATA OPERATIONS", result.AttachmentsJson);
+        Assert.Contains("🔄 DATA OPERATIONS", result.AttachmentsJson);
     }
 
     [Fact]
@@ -131,11 +132,48 @@ public sealed class NotificationFormatterTests
             },
             "notification-2");
 
-        Assert.Contains("<b>SYSTEM ALERT</b>", result.Text);
+        Assert.Contains("<b>🚨 SYSTEM ALERT</b>", result.Text);
         Assert.Contains("Provider returned &lt;HTTP 503&gt;.", result.Text);
         Assert.Contains("parse_mode", result.PayloadJson);
         Assert.Contains("FINANCIAL INTELLIGENCE", result.Text);
     }
+
+    [Fact]
+    public void Formatters_UseVietnameseResourcesWhenCurrentUiCultureIsVietnamese()
+    {
+        var originalCulture = CultureInfo.CurrentUICulture;
+
+        try
+        {
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("vi-VN");
+            var card = new NotificationCard
+            {
+                Category = "Notification",
+                Title = "Thị trường hôm nay",
+                Type = NotificationCardType.Metric,
+                Severity = NotificationSeverity.Warning,
+                Metrics = [new NotificationMetric { Label = "Giá", Value = "12500" }]
+            };
+
+            var telegram = new TelegramNotificationFormatter().Format(card, NotificationKind.MarketOverview);
+            var slack = new SlackNotificationFormatter().Format(card, NotificationKind.MarketOverview);
+            var subject = new DefaultNotificationTemplateProvider()
+                .GetTemplate(NotificationKind.MarketOverview, null).DefaultSubject;
+
+            Assert.Contains("📊 TỔNG QUAN THỊ TRƯỜNG", telegram);
+            Assert.Contains("⚠️ CẢNH BÁO", telegram);
+            Assert.Contains("📊 DỮ LIỆU THỊ TRƯỜNG", telegram);
+            Assert.Contains("TRÍ TUỆ TÀI CHÍNH", telegram);
+            Assert.Contains("📊 TỔNG QUAN THỊ TRƯỜNG", slack);
+            Assert.Contains("⚠️ CẢNH BÁO", slack);
+            Assert.Contains("Tổng quan thị trường", subject);
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = originalCulture;
+        }
+    }
+
     [Theory]
     [InlineData(NotificationKind.MarketOverview, "MARKET OVERVIEW")]
     [InlineData(NotificationKind.PriceUpdate, "PRICE UPDATE")]
@@ -165,5 +203,4 @@ public sealed class NotificationFormatterTests
         Assert.Contains(expectedLabel, telegram);
         Assert.Contains(expectedLabel, slack);
     }
-
 }
