@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
@@ -23,15 +22,16 @@ public sealed class SlackNotificationRenderer : INotificationRenderer
         ArgumentNullException.ThrowIfNull(route);
         ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
 
-        var text = BuildText(message);
-        var attachment = message.Card is not null ? _formatter.BuildAttachment(message.Card) : null;
-        var attachmentsJson = attachment is null ? null : JsonSerializer.Serialize(new[] { attachment });
+        var card = message.Card ?? NotificationCardFactory.FromMessage(message);
+        var text = _formatter.Format(card, message.Kind);
+        var attachment = _formatter.BuildAttachment(card, message.Kind);
+        var attachmentsJson = JsonSerializer.Serialize(new[] { attachment });
 
         var payloadJson = JsonSerializer.Serialize(new
         {
             channel = route.Destination,
             text,
-            attachments = attachment is null ? null : new[] { attachment },
+            attachments = new[] { attachment },
             idempotencyKey
         });
 
@@ -45,48 +45,5 @@ public sealed class SlackNotificationRenderer : INotificationRenderer
             IdempotencyKey = idempotencyKey,
             AttachmentsJson = attachmentsJson
         };
-    }
-
-    private string BuildText(NotificationMessage message)
-    {
-        if (message.Card is not null)
-        {
-            return _formatter.Format(message.Card);
-        }
-
-        // Legacy path: build from plain text fields
-        var builder = new StringBuilder();
-
-        if (!string.IsNullOrWhiteSpace(message.Title))
-        {
-            builder.Append(message.Title.Trim()).Append('\n');
-        }
-
-        builder.Append($"Severity: {message.Severity}\n");
-
-        if (builder.Length > 0)
-        {
-            builder.Append('\n');
-        }
-
-        builder.Append(message.Text.Trim()).Append('\n');
-
-        foreach (var section in message.Sections)
-        {
-            builder.Append('\n');
-            if (!string.IsNullOrWhiteSpace(section.Title))
-            {
-                builder.Append(section.Title.Trim()).Append('\n');
-            }
-            builder.Append(section.Text.Trim()).Append('\n');
-        }
-
-        foreach (var action in message.Actions)
-        {
-            builder.Append('\n');
-            builder.Append($"{action.Label.Trim()}: {action.Url.Trim()}\n");
-        }
-
-        return builder.ToString().Trim();
     }
 }
