@@ -75,6 +75,7 @@ public sealed class NotificationFormatterTests
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
         Assert.Contains("CRITICAL", fallback);
+        Assert.Contains("INCIDENT DETAILS", fallback);
         Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", fallback);
     }
 
