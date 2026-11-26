@@ -1,7 +1,5 @@
 using System.Globalization;
 using System.Text.Json;
-using FluentAssertions;
-using Moq;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcBitcoinAnalysis;
 using ThaiX.Application.Trading;

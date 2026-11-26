@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Api;
 using ThaiX.Client.Models.ExternalData;
 using ThaiX.Client.Models.Trading;

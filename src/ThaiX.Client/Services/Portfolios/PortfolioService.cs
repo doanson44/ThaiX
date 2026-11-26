@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Api;
 using ThaiX.Client.Models.Portfolios;
 using ThaiX.Client.Services.Api;

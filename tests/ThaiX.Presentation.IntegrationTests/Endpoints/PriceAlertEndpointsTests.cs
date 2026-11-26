@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Features.PriceAlerts.Queries.GetPriceAlerts;
 using ThaiX.Domain.Aggregates.PriceAlerts;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;

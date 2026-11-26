@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Features.AssetPositions.Queries.GetSavingPositions;
 using ThaiX.Domain.Aggregates.AssetPositions;
 using ThaiX.Domain.Aggregates.Portfolios;

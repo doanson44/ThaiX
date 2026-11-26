@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ThaiX.Infrastructure.ExternalApis.Parsing;
 
 namespace ThaiX.Presentation.IntegrationTests.Unit;

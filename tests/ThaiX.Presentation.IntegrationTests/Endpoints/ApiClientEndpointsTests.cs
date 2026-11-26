@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;

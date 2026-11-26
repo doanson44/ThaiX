@@ -1,11 +1,11 @@
-using System.Net;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
+using System.Net;
+using System.Threading.RateLimiting;
 using ThaiX.Application;
 using ThaiX.Infrastructure;
-using ThaiX.Presentation.Extensions;
 using ThaiX.Presentation.Endpoints;
+using ThaiX.Presentation.Extensions;
 
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()

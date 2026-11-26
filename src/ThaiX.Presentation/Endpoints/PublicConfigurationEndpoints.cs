@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using ThaiX.Presentation.Models;
 
 namespace ThaiX.Presentation.Endpoints;

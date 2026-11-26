@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;

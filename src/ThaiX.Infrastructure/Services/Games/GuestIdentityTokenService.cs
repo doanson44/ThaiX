@@ -1,5 +1,5 @@
-using System.Globalization;
 using Microsoft.AspNetCore.DataProtection;
+using System.Globalization;
 using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Infrastructure.Services.Games;

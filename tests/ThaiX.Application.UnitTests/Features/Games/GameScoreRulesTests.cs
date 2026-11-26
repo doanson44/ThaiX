@@ -1,5 +1,3 @@
-using Xunit;
-using FluentAssertions;
 using ThaiX.Application.Features.Games;
 
 namespace ThaiX.Application.UnitTests.Features.Games;

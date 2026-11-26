@@ -195,7 +195,7 @@ public static class FrontlineFlumpTextLayout
     public static FrontlineFlumpTextPlacement ApplyHtmlStyle(FrontlineFlumpTextPlacement placement) =>
         placement.Html ? ParseHtml(placement.Text, placement).Placement : placement;
 
-    private static string DecodeEntities(string value) =>        value            .Replace("&lt;", "<", StringComparison.Ordinal)
+    private static string DecodeEntities(string value) => value.Replace("&lt;", "<", StringComparison.Ordinal)
             .Replace("&gt;", ">", StringComparison.Ordinal)
             .Replace("&amp;", "&", StringComparison.Ordinal)
             .Replace("&quot;", "\"", StringComparison.Ordinal)

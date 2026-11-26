@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Features.Notifications.Scheduling.Dtos;
 using ThaiX.Domain.Aggregates.Notifications.Enums;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;

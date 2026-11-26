@@ -1,6 +1,6 @@
+using MediatR;
 using System.Globalization;
 using System.Text.Json;
-using MediatR;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Trading;
 

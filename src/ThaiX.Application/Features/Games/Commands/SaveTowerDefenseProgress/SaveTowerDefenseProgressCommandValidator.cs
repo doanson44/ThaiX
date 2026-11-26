@@ -1,6 +1,5 @@
 using FluentValidation;
 using ThaiX.Application.Common.Constants;
-using ThaiX.Application.Features.Games;
 
 namespace ThaiX.Application.Features.Games.Commands.SaveTowerDefenseProgress;
 

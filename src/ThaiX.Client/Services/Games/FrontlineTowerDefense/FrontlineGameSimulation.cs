@@ -852,7 +852,8 @@ public sealed class FrontlineGameSimulation
     }
 
     internal void AdvanceAfterWaveScheduler(double elapsedUnits)
-    {        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
+    {
+        if (Status is FrontlineGameStatus.Victory or FrontlineGameStatus.Defeat)
             return;
 
         AdvanceRenderElements(elapsedUnits);

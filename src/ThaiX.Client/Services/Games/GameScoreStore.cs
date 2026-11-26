@@ -1,5 +1,5 @@
-using System.Text.Json;
 using Microsoft.JSInterop;
+using System.Text.Json;
 using ThaiX.Client.Models.Games;
 
 namespace ThaiX.Client.Services.Games;

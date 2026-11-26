@@ -4,7 +4,6 @@ using System.ComponentModel;
 using ThaiX.Application.Features.MarketScanner.Commands.CreateMarketScannerRule;
 using ThaiX.Application.Features.MarketScanner.Commands.DeleteMarketScannerRule;
 using ThaiX.Application.Features.MarketScanner.Commands.UpdateMarketScannerRule;
-using ThaiX.Application.Features.MarketScanner.Commands.UpdateMarketScannerExchangeSettings;
 using ThaiX.Application.Features.MarketScanner.Queries.GetMarketScannerExchangeSettings;
 using ThaiX.Application.Features.MarketScanner.Queries.GetMarketScannerRules;
 using ThaiX.Domain.Aggregates.MarketScanner;

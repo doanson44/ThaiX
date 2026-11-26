@@ -1,7 +1,7 @@
+using Microsoft.JSInterop;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Microsoft.JSInterop;
 
 namespace ThaiX.Client.Services.Games.FrontlineTowerDefense;
 

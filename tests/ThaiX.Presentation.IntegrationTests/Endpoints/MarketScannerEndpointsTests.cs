@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Features.MarketScanner.Queries.GetMarketScannerRules;
 using ThaiX.Domain.Aggregates.MarketScanner;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;

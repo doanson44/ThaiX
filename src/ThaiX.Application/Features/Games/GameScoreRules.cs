@@ -18,7 +18,7 @@ public static class GameScoreRules
         !string.IsNullOrWhiteSpace(gameId) && SupportedGames.Contains(gameId);
 
     public static bool IsLowerBetter(string gameId) => LowerIsBetterGames.Contains(gameId);
-    
+
     public static bool IsValidScore(string gameId, decimal score)
     {
         if (string.IsNullOrWhiteSpace(gameId) || score != decimal.Truncate(score))
