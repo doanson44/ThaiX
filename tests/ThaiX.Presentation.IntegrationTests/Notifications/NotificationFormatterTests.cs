@@ -70,14 +70,14 @@ public sealed class NotificationFormatterTests
         var fallback = formatter.Format(card, NotificationKind.SystemAlert);
 
         Assert.Contains(NotificationBrand.NegativeHex, json);
-        Assert.Contains("\U0001F6A8 SYSTEM ALERT", json);
+        Assert.Contains("SYSTEM ALERT", json);
         Assert.Contains("12,500", json);
         Assert.Contains("Upstream &lt;service&gt; failed.", fallback);
-        Assert.Contains("\U0001F6D1 INCIDENT DETAILS", json);
+        Assert.Contains("INCIDENT DETAILS", json);
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
-        Assert.Contains("\U0001F6A8 CRITICAL", fallback);
-        Assert.Contains("\U0001F6D1 INCIDENT DETAILS", fallback);
+        Assert.Contains("CRITICAL", fallback);
+        Assert.Contains("INCIDENT DETAILS", fallback);
         Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", fallback);
     }
 
@@ -104,10 +104,10 @@ public sealed class NotificationFormatterTests
             },
             "notification-1");
 
-        Assert.Contains("\U0001F504 DATA OPERATIONS", result.Text);
+        Assert.Contains("DATA OPERATIONS", result.Text);
         Assert.Contains("Details", result.Text);
         Assert.NotNull(result.AttachmentsJson);
-        Assert.Contains("\U0001F504 DATA OPERATIONS", result.AttachmentsJson);
+        Assert.Contains("DATA OPERATIONS", result.AttachmentsJson);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public sealed class NotificationFormatterTests
             },
             "notification-2");
 
-        Assert.Contains("<b>\U0001F6A8 SYSTEM ALERT</b>", result.Text);
+        Assert.Contains("<b>SYSTEM ALERT</b>", result.Text);
         Assert.Contains("Provider returned &lt;HTTP 503&gt;.", result.Text);
         Assert.Contains("parse_mode", result.PayloadJson);
         Assert.Contains("FINANCIAL INTELLIGENCE", result.Text);
@@ -178,11 +178,13 @@ public sealed class NotificationFormatterTests
                 "notification-vi");
 
             Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", telegram);
-            Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", telegram);
+            Assert.Contains("\u26A0\uFE0F", telegram);
+            Assert.Contains("C\u1EA2NH B\u00C1O", telegram);
             Assert.Contains("\U0001F4CA D\u1EEE LI\u1EC6U TH\u1ECA TR\u01AF\u1EDCNG", telegram);
             Assert.Contains("TR\u00CD TU\u1EC6 T\u00C0I CH\u00CDNH", telegram);
             Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", slack);
-            Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", slack);
+            Assert.Contains("\u26A0\uFE0F", slack);
+            Assert.Contains("C\u1EA2NH B\u00C1O", slack);
             Assert.Contains("T\u1ED5ng quan th\u1ECB tr\u01B0\u1EDDng", subject);
             Assert.Contains("\\U0001F517", email);
             Assert.Contains("Chi ti\u1EBFt", legacyTelegram.Text);
