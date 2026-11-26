@@ -205,7 +205,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
         return text.Length <= maxLength
             ? text
-            : string.Concat(text.AsSpan(0, Math.Max(0, maxLength - 3)), "...");
+            : string.Concat(text.AsSpan(0, maxLength - 3), "...");
     }
 
     private static string EscapeMrkdwn(string text)
