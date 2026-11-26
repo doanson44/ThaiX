@@ -73,11 +73,11 @@ public sealed class NotificationFormatterTests
         Assert.Contains("\U0001F6A8 SYSTEM ALERT", json);
         Assert.Contains("12,500", json);
         Assert.Contains("Upstream &lt;service&gt; failed.", fallback);
-        Assert.Contains("\U0001F6AB INCIDENT DETAILS", json);
+        Assert.Contains("\U0001F6D1 INCIDENT DETAILS", json);
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
         Assert.Contains("\U0001F6A8 CRITICAL", fallback);
-        Assert.Contains("\U0001F6AB INCIDENT DETAILS", fallback);
+        Assert.Contains("\U0001F6D1 INCIDENT DETAILS", fallback);
         Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", fallback);
     }
 
@@ -160,11 +160,11 @@ public sealed class NotificationFormatterTests
             var subject = new DefaultNotificationTemplateProvider()
                 .GetTemplate(NotificationKind.MarketOverview, null).DefaultSubject;
 
-            Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1EAC TR\u01AF\u1EDCNG", telegram);
+            Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", telegram);
             Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", telegram);
-            Assert.Contains("\U0001F4CA D\u1EEE LI\u1EC6U TH\u1EAC TR\u01AF\u1EDCNG", telegram);
+            Assert.Contains("\U0001F4CA D\u1EEE LI\u1EC6U TH\u1ECA TR\u01AF\u1EDCNG", telegram);
             Assert.Contains("TR\u00CD TU\u1EC6 T\u00C0I CH\u00CDNH", telegram);
-            Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1EAC TR\u01AF\u1EDCNG", slack);
+            Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", slack);
             Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", slack);
             Assert.Contains("T\u1ED5ng quan th\u1ECB tr\u01B0\u1EDDng", subject);
         }
