@@ -27,6 +27,18 @@ public sealed class FrontlineFlumpTextLayoutTests
     }
 
     [Fact]
+    public void GetPaints_WithScaleFactor_IncreasesGlyphSizeAndSpacing()
+    {
+        var placement = Field(text: "AB", size: 512);
+
+        var paints = FrontlineFlumpTextLayout.GetPaints(placement, _ => Font, scaleFactor: 1.2);
+
+        paints.Should().HaveCount(2);
+        paints[0].Scale.Should().BeApproximately(0.6, 0.0001);
+        paints[1].X.Should().BeApproximately(2 + 512 * 1.2, 0.001);
+    }
+
+    [Fact]
     public void GetPaints_WhenAGlyphIsMissing_AdvancesByTheLegacyFallbackWidth()
     {
         var placement = Field(text: "AZ", size: 100);
