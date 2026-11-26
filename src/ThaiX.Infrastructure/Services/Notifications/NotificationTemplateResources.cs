@@ -21,11 +21,11 @@ internal static class NotificationTemplateResources
         Get($"SeverityIcon.{severity}");
 
     public static string KindLabel(NotificationKind kind) =>
-        Get($"KindLabel.{kind}");
+        Enum.IsDefined(kind) ? Get($"KindLabel.{kind}") : Get("KindLabel.Default");
 
     public static string CardTypeLabel(NotificationCardType type) =>
-        Get($"CardTypeLabel.{type}");
+        Enum.IsDefined(type) ? Get($"CardTypeLabel.{type}") : Get("CardTypeLabel.Default");
 
     public static string Subject(NotificationKind kind) =>
-        Get($"Subject.{kind}");
+        Enum.IsDefined(kind) ? Get($"Subject.{kind}") : Get("Subject.Default");
 }
