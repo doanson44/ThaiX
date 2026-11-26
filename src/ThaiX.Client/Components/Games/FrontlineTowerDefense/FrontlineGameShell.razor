@@ -88,10 +88,11 @@ else
                         @onclick="ShowSplashAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
                 <button type="button"
-                        class="frontline-hotspot"
+                        class="frontline-hotspot frontline-menu-button"
                         style="@GetHotspotStyle(570, 428, 160, 48)"
-                        @onclick="ShowWarMartAsync"
-                        aria-label="@L[ResourceKeys.Games.FrontlineWarMart]"></button>
+                        @onclick="ShowWarMartAsync">
+                    @L[ResourceKeys.Games.FrontlineWarMart]
+                </button>
                 break;
 
             case FrontlineShellScreen.WarMart:
