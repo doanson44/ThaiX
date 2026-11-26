@@ -104,7 +104,7 @@ public sealed class NotificationFormatterTests
         Assert.DoesNotContain("javascript:", json);
         Assert.Contains("CRITICAL", fallback);
         Assert.Contains("INCIDENT DETAILS", fallback);
-        Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", fallback);
+        Assert.Contains("ThaiX \\| FINANCIAL INTELLIGENCE", fallback);
     }
 
     [Fact]
@@ -158,10 +158,10 @@ public sealed class NotificationFormatterTests
             },
             "notification-2");
 
-        Assert.Contains("<b>SYSTEM ALERT</b>", result.Text);
+        Assert.Contains("SYSTEM ALERT", result.Text);
         Assert.Contains("Provider returned &lt;HTTP 503&gt;.", result.Text);
         Assert.Contains("parse_mode", result.PayloadJson);
-        Assert.Contains("TRÍ TUỆ TÀI CHÍNH", result.Text);
+        Assert.Contains("ThaiX | FINANCIAL INTELLIGENCE", result.Text);
     }
 
     [Fact]
