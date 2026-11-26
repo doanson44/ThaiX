@@ -343,6 +343,7 @@ else
         {
             var slot = _shopSlots[index];
             var path = string.Create(CultureInfo.InvariantCulture, $"ShopItem{slot.SlotNumber}");
+            values[path + "/iName"] = slot.Name;
             values[path + "/iCost"] = slot.Item.Cost.ToString(CultureInfo.InvariantCulture);
             values[path + "/BuyButton/price"] = slot.Item.Cost.ToString(CultureInfo.InvariantCulture);
         }
