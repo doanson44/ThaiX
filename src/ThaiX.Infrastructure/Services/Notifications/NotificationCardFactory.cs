@@ -42,7 +42,7 @@ internal static class NotificationCardFactory
                 => NotificationCardType.Metric,
             NotificationKind.PriceAlert
                 => NotificationCardType.Alert,
-            NotificationKind.SystemAlert when severity >= NotificationSeverity.Error
+            NotificationKind.SystemAlert when severity is NotificationSeverity.Error or NotificationSeverity.Critical
                 => NotificationCardType.Error,
             NotificationKind.SystemAlert
                 => NotificationCardType.Alert,
