@@ -30,25 +30,3 @@
     cursor: default;
 }
 
-
-.frontline-menu-button {
-    display: grid;
-    place-items: center;
-    padding: 0.25rem;
-    border: 1px solid #d8c78a;
-    border-radius: 0.35rem;
-    background: rgba(20, 25, 15, 0.88);
-    color: #fff;
-    font-size: clamp(0.55rem, 1.5vw, 0.875rem);
-    font-weight: 700;
-    line-height: 1.1;
-    text-align: center;
-    text-shadow: 1px 1px 1px #000;
-}
-
-.frontline-menu-button:hover,
-.frontline-menu-button:focus-visible {
-    background: rgba(42, 55, 28, 0.96);
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-}
