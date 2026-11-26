@@ -31,6 +31,7 @@ public sealed class NotificationFormatterTests
         var result = formatter.Format(card, NotificationKind.PriceAlert);
 
         Assert.Contains("<b>PRICE ALERT</b>", result);
+        Assert.Contains("<b>ALERT DETAILS</b>", result);
         Assert.Contains("BTC &lt;USDT&gt;", result);
         Assert.Contains("<b>Last &amp; Price</b>: <code>68,420.5</code>", result);
         Assert.Contains("<code>+3.42%</code>", result);
@@ -70,6 +71,7 @@ public sealed class NotificationFormatterTests
         Assert.Contains("SYSTEM ALERT", json);
         Assert.Contains("12,500", json);
         Assert.Contains("Upstream &lt;service&gt; failed.", fallback);
+        Assert.Contains("INCIDENT DETAILS", json);
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
         Assert.Contains("CRITICAL", fallback);
@@ -133,3 +135,4 @@ public sealed class NotificationFormatterTests
         Assert.Contains("FINANCIAL INTELLIGENCE", result.Text);
     }
 }
+
