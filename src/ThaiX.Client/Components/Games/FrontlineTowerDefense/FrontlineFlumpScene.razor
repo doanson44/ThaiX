@@ -121,6 +121,9 @@
     [Parameter]
     public IReadOnlyDictionary<string, double>? TextScaleOverrides { get; set; }
 
+    [Parameter]
+    public IReadOnlyDictionary<string, double>? TextOffsetXOverrides { get; set; }
+
     /// <summary>
     /// When set, the SVG viewBox is derived from the symbol's own bounds so the scene can be
     /// dropped into a widget-sized container instead of the 800x480 game stage.
@@ -224,6 +227,10 @@
         {
             var placement = placements[index];
             var matrix = FrontlineFlumpMatrix.Multiply(root, placement.Matrix);
+            var textOffsetX = GetTextOffsetX(placement);
+            if (textOffsetX != 0)
+                matrix = matrix with { Tx = matrix.Tx + textOffsetX };
+
             var runs = new List<GlyphRun>();
             string? clipId = null;
             var value = ResolveValue(placement);
@@ -371,6 +378,20 @@
 
     private static (double X, double Y) Apply(in FrontlineFlumpMatrix matrix, double x, double y) =>
         (matrix.A * x + matrix.C * y + matrix.Tx, matrix.B * x + matrix.D * y + matrix.Ty);
+
+    private double GetTextOffsetX(FrontlineFlumpTextPlacement placement)
+    {
+        if (TextOffsetXOverrides is null)
+            return 0;
+
+        if (placement.Path is not null && TextOffsetXOverrides.TryGetValue(placement.Path, out var pathOffset))
+            return double.IsFinite(pathOffset) ? pathOffset : 0;
+
+        if (placement.Name is not null && TextOffsetXOverrides.TryGetValue(placement.Name, out var nameOffset))
+            return double.IsFinite(nameOffset) ? nameOffset : 0;
+
+        return 0;
+    }
 
     private double GetTextScale(FrontlineFlumpTextPlacement placement)
     {
