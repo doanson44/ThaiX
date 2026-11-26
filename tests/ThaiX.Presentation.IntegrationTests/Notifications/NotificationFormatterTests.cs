@@ -159,6 +159,22 @@ public sealed class NotificationFormatterTests
             var slack = new SlackNotificationFormatter().Format(card, NotificationKind.MarketOverview);
             var subject = new DefaultNotificationTemplateProvider()
                 .GetTemplate(NotificationKind.MarketOverview, null).DefaultSubject;
+            var email = new EmailNotificationFormatter().Format(card);
+            var legacyTelegram = new TelegramNotificationRenderer(new TelegramNotificationFormatter()).Render(
+                new NotificationMessage
+                {
+                    Kind = NotificationKind.DataSync,
+                    Severity = NotificationSeverity.Info,
+                    Title = "Sync complete",
+                    Text = "Data sync finished."
+                },
+                new NotificationRoute
+                {
+                    Channel = NotificationChannel.Telegram,
+                    Provider = "Telegram",
+                    Destination = "123456"
+                },
+                "notification-vi");
 
             Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", telegram);
             Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", telegram);
