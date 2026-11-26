@@ -225,9 +225,12 @@
             if (placement.IsField && value is not null)
             {
                 var styled = FrontlineFlumpTextLayout.ApplyHtmlStyle(placement);
+                var fontFamily = styled.FontId == 4474
+                    ? "'Showcard Gothic',Impact,fantasy"
+                    : "'Kristen ITC','Comic Sans MS',cursive,sans-serif";
                 var style = string.Create(
                     CultureInfo.InvariantCulture,
-                    $"display:block;width:100%;height:100%;box-sizing:border-box;padding:1px 0 0 2px;font-family:Arial,sans-serif;font-size:{styled.Size:0.###}px;line-height:1.1;color:{FillColor(styled.Red, styled.Green, styled.Blue)};white-space:{(styled.Multiline ? "pre-wrap" : "nowrap")};overflow:hidden;overflow-wrap:anywhere;");
+                    $"display:block;width:100%;height:100%;box-sizing:border-box;padding:1px 0 0 2px;font-family:{fontFamily};font-size:{styled.Size:0.###}px;line-height:1.1;color:{FillColor(styled.Red, styled.Green, styled.Blue)};white-space:{(styled.Multiline ? "pre-wrap" : "nowrap")};overflow:hidden;overflow-wrap:anywhere;");
                 editableFields.Add(new EditableText(
                     matrix,
                     placement.MinX + 2,
