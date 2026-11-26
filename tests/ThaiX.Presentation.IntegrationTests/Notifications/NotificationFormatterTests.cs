@@ -161,7 +161,7 @@ public sealed class NotificationFormatterTests
         Assert.Contains("<b>SYSTEM ALERT</b>", result.Text);
         Assert.Contains("Provider returned &lt;HTTP 503&gt;.", result.Text);
         Assert.Contains("parse_mode", result.PayloadJson);
-        Assert.Contains("FINANCIAL INTELLIGENCE", result.Text);
+        Assert.Contains("TRÍ TUỆ TÀI CHÍNH", result.Text);
     }
 
     [Fact]
@@ -212,7 +212,7 @@ public sealed class NotificationFormatterTests
             Assert.Contains("\u26A0\uFE0F", slack);
             Assert.Contains("C\u1EA2NH B\u00C1O", slack);
             Assert.Contains("T\u1ED5ng quan th\u1ECB tr\u01B0\u1EDDng", subject);
-            Assert.Contains("\\U0001F517", email);
+            Assert.Contains("🔗 Open market", email);
             Assert.Contains("Chi ti\u1EBFt", legacyTelegram.Text);
             Assert.Contains("V\u1EACN H\u00C0NH D\u1EEE LI\u1EC6U", legacyTelegram.Text);
         }

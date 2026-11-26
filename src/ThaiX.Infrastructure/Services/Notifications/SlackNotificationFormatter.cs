@@ -53,7 +53,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             builder.Append($"<{action.Url.Trim()}|{EscapeMrkdwn(action.Label.Trim())}>\n");
         }
 
-        builder.Append($"\n_{EscapeMrkdwn(NotificationTemplateResources.Get("BrandFooter"))}_");
+        builder.Append($"\n_{EscapeMrkdwn(NotificationTemplateResources.GetInvariant("BrandFooter"))}_");
         return builder.ToString().Trim();
     }
 
