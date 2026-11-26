@@ -41,6 +41,28 @@ public sealed class FrontlineFlumpLibraryTests
     }
 
     [Fact]
+    public void GetTextPlacements_AppliesTextCharacterMatrixToNestedPlacement()
+    {
+        const string json = """
+        {
+          "chars": {
+            "1": {"k": "text", "b": [0, 0, 10, 10], "m": [1, 0, 0, 1, -5, 2], "r": []},
+            "2": {"k": "sprite", "frames": [[
+              {"o": "p", "d": 1, "id": 1, "m": [1, 0, 0, 1, 20, 30]}
+            ]], "n": 1}
+          },
+          "symbols": {"root": 2}
+        }
+        """;
+        var library = FrontlineFlumpLibrary.Parse(json);
+
+        var placements = library.GetTextPlacements(library.GetSymbolId("root")!.Value, 0);
+
+        placements.Should().ContainSingle()
+            .Which.Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 15, 32));
+    }
+
+    [Fact]
     public void GetDraws_AppliesRemoveOperationsAcrossFrames()
     {
         var library = FrontlineFlumpLibrary.Parse(SampleLibrary);
