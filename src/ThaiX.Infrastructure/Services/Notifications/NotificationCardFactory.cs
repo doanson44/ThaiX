@@ -7,14 +7,14 @@ internal static class NotificationCardFactory
 {
     public static NotificationCard FromMessage(NotificationMessage message)
     {
-        var kindLabel = NotificationBrand.KindLabel(message.Kind);
+        var kindLabel = NotificationTemplateResources.KindLabel(message.Kind);
         var sections = new List<NotificationSection>();
 
         if (!string.IsNullOrWhiteSpace(message.Text))
         {
             sections.Add(new NotificationSection
             {
-                Title = "Details",
+                Title = NotificationTemplateResources.Get("Details"),
                 Text = message.Text.Trim()
             });
         }
