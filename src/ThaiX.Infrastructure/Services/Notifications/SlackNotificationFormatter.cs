@@ -27,6 +27,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
         if (card.Metrics.Count > 0)
         {
+            builder.Append($"*{NotificationBrand.CardTypeLabel(card.Type)}*\\n");
             foreach (var metric in card.Metrics)
             {
                 builder.Append($"*{EscapeMrkdwn(metric.Label)}*  `{EscapeCode(FormatMetricValue(metric.Value))}`\n");
