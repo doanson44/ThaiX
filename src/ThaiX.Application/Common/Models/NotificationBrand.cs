@@ -48,6 +48,17 @@ public static class NotificationBrand
         _ => "NOTIFICATION"
     };
 
+    public static string CardTypeLabel(NotificationCardType type) => type switch
+    {
+        NotificationCardType.Metric => "MARKET DATA",
+        NotificationCardType.Signal => "SIGNAL METRICS",
+        NotificationCardType.Alert => "ALERT DETAILS",
+        NotificationCardType.Summary => "KEY FIGURES",
+        NotificationCardType.Analysis => "ANALYSIS",
+        NotificationCardType.Error => "INCIDENT DETAILS",
+        _ => "DETAILS"
+    };
+
     public static string SeverityIcon(NotificationSeverity severity) => severity switch
     {
         NotificationSeverity.Debug => "⚙️",
