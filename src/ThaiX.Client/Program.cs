@@ -145,6 +145,7 @@ builder.Services.AddScoped<GameScoreStore>();
 builder.Services.AddScoped<FrontlinePlayerProgressStore>();
 builder.Services.AddScoped<FrontlineAudioService>();
 builder.Services.AddScoped<FrontlineFlumpLibrary>();
+builder.Services.AddScoped<FrontlineTutorialTracker>();
 builder.Services.AddScoped<IPublicHtmlPageService, PublicHtmlPageService>();
 builder.Services.AddScoped<IToolStateStore, ToolStateStore>();
 builder.Services.AddTransient<IMexcContractTickerSocketService, MexcContractTickerSocketService>();
