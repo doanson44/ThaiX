@@ -61,12 +61,12 @@ public static class NotificationBrand
 
     public static string SeverityIcon(NotificationSeverity severity) => severity switch
     {
-        NotificationSeverity.Debug => "⚙️",
-        NotificationSeverity.Info => "🔵",
-        NotificationSeverity.Warning => "🟡",
-        NotificationSeverity.Error => "🔴",
-        NotificationSeverity.Critical => "🆘",
-        _ => "🔵"
+        NotificationSeverity.Debug => "[DEBUG]",
+        NotificationSeverity.Info => "[INFO]",
+        NotificationSeverity.Warning => "[WARNING]",
+        NotificationSeverity.Error => "[ERROR]",
+        NotificationSeverity.Critical => "[CRITICAL]",
+        _ => "[INFO]"
     };
 
     public static string SeverityColorHex(NotificationSeverity severity) => severity switch
