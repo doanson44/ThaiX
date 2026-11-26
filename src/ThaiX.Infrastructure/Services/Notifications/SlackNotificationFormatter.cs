@@ -171,7 +171,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                 new Dictionary<string, object?>
                 {
                     ["type"] = "mrkdwn",
-                    ["text"] = NotificationTemplateResources.Get("BrandFooter")
+                    ["text"] = EscapeMrkdwn(NotificationTemplateResources.Get("BrandFooter"))
                 }
             }
         });
