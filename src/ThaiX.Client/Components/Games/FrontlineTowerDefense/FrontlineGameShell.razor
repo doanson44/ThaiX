@@ -103,7 +103,8 @@ else
                                      Values="@GetWarMartValues()"
                                      ExcludeNames="@WarMartExclusions"
                                      TextColorOverrides="@WarMartTextColors"
-                                     TextScaleOverrides="@WarMartTextScales" />
+                                     TextScaleOverrides="@WarMartTextScales"
+                                     TextOffsetXOverrides="@WarMartTextOffsets" />
                 @foreach (var slot in _shopSlots)
                 {
                     <button type="button"
@@ -162,7 +163,14 @@ else
     private static readonly IReadOnlyDictionary<string, double> WarMartTextScales =
         new Dictionary<string, double>(StringComparer.Ordinal)
         {
-            ["4565"] = 1.4
+            ["4565"] = 1.4,
+            ["CRED"] = 1.15
+        };
+
+    private static readonly IReadOnlyDictionary<string, double> WarMartTextOffsets =
+        new Dictionary<string, double>(StringComparer.Ordinal)
+        {
+            ["CRED"] = 48
         };
 
     private IReadOnlySet<string> LevelScreenExclusions =>
