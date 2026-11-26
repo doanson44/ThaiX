@@ -115,6 +115,9 @@
     [Parameter]
     public IReadOnlySet<string>? ExcludeNames { get; set; }
 
+    [Parameter]
+    public IReadOnlyDictionary<string, string>? TextColorOverrides { get; set; }
+
     /// <summary>
     /// When set, the SVG viewBox is derived from the symbol's own bounds so the scene can be
     /// dropped into a widget-sized container instead of the 800x480 game stage.
@@ -156,7 +159,7 @@
             : string.Join(';', Values.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value));
         var signature = string.Create(
             CultureInfo.InvariantCulture,
-            $"{Flump.IsLoaded}|{SymbolId}|{SymbolName}|{Frame}|{IncludeBitmaps}|{FitToSymbol}|{Transform.A},{Transform.B},{Transform.C},{Transform.D},{Transform.Tx},{Transform.Ty}|{ScaleX:0.#####}|{ScaleY:0.#####}|{values}|{string.Join(',', ExcludeNames?.OrderBy(name => name, StringComparer.Ordinal) ?? Enumerable.Empty<string>())}");
+            $"{Flump.IsLoaded}|{SymbolId}|{SymbolName}|{Frame}|{IncludeBitmaps}|{FitToSymbol}|{Transform.A},{Transform.B},{Transform.C},{Transform.D},{Transform.Tx},{Transform.Ty}|{ScaleX:0.#####}|{ScaleY:0.#####}|{values}|{string.Join(',', ExcludeNames?.OrderBy(name => name, StringComparer.Ordinal) ?? Enumerable.Empty<string>())}|{string.Join(';', TextColorOverrides?.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value) ?? Enumerable.Empty<string>())}");
 
         if (string.Equals(signature, _builtFor, StringComparison.Ordinal))
             return;
@@ -200,7 +203,7 @@
         var placements = Flump.GetTextPlacements(rootId, Frame);
         if (ExcludeNames is { Count: > 0 })
             placements = placements
-                .Where(placement => placement.Name is null || !ExcludeNames.Contains(placement.Name))
+                .Where(placement => !IsExcluded(placement))
                 .ToArray();
 
         if (FitToSymbol)
@@ -270,8 +273,12 @@
                         continue;
 
                     var paints = FrontlineFlumpTextLayout.GetPaints(placement with { Runs = [run] }, Flump.GetFont);
+                    var fill = placement.Path is not null
+                        && TextColorOverrides?.TryGetValue(placement.Path, out var overrideColor) == true
+                            ? overrideColor
+                            : FillColor(run.Red, run.Green, run.Blue);
                     runs.Add(new GlyphRun(
-                        FillColor(run.Red, run.Green, run.Blue),
+                        fill,
                         run.Alpha / 255d,
                         run.FontId,
                         null,
@@ -360,6 +367,17 @@
 
     private static (double X, double Y) Apply(in FrontlineFlumpMatrix matrix, double x, double y) =>
         (matrix.A * x + matrix.C * y + matrix.Tx, matrix.B * x + matrix.D * y + matrix.Ty);
+
+    private bool IsExcluded(FrontlineFlumpTextPlacement placement)
+    {
+        if (ExcludeNames is null || ExcludeNames.Count == 0)
+            return false;
+
+        if (placement.Name is not null && ExcludeNames.Contains(placement.Name))
+            return true;
+
+        return placement.Path?.Split('/').Any(ExcludeNames.Contains) == true;
+    }
 
     private string? ResolveValue(FrontlineFlumpTextPlacement placement)
     {
