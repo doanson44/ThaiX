@@ -1,6 +1,6 @@
 # Verified ThaiX Runtime Facts
 
-Updated on 2026-11-12 after the .NET 11 framework migration. Re-check implementation before changing these facts.
+Updated on 2026-11-26 after rechecking the current source and synchronizing repository guidance. Re-check implementation before changing these facts.
 
 ## .NET SDK and target framework
 
