@@ -1,53 +1,58 @@
 ---
 name: db-query
-description: "Query MariaDB/MySQL data directly for diagnostics/reporting when requested. Prioritize connection from appsettings.Development.json, then fallback sources. Read-only by default."
+description: "Query ThaiX application or Hangfire databases for diagnostics/reporting when requested. Read-only by default."
 argument-hint: "SQL query or data request, e.g. 'Top 20 newest contacts'"
 ---
 
 # DB Query
 
-Connect to the project database and execute query requests safely. ThaiX runs on **MariaDB/MySQL**, not SQL Server, and has two separate connections:
+Connect only to the database explicitly in scope. ThaiX uses two separate database providers:
 
-- `DefaultConnection` -- EF Core + Identity data, via Oracle's `MySql.EntityFrameworkCore` (host `nas.phitv.me`)
-- `HangfireConnection` -- Hangfire job storage only, via `MySqlConnector` (tables prefixed `Hangfire_`); falls back to `DefaultConnection` when unset
+- `DefaultConnection` -- application and Identity data. Oracle `MySql.EntityFrameworkCore`
+  via `UseMySQL()`; the configured application database is MariaDB/MySQL.
+- `HangfireConnection` -- Hangfire job storage. `Hangfire.SqlServer` via
+  `UseSqlServerStorage()`; this is SQL Server, not MySQL.
 
-Ask the user which connection applies when the request is ambiguous.
+There is no fallback from `HangfireConnection` to `DefaultConnection`. When Hangfire is enabled,
+a missing `HangfireConnection` causes startup/configuration failure. Ask which database applies
+when the request is ambiguous.
 
 ## Connection Resolution Priority
 
-1. .NET user-secrets for the `ThaiX.Presentation` project (`dotnet user-secrets list`)
-2. Environment variable `ConnectionStrings__DefaultConnection` / `ConnectionStrings__HangfireConnection`
-3. `src/ThaiX.Presentation/appsettings.Development.json` -> `ConnectionStrings:DefaultConnection` / `HangfireConnection`
-4. `src/ThaiX.Presentation/appsettings.json` (placeholder by default -- do not use for real queries)
+1. .NET user-secrets for the `ThaiX.Presentation` project.
+2. Environment variables:
+   `ConnectionStrings__DefaultConnection` or `ConnectionStrings__HangfireConnection`.
+3. `src/ThaiX.Presentation/appsettings.Development.json`.
+4. `src/ThaiX.Presentation/appsettings.json` only when the value is intentional and not a placeholder.
+
+Inspect the current configuration before connecting. Mask passwords and other credentials in all
+output. Never copy connection strings into logs, commits, or generated reports.
 
 ## Procedure
 
 ### 1. Resolve and Validate Connection
-- Read connection string using the priority above
-- Mask the password when reporting connection details
-- Confirm target database name/host from the connection string
+
+- Confirm whether the target is the application database or Hangfire storage.
+- Confirm the provider and database name from the selected connection.
+- Use a client/driver compatible with that provider. Do not use MySqlConnector for Hangfire SQL
+  Server storage or assume that a MySQL client can query both databases.
 
 ### 2. Execute Query
-No `mysql` CLI or `sqlcmd` is installed on this machine. Use PowerShell with the `MySqlConnector` assembly already restored in the NuGet cache:
 
-1. Resolve the cache path once: `dotnet nuget locals global-packages --list`
-2. Match the version to `Directory.Packages.props` (`MySqlConnector`), then: `Add-Type -Path "<global-packages>\mysqlconnector\<version>\lib\net8.0\MySqlConnector.dll"`
-3. Query via `[MySqlConnector.MySqlConnection]::new($connStr)`, `.Open()`, `MySqlCommand`, `ExecuteReader()`
-4. Avoid `dotnet-script` (.csx) for this -- top-level `using var` declarations are unreliable in Roslyn scripting; if scripting is used anyway, dispose explicitly with `try/finally`
-
-Default behavior is read-only SQL (`SELECT` only).
+- Default behavior is read-only SQL (`SELECT` only).
+- Use provider-appropriate SQL syntax: `LIMIT` for MariaDB/MySQL and `TOP` for SQL Server.
+- Prefer narrow predicates, date ranges, and indexed columns over full scans.
 
 ### 3. Return Result
-- Return SQL executed
-- Return row count
-- Return a compact preview (first N rows)
-- For large datasets, use `LIMIT`, pagination, or date filters
+
+- Return the SQL executed, row count, and a compact preview (first N rows).
+- Mask secrets and omit unnecessary PII.
+- State which connection/provider was queried.
 
 ## Safety Rules
 
-- Do not execute mutation statements unless user explicitly requests:
-- `INSERT`, `UPDATE`, `DELETE`, `REPLACE`, `TRUNCATE`, `DROP`, `ALTER`, `CREATE`
-- Before any `DROP`/`TRUNCATE`/`DELETE`, list the exact tables/rows affected and get confirmation
-- Avoid long-running full scans when a scoped query is possible
-- Never print full secrets (password) in output
-- Columns use `utf8mb4` -- verify console encoding (`UNICODE(SUBSTRING(...))`) when displaying Vietnamese text instead of trusting the console display
+- Do not execute `INSERT`, `UPDATE`, `DELETE`, `MERGE`, `REPLACE`, `TRUNCATE`,
+  `DROP`, `ALTER`, or `CREATE` unless explicitly requested.
+- Before destructive statements, identify the exact affected tables/rows and obtain confirmation.
+- Avoid long-running full scans when a scoped query is possible.
+- Do not infer the provider of one connection from the other.

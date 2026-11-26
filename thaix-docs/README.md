@@ -15,6 +15,10 @@ reference set to ChatGPT or other AI agents.
 - [Integration test workflow](skill-add-integration-test.md)
 - [Widget workflow](skill-add-widget.md)
 
+## AI Feature Map
+
+The maintained feature and source navigation pack is in [docs/ai-feature-map/README.md](../docs/ai-feature-map/README.md) at the repository root. This is a separate repository-oriented map; this folder remains the documentation audit and runtime-facts reference set.
+
 ## Maintenance policy
 
 Application source and tests are authoritative. When documentation disagrees with implementation,
