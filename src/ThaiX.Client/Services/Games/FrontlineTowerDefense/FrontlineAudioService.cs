@@ -26,6 +26,7 @@ public sealed class FrontlineAudioService(IJSRuntime jsRuntime) : IAsyncDisposab
             new Uri(applicationBaseUri, UriKind.Absolute),
             "games/frontline-tower-defense/assets/snd/").ToString();
         _module ??= await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/frontlineAudio.js");
+        await _module.InvokeVoidAsync("setMuted", IsMuted);
     }
 
     public Task PlayAsync(FrontlineSound sound) =>
