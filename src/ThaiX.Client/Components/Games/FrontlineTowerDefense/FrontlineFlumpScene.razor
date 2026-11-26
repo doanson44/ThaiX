@@ -119,7 +119,7 @@
     public IReadOnlyDictionary<string, string>? TextColorOverrides { get; set; }
 
     [Parameter]
-    public double TextScale { get; set; } = 1;
+    public IReadOnlyDictionary<string, double>? TextScaleOverrides { get; set; }
 
     /// <summary>
     /// When set, the SVG viewBox is derived from the symbol's own bounds so the scene can be
@@ -162,7 +162,7 @@
             : string.Join(';', Values.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value));
         var signature = string.Create(
             CultureInfo.InvariantCulture,
-            $"{Flump.IsLoaded}|{SymbolId}|{SymbolName}|{Frame}|{IncludeBitmaps}|{FitToSymbol}|{Transform.A},{Transform.B},{Transform.C},{Transform.D},{Transform.Tx},{Transform.Ty}|{ScaleX:0.#####}|{ScaleY:0.#####}|{values}|{string.Join(',', ExcludeNames?.OrderBy(name => name, StringComparer.Ordinal) ?? Enumerable.Empty<string>())}|{string.Join(';', TextColorOverrides?.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value) ?? Enumerable.Empty<string>())}|{TextScale:0.###}");
+            $"{Flump.IsLoaded}|{SymbolId}|{SymbolName}|{Frame}|{IncludeBitmaps}|{FitToSymbol}|{Transform.A},{Transform.B},{Transform.C},{Transform.D},{Transform.Tx},{Transform.Ty}|{ScaleX:0.#####}|{ScaleY:0.#####}|{values}|{string.Join(',', ExcludeNames?.OrderBy(name => name, StringComparer.Ordinal) ?? Enumerable.Empty<string>())}|{string.Join(';', TextColorOverrides?.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value) ?? Enumerable.Empty<string>())}|{string.Join(';', TextScaleOverrides?.OrderBy(pair => pair.Key, StringComparer.Ordinal).Select(pair => pair.Key + '=' + pair.Value.ToString("0.###", CultureInfo.InvariantCulture)) ?? Enumerable.Empty<string>())}");
 
         if (string.Equals(signature, _builtFor, StringComparison.Ordinal))
             return;
@@ -231,12 +231,13 @@
             if (placement.IsField && value is not null)
             {
                 var styled = FrontlineFlumpTextLayout.ApplyHtmlStyle(placement);
+                var textScale = GetTextScale(placement);
                 var fontFamily = styled.FontId == 4474
                     ? "'Showcard Gothic',Impact,fantasy"
                     : "'Kristen ITC','Comic Sans MS',cursive,sans-serif";
                 var style = string.Create(
                     CultureInfo.InvariantCulture,
-                    $"display:block;width:100%;height:100%;box-sizing:border-box;padding:1px 0 0 2px;font-family:{fontFamily};font-size:{styled.Size * TextScale:0.###}px;line-height:1.1;color:{FillColor(styled.Red, styled.Green, styled.Blue)};white-space:{(styled.Multiline ? "pre-wrap" : "nowrap")};overflow:hidden;overflow-wrap:anywhere;");
+                    $"display:block;width:100%;height:100%;box-sizing:border-box;padding:1px 0 0 2px;font-family:{fontFamily};font-size:{styled.Size * textScale:0.###}px;line-height:1.1;color:{FillColor(styled.Red, styled.Green, styled.Blue)};white-space:{(styled.Multiline ? "pre-wrap" : "nowrap")};overflow:hidden;overflow-wrap:anywhere;");
                 editableFields.Add(new EditableText(
                     matrix,
                     placement.MinX + 2,
@@ -256,7 +257,7 @@
 
             if (placement.IsField)
             {
-                var paints = FrontlineFlumpTextLayout.GetPaints(placement, Flump.GetFont, value, TextScale);
+                var paints = FrontlineFlumpTextLayout.GetPaints(placement, Flump.GetFont, value, GetTextScale(placement));
                 if (paints.Count > 0)
                 {
                     var styled = FrontlineFlumpTextLayout.ApplyHtmlStyle(placement);
@@ -275,7 +276,7 @@
                     if (run.Glyphs.Count == 0)
                         continue;
 
-                    var paints = FrontlineFlumpTextLayout.GetPaints(placement with { Runs = [run] }, Flump.GetFont, scaleFactor: TextScale);
+                    var paints = FrontlineFlumpTextLayout.GetPaints(placement with { Runs = [run] }, Flump.GetFont, scaleFactor: GetTextScale(placement));
                     var fill = placement.Path is not null
                         && TextColorOverrides?.TryGetValue(placement.Path, out var overrideColor) == true
                             ? overrideColor
@@ -370,6 +371,20 @@
 
     private static (double X, double Y) Apply(in FrontlineFlumpMatrix matrix, double x, double y) =>
         (matrix.A * x + matrix.C * y + matrix.Tx, matrix.B * x + matrix.D * y + matrix.Ty);
+
+    private double GetTextScale(FrontlineFlumpTextPlacement placement)
+    {
+        if (TextScaleOverrides is null)
+            return 1;
+
+        if (placement.Path is not null && TextScaleOverrides.TryGetValue(placement.Path, out var pathScale))
+            return pathScale > 0 && double.IsFinite(pathScale) ? pathScale : 1;
+
+        if (placement.Name is not null && TextScaleOverrides.TryGetValue(placement.Name, out var nameScale))
+            return nameScale > 0 && double.IsFinite(nameScale) ? nameScale : 1;
+
+        return 1;
+    }
 
     private bool IsExcluded(FrontlineFlumpTextPlacement placement)
     {
