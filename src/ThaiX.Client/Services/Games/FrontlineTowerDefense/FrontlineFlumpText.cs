@@ -115,10 +115,14 @@ public static class FrontlineFlumpTextLayout
     public static IReadOnlyList<FrontlineFlumpGlyphPaint> GetPaints(
         FrontlineFlumpTextPlacement placement,
         Func<int, FrontlineFlumpFont?> fontLookup,
-        string? value = null)
+        string? value = null,
+        double scaleFactor = 1)
     {
+        if (!double.IsFinite(scaleFactor) || scaleFactor <= 0)
+            scaleFactor = 1;
+
         if (!placement.IsField)
-            return StaticPaints(placement);
+            return StaticPaints(placement, scaleFactor);
 
         var font = fontLookup(placement.FontId);
         if (font is null)
@@ -133,7 +137,7 @@ public static class FrontlineFlumpTextLayout
             text = value ?? plainDefault;
         }
 
-        return FieldPaints(effective, font, text);
+        return FieldPaints(effective with { Size = effective.Size * scaleFactor }, font, text);
     }
 
     /// <summary>
@@ -202,16 +206,22 @@ public static class FrontlineFlumpTextLayout
             .Replace("&apos;", "'", StringComparison.Ordinal)
             .Replace("&nbsp;", " ", StringComparison.Ordinal);
 
-    private static IReadOnlyList<FrontlineFlumpGlyphPaint> StaticPaints(FrontlineFlumpTextPlacement placement)
+    private static IReadOnlyList<FrontlineFlumpGlyphPaint> StaticPaints(
+        FrontlineFlumpTextPlacement placement,
+        double scaleFactor)
     {
         var paints = new List<FrontlineFlumpGlyphPaint>();
         foreach (var run in placement.Runs)
         {
-            var scale = run.Size / FontUnitsPerEm;
+            var scale = run.Size / FontUnitsPerEm * scaleFactor;
             var x = run.X;
             foreach (var (glyphIndex, advance) in run.Glyphs)
             {
-                paints.Add(new FrontlineFlumpGlyphPaint(glyphIndex, x, run.Y, scale));
+                paints.Add(new FrontlineFlumpGlyphPaint(
+                    glyphIndex,
+                    run.X + (x - run.X) * scaleFactor,
+                    run.Y,
+                    scale));
                 x += advance;
             }
         }
