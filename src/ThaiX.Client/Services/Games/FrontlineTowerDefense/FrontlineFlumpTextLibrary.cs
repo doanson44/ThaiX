@@ -89,7 +89,9 @@ public sealed partial class FrontlineFlumpLibrary
             case "text":
                 placements.Add(ReadStaticPlacement(
                     instanceName,
-                    path,
+                    string.IsNullOrEmpty(path)
+                        ? charId.ToString(CultureInfo.InvariantCulture)
+                        : path,
                     character,
                     FrontlineFlumpMatrix.Multiply(
                         parent,
