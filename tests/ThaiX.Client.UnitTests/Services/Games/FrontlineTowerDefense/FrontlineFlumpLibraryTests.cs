@@ -47,8 +47,10 @@ public sealed class FrontlineFlumpLibraryTests
         {
           "chars": {
             "1": {"k": "text", "b": [0, 0, 10, 10], "m": [1, 0, 0, 1, -5, 2], "r": []},
+            "3": {"k": "edit", "b": [0, 0, 10, 10], "m": [1, 0, 0, 1, 7, 9], "font": 1, "h": 10, "text": "x"},
             "2": {"k": "sprite", "frames": [[
-              {"o": "p", "d": 1, "id": 1, "m": [1, 0, 0, 1, 20, 30]}
+              {"o": "p", "d": 1, "id": 1, "m": [1, 0, 0, 1, 20, 30]},
+              {"o": "p", "d": 2, "id": 3, "m": [1, 0, 0, 1, 40, 50]}
             ]], "n": 1}
           },
           "symbols": {"root": 2}
@@ -58,8 +60,9 @@ public sealed class FrontlineFlumpLibraryTests
 
         var placements = library.GetTextPlacements(library.GetSymbolId("root")!.Value, 0);
 
-        placements.Should().ContainSingle()
-            .Which.Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 15, 32));
+        placements.Should().HaveCount(2);
+        placements[0].Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 15, 32));
+        placements[1].Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 47, 59));
     }
 
     [Fact]
