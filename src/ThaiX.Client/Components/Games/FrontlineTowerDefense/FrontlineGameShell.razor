@@ -33,31 +33,26 @@ else
                 <FrontlineFlumpScene SymbolName="Game" Frame="0" ExcludeNames="@ScreenExclusions" />
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(250, 416, 160, 48)"
+                        style="@GetHotspotStyle(170, 392, 160, 48)"
                         @onclick="ShowLevelsAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlinePlay]"></button>
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(550, 416, 160, 48)"
+                        style="@GetHotspotStyle(470, 392, 160, 48)"
                         @onclick="ShowCreditsAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineCreditsPage]"></button>
-                <button type="button"
-                        class="frontline-hotspot"
-                        style="@GetHotspotStyle(21, 461, 40, 40)"
-                        @onclick="ToggleMuteAsync"
-                        aria-label="@(Audio.IsMuted ? L[ResourceKeys.Games.FrontlineUnmute] : L[ResourceKeys.Games.FrontlineMute])"></button>
                 break;
 
             case FrontlineShellScreen.Credits:
                 <FrontlineFlumpScene SymbolName="Game" Frame="1" ExcludeNames="@ScreenExclusions" />
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(208, 432, 160, 48)"
+                        style="@GetHotspotStyle(128, 408, 160, 48)"
                         @onclick="ShowSplashAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineMainMenu]"></button>
                 <button type="button"
                         class="frontline-hotspot"
-                        style="@GetHotspotStyle(592, 432, 160, 48)"
+                        style="@GetHotspotStyle(512, 408, 160, 48)"
                         @onclick="ShowLevelsAsync"
                         aria-label="@L[ResourceKeys.Games.FrontlineCampaign]"></button>
                 break;
@@ -126,6 +121,18 @@ else
                         aria-label="@L[ResourceKeys.Games.FrontlineCampaign]"></button>
                 break;
         }
+
+        @if (_screen is FrontlineShellScreen.Splash or FrontlineShellScreen.Credits or FrontlineShellScreen.Levels)
+        {
+            <FrontlineFlumpScene SymbolId="15"
+                                 Frame="@(Audio.IsMuted ? 1 : 0)"
+                                 Transform="@(new FrontlineFlumpMatrix(1, 0, 0, 1, 21, 461))" />
+            <button type="button"
+                    class="frontline-hotspot"
+                    style="@GetHotspotStyle(1, 441, 40, 40)"
+                    @onclick="ToggleMuteAsync"
+                    aria-label="@(Audio.IsMuted ? L[ResourceKeys.Games.FrontlineUnmute] : L[ResourceKeys.Games.FrontlineMute])"></button>
+        }
     </div>
 }
 
@@ -150,7 +157,7 @@ else
 
     /// <summary>The legacy FrameController child is a full screen fade overlay that starts hidden.</summary>
     private static readonly IReadOnlySet<string> ScreenExclusions =
-        new HashSet<string>(StringComparer.Ordinal) { "FrameController" };
+        new HashSet<string>(StringComparer.Ordinal) { "FrameController", "muteButton" };
 
     /// <summary>The purchase confirmation overlay is only shown while an item is selected.</summary>
     private static readonly IReadOnlySet<string> WarMartExclusions =
@@ -452,6 +459,7 @@ else
 
     private async Task ToggleMuteAsync()
     {
+        await EnsureAudioAsync();
         await Audio.ToggleMuteAsync();
         await InvokeAsync(StateHasChanged);
     }
