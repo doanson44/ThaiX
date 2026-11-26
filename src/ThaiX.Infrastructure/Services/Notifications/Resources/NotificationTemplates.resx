@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
+  <data name="ActionLinkIcon" xml:space="preserve"><value>🔗</value></data>
   <data name="BrandFooter" xml:space="preserve"><value>ThaiX | FINANCIAL INTELLIGENCE</value></data>
   <data name="SeverityIcon.Debug" xml:space="preserve"><value>🔍</value></data>
   <data name="SeverityIcon.Info" xml:space="preserve"><value>ℹ️</value></data>
