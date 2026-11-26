@@ -5,7 +5,6 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
   <data name="ActionLinkIcon" xml:space="preserve"><value>🔗</value></data>
-  <data name="ActionLinkIcon" xml:space="preserve"><value>🔗</value></data>
   <data name="BrandFooter" xml:space="preserve"><value>ThaiX | FINANCIAL INTELLIGENCE</value></data>
   <data name="SeverityIcon.Debug" xml:space="preserve"><value>🔍</value></data>
   <data name="SeverityIcon.Info" xml:space="preserve"><value>ℹ️</value></data>
