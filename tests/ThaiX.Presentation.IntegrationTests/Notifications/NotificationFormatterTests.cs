@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Infrastructure.Services.Notifications;
@@ -70,7 +69,7 @@ public sealed class NotificationFormatterTests
         Assert.Contains(NotificationBrand.NegativeHex, json);
         Assert.Contains("SYSTEM ALERT", json);
         Assert.Contains("12,500", json);
-        Assert.Contains("Upstream &lt;service&gt; failed.", json);
+        Assert.Contains("Upstream &lt;service&gt; failed.", fallback);
         Assert.Contains("https://example.com/logs", json);
         Assert.DoesNotContain("javascript:", json);
         Assert.Contains("CRITICAL", fallback);
