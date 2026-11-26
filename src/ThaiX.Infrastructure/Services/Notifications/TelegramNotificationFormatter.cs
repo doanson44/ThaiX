@@ -25,6 +25,7 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
 
         if (card.Metrics.Count > 0)
         {
+            builder.Append($"<b>{NotificationBrand.CardTypeLabel(card.Type)}</b>\\n");
             foreach (var metric in card.Metrics)
             {
                 builder.Append(
