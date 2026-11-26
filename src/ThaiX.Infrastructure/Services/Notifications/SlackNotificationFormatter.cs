@@ -9,25 +9,27 @@ namespace ThaiX.Infrastructure.Services.Notifications;
 public sealed class SlackNotificationFormatter : INotificationFormatter
 {
     private const int MaxFieldsPerBlock = 10;
+    private const int MaxActionsPerBlock = 25;
 
     public NotificationChannel Channel => NotificationChannel.Slack;
 
-    /// <summary>
-    /// Plain mrkdwn fallback — shown in push-notification previews and by clients
-    /// that don't render Block Kit. The real presentation is <see cref="BuildAttachment"/>.
-    /// </summary>
-    public string Format(NotificationCard card)
-    {
-        var builder = new StringBuilder();
+    public string Format(NotificationCard card) => Format(card, null);
 
-        builder.Append($"{NotificationBrand.SeverityIcon(card.Severity)} *{card.Title}*  |  _{card.Category}_\n\n");
+    public string Format(NotificationCard card, NotificationKind? kind)
+    {
+        ArgumentNullException.ThrowIfNull(card);
+
+        var builder = new StringBuilder();
+        var category = GetCategory(card, kind);
+
+        builder.Append($"*{EscapeMrkdwn(card.Title)}*\n");
+        builder.Append($"_{EscapeMrkdwn(category)}_ | {NotificationBrand.SeverityLabel(card.Severity)}\n\n");
 
         if (card.Metrics.Count > 0)
         {
-            var maxLabelLen = card.Metrics.Max(m => m.Label.Length);
             foreach (var metric in card.Metrics)
             {
-                builder.Append($"{metric.Label.PadRight(maxLabelLen)}  `{FormatMetricValue(metric.Value)}`\n");
+                builder.Append($"*{EscapeMrkdwn(metric.Label)}*  `{EscapeCode(FormatMetricValue(metric.Value))}`\n");
             }
 
             builder.Append('\n');
@@ -37,26 +39,28 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
         {
             if (!string.IsNullOrWhiteSpace(section.Title))
             {
-                builder.Append($"*{section.Title.Trim()}*\n");
+                builder.Append($"*{EscapeMrkdwn(section.Title.Trim())}*\n");
             }
 
-            builder.Append($"{section.Text.Trim()}\n\n");
+            builder.Append($"{EscapeMrkdwn(section.Text.Trim())}\n\n");
         }
 
-        foreach (var action in card.Actions)
+        foreach (var action in card.Actions.Where(action => IsSafeLink(action.Url)))
         {
-            builder.Append($"<{action.Url.Trim()}|{action.Label.Trim()}>\n");
+            builder.Append($"<{action.Url.Trim()}|{EscapeMrkdwn(action.Label.Trim())}>\n");
         }
 
+        builder.Append($"\n_{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}_");
         return builder.ToString().Trim();
     }
 
-    /// <summary>
-    /// Builds a Block Kit "attachment" (header + fields + sections + link buttons) wrapped
-    /// in a severity-colored side bar — the only way Slack still supports a brand color strip.
-    /// </summary>
-    public object BuildAttachment(NotificationCard card)
+    public object BuildAttachment(NotificationCard card) => BuildAttachment(card, null);
+
+    public object BuildAttachment(NotificationCard card, NotificationKind? kind)
     {
+        ArgumentNullException.ThrowIfNull(card);
+
+        var category = GetCategory(card, kind);
         var blocks = new List<object>
         {
             new Dictionary<string, object?>
@@ -66,7 +70,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                 {
                     ["type"] = "plain_text",
                     ["text"] = Truncate(card.Title, 150),
-                    ["emoji"] = true
+                    ["emoji"] = false
                 }
             },
             new Dictionary<string, object?>
@@ -77,7 +81,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                     new Dictionary<string, object?>
                     {
                         ["type"] = "mrkdwn",
-                        ["text"] = $"*{card.Category}*  ·  {NotificationBrand.SeverityIcon(card.Severity)} {card.Severity}"
+                        ["text"] = $"*{EscapeMrkdwn(category)}*  |  {NotificationBrand.SeverityLabel(card.Severity)}"
                     }
                 }
             }
@@ -96,7 +100,7 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                         .Select(metric => (object)new Dictionary<string, object?>
                         {
                             ["type"] = "mrkdwn",
-                            ["text"] = $"*{metric.Label}*\n`{FormatMetricValue(metric.Value)}`"
+                            ["text"] = $"*{EscapeMrkdwn(metric.Label)}*\n`{EscapeCode(FormatMetricValue(metric.Value))}`"
                         })
                         .ToArray()
                 });
@@ -105,11 +109,11 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
         foreach (var section in card.Sections)
         {
-            blocks.Add(new Dictionary<string, object?> { ["type"] = "divider" });
             var text = string.IsNullOrWhiteSpace(section.Title)
-                ? section.Text.Trim()
-                : $"*{section.Title.Trim()}*\n{section.Text.Trim()}";
+                ? EscapeMrkdwn(section.Text.Trim())
+                : $"*{EscapeMrkdwn(section.Title.Trim())}*\n{EscapeMrkdwn(section.Text.Trim())}";
 
+            blocks.Add(new Dictionary<string, object?> { ["type"] = "divider" });
             blocks.Add(new Dictionary<string, object?>
             {
                 ["type"] = "section",
@@ -121,13 +125,14 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             });
         }
 
-        if (card.Actions.Count > 0)
+        var safeActions = card.Actions.Where(action => IsSafeLink(action.Url)).Take(MaxActionsPerBlock).ToArray();
+        if (safeActions.Length > 0)
         {
             blocks.Add(new Dictionary<string, object?> { ["type"] = "divider" });
             blocks.Add(new Dictionary<string, object?>
             {
                 ["type"] = "actions",
-                ["elements"] = card.Actions
+                ["elements"] = safeActions
                     .Select(action => (object)new Dictionary<string, object?>
                     {
                         ["type"] = "button",
@@ -135,9 +140,9 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
                         {
                             ["type"] = "plain_text",
                             ["text"] = Truncate(action.Label, 75),
-                            ["emoji"] = true
+                            ["emoji"] = false
                         },
-                        ["url"] = action.Url,
+                        ["url"] = action.Url.Trim(),
                         ["style"] = "primary"
                     })
                     .ToArray()
@@ -149,7 +154,11 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             ["type"] = "context",
             ["elements"] = new object[]
             {
-                new Dictionary<string, object?> { ["type"] = "mrkdwn", ["text"] = "ThaiX" }
+                new Dictionary<string, object?>
+                {
+                    ["type"] = "mrkdwn",
+                    ["text"] = $"{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}"
+                }
             }
         });
 
@@ -158,6 +167,11 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             ["color"] = NotificationBrand.SeverityColorHex(card.Severity),
             ["blocks"] = blocks
         };
+    }
+
+    private static string GetCategory(NotificationCard card, NotificationKind? kind)
+    {
+        return kind.HasValue ? NotificationBrand.KindLabel(kind.Value) : card.Category;
     }
 
     private static IEnumerable<IReadOnlyList<T>> Chunk<T>(IReadOnlyList<T> source, int size)
@@ -170,7 +184,26 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
     private static string Truncate(string text, int maxLength)
     {
-        return text.Length <= maxLength ? text : string.Concat(text.AsSpan(0, maxLength - 1), "…");
+        return text.Length <= maxLength ? text : string.Concat(text.AsSpan(0, maxLength - 1), "...");
+    }
+
+    private static string EscapeMrkdwn(string text)
+    {
+        return text
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;")
+            .Replace("*", "\\*")
+            .Replace("_", "\\_")
+            .Replace("~", "\\~");
+    }
+
+    private static string EscapeCode(string text) => text.Replace("`", "'");
+
+    private static bool IsSafeLink(string value)
+    {
+        return Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+               (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
     }
 
     private static string FormatMetricValue(string value)
