@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
 using ThaiX.Infrastructure.Services.Notifications;
