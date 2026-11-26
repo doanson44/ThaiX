@@ -62,6 +62,7 @@ public sealed class FrontlineFlumpLibraryTests
 
         placements.Should().HaveCount(2);
         placements[0].Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 15, 32));
+        placements[0].Path.Should().Be("1");
         placements[1].Matrix.Should().Be(new FrontlineFlumpMatrix(1, 0, 0, 1, 47, 59));
     }
 
