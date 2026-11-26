@@ -152,7 +152,8 @@ public sealed class NotificationFormatterTests
                 Title = "Th\u1ECB tr\u01B0\u1EDDng h\u00F4m nay",
                 Type = NotificationCardType.Metric,
                 Severity = NotificationSeverity.Warning,
-                Metrics = [new NotificationMetric { Label = "Gi\u00E1", Value = "12500" }]
+                Metrics = [new NotificationMetric { Label = "Gi\u00E1", Value = "12500" }],
+                Actions = [new NotificationAction { Label = "Open market", Url = "https://example.com/market" }]
             };
 
             var telegram = new TelegramNotificationFormatter().Format(card, NotificationKind.MarketOverview);
@@ -183,6 +184,9 @@ public sealed class NotificationFormatterTests
             Assert.Contains("\U0001F4CA T\u1ED4NG QUAN TH\u1ECA TR\u01AF\u1EDCNG", slack);
             Assert.Contains("\u26A0\uFE0F C\u1EA2NH B\u00C1O", slack);
             Assert.Contains("T\u1ED5ng quan th\u1ECB tr\u01B0\u1EDDng", subject);
+            Assert.Contains("\\U0001F517", email);
+            Assert.Contains("Chi ti\u1EBFt", legacyTelegram.Text);
+            Assert.Contains("V\u1EACN H\u00C0NH D\u1EEE LI\u1EC6U", legacyTelegram.Text);
         }
         finally
         {
