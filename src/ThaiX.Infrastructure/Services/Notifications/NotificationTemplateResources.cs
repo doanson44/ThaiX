@@ -14,6 +14,9 @@ internal static class NotificationTemplateResources
     public static string Get(string key) =>
         ResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
 
+    public static string GetInvariant(string key) =>
+        ResourceManager.GetString(key, CultureInfo.GetCultureInfo("en-US")) ?? key;
+
     public static string SeverityLabel(NotificationSeverity severity) =>
         Enum.IsDefined(severity) ? Get($"SeverityLabel.{severity}") : Get("SeverityLabel.Info");
 
