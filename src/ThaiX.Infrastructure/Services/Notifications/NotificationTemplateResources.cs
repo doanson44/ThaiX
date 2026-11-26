@@ -15,10 +15,10 @@ internal static class NotificationTemplateResources
         ResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
 
     public static string SeverityLabel(NotificationSeverity severity) =>
-        Get($"SeverityLabel.{severity}");
+        Enum.IsDefined(severity) ? Get($"SeverityLabel.{severity}") : Get("SeverityLabel.Info");
 
     public static string SeverityIcon(NotificationSeverity severity) =>
-        Get($"SeverityIcon.{severity}");
+        Enum.IsDefined(severity) ? Get($"SeverityIcon.{severity}") : Get("SeverityIcon.Info");
 
     public static string KindLabel(NotificationKind kind) =>
         Enum.IsDefined(kind) ? Get($"KindLabel.{kind}") : Get("KindLabel.Default");
