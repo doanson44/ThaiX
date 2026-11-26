@@ -65,6 +65,20 @@
             }
         </g>
     }
+
+    @foreach (var field in _editableFields)
+    {
+        <g transform="@FormatMatrix(field.Matrix)">
+            <foreignObject x="@Format(field.X)"
+                           y="@Format(field.Y)"
+                           width="@Format(field.Width)"
+                           height="@Format(field.Height)">
+                <div xmlns="http://www.w3.org/1999/xhtml"
+                     class="frontline-flump-edit-text"
+                     style="@field.Style">@field.Value</div>
+            </foreignObject>
+        </g>
+    }
 </svg>
 
 @code {
@@ -118,11 +132,21 @@
 
     private sealed record TextGroup(FrontlineFlumpMatrix Matrix, IReadOnlyList<GlyphRun> Runs);
 
+    private sealed record EditableText(
+        FrontlineFlumpMatrix Matrix,
+        double X,
+        double Y,
+        double Width,
+        double Height,
+        string Value,
+        string Style);
+
     private readonly string _instanceId = Guid.NewGuid().ToString("N")[..8];
     private IReadOnlyList<FrontlineFlumpDraw> _draws = [];
     private IReadOnlyList<KeyValuePair<string, string>> _glyphPaths = [];
     private IReadOnlyList<KeyValuePair<string, FrontlineFlumpTextPlacement>> _clips = [];
     private IReadOnlyList<TextGroup> _textGroups = [];
+    private IReadOnlyList<EditableText> _editableFields = [];
     private string? _builtFor;
 
     protected override void OnParametersSet()
@@ -151,6 +175,7 @@
         _glyphPaths = [];
         _clips = [];
         _textGroups = [];
+        _editableFields = [];
         _viewBox = "0 0 800 480";
 
         var symbolId = SymbolId ?? Flump.GetSymbolId(SymbolName);
@@ -187,6 +212,7 @@
         var glyphs = new Dictionary<string, string>(StringComparer.Ordinal);
         var clips = new List<KeyValuePair<string, FrontlineFlumpTextPlacement>>();
         var groups = new List<TextGroup>();
+        var editableFields = new List<EditableText>();
 
         for (var index = 0; index < placements.Count; index++)
         {
@@ -194,6 +220,24 @@
             var matrix = FrontlineFlumpMatrix.Multiply(root, placement.Matrix);
             var runs = new List<GlyphRun>();
             string? clipId = null;
+            var value = ResolveValue(placement);
+
+            if (placement.IsField && value is not null)
+            {
+                var styled = FrontlineFlumpTextLayout.ApplyHtmlStyle(placement);
+                var style = string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"display:block;width:100%;height:100%;box-sizing:border-box;padding:1px 0 0 2px;font-family:Arial,sans-serif;font-size:{styled.Size:0.###}px;line-height:1.1;color:{FillColor(styled.Red, styled.Green, styled.Blue)};white-space:{(styled.Multiline ? "pre-wrap" : "nowrap")};overflow:hidden;overflow-wrap:anywhere;");
+                editableFields.Add(new EditableText(
+                    matrix,
+                    placement.MinX + 2,
+                    placement.MinY + 2,
+                    Math.Max(1, placement.Width - 4),
+                    Math.Max(1, placement.Height - 4),
+                    value,
+                    style));
+                continue;
+            }
 
             if (placement.IsField)
             {
@@ -201,7 +245,6 @@
                 clips.Add(new KeyValuePair<string, FrontlineFlumpTextPlacement>(clipId, placement));
             }
 
-            var value = ResolveValue(placement);
             if (placement.IsField)
             {
                 var paints = FrontlineFlumpTextLayout.GetPaints(placement, Flump.GetFont, value);
@@ -258,6 +301,7 @@
         _glyphPaths = glyphs.ToArray();
         _clips = clips;
         _textGroups = groups;
+        _editableFields = editableFields;
     }
 
     private string ComputeViewBox(IReadOnlyList<FrontlineFlumpTextPlacement> placements)
