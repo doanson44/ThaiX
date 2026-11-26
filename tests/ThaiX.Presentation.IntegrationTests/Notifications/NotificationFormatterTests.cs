@@ -44,6 +44,32 @@ public sealed class NotificationFormatterTests
     }
 
     [Fact]
+    public void SlackFormatter_TruncatesHeaderAndButtonTextWithinPlatformLimits()
+    {
+        var formatter = new SlackNotificationFormatter();
+        var card = new NotificationCard
+        {
+            Category = "System Alert",
+            Title = new string('T', 200),
+            Type = NotificationCardType.Alert,
+            Actions = [new NotificationAction { Label = new string('A', 100), Url = "https://example.com" }]
+        };
+
+        var attachment = (Dictionary<string, object?>)formatter.BuildAttachment(card, NotificationKind.SystemAlert);
+        var blocks = (List<object>)attachment["blocks"]!;
+        var header = (Dictionary<string, object?>)blocks[0];
+        var headerText = (Dictionary<string, object?>)header["text"]!;
+        var actions = (Dictionary<string, object?>)blocks.Single(block =>
+            ((Dictionary<string, object?>)block).GetValueOrDefault("type")?.ToString() == "actions");
+        var elements = (object[])actions["elements"]!;
+        var action = (Dictionary<string, object?>)elements[0];
+        var actionText = (Dictionary<string, object?>)action["text"]!;
+
+        Assert.Equal(150, headerText["text"]!.ToString()!.Length);
+        Assert.Equal(75, actionText["text"]!.ToString()!.Length);
+    }
+
+    [Fact]
     public void SlackFormatter_BuildsPremiumBlocksAndEscapesDynamicMrkdwn()
     {
         var formatter = new SlackNotificationFormatter();
