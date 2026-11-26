@@ -49,7 +49,7 @@ public sealed class EmailNotificationFormatter : INotificationFormatter
         foreach (var action in card.Actions)
         {
             body.Append(
-                $"<p style=\"margin:14px 0 0;\"><a href=\"{Encode(action.Url.Trim())}\" style=\"color:{NotificationBrand.AccentHex};text-decoration:none;font-weight:600;\">🔗 {Encode(action.Label.Trim())}</a></p>");
+                $"<p style=\"margin:14px 0 0;\"><a href=\"{Encode(action.Url.Trim())}\" style=\"color:{NotificationBrand.AccentHex};text-decoration:none;font-weight:600;\">{NotificationTemplateResources.Get("ActionLinkIcon")} {Encode(action.Label.Trim())}</a></p>");
         }
 
         return EmailTemplateBuilder.Build(Encode(card.Title), body.ToString());
