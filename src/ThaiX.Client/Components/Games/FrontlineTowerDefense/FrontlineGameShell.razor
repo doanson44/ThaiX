@@ -64,6 +64,10 @@ else
 
             case FrontlineShellScreen.Levels:
                 <FrontlineFlumpScene SymbolName="Game" Frame="2" ExcludeNames="@LevelScreenExclusions" />
+                <FrontlineFlumpScene SymbolName="shopButton"
+                                     Frame="0"
+                                     Transform="@(new FrontlineFlumpMatrix(1, 0, 0, 1, 650, 452))"
+                                     Class="frontline-shop-button-art" />
                 @foreach (var slot in _levelSlots)
                 {
                     <FrontlineFlumpScene SymbolName="@slot.SymbolName"
@@ -148,9 +152,10 @@ else
         new HashSet<string>(StringComparer.Ordinal) { "mPurchaseButton", "mCancelButton", "DTool" };
 
     private IReadOnlySet<string> LevelScreenExclusions =>
-        _levelButtonNames.Count == 0
-            ? ScreenExclusions
-            : ScreenExclusions.Concat(_levelButtonNames).ToHashSet(StringComparer.Ordinal);
+        ScreenExclusions
+            .Concat(_levelButtonNames)
+            .Append("shopButton")
+            .ToHashSet(StringComparer.Ordinal);
 
     private sealed record ShopSlot(
         string Name,
