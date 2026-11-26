@@ -134,5 +134,34 @@ public sealed class NotificationFormatterTests
         Assert.Contains("parse_mode", result.PayloadJson);
         Assert.Contains("FINANCIAL INTELLIGENCE", result.Text);
     }
-}
+    [Theory]
+    [InlineData(NotificationKind.MarketOverview, "MARKET OVERVIEW")]
+    [InlineData(NotificationKind.PriceUpdate, "PRICE UPDATE")]
+    [InlineData(NotificationKind.CryptoSpike, "MARKET MOVEMENT")]
+    [InlineData(NotificationKind.GoodEntryCrypto, "CRYPTO RESEARCH")]
+    [InlineData(NotificationKind.GoodEntryStocks, "EQUITY RESEARCH")]
+    [InlineData(NotificationKind.SystemAlert, "SYSTEM ALERT")]
+    [InlineData(NotificationKind.DataSync, "DATA OPERATIONS")]
+    [InlineData(NotificationKind.MarketScanner, "MARKET SCANNER")]
+    [InlineData(NotificationKind.PriceAlert, "PRICE ALERT")]
+    [InlineData(NotificationKind.PortfolioUpdate, "PORTFOLIO")]
+    [InlineData(NotificationKind.TradeSignal, "TRADE SIGNAL")]
+    public void Formatters_UseConsistentPresentationLabelsForEveryNotificationKind(
+        NotificationKind kind,
+        string expectedLabel)
+    {
+        var card = new NotificationCard
+        {
+            Category = "Notification",
+            Title = "Test event",
+            Type = NotificationCardType.Summary
+        };
 
+        var telegram = new TelegramNotificationFormatter().Format(card, kind);
+        var slack = new SlackNotificationFormatter().Format(card, kind);
+
+        Assert.Contains(expectedLabel, telegram);
+        Assert.Contains(expectedLabel, slack);
+    }
+
+}
