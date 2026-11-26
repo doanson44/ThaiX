@@ -203,8 +203,13 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             return string.Empty;
         }
 
-        return text.Length <= maxLength
-            ? text
+        if (text.Length <= maxLength)
+        {
+            return text;
+        }
+
+        return maxLength <= 3
+            ? text[..maxLength]
             : string.Concat(text.AsSpan(0, maxLength - 3), "...");
     }
 
