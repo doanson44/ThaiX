@@ -17,15 +17,17 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
         ArgumentNullException.ThrowIfNull(card);
 
         var builder = new StringBuilder();
-        var category = kind.HasValue ? NotificationBrand.KindLabel(kind.Value) : card.Category;
+        var category = kind.HasValue ? NotificationTemplateResources.KindLabel(kind.Value) : card.Category;
+        var severityLabel = NotificationTemplateResources.SeverityLabel(card.Severity);
+        var severityIcon = NotificationTemplateResources.SeverityIcon(card.Severity);
 
-        builder.Append($"<b>{NotificationBrand.BrandName}</b> | <i>{NotificationBrand.BrandDescriptor}</i>\n");
-        builder.Append($"<b>{EscapeHtml(category)}</b> | <b>{NotificationBrand.SeverityLabel(card.Severity)}</b>\n");
+        builder.Append($"<b>{EscapeHtml(NotificationTemplateResources.Get("BrandFooter"))}</b>\n");
+        builder.Append($"{severityIcon} <b>{EscapeHtml(category)}</b> | <b>{EscapeHtml(severityLabel)}</b>\n");
         builder.Append($"<b>{EscapeHtml(card.Title)}</b>\n\n");
 
         if (card.Metrics.Count > 0)
         {
-            builder.Append($"<b>{NotificationBrand.CardTypeLabel(card.Type)}</b>\n");
+            builder.Append($"<b>{EscapeHtml(NotificationTemplateResources.CardTypeLabel(card.Type))}</b>\n");
             foreach (var metric in card.Metrics)
             {
                 builder.Append(
@@ -57,7 +59,6 @@ public sealed class TelegramNotificationFormatter : INotificationFormatter
                 $"<a href=\"{EscapeHtml(action.Url.Trim())}\">{EscapeHtml(action.Label.Trim())}</a>\n");
         }
 
-        builder.Append($"\n<i>{NotificationBrand.BrandName} | {NotificationBrand.BrandDescriptor}</i>");
         return builder.ToString().Trim();
     }
 
