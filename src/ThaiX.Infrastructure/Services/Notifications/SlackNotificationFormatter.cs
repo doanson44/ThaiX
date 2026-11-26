@@ -89,6 +89,15 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
 
         if (card.Metrics.Count > 0)
         {
+            blocks.Add(new Dictionary<string, object?>
+            {
+                ["type"] = "section",
+                ["text"] = new Dictionary<string, object?>
+                {
+                    ["type"] = "mrkdwn",
+                    ["text"] = $"*{NotificationBrand.CardTypeLabel(card.Type)}*"
+                }
+            });
             blocks.Add(new Dictionary<string, object?> { ["type"] = "divider" });
 
             foreach (var chunk in Chunk(card.Metrics, MaxFieldsPerBlock))
@@ -195,7 +204,8 @@ public sealed class SlackNotificationFormatter : INotificationFormatter
             .Replace(">", "&gt;")
             .Replace("*", "\\*")
             .Replace("_", "\\_")
-            .Replace("~", "\\~");
+            .Replace("~", "\\~")
+            .Replace("|", "\\|");
     }
 
     private static string EscapeCode(string text) => text.Replace("`", "'");
