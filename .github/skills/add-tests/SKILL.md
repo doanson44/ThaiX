@@ -1,9 +1,9 @@
 ---
+name: add-tests
 description: "Generate xUnit tests with Moq and FluentAssertions. Covers happy path, validation failure, not found, and edge cases."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste class or handler to test"
 ---
-
 Generate tests for the provided code:
 
 ## Requirements

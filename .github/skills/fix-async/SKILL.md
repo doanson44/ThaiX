@@ -1,9 +1,9 @@
 ---
+name: fix-async
 description: "Fix async/await bugs including race conditions, deadlocks, missing awaits, or incorrect concurrent access."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Describe the async problem and context"
 ---
-
 Fix the async/await issue:
 
 - Ensure no race conditions

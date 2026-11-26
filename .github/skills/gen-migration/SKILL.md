@@ -1,9 +1,9 @@
 ---
+name: gen-migration
 description: "Generate an EF Core migration command and preview expected SQL changes."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Describe the entity or schema changes"
 ---
-
 Generate migration for the described changes:
 
 1. **Analyze** entity changes in the codebase

@@ -1,9 +1,9 @@
 ---
+name: analyze-dep
 description: "Analyze dependencies of a function or class. List external deps, state, side effects, and change risks."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste function or class to analyze"
 ---
-
 For the provided code, list:
 
 1. **External dependencies** (services, repositories, DbContext, external APIs)

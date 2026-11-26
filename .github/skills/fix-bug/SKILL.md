@@ -1,9 +1,9 @@
 ---
+name: fix-bug
 description: "Fix a bug. Provide the file, function, issue description, and expected behavior. Minimal change, no unrelated edits."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "File, function, issue, and expected behavior"
 ---
-
 Fix the described bug:
 
 1. **Identify**: Read the affected code and understand the issue

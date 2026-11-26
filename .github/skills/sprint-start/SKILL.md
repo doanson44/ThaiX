@@ -1,8 +1,8 @@
 ---
+name: sprint-start
 description: "Run a sprint-start health check: build status, test results, known issues, and architecture review."
-agent: "agent"
+disable-model-invocation: true
 ---
-
 Perform sprint-start health check:
 
 ## Step 1 -- Build Health

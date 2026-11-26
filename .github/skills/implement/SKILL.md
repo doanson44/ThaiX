@@ -1,9 +1,9 @@
 ---
+name: implement
 description: "Implement or update a function. Provide the file, function name, current behavior, and desired changes."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "File path, function name, and what to change"
 ---
-
 Implement the requested function changes:
 
 - Read the current implementation first
