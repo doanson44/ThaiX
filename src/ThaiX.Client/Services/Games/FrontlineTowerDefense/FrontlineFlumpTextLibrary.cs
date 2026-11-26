@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 
 namespace ThaiX.Client.Services.Games.FrontlineTowerDefense;
