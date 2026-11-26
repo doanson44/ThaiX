@@ -1,5 +1,4 @@
 using System.Text;
-using ThaiX.Application.Common.Emails;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Domain.Aggregates.Notifications;
@@ -13,13 +12,15 @@ public sealed class EmailNotificationFormatter : INotificationFormatter
     public string Format(NotificationCard card)
     {
         var body = new StringBuilder();
+        var severityIcon = NotificationTemplateResources.SeverityIcon(card.Severity);
+        var severityLabel = NotificationTemplateResources.SeverityLabel(card.Severity);
 
         body.Append(
-            $"""<p style="margin:0 0 18px;font-size:13px;color:{NotificationBrand.TextFaintHex};">{Encode(card.Category)} &middot; {NotificationBrand.SeverityIcon(card.Severity)} {card.Severity}</p>""");
+            $"<p style=\"margin:0 0 18px;font-size:13px;color:{NotificationBrand.TextFaintHex};\">{Encode(card.Category)} &middot; {severityIcon} {Encode(severityLabel)}</p>");
 
         if (card.Metrics.Count > 0)
         {
-            body.Append("""<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:18px;">""");
+            body.Append("<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin-bottom:18px;\">");
             foreach (var metric in card.Metrics)
             {
                 body.Append(
@@ -39,16 +40,16 @@ public sealed class EmailNotificationFormatter : INotificationFormatter
             if (!string.IsNullOrWhiteSpace(section.Title))
             {
                 body.Append(
-                    $"""<h4 style="margin:16px 0 6px;font-size:14px;color:{NotificationBrand.TextPrimaryHex};">{Encode(section.Title.Trim())}</h4>""");
+                    $"<h4 style=\"margin:16px 0 6px;font-size:14px;color:{NotificationBrand.TextPrimaryHex};\">{Encode(section.Title.Trim())}</h4>");
             }
 
-            body.Append($"""<p style="margin:0 0 8px;">{Encode(section.Text.Trim())}</p>""");
+            body.Append($"<p style=\"margin:0 0 8px;\">{Encode(section.Text.Trim())}</p>");
         }
 
         foreach (var action in card.Actions)
         {
             body.Append(
-                $"""<p style="margin:14px 0 0;"><a href="{Encode(action.Url.Trim())}" style="color:{NotificationBrand.AccentHex};text-decoration:none;font-weight:600;">🔗 {Encode(action.Label.Trim())}</a></p>""");
+                $"<p style=\"margin:14px 0 0;\"><a href=\"{Encode(action.Url.Trim())}\" style=\"color:{NotificationBrand.AccentHex};text-decoration:none;font-weight:600;\">🔗 {Encode(action.Label.Trim())}</a></p>");
         }
 
         return EmailTemplateBuilder.Build(Encode(card.Title), body.ToString());
