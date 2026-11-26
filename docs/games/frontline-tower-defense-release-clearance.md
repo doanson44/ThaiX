@@ -4,7 +4,7 @@
 
 **Release status: BLOCKED - original game bundle and artwork distribution rights are not verified.**
 
-The legacy JavaScript runtime and its original asset directory remain in the repository as requested for behavioral comparison. Their presence in the repository must not be treated as permission to redistribute them in a public or commercial release.
+The original asset directory remains in the repository for the C# Flump renderer. The three legacy JavaScript runtime bundles have been removed from this port branch (their source remains recoverable from the parent branch and Git history). Neither the original assets nor historical source presence should be treated as permission to redistribute them in a public or commercial release.
 
 ## Repository evidence
 
@@ -25,7 +25,7 @@ The legacy JavaScript runtime and its original asset directory remain in the rep
 
 | Material | Current state | Release decision |
 |---|---|---|
-| Legacy JavaScript runtime | Retained as behavioral reference | Do not redistribute until cleared |
+| Legacy JavaScript runtime | Removed from this branch; recoverable from parent branch/history | Not part of this branch's runtime; do not redistribute |
 | Original bitmap artwork | 2,193 files present | Do not redistribute until cleared |
 | Original audio | 20 files present | Do not redistribute until cleared |
 | New Razor/SVG/CSS artwork | Authored in the C# port; does not reference original bitmap files | Keep separate from legacy asset licensing review |
