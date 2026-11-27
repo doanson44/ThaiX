@@ -70,11 +70,13 @@
                         IsPlacementEnabled="@(Sniper is null && (_selectedBuildTower is not null || _movingTowerId is not null) && (Session.State is FrontlineGameSessionState.Playing or FrontlineGameSessionState.Paused))"
                         AllowNonBuildableSelection="@(Sniper is null && _selectedBuildTower?.IsSupport == true)"
                         SelectedTowerId="@_selectedTowerId"
+                        MovingTower="@MovingTower"
+                        MovingTowerPosition="@_movingTowerPosition"
                         CellSelected="@OnCellSelected"
                         TowerSelected="@OnTowerSelected"
                         ManualShooterPosition="@(Sniper?.ShooterPosition)"
                         ManualShooterAim="@(Sniper is null ? null : Sniper.PointerAim ?? Sniper.LastAim)"
-                        EnablePointerTracking="@(Sniper is not null)"
+                        EnablePointerTracking="@(Sniper is not null || _movingTowerId is not null)"
                         PointerMoved="@OnPointerMoved"
                         PointerClicked="@OnPointerClicked" />
 
@@ -358,6 +360,7 @@
     private FrontlineTowerArchetype? _selectedBuildTower;
     private long? _selectedTowerId;
     private long? _movingTowerId;
+    private FrontlinePoint? _movingTowerPosition;
     private int? _tutorialStep;
     private bool _showPausePage;
     private FrontlineFlumpMatrix _hudTransform = FrontlineFlumpMatrix.Identity;
@@ -684,6 +687,11 @@
             ? Session.Simulation.Towers.FirstOrDefault(tower => tower.Id == id)
             : null;
 
+    private FrontlineTower? MovingTower =>
+        _movingTowerId is long id
+            ? Session.Simulation.Towers.FirstOrDefault(tower => tower.Id == id)
+            : null;
+
     private int UpgradeCost =>
         SelectedTower is null ? 0 : (int)Math.Floor(SelectedTower.Definition.Cost * 0.25);
 
@@ -765,7 +773,10 @@
         if (_movingTowerId is long movingTowerId)
         {
             if (Session.Simulation.TryCompleteMoveTower(movingTowerId, position))
+            {
                 _movingTowerId = null;
+                _movingTowerPosition = null;
+            }
         }
         else if (_selectedBuildTower is not null
             && Session.Simulation.TryBuildTower(
@@ -814,6 +825,9 @@
     private Task OnPointerMoved(FrontlinePoint aim)
     {
         Sniper?.AimAt(aim);
+        if (_movingTowerId is not null)
+            _movingTowerPosition = aim;
+
         return InvokeAsync(StateHasChanged);
     }
 
@@ -854,6 +868,7 @@
         if (SelectedTower is not null && Session.Simulation.TryBeginMoveTower(SelectedTower.Id))
         {
             _movingTowerId = SelectedTower.Id;
+            _movingTowerPosition = SelectedTower.Position;
             _selectedBuildTower = null;
         }
     }
@@ -864,6 +879,7 @@
         {
             _selectedTowerId = null;
             _movingTowerId = null;
+            _movingTowerPosition = null;
         }
     }
 }

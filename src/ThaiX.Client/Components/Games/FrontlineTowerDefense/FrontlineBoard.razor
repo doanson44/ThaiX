@@ -88,6 +88,34 @@
                     r="@Format(SelectedTower.Range)"
                     aria-hidden="true" />
         }
+        @if (MovingTower is not null && MovingTowerPosition is FrontlinePoint movingPosition)
+        {
+            <circle class="frontline-board__range frontline-board__range--moving"
+                    cx="@Format(movingPosition.X)"
+                    cy="@Format(movingPosition.Y)"
+                    r="@Format(MovingTower.Range)"
+                    aria-hidden="true" />
+        }
+
+        @if (MovingTower is not null && MovingTowerPosition is FrontlinePoint ghostPosition)
+        {
+            <g class="frontline-board__tower frontline-board__tower--moving"
+               transform="@GetTranslate(ghostPosition)"
+               aria-hidden="true">
+                @foreach (var draw in GetTowerDraws(MovingTower))
+                {
+                    @if (draw.Kind == FrontlineFlumpDrawKind.Bitmap)
+                    {
+                        <image href="@GetImagePath(draw.BitmapId)"
+                               x="0"
+                               y="0"
+                               width="@Format(draw.Width)"
+                               height="@Format(draw.Height)"
+                               transform="@GetMatrix(draw.Matrix)" />
+                    }
+                }
+            </g>
+        }
 
         @foreach (var actor in GetSortedActors())
         {
@@ -339,6 +367,12 @@
     public long? SelectedTowerId { get; set; }
 
     [Parameter]
+    public FrontlineTower? MovingTower { get; set; }
+
+    [Parameter]
+    public FrontlinePoint? MovingTowerPosition { get; set; }
+
+    [Parameter]
     public EventCallback<FrontlinePoint> CellSelected { get; set; }
 
     [Parameter]
@@ -442,7 +476,8 @@
         var actors = new List<(double Y, FrontlineTower? Tower, FrontlineEnemy? Enemy)>(
             Simulation.Towers.Count + Simulation.Enemies.Count);
         foreach (var tower in Simulation.Towers)
-            actors.Add((tower.Position.Y, tower, null));
+            if (!tower.IsHeld)
+                actors.Add((tower.Position.Y, tower, null));
         foreach (var enemy in Simulation.Enemies)
             actors.Add((enemy.Position.Y, null, enemy));
 
