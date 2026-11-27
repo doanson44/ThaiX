@@ -1,9 +1,9 @@
 ---
+name: explain
 description: "Explain code purpose, inputs, outputs, edge cases, and architectural context."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste code to explain"
 ---
-
 Explain the provided code:
 
 1. **Purpose**: What does this code do?

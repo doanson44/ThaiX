@@ -1,9 +1,9 @@
 ---
+name: refactor
 description: "Refactor code for readability, performance, or clean architecture. No behavior change. Respects ThaiX layer boundaries."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste code and specify target: clean-architecture, performance, or readability"
 ---
-
 Refactor the provided code:
 
 **Targets** (specify one): `clean-architecture`, `performance`, `readability`

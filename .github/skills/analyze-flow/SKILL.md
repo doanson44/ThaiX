@@ -1,9 +1,9 @@
 ---
+name: analyze-flow
 description: "Analyze code flow across layers (Endpoint -> Handler -> DbContext). Identify business logic location and architectural issues."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste code or reference files to analyze"
 ---
-
 Analyze the provided code:
 
 1. **Flow**: Trace the flow across layers (Controller/Endpoint -> Service/Handler -> Repository/DbContext)

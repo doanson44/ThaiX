@@ -1,9 +1,9 @@
 ---
+name: review
 description: "Review code against ThaiX conventions. Check bugs, performance, security, architecture, and maintainability. Score X/10."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Paste code to review"
 ---
-
 Review the provided code against ThaiX conventions:
 
 ## Checks

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ActionLinkIcon" xml:space="preserve"><value>🔗</value></data>
+  <data name="BrandFooter" xml:space="preserve"><value>ThaiX | TRÍ TUỆ TÀI CHÍNH</value></data>
+  <data name="SeverityIcon.Debug" xml:space="preserve"><value>🔍</value></data>
+  <data name="SeverityIcon.Info" xml:space="preserve"><value>ℹ️</value></data>
+  <data name="SeverityIcon.Warning" xml:space="preserve"><value>⚠️</value></data>
+  <data name="SeverityIcon.Error" xml:space="preserve"><value>❌</value></data>
+  <data name="SeverityIcon.Critical" xml:space="preserve"><value>🚨</value></data>
+  <data name="SeverityLabel.Debug" xml:space="preserve"><value>GỠ LỖI</value></data>
+  <data name="SeverityLabel.Info" xml:space="preserve"><value>THÔNG TIN</value></data>
+  <data name="SeverityLabel.Warning" xml:space="preserve"><value>CẢNH BÁO</value></data>
+  <data name="SeverityLabel.Error" xml:space="preserve"><value>LỖI</value></data>
+  <data name="SeverityLabel.Critical" xml:space="preserve"><value>NGHIÊM TRỌNG</value></data>
+  <data name="KindLabel.MarketOverview" xml:space="preserve"><value>📊 TỔNG QUAN THỊ TRƯỜNG</value></data>
+  <data name="KindLabel.PriceUpdate" xml:space="preserve"><value>💹 CẬP NHẬT GIÁ</value></data>
+  <data name="KindLabel.CryptoSpike" xml:space="preserve"><value>⚡ BIẾN ĐỘNG THỊ TRƯỜNG</value></data>
+  <data name="KindLabel.GoodEntryCrypto" xml:space="preserve"><value>🪙 PHÂN TÍCH TIỀN MÃ HÓA</value></data>
+  <data name="KindLabel.GoodEntryStocks" xml:space="preserve"><value>📈 PHÂN TÍCH CỔ PHIẾU</value></data>
+  <data name="KindLabel.SystemAlert" xml:space="preserve"><value>🚨 CẢNH BÁO HỆ THỐNG</value></data>
+  <data name="KindLabel.DataSync" xml:space="preserve"><value>🔄 VẬN HÀNH DỮ LIỆU</value></data>
+  <data name="KindLabel.MarketScanner" xml:space="preserve"><value>🔎 BỘ LỌC THỊ TRƯỜNG</value></data>
+  <data name="KindLabel.PriceAlert" xml:space="preserve"><value>🎯 CẢNH BÁO GIÁ</value></data>
+  <data name="KindLabel.PortfolioUpdate" xml:space="preserve"><value>💼 DANH MỤC ĐẦU TƯ</value></data>
+  <data name="KindLabel.TradeSignal" xml:space="preserve"><value>📡 TÍN HIỆU GIAO DỊCH</value></data>
+  <data name="KindLabel.Default" xml:space="preserve"><value>🔔 THÔNG BÁO</value></data>
+  <data name="CardTypeLabel.Metric" xml:space="preserve"><value>📊 DỮ LIỆU THỊ TRƯỜNG</value></data>
+  <data name="CardTypeLabel.Signal" xml:space="preserve"><value>📈 CHỈ SỐ TÍN HIỆU</value></data>
+  <data name="CardTypeLabel.Alert" xml:space="preserve"><value>🚨 CHI TIẾT CẢNH BÁO</value></data>
+  <data name="CardTypeLabel.Summary" xml:space="preserve"><value>📌 SỐ LIỆU CHÍNH</value></data>
+  <data name="CardTypeLabel.Analysis" xml:space="preserve"><value>🧠 PHÂN TÍCH</value></data>
+  <data name="CardTypeLabel.Error" xml:space="preserve"><value>🛑 CHI TIẾT SỰ CỐ</value></data>
+  <data name="CardTypeLabel.Default" xml:space="preserve"><value>📋 CHI TIẾT</value></data>
+  <data name="Details" xml:space="preserve"><value>Chi tiết</value></data>
+  <data name="Subject.MarketOverview" xml:space="preserve"><value>Tổng quan thị trường</value></data>
+  <data name="Subject.PriceUpdate" xml:space="preserve"><value>Cập nhật giá</value></data>
+  <data name="Subject.CryptoSpike" xml:space="preserve"><value>Biến động tiền mã hóa</value></data>
+  <data name="Subject.GoodEntryCrypto" xml:space="preserve"><value>Tín hiệu giao dịch tiền mã hóa</value></data>
+  <data name="Subject.GoodEntryStocks" xml:space="preserve"><value>Tín hiệu giao dịch cổ phiếu</value></data>
+  <data name="Subject.SystemAlert" xml:space="preserve"><value>Cảnh báo hệ thống</value></data>
+  <data name="Subject.DataSync" xml:space="preserve"><value>Đồng bộ dữ liệu</value></data>
+  <data name="Subject.MarketScanner" xml:space="preserve"><value>Bộ lọc thị trường</value></data>
+  <data name="Subject.PriceAlert" xml:space="preserve"><value>Cảnh báo giá</value></data>
+  <data name="Subject.PortfolioUpdate" xml:space="preserve"><value>Cập nhật danh mục đầu tư</value></data>
+  <data name="Subject.TradeSignal" xml:space="preserve"><value>Tín hiệu giao dịch</value></data>
+  <data name="Subject.Default" xml:space="preserve"><value>Thông báo</value></data>
+</root>

@@ -11,28 +11,36 @@ src/
 ├── ThaiX.Infrastructure/  # EF Core, Hangfire, external APIs, background jobs (depends on Application + Domain)
 ├── ThaiX.Presentation/    # Minimal API endpoints (depends on Application + Infrastructure)
 └── ThaiX.Client/          # Blazor WASM, Radzen + Bootstrap 5.3 (depends on Presentation API)
-    ├── Pages/             # Routable pages, organized by menu group
-    │   ├── Account/       #   /account/* (Profile, ChangePassword, 2FA, PersonalData)
-    │   ├── Administration/#   /admin/* (Users, SlackCommands, AiTester)
-    │   ├── Auth/          #   /auth/* (Login, Register, ForgotPassword, ...)
-    │   ├── Crm/           #   /crm/* (Contacts, Notes)
-    │   ├── Home/          #   / (Home)
-    │   ├── MarketData/    #   /market-data/* (Overview, BankRates, TcbsTop10, Mexc)
-    │   ├── MarketResearch/#   /market-research/* (VnDirect, DragonCapital, ChainBroker)
-    │   ├── MasterData/    #   /master-data/* (Countries, Cities, Districts, Banks)
-    │   ├── Notification/  #   /notifications/* (Sender, Schedules)
-    │   ├── Portfolio/     #   /portfolio/* (List, Detail, PriceAlerts, MarketScanner)
-    │   └── Security/      #   /security/* (ApiClients, CredentialAccounts)
-    ├── Components/        # Reusable components, organized by menu group
+    ├── Pages/             # Routable pages, organized by feature/menu area
+    │   ├── Account/
+    │   ├── Admin/
     │   ├── Administration/
-    │   ├── Crm/           #   Contacts/, Notes/
-    │   ├── MarketData/    #   Dashboard/
-    │   ├── MarketResearch/#   Market/
+    │   ├── Auth/
+    │   ├── Crm/
+    │   ├── Games/
+    │   ├── MarketData/
+    │   ├── MarketResearch/
     │   ├── MasterData/
     │   ├── Notification/
-    │   ├── Portfolio/     #   Portfolios/
+    │   ├── Portfolio/
+    │   ├── Public/
     │   ├── Security/
-    │   └── Shared/        #   AsyncSearchSelect, DebouncedSearchBox, ...
+    │   ├── Tools/
+    │   ├── Home.razor
+    │   └── NotFound.razor
+    ├── Components/        # Reusable components, organized by feature area
+    │   ├── Account/
+    │   ├── Administration/
+    │   ├── Blog/
+    │   ├── MarketData/
+    │   ├── MarketResearch/
+    │   ├── MasterData/
+    │   ├── Notification/
+    │   ├── Portfolio/
+    │   ├── Resume/
+    │   ├── Security/
+    │   ├── Shared/
+    │   └── Tools/
     ├── Layout/
     ├── Constants/         #   RouteSegments, ResourceKeys
     ├── Services/
@@ -42,6 +50,8 @@ src/
 ## Technology Stack
 
 .NET 11 / C# 15 | ASP.NET Core Minimal API | Blazor WebAssembly | EF Core 11 + MySQL/MariaDB (Oracle provider 11.0.0-preview; prerelease) | MediatR 12 (CQRS) | FluentValidation 11 | Hangfire | Serilog | Radzen Blazor + Bootstrap 5.3 | ASP.NET Core Identity | Directory.Packages.props (centralized packages)
+
+The application/Identity database uses Oracle MySQL EF Core via `UseMySQL()` (MariaDB/MySQL). Hangfire storage is separate: SQL Server via `HangfireConnection` and `UseSqlServerStorage()`; it does not fall back to `DefaultConnection`.
 
 ## Mandatory Dependency Rules
 

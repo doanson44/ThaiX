@@ -1,9 +1,9 @@
 ---
+name: plan
 description: "Plan a task with minimal steps. Identify which layers to change and propose a concrete plan."
-agent: "agent"
+disable-model-invocation: true
 argument-hint: "Describe the goal and any constraints"
 ---
-
 Plan the requested task:
 
 1. **Understand**: Clarify the goal and identify affected layers
