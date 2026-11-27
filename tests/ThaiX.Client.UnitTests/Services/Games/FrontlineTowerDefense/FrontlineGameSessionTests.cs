@@ -76,13 +76,28 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
-    public void TryStartNextWave_WhenPaused_StillStartsNextGroup()
+    public void TryStartNextWave_WhenPaused_DoesNotStartNextGroup()
     {
         var session = CreateSession();
         session.Pause();
 
+        session.CanStartNextWave.Should().BeFalse();
+        session.TryStartNextWave().Should().BeFalse();
+        session.CurrentWave.Should().Be(0);
+    }
+
+    [Fact]
+    public void TryStartNextWave_AfterResumingFromPause_StartsNextGroup()
+    {
+        var session = CreateSession();
+        session.Pause();
+        session.TryStartNextWave().Should().BeFalse();
+
+        session.Resume();
+
         session.CanStartNextWave.Should().BeTrue();
         session.TryStartNextWave().Should().BeTrue();
+        session.CurrentWave.Should().Be(1);
     }
 
     [Fact]
