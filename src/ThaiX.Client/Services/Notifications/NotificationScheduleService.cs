@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Api;
 using ThaiX.Client.Services.Api;
 using ThaiX.Client.Services.Caching;

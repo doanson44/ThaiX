@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 

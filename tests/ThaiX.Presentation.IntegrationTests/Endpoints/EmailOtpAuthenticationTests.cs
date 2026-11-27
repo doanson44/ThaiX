@@ -1,15 +1,14 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Text.RegularExpressions;
 using ThaiX.Application.Common.Exceptions;
 using ThaiX.Application.Common.Interfaces;
+using ThaiX.Domain.Common.Constants;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Infrastructure.Persistence;
-using ThaiX.Domain.Common.Constants;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;

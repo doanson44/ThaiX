@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Notifications;
 using ThaiX.Client.Services.Api;
 

@@ -1,5 +1,4 @@
 using MediatR;
-using Moq;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetInvestingVnIndexAnalysis;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMarketDashboard;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcBitcoinAnalysis;

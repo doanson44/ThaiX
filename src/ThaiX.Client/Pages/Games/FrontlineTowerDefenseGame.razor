@@ -1,0 +1,24 @@
+@page "/games/frontline-tower-defense"
+@using ThaiX.Client.Components.Games.FrontlineTowerDefense
+@attribute [Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+
+<PageTitle>@L[ResourceKeys.Games.NameFrontlineTowerDefense] - ThaiX</PageTitle>
+
+<RadzenStack Gap="1rem" Class="frontline-defense-page">
+    <div>
+        <ThaiXButton Text="@L[ResourceKeys.Games.BackToGames]"
+                     Icon="arrow_back"
+                     ButtonStyle="ButtonStyle.Light"
+                     Click="BackToGames" />
+    </div>
+
+    <RadzenCard Class="frontline-defense-card">
+        <FrontlineGameShell />
+    </RadzenCard>
+</RadzenStack>
+
+@code {
+    private void BackToGames() => Navigation.NavigateTo("/games");
+}

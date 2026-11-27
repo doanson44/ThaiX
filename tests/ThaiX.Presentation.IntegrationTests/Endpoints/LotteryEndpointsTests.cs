@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Common.Caching;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Lottery.Queries.GetPower655Analysis;

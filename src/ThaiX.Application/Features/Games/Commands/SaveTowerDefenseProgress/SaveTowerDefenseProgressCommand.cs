@@ -1,5 +1,4 @@
 using MediatR;
-using ThaiX.Application.Features.Games;
 
 namespace ThaiX.Application.Features.Games.Commands.SaveTowerDefenseProgress;
 

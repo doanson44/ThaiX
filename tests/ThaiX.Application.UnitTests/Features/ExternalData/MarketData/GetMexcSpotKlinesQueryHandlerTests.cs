@@ -1,6 +1,4 @@
 using System.Text.Json;
-using FluentAssertions;
-using Moq;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotKlines;
 

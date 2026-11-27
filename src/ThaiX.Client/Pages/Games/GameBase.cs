@@ -1,7 +1,7 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Localization;
+using System.Globalization;
 using ThaiX.Client.Localization;
 
 namespace ThaiX.Client.Pages.Games;

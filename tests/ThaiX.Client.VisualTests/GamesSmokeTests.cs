@@ -10,7 +10,8 @@ public sealed class GamesSmokeTests
     [
         "2048", "minesweeper", "sudoku", "memory-cards", "15-puzzle", "lights-out",
         "snake", "tetris", "flappy", "breakout", "pong", "wordle", "hangman",
-        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense"
+        "typing-speed", "tic-tac-toe", "connect-four", "tower-defense",
+        "frontline-tower-defense"
     ];
 
     private readonly AuthFixture _auth;
@@ -21,7 +22,7 @@ public sealed class GamesSmokeTests
     }
 
     [Fact]
-    public async Task GamesHub_ShowsEveryGame_AsGuest()
+    public async Task GamesHub_ShowsEveryPublicGame_AsGuest()
     {
         var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
         await using (context)
@@ -31,7 +32,24 @@ public sealed class GamesSmokeTests
 
             var cards = page.Locator(".game-card");
             await cards.First.WaitForAsync(Visible());
-            Assert.Equal(GameIds.Length, await cards.CountAsync());
+            Assert.Equal(GameIds.Length - 1, await cards.CountAsync());
+            await page.GetByText("Frontline Tower Defense").WaitForAsync(new()
+            {
+                State = WaitForSelectorState.Hidden
+            });
+        }
+    }
+
+    [Fact]
+    public async Task FrontlineTowerDefense_RequiresAuthentication()
+    {
+        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        await using (context)
+        {
+            await _auth.GotoAsync(page, "/games/frontline-tower-defense", 1280, 800);
+
+            await page.GetByText("Access denied", new() { Exact = true }).WaitForAsync(Visible());
+            Assert.Equal(0, await page.Locator(".frontline-defense-viewport").CountAsync());
         }
     }
 
@@ -48,7 +66,8 @@ public sealed class GamesSmokeTests
     {
         // One navigation per game: every full page load re-boots the WASM app in Docker,
         // so the viewport checks resize the already loaded page instead of reloading it.
-        var (context, page) = await _auth.CreatePageAsync(authenticated: false, 1280, 800);
+        var (context, page) = await _auth.CreatePageAsync(
+            authenticated: gameId == "frontline-tower-defense", 1280, 800);
         await using (context)
         {
             var pageErrors = new List<string>();
@@ -56,8 +75,20 @@ public sealed class GamesSmokeTests
 
             await _auth.GotoAsync(page, $"/games/{gameId}", 1280, 800, networkIdleTimeoutMs: 0);
             var canvas = page.Locator(".game-canvas");
-            await canvas.WaitForAsync(Visible());
-            await page.GetByText("How to play").First.WaitForAsync(Visible());
+            if (gameId == "frontline-tower-defense")
+            {
+                await page.Locator(".frontline-stage--menu").WaitForAsync(Visible());
+                await page.GetByRole(AriaRole.Button, new() { Name = "PLAY", Exact = true }).ClickAsync();
+                await page.Locator(".frontline-hotspot[aria-label='Mission 1']").WaitForAsync(Visible());
+                await page.Locator(".frontline-hotspot[aria-label='Mission 1']").ClickAsync();
+                await page.Locator(".frontline-board").WaitForAsync(Visible());
+                canvas = page.Locator(".frontline-board");
+            }
+            else
+            {
+                await canvas.WaitForAsync(Visible());
+                await page.GetByText("How to play").First.WaitForAsync(Visible());
+            }
 
             var desktopBox = await canvas.BoundingBoxAsync();
             Assert.NotNull(desktopBox);

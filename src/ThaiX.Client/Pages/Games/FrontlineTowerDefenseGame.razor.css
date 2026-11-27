@@ -1,0 +1,15 @@
+.frontline-defense-page {
+    max-width: 88rem;
+    margin-inline: auto;
+}
+
+.frontline-defense-card {
+    min-width: 0;
+}
+
+.frontline-defense-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    color: var(--rz-text-color);
+}

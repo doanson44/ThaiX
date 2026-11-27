@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Api;
 
 namespace ThaiX.Client.Services.Api;

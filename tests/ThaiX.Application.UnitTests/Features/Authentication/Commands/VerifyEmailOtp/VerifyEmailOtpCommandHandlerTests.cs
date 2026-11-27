@@ -1,5 +1,4 @@
 using ThaiX.Application.Common.Interfaces;
-using ThaiX.Application.Features.Authentication.Commands.Login;
 using ThaiX.Application.Features.Authentication.Commands.VerifyEmailOtp;
 
 namespace ThaiX.Application.UnitTests.Features.Authentication.Commands.VerifyEmailOtp;

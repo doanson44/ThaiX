@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Json;
 using System.Text;
 using ThaiX.Client.Models.Api;
 using ThaiX.Client.Models.JsonBins;

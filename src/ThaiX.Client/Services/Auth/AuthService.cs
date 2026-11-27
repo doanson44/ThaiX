@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Auth;
 using ThaiX.Client.Services.Api;
 using ThaiX.Client.Services.Caching;

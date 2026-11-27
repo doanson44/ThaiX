@@ -1,0 +1,162 @@
+﻿.frontline-game-view {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.frontline-stage {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    aspect-ratio: 800 / 480;
+    margin-inline: auto;
+    overflow: hidden;
+    background: #000;
+    container-type: inline-size;
+}
+
+.frontline-hud {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.frontline-hud__panel {
+    position: absolute;
+    left: 82.125%;
+    top: 0;
+    width: 18%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.frontline-hud__sprite {
+    position: absolute;
+    padding: 0;
+    border: 0;
+    border-radius: 0.15rem;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.frontline-hud__sprite img {
+    position: absolute;
+    max-width: none;
+    pointer-events: none;
+}
+
+.frontline-hud__sprite:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.frontline-hud__sprite--unaffordable {
+    opacity: 0.2;
+}
+
+.frontline-hud__sprite--selected {
+    outline: 2px solid var(--rz-primary, #0d6efd);
+    outline-offset: 1px;
+}
+
+.frontline-hud__selected {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.frontline-hud__selected .frontline-hud__sprite {
+    pointer-events: auto;
+}
+
+.frontline-hud__upgrade-bar {
+    position: absolute;
+    width: 12.625%;
+    height: 4.583%;
+    pointer-events: none;
+}
+
+.frontline-hud__upgrade-bar img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.frontline-hud__support-hint {
+    position: absolute;
+    left: 1%;
+    top: 88%;
+    margin: 0;
+    color: #fff;
+    font-size: 1.5cqw;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+}
+
+.frontline-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.frontline-pause {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.48) 0%, rgba(0, 0, 0, 1) 100%);
+}
+
+.frontline-pause__button {
+    position: absolute;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.frontline-pause__button img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.frontline-pause__button:hover,
+.frontline-pause__button:focus-visible {
+    filter: brightness(1.15);
+}
+
+.frontline-hotspot {
+    position: absolute;
+    z-index: 40;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.frontline-tutorial__ok {
+    position: absolute;
+    z-index: 31;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.frontline-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

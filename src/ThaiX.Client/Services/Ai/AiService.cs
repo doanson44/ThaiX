@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using ThaiX.Client.Models.Ai;
 using ThaiX.Client.Services.Api;
 

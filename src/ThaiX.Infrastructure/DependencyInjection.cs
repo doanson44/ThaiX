@@ -1,6 +1,5 @@
 using Hangfire;
 using Hangfire.SqlServer;
-using Hangfire.Server;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -31,8 +30,8 @@ using ThaiX.Infrastructure.Security;
 using ThaiX.Infrastructure.Services;
 using ThaiX.Infrastructure.Services.Ai;
 using ThaiX.Infrastructure.Services.BotCommands;
-using ThaiX.Infrastructure.Services.Indicators;
 using ThaiX.Infrastructure.Services.Games;
+using ThaiX.Infrastructure.Services.Indicators;
 using ThaiX.Infrastructure.Services.MarketData;
 using ThaiX.Infrastructure.Services.MarketScanner;
 using ThaiX.Infrastructure.Services.MarketScanner.Detectors;

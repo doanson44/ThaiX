@@ -1,9 +1,6 @@
-using Xunit;
-using System.Net;
-using FluentAssertions;
-using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Application.Features.Games;

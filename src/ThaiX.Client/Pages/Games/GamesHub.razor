@@ -79,6 +79,7 @@
     private string _search = string.Empty;
     private string _guestName = string.Empty;
     private bool _showGuestSettings;
+    private bool _isAuthenticated;
     private bool IsGuestNameValid =>
         !string.IsNullOrWhiteSpace(_guestName)
         && _guestName.Trim().Length is >= 2 and <= 24
@@ -92,7 +93,8 @@
     protected override async Task OnInitializedAsync()
     {
         var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (auth.User.Identity?.IsAuthenticated != true
+        _isAuthenticated = auth.User.Identity?.IsAuthenticated == true;
+        if (!_isAuthenticated
             && await ScoreStore.GetGuestChoiceAsync() == "declined")
         {
             _showGuestSettings = true;
@@ -127,7 +129,8 @@
 
     private IEnumerable<GameDefinition> VisibleGames =>
         GameCatalog.All.Where(game =>
-            (_selectedCategory == "all"
+            (!game.RequiresAuthentication || _isAuthenticated)
+            && (_selectedCategory == "all"
                 || (_selectedCategory == "puzzle" && game.CategoryKey == ResourceKeys.Games.Puzzle)
                 || (_selectedCategory == "arcade" && game.CategoryKey == ResourceKeys.Games.Arcade)
                 || (_selectedCategory == "word" && game.CategoryKey == ResourceKeys.Games.WordSkill)

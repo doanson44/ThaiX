@@ -1,6 +1,5 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ThaiX.Application.Features.BotCommands.Commands.ExecuteBotCommand;
 using ThaiX.Application.Features.BotCommands.Common;

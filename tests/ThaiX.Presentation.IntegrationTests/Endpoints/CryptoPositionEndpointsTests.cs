@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using ThaiX.Application.Features.AssetPositions.Queries.GetCryptoPositions;
 using ThaiX.Application.Features.AssetPositions.Queries.GetPositionTransactions;
 using ThaiX.Domain.Aggregates.AssetPositions;

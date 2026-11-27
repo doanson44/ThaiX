@@ -1,7 +1,7 @@
+using MediatR;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using MediatR;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.ExternalData.MarketData.Queries.GetMexcSpotTicker24HrBySymbol;
