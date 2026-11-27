@@ -10,11 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Keep the legacy bundle available in source for behavioral comparison, but do not publish it before rights clearance. -->
-    <Content Update="wwwroot/games/frontline-tower-defense/assets/**/*" CopyToPublishDirectory="Never" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Bogus" />
     <PackageReference Include="DiffPlex" />
     <PackageReference Include="HtmlSanitizer" />
