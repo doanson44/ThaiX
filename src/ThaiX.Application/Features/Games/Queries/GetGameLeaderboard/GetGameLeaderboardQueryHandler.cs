@@ -1,6 +1,6 @@
-using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Domain.Aggregates.JsonBin;
 

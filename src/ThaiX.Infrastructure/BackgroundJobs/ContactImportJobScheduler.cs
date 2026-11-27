@@ -13,4 +13,3 @@ public sealed class ContactImportJobScheduler(IBackgroundJobClient backgroundJob
         backgroundJobClient.Enqueue<ContactImportJobProcessor>(x => x.ProcessAsync(jobId, CancellationToken.None));
     }
 }
-

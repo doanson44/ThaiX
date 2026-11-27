@@ -140,4 +140,3 @@ public sealed class ApiClient : BaseAuditableEntity
         Restore(); // Inherited from BaseAuditableEntity
     }
 }
-

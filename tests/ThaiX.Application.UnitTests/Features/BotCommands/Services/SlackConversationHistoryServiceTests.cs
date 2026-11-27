@@ -57,8 +57,15 @@ public sealed class SlackConversationHistoryServiceTests
 
     private static JsonBinDetailDto CreateDetail(string contentJson) => new()
     {
-        Id = Guid.NewGuid(), Code = "SLACK_THREAD_C123_1720000000.000000", Name = "Slack conversation thread",
-        Category = JsonBinCategories.Temp, ContentType = "application/json", SizeBytes = contentJson.Length,
-        IsCompressed = false, CreatedAtUtc = DateTime.UtcNow, CreatedAt = DateTime.UtcNow, ContentJson = contentJson
+        Id = Guid.NewGuid(),
+        Code = "SLACK_THREAD_C123_1720000000.000000",
+        Name = "Slack conversation thread",
+        Category = JsonBinCategories.Temp,
+        ContentType = "application/json",
+        SizeBytes = contentJson.Length,
+        IsCompressed = false,
+        CreatedAtUtc = DateTime.UtcNow,
+        CreatedAt = DateTime.UtcNow,
+        ContentJson = contentJson
     };
 }

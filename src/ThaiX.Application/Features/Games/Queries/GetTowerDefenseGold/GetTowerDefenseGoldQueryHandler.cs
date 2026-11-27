@@ -1,6 +1,6 @@
-using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using ThaiX.Application.Common.Interfaces;
 
 namespace ThaiX.Application.Features.Games.Queries.GetTowerDefenseGold;

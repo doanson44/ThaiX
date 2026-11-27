@@ -1,7 +1,7 @@
-using System.Text;
-using System.Text.Json;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Text.Json;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.Games;
 

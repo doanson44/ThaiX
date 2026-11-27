@@ -1,6 +1,6 @@
-using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
+using System.Net;
 using ThaiX.Infrastructure.ExternalApis.Core;
 using ThaiX.Infrastructure.ExternalApis.Options;
 using ThaiX.Infrastructure.ExternalApis.Resilience;

@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Features.SystemLogs.Common;
 

@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly.Timeout;
+using System.Collections;
+using System.Text.Json;
 using ThaiX.Infrastructure.ExternalApis.Core;
 using ThaiX.Infrastructure.ExternalApis.Options;
 using ThaiX.Infrastructure.ExternalApis.Resilience;

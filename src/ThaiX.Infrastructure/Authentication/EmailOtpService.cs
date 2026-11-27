@@ -1,9 +1,9 @@
-using System.Data;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Data;
+using System.Security.Cryptography;
 using ThaiX.Application.Common.Constants;
 using ThaiX.Application.Common.Emails;
 using ThaiX.Application.Common.Exceptions;

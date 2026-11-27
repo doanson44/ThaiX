@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Domain.Aggregates.JsonBin;
 

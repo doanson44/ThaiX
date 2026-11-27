@@ -1,6 +1,6 @@
-using Xunit;
 using FluentAssertions;
 using ThaiX.Application.Features.Games;
+using Xunit;
 
 namespace ThaiX.Application.UnitTests.Features.Games;
 

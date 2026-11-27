@@ -1,8 +1,8 @@
-using System.Net;
-using System.Net.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Http.Json;
 using ThaiX.Infrastructure.Configuration;
 using ThaiX.Infrastructure.Identity;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;

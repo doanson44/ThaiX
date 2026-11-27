@@ -6,4 +6,3 @@ namespace ThaiX.Presentation.Localization;
 public sealed class SharedResource
 {
 }
-

@@ -1,6 +1,6 @@
+using FluentAssertions;
 using System.Net;
 using System.Text.Json;
-using FluentAssertions;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;

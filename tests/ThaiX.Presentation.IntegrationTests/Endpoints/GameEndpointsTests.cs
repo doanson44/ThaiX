@@ -1,14 +1,14 @@
-using Xunit;
-using System.Net;
 using FluentAssertions;
-using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using System.Net.Http.Json;
 using ThaiX.Application.Common.Interfaces;
 using ThaiX.Application.Common.Models;
 using ThaiX.Application.Features.Games;
 using ThaiX.Presentation.IntegrationTests.Infrastructure;
 using ThaiX.Presentation.Models;
+using Xunit;
 
 namespace ThaiX.Presentation.IntegrationTests.Endpoints;
 

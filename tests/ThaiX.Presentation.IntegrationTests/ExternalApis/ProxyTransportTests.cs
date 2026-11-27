@@ -1,6 +1,6 @@
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text.Json;
-using Microsoft.Extensions.Options;
 using ThaiX.Infrastructure.ExternalApis.Core;
 using ThaiX.Infrastructure.ExternalApis.Options;
 using ThaiX.Infrastructure.ExternalApis.Transport;

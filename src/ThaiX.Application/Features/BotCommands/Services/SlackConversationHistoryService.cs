@@ -1,5 +1,5 @@
-using System.Text.Json;
 using MediatR;
+using System.Text.Json;
 using ThaiX.Application.Common.Helpers;
 using ThaiX.Application.Features.BotCommands.Common;
 using ThaiX.Application.Features.JsonBins.Commands.CreateJsonBin;
@@ -93,16 +93,28 @@ public sealed class SlackConversationHistoryService(IMediator mediator) : ISlack
         {
             await mediator.Send(new CreateJsonBinCommand
             {
-                Code = key, Name = name, Category = JsonBinCategories.Temp, ContentJson = contentJson,
-                ContentType = "application/json", Compress = true, Tags = "slack-conversation", ExpiredAtUtc = expiresAtUtc
+                Code = key,
+                Name = name,
+                Category = JsonBinCategories.Temp,
+                ContentJson = contentJson,
+                ContentType = "application/json",
+                Compress = true,
+                Tags = "slack-conversation",
+                ExpiredAtUtc = expiresAtUtc
             }, cancellationToken);
             return;
         }
 
         await mediator.Send(new UpdateJsonBinCommand
         {
-            Id = detail.Id, Name = name, Category = JsonBinCategories.Temp, ContentJson = contentJson,
-            ContentType = "application/json", Compress = true, Tags = "slack-conversation", ExpiredAtUtc = expiresAtUtc
+            Id = detail.Id,
+            Name = name,
+            Category = JsonBinCategories.Temp,
+            ContentJson = contentJson,
+            ContentType = "application/json",
+            Compress = true,
+            Tags = "slack-conversation",
+            ExpiredAtUtc = expiresAtUtc
         }, cancellationToken);
     }
 
