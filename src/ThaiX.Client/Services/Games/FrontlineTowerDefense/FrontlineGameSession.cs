@@ -84,9 +84,16 @@ public sealed class FrontlineGameSession
             State = FrontlineGameSessionState.Playing;
     }
 
-    public bool TryStartNextWave() =>
-        State == FrontlineGameSessionState.Playing
-        && _waveScheduler.TryStartNextGroup();
+    public bool TryStartNextWave()
+    {
+        if (State != FrontlineGameSessionState.Playing || !_waveScheduler.TryStartNextGroup())
+            return false;
+
+        // Process the first spawn synchronously so the wave button never leaves the
+        // player waiting for the next game-loop timer tick to see the first enemy.
+        Advance(0);
+        return true;
+    }
 
     public bool SetSpeedMultiplier(double multiplier)
     {

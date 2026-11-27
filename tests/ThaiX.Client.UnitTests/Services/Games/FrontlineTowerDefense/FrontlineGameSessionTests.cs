@@ -41,8 +41,6 @@ public sealed class FrontlineGameSessionTests
 
         session.TryStartNextWave().Should().BeTrue();
 
-        session.Advance(0);
-
         session.CurrentWave.Should().Be(1);
         session.Simulation.Enemies.Should().ContainSingle()
             .Which.Definition.Id.Should().Be("enemy3");
