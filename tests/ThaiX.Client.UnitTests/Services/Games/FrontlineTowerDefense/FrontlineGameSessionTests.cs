@@ -35,6 +35,20 @@ public sealed class FrontlineGameSessionTests
     }
 
     [Fact]
+    public void Advance_AfterManuallyStartingWave_SpawnsFirstEnemyImmediately()
+    {
+        var session = CreateSession();
+
+        session.TryStartNextWave().Should().BeTrue();
+
+        session.Advance(0);
+
+        session.CurrentWave.Should().Be(1);
+        session.Simulation.Enemies.Should().ContainSingle()
+            .Which.Definition.Id.Should().Be("enemy3");
+    }
+
+    [Fact]
     public void Advance_WithZeroElapsedTime_StillProcessesLegacyFrame()
     {
         var session = CreateSession();

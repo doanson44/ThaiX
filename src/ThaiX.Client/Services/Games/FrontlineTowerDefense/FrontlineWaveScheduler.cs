@@ -12,12 +12,12 @@ public sealed record FrontlineSpawnRequest(string EnemyType, int WaveNumber);
 
 public sealed class FrontlineWaveScheduler
 {
-    private sealed class ActiveSpawner(FrontlineWaveGroup group, int waveNumber)
+    private sealed class ActiveSpawner(FrontlineWaveGroup group, int waveNumber, bool spawnImmediately)
     {
         public FrontlineWaveGroup Group { get; } = group;
         public int WaveNumber { get; } = waveNumber;
         public int Remaining { get; set; } = group.Count;
-        public double ElapsedUnits { get; set; }
+        public double ElapsedUnits { get; set; } = spawnImmediately ? group.SpawnIntervalUnits : 0;
     }
 
     private readonly Queue<FrontlineWaveGroup> _pendingGroups;
@@ -53,7 +53,7 @@ public sealed class FrontlineWaveScheduler
         if (!CanManuallyStart || !_pendingGroups.TryDequeue(out var nextGroup))
             return false;
 
-        StartGroup(nextGroup);
+        StartGroup(nextGroup, spawnImmediately: true);
         _manualStartCooldownTicks = 0;
         return true;
     }
@@ -92,7 +92,7 @@ public sealed class FrontlineWaveScheduler
             if (_nextGroupCountdownUnits <= 0)
             {
                 if (_pendingGroups.TryDequeue(out var nextGroup))
-                    StartGroup(nextGroup);
+                    StartGroup(nextGroup, spawnImmediately: false);
                 else
                     AllGroupsDispatched = true;
             }
@@ -104,10 +104,10 @@ public sealed class FrontlineWaveScheduler
         return spawned;
     }
 
-    private void StartGroup(FrontlineWaveGroup group)
+    private void StartGroup(FrontlineWaveGroup group, bool spawnImmediately)
     {
         CurrentGroup++;
-        _activeSpawners.Add(new ActiveSpawner(group, CurrentGroup));
+        _activeSpawners.Add(new ActiveSpawner(group, CurrentGroup, spawnImmediately));
         _nextGroupCountdownUnits = group.DelayAfterUnits * 2;
     }
 }

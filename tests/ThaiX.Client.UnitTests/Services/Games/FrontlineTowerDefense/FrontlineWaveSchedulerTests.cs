@@ -41,6 +41,19 @@ public sealed class FrontlineWaveSchedulerTests
     }
 
     [Fact]
+    public void TryStartNextGroup_WhenManuallyStarted_SpawnsFirstEnemyOnNextAdvance()
+    {
+        var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
+
+        scheduler.TryStartNextGroup().Should().BeTrue();
+
+        var spawned = scheduler.Advance(0, enemiesRemain: false);
+
+        spawned.Should().ContainSingle().Which.EnemyType.Should().Be("enemy3");
+        scheduler.ActiveSpawnerCount.Should().Be(1);
+    }
+
+    [Fact]
     public void Advance_BeforeInitialCountdownExpires_DoesNotStartWave()
     {
         var scheduler = new FrontlineWaveScheduler(FrontlineWaveCatalog.Find("level-01")!.ToSchedule());
